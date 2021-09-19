@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="lhr">
+    <meta name="Author" content="haoran">
+    <meta name="keywords" content="hugo blog">
+    <link rel="stylesheet" href=https://www.example.com/css/syntax.css>
+    <link rel="stylesheet" href=https://www.example.com/css/style.css>
+    <script src="https://kit.fontawesome.com/1b7478c139.js" crossorigin="anonymous"></script>
+    <title>Notes</title>
+  </head><body><aside id="sidenav">
+    <header>
+    
+        <a href=https://www.example.com><img src="https://www.example.com/avatar.png" alt="avatar"></a>
+        
+    
+
+    <a id="branding" href=https://www.example.com>
+        
+            Notes
+        
+    </a>
+    </header>
+
+    <nav>
+        
+            		
+            <a href="/"
+                
+            >
+                <i class="fas fa-home fa-sm"></i>
+                <span>home</span>
+            </a>
+        
+            		
+            <a href="/blog/"
+                
+            >
+                <i class="fas fa-keyboard fa-ms"></i>
+                <span>blog</span>
+            </a>
+        
+            		
+            <a href="/tags"
+                
+            >
+                <i class="fas fa-tags fa-ms"></i>
+                <span>tags</span>
+            </a>
+        
+            		
+            <a href="https://github.com/yourgithubusername23434"
+                
+                    target="_blank"
+                
+            >
+                <i class="fab fa-github fa-ms"></i>
+                <span>github</span>
+            </a>
+        
+            		
+            <a href="/index.xml"
+                
+            >
+                <i class="fas fa-rss fa-ms"></i>
+                <span>RSS</span>
+            </a>
+        
+            		
+            <a href="/contact"
+                
+            >
+                <i class="far fa-envelope"></i>
+                <span>contact</span>
+            </a>
+        
+    </nav>
+</aside>
+<main id="main">
+            <a href="javascript:void(0)" id="closebtn" onclick="navToggle()"><i class="fas fa-bars fa-lg"></i></a>
+            <div class="content">
+    
+    <h1 id="title">无穷大常量</h1>
+    
+      
+    <nav id="TableOfContents"></nav>
+    <pre><code>int型变量的取值范围：[-2^31, 2^31 - 1]  -&gt;  [-2147483648, 2147483647]
+
+0x7fffffff = 2147483647
+           = (2^31 - 1)
+           = (1 &lt;&lt; 31) - 1
+
+0x3fffffff = 1073741823
+           = (2^30 - 1)
+           = (1 &lt;&lt; 30) - 1
+
+0x3f3f3f3f = 1061109567
+</code></pre><p>在写编程题目时常常需要用到无穷大，比如在求图的最短路径时，就需要先将源点到各点的最短距离设置为无穷大
+在十进制表示下，0x7fffffff = 2147483647，恰好等于int型变量的上界，所以在一些情况下用0x7fffffff表示无穷大是一个很好的选择</p>
+<ul>
+<li>这些情况包括但不限于数的比较，min(num, 0x7fffffff)，一开始设置num是0x7fffffff，用这个式子判断是否num已改变</li>
+</ul>
+<p>但是对于很多情况，设置无穷大为0x7fffffff并不能满足我们的需求，因为对于无穷大，加上一个数应该还是无穷大。而在计算机中，0x7fffffff加上一个数后会溢出，就不再是无穷大，还可能是负数。</p>
+<p>这时候我们需要换个数来表示无穷大，这次我们选择0x3fffffff，这个数用十进制表示是(1 &laquo; 30) - 1，因为一般场合下程序中的数据都是小于1e9的，而0x3fffffff = 1073741823 &gt; 1e9。那么这个数不仅满足了比程序中的任何数都大，而且0x3fffffff + 0x3fffffff = (1 &laquo; 31) - 2小于int型的边界(1 &laquo; 31) - 1 = 2147483647，同时满足了无穷大加上一个数还是无穷大</p>
+<p>除了用0x3fffffff表示无穷大之外，我们还经常能看到用0x3f3f3f3f表示无穷大。其实和0x3fffffff一样，因为一般场合下的数据都是小于1e9的，而0x3f3f3f3f = 1061109567 &gt; 1e9。同样0x3f3f3f3f + 0x3f3f3f3f = 2122219134 &lt; int型的边界(1 &laquo; 31) - 1 = 2147483647，也满足无穷大加上一个无穷大还是无穷大。不仅如此，如果要对一个数组全部赋值无穷大时，如果觉得使用循环麻烦，可以使用memset结合0x3f3f3f3f将数组全部赋值为无穷大，我们知道memset是按字节赋值的，它能够对数组清零(因为0的每个字节都是0)，或者全部赋值-1(因为-1在计算机中的表示形式为111&hellip;,每个字节都是11111111)，由于0x3f3f3f3f的每个字节都是0x3f！所以要把一段内存全部设置为无穷大时，我们只需要memset(arr, 0x3f, sizeof(arr))</p>
+<p>对于上述三种对无穷大的定义，除了第一种需要根据题目要求判断是否需要有无穷大加上一个数的操作来选择之外，选择哪种定义取决于个人喜好</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="cp">#define INF1 0x7fffffff
+</span><span class="cp">#define INE2 0x3fffffff
+</span><span class="cp">#define INF3 0x3f3f3f3f
+</span><span class="cp"></span><span class="k">const</span> <span class="kt">int</span> <span class="n">INF4</span> <span class="o">=</span> <span class="mh">0x7fffffff</span><span class="p">;</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="n">INF5</span> <span class="o">=</span> <span class="mh">0x3fffffff</span><span class="p">;</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="n">INF6</span> <span class="o">=</span> <span class="mh">0x3f3f3f3f</span><span class="p">;</span>
+</code></pre></div>
+    
+    <div class="nav-next-prev">
+        <div class="nav-prev">
+            
+                <a class="grayed-out" href="javascript:void()"><i class="fas fa-chevron-left"></i></a>
+            
+        </div>
+        <a class="nav-top" href="#">top</i></a>
+        <div class="nav-next">
+            
+                <a href="https://www.example.com/posts/%E5%BF%AB%E9%80%9F%E5%82%85%E9%87%8C%E5%8F%B6%E5%8F%98%E6%8D%A2/"><i class="fas fa-chevron-right"></i></a>
+            
+        </div>
+    </div>
+    
+
+            </div><footer>
+<div class="footer-content">
+
+  <div class="contact-info">
+      
+          <div class="footer-mail">
+          <i class="far fa-envelope"></i> <a href="mailto:haoran.mc@outlook.com">haoran.mc@outlook.com</a> </div>
+      
+      
+      <div class="footer-phone">
+          <i class="fas fa-phone"></i> 8888888888 
+      </div>
+      
+  </div>
+
+
+<p class="copyright meta">Copyright © 2008–2019, Steve Francia and the Hugo Authors; all rights reserved.</p>
+
+</div>
+</footer></main>
+    </body>
+    <script src=https://www.example.com/js/navbutton.js></script>
+</html>

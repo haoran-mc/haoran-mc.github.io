@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="lhr">
+    <meta name="Author" content="haoran">
+    <meta name="keywords" content="hugo blog">
+    <link rel="stylesheet" href=https://www.example.com/css/syntax.css>
+    <link rel="stylesheet" href=https://www.example.com/css/style.css>
+    <script src="https://kit.fontawesome.com/1b7478c139.js" crossorigin="anonymous"></script>
+    <title>Notes</title>
+  </head><body><aside id="sidenav">
+    <header>
+    
+        <a href=https://www.example.com><img src="https://www.example.com/avatar.png" alt="avatar"></a>
+        
+    
+
+    <a id="branding" href=https://www.example.com>
+        
+            Notes
+        
+    </a>
+    </header>
+
+    <nav>
+        
+            		
+            <a href="/"
+                
+            >
+                <i class="fas fa-home fa-sm"></i>
+                <span>home</span>
+            </a>
+        
+            		
+            <a href="/blog/"
+                
+            >
+                <i class="fas fa-keyboard fa-ms"></i>
+                <span>blog</span>
+            </a>
+        
+            		
+            <a href="/tags"
+                
+            >
+                <i class="fas fa-tags fa-ms"></i>
+                <span>tags</span>
+            </a>
+        
+            		
+            <a href="https://github.com/yourgithubusername23434"
+                
+                    target="_blank"
+                
+            >
+                <i class="fab fa-github fa-ms"></i>
+                <span>github</span>
+            </a>
+        
+            		
+            <a href="/index.xml"
+                
+            >
+                <i class="fas fa-rss fa-ms"></i>
+                <span>RSS</span>
+            </a>
+        
+            		
+            <a href="/contact"
+                
+            >
+                <i class="far fa-envelope"></i>
+                <span>contact</span>
+            </a>
+        
+    </nav>
+</aside>
+<main id="main">
+            <a href="javascript:void(0)" id="closebtn" onclick="navToggle()"><i class="fas fa-bars fa-lg"></i></a>
+            <div class="content">
+    
+    <h1 id="title">快速傅里叶变换</h1>
+    
+      
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#快速傅里叶变换是什么">快速傅里叶变换是什么？</a></li>
+    <li><a href="#多项式乘法">多项式乘法</a></li>
+    <li><a href="#多项式的两种表示方法">多项式的两种表示方法</a>
+      <ul>
+        <li><a href="#系数表示法">系数表示法</a></li>
+        <li><a href="#点值表示法">点值表示法</a></li>
+      </ul>
+    </li>
+    <li><a href="#复数中的单位根">复数中的单位根</a></li>
+    <li><a href="#离散傅里叶变换">离散傅里叶变换</a></li>
+    <li><a href="#离散傅里叶反变换">离散傅里叶反变换</a></li>
+    <li><a href="#fft代码">FFT代码</a></li>
+  </ul>
+</nav>
+    <h1 id="快速傅里叶变换">快速傅里叶变换</h1>
+<h2 id="快速傅里叶变换是什么">快速傅里叶变换是什么？</h2>
+<p>快速傅里叶变换是一种能够在 $O(nlogn)$ 的时间内计算离散福利也变换的算法，在算法竞赛中常用于快速计算多项式乘法。</p>
+<h2 id="多项式乘法">多项式乘法</h2>
+<p>对于两个多项式 $A(x) = a_0 + a_1x + a_2x^2 + \cdots + a_nx^n, B(x) = b_0 + b_1x + b_2x^2 + \cdots + b_nx^n$ ，求出 $C(x) = A(x) \times B(x)$ ，使用朴素算法的时间复杂度为 $O(n^2)$</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> 
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">j</span><span class="p">)</span>
+        <span class="n">c</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">b</span><span class="p">[</span><span class="n">j</span><span class="p">];</span>
+</code></pre></div><p>如何加速多项式的乘法呢？</p>
+<h2 id="多项式的两种表示方法">多项式的两种表示方法</h2>
+<p>多项式有两种表示方法：1. 系数表示法 2. 点值表示法</p>
+<p>多项式由系数表示法转为点值表示法的过程，就称为DFT；把一个多项式的点值表示法转化为系数表示法的过程，称为IDFT，FFT就是通过取某些特殊的x的点值来加速DFT和IDFT的过程。</p>
+<h3 id="系数表示法">系数表示法</h3>
+<p>对于一个 ${n}$ 维的多项式A(x)，它的系数 $(a_0, a_1, a_2, \cdots a_n)$ 能够唯一的表示这个多项式。</p>
+<h3 id="点值表示法">点值表示法</h3>
+<p>对于一个 ${n}$ 维的多项式A(x)，带入 ${n+1}$ 个自变量 $(x_0, x_1, x_2, \cdots x_n) (\forall i,j \in [0, n], i \neq j, x_i \neq x_j)$ 的值，得到的这 ${n+1}$ 个点也能够唯一确定这个多项式。</p>
+<blockquote>
+<p>证明：
+假设：不能够唯一确定这个多项式，即，虽然有 $A(x_i) = B(x_i) (\forall i \in [0, n])$，但 $B(x) \neq A(x)$
+则令 $C(x) = A(x) - B(x)$，有 $C(x_i) = 0 (\forall i \in [0, n])$，这与代数基本定理(一个 ${n}$ 次多项式有且仅有 ${n}$ 个根相矛盾，假设不成立，则这 ${n+1}$ 个点能够唯一的确定这个多项式。</p>
+</blockquote>
+<p>容易知道我们能够在 $O(n)$ 的时间内计算出 $C(x)$ 在这 $n + 1$ 个位置的值</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="c1">// x[]中存放的是这n + 1个自变量的取值
+</span><span class="c1"></span><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">c</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">*</span> <span class="n">b</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]];</span>
+<span class="p">}</span>
+</code></pre></div><p>既然点值表达式能够较快的算出两个多项式的乘积，那么我们能否在点值表达式与系数表达式之间建立联系，这样我们就能够在得到两个多项式的系数表达式后，转化为点值表达式，然后求出两个多项式的乘积，最后转化回系数表达式。</p>
+<p><em>快速傅里叶变换！！！</em></p>
+<p>但在学习快速傅里叶变换之前，我们需要知道一些复数的知识。</p>
+<h2 id="复数中的单位根">复数中的单位根</h2>
+<p>就是一些特殊的复数</p>
+<h2 id="离散傅里叶变换">离散傅里叶变换</h2>
+<p>离散傅里叶变换使用分治求 $x = \omega_n^k$ 的时候， $A(x) \times B(x)$ 的值，它的分治思想体现在将多项式分为奇次项与偶次项处理。</p>
+<p>对于多项式 $A(x)$ ，其系数向量为 $(a_0, a_1, a_2, &hellip; a_{n-1})$ 。我们将n次单位根的0 ~ n-1次幂分别带入 $A(x)$ 得到其点值向量 $(A(\omega_{n}^{0}), A(\omega_{n}^{1}), A(\omega_{n}^{2}), &hellip;, A(\omega_{n}^{n-1}))$ 的过程就是离散傅里叶变换。</p>
+<p>如果朴素带入，时间复杂度是 $O(n^2)$ 的，所以我们必须要利用到单位根 $\omega$ 的特殊性质。</p>
+<p>对于 $A(x) = a_0 + a_1 \cdots x + a_2 \cdots x^2 + &hellip; + a_{n-1} \cdots x^{n-1}$</p>
+<p>将其按照奇偶分组</p>
+<p>$A(x) = (a_0 + a_2 \cdots x^2 + a_4 \cdots x^4 + &hellip; + a_{n-2} \cdots x^{n-2}) + (a_1 \cdots x^1 + a_3 \cdots x^3 + a_5 \cdots x^5 + &hellip; + a_{n-1} \cdots x^{n-1})$</p>
+<p>$A(x) = (a_0 + a_2 \cdots x^2 + a_4 \cdots x^4 + &hellip; + a_{n-2} \cdots x^{n-2}) + x \cdots (a_1 + a_3 \cdots x^2 + a_5 \cdots x^4 + &hellip; + a_{n-1} \cdots x^{n-2})$</p>
+<p>令</p>
+<p>$A1(x) = a_0 + a_2 \cdots x + a_4 \cdots x^2 + &hellip; + a_{n-2} \cdots x^{ \frac{n-2}{2}}$</p>
+<p>$A2(x) = a_1 + a_3 \cdots x + a_5 \cdots x^2 + &hellip; + a_{n-1} \cdots x^{ \frac{n-2}{2}}$</p>
+<p>则可得到</p>
+<p>$A(x) = A1(x) + x \cdots A2(x^2)$</p>
+<p>$A1(x)$ 和 $A2(x)$ 都是 $A(x)$ 一半的规模，可以转化为子问题递归求解</p>
+<h2 id="离散傅里叶反变换">离散傅里叶反变换</h2>
+<p>通过点值表达式求出系数表达式，这个过程称为离散傅里叶反变换</p>
+<p>不证了，不证了，留着以后证明吧~</p>
+<p>直接给出结论，离散傅里叶反变换所需要的操作和离散傅里叶变换一样，只是带入的值 $\omega_N^{-k}$ 是离散傅里叶变换带入值的共轭复数</p>
+<h2 id="fft代码">FFT代码</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="cp">#include</span> <span class="cpf">&lt;cstdio&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;algorithm&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;cmath&gt;</span><span class="cp">
+</span><span class="cp"></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="n">maxn</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">10</span><span class="p">;</span>
+<span class="k">const</span> <span class="kt">double</span> <span class="n">PI</span> <span class="o">=</span> <span class="n">acos</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">);</span>
+<span class="kt">int</span> <span class="n">a</span><span class="p">[</span><span class="n">maxn</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="n">maxn</span><span class="p">];</span>
+
+<span class="k">struct</span> <span class="nc">Complex</span> <span class="p">{</span>
+    <span class="kt">double</span> <span class="n">r</span><span class="p">,</span> <span class="n">i</span><span class="p">;</span>
+    <span class="n">Complex</span><span class="p">()</span> <span class="p">{}</span>
+    <span class="n">Complex</span><span class="p">(</span><span class="kt">double</span> <span class="n">_r</span><span class="p">,</span> <span class="kt">double</span> <span class="n">_i</span><span class="p">)</span> <span class="o">:</span> <span class="n">r</span> <span class="p">(</span><span class="n">_r</span><span class="p">),</span> <span class="n">i</span> <span class="p">(</span><span class="n">_i</span><span class="p">)</span> <span class="p">{}</span>
+    <span class="kr">inline</span> <span class="kt">void</span> <span class="nf">real</span><span class="p">(</span><span class="k">const</span> <span class="kt">double</span><span class="o">&amp;</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span><span class="n">r</span> <span class="o">=</span> <span class="n">x</span><span class="p">;}</span>
+    <span class="kr">inline</span> <span class="kt">double</span> <span class="nf">real</span><span class="p">()</span> <span class="p">{</span><span class="k">return</span> <span class="n">r</span><span class="p">;}</span>
+    <span class="kr">inline</span> <span class="n">Complex</span> <span class="k">operator</span> <span class="o">+</span> <span class="p">(</span><span class="k">const</span> <span class="n">Complex</span><span class="o">&amp;</span> <span class="n">rhs</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nf">Complex</span> <span class="p">(</span><span class="n">r</span> <span class="o">+</span> <span class="n">rhs</span><span class="p">.</span><span class="n">r</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="n">rhs</span><span class="p">.</span><span class="n">i</span><span class="p">)</span> <span class="p">;</span>
+    <span class="p">}</span>
+    <span class="kr">inline</span> <span class="n">Complex</span> <span class="k">operator</span> <span class="o">-</span> <span class="p">(</span><span class="k">const</span> <span class="n">Complex</span><span class="o">&amp;</span> <span class="n">rhs</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nf">Complex</span> <span class="p">(</span><span class="n">r</span> <span class="o">-</span> <span class="n">rhs</span><span class="p">.</span><span class="n">r</span><span class="p">,</span> <span class="n">i</span> <span class="o">-</span> <span class="n">rhs</span><span class="p">.</span><span class="n">i</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="kr">inline</span> <span class="n">Complex</span> <span class="k">operator</span> <span class="o">*</span> <span class="p">(</span><span class="k">const</span> <span class="n">Complex</span><span class="o">&amp;</span> <span class="n">rhs</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nf">Complex</span> <span class="p">(</span><span class="n">r</span><span class="o">*</span><span class="n">rhs</span><span class="p">.</span><span class="n">r</span> <span class="o">-</span> <span class="n">i</span><span class="o">*</span><span class="n">rhs</span><span class="p">.</span><span class="n">i</span><span class="p">,</span> <span class="n">r</span><span class="o">*</span><span class="n">rhs</span><span class="p">.</span><span class="n">i</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="n">rhs</span><span class="p">.</span><span class="n">r</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="kr">inline</span> <span class="kt">void</span> <span class="k">operator</span> <span class="o">/=</span> <span class="p">(</span><span class="k">const</span> <span class="kt">double</span><span class="o">&amp;</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">r</span> <span class="o">/=</span> <span class="n">x</span><span class="p">,</span> <span class="n">i</span> <span class="o">/=</span> <span class="n">x</span> <span class="p">;</span>
+    <span class="p">}</span>
+    <span class="kr">inline</span> <span class="kt">void</span> <span class="k">operator</span> <span class="o">*=</span> <span class="p">(</span><span class="k">const</span> <span class="n">Complex</span><span class="o">&amp;</span> <span class="n">rhs</span><span class="p">)</span> <span class="p">{</span>
+        <span class="o">*</span><span class="k">this</span> <span class="o">=</span> <span class="n">Complex</span> <span class="p">(</span><span class="n">r</span><span class="o">*</span><span class="n">rhs</span><span class="p">.</span><span class="n">r</span> <span class="o">-</span> <span class="n">i</span><span class="o">*</span><span class="n">rhs</span><span class="p">.</span><span class="n">i</span><span class="p">,</span> <span class="n">r</span><span class="o">*</span><span class="n">rhs</span><span class="p">.</span><span class="n">i</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="n">rhs</span><span class="p">.</span><span class="n">r</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="kr">inline</span> <span class="kt">void</span> <span class="k">operator</span> <span class="o">+=</span> <span class="p">(</span><span class="k">const</span> <span class="n">Complex</span><span class="o">&amp;</span> <span class="n">rhs</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">r</span> <span class="o">+=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">r</span><span class="p">,</span> <span class="n">i</span> <span class="o">+=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">i</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="kr">inline</span> <span class="n">Complex</span> <span class="nf">conj</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">Complex</span> <span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="o">-</span><span class="n">i</span><span class="p">)</span> <span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="k">struct</span> <span class="nc">FastFourierTransform</span> <span class="p">{</span>
+    <span class="n">Complex</span> <span class="n">omega</span><span class="p">[</span><span class="n">maxn</span><span class="p">],</span> <span class="n">omegaInverse</span><span class="p">[</span><span class="n">maxn</span><span class="p">];</span>
+
+    <span class="kt">void</span> <span class="nf">init</span><span class="p">(</span><span class="k">const</span> <span class="kt">int</span><span class="o">&amp;</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">omega</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Complex</span><span class="p">(</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">PI</span> <span class="o">/</span> <span class="n">n</span><span class="o">*</span><span class="n">i</span><span class="p">),</span> <span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">PI</span> <span class="o">/</span> <span class="n">n</span><span class="o">*</span><span class="n">i</span><span class="p">));</span>
+            <span class="n">omegaInverse</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">omega</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">conj</span><span class="p">();</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="kt">void</span> <span class="nf">transform</span><span class="p">(</span><span class="n">Complex</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="k">const</span> <span class="kt">int</span><span class="o">&amp;</span> <span class="n">n</span><span class="p">,</span> <span class="k">const</span> <span class="n">Complex</span><span class="o">*</span> <span class="n">omega</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">&gt;</span> <span class="n">j</span><span class="p">)</span>
+                <span class="n">swap</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="n">j</span><span class="p">]);</span>
+            <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">l</span> <span class="o">=</span> <span class="n">n</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span><span class="p">;</span> <span class="p">(</span><span class="n">j</span> <span class="o">^=</span> <span class="n">l</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">l</span><span class="p">;</span> <span class="n">l</span> <span class="o">&gt;&gt;=</span> <span class="mi">1</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">l</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span> <span class="n">l</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">;</span> <span class="n">l</span> <span class="o">&lt;&lt;=</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kt">int</span> <span class="n">m</span> <span class="o">=</span> <span class="n">l</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">Complex</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="n">a</span><span class="p">;</span> <span class="n">p</span> <span class="o">!=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">n</span><span class="p">;</span> <span class="n">p</span> <span class="o">+=</span> <span class="n">l</span><span class="p">)</span>
+                <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">m</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="n">Complex</span> <span class="n">t</span> <span class="o">=</span> <span class="n">omega</span><span class="p">[</span><span class="n">n</span> <span class="o">/</span> <span class="n">l</span> <span class="o">*</span> <span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">p</span> <span class="p">[</span><span class="n">m</span> <span class="o">+</span> <span class="n">i</span><span class="p">];</span>
+                    <span class="n">p</span><span class="p">[</span><span class="n">m</span> <span class="o">+</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">t</span><span class="p">;</span>
+                    <span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">t</span><span class="p">;</span>
+                <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="kt">void</span> <span class="nf">dft</span><span class="p">(</span><span class="n">Complex</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="k">const</span> <span class="kt">int</span><span class="o">&amp;</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">transform</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">omega</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="kt">void</span> <span class="nf">idft</span><span class="p">(</span><span class="n">Complex</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="k">const</span> <span class="kt">int</span><span class="o">&amp;</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">transform</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">omegaInverse</span><span class="p">);</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/=</span> <span class="n">n</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span> <span class="n">fft</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="cm">/*
+</span><span class="cm">     * 这是两个多项式的系数：
+</span><span class="cm">     * A(x) = 5 + 2x + 3x^2
+</span><span class="cm">     * B(x) = 2 + 6x + x^2   
+</span><span class="cm">     * 下面的len1，len2分别是两个多项式最大项的最高次幂+1
+</span><span class="cm">     * FFT中len一定要是2^k这种形式，否则在进行分治时会左右不均失败
+</span><span class="cm">     */</span>
+    <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span> <span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+    <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">6</span><span class="p">;</span> <span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">len1</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">len2</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">len</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">len</span> <span class="o">&lt;</span> <span class="n">len1</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">||</span> <span class="n">len</span> <span class="o">&lt;</span> <span class="n">len2</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">len</span> <span class="o">&lt;&lt;=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">fft</span><span class="p">.</span><span class="n">init</span><span class="p">(</span><span class="n">len</span><span class="p">);</span>   <span class="c1">// 初始化\omega
+</span><span class="c1"></span>
+    <span class="n">Complex</span> <span class="n">x1</span><span class="p">[</span><span class="n">maxn</span><span class="p">],</span> <span class="n">x2</span><span class="p">[</span><span class="n">maxn</span><span class="p">];</span>   <span class="c1">// 存储两个多项式的系数
+</span><span class="c1"></span>    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">len</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">x1</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">r</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">];</span> <span class="n">x1</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">i</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">;</span>
+        <span class="n">x2</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">r</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">];</span> <span class="n">x2</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">i</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">fft</span><span class="p">.</span><span class="n">dft</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span> <span class="n">fft</span><span class="p">.</span><span class="n">dft</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">len</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+        <span class="n">x1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">x1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">x2</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+    <span class="n">fft</span><span class="p">.</span><span class="n">idft</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
+
+    <span class="kt">int</span> <span class="n">res</span><span class="p">[</span><span class="n">maxn</span><span class="p">];</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">len</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> 
+        <span class="n">res</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">)(</span><span class="n">x1</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">r</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">);</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">len</span> <span class="o">&amp;&amp;</span> <span class="n">res</span><span class="p">[</span><span class="n">len</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> 
+        <span class="o">--</span><span class="n">len</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">len</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">&#34;%d &#34;</span><span class="p">,</span> <span class="n">res</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+    <span class="n">puts</span><span class="p">(</span><span class="s">&#34;&#34;</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+    
+    <div class="nav-next-prev">
+        <div class="nav-prev">
+            
+                <a href="https://www.example.com/posts/%E6%97%A0%E7%A9%B7%E5%A4%A7%E5%B8%B8%E9%87%8F/"><i class="fas fa-chevron-left"></i></a>
+            
+        </div>
+        <a class="nav-top" href="#">top</i></a>
+        <div class="nav-next">
+            
+                <a href="https://www.example.com/posts/go_out-protoc-gen-go-plugin-failed-with-status-code-1/"><i class="fas fa-chevron-right"></i></a>
+            
+        </div>
+    </div>
+    
+
+            </div><footer>
+<div class="footer-content">
+
+  <div class="contact-info">
+      
+          <div class="footer-mail">
+          <i class="far fa-envelope"></i> <a href="mailto:haoran.mc@outlook.com">haoran.mc@outlook.com</a> </div>
+      
+      
+      <div class="footer-phone">
+          <i class="fas fa-phone"></i> 8888888888 
+      </div>
+      
+  </div>
+
+
+<p class="copyright meta">Copyright © 2008–2019, Steve Francia and the Hugo Authors; all rights reserved.</p>
+
+</div>
+</footer></main>
+    </body>
+    <script src=https://www.example.com/js/navbutton.js></script>
+</html>
