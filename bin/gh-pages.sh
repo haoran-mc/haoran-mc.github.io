@@ -20,6 +20,8 @@ rm -rf public/*
 echo "Generating site"
 hugo
 
+cp _config.yml ./public/_config.yml
+
 echo "Updating gh-pages branch"
 cd public && git add --all && git commit -m ":memo:Publishing to gh-pages (publish.sh)"
 
