@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+    <script type="text/javascript"
+        async
+        src="https://cdn.bootcss.com/mathjax/2.7.3/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$'], ['\[\[','\]\]']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+});
+
+MathJax.Hub.Queue(function() {
+    
+    
+    
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i = 0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<style>
+code.has-jax {
+    font: inherit;
+    font-size: 100%;
+    background: inherit;
+    border: inherit;
+    color: #515151;
+}
+</style>
+
+
+    <title>FFT | Chalk</title>
+    <meta charset="utf-8">
+    <meta name="generator" content="Hugo 0.87.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="canonical" href="/post/%E5%BF%AB%E9%80%9F%E5%82%85%E9%87%8C%E5%8F%B6%E5%8F%98%E6%8D%A2/">
+    <link rel="alternate" type="application/rss+xml" href="" title="Chalk">
+
+    <header>
+        
+        <a href="" class="title">Chalk</a>
+        
+        
+    </header>
+
+<article>
+  <header>
+    <h1>FFT</h1>
+    <time datetime="2021-09-20T00:00:00Z">September 20, 2021</time>
+  </header>
+  <h1 id="快速傅里叶变换">快速傅里叶变换</h1>
+<h2 id="快速傅里叶变换是什么">快速傅里叶变换是什么？</h2>
+<p>快速傅里叶变换是一种能够在 $O(nlogn)$ 的时间内计算离散福利也变换的算法，在算法竞赛中常用于快速计算多项式乘法。</p>
+<h2 id="多项式乘法">多项式乘法</h2>
+<p>对于两个多项式 $A(x) = a_0 + a_1x + a_2x^2 + \cdots + a_nx^n, B(x) = b_0 + b_1x + b_2x^2 + \cdots + b_nx^n$ ，求出 $C(x) = A(x) \times B(x)$ ，使用朴素算法的时间复杂度为 $O(n^2)$</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> n; <span style="color:#f92672">++</span>i) 
+    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> j <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; j <span style="color:#f92672">&lt;</span> n; <span style="color:#f92672">++</span>j)
+        c[i <span style="color:#f92672">+</span> j] <span style="color:#f92672">+=</span> a[i] <span style="color:#f92672">*</span> b[j];
+</code></pre></div><p>如何加速多项式的乘法呢？</p>
+<h2 id="多项式的两种表示方法">多项式的两种表示方法</h2>
+<p>多项式有两种表示方法：1. 系数表示法 2. 点值表示法</p>
+<p>多项式由系数表示法转为点值表示法的过程，就称为DFT；把一个多项式的点值表示法转化为系数表示法的过程，称为IDFT，FFT就是通过取某些特殊的x的点值来加速DFT和IDFT的过程。</p>
+<h3 id="系数表示法">系数表示法</h3>
+<p>对于一个 ${n}$ 维的多项式A(x)，它的系数 $(a_0, a_1, a_2, \cdots a_n)$ 能够唯一的表示这个多项式。</p>
+<h3 id="点值表示法">点值表示法</h3>
+<p>对于一个 ${n}$ 维的多项式A(x)，带入 ${n+1}$ 个自变量 $(x_0, x_1, x_2, \cdots x_n) (\forall i,j \in [0, n], i \neq j, x_i \neq x_j)$ 的值，得到的这 ${n+1}$ 个点也能够唯一确定这个多项式。</p>
+<blockquote>
+<p>证明：
+假设：不能够唯一确定这个多项式，即，虽然有 $A(x_i) = B(x_i) (\forall i \in [0, n])$，但 $B(x) \neq A(x)$
+则令 $C(x) = A(x) - B(x)$，有 $C(x_i) = 0 (\forall i \in [0, n])$，这与代数基本定理(一个 ${n}$ 次多项式有且仅有 ${n}$ 个根相矛盾，假设不成立，则这 ${n+1}$ 个点能够唯一的确定这个多项式。</p>
+</blockquote>
+<p>容易知道我们能够在 $O(n)$ 的时间内计算出 $C(x)$ 在这 $n + 1$ 个位置的值</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// x[]中存放的是这n + 1个自变量的取值
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;=</span> n; <span style="color:#f92672">++</span>i) {
+    c[i] <span style="color:#f92672">=</span> a[x[i]] <span style="color:#f92672">*</span> b[x[i]];
+}
+</code></pre></div><p>既然点值表达式能够较快的算出两个多项式的乘积，那么我们能否在点值表达式与系数表达式之间建立联系，这样我们就能够在得到两个多项式的系数表达式后，转化为点值表达式，然后求出两个多项式的乘积，最后转化回系数表达式。</p>
+<p><em>快速傅里叶变换！！！</em></p>
+<p>但在学习快速傅里叶变换之前，我们需要知道一些复数的知识。</p>
+<h2 id="复数中的单位根">复数中的单位根</h2>
+<p>就是一些特殊的复数</p>
+<h2 id="离散傅里叶变换">离散傅里叶变换</h2>
+<p>离散傅里叶变换使用分治求 $x = \omega_n^k$ 的时候， $A(x) \times B(x)$ 的值，它的分治思想体现在将多项式分为奇次项与偶次项处理。</p>
+<p>对于多项式 $A(x)$ ，其系数向量为 $(a_0, a_1, a_2, &hellip; a_{n-1})$ 。我们将n次单位根的0 ~ n-1次幂分别带入 $A(x)$ 得到其点值向量 $(A(\omega_{n}^{0}), A(\omega_{n}^{1}), A(\omega_{n}^{2}), &hellip;, A(\omega_{n}^{n-1}))$ 的过程就是离散傅里叶变换。</p>
+<p>如果朴素带入，时间复杂度是 $O(n^2)$ 的，所以我们必须要利用到单位根 $\omega$ 的特殊性质。</p>
+<p>对于 $A(x) = a_0 + a_1 \cdots x + a_2 \cdots x^2 + &hellip; + a_{n-1} \cdots x^{n-1}$</p>
+<p>将其按照奇偶分组</p>
+<p>$A(x) = (a_0 + a_2 \cdots x^2 + a_4 \cdots x^4 + &hellip; + a_{n-2} \cdots x^{n-2}) + (a_1 \cdots x^1 + a_3 \cdots x^3 + a_5 \cdots x^5 + &hellip; + a_{n-1} \cdots x^{n-1})$</p>
+<p>$A(x) = (a_0 + a_2 \cdots x^2 + a_4 \cdots x^4 + &hellip; + a_{n-2} \cdots x^{n-2}) + x \cdots (a_1 + a_3 \cdots x^2 + a_5 \cdots x^4 + &hellip; + a_{n-1} \cdots x^{n-2})$</p>
+<p>令</p>
+<p>$A1(x) = a_0 + a_2 \cdots x + a_4 \cdots x^2 + &hellip; + a_{n-2} \cdots x^{ \frac{n-2}{2}}$</p>
+<p>$A2(x) = a_1 + a_3 \cdots x + a_5 \cdots x^2 + &hellip; + a_{n-1} \cdots x^{ \frac{n-2}{2}}$</p>
+<p>则可得到</p>
+<p>$A(x) = A1(x) + x \cdots A2(x^2)$</p>
+<p>$A1(x)$ 和 $A2(x)$ 都是 $A(x)$ 一半的规模，可以转化为子问题递归求解</p>
+<h2 id="离散傅里叶反变换">离散傅里叶反变换</h2>
+<p>通过点值表达式求出系数表达式，这个过程称为离散傅里叶反变换</p>
+<p>不证了，不证了，留着以后证明吧~</p>
+<p>直接给出结论，离散傅里叶反变换所需要的操作和离散傅里叶变换一样，只是带入的值 $\omega_N^{-k}$ 是离散傅里叶变换带入值的共轭复数</p>
+<h2 id="fft代码">FFT代码</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;cstdio&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;algorithm&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;cmath&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">using</span> <span style="color:#66d9ef">namespace</span> std;
+<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">int</span> maxn <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span> <span style="color:#f92672">&lt;&lt;</span> <span style="color:#ae81ff">10</span>;
+<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">double</span> PI <span style="color:#f92672">=</span> acos(<span style="color:#f92672">-</span><span style="color:#ae81ff">1.0</span>);
+<span style="color:#66d9ef">int</span> a[maxn], b[maxn];
+
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Complex</span> {
+    <span style="color:#66d9ef">double</span> r, i;
+    Complex() {}
+    Complex(<span style="color:#66d9ef">double</span> _r, <span style="color:#66d9ef">double</span> _i) <span style="color:#f92672">:</span> r (_r), i (_i) {}
+    <span style="color:#66d9ef">inline</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">real</span>(<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">double</span><span style="color:#f92672">&amp;</span> x) {r <span style="color:#f92672">=</span> x;}
+    <span style="color:#66d9ef">inline</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">real</span>() {<span style="color:#66d9ef">return</span> r;}
+    <span style="color:#66d9ef">inline</span> Complex <span style="color:#66d9ef">operator</span> <span style="color:#f92672">+</span> (<span style="color:#66d9ef">const</span> Complex<span style="color:#f92672">&amp;</span> rhs) <span style="color:#66d9ef">const</span> {
+        <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">Complex</span> (r <span style="color:#f92672">+</span> rhs.r, i <span style="color:#f92672">+</span> rhs.i) ;
+    }
+    <span style="color:#66d9ef">inline</span> Complex <span style="color:#66d9ef">operator</span> <span style="color:#f92672">-</span> (<span style="color:#66d9ef">const</span> Complex<span style="color:#f92672">&amp;</span> rhs) <span style="color:#66d9ef">const</span> {
+        <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">Complex</span> (r <span style="color:#f92672">-</span> rhs.r, i <span style="color:#f92672">-</span> rhs.i);
+    }
+    <span style="color:#66d9ef">inline</span> Complex <span style="color:#66d9ef">operator</span> <span style="color:#f92672">*</span> (<span style="color:#66d9ef">const</span> Complex<span style="color:#f92672">&amp;</span> rhs) <span style="color:#66d9ef">const</span> {
+        <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">Complex</span> (r<span style="color:#f92672">*</span>rhs.r <span style="color:#f92672">-</span> i<span style="color:#f92672">*</span>rhs.i, r<span style="color:#f92672">*</span>rhs.i <span style="color:#f92672">+</span> i<span style="color:#f92672">*</span>rhs.r);
+    }
+    <span style="color:#66d9ef">inline</span> <span style="color:#66d9ef">void</span> <span style="color:#66d9ef">operator</span> <span style="color:#f92672">/=</span> (<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">double</span><span style="color:#f92672">&amp;</span> x) {
+        r <span style="color:#f92672">/=</span> x, i <span style="color:#f92672">/=</span> x ;
+    }
+    <span style="color:#66d9ef">inline</span> <span style="color:#66d9ef">void</span> <span style="color:#66d9ef">operator</span> <span style="color:#f92672">*=</span> (<span style="color:#66d9ef">const</span> Complex<span style="color:#f92672">&amp;</span> rhs) {
+        <span style="color:#f92672">*</span><span style="color:#66d9ef">this</span> <span style="color:#f92672">=</span> Complex (r<span style="color:#f92672">*</span>rhs.r <span style="color:#f92672">-</span> i<span style="color:#f92672">*</span>rhs.i, r<span style="color:#f92672">*</span>rhs.i <span style="color:#f92672">+</span> i<span style="color:#f92672">*</span>rhs.r);
+    }
+    <span style="color:#66d9ef">inline</span> <span style="color:#66d9ef">void</span> <span style="color:#66d9ef">operator</span> <span style="color:#f92672">+=</span> (<span style="color:#66d9ef">const</span> Complex<span style="color:#f92672">&amp;</span> rhs) {
+        r <span style="color:#f92672">+=</span> rhs.r, i <span style="color:#f92672">+=</span> rhs.i;
+    }
+    <span style="color:#66d9ef">inline</span> Complex <span style="color:#a6e22e">conj</span>() {
+        <span style="color:#66d9ef">return</span> Complex (r, <span style="color:#f92672">-</span>i) ;
+    }
+};
+
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">FastFourierTransform</span> {
+    Complex omega[maxn], omegaInverse[maxn];
+
+    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">init</span>(<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">&amp;</span> n) {
+        <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> n; <span style="color:#f92672">++</span>i) {
+            omega[i] <span style="color:#f92672">=</span> Complex(cos(<span style="color:#ae81ff">2</span><span style="color:#f92672">*</span>PI <span style="color:#f92672">/</span> n<span style="color:#f92672">*</span>i), sin(<span style="color:#ae81ff">2</span><span style="color:#f92672">*</span>PI <span style="color:#f92672">/</span> n<span style="color:#f92672">*</span>i));
+            omegaInverse[i] <span style="color:#f92672">=</span> omega[i].conj();
+        }
+    }
+
+    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">transform</span>(Complex <span style="color:#f92672">*</span>a, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">&amp;</span> n, <span style="color:#66d9ef">const</span> Complex<span style="color:#f92672">*</span> omega) {
+        <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>, j <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> n; <span style="color:#f92672">++</span>i) {
+            <span style="color:#66d9ef">if</span> (i <span style="color:#f92672">&gt;</span> j)
+                swap(a[i], a[j]);
+            <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> l <span style="color:#f92672">=</span> n <span style="color:#f92672">&gt;&gt;</span> <span style="color:#ae81ff">1</span>; (j <span style="color:#f92672">^=</span> l) <span style="color:#f92672">&lt;</span> l; l <span style="color:#f92672">&gt;&gt;=</span> <span style="color:#ae81ff">1</span>);
+        }
+
+        <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> l <span style="color:#f92672">=</span> <span style="color:#ae81ff">2</span>; l <span style="color:#f92672">&lt;=</span> n; l <span style="color:#f92672">&lt;&lt;=</span> <span style="color:#ae81ff">1</span>) {
+            <span style="color:#66d9ef">int</span> m <span style="color:#f92672">=</span> l <span style="color:#f92672">/</span> <span style="color:#ae81ff">2</span>;
+            <span style="color:#66d9ef">for</span> (Complex <span style="color:#f92672">*</span>p <span style="color:#f92672">=</span> a; p <span style="color:#f92672">!=</span> a <span style="color:#f92672">+</span> n; p <span style="color:#f92672">+=</span> l)
+                <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> m; <span style="color:#f92672">++</span>i) {
+                    Complex t <span style="color:#f92672">=</span> omega[n <span style="color:#f92672">/</span> l <span style="color:#f92672">*</span> i] <span style="color:#f92672">*</span> p [m <span style="color:#f92672">+</span> i];
+                    p[m <span style="color:#f92672">+</span> i] <span style="color:#f92672">=</span> p[i] <span style="color:#f92672">-</span> t;
+                    p[i] <span style="color:#f92672">+=</span> t;
+                }
+        }
+    }
+
+    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">dft</span>(Complex <span style="color:#f92672">*</span>a, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">&amp;</span> n) {
+        transform(a, n, omega);
+    }
+
+    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">idft</span>(Complex <span style="color:#f92672">*</span>a, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">&amp;</span> n) {
+        transform(a, n, omegaInverse);
+        <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> n; <span style="color:#f92672">++</span>i)
+            a[i] <span style="color:#f92672">/=</span> n;
+    }
+} fft;
+
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#75715e">/*
+</span><span style="color:#75715e">     * 这是两个多项式的系数：
+</span><span style="color:#75715e">     * A(x) = 5 + 2x + 3x^2
+</span><span style="color:#75715e">     * B(x) = 2 + 6x + x^2   
+</span><span style="color:#75715e">     * 下面的len1，len2分别是两个多项式最大项的最高次幂+1
+</span><span style="color:#75715e">     * FFT中len一定要是2^k这种形式，否则在进行分治时会左右不均失败
+</span><span style="color:#75715e">     */</span>
+    a[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>; a[<span style="color:#ae81ff">1</span>] <span style="color:#f92672">=</span> <span style="color:#ae81ff">2</span>; a[<span style="color:#ae81ff">2</span>] <span style="color:#f92672">=</span> <span style="color:#ae81ff">3</span>;
+    b[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> <span style="color:#ae81ff">2</span>; b[<span style="color:#ae81ff">1</span>] <span style="color:#f92672">=</span> <span style="color:#ae81ff">6</span>; b[<span style="color:#ae81ff">2</span>] <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
+    <span style="color:#66d9ef">int</span> len1 <span style="color:#f92672">=</span> <span style="color:#ae81ff">3</span>, len2 <span style="color:#f92672">=</span> <span style="color:#ae81ff">3</span>;
+    <span style="color:#66d9ef">int</span> len <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
+    <span style="color:#66d9ef">while</span> (len <span style="color:#f92672">&lt;</span> len1 <span style="color:#f92672">*</span> <span style="color:#ae81ff">2</span> <span style="color:#f92672">||</span> len <span style="color:#f92672">&lt;</span> len2 <span style="color:#f92672">*</span> <span style="color:#ae81ff">2</span>)
+        len <span style="color:#f92672">&lt;&lt;=</span> <span style="color:#ae81ff">1</span>;
+    fft.init(len);   <span style="color:#75715e">// 初始化\omega
+</span><span style="color:#75715e"></span>
+    Complex x1[maxn], x2[maxn];   <span style="color:#75715e">// 存储两个多项式的系数
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> len; <span style="color:#f92672">++</span>i) {
+        x1[i].r <span style="color:#f92672">=</span> a[i]; x1[i].i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.0</span>;
+        x2[i].r <span style="color:#f92672">=</span> b[i]; x2[i].i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.0</span>;
+    }
+    fft.dft(x1, len); fft.dft(x2, len);
+    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> len; <span style="color:#f92672">++</span>i)
+        x1[i] <span style="color:#f92672">=</span> x1[i] <span style="color:#f92672">*</span> x2[i];
+    fft.idft(x1, len);
+
+    <span style="color:#66d9ef">int</span> res[maxn];
+    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> len; <span style="color:#f92672">++</span>i) 
+        res[i] <span style="color:#f92672">=</span> (<span style="color:#66d9ef">int</span>)(x1[i].r <span style="color:#f92672">+</span> <span style="color:#ae81ff">0.5</span>);
+    <span style="color:#66d9ef">while</span> (len <span style="color:#f92672">&amp;&amp;</span> res[len<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>] <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>) 
+        <span style="color:#f92672">--</span>len;
+    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> len; <span style="color:#f92672">++</span>i)
+        printf(<span style="color:#e6db74">&#34;%d &#34;</span>, res[i]);
+    puts(<span style="color:#e6db74">&#34;&#34;</span>);
+    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+}
+</code></pre></div>
+</article>
+
+
+</html>
