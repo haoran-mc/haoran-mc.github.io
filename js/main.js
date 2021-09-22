@@ -61,10 +61,10 @@ const CONTENT = $('#content');
   initEncryptedPages(['joker', 'story', 'diary', 'plan'], 'jjkkk');
   if ($('#pw')) { $('#pw').focus() }
 */
+
 // Add animate effects.
 // Create nav & top buttons.
 // ------------------------------------------------------------------
-
 BODY.append(
     `<div class="nav-btn" onclick="location.href = './index.html'">IDX ←</div>`
 );
@@ -129,31 +129,11 @@ if (isHome()) {
             );
     });
 
-    // Show/Hide wechat QRcode
-    $('#wechat').hide();
-    $('.wechat').hover(function () {
-        $('#wechat').fadeToggle();
-    });
-
     // Open link in a new tab
     $('a').each(function () {
         $(this).attr('target', '_blank');
     });
 }
-
-// Customize annotations
-// ------------------------------------------
-// $('note').each(function () {
-//     $(this).addClass('jk-note');
-// });
-
-// $('essay').each(function () {
-//     $(this).addClass('jk-essay');
-// });
-
-// $('drawer').each(function () {
-//     $(this).addClass('jk-drawer');
-// });
 
 $('.jk-drawer .collapsible').each(function () {
     $(this).click(function () {
@@ -167,42 +147,14 @@ $('.jk-drawer .collapsible').each(function () {
     });
 });
 
-// let coll = document.getElementsByClassName('collapsible');
-// let i;
-// for (i = 0; i < coll.length; i++) {
-//     coll[i].addEventListener('click', function () {
-//         this.classList.toggle('active');
-//         let content = this.nextElementSibling;
-//         if (content.style.maxHeight) {
-//             content.style.maxHeight = null;
-//         } else {
-//             content.style.maxHeight = content.scrollHeight + 'px';
-//         }
-//     });
-// }
-
 // Customize contacts way
 // -------------------------------------------
-$('.me .contact #weibo').attr('href', '//weibo.com/u/' + userconfig.weibo);
-$('.me #wechat img').attr('src', '/images/' + userconfig.wechat);
 $('.me .contact #email').attr('href', 'mailto:' + userconfig.email);
 $('.me .contact #github').attr(
     'href',
     (userconfig.gitee || '//github.com/') + userconfig.github
 );
-$('.me .contact #bilibili').attr(
-    'href',
-    '//space.bilibili.com/' + userconfig.bilibili
-);
 
-// Customize page footer
-// -------------------------------------------
-// $('.validation').html(
-//     '<a href="http://beian.miit.gov.cn" target="_blank">' + userconfig.icp + '</a>'
-// ); // Update copyright.
-// $('.timestamp-wrapper').parent().addClass('gtd-timestamp');
-// $('#postamble .date')[1].innerText = 'Updated: ' + $('#postamble .date')[1].innerText.substring(8);
-// $('#postamble .author')[0].innerText = 'Author: ' + userconfig.author;
 
 // Listen mousewheel event
 // ---------------------------------
@@ -220,13 +172,6 @@ if (isPC) {
     initMouseClickAnimate();
 }
 
-if (isMB) {
-    $('#postamble').css('display', 'none');
-    $('body').append(
-        `<a class="js-footer-slogan" href="http://beian.miit.gov.cn/" target="_blank">${userconfig.icp}</a>`
-    );
-    $('.me #wechat img').width('40%');
-}
 
 // Show type of code block
 // ---------------------------------
@@ -240,7 +185,6 @@ $('pre').each(function () {
     $(this).dblclick(function () {
         let _this = $(this);
         _this.addClass('js-pre-dblclick');
-
         setTimeout(function () {
             _this.removeClass('js-pre-dblclick');
         }, 10000);
