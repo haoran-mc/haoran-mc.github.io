@@ -1,7 +1,7 @@
 'use strict';
 import 'https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js';
 import 'https://cdn.jsdelivr.net/npm/darkreader@4.9.34/darkreader.min.js';
-import userconfig from '../user.config.js';
+import userconfig from './user.config.js';
 import {
     isHome,
     isCurPage,
@@ -12,8 +12,8 @@ import {
     browserRedirect,
     scrollToTop,
     betterLocalStorage as bls,
-} from './assets/js/utils.js';
-import userConfig from '../user.config.js';
+} from './utils.js';
+import userConfig from './user.config.js';
 
 // Every area may have a `*-card.org`, so set card as its default style
 if (location.pathname.indexOf('card') > -1) {
@@ -41,24 +41,26 @@ const TITLE = $('.title');
 const CONTENT = $('#content');
 
 // Valine comments.
-if (!isCurPage(userConfig.nonvaline) && !isHome()) {
-    CONTENT.append(`
-        <div style="margin-top: .64rem;"></div>
-        <p style="font-family: 'segoe print'; font-size: .18rem; color: #ccc;">✒&nbsp; May you want to say :</p>
-        <div id="vcomments" style="margin: 24px 0;"></div>
-    `);
-    new Valine({
-        el: '#vcomments',
-        appId: 'pBwk0ut3wQWR9nxTfncT3c6d-gzGzoHsz',
-        appKey: 'KMWHVAMFBGd2mx3Nd8pVeAA1',
-        avatar: 'wavatar', // robohash
-        placeholder: '说些什么呢 ……'
-    })
-}
-
-if (isMB) { $('#encrypt').hide() }
-initEncryptedPages(['joker', 'story', 'diary', 'plan'], 'jjkkk');
-if ($('#pw')) { $('#pw').focus() }
+/*
+  if (!isCurPage(userConfig.nonvaline) && !isHome()) {
+      CONTENT.append(`
+          <div style="margin-top: .64rem;"></div>
+          <p style="font-family: 'segoe print'; font-size: .18rem; color: #ccc;">✒&nbsp; May you want to say :</p>
+          <div id="vcomments" style="margin: 24px 0;"></div>
+      `);
+      new Valine({
+          el: '#vcomments',
+          appId: 'pBwk0ut3wQWR9nxTfncT3c6d-gzGzoHsz',
+          appKey: 'KMWHVAMFBGd2mx3Nd8pVeAA1',
+          avatar: 'wavatar', // robohash
+          placeholder: '说些什么呢 ……'
+      })
+  }
+  
+  if (isMB) { $('#encrypt').hide() }
+  initEncryptedPages(['joker', 'story', 'diary', 'plan'], 'jjkkk');
+  if ($('#pw')) { $('#pw').focus() }
+*/
 // Add animate effects.
 // Create nav & top buttons.
 // ------------------------------------------------------------------
@@ -195,15 +197,12 @@ $('.me .contact #bilibili').attr(
 
 // Customize page footer
 // -------------------------------------------
-$('.validation').html(
-    '<a href="http://beian.miit.gov.cn" target="_blank">' +
-    userconfig.icp +
-    '</a>'
-); // Update copyright.
-$('.timestamp-wrapper').parent().addClass('gtd-timestamp');
-$('#postamble .date')[1].innerText =
-    'Updated: ' + $('#postamble .date')[1].innerText.substring(8);
-$('#postamble .author')[0].innerText = 'Author: ' + userconfig.author;
+// $('.validation').html(
+//     '<a href="http://beian.miit.gov.cn" target="_blank">' + userconfig.icp + '</a>'
+// ); // Update copyright.
+// $('.timestamp-wrapper').parent().addClass('gtd-timestamp');
+// $('#postamble .date')[1].innerText = 'Updated: ' + $('#postamble .date')[1].innerText.substring(8);
+// $('#postamble .author')[0].innerText = 'Author: ' + userconfig.author;
 
 // Listen mousewheel event
 // ---------------------------------
