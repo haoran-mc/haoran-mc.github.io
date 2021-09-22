@@ -249,7 +249,7 @@ $('pre').each(function () {
 
 // Beautify navigations
 // ---------------------------------
-if (isCurPage('nav')) {
+if (isCurPage('Navigation')) {
     BODY.addClass('js-nav-body');
 
     $('td a').each(function (idx, item) {
