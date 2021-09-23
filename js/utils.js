@@ -47,13 +47,13 @@ export function browserRedirect() {
 
     if (
         bIsIpad ||
-        bIsIphoneOs ||
-        bIsMidp ||
-        bIsUc7 ||
-        bIsUc ||
-        bIsAndroid ||
-        bIsCE ||
-        bIsWM
+            bIsIphoneOs ||
+            bIsMidp ||
+            bIsUc7 ||
+            bIsUc ||
+            bIsAndroid ||
+            bIsCE ||
+            bIsWM
     ) {
         return 'MB';
     } else {
@@ -115,7 +115,6 @@ export function initCardPages(cardPages, isAllCardStyle = false) {
  * @param {String} password - Password
  */
 export function initEncryptedPages(encryptedPages, password) {
-
     if (isCurPage(encryptedPages)) {
         if (sessionStorage.getItem('f2f0c89f0c89')) {
             console.log('Welcome, Sir.');
@@ -144,14 +143,6 @@ export function initEncryptedPages(encryptedPages, password) {
                     }
                 }
             })
-
-            // let _passwd = prompt('Sorry, you have no permissions！');
-            // if (_passwd === password) {
-            //     console.log('Welcome, Sir.');
-            //     sessionStorage.setItem('pw', true);
-            // } else {
-            //     window.location.pathname = '/';
-            // }
         }
     }
 }

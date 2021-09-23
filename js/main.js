@@ -56,7 +56,7 @@ const CONTENT = $('#content');
           placeholder: '说些什么呢 ……'
       })
   }
-  
+
   if (isMB) { $('#encrypt').hide() }
   initEncryptedPages(['joker', 'story', 'diary', 'plan'], 'jjkkk');
   if ($('#pw')) { $('#pw').focus() }
@@ -109,13 +109,13 @@ if (isHome()) {
             $(this)
                 .parent()
                 .hover(function () {
-                    $(this).find('tbody').fadeToggle();
+                    $(this).find('tbody').fadeToggle("fast");
                 });
         } else {
             $(this)
                 .parent()
                 .click(function () {
-                    $(this).find('tbody').fadeToggle();
+                    $(this).find('tbody').fadeToggle("fast");
                 });
         }
 
@@ -232,7 +232,7 @@ if (isCurPage('Navigation')) {
         _tip = '';
 
     _tip =
-        _bmLen > 20 ? '（🔥太多了，赶快处理吧，亲！）' : '（😤状态还不错！）';
+        _bmLen > 20 ? '（太多了，赶快处理吧，亲！）' : '（状态还不错！）';
     $('#content p').append(
         `<span style="float: right;"><progress value="${_bmLen}" max="100"></progress> ${_tip}${_bmLen} 条</span>`
     );
