@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-09-23 四 15:49 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MAP</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+
+                <link rel="stylesheet" href="css/style.css" type="text/css"  />
+                <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js"></script>
+                <script type="module" src="js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">MAP</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org2ab2802">map的定义</a></li>
+<li><a href="#org61df607">map容器内元素的访问</a></li>
+<li><a href="#org9d37917">map常用函数</a>
+<ul>
+<li><a href="#orgde2ece3">find</a></li>
+<li><a href="#orge451780">insert</a></li>
+<li><a href="#org39d1e05">erase</a></li>
+<li><a href="#org2028569">size</a></li>
+<li><a href="#orgc4b85e2">clear</a></li>
+<li><a href="#org657baf2">empty</a></li>
+<li><a href="#orgc3f882b">begin</a></li>
+<li><a href="#orgf3d1baa">end</a></li>
+<li><a href="#orge7dc104">lower_bound</a></li>
+<li><a href="#org84166d6">upper_bound</a></li>
+</ul>
+</li>
+<li><a href="#org60226fa">注意！</a></li>
+<li><a href="#orgf808f87">map的使用</a>
+<ul>
+<li><a href="#org5644aa1">map的基本使用以及与struct结构体类型的比较</a></li>
+<li><a href="#org7388fdd">map新建一个的初始值为0</a></li>
+<li><a href="#org893bb75">map中可以使用struct结构体</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org2ab2802" class="outline-2">
+<h2 id="org2ab2802">map的定义</h2>
+<div class="outline-text-2" id="text-org2ab2802">
+<p>
+map翻译为映射，可以将任何基本类型(包括STL容器)映射到任何基本类型(包括STL容器)
+</p>
+</div>
+</div>
+<div id="outline-container-org61df607" class="outline-2">
+<h2 id="org61df607">map容器内元素的访问</h2>
+<div class="outline-text-2" id="text-org61df607">
+<ul class="org-ul">
+<li>下标访问</li>
+<li>迭代器访问</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org9d37917" class="outline-2">
+<h2 id="org9d37917">map常用函数</h2>
+<div class="outline-text-2" id="text-org9d37917">
+</div>
+<div id="outline-container-orgde2ece3" class="outline-3">
+<h3 id="orgde2ece3">find</h3>
+<div class="outline-text-3" id="text-orgde2ece3">
+<ul class="org-ul">
+<li>find(key)</li>
+<li>时间复杂度O(logN)</li>
+<li><p>
+如果没有查找到，返回mp.end()
+</p>
+<div class="org-src-container">
+<pre class="src src-C++">#include &lt;cstdio&gt;
+#include &lt;map&gt;
+using namespace std;
+int main() {
+  map&lt;char, int&gt; mp;
+  mp['A'] = 1;
+  mp['B'] = 2;
+  mp['C'] = 3;
+  auto it = mp.find('D');
+  if (it != mp.end())
+    printf("D = %d\n", it -&gt; second);
+
+  return 0;
+}
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orge451780" class="outline-3">
+<h3 id="orge451780">insert</h3>
+<div class="outline-text-3" id="text-orge451780">
+<p>
+mp.insert(make_pair(1, 2))
+</p>
+</div>
+</div>
+<div id="outline-container-org39d1e05" class="outline-3">
+<h3 id="org39d1e05">erase</h3>
+<div class="outline-text-3" id="text-org39d1e05">
+<dl class="org-dl">
+<dt>mp.erase(it)</dt><dd>时间复杂度O(1)</dd>
+<dt>mp.erase(key)</dt><dd>时间复杂度O(logN)</dd>
+<dt>mp.erase(first, last)</dt><dd><p>
+时间复杂度O(last - first)
+</p>
+<div class="org-src-container">
+<pre class="src src-C++">//删除单个节点
+map&lt;string,string&gt; mapTest;
+typedef map&lt;string,string&gt;::iterator ITER;
+
+ITER iter=mapTest.find(key);
+mapTest.erase(iter);
+
+例子2：
+//应用到循环里的错误写法。结果：导致程序的行为不可知。
+//原因： map 是关联容器,对于关联容器来说，如果某一个元素已经被删除，
+//那么其对应的迭代器就失效了，不应该再被使用；否则会导致程序无定义的行为。
+for(ITER iter = mapTest.begin(); iter != mapTest.end(); ++iter) {
+  cout &lt;&lt; iter -&gt; first &lt;&lt; ":" &lt;&lt; iter -&gt; second &lt;&lt; endl;
+  mapTest.erase(iter);
+ }
+
+例子3：
+
+//1.使用删除之前的迭代器定位下一个元素。STL建议的使用方式
+for(ITER iter = mapTest.begin(); iter != mapTest.end(); ) {
+  cout &lt;&lt; iter -&gt; first &lt;&lt; ":" &lt;&lt; iter -&gt; second &lt;&lt; endl;
+  mapTest.erase(iter++);
+ }
+
+//2. erase() 成员函数返回下一个元素的迭代器 (仅适用于C++11)
+for(ITER iter = mapTest.begin(); iter != mapTest.end(); ) {
+  cout &lt;&lt; iter -&gt; first &lt;&lt; ":" &lt;&lt; iter -&gt; second &lt;&lt; endl;
+  iter=mapTest.erase(iter);
+ }
+
+//3. 在删除iter指向的内容之前就将其移动到下一个正确地址,所以正确写法如下:
+for(ITER iter = mapTest.begin(); iter != mapTest.end(); ) {
+  if (check(iter))
+    mapTest.erase(iter++);
+  else
+    ++iter;
+ }
+
+或：
+for(ITER iter = mapTest.begin(); iter != mapTest.end();) {
+  if(check(iter)) {
+    mapTest.erase(iter++);
+    continue;
+  }
+  ++iter;
+ }
+
+//不止是map, 链式存储结构的stl容器都会这样,
+//而对vector. string连续存储来说,就删除一个元素的时候不需要将迭代器++了.
+</pre>
+</div></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-org2028569" class="outline-3">
+<h3 id="org2028569">size</h3>
+<div class="outline-text-3" id="text-org2028569">
+<ul class="org-ul">
+<li>mp.size()</li>
+<li><p>
+时间复杂度O(1)
+</p>
+<div class="org-src-container">
+<pre class="src src-C++">for (map&lt;int&gt;::iterator it = mp.begin(); it != mp.end(); it++) {
+
+ }
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgc4b85e2" class="outline-3">
+<h3 id="orgc4b85e2">clear</h3>
+<div class="outline-text-3" id="text-orgc4b85e2">
+<ul class="org-ul">
+<li>mp.clear()</li>
+<li>时间复杂度O(N)</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org657baf2" class="outline-3">
+<h3 id="org657baf2">empty</h3>
+</div>
+<div id="outline-container-orgc3f882b" class="outline-3">
+<h3 id="orgc3f882b">begin</h3>
+</div>
+<div id="outline-container-orgf3d1baa" class="outline-3">
+<h3 id="orgf3d1baa">end</h3>
+</div>
+<div id="outline-container-orge7dc104" class="outline-3">
+<h3 id="orge7dc104">lower_bound</h3>
+<div class="outline-text-3" id="text-orge7dc104">
+<p>
+map::lower_bound(key):返回map中第一个大于或等于key的迭代器指针
+</p>
+</div>
+</div>
+<div id="outline-container-org84166d6" class="outline-3">
+<h3 id="org84166d6">upper_bound</h3>
+<div class="outline-text-3" id="text-org84166d6">
+<p>
+map::upper_bound(key):返回map中第一个大于key的迭代器指针
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org60226fa" class="outline-2">
+<h2 id="org60226fa">注意！</h2>
+<div class="outline-text-2" id="text-org60226fa">
+<ul class="org-ul">
+<li>字符串到整型的映射，必须使用string而不能使用char数组</li>
+<li>map使用erase函数时需要预先将迭代器后移</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgf808f87" class="outline-2">
+<h2 id="orgf808f87">map的使用</h2>
+<div class="outline-text-2" id="text-orgf808f87">
+</div>
+<div id="outline-container-org5644aa1" class="outline-3">
+<h3 id="org5644aa1">map的基本使用以及与struct结构体类型的比较</h3>
+<div class="outline-text-3" id="text-org5644aa1">
+<div class="org-src-container">
+<pre class="src src-C++">#include &lt;cstdio&gt;
+#include &lt;map&gt;
+using namespace std;
+
+int main() {
+  char ch;
+  int  x;
+  map&lt;char, int&gt; mp;
+  mp['a'] = 1;
+  mp['b'] = 2;
+  mp['c'] = 3;
+  scanf("%c", &amp;ch);
+  scanf("%d", &amp;x);
+  mp[ch] = x;
+
+  map&lt;char, int&gt;::iterator it = mp.begin();
+  for ( ; it != mp.end(); it++)
+    printf("%c %d\n", it -&gt; first, it -&gt; second);
+
+  return 0;
+}
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-C++">//相当于结构体类型
+#include &lt;cstdio&gt;
+
+struct mp{
+  char ch;
+  int  x;
+};
+
+int main() {
+  mp mp0[4];
+  mp0[0] = {'a', 1};
+  mp0[1] = {'b', 2};
+  mp0[2] = {'c', 3};
+  scanf("%c", &amp;mp0[3].ch);
+  scanf("%d", &amp;mp0[3].x);
+
+  for (int i = 0; i &lt; 4; i++)
+    printf("%c %d\n", mp0[i].ch, mp0[i].x);
+
+  return 0;
+}
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org7388fdd" class="outline-3">
+<h3 id="org7388fdd">map新建一个的初始值为0</h3>
+<div class="outline-text-3" id="text-org7388fdd">
+<div class="org-src-container">
+<pre class="src src-C++">#include &lt;cstdio&gt;
+#include &lt;map&gt;
+using namespace std;
+int main() {
+  map&lt;int, int&gt; mp1;
+  map&lt;char, int&gt; mp2;
+  for (int i = 0; i &lt; 5; i++) {
+    int num;
+    scanf("%d", &amp;num);
+    mp1[num];
+  }
+  for (map&lt;int, int&gt;::iterator it = mp1.begin(); it != mp1.end(); it++)
+    printf("%d %d\n", it -&gt; first, it -&gt; second);
+
+  for (int i = 0; i &lt; 5; i++) {
+    int num;
+    scanf("%d", &amp;num);
+    mp1[num]++;
+  }
+  for (map&lt;int, int&gt;::iterator it = mp1.begin(); it != mp1.end(); it++)
+    printf("%d %d\n", it -&gt; first, it -&gt; second);
+  /*
+   * 输入0 1 2 3 4 5 6 7 8 9
+   * 输出
+   * 0 0
+   * 1 0
+   * 2 0
+   * 3 0
+   * 4 0
+   * 5 1
+   * 6 1
+   * 7 1
+   * 8 1
+   * 9 1
+   */
+
+  return 0;
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org893bb75" class="outline-3">
+<h3 id="org893bb75">map中可以使用struct结构体</h3>
+<div class="outline-text-3" id="text-org893bb75">
+<ul class="org-ul">
+<li><p>
+但unordered_map不能，需要特殊操作
+</p>
+<div class="org-src-container">
+<pre class="src src-C++">#include &lt;cstdio&gt;
+#include &lt;map&gt;
+#include &lt;unordered_map&gt;
+using namespace std;
+int main() {
+  struct Node {
+    int value;
+    int index;
+  }node;
+  map&lt;int, Node&gt; mp;
+
+  for (int i = 0; i &lt; 5; i++) {
+    scanf("%d", &amp;node.value);
+    scanf("%d", &amp;node.index);
+    mp[i] = node;
+  }
+  for (map&lt;int, Node&gt;::iterator it = mp.begin(); it != mp.end(); it++)
+    printf("%d %d %d\n", it -&gt; first, it -&gt; second.value, it -&gt; second.index);
+
+  /*输入
+   * 100 101
+   * 200 201
+   * 300 301
+   * 400 401
+   * 500 501
+   * 输出
+   * 0 100 101
+   * 1 200 201
+   * 2 300 301
+   * 3 400 401
+   * 4 500 501
+   */
+
+  return 0;
+}
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

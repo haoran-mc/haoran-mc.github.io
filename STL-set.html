@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-09-23 四 15:49 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SET</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+
+                <link rel="stylesheet" href="css/style.css" type="text/css"  />
+                <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js"></script>
+                <script type="module" src="js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">SET</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orge2f93d4">set的定义</a></li>
+<li><a href="#org412bb8a">set容器内元素的访问</a>
+<ul>
+<li><a href="#org33f6e79">迭代器访问</a></li>
+</ul>
+</li>
+<li><a href="#org8467319">set常用函数</a>
+<ul>
+<li><a href="#org3eb3078">insert</a></li>
+<li><a href="#orgb184041">find</a></li>
+<li><a href="#org360167c">erase</a></li>
+<li><a href="#org307c4b6">size</a></li>
+<li><a href="#org744bb1c">clear</a></li>
+<li><a href="#org78bdc8e">count</a></li>
+<li><a href="#org16581f6">lower_bound</a></li>
+<li><a href="#org6057d2b">upper_bound</a></li>
+</ul>
+</li>
+<li><a href="#org152ee10">注意！</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orge2f93d4" class="outline-2">
+<h2 id="orge2f93d4">set的定义</h2>
+<div class="outline-text-2" id="text-orge2f93d4">
+<p>
+set翻译为集合，是一个内部自动有序且不含重复元素的容器
+</p>
+</div>
+</div>
+<div id="outline-container-org412bb8a" class="outline-2">
+<h2 id="org412bb8a">set容器内元素的访问</h2>
+<div class="outline-text-2" id="text-org412bb8a">
+</div>
+<div id="outline-container-org33f6e79" class="outline-3">
+<h3 id="org33f6e79">迭代器访问</h3>
+</div>
+</div>
+<div id="outline-container-org8467319" class="outline-2">
+<h2 id="org8467319">set常用函数</h2>
+<div class="outline-text-2" id="text-org8467319">
+</div>
+<div id="outline-container-org3eb3078" class="outline-3">
+<h3 id="org3eb3078">insert</h3>
+<div class="outline-text-3" id="text-org3eb3078">
+<ul class="org-ul">
+<li>st.insert(x)</li>
+<li><p>
+时间复杂度O(logN)
+</p>
+<div class="org-src-container">
+<pre class="src src-C++">//set容器会自动排序
+//输入1 0 4 3 2
+//会自动排序为0 1 2 3 4
+#include &lt;cstdio&gt;
+#include &lt;set&gt;
+using namespace std;
+int main() {
+  set&lt;int&gt; st;
+  for (int i = 0; i &lt; 5; i++) {
+    int num;
+    scanf("%d", &amp;num);
+    st.insert(num);
+  }
+
+  if (st.find(0) == st.end())
+    printf("can not find\n");
+  else {
+    set&lt;int&gt;::iterator it = st.find(0);
+    printf("%d\n", *(it++)); //输出需要寻找的元素，还是0，并让it指向下一个元素1
+    printf("%d\n", *(++it)); //输出0的下下一个元素，2
+    printf("%d\n", *it++);   //输出0的下下一个元素2，且指向3
+    printf("%d\n", *++it);   //输出0的下下下下个元素4
+    /*
+     * 这三种都不可以，1是set里的元素是只读的，不能改变
+     * 2是只有vector与string类型的迭代器可以使用it+1这种操作
+     * 不过it++都可以使用
+     *printf("%d\n", *(it+1));
+     *printf("%d\n", (*it)++);
+     *printf("%d\n", ++*it);
+     */
+  }
+  st.clear();
+  return 0;
+}
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgb184041" class="outline-3">
+<h3 id="orgb184041">find</h3>
+<div class="outline-text-3" id="text-orgb184041">
+<ul class="org-ul">
+<li>find(value)</li>
+<li>时间复杂度O(logN)</li>
+<li><p>
+没找到返回st.end()
+</p>
+<div class="org-src-container">
+<pre class="src src-C++">//set容器会自动排序
+//输入1 0 4 3 2
+//会自动排序为0 1 2 3 4
+#include &lt;cstdio&gt;
+#include &lt;set&gt;
+using namespace std;
+int main() {
+  set&lt;int&gt; st;
+  for (int i = 0; i &lt; 5; i++) {
+    int num;
+    scanf("%d", &amp;num);
+    st.insert(num);
+  }
+
+  if (st.find(0) == st.end())
+    printf("can not find\n");
+  else {
+    set&lt;int&gt;::iterator it = st.find(0);
+    printf("%d\n", *(it++)); //输出需要寻找的元素，还是0，并让it指向下一个元素1
+    printf("%d\n", *(++it)); //输出0的下下一个元素，2
+    printf("%d\n", *it++);   //输出0的下下一个元素2，且指向3
+    printf("%d\n", *++it);   //输出0的下下下下个元素4
+    /*
+     * 这三种都不可以，1是set里的元素是只读的，不能改变
+     * 2是只有vector与string类型的迭代器可以使用it+1这种操作
+     * 不过it++都可以使用
+     *printf("%d\n", *(it+1));
+     *printf("%d\n", (*it)++);
+     *printf("%d\n", ++*it);
+     */
+  }
+  st.clear();
+  return 0;
+}
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org360167c" class="outline-3">
+<h3 id="org360167c">erase</h3>
+<div class="outline-text-3" id="text-org360167c">
+<ul class="org-ul">
+<li>st.erase(it)</li>
+<li>删除单个元素
+<ul class="org-ul">
+<li>st.erase(it)</li>
+<li>时间复杂度O(1)</li>
+<li>st.erase(value)</li>
+<li>时间复杂度O(logN)</li>
+</ul></li>
+<li>删除区间元素
+<ul class="org-ul">
+<li>st.erase(first, last)</li>
+<li>时间复杂度O(last - fast)</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org307c4b6" class="outline-3">
+<h3 id="org307c4b6">size</h3>
+<div class="outline-text-3" id="text-org307c4b6">
+<ul class="org-ul">
+<li>st.size()</li>
+<li><p>
+时间复杂度O(1)
+</p>
+<div class="org-src-container">
+<pre class="src src-C++">for (int i = 0; i &lt; (int)st.size(); i++) {
+
+ }
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org744bb1c" class="outline-3">
+<h3 id="org744bb1c">clear</h3>
+<div class="outline-text-3" id="text-org744bb1c">
+<ul class="org-ul">
+<li>st.clear()</li>
+<li><p>
+时间复杂度O(N)
+</p>
+<div class="org-src-container">
+<pre class="src src-C++">//set容器会自动排序
+//输入1 0 4 3 2
+//会自动排序为0 1 2 3 4
+#include &lt;cstdio&gt;
+#include &lt;set&gt;
+using namespace std;
+int main() {
+  set&lt;int&gt; st;
+  for (int i = 0; i &lt; 5; i++) {
+    int num;
+    scanf("%d", &amp;num);
+    st.insert(num);
+  }
+
+  if (st.find(0) == st.end())
+    printf("can not find\n");
+  else {
+    set&lt;int&gt;::iterator it = st.find(0);
+    printf("%d\n", *(it++)); //输出需要寻找的元素，还是0，并让it指向下一个元素1
+    printf("%d\n", *(++it)); //输出0的下下一个元素，2
+    printf("%d\n", *it++);   //输出0的下下一个元素2，且指向3
+    printf("%d\n", *++it);   //输出0的下下下下个元素4
+    /*
+     * 这三种都不可以，1是set里的元素是只读的，不能改变
+     * 2是只有vector与string类型的迭代器可以使用it+1这种操作
+     * 不过it++都可以使用
+     *printf("%d\n", *(it+1));
+     *printf("%d\n", (*it)++);
+     *printf("%d\n", ++*it);
+     */
+  }
+  //一句话清空
+  st.clear();
+  return 0;
+}
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org78bdc8e" class="outline-3">
+<h3 id="org78bdc8e">count</h3>
+<div class="outline-text-3" id="text-org78bdc8e">
+<p>
+判断元素是否在集合set中，存在返回1个，不存在返回0个
+</p>
+</div>
+</div>
+<div id="outline-container-org16581f6" class="outline-3">
+<h3 id="org16581f6">lower_bound</h3>
+<div class="outline-text-3" id="text-org16581f6">
+<p>
+set::lower_bound(key):返回map中第一个大于或等于key的迭代器指针
+</p>
+</div>
+</div>
+<div id="outline-container-org6057d2b" class="outline-3">
+<h3 id="org6057d2b">upper_bound</h3>
+<div class="outline-text-3" id="text-org6057d2b">
+<p>
+set::upper_bound(key):返回map中第一个大于key的迭代器指针
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org152ee10" class="outline-2">
+<h2 id="org152ee10">注意！</h2>
+<div class="outline-text-2" id="text-org152ee10">
+<ul class="org-ul">
+<li>set容器只能通过迭代器访问</li>
+</ul>
+</div>
+</div>
+</div>
+</body>
+</html>

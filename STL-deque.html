@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-09-23 四 15:50 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DEQUE</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran &lt;haoran.mc@outlook.com&gt;">
+
+                <link rel="stylesheet" href="css/style.css" type="text/css"  />
+                <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js"></script>
+                <script type="module" src="js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">DEQUE</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org0206d90">deque</a>
+<ul>
+<li><a href="#orge744666">deque 的使用方法</a></li>
+<li><a href="#org22d64d6">构造函数</a></li>
+<li><a href="#orge4d1e19">元素访问</a></li>
+<li><a href="#org1526ced">迭代器</a></li>
+<li><a href="#orgf1128fd">长度</a></li>
+<li><a href="#orga02b8c3">元素增删及修改</a></li>
+<li><a href="#org629918e">deque 的实现细节</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<p>
+#+Copyright © 2021, L.M.haoran, all rights reserved.
+</p>
+
+<div id="outline-container-org0206d90" class="outline-2">
+<h2 id="org0206d90">deque</h2>
+<div class="outline-text-2" id="text-org0206d90">
+<p>
+std::deque 是 STL 提供的 双端队列 数据结构。能够提供线性复杂度的插入和删除，以及常数复杂度的随机访问
+</p>
+</div>
+<div id="outline-container-orge744666" class="outline-3">
+<h3 id="orge744666">deque 的使用方法</h3>
+<div class="outline-text-3" id="text-orge744666">
+<p>
+以下介绍常用用法，详细内容 请参见 C++ 文档。deque 的迭代器函数与 vector 相同，因此不作详细介绍
+</p>
+</div>
+</div>
+<div id="outline-container-org22d64d6" class="outline-3">
+<h3 id="org22d64d6">构造函数</h3>
+<div class="outline-text-3" id="text-org22d64d6">
+<p>
+参见如下代码（假设你已经 using 了 std 命名空间相关类型）：
+</p>
+<div class="org-src-container">
+<pre class="src src-C++">// 1. 定义一个int类型的空双端队列 v0
+deque&lt;int&gt; v0;
+// 2. 定义一个int类型的双端队列 v1，并设置初始大小为10; 线性复杂度
+deque&lt;int&gt; v1(10);
+// 3. 定义一个int类型的双端队列 v2，并初始化为10个1; 线性复杂度
+deque&lt;int&gt; v2(10, 1);
+// 4. 复制已有的双端队列 v1; 线性复杂度
+deque&lt;int&gt; v3(v1);
+// 5. 创建一个v2的拷贝deque v4，其内容是v4[0]至v4[2]; 线性复杂度
+deque&lt;int&gt; v4(v2.begin(), v2.begin() + 3);
+// 6. 移动v2到新创建的deque v5，不发生拷贝; 常数复杂度; 需要 C++11
+deque&lt;int&gt; v5(std::move(v2));
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orge4d1e19" class="outline-3">
+<h3 id="orge4d1e19">元素访问</h3>
+<div class="outline-text-3" id="text-orge4d1e19">
+<p>
+与 vector 一致，但无法访问底层内存。其高效的元素访问速度可参考实现细节部分
+</p>
+
+<ul class="org-ul">
+<li>at() 返回容器中指定位置元素的引用，执行越界检查，常数复杂度</li>
+<li>operator[] 返回容器中指定位置元素的引用。不执行越界检查，常数复杂度</li>
+<li>front() 返回首元素的引用</li>
+<li>back() 返回末尾元素的引用</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org1526ced" class="outline-3">
+<h3 id="org1526ced">迭代器</h3>
+<div class="outline-text-3" id="text-org1526ced">
+<p>
+与 vector 一致
+</p>
+</div>
+</div>
+<div id="outline-container-orgf1128fd" class="outline-3">
+<h3 id="orgf1128fd">长度</h3>
+<div class="outline-text-3" id="text-orgf1128fd">
+<p>
+与 vector 一致，但是没有 reserve() 和 capacity() 函数。（仍然有 shrink_to_fit() 函数）
+</p>
+</div>
+</div>
+<div id="outline-container-orga02b8c3" class="outline-3">
+<h3 id="orga02b8c3">元素增删及修改</h3>
+<div class="outline-text-3" id="text-orga02b8c3">
+<p>
+与 vector 一致，并额外有向队列头部增加元素的函数
+</p>
+
+<ul class="org-ul">
+<li>clear() 清除所有元素</li>
+<li>insert() 支持在某个迭代器位置插入元素、可以插入多个。复杂度与 pos 与两端距离较小者成线性。</li>
+<li>erase() 删除某个迭代器或者区间的元素，返回最后被删除的迭代器。复杂度与 insert 一致。</li>
+<li>push_front() 在头部插入一个元素，常数复杂度。</li>
+<li>pop_front() 删除头部元素，常数复杂度。</li>
+<li>push_back() 在末尾插入一个元素，常数复杂度。</li>
+<li>pop_back() 删除末尾元素，常数复杂度。</li>
+<li>swap() 与另一个容器进行交换，此操作是 常数复杂度 而非线性的。</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org629918e" class="outline-3">
+<h3 id="org629918e">deque 的实现细节</h3>
+<div class="outline-text-3" id="text-org629918e">
+<ul class="org-ul">
+<li>deque 通常的底层实现是多个不连续的缓冲区，而缓冲区中的内存是连续的。而每个缓冲区还会记录首指针和尾指针，用来标记有效数据的区间。当一个缓冲区填满之后便会在之前或者之后分配新的缓冲区来存储更多的数据</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>
