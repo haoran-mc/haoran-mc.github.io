@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-09-24 五 11:54 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ACM-TEMPLATE</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="css/style.css" type="text/css"  />
+                <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js"></script>
+                <script type="module" src="js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">ACM-TEMPLATE</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org09310d5">快速开始</a></li>
+<li><a href="#orgc674b9d">仓库介绍</a></li>
+<li><a href="#org556a3d3">目录结构</a></li>
+<li><a href="#org1eaff1a">脚本文件</a></li>
+<li><a href="#org39a5fd0">LaTeX-Head</a>
+<ul>
+<li><a href="#org0858089">使用到的包</a></li>
+<li><a href="#orga6ad3fb">页眉，页脚，代码格式</a></li>
+<li><a href="#org4c8759c">标题与目录</a></li>
+</ul>
+</li>
+<li><a href="#org4cd8aa4">LaTeX-Tail</a></li>
+<li><a href="#org159b61c">注意！</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org09310d5" class="outline-2">
+<h2 id="org09310d5">快速开始</h2>
+<div class="outline-text-2" id="text-org09310d5">
+<p>
+快进到直接生成模板 -&gt; <a href="https://github.com/haoran-mc/ACMtemplate.git">我的生成模板仓库</a> 
+</p>
+</div>
+</div>
+<div id="outline-container-orgc674b9d" class="outline-2">
+<h2 id="orgc674b9d">仓库介绍</h2>
+<div class="outline-text-2" id="text-orgc674b9d">
+<p>
+ACM比赛允许自带模板，虽然网上有很多优秀的模板，但是毕竟不是自己写的，所以很多地方不熟悉。大家一般都会自己写模板，写了模板怎么打印出来呢？一开始我是将代码粘到markdown中，然后通过markdown转为pdf，很显然这样很麻烦，如果代码出现改动，那就需要重新生成pdf文件，而且排版还会有问题。最后队友oyzz向我介绍了一种利用LaTeX生成pdf文件的方式，于是有了这篇文章。
+</p>
+</div>
+</div>
+<div id="outline-container-org556a3d3" class="outline-2">
+<h2 id="org556a3d3">目录结构</h2>
+<div class="outline-text-2" id="text-org556a3d3">
+<p>
+使用了<a href="https://oi-wiki.org/">oi-wiki</a>目录，最后一个是生成模板的文件夹。
+</p>
+
+<pre class="example" id="orgf65dc35">
+Algorithm                       # 搭建的算法目录
+├── 语言基础
+├── 基本算法
+│   ├── 排序
+│   │   ├── 快速排序.cpp
+│   │   ├── 归并排序.cpp
+│   │   └── ...
+│   ├── 递归
+│   ├── 分治
+│   ├── 贪心
+│   ├── 前缀和
+│   ├── 差分
+│   ├── 二分
+│   ├── 倍增
+│   └── 双指针
+├── 搜索
+├── 动态规划
+├── 字符串
+├── 数学问题
+├── 数据结构
+├── 图论
+├── 杂项
+├── 计算几何
+└── 构建LaTeX                   # 用来生成模板文件的文件夹
+    ├── main.py                 # 用来生成.tex文件
+    ├── Makefile                # make生成
+    ├── LaTeX-Head              # 预先准备的.tex的头部
+    └── LaTeX-Tail              # 预先准备的.tex的尾部
+</pre>
+</div>
+</div>
+<div id="outline-container-org1eaff1a" class="outline-2">
+<h2 id="org1eaff1a">脚本文件</h2>
+<div class="outline-text-2" id="text-org1eaff1a">
+<p>
+目标：通过写一个脚本文件来生成LaTeX代码，然后使用.tex文件生成pdf模板。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python">os.chdir("..")                                      # 设置路径为..，即Algorithm主目录
+tex = open("./构建LaTeX/template.tex", "w")         # 打开template.tex文件
+writetex("./构建LaTeX/LaTeX-Head")                  # 写入准备好的模板头
+path = "./"                                         # 路径还是..，即Algorithm主目录
+getLaTeX(path, 0)                                   # 调用关键的递归函数，从path开始写入模板，初识深度为0
+writetex("./构建LaTeX/LaTeX-Tail")                  # 写入准备好的模板尾
+tex.close()                                         # 关闭文件
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>递归函数，扫描所有文件与文件夹</li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-python">def getLaTeX(path, depth):
+    files = os.listdir(path)                        # 得到文件夹下的所有文件(包括文件夹)名称
+    files.sort()                                    # 排序
+    for file in files:                              # 遍历当前文件夹下所有文件
+        if os.path.isdir(path + file):              # 如果是文件夹，递归
+            if (file == ".git" or file == ".font" or file == "STL" or file == "构建LaTeX" or file == "in"):    # 排除.git文件夹，和自己的一些无关文件夹
+                continue
+            if depth == 0:                          # 一级目录特判
+                tex.write("\\section{" + file + "}\n")
+            else:
+                str = "sub"
+                for i in range(1, depth):
+                    str += "sub"
+                if (len(str) &gt; 6):                  # 三级目录特判
+                    tex.write("\\paragraph{" + file + "}\n")
+                    continue
+                tex.write("\\" + str + "section{" + file + "}\n")
+                getLaTeX(path + file + "/", depth + 1)  # 递归寻找下一级目录
+        elif os.path.isfile(path + file):           # 如果是文件
+            if (file == "in.txt" or file == "out.txt" or file == ".ogmc" or file == "o-o"):
+                continue
+            str = "sub"
+            for i in range(1, depth):
+                str += "sub"
+            if (len(str) &gt; 6):
+                tex.write("\\paragraph{" + file + "}\n")
+                tex.write("\\lstinputlisting{" + "." + path + file + "}\n")
+                continue
+            tex.write("\\" + str + "section{" + file + "}\n")
+            tex.write("\\lstinputlisting{" + "." + path + file + "}\n")
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>完整代码</li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-python">import os
+
+# 向要生成的模板写入准备好的头部与尾部
+def writetex(filename):
+    fp = open(filename, "r")
+    while True:
+        buff = fp.readline()
+        if len(buff) == 0:
+            break
+        tex.write(buff)
+        fp.close()
+
+
+def getLaTeX(path, depth):
+    files = os.listdir(path)                        # 得到文件夹下的所有文件(包括文件夹)名称
+    files.sort()                                    # 排序
+    for file in files:                              # 遍历当前文件夹下所有文件
+        if os.path.isdir(path + file):              # 如果是文件夹，递归
+            if (file == ".git" or file == ".font" or file == "01-STL" or file == "11-构建LaTeX" or file == "in"):    # 排除.git文件夹
+                continue
+            if depth == 0:                          # 一级目录特判
+                tex.write("\\section{" + file + "}\n")
+            else:
+                str = "sub"
+                for i in range(1, depth):
+                    str += "sub"
+                if (len(str) &gt; 6):                  # 三级目录特判
+                    tex.write("\\paragraph{" + file + "}\n")
+                    continue
+                tex.write("\\" + str + "section{" + file + "}\n")
+                getLaTeX(path + file + "/", depth + 1)  # 递归寻找下一级目录
+        elif os.path.isfile(path + file):           # 如果是文件
+            if (file == "in.txt" or file == "out.txt" or file == ".ogmc" or file == "o-o"):
+                continue
+            str = "sub"
+            for i in range(1, depth):
+                str += "sub"
+            if (len(str) &gt; 6):
+                tex.write("\\paragraph{" + file + "}\n")
+                tex.write("\\lstinputlisting{" + "." + path + file + "}\n")
+                continue
+            tex.write("\\" + str + "section{" + file + "}\n")
+            tex.write("\\lstinputlisting{" + "." + path + file + "}\n")
+
+
+os.chdir("..")                                      # 设置路径为..
+tex = open("./11-构建LaTeX/template.tex", "w")      # 打开template.tex文件
+writetex("./11-构建LaTeX/LaTeX-Head")               # 写入准备好的模板头
+path = "./"                                         # 路径还是..
+getLaTeX(path, 0)                                   # 从path开始写入模板
+writetex("./11-构建LaTeX/LaTeX-Tail")               # 写入准备好的模板尾
+tex.close()                                         # 关闭文件
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org39a5fd0" class="outline-2">
+<h2 id="org39a5fd0">LaTeX-Head</h2>
+<div class="outline-text-2" id="text-org39a5fd0">
+</div>
+<div id="outline-container-org0858089" class="outline-3">
+<h3 id="org0858089">使用到的包</h3>
+<div class="outline-text-3" id="text-org0858089">
+<div class="org-src-container">
+<pre class="src src-latex">\documentclass[10pt,a4paper]{article}    % \documentclass 定义文档类型，这里使用article格式、10磅大小的字体、A4纸张
+\usepackage{xeCJK}                       % 中文字体
+\usepackage{amsmath, amsthm}
+\usepackage{listings, xcolor}            % 代码块
+\usepackage{geometry}                    % 设置页边距
+\usepackage{fontspec}                    % 使用 OpenType 需要这个包
+\usepackage{graphicx}                    % 插图宏集
+\usepackage{fancyhdr}                    % 自定义页眉页脚
+\setCJKmainfont{FandolSong}              % 设置中文字体FandolSong-Regular
+\setsansfont{Consolas}                   % 设置英文字体
+\setmonofont[Mapping={}]{Consolas}       % 英文引号之类的正常显示，相当于设置英文字体
+\geometry{left=1cm, right=1cm, top=2cm, bottom=0.5cm}     % 页边距
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orga6ad3fb" class="outline-3">
+<h3 id="orga6ad3fb">页眉，页脚，代码格式</h3>
+<div class="outline-text-3" id="text-orga6ad3fb">
+<div class="org-src-container">
+<pre class="src src-latex">% 目录深度四级
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{4}
+\pagestyle{fancy}                        % 页眉、页脚设置
+\lhead{\CJKfamily{hei} Nanchang university ACM template}
+\chead{}
+\rhead{\CJKfamily{hei} 第 \thepage 页}
+\lfoot{}
+\cfoot{}
+\rfoot{}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+\lstset{                                 % 代码格式设置
+  language    = c++,
+  numbers     = left,
+  numberstyle = \tiny,
+  breaklines  = true,
+  captionpos  = b,
+  tabsize     = 4,
+  frame       = shadowbox,
+  columns     = fullflexible,
+  commentstyle = \color[RGB]{0, 128, 0},              % 注释颜色
+  keywordstyle = \color[RGB]{0, 0, 255},              % 关键字颜色
+  basicstyle   = \small\ttfamily,                     % 代码样式
+  stringstyle  = \color[RGB]{148,0,209}\ttfamily,     % 字符串样式
+  rulesepcolor = \color{red!20!green!20!blue!20},
+  showstringspaces = false,
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org4c8759c" class="outline-3">
+<h3 id="org4c8759c">标题与目录</h3>
+<div class="outline-text-3" id="text-org4c8759c">
+<div class="org-src-container">
+<pre class="src src-latex">\title{\CJKfamily{hei} \bfseries 南昌大学ACM校队模板}
+\renewcommand{\today}{\number\year 年 \number\month 月 \number\day 日}
+
+\begin{document} \small
+\begin{titlepage}
+  \maketitle
+  \center
+  \vskip 18cm
+  \begin{minipage}{\textwidth}
+    \begin{center} \LARGE
+      \emph{Author: ogmc} \\                         % 作者
+      \emph{Email: haoran.mc@outlook.com} \\         % 邮箱
+    \end{center}
+  \end{minipage}
+
+  \newpage
+  \thispagestyle{empty}
+  \renewcommand{\contentsname}{目录}
+  \tableofcontents
+  \pagestyle{fancy}
+\end{titlepage}
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org4cd8aa4" class="outline-2">
+<h2 id="org4cd8aa4">LaTeX-Tail</h2>
+<div class="outline-text-2" id="text-org4cd8aa4">
+<p>
+仅一行，文件的结束
+</p>
+<div class="org-src-container">
+<pre class="src src-latex">\end{document}
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org159b61c" class="outline-2">
+<h2 id="org159b61c">注意！</h2>
+<div class="outline-text-2" id="text-org159b61c">
+<p>
+由于latex的标题等级最高是四级，所以目录深度不能大于4，过深的目录脚本文件是找不到的！
+</p>
+</div>
+</div>
+</div>
+</body>
+</html>
