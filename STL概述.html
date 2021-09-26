@@ -1,418 +1,412 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-09-23 四 15:49 -->
+<!-- 2021-09-26 日 11:01 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>STL概述</title>
+<title>STL</title>
 <meta name="generator" content="Org mode">
 <meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
 
                 <link rel="stylesheet" href="css/style.css" type="text/css"  />
                 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js"></script>
                 <script type="module" src="js/main.js" defer></script>
                 <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-        displayAlign: "center",
-        displayIndent: "0em",
-
-        "HTML-CSS": { scale: 100,
-                        linebreaks: { automatic: "false" },
-                        webFont: "TeX"
-                       },
-        SVG: {scale: 100,
-              linebreaks: { automatic: "false" },
-              font: "TeX"},
-        NativeMML: {scale: 100},
-        TeX: { equationNumbers: {autoNumber: "AMS"},
-               MultLineWidth: "85%",
-               TagSide: "right",
-               TagIndent: ".8em"
-             }
-});
-</script>
-<script type="text/javascript"
-        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
 </head>
 <body>
 <div id="content">
-<h1 class="title">STL概述</h1>
+<h1 class="title">STL</h1>
 <div id="table-of-contents">
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org55cb106">容器定义</a>
+<li><a href="#org9371805">VECTOR</a>
 <ul>
-<li><a href="#orgb04d745">definition -&gt; vector</a></li>
-<li><a href="#org2df5e39">definition -&gt; set</a>
-<ul>
-<li><a href="#org413c292">definition -&gt; set</a></li>
-<li><a href="#org590c9a4">definition -&gt; multiset</a></li>
-<li><a href="#org3b9e1f8">definition -&gt; unordered_set</a></li>
+<li><a href="#orgb81d80f">vector的定义</a></li>
+<li><a href="#orgd554c4a">常用函数</a></li>
 </ul>
 </li>
-<li><a href="#org05ce37c">definition -&gt; string</a></li>
-<li><a href="#orga0113e6">definition -&gt; map</a>
+<li><a href="#org3bc0242">STRING</a>
 <ul>
-<li><a href="#org5d74a08">definition -&gt; map</a></li>
-<li><a href="#orgde12609">definition -&gt; multimap</a></li>
-<li><a href="#org40669a0">definition -&gt; unordered_map</a></li>
+<li><a href="#org5eefbfd">字符串的输入输出</a></li>
+<li><a href="#orgcc86357">常用函数</a></li>
 </ul>
 </li>
-<li><a href="#org2dc390a">definition -&gt; queue</a>
+<li><a href="#orgb6b027e">SET</a>
 <ul>
-<li><a href="#orgb571779">definition -&gt; queue</a></li>
-<li><a href="#org8bebeb1">definition -&gt; priority_queue</a></li>
+<li><a href="#org1784324">常用函数</a></li>
+<li><a href="#org88386ca">注意！</a></li>
 </ul>
 </li>
-<li><a href="#orgca30d79">definition -&gt; stack</a></li>
-<li><a href="#orgbf76598">definition -&gt; pair</a></li>
-</ul>
-</li>
-<li><a href="#orgba91a30">迭代器iterator</a>
+<li><a href="#org08d6727">MAP</a>
 <ul>
-<li><a href="#orga5beba4">迭代器的定义与访问</a>
+<li><a href="#org315b1d1">常用函数</a></li>
+<li><a href="#orgbfa5349">注意！</a></li>
+</ul>
+</li>
+<li><a href="#orga574b5a">QUEUE</a>
 <ul>
-<li><a href="#org7bef39a">iterator -&gt; vector</a></li>
-<li><a href="#org078ee94">iterator -&gt; string</a></li>
-<li><a href="#orgdbf87b0">iterator -&gt; set</a></li>
-<li><a href="#org17ab886">iterator -&gt; map</a></li>
-<li><a href="#orga7e4266">不使用迭代器的容器</a></li>
+<li><a href="#org8ea8ae8">常用函数</a></li>
+<li><a href="#org5e60dab">queue清空</a>
+<ul>
+<li><a href="#org979e7bf">直接用空的队列对象赋值</a></li>
+<li><a href="#orgaac9293">遍历出队列</a></li>
+<li><a href="#orge182842">使用swap</a></li>
 </ul>
 </li>
-<li><a href="#org9f88190">注意！</a></li>
+<li><a href="#org16876f0">注意！</a></li>
 </ul>
 </li>
-<li><a href="#org5bb908a">添加元素</a></li>
+<li><a href="#orgba1435f">PRIORITY_QUEUE</a>
+<ul>
+<li><a href="#orgc996ed9">默认设置</a></li>
+<li><a href="#org72a1d90">常用函数</a></li>
+<li><a href="#org8087e0c">优先级的设置</a></li>
+</ul>
+</li>
+<li><a href="#orgb31742f">STACK</a>
+<ul>
+<li><a href="#org0e50320">常用函数</a></li>
+</ul>
+</li>
+<li><a href="#org3bbc47e">PAIR</a>
+<ul>
+<li><a href="#orga50f917">pair容器内元素的访问</a></li>
+<li><a href="#orgbd7df4c">pair常用函数</a></li>
+</ul>
+</li>
+<li><a href="#orgc7273b0">ALGORITHM</a></li>
 </ul>
 </div>
 </div>
 
-
-<div id="outline-container-org55cb106" class="outline-2">
-<h2 id="org55cb106">容器定义</h2>
-<div class="outline-text-2" id="text-org55cb106">
+<div id="outline-container-org9371805" class="outline-2">
+<h2 id="org9371805">VECTOR</h2>
+<div class="outline-text-2" id="text-org9371805">
 </div>
-<div id="outline-container-orgb04d745" class="outline-3">
-<h3 id="orgb04d745">definition -&gt; vector</h3>
-<div class="outline-text-3" id="text-orgb04d745">
-<ul class="org-ul">
-<li>vector&lt;typename&gt; name
-<ul class="org-ul">
-<li>vector&lt;int&gt; name;</li>
-<li>vector&lt;double&gt; name;</li>
-<li>vector&lt;char&gt; name;</li>
-<li>vector&lt;node&gt; name;</li>
-</ul></li>
-<li>vector&lt;vector&lt;typename&gt; &gt; name;
-<ul class="org-ul">
-<li>vector&lt;vector&lt;int&gt; &gt; name;</li>
-<li>vector&lt;vector&lt;double&gt; &gt; name;</li>
-<li>vector&lt;vector&lt;char&gt; &gt; name;</li>
-<li>vector&lt;vector&lt;node&gt; &gt; name;</li>
-</ul></li>
-<li>vector&lt;typename&gt; name[arraysize];
-<ul class="org-ul">
-<li>vector&lt;int&gt; name[100];</li>
-<li>vector&lt;double&gt; name[100];</li>
-<li>vector&lt;char&gt; name[100];</li>
-<li>vector&lt;node&gt; name[100];</li>
-</ul></li>
-</ul>
-</div>
-</div>
-<div id="outline-container-org2df5e39" class="outline-3">
-<h3 id="org2df5e39">definition -&gt; set</h3>
-<div class="outline-text-3" id="text-org2df5e39">
-</div>
-<div id="outline-container-org413c292" class="outline-4">
-<h4 id="org413c292">definition -&gt; set</h4>
-<div class="outline-text-4" id="text-org413c292">
-<ul class="org-ul">
-<li>set&lt;typename&gt; name;
-<ul class="org-ul">
-<li>set&lt;int&gt; name;</li>
-<li>set&lt;double&gt; name;</li>
-<li>set&lt;char&gt; name</li>
-<li>set&lt;node&gt; name;</li>
-</ul></li>
-<li>set&lt;typename&gt; array[arraysize]
-<ul class="org-ul">
-<li>set&lt;int&gt; name[100];</li>
-<li>set&lt;double&gt; name[100];</li>
-<li>set&lt;char&gt; name[100];</li>
-<li>set&lt;node&gt; name[100];</li>
-</ul></li>
-</ul>
-</div>
-</div>
-<div id="outline-container-org590c9a4" class="outline-4">
-<h4 id="org590c9a4">definition -&gt; multiset</h4>
-</div>
-<div id="outline-container-org3b9e1f8" class="outline-4">
-<h4 id="org3b9e1f8">definition -&gt; unordered_set</h4>
-</div>
-</div>
-<div id="outline-container-org05ce37c" class="outline-3">
-<h3 id="org05ce37c">definition -&gt; string</h3>
-<div class="outline-text-3" id="text-org05ce37c">
-<ul class="org-ul">
-<li>string str;</li>
-</ul>
-</div>
-</div>
-<div id="outline-container-orga0113e6" class="outline-3">
-<h3 id="orga0113e6">definition -&gt; map</h3>
-<div class="outline-text-3" id="text-orga0113e6">
-</div>
-<div id="outline-container-org5d74a08" class="outline-4">
-<h4 id="org5d74a08">definition -&gt; map</h4>
-<div class="outline-text-4" id="text-org5d74a08">
-<ul class="org-ul">
-<li>map&lt;typename1, typename2&gt; mp;
-<ul class="org-ul">
-<li>map&lt;int, int&gt; mp; -&gt; int mp[];</li>
-<li>map&lt;string, int&gt; mp;</li>
-<li>map&lt;double, int&gt; mp;</li>
-<li>map&lt;char, int&gt; mp;</li>
-<li>map&lt;set&lt;int&gt;, string&gt; mp;</li>
-</ul></li>
-</ul>
-</div>
-</div>
-<div id="outline-container-orgde12609" class="outline-4">
-<h4 id="orgde12609">definition -&gt; multimap</h4>
-</div>
-<div id="outline-container-org40669a0" class="outline-4">
-<h4 id="org40669a0">definition -&gt; unordered_map</h4>
-</div>
-</div>
-<div id="outline-container-org2dc390a" class="outline-3">
-<h3 id="org2dc390a">definition -&gt; queue</h3>
-<div class="outline-text-3" id="text-org2dc390a">
-</div>
-<div id="outline-container-orgb571779" class="outline-4">
-<h4 id="orgb571779">definition -&gt; queue</h4>
-<div class="outline-text-4" id="text-orgb571779">
-<ul class="org-ul">
-<li>queue&lt;typename&gt; name;
-<ul class="org-ul">
-<li>queue&lt;int&gt; name;</li>
-<li>queue&lt;char&gt; name;</li>
-<li>queue&lt;double&gt; name;</li>
-<li>queue&lt;string&gt; name;</li>
-</ul></li>
-</ul>
-</div>
-</div>
-<div id="outline-container-org8bebeb1" class="outline-4">
-<h4 id="org8bebeb1">definition -&gt; priority_queue</h4>
-<div class="outline-text-4" id="text-org8bebeb1">
-<ul class="org-ul">
-<li>priority_queue&lt;typename&gt; name;
-<ul class="org-ul">
-<li>priority_queue&lt;int&gt; name;</li>
-<li>priority_queue&lt;char&gt; name;</li>
-<li>priority_queue&lt;double&gt; name;</li>
-<li>priority_queue&lt;string&gt; name;</li>
-</ul></li>
-</ul>
-</div>
-</div>
-</div>
-<div id="outline-container-orgca30d79" class="outline-3">
-<h3 id="orgca30d79">definition -&gt; stack</h3>
-<div class="outline-text-3" id="text-orgca30d79">
-<ul class="org-ul">
-<li>stack&lt;typename&gt; name;
-<ul class="org-ul">
-<li>stack&lt;int&gt; name;</li>
-<li>stack&lt;char&gt; name;</li>
-<li>stack&lt;double&gt; name;</li>
-<li>stack&lt;string&gt; name;</li>
-</ul></li>
-</ul>
-</div>
-</div>
-<div id="outline-container-orgbf76598" class="outline-3">
-<h3 id="orgbf76598">definition -&gt; pair</h3>
-<div class="outline-text-3" id="text-orgbf76598">
-<ul class="org-ul">
-<li>pair&lt;typename1, typename2&gt; name;
-<ul class="org-ul">
-<li>pair&lt;string, int&gt; name;</li>
-<li>pair&lt;char, int&gt; name;</li>
-<li>pair&lt;double, string&gt; name;</li>
-</ul></li>
-</ul>
-</div>
-</div>
-</div>
-<div id="outline-container-orgba91a30" class="outline-2">
-<h2 id="orgba91a30">迭代器iterator</h2>
-<div class="outline-text-2" id="text-orgba91a30">
+<div id="outline-container-orgb81d80f" class="outline-3">
+<h3 id="orgb81d80f">vector的定义</h3>
+<div class="outline-text-3" id="text-orgb81d80f">
 <p>
-迭代器(iterator)可以理解为一种类似指针的东西
+vector翻译为映射，可以将任何基本类型(包括STL容器)映射到任何基本类型(包括STL容器)
+</p>
+<div class="org-src-container">
+<pre class="src src-cpp">vector&lt;T&gt; vec1;                 /+创建了vec1+/
+vector&lt;T&gt; vec2(vec1);           /+创建的vec2中包含vec1中所有副本+/
+vector&lt;T&gt; vec2 = vec1;          /+创建的vec2中包含vec1中所有副本+/
+vector&lt;T&gt; vec3(n, val);         /+创建的vec3中包含了n个重复的元素，每个元素的值都是val+/
+vector&lt;T&gt; vec4(n);              /+创建的vec4中包含了n个重复地执行了值初始化的对象+/
+vector&lt;T&gt; vec5{a, b, c ...};    /+创建的vec5中包含了初始化个树的对象，每个元素被赋予相应的初始值+/
+vector&lt;T&gt; vec5 = {a, b, c ...}; /+创建的vec5中包含了初始化个树的对象，每个元素被赋予相应的初始值+/
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgd554c4a" class="outline-3">
+<h3 id="orgd554c4a">常用函数</h3>
+<div class="outline-text-3" id="text-orgd554c4a">
+<ul class="org-ul">
+<li>begin</li>
+<li>end</li>
+<li>push_back O(1)</li>
+<li>pop_back O(1)</li>
+<li>size O(1)</li>
+<li>clear O(N)</li>
+<li>insert(it, x) O(N)</li>
+<li>erase O(N)</li>
+<li>rbegin</li>
+<li>rend</li>
+<li>front</li>
+<li>back</li>
+<li>vec2 = vec1</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-org3bc0242" class="outline-2">
+<h2 id="org3bc0242">STRING</h2>
+<div class="outline-text-2" id="text-org3bc0242">
+</div>
+<div id="outline-container-org5eefbfd" class="outline-3">
+<h3 id="org5eefbfd">字符串的输入输出</h3>
+<div class="outline-text-3" id="text-org5eefbfd">
+<ul class="org-ul">
+<li>string的输入输出
+<ul class="org-ul">
+<li>cin遇到空格或换行停止输入</li>
+<li>getline(cin, str)是iostream中一个独立的函数，遇到换行结束输入</li>
+<li>str.c_str将string类型转换为字符数组进行输出</li>
+<li>cin.get与cin.getline是cin的成员，不能完成string类型变量的输入</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgcc86357" class="outline-3">
+<h3 id="orgcc86357">常用函数</h3>
+<div class="outline-text-3" id="text-orgcc86357">
+<ul class="org-ul">
+<li>operator string字符串可以与ch字符之间进行operator运算</li>
+<li>size O(1)</li>
+<li>length O(1)</li>
+<li>insert O(1)
+<ul class="org-ul">
+<li>insert(pos, str)</li>
+<li>insert(str1_it, str2_begin, str2_end)</li>
+</ul></li>
+<li>erase O(N)
+<ul class="org-ul">
+<li>erase(it)</li>
+<li>erase(first, last)</li>
+<li>erase(pos, length)</li>
+</ul></li>
+<li>clear O(1)</li>
+<li>substr(pos, len) O(len)</li>
+<li>string::npos 是一个常数，其本身的值为-1，但由于是unsigned_int类型，因此实际上也可以认为是unsigned_int类型的最大值
+<ul class="org-ul">
+<li>string::npos用以作为find函数失配时的返回值</li>
+</ul></li>
+<li>find O(nm)
+<ul class="org-ul">
+<li>str1.find(str2)</li>
+<li>str1.find(str2, pos)</li>
+<li>查询不到返回string::npos</li>
+</ul></li>
+<li>replace O(str1.length())
+<ul class="org-ul">
+<li>str1.replace(pos, len, str2)，把str从pos位开始，长度为len的子串替换为str2</li>
+<li>str1.replace(it_begin, it_end, str2)，把str的迭代器[it_begin, it_end)范围内的子串替换为str2</li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb6b027e" class="outline-2">
+<h2 id="orgb6b027e">SET</h2>
+<div class="outline-text-2" id="text-orgb6b027e">
+</div>
+<div id="outline-container-org1784324" class="outline-3">
+<h3 id="org1784324">常用函数</h3>
+<div class="outline-text-3" id="text-org1784324">
+<ul class="org-ul">
+<li>count 判断元素是否在集合set中，存在返回1个，不存在返回0个</li>
+<li>insert O(logN)</li>
+<li>find O(logN) 没找到返回st.end()</li>
+<li>erase
+<ul class="org-ul">
+<li>st.erase(it) O(1)</li>
+<li>st.erase(val) O(logN)</li>
+<li>st.erase(first, last) O(last - first)</li>
+</ul></li>
+<li>size O(1)</li>
+<li>clear O(N)</li>
+<li>lower_bound set::lower_bound(key):返回map中第一个大于或等于key的迭代器指针</li>
+<li>upper_bound set::upper_bound(key):返回map中第一个大于key的迭代器指针</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org88386ca" class="outline-3">
+<h3 id="org88386ca">注意！</h3>
+<div class="outline-text-3" id="text-org88386ca">
+<ul class="org-ul">
+<li>set容器只能通过迭代器访问</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-org08d6727" class="outline-2">
+<h2 id="org08d6727">MAP</h2>
+<div class="outline-text-2" id="text-org08d6727">
+</div>
+<div id="outline-container-org315b1d1" class="outline-3">
+<h3 id="org315b1d1">常用函数</h3>
+<div class="outline-text-3" id="text-org315b1d1">
+<ul class="org-ul">
+<li>begin</li>
+<li>end</li>
+<li>find O(logN) 没有找到返回mp.end()</li>
+<li>mp.insert(make_pair(1, 2))</li>
+<li>erase
+<ul class="org-ul">
+<li>mp.erase(it) O(1)</li>
+<li>mp.erase(key) O(logN)</li>
+<li>mp.erase(first, last) O(last - first)</li>
+</ul></li>
+<li>size O(1)</li>
+<li>clear O(N)</li>
+<li>empty</li>
+<li>lower_bound map::lower_bound(key):返回map中第一个大于或等于key的迭代器指针</li>
+<li>upper_bound map::upper_bound(key):返回map中第一个大于key的迭代器指针</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgbfa5349" class="outline-3">
+<h3 id="orgbfa5349">注意！</h3>
+<div class="outline-text-3" id="text-orgbfa5349">
+<ul class="org-ul">
+<li>字符串到整型的映射，必须使用string而不能使用char数组</li>
+<li>map使用erase函数时需要预先将迭代器后移</li>
+<li>map新建一个的初始值为0</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orga574b5a" class="outline-2">
+<h2 id="orga574b5a">QUEUE</h2>
+<div class="outline-text-2" id="text-orga574b5a">
+</div>
+<div id="outline-container-org8ea8ae8" class="outline-3">
+<h3 id="org8ea8ae8">常用函数</h3>
+<div class="outline-text-3" id="text-org8ea8ae8">
+<ul class="org-ul">
+<li>quu.count(1) 在队列中找1的个数</li>
+<li>push O(1)</li>
+<li>front O(1)</li>
+<li>back O(1)</li>
+<li>pop O(1)</li>
+<li>empty O(1)</li>
+<li>size O(1)</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org5e60dab" class="outline-3">
+<h3 id="org5e60dab">queue清空</h3>
+<div class="outline-text-3" id="text-org5e60dab">
+</div>
+<div id="outline-container-org979e7bf" class="outline-4">
+<h4 id="org979e7bf">直接用空的队列对象赋值</h4>
+<div class="outline-text-4" id="text-org979e7bf">
+<p>
+queue&lt;int&gt; q1;
+q1 = queue&lt;int&gt;();
 </p>
 </div>
-<div id="outline-container-orga5beba4" class="outline-3">
-<h3 id="orga5beba4">迭代器的定义与访问</h3>
-<div class="outline-text-3" id="text-orga5beba4">
 </div>
-<div id="outline-container-org7bef39a" class="outline-4">
-<h4 id="org7bef39a">iterator -&gt; vector</h4>
-<div class="outline-text-4" id="text-org7bef39a">
-<ul class="org-ul">
-<li>vector&lt;typename&gt;::iterator it;
-<ul class="org-ul">
-<li>vector&lt;int&gt;::iterator it;</li>
-<li><p>
-vector&lt;double&gt;::iterator it;
+<div id="outline-container-orgaac9293" class="outline-4">
+<h4 id="orgaac9293">遍历出队列</h4>
+<div class="outline-text-4" id="text-orgaac9293">
+<div class="org-src-container">
+<pre class="src src-cpp">while (!Q.empty()) Q.pop();
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orge182842" class="outline-4">
+<h4 id="orge182842">使用swap</h4>
+<div class="outline-text-4" id="text-orge182842">
+<p>
+这种是最高效的，定义clear，保持STL容器的标准
 </p>
-
-<p>
-#-BEGIN_SRC C&#x2013;
-</p></li>
-</ul></li>
-</ul>
-<p>
-//二维数组的访问
-vector&lt;vector&lt;int&gt;&gt;::iterator i;
-vector&lt;int&gt;::iterator j;
-for(i = vi.begin(); i != vi.end(); i&#x2013;) {
-for(j = i-&gt;begin(); j != i-&gt;end(); j&#x2013;) {
-//do something 
+<div class="org-src-container">
+<pre class="src src-cpp">void clear(queue&lt;int&gt;&amp; q) {
+  queue&lt;int&gt; empty;
+  swap(empty, q);
 }
-} 
-#-END_SRC
-</p>
+</pre>
 </div>
 </div>
-<div id="outline-container-org078ee94" class="outline-4">
-<h4 id="org078ee94">iterator -&gt; string</h4>
-<div class="outline-text-4" id="text-org078ee94">
+</div>
+</div>
+<div id="outline-container-org16876f0" class="outline-3">
+<h3 id="org16876f0">注意！</h3>
+<div class="outline-text-3" id="text-org16876f0">
 <ul class="org-ul">
-<li><p>
-string::iterator it;
-</p>
-
-<p>
-#-BEGIN_SRC C&#x2013;
-string str = "abcde";
-for (string::iterator it = str.begin(); it != str.end(); it&#x2013;)
-printf("%c", -it);
-</p>
-
-<p>
-string::iterator it = str.begin()
-for (int i = 0; it-i != str.end(); i&#x2013;)
-printf("%c", -(it - i));
-#-END_SRC
-</p></li>
-</ul>
-</div>
-</div>
-<div id="outline-container-orgdbf87b0" class="outline-4">
-<h4 id="orgdbf87b0">iterator -&gt; set</h4>
-<div class="outline-text-4" id="text-orgdbf87b0">
-<ul class="org-ul">
-<li>set&lt;typename&gt;::iterator it;
-<ul class="org-ul">
-<li>set&lt;int&gt;::iterator it;</li>
-<li>set&lt;char&gt;::iterator it;
-#-BEGIN_SRC C&#x2013;</li>
-</ul></li>
-</ul>
-<p>
-set&lt;int&gt; st;
-st.insert(1);
-st.insert(2);
-st.insert(3);
-st.insert(4);
-st.insert(5);
-for (set&lt;int&gt;::iterator it = st.begin(); it != st.end(); it&#x2013;)
-printf("%d", -it);
-#-END_SRC
-</p>
-</div>
-</div>
-<div id="outline-container-org17ab886" class="outline-4">
-<h4 id="org17ab886">iterator -&gt; map</h4>
-<div class="outline-text-4" id="text-org17ab886">
-<ul class="org-ul">
-<li>map&lt;typename1, typename2&gt;::iterator it;
-<ul class="org-ul">
-<li>map&lt;char, int&gt;::iterator it;
-#-BEGIN_SRC C&#x2013;</li>
-</ul></li>
-</ul>
-<p>
-map&lt;char, int&gt; mp;
-mp['a'] = 1;
-mp['b'] = 2;
-mp['c'] = 3;
-for (map&lt;char, int&gt;::iterator it = mp.begin(); it != mp.end(); it&#x2013;)
-printf("%c %d\n", it -&gt; first, it -&gt; second);
-#-END_SRC
-</p>
-</div>
-</div>
-<div id="outline-container-orga7e4266" class="outline-4">
-<h4 id="orga7e4266">不使用迭代器的容器</h4>
-<div class="outline-text-4" id="text-orga7e4266">
-<ul class="org-ul">
-<li>queue</li>
-<li>priority_queue</li>
-<li>stack</li>
-<li>pair</li>
-<li>&lt;algorithm&gt;</li>
+<li>使用front和pop函数之前必须使用empty函数判断队列是否为空，否则可能因为队空出现错误</li>
 </ul>
 </div>
 </div>
 </div>
-<div id="outline-container-org9f88190" class="outline-3">
-<h3 id="org9f88190">注意！</h3>
-<div class="outline-text-3" id="text-org9f88190">
+<div id="outline-container-orgba1435f" class="outline-2">
+<h2 id="orgba1435f">PRIORITY_QUEUE</h2>
+<div class="outline-text-2" id="text-orgba1435f">
+</div>
+<div id="outline-container-orgc996ed9" class="outline-3">
+<h3 id="orgc996ed9">默认设置</h3>
+<div class="outline-text-3" id="text-orgc996ed9">
 <ul class="org-ul">
-<li>当typename是一个STL容器，那么定义时要在&gt;&gt;符号间加空格，防止视为移位操作</li>
-<li>除了vector和string之外的STL容器都不支持-(it - i)的访问方式</li>
-<li>除了vector和string之外的STL容器都不允许使用name.begin()-3这种迭代器加整数的写法</li>
-<li>set只能使用迭代器访问</li>
+<li>默认设置数字的大的是优先级高</li>
+<li>与queue不同的是，priority_queue没有front与back函数，只能使用top函数取队顶</li>
+<li>使用top函数前必须要用empty函数判断优先队列是否为空</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org72a1d90" class="outline-3">
+<h3 id="org72a1d90">常用函数</h3>
+<div class="outline-text-3" id="text-org72a1d90">
+<ul class="org-ul">
+<li>push</li>
+<li>top</li>
+<li>pop</li>
+<li>empty</li>
+<li>size</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org8087e0c" class="outline-3">
+<h3 id="org8087e0c">优先级的设置</h3>
+<div class="outline-text-3" id="text-org8087e0c">
+<div class="org-src-container">
+<pre class="src src-cpp">priority_queue&lt;int&gt; pqu;
+priority_queue&lt;int, vector&lt;int&gt;, less&lt;int&gt;&gt; pqu; /*默认是less，即数字大的优先级高*/
+priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt; pqu;
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb31742f" class="outline-2">
+<h2 id="orgb31742f">STACK</h2>
+<div class="outline-text-2" id="text-orgb31742f">
+</div>
+<div id="outline-container-org0e50320" class="outline-3">
+<h3 id="org0e50320">常用函数</h3>
+<div class="outline-text-3" id="text-org0e50320">
+<ul class="org-ul">
+<li>push</li>
+<li>top</li>
+<li>pop</li>
+<li>empty</li>
+<li>size</li>
 </ul>
 </div>
 </div>
 </div>
-<div id="outline-container-org5bb908a" class="outline-2">
-<h2 id="org5bb908a">添加元素</h2>
-<div class="outline-text-2" id="text-org5bb908a">
+<div id="outline-container-org3bbc47e" class="outline-2">
+<h2 id="org3bbc47e">PAIR</h2>
+<div class="outline-text-2" id="text-org3bbc47e">
+</div>
+<div id="outline-container-orga50f917" class="outline-3">
+<h3 id="orga50f917">pair容器内元素的访问</h3>
+<div class="outline-text-3" id="text-orga50f917">
 <ul class="org-ul">
-<li>vector
+<li>pr.first</li>
+<li>pr.second</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgbd7df4c" class="outline-3">
+<h3 id="orgbd7df4c">pair常用函数</h3>
+<div class="outline-text-3" id="text-orgbd7df4c">
 <ul class="org-ul">
-<li>push_back()</li>
-<li>insert()</li>
-</ul></li>
-<li>set
+<li>mp.insert(make_pair("ABCD", 5));</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgc7273b0" class="outline-2">
+<h2 id="orgc7273b0">ALGORITHM</h2>
+<div class="outline-text-2" id="text-orgc7273b0">
 <ul class="org-ul">
-<li>insert()</li>
-</ul></li>
-<li>map
-<ul class="org-ul">
-<li>通过键值对添加</li>
-<li>pair</li>
-</ul></li>
-<li>queue
-<ul class="org-ul">
-<li>push()</li>
-</ul></li>
-<li>priority_queue
-<ul class="org-ul">
-<li>push()</li>
-</ul></li>
-<li>stack
-<ul class="org-ul">
-<li>push()</li>
-</ul></li>
+<li>sort</li>
+<li>max &amp; min min(x, y) 参数必须是两个，比较三个数，min(x, min(y, z))</li>
+<li>reverse(it, it + i) 将数组指针或容器的迭代器在[it, it + i)范围内的元素进行反转</li>
+<li>swap(x, y) 交换x, y</li>
+<li>abs(x) 返回x的绝对值，x必须是整数，浮点型的绝对值应使用math头文件下的fabs</li>
+<li>next_permutation() 给出一个序列在全排列中的下一个序列，在已经到达全排列的最后一个时会返回false</li>
+<li>fill 和memset不同，fill()可以把数组或容器中的某一段区间赋为某个相同的值，可以是数组类型对应范围中的任意值</li>
+<li>lower_bound</li>
+<li>upper_bound</li>
 </ul>
 </div>
 </div>
