@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-09-27 一 02:32 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CODE-PAT-BASIC-1002-C-C++</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="css/style.css" type="text/css"  />
+                <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js"></script>
+                <script type="module" src="js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">CODE-PAT-BASIC-1002-C-C++</h1>
+<p>
+虽然我们得到了123这个数字，但是不能从前往后判断输出，所以将123每个位上的数字从后往前放在栈中，然后判断输出。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-cpp">#include &lt;cstdio&gt;
+#include &lt;cstring&gt;
+
+int get_sum(char* str) {
+    int len = strlen(str);
+    int sum = 0;
+    for (int i = 0; i &lt; len; ++i)
+        sum += str[i] - '0';
+    return sum;
+}
+
+int main() {
+    char output[10][10] = {"ling", "yi", "er", "san", "si", "wu", "liu", "qi", "ba", "jiu"};
+    char str[105]; scanf("%s", str);
+    int sum = get_sum(str);
+    int stk[10], tt = 0;
+    if (!sum)
+        printf("ling\n");
+    while (sum) {
+        stk[++tt] = sum % 10;
+        sum /= 10;
+    }
+    while (tt) {
+        if (tt != 1)
+            printf("%s ", output[stk[tt--]]);
+        else
+            printf("%s\n", output[stk[tt--]]);
+    }
+    return 0;
+}
+</pre>
+</div>
+</div>
+</body>
+</html>
