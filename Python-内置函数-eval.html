@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-09-28 二 11:18 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>INDEX</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="css/style.css" type="text/css"  />
+                <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js"></script>
+                <script type="module" src="js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">INDEX</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org7d06795">1. 只提供第一个参数，eval的作用就是将expression的引号去掉，保留引号中字符的原有属性</a></li>
+<li><a href="#org6c54557">2. 同时提供globals这个参数</a></li>
+<li><a href="#org4c91056">3. 同时提供locals这个参数</a></li>
+</ul>
+</div>
+</div>
+<p>
+eval是python的一个内置函数，其作用是返回传入字符串的表达式的结果
+</p>
+
+<ul class="org-ul">
+<li>语法：eval(expression[, globals[, locals]])
+<ul class="org-ul">
+<li>expression： 这个参数是一个表达式</li>
+<li>globals： 变量作用域，全局命名空间，如果被提供，则必须是一个字典对象</li>
+<li>locals：  变量作用域，局部命名空间，如果被提供，可以是任何映射对象</li>
+</ul></li>
+</ul>
+
+<p>
+![python命名空间](/home/haoran/图片/typora-photo/python命名空间.png)
+</p>
+
+<div id="outline-container-org7d06795" class="outline-2">
+<h2 id="org7d06795">1. 只提供第一个参数，eval的作用就是将expression的引号去掉，保留引号中字符的原有属性</h2>
+<div class="outline-text-2" id="text-org7d06795">
+<div class="org-src-container">
+<pre class="src src-python">m = "123"
+print(eval(m))
+# 输出123
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-python">x = 3
+print(eval("3 * x"))
+print(eval("pow(2, x)"))
+# 输出9 8
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-python">n = "ABC"
+print(eval(n))
+# NameError: name 'ABC' is not define
+# 在这个程序中，eval会剥去变量n的引号，发现ABC不能像上一个程序一样计算
+# eval就会认为ABC是一个变量名，并在当前作用域查找ABC变量
+# 未能找到，报错
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-python">ABC = "DEF"
+n = "ABC"
+print(eval("n"))
+print(eval(n))
+# 第一个eval尝试剥去"n"的引号，n不能进行计算，于是认为n是一个变量，查找变量n并print(n)
+# 第二个eval超市剥去n的引号，ABC不能进行计算，于是认为ABC是一个变量，查找变量ABC并print(ABC)
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-python"># eval函数还能将形似列表的字符串变成真列表
+m = "['123', '456', '789']"
+print(type(m))
+
+n = eval(m)
+print(type(n))
+print(n)
+# 输出：
+# &lt;class 'str'&gt;
+# &lt;class 'list'&gt;
+# ['123', '456', '789']
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-python">m = "[A, B, C]"
+print(eval(m))
+# 剥去m的引号发现是一个列表，列表中是一些变量，于是查找变量
+# 未能找到，NameError: name "A' is not defined
+
+A = 1
+B = 2
+C = 3
+n = "['A', 'B', 'C']"
+print(eval(n))
+# 剥去n的引号发现是一个列表，列表中是一些变量，于是查找变量
+# 去不找到，输出：[1, 2, 3]
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org6c54557" class="outline-2">
+<h2 id="org6c54557">2. 同时提供globals这个参数</h2>
+<div class="outline-text-2" id="text-org6c54557">
+<div class="org-src-container">
+<pre class="src src-python">A = 1
+B = 2
+C = 3
+dic = {'A': 10, 'B': 20}
+print(eval("A + B", dic))
+# 输出30
+# 相当于eval的作用域变成了dic这个字典，外面的A，B都看不到了
+
+print(eval("A + B + C", dic))
+# Namerror: name 'C' is not defined
+# 找不到变量C
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org4c91056" class="outline-2">
+<h2 id="org4c91056">3. 同时提供locals这个参数</h2>
+<div class="outline-text-2" id="text-org4c91056">
+<div class="org-src-container">
+<pre class="src src-python">A = 1
+B = 2
+C = 3
+dic1 = {'A': 10, 'B': 20}
+dic2 = {'A': 100, 'C': 300}
+print(eval("A + B + C", dic1, dic2))
+# 输出420
+# dic2的优先级高于dic1，先从dic2中查找变量，为找到的再从dic1中查找
+</pre>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>
