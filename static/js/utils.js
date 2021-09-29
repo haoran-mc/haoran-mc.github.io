@@ -64,7 +64,7 @@ export function browserRedirect() {
 /**
  * Judge if current page is HOME page.
  */
-export function isHome() {
+export function isPageHome() {
     if (
         [
             '/public/index.html',
@@ -187,7 +187,7 @@ export function initImageZoom() {
     let isZoom = false;
 
     // Do not zoom in HOME page.
-    if (isHome()) {
+    if (isPageHome()) {
         return;
     }
 
