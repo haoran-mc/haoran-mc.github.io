@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-09-29 三 22:58 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CF-#744-3</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">CF-#744-3</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org851d074">A Casimir's String Solitaire</a></li>
+<li><a href="#org436ef80">B Shifting Sort</a></li>
+<li><a href="#org83e66c8">C Ticks</a></li>
+<li><a href="#org4dca033">D Productive Meeting</a></li>
+<li><a href="#orgbf57912">E1 Permutation Minimization by Deque</a></li>
+</ul>
+</div>
+</div>
+<p>
+<a href="http://codeforces.com/contest/1579">题目在这</a>
+</p>
+
+<div id="outline-container-org851d074" class="outline-2">
+<h2 id="org851d074">A Casimir's String Solitaire</h2>
+<div class="outline-text-2" id="text-org851d074">
+<p>
+只要输入的这个字符串中'A'，'C'字符的个数总和是'B'的个数就可以全部消掉。
+</p>
+<div class="org-src-container">
+<pre class="src src-cpp">#include &lt;cstdio&gt;
+#include &lt;cstring&gt;
+
+int main() {
+		int t; scanf("%d", &amp;t);
+		while (t -- ) {
+				char str[100];
+				scanf("%s", str);
+				int cnt_ac = 0, cnt_b = 0;
+				for (int i = 0; i &lt; strlen(str); ++ i)
+						if (str[i] == 'B') cnt_b ++ ;
+						else cnt_ac ++ ;
+
+				if (cnt_b == cnt_ac)
+						printf("YES\n");
+				else
+						printf("NO\n");
+		}
+		return 0;
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org436ef80" class="outline-2">
+<h2 id="org436ef80">B Shifting Sort</h2>
+<div class="outline-text-2" id="text-org436ef80">
+<p>
+插入排序，处理第\(i\)个数时，前\(i - 1\)个数都已经排好，那么将第\(i\)个数插入到前\(i - 1\)的数组中，同时记录插入的位置(j)，i，(i - j)就是左移的位数。
+</p>
+<div class="org-src-container">
+<pre class="src src-cpp">#include &lt;cstdio&gt;
+#include &lt;vector&gt;
+using namespace std;
+const int maxn = 55;
+int arr[maxn];
+struct Node {
+		int l, r, d;
+};
+vector&lt;Node&gt; vec;
+
+void insertSort(int num[], int n) {
+		// 前i - 1个数已经排好(不是1234这种，是1357这种)，看第i个数插在哪
+		for (int i = 1; i &lt; n; ++ i) {
+				int insertNum = num[i];
+				int j;
+				for (j = i; j &gt;= 1 &amp;&amp; insertNum &lt; num[j - 1]; -- j)
+						num[j] = num[j - 1];
+				num[j] = insertNum;
+				if (i != j)
+						vec.push_back({j + 1, i + 1, i - j});
+		}
+}
+
+int main() {
+#ifndef ONLINE_JUDGE
+		freopen("in.txt", "r", stdin);
+#endif
+		int t; scanf("%d", &amp;t);
+		while (t -- ) {
+				int n; scanf("%d", &amp;n);
+				for (int i = 0; i &lt; n; ++ i)
+						scanf("%d", &amp;arr[i]);
+				insertSort(arr, n);
+
+				printf("%d\n", (int)vec.size());
+				for (auto item : vec)
+						printf("%d %d %d\n", item.l, item.r, item.d);
+				vec.clear();
+		}
+		return 0;
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org83e66c8" class="outline-2">
+<h2 id="org83e66c8">C Ticks</h2>
+</div>
+<div id="outline-container-org4dca033" class="outline-2">
+<h2 id="org4dca033">D Productive Meeting</h2>
+</div>
+<div id="outline-container-orgbf57912" class="outline-2">
+<h2 id="orgbf57912">E1 Permutation Minimization by Deque</h2>
+<div class="outline-text-2" id="text-orgbf57912">
+<p>
+用一个deque模拟一下就行了
+</p>
+<div class="org-src-container">
+<pre class="src src-cpp">#include &lt;cstdio&gt;
+#include &lt;deque&gt;
+using namespace std;
+#define NEXTLINE puts("");
+
+int main() {
+		int t; scanf("%d", &amp;t);
+		while (t --) {
+				deque&lt;int&gt; deq;
+				int n; scanf("%d", &amp;n);
+				for (int i = 0; i &lt; n; ++ i) {
+						int _; scanf("%d", &amp;_);
+						if (deq.size() == 0)
+								deq.push_front(_);
+						else if (_ &lt; deq.front())
+								deq.push_front(_);
+						else
+								deq.push_back(_);
+				}
+				while (deq.size()) {
+						printf("%d ", deq.front());
+						deq.pop_front();
+				}
+				NEXTLINE;
+		}
+		return 0;
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

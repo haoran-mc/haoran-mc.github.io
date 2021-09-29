@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-09-29 三 22:54 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ALGORITHM</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran &lt;haoran.mc@outlook.com&gt;">
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">ALGORITHM</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org5415193">max &amp; min</a>
+<ul>
+<li><a href="#org71a4262">max</a></li>
+<li><a href="#org8e94cb7">min</a></li>
+</ul>
+</li>
+<li><a href="#org0d69162">reverse</a></li>
+<li><a href="#org50ed165">swap</a></li>
+<li><a href="#org267c572">abs</a></li>
+<li><a href="#orgffcc90d">next_permutation</a></li>
+<li><a href="#orgb429c28">fill</a></li>
+<li><a href="#org6bb2a7c">sort</a>
+<ul>
+<li><a href="#orgf62f70e">int char型数组从小到大排序</a></li>
+<li><a href="#org5f8588d">int char型数组从大到小排序</a></li>
+<li><a href="#org2d16247">结构体排序</a></li>
+<li><a href="#orgce71f10">容器排序</a></li>
+</ul>
+</li>
+<li><a href="#org8ef6af7">lower_bound</a></li>
+<li><a href="#org1d909f2">upper_bound</a></li>
+<li><a href="#orgd733358">copy</a></li>
+<li><a href="#org7827db1">unique</a></li>
+</ul>
+</div>
+</div>
+<p>
+#+Copyright © 2021, L.M.haoran, all rights reserved.
+</p>
+
+<div id="outline-container-org5415193" class="outline-2">
+<h2 id="org5415193">max &amp; min</h2>
+<div class="outline-text-2" id="text-org5415193">
+</div>
+<div id="outline-container-org71a4262" class="outline-3">
+<h3 id="org71a4262">max</h3>
+<div class="outline-text-3" id="text-org71a4262">
+<p>
+max(x, y) 参数必须是两个
+max(x, max(y, z))
+</p>
+</div>
+</div>
+<div id="outline-container-org8e94cb7" class="outline-3">
+<h3 id="org8e94cb7">min</h3>
+<div class="outline-text-3" id="text-org8e94cb7">
+<dl class="org-dl">
+<dt>min(x, y)</dt><dd>参数必须是两个，比较三个数，min(x, min(y, z))</dd>
+</dl>
+</div>
+</div>
+</div>
+<div id="outline-container-org0d69162" class="outline-2">
+<h2 id="org0d69162">reverse</h2>
+<div class="outline-text-2" id="text-org0d69162">
+<p>
+reverse(it, it + i)
+将数组指针或容器的迭代器在[it, it + i)范围内的元素进行反转
+reverse(vec.begin(), vec.end())
+</p>
+</div>
+</div>
+<div id="outline-container-org50ed165" class="outline-2">
+<h2 id="org50ed165">swap</h2>
+<div class="outline-text-2" id="text-org50ed165">
+<p>
+swap(x, y)
+交换x, y
+</p>
+</div>
+</div>
+<div id="outline-container-org267c572" class="outline-2">
+<h2 id="org267c572">abs</h2>
+<div class="outline-text-2" id="text-org267c572">
+<p>
+abs(x)
+返回x的绝对值，x必须是整数浮点型的绝对值应使用math头文件下的fabs
+</p>
+</div>
+</div>
+<div id="outline-container-orgffcc90d" class="outline-2">
+<h2 id="orgffcc90d">next_permutation</h2>
+<div class="outline-text-2" id="text-orgffcc90d">
+<p>
+next_permutation()给出一个序列在全排列中的下一个序列
+next_permutation()在已经到达全排列的最后一个时会返回false
+</p>
+<div class="org-src-container">
+<pre class="src src-C++">#include &lt;cstdio&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int main() {
+	int A[5] = {0, 1, 2, 3, 4};
+	do {
+		printf("%d %d %d %d %d\n", A[0], A[1], A[2], A[3], A[4]);
+	} while(next_permutation(A, A + 5));
+
+	printf("\n");
+	do {
+		printf("%d %d %d\n", A[1], A[2], A[3]);
+	} while(next_permutation(A + 1, A + 4));
+
+	return 0;
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb429c28" class="outline-2">
+<h2 id="orgb429c28">fill</h2>
+<div class="outline-text-2" id="text-orgb429c28">
+<p>
+和memset不同，fill()可以把数组或容器中的某一段区间赋为某个相同的值，可以是数组类型对应范围中的任意值
+</p>
+<div class="org-src-container">
+<pre class="src src-C++">int array[5] = {1, 2, 3, 4, 5};
+fill(array, array + 4, 0);
+// -&gt; 0, 0, 0, 0, 5
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org6bb2a7c" class="outline-2">
+<h2 id="org6bb2a7c">sort</h2>
+<div class="outline-text-2" id="text-org6bb2a7c">
+<p>
+sort(首地址元素，尾地址元素下一个地址，比较函数)
+默认从小到大排序
+</p>
+</div>
+<div id="outline-container-orgf62f70e" class="outline-3">
+<h3 id="orgf62f70e">int char型数组从小到大排序</h3>
+<div class="outline-text-3" id="text-orgf62f70e">
+<div class="org-src-container">
+<pre class="src src-C++">int  A[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
+char B[10] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'};
+sort(A, A + 10);
+sort(B, B + 10);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org5f8588d" class="outline-3">
+<h3 id="org5f8588d">int char型数组从大到小排序</h3>
+<div class="outline-text-3" id="text-org5f8588d">
+<div class="org-src-container">
+<pre class="src src-C++">bool cmp1(int numA, int numB) {
+	return numA &gt; numB;
+}
+bool cmp2(char charA, int charB) {
+	return charA &gt; charB;
+}
+
+int  A[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
+char B[10] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'};
+sort(A, A + 10, cmp1);
+sort(B, B + 10, cmp2);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org2d16247" class="outline-3">
+<h3 id="org2d16247">结构体排序</h3>
+<div class="outline-text-3" id="text-org2d16247">
+<div class="org-src-container">
+<pre class="src src-C++">struct Node {
+	int  x;
+	char ch;
+} node[10];
+bool cmp1(Node A, Node B) {
+	return A.x  &lt; B.x;
+}
+bool cmp2(Node A, Node B) {
+	return A.x  &gt; B.x;
+}
+bool cmp3(Node A, Node B) {
+	return A.ch &lt; B.ch;
+}
+bool cmp3(Node A, Node B) {
+	return A.ch &gt; B.ch;
+}
+
+sort(node, node + 10, cmp1);
+sort(node, node + 10, cmp2);
+sort(node, node + 10, cmp3);
+sort(node, node + 10, cmp4);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgce71f10" class="outline-3">
+<h3 id="orgce71f10">容器排序</h3>
+<div class="outline-text-3" id="text-orgce71f10">
+<p>
+只有vector, string, deque可以使用sort排序
+</p>
+<div class="org-src-container">
+<pre class="src src-C++">//vector
+bool cmp(int A, int B) {
+	return A &gt; B;
+}
+sort(vec.begin(), vec.end())
+sort(vec.begin(), vec.end(), cmp)
+
+//string
+bool cmp(string str1, string str2) {
+	return str1.length() &gt; str2.length();
+}
+string str[3] = {"A", "BB", "CCC"};
+sort (str, str + 3);
+for (int i = 0; i &lt; 3; i++)
+	cout &lt;&lt; str[i] &lt;&lt; endl;
+
+sort (str, str + 3, cmp);
+for (int i = 0; i &lt; 3; i++)
+	cout &lt;&lt; str[i] &lt;&lt; endl;
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org8ef6af7" class="outline-2">
+<h2 id="org8ef6af7">lower_bound</h2>
+<div class="outline-text-2" id="text-org8ef6af7">
+<ul class="org-ul">
+<li>lower_bound(begin, end, val)</li>
+<li>[begin, end)范围内第一个小于等于val的元素的位置
+<ul class="org-ul">
+<li>如果是数组，返回该位置指针</li>
+<li>如果是容器，返回该位置迭代器</li>
+</ul></li>
+<li>如果没有找到val，返回可以插入该元素位置的指针或迭代器</li>
+<li><p>
+时间复杂度O(log(begin - end))
+</p>
+<div class="org-src-container">
+<pre class="src src-C++">#include &lt;cstdio&gt;
+#include &lt;algorithm&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main() {
+	int num[] = {0, 1, 1, 1, 1, 1, 2};
+	int val = 1;
+	int* lowerPos = lower_bound(num, num + 7, val);
+	printf("%d\n", (int)(lowerPos - num));
+	printf("%d\n", *lowerPos);
+
+	int* upperPos = upper_bound(num, num + 7, val);
+	printf("%d\n", (int)(upperPos - num));
+	printf("%d\n", *upperPos);
+
+	vector&lt;int&gt; vec;
+	vec.push_back(0);
+	vec.push_back(1);
+	vec.push_back(1);
+	vec.push_back(1);
+	vec.push_back(1);
+	vec.push_back(1);
+	vec.push_back(2);
+	vector&lt;int&gt;::iterator it;
+	it = lower_bound(vec.begin(), vec.end(), val);
+	printf("%d\n", (int)(it - vec.begin()));
+	printf("%d\n", *it);
+
+	it = upper_bound(vec.begin(), vec.end(), val);
+	printf("%d\n", (int)(it - vec.begin()));
+	printf("%d\n", *it);
+
+	return 0;
+}
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org1d909f2" class="outline-2">
+<h2 id="org1d909f2">upper_bound</h2>
+<div class="outline-text-2" id="text-org1d909f2">
+<ul class="org-ul">
+<li>upper_bound(begin, end, val)</li>
+<li>[begin, end)范围内第一个大于val的元素的位置
+<ul class="org-ul">
+<li>如果是数组，返回该位置指针</li>
+<li>如果是容器，返回该位置迭代器</li>
+</ul></li>
+<li>如果没有找到val，返回可以插入该元素位置的指针或迭代器</li>
+<li><p>
+时间复杂度O(log(begin - end))
+</p>
+<div class="org-src-container">
+<pre class="src src-C++">#include &lt;cstdio&gt;
+#include &lt;algorithm&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main() {
+	int num[] = {0, 1, 1, 1, 1, 1, 2};
+	int val = 1;
+	int* lowerPos = lower_bound(num, num + 7, val);
+	printf("%d\n", (int)(lowerPos - num));        //1
+	printf("%d\n", *lowerPos);                    //1
+
+	int* upperPos = upper_bound(num, num + 7, val);
+	printf("%d\n", (int)(upperPos - num));        //6
+	printf("%d\n", *upperPos);                    //2
+
+	vector&lt;int&gt; vec;
+	vec.push_back(0);
+	vec.push_back(1);
+	vec.push_back(1);
+	vec.push_back(1);
+	vec.push_back(1);
+	vec.push_back(1);
+	vec.push_back(2);
+	vector&lt;int&gt;::iterator it;
+	it = lower_bound(vec.begin(), vec.end(), val);
+	printf("%d\n", (int)(it - vec.begin()));     //1
+	printf("%d\n", *it);                         //1
+
+	it = upper_bound(vec.begin(), vec.end(), val);
+	printf("%d\n", (int)(it - vec.begin()));     //6
+	printf("%d\n", *it);                         //2
+
+	return 0;
+}
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgd733358" class="outline-2">
+<h2 id="orgd733358">copy</h2>
+<div class="outline-text-2" id="text-orgd733358">
+<ul class="org-ul">
+<li><p>
+[ostream_iterator](STL-iterator-ostream_iterator)
+</p>
+<div class="org-src-container">
+<pre class="src src-C++">#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+#include &lt;iterator&gt;
+int main() {
+	std::vector&lt;int&gt; data = {1, 21, 31, 41, 51, 61, 71, 81};
+	std::ostream_iterator&lt;int&gt; dataIter(std::cout, ", ");
+	std::copy(data.begin(), data.end(), dataIter);
+	return 0;
+}
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org7827db1" class="outline-2">
+<h2 id="org7827db1">unique</h2>
+<div class="outline-text-2" id="text-org7827db1">
+<p>
+sort(vec.begin(), vec.end());
+vec.erase(unique(vec.begin(), vec.end()), end());
+</p>
+
+<p>
+类属性算法unique的作用是从输入序列中"删除"所有相邻的重复元素在STL中unique函数是一个去重函数， unique的功能是去除相邻的重复元素(只保留一个)，其实它并不真正把重复的元素删除，是把重复的元素移到后面去了，然后依然保存到了原数组中，然后 <b>返回去重后最后一个元素的地址</b> ，因为unique去除的是相邻的重复元素，所以一般用之前都会要 <b>排一下序</b>
+如果坚持要删除容器中的重复元素，那就在外面套一个erase
+</p>
+</div>
+</div>
+</div>
+</body>
+</html>
