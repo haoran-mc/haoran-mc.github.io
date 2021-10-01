@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-10-01 五 16:06 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CF-745-2</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">CF-745-2</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgebb38a5">A - CQXYM Count Permutation</a></li>
+<li><a href="#orgc22b4dd">B - Diameter of Graph</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgebb38a5" class="outline-2">
+<h2 id="orgebb38a5">A - CQXYM Count Permutation</h2>
+<div class="outline-text-2" id="text-orgebb38a5">
+<ul class="org-ul">
+<li>当一个序列出现 \(0\) 次 \(p_i < p_{i + 1}\) 时，也就出现了 \(2n - 1\) 次 \(p_i > p_{i + 1}\)</li>
+<li>当一个序列出现 \(1\) 次 \(p_i < p_{i + 1}\) 时，也就出现了 \(2n - 2\) 次 \(p_i > p_{i + 1}\)</li>
+<li>当一个序列出现 \(2\) 次 \(p_i < p_{i + 1}\) 时，也就出现了 \(2n - 3\) 次 \(p_i > p_{i + 1}\)</li>
+<li>\(\dots\)</li>
+<li>当一个序列出现 \(n - 1\) 次 \(p_i < p_{i + 1}\) 时，也就出现了 \(n\) 次 \(p_i > p_{i + 1}\)</li>
+<li>当一个序列出现 \(n\) 次 \(p_i < p_{i + 1}\) 时，也就出现了 \(n - 1\) 次 \(p_i > p_{i + 1}\)</li>
+<li>当一个序列出现 \(n + 1\) 次 \(p_i < p_{i + 1}\) 时，也就出现了 \(n - 2\) 次 \(p_i > p_{i + 1}\)</li>
+<li>当一个序列出现 \(n + 2\) 次 \(p_i < p_{i + 1}\) 时，也就出现了 \(n - 3\) 次 \(p_i > p_{i + 1}\)</li>
+<li>\(\dots\)</li>
+<li>当一个序列出现 \(2n - 1\) 次 \(p_i < p_{i + 1}\) 时，也就出现了 \(0\) 次 \(p_i > p_{i + 1}\)</li>
+</ul>
+
+<p>
+题目要求求出多少个序列满足 \(p_i < p_{i + 1}\) 出现的次数大于等于 \(n\)
+</p>
+
+<p>
+我们知道，一个序列中出现 \(n\) 次 \(p_i < p_{i + 1}\) 的概率等于出现 \(n\) 次 \(p_i > p_{i + 1}\) 的概率，也即是出现 \(n - 1\) 次 \(p_i < p_{i + 1}\) 的概率
+</p>
+
+<p>
+同理
+</p>
+
+<ul class="org-ul">
+<li>一个序列出现 \(n + 1\) 次 \(p_i < p_{i + 1}\) 的概率等于出现 \(n + 1\) 次 \(p_i > p_{i + 1}\) 的概率，也即是出现 \(n - 2\) 次 \(p_i < p_{i + 1}\) 的概率</li>
+<li>一个序列出现 \(n + 2\) 次 \(p_i < p_{i + 1}\) 的概率等于出现 \(n + 2\) 次 \(p_i > p_{i + 1}\) 的概率，也即是出现 \(n - 3\) 次 \(p_i < p_{i + 1}\) 的概率</li>
+<li>一个序列出现 \(n + 3\) 次 \(p_i < p_{i + 1}\) 的概率等于出现 \(n + 3\) 次 \(p_i > p_{i + 1}\) 的概率，也即是出现 \(n - 4\) 次 \(p_i < p_{i + 1}\) 的概率</li>
+<li>\(\dots\)</li>
+<li>一个序列出现 \(2n - 1\) 次 \(p_i < p_{i + 1}\) 的概率等于出现 \(2n - 1\) 次 \(p_i > p_{i + 1}\) 的概率，也即是出现 \(0\) 次 \(p_i < p_{i + 1}\) 的概率</li>
+</ul>
+
+<p>
+则，题目答案为含有 \(n\) 个数的排列数的一半 \(\frac{A_n^n}{2}\)，由于需要取模，所以求 \(2\) 在模 \(MOD\) 下的逆元
+</p>
+
+<div class="org-src-container">
+<pre class="src src-cpp">#include &lt;cstdio&gt;
+typedef long long ll;
+const ll MOD = 1e9 + 7;
+
+ll binPow(ll base, ll expo, ll mod) {
+		ll res = 1;
+		while (expo != 0) {
+				if (expo &amp; 1)
+						res = (1ll * res * base) % MOD;
+
+				base = (1ll * base * base) % MOD;
+				expo &gt;&gt;= 1;
+		}
+		return res;
+}
+
+ll inv(ll x) {
+		return binPow(x, MOD-2, MOD);
+}
+
+ll fact(int n) {
+		ll res = 1;
+		for (int i = 1; i &lt;= n; ++ i)
+				res = res * i % MOD;
+		return res % MOD;
+}
+
+int main() {
+		int t; scanf("%d", &amp;t);
+		while (t --) {
+				int n; scanf("%d", &amp;n);
+				printf("%lld\n", fact(2 * n) * inv(2) % MOD);
+		}
+		return 0;
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgc22b4dd" class="outline-2">
+<h2 id="orgc22b4dd">B - Diameter of Graph</h2>
+<div class="outline-text-2" id="text-orgc22b4dd">
+<ul class="org-ul">
+<li><code>n = 1</code> 特判，n = 1时，m一定为0，否则为 NO，m = 0时，k &gt;= 2 YES，否则为 NO</li>
+<li><code>m &lt; n - 1</code> 时，不连通 NO</li>
+<li><code>m =</code> n * (n - 1) / 2= 时，恰好每两个点之间都有边，树的直径为1，所以k &gt;= 3 YES，否则 NO</li>
+<li><code>m =</code> n - 1= 时，是一棵树，k &gt; 3 YES，否则 NO</li>
+<li><code>n - 1 &lt; m &amp;&amp; m &lt; n * (n - 1) / 2</code> 时，树上非相邻结点之间有边，最大树直径还是2，k &gt; 3 YES，否则 NO</li>
+<li><code>m &gt; n * (n - 1) / 2</code> ，多边 NO</li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-cpp">#include &lt;cstdio&gt;
+int main() {
+		int t; scanf("%d", &amp;t);
+		while (t --) {
+				int n, m, k;
+				scanf("%d %d %d", &amp;n, &amp;m, &amp;k);
+				// 1 特判
+				if (n == 1 &amp;&amp; m == 0) {
+						if (k &gt;= 2)
+								printf("YES\n");
+						else
+								printf("NO\n");
+				}
+				else if (n == 1)
+						printf("NO\n");
+				else if (m &lt; n - 1)
+						printf("NO\n");
+				else if (m == (long long)n * (n - 1) / 2) {
+						if (k &gt;= 3)
+								printf("YES\n");
+						else
+								printf("NO\n");
+				}
+				// 注意这句一定要放在 (m == (long long)n * (n - 1) / 2) 这句之后
+				// 因为 n = 2 时，n - 1 = n * (n - 1) / 2
+				else if (m == n - 1) {
+						if (k &gt; 3)
+								printf("YES\n");
+						else
+								printf("NO\n");
+				}
+				else if (n - 1 &lt; m &amp;&amp; m &lt; (long long)n * (n - 1) / 2) {
+						if (k &gt; 3)
+								printf("YES\n");
+						else
+								printf("NO\n");
+				}
+				else if (m &gt; (long long)n * (n - 1) / 2)
+						printf("NO\n");
+		}
+		return 0;
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>
