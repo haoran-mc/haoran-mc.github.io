@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-09-30 四 22:36 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>使用复制和词法闭包来实现内部状态</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">使用复制和词法闭包来实现内部状态</h1>
+<p>
+你可以使用词法闭包来实现带有内部状态的过程。例如，用于模拟银行账户的过程可以按如下的方式编写：初始资金是10美元。函数接收一个整形参数。正数表示存入，负数表示取出。为了简单起见，这里允许存款为负数。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-scheme">(define bank-account
+	(let ((balance 10))
+		(lambda (n)
+			(set! balance (+ balance n))
+			balance)))
+</pre>
+</div>
+<p>
+该过程将存款赋值为(+ balance n)。下面是调用这个过程的结果
+</p>
+
+<p>
+The procedure assigns (+ balance n) to the balance.
+Following is the result of calling this function.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-scheme">(bank-account 20)     ; donating 20 dollars
+;Value: 30
+
+(bank-account -25)     ; withdrawing 25 dollars
+;Value: 5
+</pre>
+</div>
+
+<p>
+因为在Scheme中，你可以编写返回过程的过程，因此你可以编写一个创建银行账户的函数。这个例子喻示着使用函数式程序设计语言可以很容易实现面向对象程序设计语言。实际上，只需要在这个基础上再加一点东西就可以实现一门面向对象程序设计语言了
+</p>
+
+<div class="org-src-container">
+<pre class="src src-scheme">(define (make-bank-account balance)
+	(lambda (n)
+		(set! balance (+ balance n))
+		balance))
+(define gates-bank-account (make-bank-account 10))   ; Gates makes a bank account by donating  10 dollars
+;Value: gates-bank-account
+
+(gates-bank-account 50)                              ; donating 50 dollars
+;Value: 60
+
+(gates-bank-account -55)                             ; withdrawing 55 dollars
+;Value: 5
+
+(define torvalds-bank-account (make-bank-account 100))  ; Torvalds makes a bank account by donating 100 dollars
+;Value: torvalds-bank-account
+
+(torvalds-bank-account -70)                             ; withdrawing 70 dollars
+;Value: 30
+
+(torvalds-bank-account 300)                             ; donating 300 dollars
+;Value: 330
+</pre>
+</div>
+</div>
+</body>
+</html>

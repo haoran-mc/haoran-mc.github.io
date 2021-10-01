@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-09-30 四 16:13 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>拓扑排序</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">拓扑排序</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org25fb677">引入拓扑排序</a></li>
+<li><a href="#org5bb3900">入度与出度</a></li>
+<li><a href="#orgb997680">只有有向无环图才有拓扑排序！</a></li>
+<li><a href="#org8c34585">拓扑排序的过程</a></li>
+<li><a href="#org67c0083">判断是否为有向无环图</a></li>
+</ul>
+</div>
+</div>
+<p>
+<b>拓扑排序</b> 是将有向无环图g的所有顶点排成一个线性序列，使得图g中的任意两个顶点ver1，ver2如果存在ver1 -&gt; ver2，那么在序列中ver1一定在ver2的前面，这个序列又被称为 <b>拓扑序列</b>
+</p>
+
+<div id="outline-container-org25fb677" class="outline-2">
+<h2 id="org25fb677">引入拓扑排序</h2>
+<div class="outline-text-2" id="text-org25fb677">
+<p>
+用学习课程的先后为例，只有在学习了"JAVA"之后才能学习"Spring Boot"，只有学习了一门编程语言"C/C++程序设计"以及"高等数学"之后才能学习"离散数学"，只有学习了"计算机网络"，才能学习"网络安全"。
+</p>
+
+<p>
+如果现在有一个同学需要学习上述所有课程，那他就要给课程学习的先后排个序，每个课程的前导课程学会之后才能学习这个课程。
+</p>
+
+<p>
+拓扑排序就是这样一个根据结点的先后信息，将所有结点排序，得到的这样一个序列中，每个结点的前导结点一定在这个结点之前。
+</p>
+</div>
+</div>
+<div id="outline-container-org5bb3900" class="outline-2">
+<h2 id="org5bb3900">入度与出度</h2>
+<div class="outline-text-2" id="text-org5bb3900">
+<p>
+入度是指图中一所有指向一个结点的边的个数和；出度是指图中一个结点指向其它结点的边的个数和。
+</p>
+
+<p>
+![有向无环图](/home/haoran/haoran/editing/Markdown/03-博客/img/有向无环图.jpeg)
+</p>
+
+<p>
+例如上图中
+</p>
+<ul class="org-ul">
+<li>结点1只有一条出边指向结点2，所以结点1的出度为1；结点1只有一条入边由结点6指向结点1，所以结点1的入度为1；</li>
+<li>结点6有两条出边分别指向结点1、结点5，所以结点6的出度为2；结点6有两条入边分别由结点3、结点4指向，所以结点6的入度为2</li>
+<li>&#x2026;</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgb997680" class="outline-2">
+<h2 id="orgb997680">只有有向无环图才有拓扑排序！</h2>
+<div class="outline-text-2" id="text-orgb997680">
+<p>
+&gt; 有向无环图(Directed Acyclic Graph, DAG)
+<a href="file:///home/haoran/haoran/editing/markdown/img/DAG.png">img-DAG</a>
+继续看上面的那个例子，易知这个同学要上的第一门课一定是一个没有前导课程的课，同理，拓扑排序中的第一个结点一定是一个没有入度的结点。
+</p>
+
+<p>
+一个有向无环图一定存在至少一个没有入度的结点。
+</p>
+
+<p>
+证明：假设一个有向无环图中不存在一个没有入度的结点，也就是每个结点都有一个结点指向它。从这个图中的其中一个结点开始，由于每个结点都有一条入边，顺着这个入边找到上一个结点，同样的，上一个结点也有至少一条入边，继续寻找上一个结点。这样的操作可以进行无穷次，在进行到第n次时，根据鸽巢原理，我们遍历过n+1个结点，这些结点中至少有一个结点被重复了两次，也就是说出现了环，这与这是一个有向无环图矛盾，所以一个有向无环图一定存在一个没有入度的结点。
+</p>
+</div>
+</div>
+<div id="outline-container-org8c34585" class="outline-2">
+<h2 id="org8c34585">拓扑排序的过程</h2>
+<div class="outline-text-2" id="text-org8c34585">
+<p>
+拓扑排序的操作：
+</p>
+<ol class="org-ol">
+<li>初始化所有边入度</li>
+<li>在图中寻找第一个入度为0的点，它就是拓扑序列的第一个元素，并把它的所有出边从图中删除</li>
+<li>删除了一个边后，就要把这个边所指向的结点的入度减一</li>
+<li>删除了一个点与它的所有出边，这个图还是一个有向无环图，所以也一定存在一个入度为0的点</li>
+<li>继续第一步的操作，不过这个结点是拓扑序列的第二个元素</li>
+<li>重复操作直到所有的结点都从这个图中删除，就得到了这个有向无环图的一个拓扑序列</li>
+
+<li>容易发现，这样的拓扑序列很可能不是唯一的，有时题目会要求输出其中一个拓扑排序就好，有时会要求输出一个字典序最小的一个拓扑排序。</li>
+<li>普遍的，我们使用队列存储拓扑排序中删除的元素。</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-org67c0083" class="outline-2">
+<h2 id="org67c0083">判断是否为有向无环图</h2>
+<div class="outline-text-2" id="text-org67c0083">
+<ul class="org-ul">
+<li>拓扑排序很重要的应用就是判断一个给定的图是否时有向无环图</li>
+<li>Bellman-Ford、SPFA算法能判断是否有从源点可达的负环</li>
+</ul>
+</div>
+</div>
+</div>
+</body>
+</html>

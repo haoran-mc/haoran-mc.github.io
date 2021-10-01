@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-09-30 四 22:38 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>字符与字符串</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">字符与字符串</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgf14e8a9">字符</a></li>
+<li><a href="#orgad1eb9d">字符串</a></li>
+</ul>
+</div>
+</div>
+<p>
+Scheme也有像字符（Character）、字符串（String）、符号（Symbol）、**向量（Vector）**等的其它数据类型，我将在11到14章节中介绍它们
+</p>
+
+<div id="outline-container-orgf14e8a9" class="outline-2">
+<h2 id="orgf14e8a9">字符</h2>
+<div class="outline-text-2" id="text-orgf14e8a9">
+<p>
+在某个字符前添加#\来表明该物是一个字符
+</p>
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">scheme</th>
+<th scope="col" class="org-left">mean</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">#\a</td>
+<td class="org-left">字符a</td>
+</tr>
+
+<tr>
+<td class="org-left">#\Space</td>
+<td class="org-left">空格(Space)</td>
+</tr>
+
+<tr>
+<td class="org-left">#\Tab</td>
+<td class="org-left">制表符(Tab)</td>
+</tr>
+
+<tr>
+<td class="org-left">#\Linefeed</td>
+<td class="org-left">Linefeed</td>
+</tr>
+
+<tr>
+<td class="org-left">#\Return</td>
+<td class="org-left">返回(Return)</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+(char? obj)
+如果obj是一个字符则返回#t
+</p>
+
+<p>
+(char=? c1 c3)
+如果c1和c2是同一个字符的话则返回#t
+</p>
+
+<p>
+(char-&gt;integer c)
+将c转化为对应的整数(字符代码，character code)
+示例：(char-&gt;integer #\a) =&gt; 97
+</p>
+
+<p>
+(integer-&gt;char n)
+该函数将一个整数转化为对应的字符
+</p>
+
+<p>
+(char&lt;? c1 c2)
+(char&lt;=? c1 c2)
+(char&gt;? c1 c2)
+(char&gt;=? c1 c2)
+这些函数用于比较字符实际上，这些函数比较的是字符代码的大小例如，(char&lt;? c1 c2)等同于(&lt; (char-&gt;integer c1) (char-&gt;integer c2))
+</p>
+
+<p>
+(char-ci=? c1 c2)
+(char-ci&lt;? c1 c2)
+(char-ci&lt;=? c1 c2)
+(char-ci&gt;? c1 c2)
+(char-ci&gt;=? c1 c2)
+这些比较函数对大小写不敏感
+</p>
+
+<p>
+(char-alphabetic? c)
+(char-numeric? c)
+(char-whitespace? c)
+(char-upper-case? c)
+(char-lower-case? c)
+这些函数分别用于检测字符c是否为字母、数字、空白符、大写字母或小写字母
+</p>
+
+<p>
+(char-upcase c)
+(char-downcase c)
+这些函数分别返回字符C对应的大写或小写
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgad1eb9d" class="outline-2">
+<h2 id="orgad1eb9d">字符串</h2>
+<div class="outline-text-2" id="text-orgad1eb9d">
+<p>
+字符串通过两个闭合的双引号表示例如，”abc”表示字符串abc
+</p>
+
+<p>
+(string? s)
+如果s是一个字符则返回#t
+</p>
+
+<p>
+(make-string n c)
+返回由n个字符c组成的字符串，参数c可选
+</p>
+
+<p>
+(string-length s)
+返回字符串s的长度
+</p>
+
+<p>
+(string=? s1 s2)
+如果字符串s1和s2相同的话则返回#t
+</p>
+
+<p>
+(string-ref s idx)
+返回字符串s中索引为idx的字符（索引从0开始计数）
+</p>
+
+<p>
+(string-set! s idx c)
+将字符串s中索引为idx的字符设置为c
+</p>
+
+<p>
+(substring s start end)
+返回字符串s从start开始到end-1处的子串例如(substring "abcdefg" 1 4) =&gt; "b c d"
+</p>
+
+<p>
+(string-append s1 s2 &#x2026;)
+连接两个字符串s1和s2
+</p>
+
+<p>
+(string-&gt;list s)
+将字符串s转换为由字符构成的表
+</p>
+
+<p>
+(list-&gt;string ls)
+将一个由字符构成的表转换为字符串
+</p>
+
+<p>
+(string-copy s)
+复制字符串s
+</p>
+</div>
+</div>
+</div>
+</body>
+</html>

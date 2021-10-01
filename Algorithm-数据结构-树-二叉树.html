@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-09-30 四 16:11 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>二叉树</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran &lt;haoran.mc@outlook.com&gt;">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">二叉树</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org41e9339">树的概念</a>
+<ul>
+<li><a href="#org6b352aa">一般意义的树</a></li>
+<li><a href="#org030ae33">树的静态写法</a></li>
+</ul>
+</li>
+<li><a href="#org4f979d3">二叉树</a>
+<ul>
+<li><a href="#orgd53d1cd">二叉树动态实现</a>
+<ul>
+<li><a href="#org96a666c">两种特殊的二叉树</a></li>
+<li><a href="#org9510a9d">二叉树的基本操作</a></li>
+<li><a href="#org5b72c55">二叉树的遍历</a></li>
+<li><a href="#org140006c">重建二叉树</a></li>
+</ul>
+</li>
+<li><a href="#org80f5a9a">二叉树静态实现</a></li>
+<li><a href="#orgfdb859f">二叉树的遍历</a>
+<ul>
+<li><a href="#orgccc2cf7">先序遍历</a></li>
+<li><a href="#org4b47326">中序遍历</a></li>
+<li><a href="#orgfae5bae">后序遍历</a></li>
+<li><a href="#orgfb1f2d5">层序遍历</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org41e9339" class="outline-2">
+<h2 id="org41e9339">树的概念</h2>
+<div class="outline-text-2" id="text-org41e9339">
+<ol class="org-ol">
+<li>没有结点的树是 <b>空树</b></li>
+<li>树的 <b>层次</b> 从根结点开始算起，根结点为第一层，根结点子树的根结点为第二层</li>
+<li>把结点的子树棵数称为   +结点的度  + ，树中结点的最大的度称为树的度(也称为树的宽度)</li>
+<li>有n个结点的树，边数一定是n-1</li>
+<li>叶子结点被定义为度为0的结点，当树中只有一个结点时(即根结点)，根结点也算作叶子节点</li>
+<li><b>结点的深度</b></li>
+<li><b>结点的高度</b></li>
+<li>多棵树组合在一起称为森林，森林是若干棵树的集合</li>
+</ol>
+</div>
+<div id="outline-container-org6b352aa" class="outline-3">
+<h3 id="org6b352aa">一般意义的树</h3>
+</div>
+<div id="outline-container-org030ae33" class="outline-3">
+<h3 id="org030ae33">树的静态写法</h3>
+<div class="outline-text-3" id="text-org030ae33">
+<div class="org-src-container">
+<pre class="src src-C++">struct Node {
+		int data;
+		vector&lt;int&gt; child;
+}node[maxn];
+
+int index = 0;
+int newNode(int value) {
+		node[index].data = value;
+		node[index].child.clear();
+		return index++;
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org4f979d3" class="outline-2">
+<h2 id="org4f979d3">二叉树</h2>
+<div class="outline-text-2" id="text-org4f979d3">
+</div>
+<div id="outline-container-orgd53d1cd" class="outline-3">
+<h3 id="orgd53d1cd">二叉树动态实现</h3>
+<div class="outline-text-3" id="text-orgd53d1cd">
+</div>
+<div id="outline-container-org96a666c" class="outline-4">
+<h4 id="org96a666c">两种特殊的二叉树</h4>
+<div class="outline-text-4" id="text-org96a666c">
+<ul class="org-ul">
+<li>满二叉树
+<ul class="org-ul">
+<li>每一层的结点个数都达到了当层能达到的最大结点数</li>
+</ul></li>
+<li>完全二叉树
+<ul class="org-ul">
+<li>除了最下面一层之外，其余层的结点个数到达到了当层能达到的最大结点数，且最下面一层只从左至右连续存在若干个结点，而这些连续结点右边的结点全部不存在</li>
+<li>对于完全二叉树当中的任何一个结点(设编号为x)，其左孩子的编号一定是2x，右孩子的编号一定是2x+1
+<ul class="org-ul">
+<li>也就是说完全二叉树可以通过建立一个大小为2^k的数组来存储所有结点的信息，其中k为完全二叉树的最大高度，且1号位存放的一定是根结点</li>
+<li>当然，如果不是完全二叉树，只需要设为结点上限个数加一即可</li>
+</ul></li>
+<li>判断某个结点是否为叶结点的标志：该结点(记下标为index)的左子结点的编号2+index大于结点个数n</li>
+<li>判断某个结点是否为空结点的标志：该结点下标index大于结点个数n</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org9510a9d" class="outline-4">
+<h4 id="org9510a9d">二叉树的基本操作</h4>
+<div class="outline-text-4" id="text-org9510a9d">
+<ul class="org-ul">
+<li>二叉树的创建</li>
+<li>二叉树的查找与插入</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org5b72c55" class="outline-4">
+<h4 id="org5b72c55">二叉树的遍历</h4>
+<div class="outline-text-4" id="text-org5b72c55">
+<ul class="org-ul">
+<li>先序遍历</li>
+<li>中序遍历</li>
+<li>后序遍历</li>
+<li>层序遍历</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org140006c" class="outline-4">
+<h4 id="org140006c">重建二叉树</h4>
+<div class="outline-text-4" id="text-org140006c">
+<div class="org-src-container">
+<pre class="src src-C++">/*已知先序序列与中序序列重建二叉树*/
+node* rebuild(int preLeft, int preRight, int inLeft, int inRight) {
+		if (preLeft &gt; preRight)
+				return NULL;
+
+		Node* nowRoot = new node;             //存放当前二叉树的根结点
+		nowRoot -&gt; data = pre[preLeft];       //新结点数据域为根结点的值
+		int k;
+		for (k = inLeft; k &lt;= inRight; k++)
+				if (in[k] == pre[preLeft])
+						break;
+
+		int numLeft = k - inLeft;             //左子树的结点个数，不一定等于右子树结点个数
+
+		//左子树的先序区间为[preLeft + 1, preLeft + numLeft]，中序区间为[inLeft, k - 1]
+		//返回左子树的根结点地址，赋值给nowRoot的左指针
+		nowRoot -&gt; left = rebuild(preLeft + 1, preLeft + numleft, inLeft, k - 1);
+
+		//右子树的先序区间为[preLeft + numLeft + 1, preRight]，中序区间为[k + 1, inRight]
+		//返回右子树的根结点地址，赋值给nowRoot的右指针
+		nowRoot -&gt; right = rebuild(preLeft + numLeft + 1, preRight, k + 1, inRight);
+
+		return nowRoot;
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org80f5a9a" class="outline-3">
+<h3 id="org80f5a9a">二叉树静态实现</h3>
+</div>
+<div id="outline-container-orgfdb859f" class="outline-3">
+<h3 id="orgfdb859f">二叉树的遍历</h3>
+<div class="outline-text-3" id="text-orgfdb859f">
+</div>
+<div id="outline-container-orgccc2cf7" class="outline-4">
+<h4 id="orgccc2cf7">先序遍历</h4>
+</div>
+<div id="outline-container-org4b47326" class="outline-4">
+<h4 id="org4b47326">中序遍历</h4>
+</div>
+<div id="outline-container-orgfae5bae" class="outline-4">
+<h4 id="orgfae5bae">后序遍历</h4>
+</div>
+<div id="outline-container-orgfb1f2d5" class="outline-4">
+<h4 id="orgfb1f2d5">层序遍历</h4>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

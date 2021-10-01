@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-09-30 四 03:15 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>二分</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran &lt;haoran.mc@outlook.com&gt;">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">二分</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org54a476e">整数集合上的二分</a>
+<ul>
+<li><a href="#org04e08aa">寻找一个数</a></li>
+<li><a href="#orge211786">寻找左侧边界的二分查找</a></li>
+<li><a href="#org1e3cb7d">寻找右侧边界的二分查找</a></li>
+<li><a href="#org20288fa">使用lower_bound和upper_bound查找</a>
+<ul>
+<li>
+<ul>
+<li><a href="#orgb2cb032">lower_bound</a></li>
+<li><a href="#org9c5c86a">upper_bound</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org14b7724">实数域上的二分</a></li>
+<li><a href="#org3842110">三分求单峰函数极值</a></li>
+<li><a href="#org8015577">二分答案转化为判定</a></li>
+<li><a href="#org5eacd98">二分拓展</a>
+<ul>
+<li><a href="#org40c8397">快速幂</a></li>
+<li><a href="#org03c837c">使用二分法计算$\sqrt{2}$的近似值</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-org54a476e" class="outline-2">
+<h2 id="org54a476e">整数集合上的二分</h2>
+<div class="outline-text-2" id="text-org54a476e">
+<p>
+二分查找也称折半查找（Binary Search），它是一种效率较高的查找方法。但是，折半查找要求线性表必须采用顺序存储结构，而且表中元素按关键字有序排列
+</p>
+</div>
+<div id="outline-container-org04e08aa" class="outline-3">
+<h3 id="org04e08aa">寻找一个数</h3>
+<div class="outline-text-3" id="text-org04e08aa">
+<ul class="org-ul">
+<li>二分查找是基于有序序列的查找算法(以下以递增序列为例)</li>
+<li>查找的下标区间为[left, right]</li>
+<li>每次使mid = (left + right) / 2, 比较num[mid]与目标值</li>
+<li>如果比目标值大，就向右查找</li>
+<li>如果比目标值小，就向左查找</li>
+<li>如果与目标值相等，返回目标值下标</li>
+<li>如果没找到目标值，返回-1</li>
+<li>如果二分上界超过int型数据范围的一半，(left + right)会溢出</li>
+<li><p>
+所以使用 mid = left + (right - left) / 2 避免溢出
+</p>
+<div class="org-src-container">
+<pre class="src src-C++">#include &lt;cstdio&gt;
+int binarySearch(int num[], int n, int val) {
+		int left  = 0;
+		int right = n-1;
+		while (left &lt;= right) {
+				int mid = left + (right - left) / 2;
+				if (num[mid] == val)
+						return mid;
+				else if (num[mid] &lt; val)
+						left  = mid + 1;
+				else if (num[mid] &gt; val)
+						right = mid - 1;
+		}
+		return -1;
+}
+
+int main() {}
+int num[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+for (int val = 0; val &lt;= 9; val++)
+		printf("%d\n", binarySearch(num, 10, val));
+return 0;
+}
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orge211786" class="outline-3">
+<h3 id="orge211786">寻找左侧边界的二分查找</h3>
+<div class="outline-text-3" id="text-orge211786">
+<ul class="org-ul">
+<li>如果寻找的递增序列中的元素重复，要求找到第一个重复元素的位置</li>
+<li><p>
+例如在0, 1, 1, 1, 1, 1, 2中找到第一个1
+</p>
+<div class="org-src-container">
+<pre class="src src-C++">#include &lt;cstdio&gt;
+int binarySearch(int num[], int n, int val) {
+		int left  = 0;
+		int right = n - 1;
+		while (left &lt;= right) {
+				int mid = left + (right - left) / 2;
+				if (left == right)
+						return mid + 1;
+				else if (num[mid] &lt; val)
+						left = mid + 1;
+				else if (num[mid] &gt;= val)
+						right = mid - 1;
+		}
+		return -1;
+}
+
+int main() {
+		int num[] = {0, 1, 1, 1, 1, 1, 2};
+		int val = 1;
+		printf("%d\n", binarySearch(num, 7, val));
+		return 0;
+}
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org1e3cb7d" class="outline-3">
+<h3 id="org1e3cb7d">寻找右侧边界的二分查找</h3>
+<div class="outline-text-3" id="text-org1e3cb7d">
+<ul class="org-ul">
+<li><p>
+找到最后一个重复元素
+</p>
+<div class="org-src-container">
+<pre class="src src-C++">#include &lt;cstdio&gt;
+int binarySearch(int num[], int n, int val) {
+		int left  = 0;
+		int right = n - 1;
+		while (left &lt;= right) {
+				int mid = left + (right - left) / 2;
+				if (left == right)
+						return mid - 1;
+				else if (num[mid] &lt;= val)
+						left = mid + 1;
+				else if (num[mid] &gt; val)
+						right = mid - 1;
+		}
+		return -1;
+}
+
+int main() {
+		int num[] = {0, 1, 1, 1, 1, 1, 2};
+		int val = 1;
+		printf("%d\n", binarySearch(num, 7, val));
+		return 0;
+}
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org20288fa" class="outline-3">
+<h3 id="org20288fa">使用lower_bound和upper_bound查找</h3>
+<div class="outline-text-3" id="text-org20288fa">
+<ul class="org-ul">
+<li>以上对于序列中重复元素的查找，可以直接使用头文件algorithm中的lower_bound与upper_bound</li>
+</ul>
+</div>
+<div id="outline-container-orgb2cb032" class="outline-5">
+<h5 id="orgb2cb032">lower_bound</h5>
+<div class="outline-text-5" id="text-orgb2cb032">
+<ul class="org-ul">
+<li>lower_bound(begin, end, val)</li>
+<li>[begin, end)范围内第一个小于等于val的元素的位置
+<ul class="org-ul">
+<li>如果是数组，返回该位置指针</li>
+<li>如果是容器，返回该位置迭代器</li>
+</ul></li>
+<li>如果没有找到val，返回可以插入该元素位置的指针或迭代器</li>
+<li>时间复杂度O(log(begin - end))</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org9c5c86a" class="outline-5">
+<h5 id="org9c5c86a">upper_bound</h5>
+<div class="outline-text-5" id="text-org9c5c86a">
+<ul class="org-ul">
+<li>upper_bound(begin, end, val)</li>
+<li>[begin, end)范围内第一个大于val的元素的位置
+<ul class="org-ul">
+<li>如果是数组，返回该位置指针</li>
+<li>如果是容器，返回该位置迭代器</li>
+</ul></li>
+<li>如果没有找到val，返回可以插入该元素位置的指针或迭代器</li>
+<li><p>
+时间复杂度O(log(begin - end))
+</p>
+
+<div class="org-src-container">
+<pre class="src src-C++">#include &lt;cstdio&gt;
+#include &lt;algorithm&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main() {
+		int num[] = {0, 1, 1, 1, 1, 1, 2};
+		int val = 1;
+		int* lowerPos = lower_bound(num, num + 7, val);
+		printf("%d\n", (int)(lowerPos - num));
+		printf("%d\n", *lowerPos);
+
+		int* upperPos = upper_bound(num, num + 7, val);
+		printf("%d\n", (int)(upperPos - num));
+		printf("%d\n", *upperPos);
+
+		vector&lt;int&gt; vec;
+		vec.push_back(0);
+		vec.push_back(1);
+		vec.push_back(1);
+		vec.push_back(1);
+		vec.push_back(1);
+		vec.push_back(1);
+		vec.push_back(2);
+		vector&lt;int&gt;::iterator it;
+		it = lower_bound(vec.begin(), vec.end(), val);
+		printf("%d\n", (int)(it - vec.begin()));
+		printf("%d\n", *it);
+
+		it = upper_bound(vec.begin(), vec.end(), val);
+		printf("%d\n", (int)(it - vec.begin()));
+		printf("%d\n", *it);
+
+		return 0;
+}
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org14b7724" class="outline-2">
+<h2 id="org14b7724">实数域上的二分</h2>
+<div class="outline-text-2" id="text-org14b7724">
+<p>
+在实数域上二分较为简单，确定好所需的精度eps，以l + eps &lt; r为循环条件，每次根据在mid上的判定选择r = mid或l = mid分支之一即可，一般需要保留k位小数时，则取eps = 10^(-(k+2))
+</p>
+</div>
+</div>
+<div id="outline-container-org3842110" class="outline-2">
+<h2 id="org3842110">三分求单峰函数极值</h2>
+<div class="outline-text-2" id="text-org3842110">
+<p>
+有一类函数被称为单峰函数，它们拥有唯一的极大值点，在极大值点左侧严格单调上升，右侧严格单调下降：或者拥有唯一的极小值点，在极小值点左侧严格单调下降，在极小值点右侧严格单调上升，为了避免混淆，我们也称后一种为单谷函数。对于单峰函数或单谷函数，可以通过三分法求其极值以单峰函数f为例，在函数定义域[l, r]上任取两个点lmid与rmid，把函数分为三段。
+</p>
+<ol class="org-ol">
+<li>若f(lmid) &lt; f(rmid)，则lmid与rmid要么同时处于极大值点左侧(单调上升函数段)，要么处于极大值点两侧。无论那种情况下，极大值点都在lmid右侧，可令l = lmid</li>
+<li>同理，若f(lmid) &gt; f(rmid)，则极大值点一定在rmid左侧，可令r = rmid
+如果我们取lmid与rmid为三等分点，那么定义域范围每次缩小1/3，如果我们取lmid与rmid在二等分点两侧及其接近的地方，嘛呢定义域范围每次近似缩小1/2，通过log级别的时间复杂度即可在指定精度下求出极值，这就是三分法注意：这里强调了严格单调性，如果函数中存在一段值相等的部分，那么三分法就不在适用</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-org8015577" class="outline-2">
+<h2 id="org8015577">二分答案转化为判定</h2>
+</div>
+<div id="outline-container-org5eacd98" class="outline-2">
+<h2 id="org5eacd98">二分拓展</h2>
+<div class="outline-text-2" id="text-org5eacd98">
+<p>
+二分的思想其实就是通过mid = (left + right) / 2不断逼近的思想，它不止应用于查找
+</p>
+</div>
+<div id="outline-container-org40c8397" class="outline-3">
+<h3 id="org40c8397"><a href="Algorithm-快速幂.html">快速幂</a></h3>
+</div>
+<div id="outline-container-org03c837c" class="outline-3">
+<h3 id="org03c837c">使用二分法计算$\sqrt{2}$的近似值</h3>
+<div class="outline-text-3" id="text-org03c837c">
+<div class="org-src-container">
+<pre class="src src-C++">#include &lt;cstdio&gt;
+const double eps = 1e-5;
+int main() {
+		double left  = 1;
+		double right = 2;
+		double mid;
+		while (right - left &gt; eps) {
+				mid = (right + left) / 2;
+				if (mid * mid &lt; 2)
+						left = mid;
+				else
+						right = mid;
+		}
+		printf("%f\n", mid);
+		return 0;
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

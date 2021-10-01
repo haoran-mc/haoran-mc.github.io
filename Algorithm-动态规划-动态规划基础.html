@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-09-30 四 03:21 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>动态规划基础</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran &lt;haoran.mc@outlook.com&gt;">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">动态规划基础</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgf0f7a71">硬币问题</a></li>
+<li><a href="#orgae96b99">最长不下降子序列</a></li>
+<li><a href="#org7e12cc4">最长公共子序列</a></li>
+<li><a href="#org8d8f38d">最大连续子序列和</a>
+<ul>
+<li><a href="#orge16b08d">最大连续子序列和</a>
+<ul>
+<li><a href="#org0992b91">前缀和</a></li>
+<li><a href="#org62c3c83">动态规划</a></li>
+<li><a href="#orgfa5d773">单调队列</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#orgcee69d4">最长非递增子串</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgf0f7a71" class="outline-2">
+<h2 id="orgf0f7a71">硬币问题</h2>
+</div>
+<div id="outline-container-orgae96b99" class="outline-2">
+<h2 id="orgae96b99">最长不下降子序列</h2>
+<div class="outline-text-2" id="text-orgae96b99">
+<p>
+&gt; 最长不下降子序列(Longest Increasing Sequence, LIS)
+&gt; 在一个数字序列中，找到一个最长的子序列(可以不连续), 使得这个子序列是不下降的(非递减的)
+</p>
+
+<p>
+A = {1, 2, 3, -1, -2, 7, 9}
+最长不下降子序列是{1, 2, 3, 7, 9}
+</p>
+<ul class="org-ul">
+<li>令dp[i]表示以A[i]结尾的最长不下降子序列长度(强制要求)</li>
+<li>如果存在A[i]之前的元素A[j]\(j &lt; i)，使得A[j] &lt;= A[i]且dp[j] + 1 &gt; dp[i]</li>
+<li>更新dp[i] = dp[j] + 1</li>
+<li>状态转移方程：dp[i] = max{1, dp[j] + 1}(j = 1, 2, 3, &#x2026; , i-1 &amp;&amp; A[j] &lt; A[i])</li>
+
+<li>对与每个A[i]来说，都要与之前的所有A[j]比较，时间复杂度为O(n^2)</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org7e12cc4" class="outline-2">
+<h2 id="org7e12cc4">最长公共子序列</h2>
+<div class="outline-text-2" id="text-org7e12cc4">
+<p>
+&gt; 最长公共子序列(Longest Common Subsequence, LCS)
+&gt; 给定两个字符串(或数字字符串)A和B，求一个字符串是两个字符串的最长公共部分(字符串可以不连续)
+&gt; 字符串"sadstory"与"adminsorry"的最长公共子序列为"adsory"
+</p>
+<ul class="org-ul">
+<li>若A[i] == B[j]，则字符串A与字符串B的LCA增加了1位，即有dp[i]\[j] = dp[i-1]\[j-1]+i</li>
+<li>若A[i] != B[j]，则字符串A的i号位和字符串B的j号位之前的LCS无法延长</li>
+<li>因此dp[i]\[j]会继承dp[i-1]\[j]与dp[i]\[j-1]中的较大值，即有dp[i]\[j] = max{dp[i-1]\[j], dp[i]\[j-1]}</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org8d8f38d" class="outline-2">
+<h2 id="org8d8f38d">最大连续子序列和</h2>
+<div class="outline-text-2" id="text-org8d8f38d">
+</div>
+<div id="outline-container-orge16b08d" class="outline-3">
+<h3 id="orge16b08d">最大连续子序列和</h3>
+<div class="outline-text-3" id="text-orge16b08d">
+<p>
+给定一个数字序列，num1, num2, num3, num4, num5, &#x2026; , numn, 求出i, j使(numi + &#x2026; + numj)最大，输出这个最大和
+</p>
+</div>
+<div id="outline-container-org0992b91" class="outline-4">
+<h4 id="org0992b91">前缀和</h4>
+<div class="outline-text-4" id="text-org0992b91">
+<p>
+从第一个数开始，当前sequ[1].sum = sequ[1]
+</p>
+<div class="org-src-container">
+<pre class="src src-C++">for (int i = 1; i &lt; n; i++)
+		if (sequ[i-1].sum &gt;= 0)
+				sequ[i].sum += numi
+				else
+						sequ[i].sum = numi
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org62c3c83" class="outline-4">
+<h4 id="org62c3c83">动态规划</h4>
+<div class="outline-text-4" id="text-org62c3c83">
+<p>
+状态转移方程：dp[i] = max{sequ[i], dp[i-1] + sequ[i]}
+</p>
+</div>
+</div>
+<div id="outline-container-orgfa5d773" class="outline-4">
+<h4 id="orgfa5d773">单调队列</h4>
+<div class="outline-text-4" id="text-orgfa5d773">
+<p>
+给定一个长度为N的整数序列(可能有负数)，从中找出一段长度不超过M的连续子序列，使得所有子序列中所有数的和最大(这里增加了不超过M的条件)
+最优选择的策略集合一定是一个"下标位置递增，对应的前缀和的值也递增"的序列，所以可以使用队列保存这个序列
+</p>
+<ol class="org-ol">
+<li>判断队头决策与i的距离是否超过M的范围，若超出则出队</li>
+<li>此时队头就是右端点为i时，左端点j的最优选择</li>
+<li>不断删除队尾决策，直到队尾对应的前缀和S小于S[i]，然后把i作为一个新的决策入队</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgcee69d4" class="outline-2">
+<h2 id="orgcee69d4">最长非递增子串</h2>
+<div class="outline-text-2" id="text-orgcee69d4">
+<ul class="org-ul">
+<li><p>
+导弹拦截
+</p>
+<ul class="org-ul">
+<li>[导弹拦截](<a href="https://vjudge.net/problem/OpenJ_Bailian-2945">https://vjudge.net/problem/OpenJ_Bailian-2945</a>)</li>
+</ul>
+<p>
+&gt; 某国为了防御敌国的导弹袭击，发展出一种导弹拦截系统。但是它有一个缺陷: 虽然它的第一发炮弹能够到达任意的高度，但是以后每一发炮弹都不能高于前一发的高度。某天，雷达捕捉到敌国的导弹来袭。由于该系统还在适用阶段，所以只有一套系统，因此有可能不能拦截所有的导弹。
+</p>
+
+<p>
+输入: 第一行输入导弹的枚数N，第二行是n个数表示导弹依次飞来的高度输出: 第一行输出最多可拦截的导弹数，第二行输出拦截的导弹序列
+</p>
+
+<p>
+输入样例:
+8
+389 207 155 300 299 170 158 65
+</p>
+
+<p>
+输出样例:
+6
+380 300 299 170 158 65
+</p>
+<div class="org-src-container">
+<pre class="src src-C++">#include &lt;cstdio&gt;
+#include &lt;cstring&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+const int maxn = 25;
+int bomb[maxn];
+int dp[maxn];
+int main() {
+		int n;
+		scanf("%d", &amp;n);
+		for (int i = 0; i &lt; n; ++i)
+				scanf("%d", &amp;bomb[i]);
+		fill(dp, dp+n, 1);
+		for (int i = 0; i &lt; n; ++i)
+				for (int j = 0; j &lt; i; ++j)
+						if (bomb[i] &lt;= bomb[j])
+								dp[i] = max(dp[i], dp[j]+1);
+		int res = 0;
+		for (int i = 0; i &lt; n; ++i)
+				res = max(res, dp[i]);
+		printf("%d\n", res);
+		return 0;
+}
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-C++">#include &lt;cstdio&gt;
+#include &lt;cstring&gt;
+#include &lt;algorithm&gt;
+#include &lt;vector&gt;
+using namespace std;
+const int maxn = 25;
+const int inf  = 0x3f3f3f3f;
+int bomb[maxn];
+int dp[maxn]; /*当前导弹作为结尾时能拦截的导弹数*/
+int link[maxn];
+int main() {
+		freopen("in.txt", "r", stdin);
+		freopen("out.txt", "w", stdout);
+		int n;
+		scanf("%d", &amp;n);
+		++n;
+		bomb[0] = inf; /*必须设置第一个是最大的，保证之后的最大的能被link在这次之后，否则之后的最大的link是它自己，而最后的输出条件是到达-1才停止输出*/
+		for (int i = 1; i &lt;= n; ++i)
+				scanf("%d", &amp;bomb[i]);
+		memset(link, -1, sizeof(link));
+		int maxi;
+		int idx;
+		int res = 1;
+		int start = -1;
+		dp[0] = 1; /*第一个导弹一定能被拦截*/
+		/*dp[1]不需要预先设定，如果程序中没有找到前面比它高的导弹，会自动设定1*/
+		/*而dp[0]通过循环自己设定1，因为会同时改变idx的值*/
+		for (int i = 1; i &lt; n-1; ++i) {
+				maxi = dp[i]; /*首先认为当前的dp是最大的，如果能发现更大的，那就更改为更大的*/
+				idx  = i; /*idx寻找前面比当前导弹高的，且dp更大的导弹的下标*/
+				/*一定要倒着寻找，找到最近的*/
+				for (int j = i-1; j &gt;= 0; --j)
+						if (bomb[j] &gt;= bomb[i] &amp;&amp; dp[j] &gt; maxi) {
+								maxi = dp[j];
+								idx  = j;
+						}
+				dp[i] = ++maxi;
+				link[i] = idx;
+				if (dp[i] &gt; res) { /*最多的能拦截的导弹数*/
+						res = dp[i];
+						start = i;
+				}
+		}
+		printf("%d\n", res);
+		vector&lt;int&gt; vec;
+		for (int i = start; i != -1; i = link[i])
+				if (i != 0)
+						vec.push_back(bomb[i]);
+		for (auto it = vec.begin(); it != vec.end(); ++it)
+				printf("%d ", *it);
+		return 0;
+}
+</pre>
+</div></li>
+
+<li><p>
+矩阵嵌套
+</p>
+
+<p>
+&gt; 有n个矩形，每个矩形可以用a,b来描述，表示长和宽。矩形X(a,b)可以嵌套在矩形Y(c,d)中当且仅当a&lt;c,b&lt;d或者b&lt;c,a&lt;d（相当于旋转X90度）。例如（1,5）可以嵌套在（6,2）内，但不能嵌套在（3,4）中。你的任务是选出尽可能多的矩形排成一行，使得除最后一个外，每一个矩形都可以嵌套在下一个矩形内。
+</p>
+
+<p>
+输入: 第一行是一个正正数N(0&lt;N&lt;10)，表示测试数据组数，每组测试数据的第一行是一个正正数n，表示该组测试数据中含有矩形的个数(n&lt;=1000)随后的n行，每行有两个数a,b(0&lt;a,b&lt;100)，表示矩形的长和宽输出: 每组测试数据都输出一个数，表示最多符合条件的矩形数目，每组输出占一行
+</p>
+
+<p>
+输入样例:
+1
+10
+1 2
+2 4
+5 8
+6 10
+7 9
+3 1
+5 8
+12 10
+9 7
+2 2
+</p>
+
+<p>
+输出样例:
+5
+</p>
+
+<p>
+思路: 与导弹拦截差不多，先排序，然后求最长递增子序列
+</p>
+<div class="org-src-container">
+<pre class="src src-C++">#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;algorithm&gt;
+const int maxn = 1005;
+using namespace std;
+
+struct Matrix {
+		int x;
+		int y;
+} matrix[maxn];
+int dp[maxn]; /*表示以当前矩阵结束可以嵌套的矩阵最多是多少*/
+bool cmp(Matrix a, Matrix b) {
+		return a.x == b.x ? a.y &lt; b.y : a.x &lt; b.x;
+}
+
+int main() {
+		int n;
+		memset(dp, 0, sizeof(dp));
+		scanf("%d", &amp;n);
+		int tempx;
+		int tempy;
+		for (int i = 0; i &lt; n; i++) {
+				scanf("%d%d", &amp;tempx, &amp;tempy);
+				/*将长存在y中，宽存在x中*/
+				if (tempx &lt; tempy) {
+						matrix[i].x = tempx;
+						matrix[i].y = tempy;
+				}
+				else {
+						matrix[i].x = tempy;
+						matrix[i].y = tempx;
+				}
+		}
+		sort(matrix, matrix+n, cmp);
+		for(int i = 0; i &lt; n; i++)
+				dp[i] = 1; /*显然最少也是一个都不能嵌套*/
+		for (int i = 1; i &lt; n; i++)
+				for (int j = i-1; j &gt;= 0; j--)
+						if (matrix[i].x &gt; matrix[j].x &amp;&amp; matrix[i].y &gt; matrix[j].y  &amp;&amp; dp[j] &gt; dp[i])
+								dp[i] = max(dp[i], dp[j] + 1);
+		int res = 0;
+		for (int i = 0; i &lt; n; i++)
+				res = max(res, dp[i]);
+		printf("%d\n", res);
+}
+</pre>
+</div></li>
+<li>木棍加工</li>
+<li><p>
+Dilworth定理狄尔沃斯定理(Dilworth's theorem)亦称偏序集分解定理，其定义是：对于任意有限偏序集，其最大反链中元素的数目必等于最小链划分中链的数目。对偶形式也成立：对于任意有限偏序集，其最长链中元素的数目必等于其最小反链划分中反链的数目以洛谷P1020为例，求解一套导弹拦截系统最多能拦截导弹的数量，这个其实就是一个简单的LIS；而求解需要多少个导弹拦截系统，就使用Dilworth定理，所有发射的导弹高度构成一个偏序集，导弹链接系统的数量就是全序集的个数，每一个导弹拦截系统下一次拦截高度都不能高于前一次拦截的高度，所以，其反链就是最长不严格上升子序列
+</p>
+
+<p>
+最少的下降序列个数就等于整个序列最长上升子序列的长度
+</p>
+
+<p>
+要先降序排列，`return (a.x &gt; b.x || (a.x == b.x &amp;&amp; a.y &gt; b.y)) ? true : false;`，然后由于x是一定非递增的，比较y，y中的最长上升序列长度就是最少的下降序列
+</p></li>
+</ul>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-09-30 四 16:15 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>图的存储</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran &lt;haoran.mc@outlook.com&gt;">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">图的存储</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org0742ec2">图的存储</a>
+<ul>
+<li><a href="#org4f42b3f">邻接矩阵</a></li>
+<li><a href="#orgf3f6420">邻接表</a></li>
+<li><a href="#org22174b2">链式前向星</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org0742ec2" class="outline-2">
+<h2 id="org0742ec2">图的存储</h2>
+<div class="outline-text-2" id="text-org0742ec2">
+</div>
+<div id="outline-container-org4f42b3f" class="outline-3">
+<h3 id="org4f42b3f">邻接矩阵</h3>
+<div class="outline-text-3" id="text-org4f42b3f">
+<ul class="org-ul">
+<li>令G[i][j]的两维分别表示图的顶点标号，即G[i][j]表示顶点i与顶点j之间有边</li>
+<li>或者可以在G[i][j]中放边权</li>
+</ul>
+<pre class="example" id="orgcf483e7">
+---                 ---      ==                          2
+| 0  1  2  3  4      | V0 ------------- V1           |       |   |
+|                    | 邻                            | /     |   |
+| 0    0  2  0  0  1 | 接                1           | /     |   |
+| 1    2  0  2  0  2 | 矩                            | 2   / | 2 |
+| 2    0  2  0  1  0 | 阵                 V4 ------- |       |   |
+| 3    0  0  1  0  1 |                               |       |   |
+| 4    1  2  0  1  0 | ==                1           | 1     |   |
+---                 ---                         V3 ------------- V2
+</pre>
+
+<ul class="org-ul">
+<li>由于需要开一个二维数组，如果顶点数目太大，便可能会超过题目限制的内存，因此邻接矩阵只适用于顶点数目不太大的题目</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgf3f6420" class="outline-3">
+<h3 id="orgf3f6420">邻接表</h3>
+<div class="outline-text-3" id="text-orgf3f6420">
+<ul class="org-ul">
+<li>图G(V, E)的顶点编号为0, 1, &#x2026; N-1，每个顶点都有可能有若干条出边，将同一个顶点的所有出边放在一个列表里，N个顶点有N个列表，这N个列表被称为图G的 <b><b>邻接表</b></b></li>
+<li>由于需要开一个二维数组，如果顶点数目太大，便可能会超过题目限制的内存，因此邻接矩阵只适用于顶点数目不太大的题目</li>
+<li>这时候就需要使用邻接表</li>
+</ul>
+
+<pre class="example" id="org3de0728">
+      head                                     | ==                V0 ------------- V1
+       __                                      |                   |             / |
+Adj[0]|__| -&gt; [1]\[2] -&gt; [4]\[1]               | 邻              1 |           /   |
+Adj[1]|__| -&gt; [0]\[2] -&gt; [2]\[2] -&gt; [4]\[2]    | 接                |     2   /     |  2
+Adj[2]|__| -&gt; [1]\[2] -&gt; [3]\[1]               | 表               V4 -------       |
+Adj[3]|__| -&gt; [2]\[1] -&gt; [4]\[1]               |                   |               |
+Adj[4]|__| -&gt; [0]\[1] -&gt; [1]\[2] -&gt; [3]\[1]    | ==              1 |       1       |
+                                               |                  V3 ------------- V2
+</pre>
+
+<ul class="org-ul">
+<li>建立邻接表可以使用链表，也可以使用更简单的vector</li>
+<li><code>vector&lt;int&gt; Adj[N];</code> or <code>vector&lt;Node&gt; Adj[N];</code></li>
+</ul>
+<div class="org-src-container">
+<pre class="src src-C++">// 如果是无向边
+Adj[1].push_back(3);
+Adj[3].push_back(1);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org22174b2" class="outline-3">
+<h3 id="org22174b2">链式前向星</h3>
+</div>
+</div>
+</div>
+</body>
+</html>

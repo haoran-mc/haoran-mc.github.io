@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-09-29 三 22:58 -->
+<!-- 2021-10-01 五 14:26 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CF-#744-3</title>
@@ -140,9 +140,171 @@ int main() {
 </div>
 <div id="outline-container-org83e66c8" class="outline-2">
 <h2 id="org83e66c8">C Ticks</h2>
+<div class="outline-text-2" id="text-org83e66c8">
+<p>
+遍历图，如果当前字符为*，就调用solve方法，while向右下方延伸，当长度为 &gt;= k + 1 时，判断折叠到右侧的斜线区域是否全是*，如果是，那就将这些字符的位置全部标记为true，所以在遍历一遍图之后，如果所有*的位置都为true，则表明可以画出这个图，否则不能。
+</p>
+<div class="org-src-container">
+<pre class="src src-cpp">#include &lt;cstdio&gt;
+#include &lt;cstring&gt;
+const int maxn = 25;
+char g[maxn][maxn];
+bool used[maxn][maxn];
+int n, m, k;
+#define NEXTLINE puts("");
+
+// 左侧斜边可以折叠到右侧斜边
+bool judge(int lti, int ltj, int cui, int cuj) {
+		for (int i = lti; i &lt; cui; ++ i)
+				if (g[i][cui - i + cuj] != '*')
+						return false;
+		return true;
+}
+
+void mark(int lti, int ltj, int cui, int cuj) {
+		used[cui][cuj] = true;  // 标记center
+		for (int i = lti; i &lt; cui; ++ i)
+				used[i][ltj + i - lti] = true, used[i][cuj + cui - i] = true;
+}
+
+void solve(int i, int j) {
+		// 记录原点
+		int left_top_i = i, left_top_j = j;
+		// 始终向右下延伸
+		while (i &lt; n - 1 &amp;&amp; j &lt; m - 1 &amp;&amp; g[ ++ i][ ++ j] == '*')
+				if (i - left_top_i &gt;= k &amp;&amp; judge(left_top_i, left_top_j, i, j))
+						mark(left_top_i, left_top_j, i, j);
+}
+
+int main() {
+		int t; scanf("%d", &amp;t);
+		while (t --) {
+				memset(used, 0, sizeof used);
+				scanf("%d %d %d", &amp;n, &amp;m, &amp;k);
+				// 输入
+				for (int i = 0; i &lt; n; ++ i)
+						scanf("%s", g[i]);
+				// 如果当前点是*，就solve
+				for (int i = 0; i &lt; n; ++ i)
+						for (int j = 0; j &lt; m; ++ j)
+								if (g[i][j] == '*')
+										solve(i, j);
+				// 判断是否有点是*且used为false
+				bool flag = true;
+				for (int i = 0; i &lt; n; ++ i)
+						for (int j = 0; j &lt; m; ++ j)
+								if (g[i][j] == '*' &amp;&amp; used[i][j] == false) {
+										flag = false;
+										goto end;
+								}
+		end:
+				printf(flag ? "YES\n" : "NO\n");
+		}
+		return 0;
+}
+</pre>
+</div>
+</div>
 </div>
 <div id="outline-container-org4dca033" class="outline-2">
 <h2 id="org4dca033">D Productive Meeting</h2>
+<div class="outline-text-2" id="text-org4dca033">
+<p>
+这题也太wa了，一开始想到可以将会议中的人分为两个组，然后两个组之间的交流次数总和的差最小的情况就是答案，所以使用深搜判断当前这个人是否被分为1组，样例过了之后信心满满觉得能过了，但是没有过第二组的第69个数据，多次修改不过之后决定换思路。用贪心的方法，将所有人的交流次数放在一个堆中，每次让两个交流次数最多的两人交流，然后把这两人交流次数之差放回堆中，仍然，wa在第二组的第69个数据。
+codeforce每次只展示较小的数据，所以也看不到wa在了哪个数据，就这样浑浑噩噩了一个上午，最终在水算法群的时候，一位群友在群里求助，可怜，这位同学也是wa的第69个数据。然后就有人提出了"100 100 2"这样的数据，之后才明白wa在了这里。仍然使用前面贪心+堆的方法，但是每次交流仅让两个交流次数最多的两人交流一次，之后将交流次数减一放入堆中。
+</p>
+<div class="org-src-container">
+<pre class="src src-cpp">#include &lt;cstdio&gt;
+#include &lt;vector&gt;
+#include &lt;cstring&gt;
+#include &lt;utility&gt;
+using namespace std;
+const int maxn = 2e5 * 2 + 5;
+
+struct Node {
+		int talk;
+		int id;
+} he[maxn];
+
+int tot, idx, ph[maxn], hp[maxn];
+vector&lt;pair&lt;int, int&gt;&gt; vec;
+
+void heap_swap(int a, int b) {
+		swap(ph[hp[a]], ph[hp[b]]);
+		swap(hp[a], hp[b]);
+		swap(he[a], he[b]);
+}
+
+void up(int u) {
+		while (u / 2 &amp;&amp; he[u / 2].talk &lt; he[u].talk) {
+				heap_swap(u / 2, u);
+				u /= 2;
+		}
+}
+
+void down(int u) {
+		int minidx = u;
+		if (u * 2 &lt;= tot &amp;&amp; he[u * 2].talk &gt; he[minidx].talk)
+				minidx = u * 2;
+		if (u * 2 + 1 &lt;= tot &amp;&amp; he[u * 2 + 1].talk &gt; he[minidx].talk)
+				minidx = u * 2 + 1;
+		if (u != minidx) {
+				heap_swap(u, minidx);
+				down(minidx);
+		}
+}
+
+int main() {
+#ifndef ONLINE_JUDGE
+		freopen("in.txt", "r", stdin);
+		freopen("out.txt", "w", stdout);
+#endif
+		int t; scanf("%d", &amp;t);
+		while (t --) {
+				int n; scanf("%d", &amp;n);
+				memset(he, 0, sizeof he);
+				memset(hp, 0, sizeof hp);
+				memset(ph, 0, sizeof ph);
+				tot = 0, idx = 0;
+				for (int i = 0; i &lt; n; ++ i) {
+						int _; scanf("%d", &amp;_);
+						tot ++ ;
+						idx ++ ;
+						ph[idx] = tot, hp[tot] = idx;
+						he[tot] = {_, i + 1};
+						up(tot);
+				}
+				while (tot &gt; 1) {
+						// 取堆顶两个元素
+						Node i1 = he[1]; heap_swap(1, tot --); down(1);
+						Node i2 = he[1]; heap_swap(1, tot --); down(1);
+						// 如果有0，结束会议
+						if (i2.talk == 0 || i1.talk == 0)
+								break;
+						i1.talk -- ;
+						i2.talk -- ;
+						vec.push_back({i1.id, i2.id});
+						tot ++ ;
+						idx ++ ;
+						ph[idx] = tot, hp[tot] = idx;
+						he[tot] = {i1.talk, i1.id};
+						up(tot);
+						tot ++ ;
+						idx ++ ;
+						ph[idx] = tot, hp[tot] = idx;
+						he[tot] = {i2.talk, i2.id};
+						up(tot);
+				}
+				printf("%d\n", vec.size());
+				for (auto i : vec)
+						printf("%d %d\n", i.first, i.second);
+				vec.clear();
+		}
+		return 0;
+}
+</pre>
+</div>
+</div>
 </div>
 <div id="outline-container-orgbf57912" class="outline-2">
 <h2 id="orgbf57912">E1 Permutation Minimization by Deque</h2>

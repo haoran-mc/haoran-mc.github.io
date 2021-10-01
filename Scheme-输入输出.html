@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-09-30 四 22:35 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>输入输出</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">输入输出</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orga87f14a">输入</a>
+<ul>
+<li><a href="#org4070123">open-input-file</a></li>
+<li><a href="#org039488a">with-input-from-file</a></li>
+<li><a href="#org049af3d">read</a></li>
+</ul>
+</li>
+<li><a href="#org30d38ad">输出</a>
+<ul>
+<li><a href="#org74436ab">打开一个用于输出的port</a></li>
+<li><a href="#org9c98327">用于输出的函数</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-orga87f14a" class="outline-2">
+<h2 id="orga87f14a">输入</h2>
+<div class="outline-text-2" id="text-orga87f14a">
+</div>
+<div id="outline-container-org4070123" class="outline-3">
+<h3 id="org4070123">open-input-file</h3>
+<div class="outline-text-3" id="text-org4070123">
+<ul class="org-ul">
+<li>函数(open-input-file filename)可以用于打开一个文件。此函数返回一个用于输入的端口</li>
+<li>函数(read-char port)用于从端口中读取一个字符。当读取到 <b><b>文件结尾(EOF)</b></b> 时，此函数返回eof-object，你可以使用eof-object?来检查</li>
+<li><p>
+函数(close-input-port port)用于关闭输入端口
+</p>
+
+<div class="org-src-container">
+<pre class="src src-txt">Hello world!
+Scheme is an elegant programming language.
+</pre>
+</div></li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-scheme">(define (read-file file-name)
+	(let ((p (open-input-file file-name)))
+		(let loop((ls1 '()) (c (read-char p)))
+			(if (eof-object? c)
+					(begin
+						(close-input-port p)
+						(list-&gt;string (reverse ls1)))
+					(loop (cons c ls1) (read-char p))))))
+
+(read-file "hello.txt")
+																				;Value 14: "Hello world!\nScheme is an elegant programming language.\n"
+
+(display (read-file "hello.txt"))
+																				;Unspecified return value
+</pre>
+</div>
+
+
+<p>
+你通过使用语法call-with-input-file和with-input-from-file来打开文件以供读取输入。这些语法是非常方便的，因为它们要处理错误
+</p>
+
+<p>
+## call-with-input-file
+`(call-with-input-file filename procedure)`
+该函数将名为filename的文件打开以供读取输入。函数procedure接受一个输入端口作为参数。文件有可能再次使用，因此当procedure结束时文件不会自动关闭，文件应该显式地关闭
+</p>
+
+<div class="org-src-container">
+<pre class="src src-scheme">(define (read-file file-name)
+	(call-with-input-file file-name
+		(lambda (p)
+			(let loop((ls1 '()) (c (read-char p)))
+				(if (eof-object? c)
+						(begin
+							(close-input-port p)
+							(list-&gt;string (reverse ls1)))
+						(loop (cons c ls1) (read-char p)))))))
+
+(display (read-file "hello.txt"))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org039488a" class="outline-3">
+<h3 id="org039488a">with-input-from-file</h3>
+<div class="outline-text-3" id="text-org039488a">
+<p>
+`(with-input-from-file filename procedure)`
+该函数将名为filename的文件作为标准输入打开。函数procedure不接受任何参数。当procedure退出时，文件自动被关闭
+</p>
+
+<div class="org-src-container">
+<pre class="src src-scheme">(define (read-file file-name)
+	(with-input-from-file file-name
+		(lambda ()
+			(let loop((ls1 '()) (c (read-char)))
+				(if (eof-object? c)
+						(list-&gt;string (reverse ls1))
+						(loop (cons c ls1) (read-char)))))))
+
+(display (read-file "hello.txt"))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org049af3d" class="outline-3">
+<h3 id="org049af3d">read</h3>
+<div class="outline-text-3" id="text-org049af3d">
+<p>
+函数(read port)从端口port中读入一个S-表达式。用它来读诸如”paren.txt”中带括号的内容就很方便
+</p>
+
+<div class="org-src-container">
+<pre class="src src-txt">'(Hello world!
+Scheme is an elegant programming language.)
+
+'(Lisp is a programming language ready to evolve.)
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-scheme">(define (s-read file-name)
+	(with-input-from-file file-name
+		(lambda ()
+			(let loop ((ls1 '()) (s (read)))
+				(if (eof-object? s)
+						(reverse ls1)
+						(loop (cons s ls1) (read)))))))
+</pre>
+</div>
+
+<p>
+下面展示了用s-read读取”paren.txt”的结果
+</p>
+<div class="org-src-container">
+<pre class="src src-scheme">(s-read "paren.txt")
+⇒ ((quote (hello world! scheme is an elegant programming language.))
+	 (quote (lisp is a programming language ready to evolve.)))
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org30d38ad" class="outline-2">
+<h2 id="org30d38ad">输出</h2>
+<div class="outline-text-2" id="text-org30d38ad">
+</div>
+<div id="outline-container-org74436ab" class="outline-3">
+<h3 id="org74436ab">打开一个用于输出的port</h3>
+<div class="outline-text-3" id="text-org74436ab">
+<p>
+输出有和输入类似的函数，比如：
+</p>
+
+<ul class="org-ul">
+<li>(open-output-file filename)</li>
+</ul>
+<p>
+该函数打开一个文件用作输出，放回该输出端口
+</p>
+
+<ul class="org-ul">
+<li>(close-output-port port)</li>
+</ul>
+<p>
+关闭用于输出的端口
+</p>
+
+<ul class="org-ul">
+<li>(call-with-output-file filename procedure)</li>
+</ul>
+<p>
+打开文件filename用于输出，并调用过程procedure。该函数以输出端口为参数
+</p>
+
+<ul class="org-ul">
+<li>(with-output-to-file filename procedure)</li>
+</ul>
+<p>
+打开文件filename作为标准输出，并调用过程procedure。该过程没有参数。当控制权从过程procedure中返回时，文件被关闭
+</p>
+</div>
+</div>
+
+<div id="outline-container-org9c98327" class="outline-3">
+<h3 id="org9c98327">用于输出的函数</h3>
+<div class="outline-text-3" id="text-org9c98327">
+<p>
+下面的函数可用于输出。如果参数port被省略的话，则输出至标准输出
+</p>
+
+<ul class="org-ul">
+<li>(write obj port)</li>
+</ul>
+<p>
+该函数将obj输出至port。字符串被双引号括起而字符具有前缀#\
+</p>
+
+<ul class="org-ul">
+<li>(display obj port)</li>
+</ul>
+<p>
+该函数将obj输出至port。字符串不被双引号括起而字符不具有前缀#\
+</p>
+
+<ul class="org-ul">
+<li>(newline port)</li>
+</ul>
+<p>
+以新行起始
+</p>
+
+<ul class="org-ul">
+<li>(write-char char port)</li>
+</ul>
+<p>
+该函数向port写入一个字符
+</p>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

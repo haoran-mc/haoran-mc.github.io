@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-09-30 四 03:22 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>区间DP</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran &lt;haoran.mc@outlook.com&gt;">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">区间DP</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgbd13114">最长回文字串</a></li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-orgbd13114" class="outline-2">
+<h2 id="orgbd13114">最长回文字串</h2>
+<div class="outline-text-2" id="text-orgbd13114">
+<ul class="org-ul">
+<li>dp[i][j]表示str[i]至str[j]所表示的子串是否是回文子串，是则为1，不是为0，根据str[i]是否等于str[j]
+<ul class="org-ul">
+<li>若str[i] == str[j]，那么只要str[i+1]至str[j-1]是回文子串，str[i]至str[j]就是回文子串，如果str[i+1]至str[j-1]不是回文子串，则str[i]至str[j]也不是回文子串</li>
+<li>若str[i] != str[j]，那么str[i]至str[j]一定不是回文子串</li>
+<li>动态转移方程：
+<ul class="org-ul">
+<li>dp[i][j] = dp[i+1][j-1]    (str[i] == str[j])</li>
+<li>dp[i][j] = 0               (str[i] != str[j])</li>
+<li>边界dp[i][i] = 1; dp[i][i+1] = (str[i] == str[j])?1:0</li>
+<li>但是如果按照i和j从小到大的顺序来枚举子串的两个端点，然后更新dp[i][j]，会无法保证dp[i+1][j-1]已经被计算过，从而无法得到正确的dp[i][j]</li>
+</ul></li>
+<li>所以这种方法不行，观察看到转移方程按子串的长度逐渐减少，所以考虑按子串的长度和子串的初始位置进行枚举</li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+</body>
+</html>

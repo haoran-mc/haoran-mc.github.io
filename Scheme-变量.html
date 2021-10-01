@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-09-30 四 22:28 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>变量</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">变量</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org870de6f">全局变量</a></li>
+<li><a href="#org9e8d400">局部变量</a>
+<ul>
+<li><a href="#orgb89b84e">使用let表达式可以定义局部变量</a></li>
+<li><a href="#org0f2ef74">变量在binds定义的形式中被声明并初始化</a></li>
+<li><a href="#org5df29d1">body由任意多个S-表达式构成</a></li>
+<li><a href="#orgceec432">let表达式可以嵌套使用</a></li>
+</ul>
+</li>
+<li><a href="#orgc34ff86">更改变量的值</a></li>
+<li><a href="#orga86322f">练习</a></li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-org870de6f" class="outline-2">
+<h2 id="org870de6f">全局变量</h2>
+<div class="outline-text-2" id="text-org870de6f">
+<p>
+使用 define 来定义一个变量
+</p>
+</div>
+</div>
+<div id="outline-container-org9e8d400" class="outline-2">
+<h2 id="org9e8d400">局部变量</h2>
+<div class="outline-text-2" id="text-org9e8d400">
+</div>
+<div id="outline-container-orgb89b84e" class="outline-3">
+<h3 id="orgb89b84e">使用let表达式可以定义局部变量</h3>
+<div class="outline-text-3" id="text-orgb89b84e">
+<div class="org-src-container">
+<pre class="src src-scheme">(let binds body)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org0f2ef74" class="outline-3">
+<h3 id="org0f2ef74">变量在binds定义的形式中被声明并初始化</h3>
+</div>
+<div id="outline-container-org5df29d1" class="outline-3">
+<h3 id="org5df29d1">body由任意多个S-表达式构成</h3>
+<div class="outline-text-3" id="text-org5df29d1">
+<div class="org-src-container">
+<pre class="src src-scheme">;;[binds] → ((p1 v1) (p2 v2) ...)
+;;声明了变量p1, p2
+;;并为他们赋初值v1, v2
+;;变量的作用域(Scope)为body体，变量只在body中有效
+</pre>
+</div>
+
+<p>
+声明局部变量i和j，将它们与1、2绑定，然后求二者的和。
+</p>
+<div class="org-src-container">
+<pre class="src src-scheme">(let ((i 1) (j 2))
+	(+ i j))
+;;Value: 3
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgceec432" class="outline-3">
+<h3 id="orgceec432">let表达式可以嵌套使用</h3>
+<div class="outline-text-3" id="text-orgceec432">
+<ol class="org-ol">
+<li><p>
+声明局部变量i和j，并将分别将它们与1和i+2绑定，然后求它们的乘积
+</p>
+<div class="org-src-container">
+<pre class="src src-scheme">(let ((i 1))
+	(let ((j (+ i 2)))
+		(* i j)))
+;;Value: 3
+</pre>
+</div></li>
+<li><p>
+这样写就是错的，变量j的作用域中没有变量i的定义
+</p>
+<div class="org-src-container">
+<pre class="src src-scheme">(let ((i 1) (j (+ i 2)))
+	(* i j))
+;;Error
+</pre>
+</div></li>
+<li><p>
+let*表达式可以用于引用定义在同一个绑定中的变量。实际上，let*只是嵌套的let表达式的语法糖而已
+</p>
+<div class="org-src-container">
+<pre class="src src-scheme">(let* ((i 1) (j (+ i 2)))
+	(* i j))
+;;Value: 3
+</pre>
+</div></li>
+</ol>
+
+<p>
+实际上，let表达式只是lambda表达式的一个语法糖：
+</p>
+<div class="org-src-container">
+<pre class="src src-scheme">(let ((p1 v1) (p2 v2) ...) exp1 exp2 ...)
+;;⇒
+((lambda (p1 p2 ...)
+	 exp1 exp2 ...) v1 v2)
+</pre>
+</div>
+<p>
+这是因为lambda表达式用于定义函数，它为变量建立了一个作用域。
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgc34ff86" class="outline-2">
+<h2 id="orgc34ff86">更改变量的值</h2>
+<div class="outline-text-2" id="text-orgc34ff86">
+<p>
+使用set!来改变变量的值
+</p>
+<div class="org-src-container">
+<pre class="src src-scheme">(set! Total_Risk (- Total_Risk 15))
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orga86322f" class="outline-2">
+<h2 id="orga86322f">练习</h2>
+<div class="outline-text-2" id="text-orga86322f">
+<p>
+函数quadric-equation用于计算二次方程。它需要三个代表系数的参数：a、b、c （ax^2 + bx + c = 0），返回一个存放答案的实数表。通过逐步地使用let表达式，可以避免不必要的计算。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-scheme">;;;The scopes of variables d,e, and f are the regions with the same background colors.
+
+(define (quadric-equation a b c)
+	(if (zero? a)
+			'error                                      ;;1
+			(let ((d (- (* b b) (* 4 a c))))            ;;2
+				(if (negative? d)
+						'()                                   ;;3
+						(let ((e (/ b a -2)))                 ;;4
+							(if (zero? d)
+									(list e)
+									(let ((f (/ (sqrt d) a 2)))     ;;5
+										(list (+ e f) (- e f)))))))))
+
+(quadric-equation 3 5 2)  ;;solution of 3x^2+5x+2=0
+;;Value 12: (-2/3 -1)
+</pre>
+</div>
+
+<p>
+这个函数的行为如下：
+</p>
+<ol class="org-ol">
+<li>如果二次项系数a为0，函数返回'error。</li>
+<li>如果a ≠ 0，则将变量d与判别式(b^2 - 4ac)的值绑定。</li>
+<li>如果d为负数，则返回'()。</li>
+<li>如果d不为负数，则将变量e与-b/2a绑定。</li>
+<li>如果d为0，则返回一个包含e的表。</li>
+<li>如果d是正数，则将变量f与√(d/2a)绑定，并返回由(+ e f)和(- e f)&gt; 构成的表</li>
+</ol>
+</div>
+</div>
+</div>
+</body>
+</html>

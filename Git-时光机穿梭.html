@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-10-01 五 14:28 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>时光机穿梭</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran &lt;haoran.mc@outlook.com&gt;">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">时光机穿梭</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org3bb2359">时光机穿梭</a></li>
+<li><a href="#orgd96bfec">版本回退</a></li>
+<li><a href="#org254d018">管理修改</a></li>
+<li><a href="#orgbda7d38">撤销修改</a></li>
+<li><a href="#orgd682a0d">删除文件</a></li>
+<li><a href="#orga9aac04">=====&gt; 后面补充</a></li>
+<li><a href="#orga3b8719">远程仓库</a></li>
+<li><a href="#org0d2aa08">修改曾经的 commit message</a>
+<ul>
+<li><a href="#org3dc8d8a">未推送到远程仓库</a>
+<ul>
+<li><a href="#orge19f608">最近一次的 commit</a></li>
+</ul>
+</li>
+<li><a href="#org4b0c0a6">已推送到远程仓库</a>
+<ul>
+<li><a href="#org9dd7a39">最近一次的 commit</a></li>
+<li><a href="#org9493d56">修改旧提交或多个提交</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org356d092">撤销与回滚操作</a>
+<ul>
+<li><a href="#orgcab9243">撤销</a></li>
+<li><a href="#org69cd2b0">回滚</a></li>
+<li><a href="#orgd1746a3">删除某次提交</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-org3bb2359" class="outline-2">
+<h2 id="org3bb2359">时光机穿梭</h2>
+<div class="outline-text-2" id="text-org3bb2359">
+<dl class="org-dl">
+<dt>git status</dt><dd>查看仓库当前的状态</dd>
+<dt>git diff</dt><dd>查看difference，查看文件的修改</dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgd96bfec" class="outline-2">
+<h2 id="orgd96bfec">版本回退</h2>
+<div class="outline-text-2" id="text-orgd96bfec">
+<dl class="org-dl">
+<dt>git log</dt><dd>显示从最近到最远的提交日志</dd>
+<dt>git log &#x2013;pretty=oneline</dt><dd>更简短的日志</dd>
+<dt>git log &#x2013;pretty=oneline &#x2013;abbrev-commit</dt><dd>更简短的 commit id</dd>
+</dl>
+
+<p>
+版本回退之前，需要知道当前版本是哪个版本，在Git中， <code>Head</code> 表示，上一个版本就是HEAD^，上上一个版本就是HEAD^^，当然往上100个版本写100个^比较容易数不过来，所以写成HEAD~100。(教程里面说HEAD^这种可以，但我没成功，HEAD~1可以)
+</p>
+
+<dl class="org-dl">
+<dt>git reset</dt><dd><p>
+回退到上一个版本
+</p>
+<div class="org-src-container">
+<pre class="src src-shell">git reset --hard HEAD~1
+可以进入.git/logs/HEAD看曾经的哈希
+</pre>
+</div></dd>
+</dl>
+
+<p>
+Git的版本回退速度非常快，因为Git在内部有个指向当前版本的HEAD指针，当你回退版本的时候，Git仅仅是把HEAD从指向append GPL：
+</p>
+<pre class="example" id="org3e7d231">
+┌────┐
+│HEAD│
+└────┘
+   │
+   └──&gt; ○ append GPL
+        │
+        ○ add distributed
+        │
+        ○ wrote a readme file
+</pre>
+
+<p>
+改为指向add distributed：
+</p>
+<pre class="example" id="orgfb0957e">
+┌────┐
+│HEAD│
+└────┘
+   │
+   │    ○ append GPL
+   │    │
+   └──&gt; ○ add distributed
+        │
+        ○ wrote a readme file
+</pre>
+
+<p>
+现在，你回退到了某个版本，关掉了电脑，第二天早上就后悔了，想恢复到新版本怎么办？找不到新版本的commit id怎么办？在Git中，总是有后悔药可以吃的。当你用 <code>git reset --hard HEAD^</code> 回退到add distributed版本时，再想恢复到append GPL，就必须找到append GPL的commit id。Git提供了一个命令git reflog用来记录你的每一次命令或者手动进入 <code>.git/logs/HEAD</code> 中找
+</p>
+
+<dl class="org-dl">
+<dt>git reflog</dt><dd>记录每一次的命令，可以看曾经commit时的commit id</dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-org254d018" class="outline-2">
+<h2 id="org254d018">管理修改</h2>
+<div class="outline-text-2" id="text-org254d018">
+<dl class="org-dl">
+<dt>git diff HEAD &#x2013; readme.txt</dt><dd>命令可以查看工作区和版本库里面最新版本的区别：</dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgbda7d38" class="outline-2">
+<h2 id="orgbda7d38">撤销修改</h2>
+<div class="outline-text-2" id="text-orgbda7d38">
+<dl class="org-dl">
+<dt>git checkout &#x2013; readme.txt</dt><dd>将文件回到最近一次 git add 的状态或 git commit 的状态(git会先检查最近是否将这个文件 git add，如果有就从暂存区恢复，否则就从版本库中恢复)</dd>
+</dl>
+
+<p>
+git checkout &#x2013; file命令中的&#x2013;很重要，没有&#x2013;，就变成了“切换到另一个分支”的命令如果文件已经被提交到暂存区，是不能撤销到 git commit 之前的状态的，需要使用其他命令
+</p>
+
+<p>
+如果文件已经被提交到暂存区，而你又不想把修改提交了，可以有两种方法
+</p>
+<ol class="org-ol">
+<li>git restore &#x2013;staged &lt;filename&gt; :: 将文件的修改从暂存区拿出来，放回工作区，这时你的修改还在，仍然可以用 git checkout 把这些修改删除，回到上一次git add 的状态。或者修改修改</li>
+<li>git reset :: 直接回退到上一个版本，不如上一个好控制</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgd682a0d" class="outline-2">
+<h2 id="orgd682a0d">删除文件</h2>
+<div class="outline-text-2" id="text-orgd682a0d">
+<dl class="org-dl">
+<dt>git rm &lt;filename&gt;</dt><dd>从版本库中删除文件，然后再 git commit</dd>
+<dt>git checkout &#x2013; &lt;filename&gt;</dt><dd>误删了某个文件，从版本库中恢复</dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orga9aac04" class="outline-2">
+<h2 id="orga9aac04">=====&gt; 后面补充</h2>
+</div>
+<div id="outline-container-orga3b8719" class="outline-2">
+<h2 id="orga3b8719">远程仓库</h2>
+<div class="outline-text-2" id="text-orga3b8719">
+<dl class="org-dl">
+<dt>git fetch</dt><dd>将远程主机的最新内容拉到本地暂存区</dd>
+<dt>git pull</dt><dd>将远程主机的最新内容拉取下来后直接合并</dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-org0d2aa08" class="outline-2">
+<h2 id="org0d2aa08">修改曾经的 commit message</h2>
+<div class="outline-text-2" id="text-org0d2aa08">
+</div>
+<div id="outline-container-org3dc8d8a" class="outline-3">
+<h3 id="org3dc8d8a">未推送到远程仓库</h3>
+<div class="outline-text-3" id="text-org3dc8d8a">
+</div>
+<div id="outline-container-orge19f608" class="outline-4">
+<h4 id="orge19f608">最近一次的 commit</h4>
+<div class="outline-text-4" id="text-orge19f608">
+<p>
+修改最近一次的commit比较简单
+</p>
+<dl class="org-dl">
+<dt>git commit &#x2013;amend</dt><dd>会进入一个文件，使用vim修改上一次的commit</dd>
+</dl>
+</div>
+</div>
+</div>
+<div id="outline-container-org4b0c0a6" class="outline-3">
+<h3 id="org4b0c0a6">已推送到远程仓库</h3>
+<div class="outline-text-3" id="text-org4b0c0a6">
+</div>
+<div id="outline-container-org9dd7a39" class="outline-4">
+<h4 id="org9dd7a39">最近一次的 commit</h4>
+<div class="outline-text-4" id="text-org9dd7a39">
+<ol class="org-ol">
+<li>git commit &#x2013;amend :: 先修改本地 commit message</li>
+<li>git push &#x2013;force-with-lease example-branch</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-org9493d56" class="outline-4">
+<h4 id="org9493d56">修改旧提交或多个提交</h4>
+<div class="outline-text-4" id="text-org9493d56">
+<p>
+如果需要修改多个提交或旧提交的消息，您可以使用交互式变基，然后强制推送以更改提交历史记录。
+</p>
+
+<ol class="org-ol">
+<li>git rebase -i HEAD~3 :: 默认文本编辑器中显示最近 3 个提交的列表
+<dl class="org-dl">
+<dt>git rebase -i &#x2013;root</dt><dd>修改第一次提交</dd>
+</dl></li>
+<li><p>
+在要更改的每个提交消息的前面，用 reword 替换 pick
+</p>
+<pre class="example" id="orge0fe0eb">
+pick e499d89 ONE                      pick e499d89 ONE
+pick 0c39034 TWO       -----&gt;         reword 0c39034 TWO
+pick f7fde4a THREE                    reword f7fde4a THREE
+</pre></li>
+
+<li>保存并关闭提交列表文件</li>
+<li>在每个生成的提交文件中，键入新的提交消息，保存文件，然后关闭它</li>
+<li>git push &#x2013;force example-branch :: 强制推送旧提交</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org356d092" class="outline-2">
+<h2 id="org356d092">撤销与回滚操作</h2>
+<div class="outline-text-2" id="text-org356d092">
+<p>
+开发过程中，你肯定会遇到这样的场景：场景一：糟了，我刚把不想要的代码，commit到本地仓库中了，但是还没有做push操作！场景二：彻底完了，刚线上更新的代码出现问题了，需要还原这次提交的代码！场景三：刚才我发现之前的某次提交太愚蠢了，现在想要干掉它！
+</p>
+</div>
+<div id="outline-container-orgcab9243" class="outline-3">
+<h3 id="orgcab9243">撤销</h3>
+<div class="outline-text-3" id="text-orgcab9243">
+<p>
+上述场景一，在未进行git push前的所有操作，都是在“本地仓库”中执行的。我们暂且将“本地仓库”的代码还原操作叫做“撤销”！
+</p>
+
+<p>
+情况一：文件被修改了，但未执行git add操作（working tree内撤销）
+</p>
+<div class="org-src-container">
+<pre class="src src-shell">$ git checkout fileName
+$ git checkout .
+</pre>
+</div>
+
+<p>
+情况二：同时对多个文件执行了git add操作，但本次只想提交其中一部分文件
+</p>
+<div class="org-src-container">
+<pre class="src src-shell">$ git add *
+$ git status
+# 取消暂存
+$ git reset HEAD &lt;filename&gt;
+</pre>
+</div>
+
+<p>
+情况三：文件执行了git add操作，但想撤销对其的修改（index内回滚）
+</p>
+<div class="org-src-container">
+<pre class="src src-shell"># 取消暂存
+$ git reset HEAD fileName
+# 撤销修改
+$ git checkout fileName
+</pre>
+</div>
+
+<p>
+情况四：修改的文件已被git commit，但想再次修改不再产生新的Commit
+</p>
+<div class="org-src-container">
+<pre class="src src-shell"># 修改最后一次提交 
+$ git add sample.txt
+$ git commit --amend -m"说明"
+</pre>
+</div>
+
+<p>
+情况五：已在本地进行了多次git commit操作，现在想撤销到其中某次Commit
+</p>
+<div class="org-src-container">
+<pre class="src src-shell">$ git reset [--hard|soft|mixed|merge|keep] [commit|HEAD]
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org69cd2b0" class="outline-3">
+<h3 id="org69cd2b0">回滚</h3>
+<div class="outline-text-3" id="text-org69cd2b0">
+<p>
+上述场景二，已进行git push，即已推送到“远程仓库”中。我们将已被提交到“远程仓库”的代码还原操作叫做“回滚”！注意：对远程仓库做回滚操作是有风险的，需提前做好备份和通知其他团队成员！
+</p>
+
+<p>
+如果你每次更新线上，都会打tag，那恭喜你，你可以很快的处理上述场景二的情况
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell">$ git checkout &lt;tag&gt;
+</pre>
+</div>
+
+<p>
+如果你回到当前HEAD指向
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell">$ git checkout &lt;branch_name&gt;
+</pre>
+</div>
+
+<p>
+情况一：撤销指定文件到指定版本
+</p>
+<div class="org-src-container">
+<pre class="src src-shell"># 查看指定文件的历史版本
+$ git log &lt;filename&gt;
+# 回滚到指定commitID
+$ git checkout &lt;commitID&gt; &lt;filename&gt;
+</pre>
+</div>
+
+<p>
+情况二：删除最后一次远程提交
+</p>
+
+<p>
+方式一：使用revert
+</p>
+<div class="org-src-container">
+<pre class="src src-shell">$ git revert HEAD
+$ git push origin master
+</pre>
+</div>
+
+<p>
+方式二：使用reset
+</p>
+<div class="org-src-container">
+<pre class="src src-shell">$ git reset --hard HEAD^
+$ git push origin master -f
+</pre>
+</div>
+
+<p>
+二者区别：
+revert 是放弃指定提交的修改，但是会生成一次新的提交，需要填写提交注释，以前的历史记录都在；
+reset 是指将HEAD指针指到指定提交，历史记录中不会出现放弃的提交记录。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgd1746a3" class="outline-3">
+<h3 id="orgd1746a3">删除某次提交</h3>
+<div class="outline-text-3" id="text-orgd1746a3">
+<div class="org-src-container">
+<pre class="src src-shell">$ git log --oneline -n5
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-shell">$ git rebase -i "commit id"^
+</pre>
+</div>
+<p>
+注意： 需要注意最后的*^*号，意思是commit id的前一次提交
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell">$ git rebase -i "5b3ba7a"^
+</pre>
+</div>
+
+<p>
+在编辑框中删除相关commit，如pick 5b3ba7a test2，然后保存退出（如果遇到冲突需要先解决冲突）！
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell">$ git push origin master -f
+</pre>
+</div>
+<p>
+通过上述操作，如果你想对历史多个commit进行处理或者，可以选择git rebase -i，只需删除对应的记录就好。rebase还可对 commit 消息进行编辑，以及合并多个commit。
+</p>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

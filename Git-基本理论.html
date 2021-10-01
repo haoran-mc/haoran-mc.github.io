@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-10-01 五 14:28 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>基本理论</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran &lt;haoran.mc@outlook.com&gt;">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">基本理论</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org0c7f73f">项目的三个分区</a>
+<ul>
+<li><a href="#orgdb36134">工作流程</a></li>
+</ul>
+</li>
+<li><a href="#orgbb98e54">文件的四种状态</a>
+<ul>
+<li><a href="#org90e0cf7">文件的四种状态</a></li>
+<li><a href="#orgdac5bea">查看文件状态</a></li>
+</ul>
+</li>
+<li><a href="#org2720a8d">.git文件夹内容</a>
+<ul>
+<li><a href="#org2fb40f2">object(Object Database)[文件夹]</a></li>
+<li><a href="#orgf8f3860">hooks[文件夹]</a>
+<ul>
+<li><a href="#org9de7a9a">提交过程(客户端)</a></li>
+<li><a href="#orga11d6cb">其他(客户端)</a></li>
+<li><a href="#org99514f7">接收过程(客户端)</a></li>
+</ul>
+</li>
+<li><a href="#orgeb69674">refs[文件夹]</a></li>
+<li><a href="#orgde0bc57">logs[文件夹]</a></li>
+<li><a href="#org00bd46a">info[文件夹]</a></li>
+<li><a href="#org2a10fbe">FETCH_HEAD[文件]</a></li>
+<li><a href="#orgef02412">description[文件]</a></li>
+<li><a href="#org86ef5c8">config[文件]</a></li>
+<li><a href="#orgc0b0845">index[文件]</a></li>
+<li><a href="#org3e47979">HEAD[文件]</a></li>
+<li><a href="#orgb5ab085">ORIG_HEAD[文件]</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-org0c7f73f" class="outline-2">
+<h2 id="org0c7f73f">项目的三个分区</h2>
+<div class="outline-text-2" id="text-org0c7f73f">
+<p>
+Git本地有三个工作区域:工作目录(Working Directory)、暂存区(Stage/Index)、资源库(Repository或Git Directory)。如果在加上远程的git仓库(Remote Directory)就可以分为四个工作区域。文件在这四个区域之间的转换关系如下:
+</p>
+
+<p>
+<a href="img/git001.png">三个区域</a>
+</p>
+
+<dl class="org-dl">
+<dt>Workspace</dt><dd>工作区，就是你平时存放项目代码的地方</dd>
+<dt>Index / Stage</dt><dd>暂存区，用于临时存放你的改动，事实上它只是一个文件，保存即将提交到文件列表信息</dd>
+<dt>Repository</dt><dd>仓库区(或本地仓库)，就是安全存放数据的位置，这里面有你提交到所有版本的数据。其中HEAD指向最新放入仓库的版本</dd>
+<dt>Remote</dt><dd><p>
+远程仓库，托管代码的服务器，可以简单的认为是你项目组中的一台电脑用于远程数据交换
+</p>
+
+<p>
+本地的三个区域确切的说应该是git仓库中HEAD指向的版本:
+</p>
+
+<p>
+<a href="img/git002.png">三个区域</a>
+</p>
+
+<dl class="org-dl">
+<dt>Directory</dt><dd>使用Git管理的一个目录，也就是一个仓库，包含我们的工作空间和Git的管理空间。</dd>
+<dt>WorkSpace</dt><dd>需要通过Git进行版本控制的目录和文件，这些目录和文件组成了工作空间。</dd>
+<dt>.git</dt><dd>存放Git管理信息的目录，初始化仓库的时候自动创建。</dd>
+<dt>Index/Stage</dt><dd>暂存区，或者叫待提交更新区，在提交进入repo之前，我们可以把所有的更新放在暂存区。</dd>
+<dt>Local Repo</dt><dd>本地仓库，一个存放在本地的版本库；HEAD会只是当前的开发分支(branch)。</dd>
+<dt>Stash</dt><dd>隐藏，是一个工作状态保存栈，用于保存/恢复WorkSpace中的临时状态。</dd>
+</dl></dd>
+</dl>
+</div>
+<div id="outline-container-orgdb36134" class="outline-3">
+<h3 id="orgdb36134">工作流程</h3>
+<div class="outline-text-3" id="text-orgdb36134">
+<p>
+git的工作流程一般是这样的:
+１. 在工作目录中添加、修改文件；２. 将需要进行版本管理的文件放入暂存区域；３. 将暂存区域的文件提交到git仓库。因此，git管理的文件有三种状态:已修改(modified),已暂存(staged),已提交(committed)
+</p>
+
+<p>
+<a href="img/git003.png">工作流程</a>
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgbb98e54" class="outline-2">
+<h2 id="orgbb98e54">文件的四种状态</h2>
+<div class="outline-text-2" id="text-orgbb98e54">
+</div>
+<div id="outline-container-org90e0cf7" class="outline-3">
+<h3 id="org90e0cf7">文件的四种状态</h3>
+<div class="outline-text-3" id="text-org90e0cf7">
+<p>
+版本控制就是对文件的版本控制，要对文件进行修改、提交等操作，首先要知道文件当前在什么状态，不然可能会提交了现在还不想提交的文件，或者要提交的文件没提交上
+</p>
+
+<p>
+文件的状态主要为 <b>未追踪</b> (Untracked)和 <b>已追踪</b> (Tracked)，已追踪状态包括Unmodified、Modified、Staged
+</p>
+
+<dl class="org-dl">
+<dt>Untracked</dt><dd>未跟踪, 此文件在文件夹中, 但并没有加入到git库, 不参与版本控制. 通过 <b>git add</b> 状态变为 <b>Staged</b></dd>
+<dt>Staged</dt><dd>暂存状态. 执行 <b>git commit</b> 则将修改同步到库中, 这时库中的文件和本地文件又变为一致, 文件为 <b>Unmodify</b> 状态. 执行 <b>git reset HEAD filename</b> 取消暂存, 文件状态为 <b>Modified</b></dd>
+<dt>Unmodify</dt><dd>文件已经入库, 未修改, 即版本库中的文件快照内容与文件夹中完全一致. 这种类型的文件有两种去处, 如果它被修改, 而变为 <b>Modified</b>  如果使用 <b>git rm</b> 移出版本库, 则成为 <b>Untracked</b> 文件</dd>
+<dt>Modified</dt><dd><p>
+文件已修改, 仅仅是修改, 并没有进行其他的操作. 这个文件也有两个去处, 通过 <b>git add</b> 可进入暂存 <b>staged</b> 状态, 使用 <b>git checkout</b> 则丢弃修改过, 返回到 <b>unmodify</b> 状态, 这个 <b>git checkout</b> 即从库中取出文件, 覆盖当前修改!
+</p>
+
+<p>
+<a href="img/git文件的四种状态.png">img-文件的四种状态</a>
+</p></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgdac5bea" class="outline-3">
+<h3 id="orgdac5bea">查看文件状态</h3>
+<div class="outline-text-3" id="text-orgdac5bea">
+<p>
+上面说文件有4种状态，通过如下命令可以查看到文件的状态:
+</p>
+
+<p>
+git status [filename]
+</p>
+
+<p>
+git status
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org2720a8d" class="outline-2">
+<h2 id="org2720a8d">.git文件夹内容</h2>
+<div class="outline-text-2" id="text-org2720a8d">
+<p>
+<a href="img/git文件夹.png">img-git文件夹</a>
+</p>
+</div>
+<div id="outline-container-org2fb40f2" class="outline-3">
+<h3 id="org2fb40f2">object(Object Database)[文件夹]</h3>
+<div class="outline-text-3" id="text-org2fb40f2">
+<p>
+存放所有的git对象，详细原理参见:<a href="https://git-scm.com/book/zh/v2/Git-%E5%86%85%E9%83%A8%E5%8E%9F%E7%90%86-Git-%E5%AF%B9%E8%B1%A1">Git内部原理-Git对象</a> 
+</p>
+</div>
+</div>
+<div id="outline-container-orgf8f3860" class="outline-3">
+<h3 id="orgf8f3860">hooks[文件夹]</h3>
+<div class="outline-text-3" id="text-orgf8f3860">
+<p>
+存放一些钩子(hooks)脚本，init后会自动生成一些示例钩子，以.sample结尾
+</p>
+</div>
+<div id="outline-container-org9de7a9a" class="outline-4">
+<h4 id="org9de7a9a">提交过程(客户端)</h4>
+<div class="outline-text-4" id="text-org9de7a9a">
+<dl class="org-dl">
+<dt>pre-commit</dt><dd>在提交前自动运行，如果钩子以非零值推出，Git将放弃本次提交，可以用no&#x2013;verify绕过该过程；</dd>
+<dt>prepare-commit-msg</dt><dd>运行在启动提交信息编辑器之前，在创建默认消息之后，使你可以编辑提交者所看到的默认信息</dd>
+<dt>commit-msg</dt><dd>钩子接收一个参数，此参数即上文提到的，存有当前提交信息的临时文件的路径。 如果该钩子脚本以非零值退出，Git 将放弃提交，因此，可以用来在提交通过前验证项目状态或提交信息;</dd>
+<dt>post-commit</dt><dd>在整个提交过程完成后运行，一般用于通知。</dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orga11d6cb" class="outline-4">
+<h4 id="orga11d6cb">其他(客户端)</h4>
+<div class="outline-text-4" id="text-orga11d6cb">
+<dl class="org-dl">
+<dt>pre-rebase</dt><dd>调用在git rebase操作之前，返回非零值可以中止rebase操作；</dd>
+<dt>post-rewrite</dt><dd>会被可能造成替换提交记录的命令调用；</dd>
+<dt>post-checkout</dt><dd>在git checkout之后调用。你可以根据你的项目环境用它调整你的工作目录。其中包括放入大的二进制文件、自动生成文档或进行其他类似这样的操作</dd>
+<dt>post-merge</dt><dd>在git merge之后调用， 你可以用它恢复 Git 无法跟踪的工作区数据，比如权限数据。 这个钩子也可以用来验证某些在 Git 控制之外的文件是否存在，这样你就能在工作区改变时，把这些文件复制进来；</dd>
+<dt>pre-push</dt><dd>在git push运行期间，更新了远程引用但尚未传送对象时调用。你可以在推送开始之前，用它验证对引用的更新操作(一个非零的退出码将终止推送过程)。</dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-org99514f7" class="outline-4">
+<h4 id="org99514f7">接收过程(客户端)</h4>
+<div class="outline-text-4" id="text-org99514f7">
+<dl class="org-dl">
+<dt>pre-receivew</dt><dd>在处理客户端的推送操作时，最先被调用，如果以非零值推出，所有推送内容不会被接受；</dd>
+<dt>update</dt><dd>与楼上类似，但是假设客户端同时推送多个分支，服务器端pre-receive主机运行一次，但是update会在每个被推送的分支都运行一次，如果update以非零值推出，只有失败的那个应用会被拒绝，其他会被更新；</dd>
+<dt>post-receive</dt><dd>在接收完成后被调用，可以用来更新其他系统服务或者通知用户</dd>
+</dl>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgeb69674" class="outline-3">
+<h3 id="orgeb69674">refs[文件夹]</h3>
+<div class="outline-text-3" id="text-orgeb69674">
+<ul class="org-ul">
+<li>heads文件夹包含本地分支，remote文件夹为远程分支，tags文件夹包含了tag</li>
+<li>保存当前最新一次提交的hash值</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgde0bc57" class="outline-3">
+<h3 id="orgde0bc57">logs[文件夹]</h3>
+<div class="outline-text-3" id="text-orgde0bc57">
+<p>
+保存所有更新的引用记录，文件存放方式类似于refs文件夹：格式：上一次提交的hash值    |   当前提交的hash值   |  提交者名称 | 提交者邮箱 | 时间戳 时区 | 提交信息
+</p>
+</div>
+</div>
+<div id="outline-container-org00bd46a" class="outline-3">
+<h3 id="org00bd46a">info[文件夹]</h3>
+<div class="outline-text-3" id="text-org00bd46a">
+<p>
+包含一个exclude文件，存放一些信息
+</p>
+</div>
+</div>
+<div id="outline-container-org2a10fbe" class="outline-3">
+<h3 id="org2a10fbe">FETCH_HEAD[文件]</h3>
+<div class="outline-text-3" id="text-org2a10fbe">
+<p>
+版本链接，指向目前从远端仓库取下来分支的末端版本
+</p>
+</div>
+</div>
+<div id="outline-container-orgef02412" class="outline-3">
+<h3 id="orgef02412">description[文件]</h3>
+<div class="outline-text-3" id="text-orgef02412">
+<p>
+仓库的描述信息，一般提供给Git托管仓库系统使用
+</p>
+</div>
+</div>
+<div id="outline-container-org86ef5c8" class="outline-3">
+<h3 id="org86ef5c8">config[文件]</h3>
+<div class="outline-text-3" id="text-org86ef5c8">
+<p>
+提供一些Git仓库的配置文件
+</p>
+</div>
+</div>
+<div id="outline-container-orgc0b0845" class="outline-3">
+<h3 id="orgc0b0845">index[文件]</h3>
+<div class="outline-text-3" id="text-orgc0b0845">
+<p>
+暂存区，二进制文件
+</p>
+</div>
+</div>
+<div id="outline-container-org3e47979" class="outline-3">
+<h3 id="org3e47979">HEAD[文件]</h3>
+<div class="outline-text-3" id="text-org3e47979">
+<p>
+映射到ref引用（在refs文件夹中），能够找到下一次commit的前一次的hash值，即当前指针指向的位置
+</p>
+</div>
+</div>
+<div id="outline-container-orgb5ab085" class="outline-3">
+<h3 id="orgb5ab085">ORIG_HEAD[文件]</h3>
+<div class="outline-text-3" id="text-orgb5ab085">
+<p>
+HEAD指针的前一个状态，为hash值
+</p>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

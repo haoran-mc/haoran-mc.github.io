@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-09-30 四 16:12 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>二叉搜索树</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran &lt;haoran.mc@outlook.com&gt;">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">二叉搜索树</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orge7c4817">二叉搜索树 &amp; 平衡树</a>
+<ul>
+<li><a href="#org2063dbe">二叉搜索树</a></li>
+<li><a href="#orgf9983e8">AVL树</a>
+<ul>
+<li><a href="#org59f6b05">AVL平衡化操作</a></li>
+<li><a href="#org083376a">右旋操作</a></li>
+<li><a href="#orgae7a997">左旋操作</a></li>
+<li><a href="#orgc2245c6">需要平衡的四种情况</a></li>
+<li><a href="#orgf19b4e4">LL型</a></li>
+<li><a href="#org929629c">RR型</a></li>
+<li><a href="#orgebc9fd8">LR型</a></li>
+<li><a href="#orgfcdd9f6">RL型</a></li>
+<li><a href="#orgcab24da">插入操作</a></li>
+<li><a href="#org7bd366d">删除操作</a></li>
+</ul>
+</li>
+<li><a href="#orgf6ea237">Treap树</a>
+<ul>
+<li><a href="#orgb961a68">无旋式treap</a>
+<ul>
+<li><a href="#org4a4b545">分裂</a></li>
+<li><a href="#orgf11fa6e">合并</a></li>
+<li><a href="#org1ee3e17">建树</a></li>
+</ul>
+</li>
+<li><a href="#orgf773092">旋转式treap</a></li>
+</ul>
+</li>
+<li><a href="#org10ffcbc">Splay树</a></li>
+<li><a href="#orgaac8744">替罪羊树</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orge7c4817" class="outline-2">
+<h2 id="orge7c4817">二叉搜索树 &amp; 平衡树</h2>
+<div class="outline-text-2" id="text-orge7c4817">
+</div>
+<div id="outline-container-org2063dbe" class="outline-3">
+<h3 id="org2063dbe">二叉搜索树</h3>
+<div class="outline-text-3" id="text-org2063dbe">
+<ul class="org-ul">
+<li>二叉搜索树
+<ul class="org-ul">
+<li>左结点 &lt; 根结点 &lt; 右结点</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgf9983e8" class="outline-3">
+<h3 id="orgf9983e8">AVL树</h3>
+<div class="outline-text-3" id="text-orgf9983e8">
+<ul class="org-ul">
+<li><p>
+AVL树仍然是一颗二叉搜索树，只是在其基础上增加了“平衡”的要求
+</p>
+<ul class="org-ul">
+<li>所谓平衡是指，对AVL树的任意节点来说，其左子树与右子树的高度之差的绝对值不超过1</li>
+<li>左子树与右子树的高度差称为该结点的 <b>平衡因子</b></li>
+</ul>
+
+<p>
+与二叉搜索树不同的操作是插入与删除操作，在介绍插入与删除操作之前，先介绍AVL树的旋转
+</p></li>
+</ul>
+</div>
+<div id="outline-container-org59f6b05" class="outline-4">
+<h4 id="org59f6b05">AVL平衡化操作</h4>
+</div>
+<div id="outline-container-org083376a" class="outline-4">
+<h4 id="org083376a">右旋操作</h4>
+<div class="outline-text-4" id="text-org083376a">
+<pre class="example" id="orge38c73d">
+    4                           4                          2
+   / \                          |\                        / \
+  2   5        --&gt;            2 | 5        --&gt;           1   4
+ / \                         / \|                           / \
+1   3                       1   3                          3   5
+</pre>
+</div>
+</div>
+<div id="outline-container-orgae7a997" class="outline-4">
+<h4 id="orgae7a997">左旋操作</h4>
+<div class="outline-text-4" id="text-orgae7a997">
+<pre class="example" id="org13ba52c">
+  2                          2                             4
+ / \                        /|                            / \
+1   4         --&gt;          1 | 4          --&gt;            2   5
+   / \                       |/ \                       / \
+  3   5                      3   5                     1   4
+</pre>
+</div>
+</div>
+<div id="outline-container-orgc2245c6" class="outline-4">
+<h4 id="orgc2245c6">需要平衡的四种情况</h4>
+</div>
+<div id="outline-container-orgf19b4e4" class="outline-4">
+<h4 id="orgf19b4e4">LL型</h4>
+<div class="outline-text-4" id="text-orgf19b4e4">
+<pre class="example" id="org777ca16">
+      @             #           对@进行一次右旋
+     / \           / \
+    #   ^         $   @
+   / \           /   / \
+  $   %         +   %   ^
+ /
++  &lt;-+放在$的左右两边情况相同，不做考虑
+</pre>
+</div>
+</div>
+<div id="outline-container-org929629c" class="outline-4">
+<h4 id="org929629c">RR型</h4>
+<div class="outline-text-4" id="text-org929629c">
+<pre class="example" id="org1f66d8d">
+  @               #           对@进行一次左旋
+ / \             / \
+^   #           @   %
+   / \         / \   \
+  $   %       ^   $   +
+       \ 
+        +
+</pre>
+</div>
+</div>
+<div id="outline-container-orgebc9fd8" class="outline-4">
+<h4 id="orgebc9fd8">LR型</h4>
+<div class="outline-text-4" id="text-orgebc9fd8">
+<pre class="example" id="orgb2da004">
+    @            @         %          先对#左旋，后对@右旋
+   / \          / \       / \
+  #   ^        %   ^     #   @
+ / \          / \       /   / \
+$   %        #   +     $   +   ^
+     \      /
+      +    $
+</pre>
+</div>
+</div>
+<div id="outline-container-orgfcdd9f6" class="outline-4">
+<h4 id="orgfcdd9f6">RL型</h4>
+<div class="outline-text-4" id="text-orgfcdd9f6">
+<pre class="example" id="org799a163">
+  @            @             $        先对#右旋，后对@左旋
+ / \          / \           / \
+^   #        ^   $         @   #
+   / \          / \       / \   \
+  $   %        +   #     ^   +   %
+ /                  \
++                    %
+</pre>
+</div>
+</div>
+<div id="outline-container-orgcab24da" class="outline-4">
+<h4 id="orgcab24da">插入操作</h4>
+<div class="outline-text-4" id="text-orgcab24da">
+<p>
+与二叉搜索树唯一不同的地方是平衡二叉树插入一个结点后需要进行平衡化操作
+</p>
+</div>
+</div>
+<div id="outline-container-org7bd366d" class="outline-4">
+<h4 id="org7bd366d">删除操作</h4>
+<div class="outline-text-4" id="text-org7bd366d">
+<p>
+不会
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgf6ea237" class="outline-3">
+<h3 id="orgf6ea237">Treap树</h3>
+<div class="outline-text-3" id="text-orgf6ea237">
+<p>
+treap是一种弱平衡的二叉搜索树。treap这个单词是tree和heap的组合，表明treap是一种由树和堆组合形成的数据结构
+treap的每个结点上要额外储存一个值priority。treap除了要满足二叉搜索树的性质之外，还需满足父节点的 priority大于等于两个儿子的priority。而priority是每个结点建立时随机生成的，因此treap是期望平衡的
+</p>
+
+<p>
+treap分为旋转式和无旋式两种。两种treap都易于编写，但无旋式treap的操作方式使得它天生支持维护序列、可持久化等特性。这里以重新实现set&lt;int&gt;(不可重集合)为例，介绍无旋式treap
+</p>
+</div>
+<div id="outline-container-orgb961a68" class="outline-4">
+<h4 id="orgb961a68">无旋式treap</h4>
+<div class="outline-text-4" id="text-orgb961a68">
+<p>
+无旋式 treap 又称分裂合并 treap。它仅有两种核心操作，即为分裂与合并
+</p>
+</div>
+<div id="outline-container-org4a4b545" class="outline-5">
+<h5 id="org4a4b545">分裂</h5>
+<div class="outline-text-5" id="text-org4a4b545">
+<p>
+分裂过程接受两个参数：根指针root、关键值val。结果为将根指针指向的treap 分裂为两个treap，第一个treap 所有结点的关键值小于等于val，第二个treap所有结点的关键值大于val。该过程首先判断val是否小于root的关键值，若小于，则说明root及其右子树全部属于第二个treap，否则说明root及其左子树全部属于第一个treap。根据此判断决定应向左子树递归还是应向右子树递归，继续分裂子树。待子树分裂完成后按刚刚的判断情况连root的左子树或右子树到递归分裂所得的子树中
+</p>
+</div>
+</div>
+<div id="outline-container-orgf11fa6e" class="outline-5">
+<h5 id="orgf11fa6e">合并</h5>
+<div class="outline-text-5" id="text-orgf11fa6e">
+<p>
+合并过程接受两个参数：左treap的根指针rootL、右treap的根指针rootR。必须满足rootL中所有结点的关键值小于等于rootR中所有结点的关键值。因为两个treap已经有序，我们只需要考虑priority来决定哪个treap应与另一个treap的儿子合并。若rootL的根结点的priority大于rootR的，那么rootL即为新根结点，rootR应与rootL的右子树合并；反之，则rootR作为新根结点，然后让rootL与rootR的左子树合并。不难发现，这样合并所得的树依然满足priority的大根堆性质
+</p>
+</div>
+</div>
+<div id="outline-container-org1ee3e17" class="outline-5">
+<h5 id="org1ee3e17">建树</h5>
+</div>
+</div>
+<div id="outline-container-orgf773092" class="outline-4">
+<h4 id="orgf773092">旋转式treap</h4>
+</div>
+</div>
+<div id="outline-container-org10ffcbc" class="outline-3">
+<h3 id="org10ffcbc">Splay树</h3>
+</div>
+<div id="outline-container-orgaac8744" class="outline-3">
+<h3 id="orgaac8744">替罪羊树</h3>
+</div>
+</div>
+</div>
+</body>
+</html>

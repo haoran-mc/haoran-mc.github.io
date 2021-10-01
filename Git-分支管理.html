@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-10-01 五 14:28 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GIT-分支管理</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">GIT-分支管理</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orga0da809">创建与合并分支</a></li>
+<li><a href="#orga657dba">解决冲突</a></li>
+<li><a href="#orge9968bb">分支管理策略</a></li>
+<li><a href="#orgebb2d6a">Bug分支</a></li>
+<li><a href="#org85fd531">Feature分支</a></li>
+<li><a href="#org733bd35">多人协作</a>
+<ul>
+<li><a href="#org33d2a12">推送分支</a></li>
+<li><a href="#org20c1488">抓取分支</a></li>
+</ul>
+</li>
+<li><a href="#orgc279564">Rebase</a></li>
+<li><a href="#org4294ca4">=====&gt; 后面补充</a></li>
+<li><a href="#orgad0ee5d">删除分支</a>
+<ul>
+<li><a href="#org58b5ab0">删除本地分支</a></li>
+<li><a href="#org88b5c8f">删除远程分支</a></li>
+</ul>
+</li>
+<li><a href="#orgb3d6e93">修改分支名称</a>
+<ul>
+<li><a href="#orgca3d6ff">修改本地分支名称(还未推送远程)</a></li>
+<li><a href="#org4e5e6cd">修改远程分支名称</a></li>
+</ul>
+</li>
+<li><a href="#org4cfdcc7">其他分支</a>
+<ul>
+<li><a href="#orgfc00d8a">orphan分支</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-orga0da809" class="outline-2">
+<h2 id="orga0da809">创建与合并分支</h2>
+<div class="outline-text-2" id="text-orga0da809">
+<dl class="org-dl">
+<dt>git checkout -b dev</dt><dd>创建 dev 分支，然后切换到 dev 分支，等价与下面两条命令</dd>
+<dt>git branch dev</dt><dd>创建 dev 分支</dd>
+<dt>git checkout dev</dt><dd>切换到 dev 分支</dd>
+<dt>git branch</dt><dd>查看当前分支</dd>
+<dt>git merge dev</dt><dd>将 dev 分支的工作成果合并到 master 分支上</dd>
+<dt>git branch -d dev</dt><dd>删除 dev 分支</dd>
+<dt>git push origin &#x2013;delete &lt;branch-name&gt;</dt><dd>删除远程分支</dd>
+</dl>
+
+<p>
+使用 switch 切换分支更科学  
+</p>
+<dl class="org-dl">
+<dt>git switch -c dev</dt><dd>创建并切换到新的 dev 分支</dd>
+<dt>git switch master</dt><dd>切换到已有的 master 分支</dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orga657dba" class="outline-2">
+<h2 id="orga657dba">解决冲突</h2>
+<div class="outline-text-2" id="text-orga657dba">
+<dl class="org-dl">
+<dt>git merge fature1</dt><dd>如果两个分支都修改了同一个文件的同一部分，就会冲突，git会标记冲突的地方，手动合并
+<ul class="org-ul">
+<li>然后 git add .</li>
+<li>git commit -m ""</li>
+</ul></dd>
+<dt>git log &#x2013;graph</dt><dd>分支合并图</dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orge9968bb" class="outline-2">
+<h2 id="orge9968bb">分支管理策略</h2>
+<div class="outline-text-2" id="text-orge9968bb">
+<p>
+通常，合并分支时，如果可能，Git会用Fast forward模式，但这种模式下，删除分支后，会丢掉分支信息。如果要强制禁用Fast forward模式，Git就会在merge时生成一个新的commit，这样，从分支历史上就可以看出分支信息。
+</p>
+
+<dl class="org-dl">
+<dt>git switch -c dev</dt><dd>创建一个 dev 分支
+<dl class="org-dl">
+<dt>git add .</dt><dd>修改 dev 分支的文件之后提交</dd>
+<dt>git commit -m "dev commit"</dt><dd>这里的 commit 信息之后会保留</dd>
+</dl></dd>
+<dt>git switch master</dt><dd>回到 master 分支</dd>
+<dt>git merge &#x2013;no-ff -m "这里需要commit 信息，因为使用参数后 merge 就相当于一次 commit" dev</dt><dd>使用 &#x2013;no-ff 参数合并分支</dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgebb2d6a" class="outline-2">
+<h2 id="orgebb2d6a">Bug分支</h2>
+<div class="outline-text-2" id="text-orgebb2d6a">
+<dl class="org-dl">
+<dt>git stash</dt><dd>储存工作现场，因为当前工作未完成，但现在需要修复 bug，所以把现场存储起来。不是很理解，新建一个分支修改不就行了，这个分支不动它不就行了？</dd>
+<dt>git stash list</dt><dd>查看存储的工作现场</dd>
+<dt>git stash apply</dt><dd>恢复现场</dd>
+<dt>git stash drop</dt><dd>删除存储的工作现场</dd>
+<dt>git stash pop</dt><dd>恢复的同时删除 stash 内容</dd>
+<dt>git cherry-pick 4c805e2</dt><dd>只复制 4c805e2 这个提交所做的修改，并不是把整个 master merge 过来</dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-org85fd531" class="outline-2">
+<h2 id="org85fd531">Feature分支</h2>
+<div class="outline-text-2" id="text-org85fd531">
+<p>
+开发一个新的 feature，最好新建一个分支
+</p>
+<dl class="org-dl">
+<dt>git branch -D &lt;branchname&gt;</dt><dd>强行丢弃一个没有被合并过的分支，上级宣布这个功能丢弃</dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-org733bd35" class="outline-2">
+<h2 id="org733bd35">多人协作</h2>
+<div class="outline-text-2" id="text-org733bd35">
+<p>
+当你从远程仓库克隆时，实际上Git自动把本地的master分支和远程的master分支对应起来了，并且，远程仓库的默认名称是origin。
+</p>
+<dl class="org-dl">
+<dt>git remote</dt><dd>查看远程库的信息</dd>
+<dt>git remote -v</dt><dd>显示更详细的信息</dd>
+</dl>
+</div>
+<div id="outline-container-org33d2a12" class="outline-3">
+<h3 id="org33d2a12">推送分支</h3>
+<div class="outline-text-3" id="text-org33d2a12">
+<p>
+推送分支，就是把该分支上的所有本地提交推送到远程库。推送时，要指定本地分支，这样，Git就会把该分支推送到远程库对应的远程分支上：
+</p>
+<dl class="org-dl">
+<dt>git push origin &lt;branch-name&gt;</dt><dd>推送自己的修改</dd>
+<dt>git push &#x2013;set-upstream origin &lt;branch-name&gt;</dt><dd>第一次推送需要建立与远程仓库的联系</dd>
+</dl>
+<div class="org-src-container">
+<pre class="src src-shell">git push origin master
+git push origin dev
+</pre>
+</div>
+
+<p>
+但是，并不是一定要把本地分支往远程推送，那么，哪些分支需要推送，哪些不需要呢？
+</p>
+
+<ul class="org-ul">
+<li><code>master</code> 分支是主分支，因此要时刻与远程同步；</li>
+<li><code>dev</code> 分支是开发分支，团队所有成员都需要在上面工作，所以也需要与远程同步；</li>
+<li><code>bug</code> 分支只用于在本地修复bug，就没必要推到远程了，除非老板要看看你每周到底修复了几个bug；</li>
+<li><code>feature</code> 分支是否推到远程，取决于你是否和你的小伙伴合作在上面开发。</li>
+</ul>
+
+<p>
+总之，就是在Git中，分支完全可以在本地自己藏着玩，是否推送，视你的心情而定！
+</p>
+</div>
+</div>
+<div id="outline-container-org20c1488" class="outline-3">
+<h3 id="org20c1488">抓取分支</h3>
+<div class="outline-text-3" id="text-org20c1488">
+<p>
+从远程库 clone 时，默认情况下是能看到 master 分支，如果要在 dev 分支上开发，就必须创建远程 origin 的 dev 分支到本地
+</p>
+<dl class="org-dl">
+<dt>git checkout -b dev origin/dev</dt><dd>clone 远程库的 dev 分支到本地</dd>
+</dl>
+
+<p>
+遇到推送的提交有冲突，就需要先把最新的提交从远程库中抓下来，然后在本地合并，解决冲突后再推送
+git pull也失败了，原因是没有指定本地dev分支与远程origin/dev分支的链接，根据提示，设置dev和origin/dev的链接：
+</p>
+<dl class="org-dl">
+<dt>git branch &#x2013;set-upstream-to=origin/dev dev</dt><dd>建立本地分支与远程分支的关联</dd>
+<dt>git pull</dt><dd>推送失败是因为没有从远程分支更新，使用 git pull 然后手动合并</dd>
+</dl>
+</div>
+</div>
+</div>
+<div id="outline-container-orgc279564" class="outline-2">
+<h2 id="orgc279564">Rebase</h2>
+<div class="outline-text-2" id="text-orgc279564">
+<dl class="org-dl">
+<dt>git rebase</dt><dd>变基，没有理解</dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-org4294ca4" class="outline-2">
+<h2 id="org4294ca4">=====&gt; 后面补充</h2>
+</div>
+<div id="outline-container-orgad0ee5d" class="outline-2">
+<h2 id="orgad0ee5d">删除分支</h2>
+<div class="outline-text-2" id="text-orgad0ee5d">
+</div>
+<div id="outline-container-org58b5ab0" class="outline-3">
+<h3 id="org58b5ab0">删除本地分支</h3>
+<div class="outline-text-3" id="text-org58b5ab0">
+<dl class="org-dl">
+<dt>git branch -d &lt;branch-name&gt;</dt><dd>删除本地分支</dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-org88b5c8f" class="outline-3">
+<h3 id="org88b5c8f">删除远程分支</h3>
+<div class="outline-text-3" id="text-org88b5c8f">
+<dl class="org-dl">
+<dt>git branch -d &lt;branch-name&gt;</dt><dd>删除本地分支</dd>
+<dt>git push origin &#x2013;delete &lt;branch-name&gt;</dt><dd>删除远程分支</dd>
+</dl>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb3d6e93" class="outline-2">
+<h2 id="orgb3d6e93">修改分支名称</h2>
+<div class="outline-text-2" id="text-orgb3d6e93">
+</div>
+<div id="outline-container-orgca3d6ff" class="outline-3">
+<h3 id="orgca3d6ff">修改本地分支名称(还未推送远程)</h3>
+<div class="outline-text-3" id="text-orgca3d6ff">
+<dl class="org-dl">
+<dt>git branch -m &lt;oldBranchName&gt; &lt;newBranchName&gt;</dt><dd>重命名</dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-org4e5e6cd" class="outline-3">
+<h3 id="org4e5e6cd">修改远程分支名称</h3>
+<div class="outline-text-3" id="text-org4e5e6cd">
+<dl class="org-dl">
+<dt>git branch -m &lt;oldBranchName&gt; &lt;newBranchName&gt;</dt><dd>重命名本地分支</dd>
+<dt>git push &#x2013;delete origin &lt;oldBranchName&gt;</dt><dd>删除远程分支</dd>
+<dt>git push origin &lt;newBranchName&gt;</dt><dd>上传新的分支名</dd>
+<dt>git branch &#x2013;set-upstream-to origin/&lt;newBranchName&gt;</dt><dd>关联</dd>
+</dl>
+</div>
+</div>
+</div>
+<div id="outline-container-org4cfdcc7" class="outline-2">
+<h2 id="org4cfdcc7">其他分支</h2>
+<div class="outline-text-2" id="text-org4cfdcc7">
+</div>
+<div id="outline-container-orgfc00d8a" class="outline-3">
+<h3 id="orgfc00d8a">orphan分支</h3>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-09-30 四 03:22 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>背包DP</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran &lt;haoran.mc@outlook.com&gt;">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">背包DP</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org668a095">01背包问题</a></li>
+<li><a href="#org1c67297">完全背包问题</a></li>
+<li><a href="#org7584d82">01恰好背包</a></li>
+<li><a href="#orga0c2b97">完全恰好背包</a></li>
+<li><a href="#org8e36368">多重背包</a>
+<ul>
+<li><a href="#org25eebad">朴素算法</a></li>
+<li><a href="#orgee6670f">二进制分组优化</a></li>
+<li><a href="#org41e0b62">单调队列优化</a></li>
+</ul>
+</li>
+<li><a href="#org26b9780">混合背包</a></li>
+<li><a href="#org6df14ec">二维费用背包</a></li>
+<li><a href="#orga235ab7">分组背包</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org668a095" class="outline-2">
+<h2 id="org668a095">01背包问题</h2>
+<div class="outline-text-2" id="text-org668a095">
+<p>
+0-1 背包例题中已知条件有第i个物品的重量bone[i].vol，价值bone[i].val，以及背包的总容量V
+设 DP 状态dp[i][j]为在只能放前i个物品的情况下，容量为j的背包所能达到的最大总价值考虑转移。假设当前已经处理好了前i-1个物品的所有状态，那么对于第i个物品，当其不放入背包时，背包的剩余容量不变，背包中物品的总价值也不变，故这种情况的最大价值为dp[i-1][j]；当其放入背包时，背包的剩余容量会减小bone[i].vol，背包中物品的总价值会增大bone[i].val，故这种情况的最大价值为dp[i-1][j-bone[i].vol] + bone[i].val
+由此可以得出状态转移方程：dp[i][j] = max(dp[i-1][j], dp[i-1][j-bone[i].vol] + bone[i]val);
+这里如果直接采用二维数组对状态进行记录，会出现MLE，可以考虑改用滚动数组的形式来优化由于对dp[i]有影响的只有dp[i-1]，可以去掉第一维，直接用dp[i]来表示处理到当前物品时背包容量为i的最大价值，得出以下方程： <code>dp[j] = max(dp[j], dp[j-bone[i].vol] + bone[i].val);</code>
+务必牢记并理解这个转移方程，因为大部分背包问题的转移方程都是在此基础上推导出来的还有一点需要注意的是，很容易写出这样的错误核心代码：
+</p>
+<div class="org-src-container">
+<pre class="src src-C++">for (int i = 1; i &lt;= N; ++i)
+		for (int j = 0; j &lt;= V-bone[i].vol; ++j)
+				dp[j+bone[i].vol] = max(dp[j+bone[i].vol], dp[j]+bone[i].val);
+</pre>
+</div>
+<p>
+这段代码哪里错了呢？枚举顺序错了仔细观察代码可发现：对于当前处理的物品i和当前状态dp[i][j]，在j &gt;= bone[i].vol时，dp[i][j]是会被dp[i][j-bone[i].vol]所影响的。这就相当于物品i可以多次被放入背包，与题意不符(事实上，这正是完全背包问题的解法)
+为了避免这种情况发生，我们可以改变枚举的顺序，从V枚举到bone[i].vol，这样就不会出现上述的错误，因为dp[i][j]总是在dp[i][j-bone[i].vol]前被更新因此实际核心代码为
+</p>
+<div class="org-src-container">
+<pre class="src src-C++">for (int i = 1; i &lt;= N; ++i)
+		for (int j = V; j &gt;= bone[i].vol; --j) 
+				dp[j] = max(dp[j], dp[j-bone[i].vol] + bone[i].val);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org1c67297" class="outline-2">
+<h2 id="org1c67297">完全背包问题</h2>
+<div class="outline-text-2" id="text-org1c67297">
+<p>
+完全背包模型与 0-1 背包类似，与 0-1 背包的区别仅在于一个物品可以选取无限次，而非仅能选取一次我们可以借鉴 0-1 背包的思路，进行状态定义：设dp[i][j]为只能选前i个物品时，容量为j的背包可以达到的最大价值需要注意的是，虽然定义与 0-1 背包类似，但是其状态转移方程与 0-1 背包并不相同可以考虑一个朴素的做法：对于第i件物品，枚举其选了多少个来转移。这样做的时间复杂度是O(n^3)的状态转移方程如下：dp[i][j] = max{dp[i-1][j-k*bone[i].vol] + k*bone[i].val} (0 &lt;= k &lt;= inf)
+考虑做一个简单的优化。可以发现，对于dp[i][j]，只要通过dp[i][j-bone[i].vol]转移就可以了。因此状态转移方程为：dp[i][j] = max(dp[i-1][j], dp[i][j-bone[i].vol] + bone[i].val)
+理由是当我们这样转移时，dp[i][j-bone[i].vol]已经由dp[i][j-2*bone[i].vol]更新过，那么dp[i][j-bone[i].vol]就是充分考虑了第i件物品所选次数后得到的最优结果。换言之，我们通过局部最优子结构的性质重复使用了之前的枚举过程，优化了枚举的复杂度与 0-1 背包相同地，我们可以将第一维去掉来优化空间复杂度。如果理解了 0-1 背包的优化方式，就不难明白压缩后的循环是正向的（也就是上文中提到的错误优化）
+</p>
+</div>
+</div>
+<div id="outline-container-org7584d82" class="outline-2">
+<h2 id="org7584d82">01恰好背包</h2>
+</div>
+<div id="outline-container-orga0c2b97" class="outline-2">
+<h2 id="orga0c2b97">完全恰好背包</h2>
+</div>
+<div id="outline-container-org8e36368" class="outline-2">
+<h2 id="org8e36368">多重背包</h2>
+<div class="outline-text-2" id="text-org8e36368">
+<p>
+多重背包也是 0-1 背包的一个变式。与 0-1 背包的区别在于每种物品有ki个，而非1个
+</p>
+</div>
+<div id="outline-container-org25eebad" class="outline-3">
+<h3 id="org25eebad">朴素算法</h3>
+<div class="outline-text-3" id="text-org25eebad">
+<p>
+一个很朴素的想法就是：把「每种物品选ki次」等价转换为「有ki个相同的物品，每个物品选一次」。这样就转换成了一个 0-1 背包模型，套用上文所述的方法就可已解决
+</p>
+</div>
+</div>
+<div id="outline-container-orgee6670f" class="outline-3">
+<h3 id="orgee6670f">二进制分组优化</h3>
+<div class="outline-text-3" id="text-orgee6670f">
+<p>
+考虑优化，我们仍考虑把多重背包转化成 0-1 背包模型来求解为了表述方便，我们用Aij代表第i种物品拆分出的第j个物品。那么我们效率低的原因主要在于我们进行了大量重复性的工作。举例来说，我们考虑了「同时选Ai1, Ai2」与「同时选Ai2, Ai3」这两个完全等效的情况这样的重复性工作我们进行了许多次。那么优化拆分方式就成为了解决问题的突破口我们可以通过「二进制分组」的方式使拆分方式更加优美具体地说就是令Aij分别表示由2^j个单个物品「捆绑」而成的大物品。特殊地，若最后一次分组不是2的整数次幂，则需要在最后添加一个剩余的大物品组成的分组用于补足显然，通过上述拆分方式，可以表示任意 &lt;= ki个物品的等效选择方式。将每种物品按照上述方式拆分后，使用 0-1 背包的方法解决即可
+</p>
+</div>
+</div>
+<div id="outline-container-org41e0b62" class="outline-3">
+<h3 id="org41e0b62">单调队列优化</h3>
+</div>
+</div>
+<div id="outline-container-org26b9780" class="outline-2">
+<h2 id="org26b9780">混合背包</h2>
+<div class="outline-text-2" id="text-org26b9780">
+<p>
+混合背包就是将前面三种的背包问题混合起来，有的只能取一次，有的能取无限次，有的只能取k次这种题目看起来很吓人，可是只要领悟了前面几种背包的中心思想，并将其合并在一起就可以了。下面给出伪代码：
+</p>
+<pre class="example" id="orgd72e105">
+for (循环物品种类) {
+	if (是 0 - 1 背包)
+		套用 0 - 1 背包代码;
+	else if (是完全背包)
+		套用完全背包代码;
+	else if (是多重背包)
+		套用多重背包代码;
+}
+</pre>
+</div>
+</div>
+<div id="outline-container-org6df14ec" class="outline-2">
+<h2 id="org6df14ec">二维费用背包</h2>
+<div class="outline-text-2" id="text-org6df14ec">
+<p>
+这道题是很明显的 0-1 背包问题，可是不同的是选一个物品会消耗两种价值(经费、时间)。这种问题其实很简单：方程基本不用变，只需再开一维数组，同时转移两个价值就行了!(完全、多重背包同理)
+这时候就要注意，再开一维存放物品编号就不合适了，因为容易MLE
+</p>
+</div>
+</div>
+<div id="outline-container-orga235ab7" class="outline-2">
+<h2 id="orga235ab7">分组背包</h2>
+</div>
+</div>
+</body>
+</html>

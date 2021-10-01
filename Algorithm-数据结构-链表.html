@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-09-30 四 16:09 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>链表</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran &lt;haoran.mc@outlook.com&gt;">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">链表</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org38ae985">链表</a></li>
+<li><a href="#org67811a8">链表分类</a>
+<ul>
+<li><a href="#org7633d25">动态链表</a></li>
+<li><a href="#org064ab34">静态链表</a></li>
+</ul>
+</li>
+<li><a href="#org850316a">单链表</a>
+<ul>
+<li><a href="#orgb0f5902">邻接表</a>
+<ul>
+<li><a href="#orge6cd561">链式前向星</a></li>
+</ul>
+</li>
+<li><a href="#orgfdfb51b">逆序单链表</a></li>
+</ul>
+</li>
+<li><a href="#orgeb3adb7">双链表</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org38ae985" class="outline-2">
+<h2 id="org38ae985">链表</h2>
+<div class="outline-text-2" id="text-org38ae985">
+<p>
+链表可以通过指针+结构体实现，但在算法竞赛中，通常使用数组模拟堆栈，队列也是优先用数组模拟，STL虽好，但不宜重度依赖
+</p>
+<div class="org-src-container">
+<pre class="src src-C++">struct Node {
+		int val;
+		Node *nxet;
+};
+</pre>
+</div>
+<ol class="org-ol">
+<li>效率，使用指针时，每次都要new一个新的结点，这个太慢了</li>
+<li>如果是预先创建好结点，那就和数组模拟没有差别</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-org67811a8" class="outline-2">
+<h2 id="org67811a8">链表分类</h2>
+<div class="outline-text-2" id="text-org67811a8">
+</div>
+<div id="outline-container-org7633d25" class="outline-3">
+<h3 id="org7633d25">动态链表</h3>
+<div class="outline-text-3" id="text-org7633d25">
+<ul class="org-ul">
+<li>链表的内存空间
+<ul class="org-ul">
+<li>为链表结点分配内存空间</li>
+<li>内存泄漏</li>
+<li>内存释放</li>
+</ul></li>
+<li><p>
+创建动态链表
+</p>
+<ul class="org-ul">
+<li>遍历链表</li>
+<li>链表的插入</li>
+<li>链表的删除</li>
+</ul>
+<p>
+建立链表的算法为：
+</p>
+<ol class="org-ol">
+<li>生成一个结点并输入数据，如果数据域非空，则使头指针指向该结点，指针域置空。</li>
+<li>生成新结点并输入数据，然后将该结点插入链表。</li>
+<li>重复步骤(2)直到结束输入。</li>
+<li>将尾结点的指针域置空。</li>
+</ol></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org064ab34" class="outline-3">
+<h3 id="org064ab34">静态链表</h3>
+<div class="outline-text-3" id="text-org064ab34">
+<div class="org-src-container">
+<pre class="src src-C++">原理：hash
+struct Node {
+		typedef data;
+		int next;
+} node[1000];
+
+node[0].next = 1;
+node[1].next = 2;
+node[2].next = 3;
+node[3].next = 4;
+node[4].next = 5;
+node[5].next = 6;
+node[6].next = 7;
+node[7].next = 8;
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org850316a" class="outline-2">
+<h2 id="org850316a">单链表</h2>
+<div class="outline-text-2" id="text-org850316a">
+</div>
+<div id="outline-container-orgb0f5902" class="outline-3">
+<h3 id="orgb0f5902">邻接表</h3>
+<div class="outline-text-3" id="text-orgb0f5902">
+</div>
+<div id="outline-container-orge6cd561" class="outline-4">
+<h4 id="orge6cd561">链式前向星</h4>
+<div class="outline-text-4" id="text-orge6cd561">
+<p>
+邻接表的改进方法，用邻接表非常节省空间，然而如果空间及其紧张，可以使用邻接表的改进方法-链式前向星它是空间效率最高的存储方法，因为它用静态数组模拟邻接表，没有任何浪费
+</p>
+
+<div class="org-src-container">
+<pre class="src src-C++">// 这种的邻接表和一般的邻接表不一样，这个是按输入的倒序存储的
+// 如果从head[x]开始搜索，得到的是最后一次加入到链表x的边tot
+// vert[tot]，edge[tot]存储的是与x相连的节点和权值，然后进行操作
+// i = next[i]，此时i是x结点上一次添加的边，所以是倒序打印
+//加入有向边(x, y)，权值为z
+void add(int x, int y, int z) {
+		vert[++tot] = y;
+		edge[tot]   = z;
+		next[tot]   = head[x];
+		head[x] = tot;
+}
+//访问从x出发的所有边
+for (int i = head[x]; i; i = next[i]) {
+		int y = vert[i];
+		int z = edge[i];
+		printf("%d %d %d\n", x, y, z);
+}
+</pre>
+</div>
+<p>
+上面的代码片段用数组模拟链表的方式存储了一张带权有向图的邻接表结构对于无向图，使用"成对变换"的位运算性质，如果vert[i]是第i条边的终点，那么vert[ixor1]就是第i条边的起点
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgfdfb51b" class="outline-3">
+<h3 id="orgfdfb51b">逆序单链表</h3>
+<div class="outline-text-3" id="text-orgfdfb51b">
+<ul class="org-ul">
+<li>逆序链表递归</li>
+<li>逆序链表迭代</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgeb3adb7" class="outline-2">
+<h2 id="orgeb3adb7">双链表</h2>
+</div>
+</div>
+</body>
+</html>

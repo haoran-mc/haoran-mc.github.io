@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-09-30 四 22:28 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SCHEME-表达式</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">SCHEME-表达式</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org5ced862">cons单元</a>
+<ul>
+<li><a href="#orgd93d3a0">Cons单元(Cons cells)</a></li>
+<li><a href="#orge3e2450">构造cons单元</a></li>
+<li><a href="#org32ac844">串联cons单元</a></li>
+<li><a href="#org0ae6a81">cons单元可以存放不同类型的数据</a></li>
+</ul>
+</li>
+<li><a href="#orgdfee971">表</a>
+<ul>
+<li><a href="#orge20c2ce">表的定义</a></li>
+<li><a href="#org0a3749d">表的创建与使用</a></li>
+</ul>
+</li>
+<li><a href="#org2d09f65">原子</a></li>
+<li><a href="#org9a2eaae">引用</a></li>
+<li><a href="#org2e95288">car与cdr</a></li>
+<li><a href="#orgb10862d">list函数</a></li>
+<li><a href="#org1700fad">点对</a></li>
+</ul>
+</div>
+</div>
+<p>
+#+Copyright © 2021, L.M.haoran, all rights reserved.
+</p>
+
+<div id="outline-container-org5ced862" class="outline-2">
+<h2 id="org5ced862">cons单元</h2>
+<div class="outline-text-2" id="text-org5ced862">
+</div>
+<div id="outline-container-orgd93d3a0" class="outline-3">
+<h3 id="orgd93d3a0">Cons单元(Cons cells)</h3>
+<div class="outline-text-3" id="text-orgd93d3a0">
+<p>
+Cons单元是一个存放了两个地址的内存空间, Cons单元可用函数cons生成
+</p>
+<pre class="example" id="orga97f90e">
+
+ ------------ ------------
+|    car    | cdr |   |   |
+|      1    |   2 |   |   |
+|           |     |   |   |
+|           |     |   |   |
+ ------------ ------------
+      |   |
+      |   |
+      |   |
+    \ | /           - - - - -
+      v                      |
+ ------------                |
+| 1 |              |   |
+|   | \            | / |
+|   | v            |   |
+|   | ------------ |   |
+ ------------          |      2     |
+                       |   |
+                       |   |
+                       |   |
+                        ------------
+</pre>
+
+<ul class="org-ul">
+<li><b>cons</b> 构造(construction)</li>
+<li><b>car</b> 寄存器地址部分(Contents of the Address part of the Register)</li>
+<li><b>cdr</b> 寄存器减量部分(Contents of the Decrement part of the Register)</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orge3e2450" class="outline-3">
+<h3 id="orge3e2450">构造cons单元</h3>
+<div class="outline-text-3" id="text-orge3e2450">
+<pre class="example" id="org4c21ed5">
+(cons 1 2)
+</pre>
+</div>
+</div>
+<div id="outline-container-org32ac844" class="outline-3">
+<h3 id="org32ac844">串联cons单元</h3>
+<div class="outline-text-3" id="text-org32ac844">
+<pre class="example" id="orgaebbe83">
+(cons 1 (cons 2 3))
+</pre>
+
+
+<pre class="example" id="orgee822d8">
+   ------------ ------------
+  | car | cdr |   |   |
+  |   1 |     |   |   |
+  |     |     |   |   |
+  |     |     |   |   |
+   ------------ ------------
+      |   |
+      |   |
+      |   |
+    \ | /               |
+      v                 |
+ ------------         \ | /
+| 1 | v                         |     |     |
+|   | ------------ ------------ |     |     |
+|   |                           | car | cdr |
+|   |                           |   2 |   3 |
+ ------------       |            |            |
+                    |   |   |   |   |
+                     ------------ ------------
+                        |   |
+                        |   |
+                        |   |
+                      \ | /               |
+                        v                 |
+                   ------------         \ | /
+                  | 2 | v            |   |
+                  |   | ------------ |   |
+                  |   |              | 3 |
+                  |   |              |   |
+                   ------------       |            |
+                                      |   |
+                                       ------------
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org0ae6a81" class="outline-3">
+<h3 id="org0ae6a81">cons单元可以存放不同类型的数据</h3>
+<div class="outline-text-3" id="text-org0ae6a81">
+<div class="org-src-container">
+<pre class="src src-scheme">(cons #\a (cons 3 "hello"))
+;;Value (#\a 3 . "hello")
+
+(cons (cons 0 1) (cons 1 2))
+;;Value ((0 . 1) 1 . 2)
+;;(#\c 代表了一个字符c，例如#\a 就代表字符a)
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgdfee971" class="outline-2">
+<h2 id="orgdfee971">表</h2>
+<div class="outline-text-2" id="text-orgdfee971">
+</div>
+<div id="outline-container-orge20c2ce" class="outline-3">
+<h3 id="orge20c2ce">表的定义</h3>
+<div class="outline-text-3" id="text-orge20c2ce">
+<p>
+表是Cons单元通过用cdr部分连接到下一个Cons单元的开头实现的表中包含的'()被称作空表不就是链表吗
+</p>
+
+<p>
+就算数据仅由一个Cons单元组成，只要它的cdr单元是'()，那它就是一个表
+</p>
+
+<div class="org-src-container">
+<pre class="src src-scheme">(cons 1 (cons 2 '()))
+;;(1 2)
+</pre>
+</div>
+
+<p>
+<a href="img/表.png">image-表</a>
+</p>
+
+<pre class="example" id="orge0196f9">
+   ------------ ------------
+  |    car     |     cdr    |
+  |     1      |            |
+  |            |            |
+  |   |        |        |   |
+   ------------ ------------
+      |                 |
+      |                 |
+      |                 |
+    \ | /               |
+      v                 |
+ ------------         \ | /
+|     1      |          v
+|            |       ------------ ------------
+|            |      |    car     |     cdr    |
+|            |      |     2      |      3     |
+ ------------       |            |            |
+                    |   |        |        |   |
+                     ------------ ------------
+                        |                 |
+                        |                 |
+                        |                 |
+                      \ | /               |
+                        v                 |
+                   ------------         \ | /
+                  |     2      |          v
+                  |            |       ------------
+                  |            |      |    '()     |
+                  |            |      |            |
+                   ------------       |            |
+                                      |            |
+                                       ------------
+</pre>
+
+<ul class="org-ul">
+<li>‘()是一个表</li>
+<li>如果ls是一个表且obj是某种类型的数据，那么(cons obj ls)也是一个表 正因为表是一种被递归定义的数据结构，将它用在递归的函数中显然是合理的</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org0a3749d" class="outline-3">
+<h3 id="org0a3749d">表的创建与使用</h3>
+<div class="outline-text-3" id="text-org0a3749d">
+<div class="org-src-container">
+<pre class="src src-scheme">(define la (list 1 2 3 4 ))
+(length la)   ;;取得列表的长度
+(list-ref la 3) ;;取得列表第3项的值（从0开始）
+(list-set! la 2 99) ;;设定列表第2项的值为99
+(define y (make-list 5 6)) ;;创建列表
+(define la '(1 2 3 4 ))
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org2d09f65" class="outline-2">
+<h2 id="org2d09f65">原子</h2>
+<div class="outline-text-2" id="text-org2d09f65">
+<p>
+不使用Cons单元的数据结构称为原子（atom）数字，字符，字符串，向量和空表’()都是原子’()既是原子，又是表
+</p>
+
+<div class="org-src-container">
+<pre class="src src-scheme">;;()
+'()
+
+;;("hi" . "everybody")
+(cons "hi" "everyboby")
+
+;;(0)
+(cons 0 '())
+
+;;(1 10 . 100)
+(cons 1 (cons 10 100))
+
+;;(1 10 100)
+(cons 1 (cons 10 (cons 100 '())))
+
+;;(#\I "saw" 3 "girls")
+(cons #\I (cons "saw" (cons 3 (cons "girls" '()))))
+
+;;("Sum of" (1 2 3 4) "is" 10)
+(cons "Sum of" (cons (cons 1 (cons 2 (cons 3 (cons 4 '())))) (cons "is" (cons 10 '()))))
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org9a2eaae" class="outline-2">
+<h2 id="org9a2eaae">引用</h2>
+<div class="outline-text-2" id="text-org9a2eaae">
+<p>
+所有的记号都会依据Scheme的求值规则求值：所有记号都会从最内层的括号依次向外层括号求值，且最外层括号返回的值将作为S-表达式的值。一个被称为 <b><b>引用(quote)</b></b> 的形式可以用来阻止记号被求值。它是用来将符号或者表原封不动地传递给程序，而不是求值后变成其它的东西。
+</p>
+
+<p>
+例如，(+ 2 3)会被求值为5，然而(quote (+ 2 3))则向程序返回(+ 2 3)本身。因为quote的使用频率很高，他被简写为’。
+</p>
+
+<p>
+比如：
+'(+ 2 3)代表列表(+ 2 3)本身；
+'+代表符号+本身；
+</p>
+
+<p>
+实际上，'()是对空表的引用，也就是说，尽管解释器返回()代表空表，你也应该用’()来表示空表
+</p>
+
+<p>
+Scheme有两种不同类型的操作符：其一是函数。函数会对所有的参数求值并返回值。另一种操作符则是特殊形式。特殊形式不会对所有的参数求值。除了quote，lambda，define，if，set!，等都是特殊形式
+</p>
+</div>
+</div>
+<div id="outline-container-org2e95288" class="outline-2">
+<h2 id="org2e95288">car与cdr</h2>
+<div class="outline-text-2" id="text-org2e95288">
+<ul class="org-ul">
+<li>返回一个Cons单元的car部分和cdr部分的函数分别是car和cdr函数
+<ul class="org-ul">
+<li>如果cdr部分串连着Cons单元，解释器会打印出整个cdr部分</li>
+<li>如果Cons单元的cdr部分不是’()，那么其值稍后亦会被展示</li>
+</ul></li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-scheme">(car '(1 2 3 4))
+;;Value: 1
+(car (cons 1 (cons 2 (cons 3 (cons 4 '())))))
+;;Value: 1
+(cdr '(1 2 3 4))
+;;Value: (2 3 4)
+(cdr (cons 1 (cons 2 (cons 3 (cons 4 '())))))
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-scheme">(car '(0))
+;; -&gt; 0
+(cdr '(0))
+;; -&gt; ()
+(car '((1 2 3) (4 5 6)))
+;; -&gt; (1 2 3)
+(cdr '(1 2 3 . 4))
+;; -&gt; (2 3 . 4)
+(cdr (cons 3 (cons 2 (cons 1 '()))))
+;; -&gt; (2 1)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgb10862d" class="outline-2">
+<h2 id="orgb10862d">list函数</h2>
+<div class="outline-text-2" id="text-orgb10862d">
+<p>
+list函数使得我们可以构建包含数个元素的表。函数list有任意个数的参数，且返回由这些参数构成的表
+</p>
+
+<div class="org-src-container">
+<pre class="src src-scheme">(list)
+;;Value: ()
+(list 1)
+;;Value 24: (1)
+(list '(1 2) '(3 4))
+;;Value 25: ((1 2) (3 4))
+(list 0)
+;;Value 26: (0)
+(list 1 2)
+;;Value 27: (1 2)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org1700fad" class="outline-2">
+<h2 id="org1700fad">点对</h2>
+<div class="outline-text-2" id="text-org1700fad">
+<p>
+List/Scheme 的基本构成元素是所谓的 Pair。我们用函数cons构造点对。比如说(cons 1 2)就构造出点对(1 . 2)。因为点对总是由函数cons构造，点对又叫做cons cell。点对左边的值可以用函数car取出来，右边的值可以由函数cdr取出来。比如列表(1 2 3 4)，实际上由点对构成：(1 . (2 . (3 . 4. ‘())。可以看出，列表本质是单向链表。
+</p>
+
+<p>
+在当前实例程序的表变量A1中，我们构造了一个具有发热症状对应风险属性的表，它有三个点对元素，分别是：
+</p>
+
+<p>
+(三天内 . 5) (三天到一周 . 10)  (超过一周 . 15)
+</p>
+
+<p>
+构造这3个点对元素分别通过下面的三个表达式实现：
+</p>
+
+<p>
+(cons "三天内" 5)(cons "三天到一周" 10)(cons "超过一周" 15)
+在表变量A1 中，可以通过cdr函数得到这3个点对元素：
+</p>
+<div class="org-src-container">
+<pre class="src src-scheme">(car A1) ;;发热
+(cdr A1) ;;( 三天内 . 5  ) ( 三天到一周 . 10  )  (超过一周 . 15)
+</pre>
+</div>
+<p>
+可以看出，我们在程序中，使用点对模拟了症状属性和对应的风险值结构，类似于.NET中的“名-值”对结构。所以，我们通过Scheme程序，实现了新冠病毒临床诊断知识表达的 “症状&#x2013;属性&#x2013;风险值” 三元结构，我们的程序就是匹配患者的这些症状属性，从而计算出相对应的风险值。Scheme的表和点对结构，使得我们对于这类知识的表达更直观更容易。
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2021-08-20 11:08 五 2020年09月01日 17时10分</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2021-09-30 四 22:28</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
