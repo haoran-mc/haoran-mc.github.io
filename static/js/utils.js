@@ -26,7 +26,7 @@ export function browserRedirect() {
 }
 
 export function isPageHome() {
-    if (['/index.html', '/'].includes(location.pathname)) {
+    if (['/index.html', '/', ''].includes(location.pathname)) {
         return true;
     }
 }
