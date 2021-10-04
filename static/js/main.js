@@ -130,3 +130,16 @@ if (isCurPage('Links')) {
         $(this).attr('target', '_blank');
     });
 }
+
+
+// Idea PAGE
+// ---------------------------------
+if (isCurPage('Ideas')) {
+    // outline-1 TITLE
+    // outline-2 *
+    // outline-3 **
+    $('.outline-3').each(function () {
+        $(this).css('font-family', 'kaiti, 华文细黑, 宋体, Consolas')
+        $(this).addClass('js-outline');
+    });
+}

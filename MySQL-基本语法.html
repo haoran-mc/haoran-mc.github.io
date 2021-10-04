@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-10-04 一 14:06 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MYSQL-基本语法</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">MYSQL-基本语法</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org029452e">常用命令简介</a>
+<ul>
+<li><a href="#org5990959">安装配置</a></li>
+<li><a href="#orgfee2ac7">登录数据库</a></li>
+<li><a href="#org8f27f90">创建、修改和删除数据库</a></li>
+<li><a href="#org826e83a">创建、修改和删除表</a>
+<ul>
+<li><a href="#org69a3b14">创建</a></li>
+<li><a href="#org3a35c27">删除</a></li>
+<li><a href="#orgc133195">修改</a></li>
+</ul>
+</li>
+<li><a href="#org9ba81a6">创建、删除用户和给用户授权</a></li>
+<li><a href="#org0a9a3b9">数据库备份和恢复</a></li>
+<li><a href="#org62afc81">show命令</a>
+<ul>
+<li><a href="#org36921bf">显示数据库列表</a></li>
+<li><a href="#org8aaa72b">查看表信息</a></li>
+<li><a href="#orgbb004c0">查看数据库状态信息</a></li>
+<li><a href="#orgd7430e3">创建的数据库在电脑的位置</a></li>
+<li><a href="#org7c513fe">查看存储过程，函数</a>
+<ul>
+<li><a href="#org44da9ec">查询数据库中的存储过程和函数</a></li>
+<li><a href="#orga83b458">查看存储过程或函数的创建代码</a></li>
+<li><a href="#org21949cf">查看视图</a></li>
+<li><a href="#orgdeef01b">查看触发器</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org1a21120">调用</a>
+<ul>
+<li><a href="#org5c598c2">调用存储过程</a></li>
+<li><a href="#org0d348f5">调用函数</a></li>
+</ul>
+</li>
+<li><a href="#orgaa6cdd0">导出导入</a>
+<ul>
+<li><a href="#org7da92e1">导出数据：</a></li>
+<li><a href="#org858a791">导入数据：</a></li>
+</ul>
+</li>
+<li><a href="#org892865a">其他</a>
+<ul>
+<li><a href="#orgb45ca0f">注释</a>
+<ul>
+<li><a href="#orge6b8f8b">MySQL 单行注释</a></li>
+<li><a href="#org4673045">MySQL 多行注释</a></li>
+</ul>
+</li>
+<li><a href="#org3a2bc9f">delimiter</a></li>
+<li><a href="#org206c0f3">执行在文件中的SQL代码</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org47e8aa7">数据定义</a>
+<ul>
+<li><a href="#org76afafa">模式的定义与删除</a>
+<ul>
+<li><a href="#org0b7a9d1">数据库模式的理解</a></li>
+<li><a href="#orgf745c99">定义模式</a></li>
+<li><a href="#org4771963">删除模式</a></li>
+</ul>
+</li>
+<li><a href="#orgd2c3634">基本表的定义、删除与修改</a>
+<ul>
+<li><a href="#org7959243">定义基本表</a></li>
+</ul>
+</li>
+<li><a href="#orgb1e1759">数据类型</a></li>
+<li><a href="#orgf2eccf9">模式与表</a></li>
+<li><a href="#org0124564">修改基本表</a></li>
+<li><a href="#org97d1b0f">删除基本表</a>
+<ul>
+<li><a href="#org961cd64">一次删除多表</a></li>
+<li><a href="#org7c5e1d5">删除其中一条信息</a></li>
+</ul>
+</li>
+<li><a href="#org3791e2c">索引的建立与删除</a>
+<ul>
+<li><a href="#org49387ca">建立索引</a></li>
+<li><a href="#org725314a">修改索引</a></li>
+<li><a href="#orge1abf99">删除索引</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org5d5e23d">数据查询</a>
+<ul>
+<li><a href="#org79282a5">单表查询</a>
+<ul>
+<li><a href="#org8b16049">选择表中若干列</a>
+<ul>
+<li>
+<ul>
+<li><a href="#org962984c">查询指定列</a></li>
+<li><a href="#org5500217">查询全部列</a></li>
+<li><a href="#org5f09fa2">查询经过计算的值</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#orgf06922e">选择表中若干元祖</a>
+<ul>
+<li><a href="#org8ba1e9b">比较大小</a></li>
+<li><a href="#org758981f">确定范围</a></li>
+<li><a href="#org2a655a0">确定集合</a></li>
+<li><a href="#orga7e5b19">字符匹配</a></li>
+<li><a href="#org96426a3">空值</a></li>
+<li><a href="#orgfb4146c">多重条件查询</a></li>
+</ul>
+</li>
+<li><a href="#org3b00f64">order by子句</a></li>
+<li><a href="#orgfcfa645">聚集函数</a></li>
+<li><a href="#orge1f7a39">group by子句</a></li>
+</ul>
+</li>
+<li><a href="#orgbb56e5e">连接查询</a>
+<ul>
+<li>
+<ul>
+<li><a href="#org9b86f43">等值与非等值连接查询</a></li>
+<li><a href="#orgc54b7f7">自身连接</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org6e3a10c">嵌套查询</a></li>
+<li><a href="#orgd54793d">集合查询</a></li>
+<li><a href="#org3d1695a">基于派生表的查询</a></li>
+<li><a href="#org2ad7dcd">select语句的一般格式</a></li>
+</ul>
+</li>
+<li><a href="#org477532d">数据更新</a>
+<ul>
+<li><a href="#org976c2c9">插入数据</a>
+<ul>
+<li><a href="#org2a59635">插入元祖</a></li>
+<li><a href="#org6c74256">插入子查询结果</a></li>
+</ul>
+</li>
+<li><a href="#org29a094a">修改数据</a>
+<ul>
+<li><a href="#orgd37892d">修改某一个元祖的值</a></li>
+<li><a href="#orgada9ce7">修改多个元祖的值</a></li>
+<li><a href="#org157568e">带子查询的修改语句</a></li>
+</ul>
+</li>
+<li><a href="#org60ab8d1">删除数据</a>
+<ul>
+<li><a href="#org7f848d6">删除某一个元祖的值</a></li>
+<li><a href="#org008a630">删除多个元祖的值</a></li>
+<li><a href="#org00b6f8f">带子查询的删除语句</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#orga1adb04">空值的处理</a>
+<ul>
+<li><a href="#orgd87c2d7">空值的产生</a></li>
+<li><a href="#orgb6728b4">空值的判断</a></li>
+<li><a href="#orgcc4b17d">空值的约束条件</a></li>
+<li><a href="#org3882a8a">空值的算数运算、比较运算和逻辑运算</a></li>
+</ul>
+</li>
+<li><a href="#orgfafadcc">视图</a>
+<ul>
+<li><a href="#org580eb3a">定义视图</a>
+<ul>
+<li><a href="#org6e68600">建立视图</a></li>
+<li><a href="#orgebdd3e5">删除视图</a></li>
+</ul>
+</li>
+<li><a href="#org32c1606">查询视图</a></li>
+<li><a href="#org005cb02">更新视图</a></li>
+<li><a href="#org209e64a">视图的作用</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org029452e" class="outline-2">
+<h2 id="org029452e">常用命令简介</h2>
+<div class="outline-text-2" id="text-org029452e">
+</div>
+<div id="outline-container-org5990959" class="outline-3">
+<h3 id="org5990959">安装配置</h3>
+<div class="outline-text-3" id="text-org5990959">
+<p>
+mysql服务器安装：apt-get install mysql-server<br>
+mysql客户端安装：apt-get install mysql-client<br>
+mysql开发包安装：apt-get install libmysqlclient-dev<br>
+启动：sudo /etc/init.d/mysql start<br>
+停止：sudo /etc/init.d/mysql stop<br>
+重启：sudo /etc/init.d/mysql restart<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgfee2ac7" class="outline-3">
+<h3 id="orgfee2ac7">登录数据库</h3>
+<div class="outline-text-3" id="text-orgfee2ac7">
+<p>
+mysql -h localhost -P 6688 -u root -p test<br>
+上述命令以 root 用户登录 test@localhost:6688 数据库<br>
+</p>
+
+<p>
+如果是登录本机数据库，可以省略 -h localhost 部分<br>
+-P 6688 指定数据库的端口。如果是 MySQL 默认端口 3306，也省略该部分<br>
+-p 后面有空格，表示接下来会提示用户输入密码。在这里也可以直接输入密码，-p mypassword，-p后直接紧跟着密码，不要有空格即可<br>
+数据库名 test 也可以省略，则表示登录时不指定默认数据库<br>
+</p>
+
+<p>
+简单点说就是可以使用下一条指令<br>
+<code>mysql -u root -p</code><br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8f27f90" class="outline-3">
+<h3 id="org8f27f90">创建、修改和删除数据库</h3>
+<div class="outline-text-3" id="text-org8f27f90">
+<p>
+create database mydb;<br>
+alter database mydb character set utf8;<br>
+drop database mydb;<br>
+上述三条命令，先是创建了 mydb 数据库，接着修改其数据库字符集为 utf8，最后再将该数据库删除<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org826e83a" class="outline-3">
+<h3 id="org826e83a">创建、修改和删除表</h3>
+<div class="outline-text-3" id="text-org826e83a">
+</div>
+<div id="outline-container-org69a3b14" class="outline-4">
+<h4 id="org69a3b14">创建</h4>
+<div class="outline-text-4" id="text-org69a3b14">
+<div class="org-src-container">
+<pre class="src src-sql">create table mytable (
+id int primary key auto_increment,
+usrname varchar(255) not null,
+salary float(11,2),
+birthday date,
+sleep time,
+ts timestamp,
+description text,
+picture blob
+);
+</pre>
+</div>
+<p>
+上述命令创建了一个名为 mytable 的数据库表。对各个字段类型，解释如下<br>
+</p>
+
+<p>
+id int primary key auto_increment, &#x2013;创建int类型的主键，且自增长<br>
+usrname varchar(255) not null, &#x2013;创建字符类型的列，最大长度为255字节<br>
+salary float(11,2), &#x2013;创建小数类型的列，小数点后两位<br>
+birthday date, &#x2013;创建日期类型的字段，只保存日期<br>
+sleep time, &#x2013;创建时间类型的字段 ，只保存时间<br>
+ts timestamp, &#x2013;创建时间戳类型的列，保存日期和时间<br>
+description text, &#x2013;创建大文本类型数据的列，保存大文本，长度不受限制<br>
+picture blob &#x2013;创建二进制类型的列，保存二进制数据<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql">create temporary table my_temp_table (
+id integer,
+usrname varchar(100),
+addr varchar(50),
+primary key(id)
+);
+</pre>
+</div>
+<p>
+还可以用上述命令创建临时表。临时表是指创建后只在当前数据库内有效，断开与数据库的连接后表就自动删除<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org3a35c27" class="outline-4">
+<h4 id="org3a35c27">删除</h4>
+<div class="outline-text-4" id="text-org3a35c27">
+<p>
+删除 tableName 表中的 usrname 列<br>
+alter table tableName drop usrname;<br>
+</p>
+
+<p>
+删除表 tableName<br>
+drop table tableName;<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc133195" class="outline-4">
+<h4 id="orgc133195">修改</h4>
+<div class="outline-text-4" id="text-orgc133195">
+<p>
+修改 tableName 表中的usrname列为新的名称和数据类型<br>
+alter table tableName change usrname newName dataType;<br>
+</p>
+
+<p>
+向 tableName 表中添加usrname列<br>
+alter tableName add usrname varchar(200) not null default 'helloword';<br>
+</p>
+
+<p>
+修改表名<br>
+alter table tableName rename to newTableName;<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org9ba81a6" class="outline-3">
+<h3 id="org9ba81a6">创建、删除用户和给用户授权</h3>
+<div class="outline-text-3" id="text-org9ba81a6">
+<p>
+创建用户 usernname1<br>
+create user username1;<br>
+</p>
+
+<p>
+删除用户 username1<br>
+drop user username1;<br>
+</p>
+
+<p>
+授权用户 username1 仅能访问数据库 DBName 下的所有数据表，密码为password123<br>
+grant all privileges on DBName.* to username1@'% ' identified by 'password123' with grant option;<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org0a9a3b9" class="outline-3">
+<h3 id="org0a9a3b9">数据库备份和恢复</h3>
+<div class="outline-text-3" id="text-org0a9a3b9">
+<p>
+mysqldump -h localhost -P 6688 -u root -p test &gt; test_db.sql<br>
+上述命令将 test 数据库备份到当前路径下的 test_db.sql 文件中。它一次性备份了 test 库中的所有表，如果只需要备份某几张表，在库名后分别列出表命即可，表之间用空格分开<br>
+</p>
+
+<p>
+该命令中 -h, -P, -u, -p 等参数的含义，请参考 登录数据库 部分的解释<br>
+</p>
+
+<p>
+mysql -h localhost -P 6688 -u root -p test &lt; test_db.sql<br>
+上述命令从当前路径下读取 test_db.sql 文件的内容，将其恢复到 test 数据库中<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org62afc81" class="outline-3">
+<h3 id="org62afc81">show命令</h3>
+<div class="outline-text-3" id="text-org62afc81">
+</div>
+<div id="outline-container-org36921bf" class="outline-4">
+<h4 id="org36921bf">显示数据库列表</h4>
+<div class="outline-text-4" id="text-org36921bf">
+<p>
+show databases;<br>
+上述命令显示当前服务器上所有数据库的列表。查询到数据库名后，紧接着我们可以使用 <code>use</code> 命令，改变当前数据库<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8aaa72b" class="outline-4">
+<h4 id="org8aaa72b">查看表信息</h4>
+<div class="outline-text-4" id="text-org8aaa72b">
+<p>
+show tables;<br>
+show full columns from Student;  //查看表的结构<br>
+select * from Student;           //查看表中已存储的信息<br>
+上述命令列出当前数据库中的所有表。查询到表名后，紧接着可以使用 <code>desc</code> 命令查询某张表的定义信息<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgbb004c0" class="outline-4">
+<h4 id="orgbb004c0">查看数据库状态信息</h4>
+<div class="outline-text-4" id="text-orgbb004c0">
+<p>
+status;<br>
+上述命令，列出所登录数据库的当前状态信息<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd7430e3" class="outline-4">
+<h4 id="orgd7430e3">创建的数据库在电脑的位置</h4>
+<div class="outline-text-4" id="text-orgd7430e3">
+<p>
+show variables like '%datadir%';<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org7c513fe" class="outline-4">
+<h4 id="org7c513fe">查看存储过程，函数</h4>
+<div class="outline-text-4" id="text-org7c513fe">
+</div>
+<div id="outline-container-org44da9ec" class="outline-5">
+<h5 id="org44da9ec">查询数据库中的存储过程和函数</h5>
+<div class="outline-text-5" id="text-org44da9ec">
+<p>
+show procedure status; //存储过程<br>
+show function status;  //函数<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-orga83b458" class="outline-5">
+<h5 id="orga83b458">查看存储过程或函数的创建代码</h5>
+<div class="outline-text-5" id="text-orga83b458">
+<p>
+show create procedure proc_name;<br>
+show create function func_name;<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org21949cf" class="outline-5">
+<h5 id="org21949cf">查看视图</h5>
+<div class="outline-text-5" id="text-org21949cf">
+<p>
+SELECT * from information_schema.VIEWS   //视图<br>
+SELECT * from information_schema.TABLES  //表<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgdeef01b" class="outline-5">
+<h5 id="orgdeef01b">查看触发器</h5>
+<div class="outline-text-5" id="text-orgdeef01b">
+<p>
+SHOW TRIGGERS [FROM db_name] [LIKE expr]<br>
+SELECT * FROM triggers T WHERE trigger_name=”mytrigger” \G<br>
+</p>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org1a21120" class="outline-3">
+<h3 id="org1a21120">调用</h3>
+<div class="outline-text-3" id="text-org1a21120">
+</div>
+<div id="outline-container-org5c598c2" class="outline-4">
+<h4 id="org5c598c2">调用存储过程</h4>
+<div class="outline-text-4" id="text-org5c598c2">
+<p>
+call<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org0d348f5" class="outline-4">
+<h4 id="org0d348f5">调用函数</h4>
+<div class="outline-text-4" id="text-org0d348f5">
+<p>
+select database()<br>
+调用 MySQL 数据库所支持的各种函数，在select之后跟着函数名<br>
+</p>
+
+<p>
+database() 显示当前数据库<br>
+user() 显示登录用户<br>
+current_date() 显示当前系统日期<br>
+current_time() 显示当前系统时间<br>
+current_timestamp() 显示当前系统日期和时间<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgaa6cdd0" class="outline-3">
+<h3 id="orgaa6cdd0">导出导入</h3>
+<div class="outline-text-3" id="text-orgaa6cdd0">
+</div>
+<div id="outline-container-org7da92e1" class="outline-4">
+<h4 id="org7da92e1">导出数据：</h4>
+<div class="outline-text-4" id="text-org7da92e1">
+<p>
+mysqldump -u root -p DBNAMETBNAME&gt; dump.txt<br>
+mysqldump -u root -p &#x2013;all-databases &gt; database_dump.txt<br>
+mysqldump -u root -p dbname | mysql -h other-host dbname<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org858a791" class="outline-4">
+<h4 id="org858a791">导入数据：</h4>
+<div class="outline-text-4" id="text-org858a791">
+<p>
+mysql -u root -p database_name &lt; dump.txt<br>
+</p>
+
+<p>
+或者 进入数据库 use mydb;<br>
+source ~/tables.sql<br>
+还是后者好用<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org892865a" class="outline-3">
+<h3 id="org892865a">其他</h3>
+<div class="outline-text-3" id="text-org892865a">
+</div>
+<div id="outline-container-orgb45ca0f" class="outline-4">
+<h4 id="orgb45ca0f">注释</h4>
+<div class="outline-text-4" id="text-orgb45ca0f">
+</div>
+<div id="outline-container-orge6b8f8b" class="outline-5">
+<h5 id="orge6b8f8b">MySQL 单行注释</h5>
+<div class="outline-text-5" id="text-orge6b8f8b">
+<ol class="org-ol">
+<li><p>
+单行注释可以使用#注释符，#注释符后直接加注释内容。格式如下：<br>
+<code>#注释内容</code><br>
+</p>
+
+<ol class="org-ol">
+<li>单行注释可以使用&#x2013;注释符，&#x2013;注释符后需要加一个空格，注释才能生效。格式如下：<br></li>
+</ol>
+<p>
+<code>-- 注释内容</code><br>
+</p>
+
+<p>
+#和&#x2013;的区别就是：#后面直接加注释内容，而&#x2013;的第 2 个破折号后需要跟一个空格符在加注释内容。<br>
+</p></li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-org4673045" class="outline-5">
+<h5 id="org4673045">MySQL 多行注释</h5>
+<div class="outline-text-5" id="text-org4673045">
+<p>
+多行注释使用/* <b>/注释符。/*用于注释内容的开头，*/用于注释内容的结尾。多行注释格式如下：<br>
+/</b><br>
+第一行注释内容<br>
+第二行注释内容<br>
+*/<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org3a2bc9f" class="outline-4">
+<h4 id="org3a2bc9f">delimiter</h4>
+<div class="outline-text-4" id="text-org3a2bc9f">
+<p>
+默认情况下，delimiter是分号，在命令行客户端，如果有一行命令以分好结束，那么回车后，mysql将会执行该命令<br>
+可以使用delimiter将界定符转化为其他 <code>delimiter $$</code><br>
+</p>
+</div>
+</div>
+<div id="outline-container-org206c0f3" class="outline-4">
+<h4 id="org206c0f3">执行在文件中的SQL代码</h4>
+<div class="outline-text-4" id="text-org206c0f3">
+<p>
+source指令的缩写是\.<br>
+</p>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org47e8aa7" class="outline-2">
+<h2 id="org47e8aa7">数据定义</h2>
+<div class="outline-text-2" id="text-org47e8aa7">
+</div>
+<div id="outline-container-org76afafa" class="outline-3">
+<h3 id="org76afafa">模式的定义与删除</h3>
+<div class="outline-text-3" id="text-org76afafa">
+</div>
+<div id="outline-container-org0b7a9d1" class="outline-4">
+<h4 id="org0b7a9d1"><a href="DB-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%A8%A1%E5%BC%8F%E7%9A%84%E7%90%86%E8%A7%A3.html">数据库模式的理解</a></h4>
+</div>
+<div id="outline-container-orgf745c99" class="outline-4">
+<h4 id="orgf745c99">定义模式</h4>
+<div class="outline-text-4" id="text-orgf745c99">
+<p>
+在SQL中，模式定义语句如下：<br>
+create schema &lt;模式名&gt; authorization &lt;用户名&gt;<br>
+</p>
+
+<p>
+为用户wang定义一个学生-课程模式S-T<br>
+create schema "S-T" authorization wang;<br>
+</p>
+
+<p>
+如果没有指定&lt;模式名&gt;，所以&lt;模式名&gt;隐含为用户名wang<br>
+create schema authorization wang;<br>
+</p>
+
+<p>
+定义模式实际上定义了一个命名空间，在这个空间中可以进一步定义该模式包含的数据库对象，例如基本表、视图、索引等<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4771963" class="outline-4">
+<h4 id="org4771963">删除模式</h4>
+<div class="outline-text-4" id="text-org4771963">
+<p>
+drop schema &lt;模式名&gt; &lt;cascade | restrict&gt;<br>
+</p>
+
+<p>
+其中cascade restrict两者必选其一<br>
+选择了cascade(级联)，表示在删除模式的同时把该模式中所有数据库对象全部删除<br>
+选择了restrict(限制)，表示如果该模式中已经定义了下属的数据库对象(如表、视图等)，则拒绝该删除语句的执行，只有当该模式中没有任何下属的数据库对象时才能执行drop schema语句<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgd2c3634" class="outline-3">
+<h3 id="orgd2c3634">基本表的定义、删除与修改</h3>
+<div class="outline-text-3" id="text-orgd2c3634">
+</div>
+<div id="outline-container-org7959243" class="outline-4">
+<h4 id="org7959243">定义基本表</h4>
+<div class="outline-text-4" id="text-org7959243">
+<p>
+创建了一个模式就建立了一个数据库的命名空间，一个框架。 <b>在这个空间中首先要定义的是该模式包含的数据库基本表</b><br>
+</p>
+<pre class="example" id="org33c5cf0">
+create &lt;表名&gt; (&lt;列名&gt;&lt;数据类型&gt; [列级完整性约束条件]
+               [,&lt;列名&gt;&lt;数据类型&gt; [列级完整性约束条件]]
+               ...
+               [,&lt;表级完整性约束条件&gt;]);
+</pre>
+<p>
+建表的同时通常还可以定义与该表有关的完整性约束条件，这些完整性约束条件被存入系统的数据字典中，当用户操作表中数据时由关系数据库管理系统自动检查该操作是否违背这些完整性约束条件<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-MySQL">create table Student (
+		Sno char(9) primary key,  /*列级完整性约束条件，Sno是主码*/
+		Sname char(20) unique,    /*Sname取唯一值*/
+		Ssex char(2),
+		Sage smallint,
+		Sdept char(20)
+);
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-MySQL">create table Course (
+		Cno char(4) primary key,  /*列级完整性约束条件，Cno是主码*/
+		Cname char(20) not null,  /*列级完整性约束条件，Cname不能取空值*/
+		Cpno char(4),             /*Cpno的含义是先修课*/
+		Ccredit smallint,
+		foreign key (Cpno) references Course(Cno)
+															/*表级完整性约束条件，Cpno是外码，被参照表是Course，被参照列是Cno*/
+);
+/*本例说明参照表和被参照表可以是同一个表*/
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-MySQL">create table SC (
+		Sno char(9),
+		Cno char(4),
+		Grade smallint,
+		primary key (Sno, Cno), /*主码由两个属性构成，必须作为表级完整性进行定义*/
+		foreign key (Sno) references Student(Sno),
+				/*表级完整性约束条件，Sno是外码，被参照表是Student*/
+		foreign key (Cno) references Course(Cno)
+				/*表级完整性约束条件，Cno是外码，被参照表是Course*/
+)
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb1e1759" class="outline-3">
+<h3 id="orgb1e1759">数据类型</h3>
+<div class="outline-text-3" id="text-orgb1e1759">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">数据类型</th>
+<th scope="col" class="org-left">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">char(n), character(n)</td>
+<td class="org-left">长度为n的定长字符串</td>
+</tr>
+
+<tr>
+<td class="org-left">verchar(n), charactervarying(n)</td>
+<td class="org-left">最大长度为n的变长字符串</td>
+</tr>
+
+<tr>
+<td class="org-left">clob</td>
+<td class="org-left">字符串大对象</td>
+</tr>
+
+<tr>
+<td class="org-left">blob</td>
+<td class="org-left">二进制大对象</td>
+</tr>
+
+<tr>
+<td class="org-left">int, integer</td>
+<td class="org-left">长整型(4字节)</td>
+</tr>
+
+<tr>
+<td class="org-left">smallint</td>
+<td class="org-left">短整型(2字节)</td>
+</tr>
+
+<tr>
+<td class="org-left">bigint</td>
+<td class="org-left">大整数(8字节)</td>
+</tr>
+
+<tr>
+<td class="org-left">numeric(p, d)</td>
+<td class="org-left">定点数，由p位数字(不包括符号、小数点)组成，小数点后面有d位数字</td>
+</tr>
+
+<tr>
+<td class="org-left">decimal(p, d), dec(p, d)</td>
+<td class="org-left">同numeric</td>
+</tr>
+
+<tr>
+<td class="org-left">eral</td>
+<td class="org-left">取决于机器精度的单精度浮点数</td>
+</tr>
+
+<tr>
+<td class="org-left">double precision</td>
+<td class="org-left">取决于机器精度的双精度浮点数</td>
+</tr>
+
+<tr>
+<td class="org-left">float(n)</td>
+<td class="org-left">可选精度的浮点数，精度至少为n位数字</td>
+</tr>
+
+<tr>
+<td class="org-left">boolean</td>
+<td class="org-left">逻辑布尔量</td>
+</tr>
+
+<tr>
+<td class="org-left">date</td>
+<td class="org-left">日期，包含年、月、日，格式为YYYY-MM-DD</td>
+</tr>
+
+<tr>
+<td class="org-left">time</td>
+<td class="org-left">时间，包含一日的时、分、秒，格式为HH:MM:SS</td>
+</tr>
+
+<tr>
+<td class="org-left">timestamp</td>
+<td class="org-left">时间戳类型</td>
+</tr>
+
+<tr>
+<td class="org-left">interval</td>
+<td class="org-left">时间间隔类型</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-orgf2eccf9" class="outline-3">
+<h3 id="orgf2eccf9">模式与表</h3>
+<div class="outline-text-3" id="text-orgf2eccf9">
+<p>
+每一个基本表都属于某一个模式，一个模式包含多个基本表。<br>
+当定义基本表时一般可以有三种方法定义它所属的模式， <code>create schema "S-T" authorization wang;</code><br>
+现在要在S-T中定义Student、course、SC等基本表<br>
+</p>
+<ul class="org-ul">
+<li>方法一，在表名中明显地给出模式名<br></li>
+<li>方法二，在创建模式语句中同时创建表<br></li>
+<li><p>
+方法三，设置所属的模式，这样在创建表时表名中不必给出模式名<br>
+</p>
+
+<p>
+方法一<br>
+create table "S-T".Student(&#x2026;);<br>
+create table "S-T".Course(&#x2026;);<br>
+create table "S-T".SC(&#x2026;);<br>
+</p>
+
+<p>
+方法二<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-MySQL">create schema test authorization zhang
+create table tab(
+		col1 smallint,
+		col2 char(20)
+);
+</pre>
+</div>
+
+<p>
+方法三<br>
+当用户创建基本表(其他数据库对象也一样)时若没有指定模式，系统根据搜索路径来确定该对象所属的模式<br>
+搜索路径包含一组模式列表，关系数据库管理系统会使用模式列表中第一个存在的模式作为数据库对象的模式名。若搜索路径中的模式名不存在，系统将给出错误<br>
+使用下面的语句可以显示出当前的搜索路径：show search_path;<br>
+搜索路径的当前默认值是$user, public。其含义是首先搜索与用户名相同的模式名，如果该模式名不存在，则使用public模式<br>
+数据库管理员也可以设置搜索路径：set search_path to "S-T", public;"<br>
+</p></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org0124564" class="outline-3">
+<h3 id="org0124564">修改基本表</h3>
+<div class="outline-text-3" id="text-org0124564">
+<p>
+alter table 表名<br>
+[add [column] &lt;新列名&gt;&lt;数据类型&gt; [完整性约束条件]]<br>
+[add &lt;表级完整性约束条件&gt;]<br>
+[drop [column] &lt;列名&gt; [cascade | restrict]]<br>
+[drop constraint &lt;完整性约束名&gt; [restrict | cascade]]<br>
+[alter column &lt;列名&gt;&lt;数据类型&gt;]<br>
+</p>
+
+<p>
+向Student表增加"入学时间"列，其数据类型为日期型<br>
+alter table Student add S_entrance date;<br>
+不论基本表中是否有数据，新增加的一律为空值<br>
+</p>
+
+<p>
+将年龄的数据类型由字符型改为整型<br>
+alter table Student alter column Sage int;<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org97d1b0f" class="outline-3">
+<h3 id="org97d1b0f">删除基本表</h3>
+<div class="outline-text-3" id="text-org97d1b0f">
+<p>
+drop table &lt;表名&gt; [restrict | cascade]<br>
+若选择restrict，则该表的删除是有限制条件的，欲删除的基本表不能被其他表的约束所引用(如check, foreign key等约束)，不能有视图，不能有触发器(trigger)，不能有存储过程或函数，如果存在这些依赖该表的对象，则此表不能被删除<br>
+若选择cascade，则该表的删除没有依赖条件，在删除基本表的同时，相关的依赖对象，例如视图，都将被一起删除<br>
+默认情况是restrict<br>
+</p>
+</div>
+<div id="outline-container-org961cd64" class="outline-4">
+<h4 id="org961cd64">一次删除多表</h4>
+<div class="outline-text-4" id="text-org961cd64">
+<div class="org-src-container">
+<pre class="src src-mysql">SELECT concat('DROP TABLE ', table_name, ';')
+FROM information_schema.tables
+WHERE table_schema = 'R_student_management';
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org7c5e1d5" class="outline-4">
+<h4 id="org7c5e1d5">删除其中一条信息</h4>
+<div class="outline-text-4" id="text-org7c5e1d5">
+<p>
+delete from AdministratorUser where Uemail = 123;<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org3791e2c" class="outline-3">
+<h3 id="org3791e2c">索引的建立与删除</h3>
+<div class="outline-text-3" id="text-org3791e2c">
+</div>
+<div id="outline-container-org49387ca" class="outline-4">
+<h4 id="org49387ca">建立索引</h4>
+<div class="outline-text-4" id="text-org49387ca">
+<p>
+在SQL语言中，建立索引使用create index语句，其一般格式为<br>
+create [unique][cluster] index &lt;索引名&gt;<br>
+on &lt;表名&gt;(&lt;列名&gt; [&lt;次序&gt;][, &lt;列名&gt; [&lt;次序&gt;]] &#x2026;)<br>
+次序指定索引值的排列次序，可选ASC(升序)，DESC(降序)，默认值是ASC<br>
+<b>unique</b> 表明此索引的每一个索引值只对应唯一的数据记录<br>
+<b>cluster</b> 表示要建立的索引是聚簇索引<br>
+</p>
+
+<p>
+为学生-课程数据库中的Student、Course和SC三个表建立索引，其中Student表按学号升序建唯一索引，Course表按课程号升序建唯一索引，SC表按学号升序和课程号降序唯一索引<br>
+create unique index Stusno on Student(Sno)<br>
+create unique index Coucno on Course(Cno)<br>
+create unique index SCno on SC(Sno ASC, Cno DESC)<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org725314a" class="outline-4">
+<h4 id="org725314a">修改索引</h4>
+<div class="outline-text-4" id="text-org725314a">
+<p>
+alter index &lt;旧索引名&gt; rename to &lt;新索引名&gt;<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge1abf99" class="outline-4">
+<h4 id="orge1abf99">删除索引</h4>
+<div class="outline-text-4" id="text-orge1abf99">
+<p>
+drop index &lt;索引名&gt;<br>
+</p>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org5d5e23d" class="outline-2">
+<h2 id="org5d5e23d">数据查询</h2>
+<div class="outline-text-2" id="text-org5d5e23d">
+</div>
+<div id="outline-container-org79282a5" class="outline-3">
+<h3 id="org79282a5">单表查询</h3>
+<div class="outline-text-3" id="text-org79282a5">
+<p>
+单表查询是仅涉及一个表的查询<br>
+</p>
+</div>
+<div id="outline-container-org8b16049" class="outline-4">
+<h4 id="org8b16049">选择表中若干列</h4>
+<div class="outline-text-4" id="text-org8b16049">
+</div>
+<div id="outline-container-org962984c" class="outline-6">
+<h6 id="org962984c">查询指定列</h6>
+<div class="outline-text-6" id="text-org962984c">
+<p>
+select Sno, Sname from Student;<br>
+查询全体学生的学号与姓名<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5500217" class="outline-6">
+<h6 id="org5500217">查询全部列</h6>
+<div class="outline-text-6" id="text-org5500217">
+<p>
+select * from Student;<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5f09fa2" class="outline-6">
+<h6 id="org5f09fa2">查询经过计算的值</h6>
+<div class="outline-text-6" id="text-org5f09fa2">
+<p>
+查询出生年份<br>
+select Sname, 2021-Sage from Student;<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgf06922e" class="outline-4">
+<h4 id="orgf06922e">选择表中若干元祖</h4>
+<div class="outline-text-4" id="text-orgf06922e">
+<ol class="org-ol">
+<li><p>
+消除取值重复的行<br>
+两个本来并不完全相同的元祖在投影到指定的某些列上后，可能会变成相同的行。可以用distinct消除他们<br>
+select Sno from SC; 查询选修了课程的学生学号，这条语句执行后可能会出现，输出的结果是重复的学号<br>
+上面这个代码也等价于select all Sno from SC; 因为默认就是all<br>
+</p>
+
+<p>
+使用select distinct Sno from SC; 就能消除重复的行<br>
+</p>
+
+<ol class="org-ol">
+<li>查询满足条件的元祖<br></li>
+</ol>
+<p>
+查询满足指定条件的元祖可以通过where子句实现，where子句常用的查询条件<br>
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">查询条件</th>
+<th scope="col" class="org-left">谓词</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">比较</td>
+<td class="org-left">= &gt; &lt; &lt;= &#x2026;</td>
+</tr>
+
+<tr>
+<td class="org-left">确定范围</td>
+<td class="org-left">between and, not between and</td>
+</tr>
+
+<tr>
+<td class="org-left">确定集合</td>
+<td class="org-left">in, not in</td>
+</tr>
+
+<tr>
+<td class="org-left">字符匹配</td>
+<td class="org-left">like, not like</td>
+</tr>
+
+<tr>
+<td class="org-left">空值</td>
+<td class="org-left">is NULL, is not NULL</td>
+</tr>
+
+<tr>
+<td class="org-left">多重条件</td>
+<td class="org-left">and, or, not</td>
+</tr>
+</tbody>
+</table></li>
+</ol>
+</div>
+<div id="outline-container-org8ba1e9b" class="outline-5">
+<h5 id="org8ba1e9b">比较大小</h5>
+</div>
+<div id="outline-container-org758981f" class="outline-5">
+<h5 id="org758981f">确定范围</h5>
+</div>
+<div id="outline-container-org2a655a0" class="outline-5">
+<h5 id="org2a655a0">确定集合</h5>
+</div>
+<div id="outline-container-orga7e5b19" class="outline-5">
+<h5 id="orga7e5b19">字符匹配</h5>
+<div class="outline-text-5" id="text-orga7e5b19">
+<ul class="org-ul">
+<li>% 代表任意长度的字符串<br></li>
+<li>_ 代表任意单个字符<br></li>
+<li>escape '\' 使\代表转换码<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org96426a3" class="outline-5">
+<h5 id="org96426a3">空值</h5>
+<div class="outline-text-5" id="text-org96426a3">
+<p>
+select sno from SC where Grade is null;  // 这里 is 不能用等号(=)代替<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgfb4146c" class="outline-5">
+<h5 id="orgfb4146c">多重条件查询</h5>
+</div>
+</div>
+<div id="outline-container-org3b00f64" class="outline-4">
+<h4 id="org3b00f64">order by子句</h4>
+<div class="outline-text-4" id="text-org3b00f64">
+<p>
+用户可以用order by子句对查询结果按照一个或多个属性列的升序(asc)或降序(desc)排列，默认是升序<br>
+select Sno, Grade from SC where Cno='3' order by Grade desc;<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgfcfa645" class="outline-4">
+<h4 id="orgfcfa645">聚集函数</h4>
+<div class="outline-text-4" id="text-orgfcfa645">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">聚集函数</th>
+<th scope="col" class="org-left">作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">count(*)</td>
+<td class="org-left">统计元祖个数</td>
+</tr>
+
+<tr>
+<td class="org-left">count([distinct\all]&lt;列名&gt;)</td>
+<td class="org-left">统计一列中值的个数</td>
+</tr>
+
+<tr>
+<td class="org-left">sum([distinct\all]&lt;列名&gt;)</td>
+<td class="org-left">计算一列值的总和</td>
+</tr>
+
+<tr>
+<td class="org-left">avg([distinct\all]&lt;列名&gt;)</td>
+<td class="org-left">计算一列值的平均值</td>
+</tr>
+
+<tr>
+<td class="org-left">max([distinct\all]&lt;列名&gt;)</td>
+<td class="org-left">求一列值中的最大值</td>
+</tr>
+
+<tr>
+<td class="org-left">min([distinct\all]&lt;列名&gt;)</td>
+<td class="org-left">求一列值中的最小值</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-orge1f7a39" class="outline-4">
+<h4 id="orge1f7a39">group by子句</h4>
+<div class="outline-text-4" id="text-orge1f7a39">
+<p>
+group by 子句将查询结果按某一列或多列的值分组，值相等的为一组<br>
+分组后聚集函数将作用于每一个组，即每一组都有一个函数值<br>
+select Cno, count(Sno) from SC group by Cno;<br>
+该语句对查询结果按Cno的值分组，所有具有相同Cno的值的元组为一组，然后对每一组作用聚集函数count进行计算，以求得该组的学生人数<br>
+</p>
+
+<p>
+如果分组后还要求按一定的条件对这些组进行筛选，最终只输出满足指定条件的组，则可以使用having短语指定筛选条件<br>
+select Sno from Sc group by Sno having count(*) &gt; 3;<br>
+查询选修了三门以上的课程的学生学号<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgbb56e5e" class="outline-3">
+<h3 id="orgbb56e5e">连接查询</h3>
+<div class="outline-text-3" id="text-orgbb56e5e">
+<p>
+之前的查询都是针对一个表进行的，若一个查询同时涉及两个以上的表，则称之为连接查询<br>
+</p>
+</div>
+<div id="outline-container-org9b86f43" class="outline-5">
+<h5 id="org9b86f43">等值与非等值连接查询</h5>
+<div class="outline-text-5" id="text-org9b86f43">
+<p>
+将Student与SC中同一学生的学生的元祖连接起来<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-mysql">select Student.*, SC.*
+from Student, SC
+where Student.Sno = SC.Sno
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgc54b7f7" class="outline-5">
+<h5 id="orgc54b7f7">自身连接</h5>
+<div class="outline-text-5" id="text-orgc54b7f7">
+<p>
+一个表与自己进行连接，称为表的自身连接<br>
+查询每门课的间接先修课(即先修课的先修课)<br>
+在Course表中只有每门课的直接先修课信息，而没有先修课的先修课，要得到这个信息，必须先对一门课找到其先修课，再按先修课的课程号查询它的先修课<br>
+为此，要为Course表取两个别名，一个是first，另一个是second<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-mysql">select first.Cno, second.Cpno
+from Course First, Course second
+where first.Cpno = second.Cno
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org6e3a10c" class="outline-3">
+<h3 id="org6e3a10c">嵌套查询</h3>
+</div>
+<div id="outline-container-orgd54793d" class="outline-3">
+<h3 id="orgd54793d">集合查询</h3>
+</div>
+<div id="outline-container-org3d1695a" class="outline-3">
+<h3 id="org3d1695a">基于派生表的查询</h3>
+</div>
+<div id="outline-container-org2ad7dcd" class="outline-3">
+<h3 id="org2ad7dcd">select语句的一般格式</h3>
+</div>
+</div>
+<div id="outline-container-org477532d" class="outline-2">
+<h2 id="org477532d">数据更新</h2>
+<div class="outline-text-2" id="text-org477532d">
+</div>
+<div id="outline-container-org976c2c9" class="outline-3">
+<h3 id="org976c2c9">插入数据</h3>
+<div class="outline-text-3" id="text-org976c2c9">
+</div>
+<div id="outline-container-org2a59635" class="outline-4">
+<h4 id="org2a59635">插入元祖</h4>
+<div class="outline-text-4" id="text-org2a59635">
+<p>
+insert into &lt;表名&gt; [(&lt;属性列1&gt; [,&lt;属性列2&gt;] &#x2026;)] values (&lt;常量1&gt; [,&lt;常量2&gt;] &#x2026;);<br>
+将新元祖插入指定表中，其中新元祖的属性列1的值为常量1，属性列2的值为常量2，&#x2026;<br>
+into 子句中没有出现的属性列，新元祖在这些列上将取空值，但必须注意的是，在表定义时说明了not null的属性列不能取空值，否则会出错<br>
+如果into子句中没有指明任何属性列名，则新插入的元祖必须在每个属性列上有值<br>
+</p>
+<pre class="example" id="orgbe82f64">
+// 指明了属性列，属性列的顺序可以与create table中次序不同
+insert into Student(Sno, Sname, Ssex, Sdept, Sage) values('01215128', '张成民', '男', 'IS', 18);
+
+// 只指明了表名，属性列的次序需要与create table中次序相同
+insert into Student values('01215128', '张成民', '男', 18, 'IS');
+
+// 在没有赋值的属性列赋空值
+insert into SC(Sno, Cno) values ('201215128', '1');
+
+// 指明赋空值
+insert into SC values('201215128', '1');
+</pre>
+</div>
+</div>
+<div id="outline-container-org6c74256" class="outline-4">
+<h4 id="org6c74256">插入子查询结果</h4>
+<div class="outline-text-4" id="text-org6c74256">
+<p>
+子查询不仅可以嵌套在select语句中用以构造父查询的条件，也可以嵌套在insert语句中用以生成要插入的批量数据<br>
+insert into &lt;表名&gt; [(&lt;属性列1&gt; [, &lt;属性列2&gt; &#x2026;])] 子查询;<br>
+</p>
+
+<p>
+对每一个系，求学生的平均年龄，并把结果存入数据库<br>
+</p>
+<ol class="org-ol">
+<li><p>
+首先在数据库中建立一个新表，其中一列存放系名，另一列存放相应的学生平均年龄<br>
+</p>
+<pre class="example" id="org87caf29">
+create table Dept_age (
+Sdept char(15),
+Avg_age smallint);
+</pre></li>
+<li><p>
+然后对Student表按系分组求平均年龄，再把系名和平均年龄存入新表中<br>
+</p>
+<pre class="example" id="org1f10f6d">
+insert into Dept_age(Sdept, Avg_age) 
+select Sdept, AVG(Sage) from Student group by Sdept;
+</pre></li>
+</ol>
+</div>
+</div>
+</div>
+<div id="outline-container-org29a094a" class="outline-3">
+<h3 id="org29a094a">修改数据</h3>
+<div class="outline-text-3" id="text-org29a094a">
+<p>
+update &lt;表名&gt;<br>
+set &lt;列名&gt;=&lt;表达式&gt; [,&lt;列名&gt;=&lt;表达式&gt;] &#x2026;<br>
+[where &lt;条件&gt;];<br>
+</p>
+</div>
+<div id="outline-container-orgd37892d" class="outline-4">
+<h4 id="orgd37892d">修改某一个元祖的值</h4>
+<div class="outline-text-4" id="text-orgd37892d">
+<p>
+将学生201215121的年龄改为22岁<br>
+update Student<br>
+set Sage=22<br>
+where Sno='201215121'<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgada9ce7" class="outline-4">
+<h4 id="orgada9ce7">修改多个元祖的值</h4>
+<div class="outline-text-4" id="text-orgada9ce7">
+<p>
+将所有学生的年龄增加1岁<br>
+update Student<br>
+set Sage=Sage+1;<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org157568e" class="outline-4">
+<h4 id="org157568e">带子查询的修改语句</h4>
+<div class="outline-text-4" id="text-org157568e">
+<p>
+将计算机科学系全体学生成绩置零<br>
+</p>
+<pre class="example" id="org60b7bbe">
+update SC
+set grade=0
+where Sno in (
+select Sno
+from Student
+where Sdept='CS');
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org60ab8d1" class="outline-3">
+<h3 id="org60ab8d1">删除数据</h3>
+<div class="outline-text-3" id="text-org60ab8d1">
+<pre class="example" id="orgb70acab">
+delete
+from &lt;表名&gt;
+[where &lt;条件&gt;];
+</pre>
+<p>
+delete语句的功能是从指定表中删除满足where子句条件的所有元祖，如果省略where子句则表示删除表中全部元祖，但表的定义人在字典中，也就是说，delete语句删除的是表中的数据，而不是关于表的定义<br>
+</p>
+</div>
+<div id="outline-container-org7f848d6" class="outline-4">
+<h4 id="org7f848d6">删除某一个元祖的值</h4>
+<div class="outline-text-4" id="text-org7f848d6">
+<p>
+删除学号为201215128的学生记录<br>
+</p>
+<pre class="example" id="org2e676db">
+delete
+from Student
+where Sno='201215128';
+</pre>
+</div>
+</div>
+<div id="outline-container-org008a630" class="outline-4">
+<h4 id="org008a630">删除多个元祖的值</h4>
+<div class="outline-text-4" id="text-org008a630">
+<p>
+删除所有学生选课记录<br>
+delete from SC;<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org00b6f8f" class="outline-4">
+<h4 id="org00b6f8f">带子查询的删除语句</h4>
+<div class="outline-text-4" id="text-org00b6f8f">
+<p>
+删除计算机科学系所有学生的选课记录<br>
+</p>
+<pre class="example" id="org89b04c0">
+delete from SC
+where Sno in (
+select Sno
+from Student
+where Sdept='CS');
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orga1adb04" class="outline-2">
+<h2 id="orga1adb04">空值的处理</h2>
+<div class="outline-text-2" id="text-orga1adb04">
+</div>
+<div id="outline-container-orgd87c2d7" class="outline-3">
+<h3 id="orgd87c2d7">空值的产生</h3>
+<div class="outline-text-3" id="text-orgd87c2d7">
+<ol class="org-ol">
+<li>插入时的值为空<br></li>
+<li>更新值为空<br></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgb6728b4" class="outline-3">
+<h3 id="orgb6728b4">空值的判断</h3>
+<div class="outline-text-3" id="text-orgb6728b4">
+<p>
+判断一个属性的值是否为空值，用is null或is not null来表示<br>
+从Student表中找出漏填的学生信息<br>
+</p>
+<pre class="example" id="org5097f54">
+select * from Student
+where Sname is null or Ssex is null or Sage is null or Sdept is null;
+</pre>
+</div>
+</div>
+<div id="outline-container-orgcc4b17d" class="outline-3">
+<h3 id="orgcc4b17d">空值的约束条件</h3>
+<div class="outline-text-3" id="text-orgcc4b17d">
+<p>
+属性定义(或者域定义)中有not null约束条件的不能取空值，码属性不能取空值<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org3882a8a" class="outline-3">
+<h3 id="org3882a8a">空值的算数运算、比较运算和逻辑运算</h3>
+</div>
+</div>
+<div id="outline-container-orgfafadcc" class="outline-2">
+<h2 id="orgfafadcc">视图</h2>
+<div class="outline-text-2" id="text-orgfafadcc">
+</div>
+<div id="outline-container-org580eb3a" class="outline-3">
+<h3 id="org580eb3a">定义视图</h3>
+<div class="outline-text-3" id="text-org580eb3a">
+</div>
+<div id="outline-container-org6e68600" class="outline-4">
+<h4 id="org6e68600">建立视图</h4>
+</div>
+<div id="outline-container-orgebdd3e5" class="outline-4">
+<h4 id="orgebdd3e5">删除视图</h4>
+</div>
+</div>
+<div id="outline-container-org32c1606" class="outline-3">
+<h3 id="org32c1606">查询视图</h3>
+</div>
+<div id="outline-container-org005cb02" class="outline-3">
+<h3 id="org005cb02">更新视图</h3>
+</div>
+<div id="outline-container-org209e64a" class="outline-3">
+<h3 id="org209e64a">视图的作用</h3>
+</div>
+</div>
+</div>
+</body>
+</html>

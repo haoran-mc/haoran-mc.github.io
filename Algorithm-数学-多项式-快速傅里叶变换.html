@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-09-29 三 22:59 -->
+<!-- 2021-10-04 一 19:15 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ALGORITHM-POLYNOMIAL快速傅里叶变换</title>
@@ -72,24 +72,25 @@
 <h2 id="orgc547126">快速傅里叶变换</h2>
 <div class="outline-text-2" id="text-orgc547126">
 <p>
-快速傅里叶变换（Fast Fourier Transform，FFT）是一种可在O(nlogn) 时间内完成的离散傅里叶变换（Discrete Fourier transform，DFT）算法在算法竞赛中的运用主要是用来加速多项式的乘法
+快速傅里叶变换（Fast Fourier Transform，FFT）是一种可在O(nlogn) 时间内完成的离散傅里叶变换（Discrete Fourier transform，DFT）算法<br>
+在算法竞赛中的运用主要是用来加速多项式的乘法<br>
 </p>
 </div>
 <div id="outline-container-org36f7d4e" class="outline-3">
 <h3 id="org36f7d4e">多项式的乘法，引入傅里叶变换</h3>
 <div class="outline-text-3" id="text-org36f7d4e">
 <p>
-对于两个多项式A(x), B(x)的乘积C(x)，假设A(x)的项数为n，其系数构成的n维向量为(a_0, a_1, a_2, &#x2026; a_{n-1})；B(x)的项数为m，其系数构成的m维向量为(b_0, b_1, b_2, &#x2026; b_{m-1})
+对于两个多项式A(x), B(x)的乘积C(x)，假设A(x)的项数为n，其系数构成的n维向量为(a_0, a_1, a_2, &#x2026; a<sub>n-1</sub>)；B(x)的项数为m，其系数构成的m维向量为(b_0, b_1, b_2, &#x2026; b<sub>m-1</sub>)<br>
 </p>
 
 <p>
-求C(x)的系数构成的(n + m - 1)维向量
+求C(x)的系数构成的(n + m - 1)维向量<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-C++">for (int i = 0; i &lt; n; ++i)
-	for (int j = 0; j &lt; m; ++j) 
-		c[i + j] += a[i] * b[j];
+<pre class="src src-C++"><span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">0</span>; i &lt; n; ++i)
+    <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">j</span> = <span style="color: #009F9F;">0</span>; j &lt; m; ++j) 
+        c[i + j] += a[i] * b[j];
 </pre>
 </div>
 </div>
@@ -98,20 +99,20 @@
 <h3 id="orgab25659">关于多项式</h3>
 <div class="outline-text-3" id="text-orgab25659">
 <p>
-多项式有两种表示方法，系数表达法和点值表达法
+多项式有两种表示方法，系数表达法和点值表达法<br>
 </p>
 
 <p>
-多项式由系数表示法转为点值表示法的过程，就称为DFT
-相对地，把一个多项式的点值表示法转化为系数表示法的过程，就是IDFT
-而FFT就是通过取某些特殊的x的点值来加速DFT和IDFT的过程
+多项式由系数表示法转为点值表示法的过程，就称为DFT<br>
+相对地，把一个多项式的点值表示法转化为系数表示法的过程，就是IDFT<br>
+而FFT就是通过取某些特殊的x的点值来加速DFT和IDFT的过程<br>
 </p>
 </div>
 <div id="outline-container-org2b2ed3d" class="outline-4">
 <h4 id="org2b2ed3d">系数表达法</h4>
 <div class="outline-text-4" id="text-org2b2ed3d">
 <p>
-如果A(x)是一个n次多项式，那么所有项的系数组成的系数向量(a_0, a_1, a_2, &#x2026; a_n)能够唯一确定这个多项式
+如果A(x)是一个n次多项式，那么所有项的系数组成的系数向量(a_0, a_1, a_2, &#x2026; a_n)能够唯一确定这个多项式<br>
 </p>
 </div>
 </div>
@@ -119,22 +120,25 @@
 <h4 id="orga2cfb2d">点值表示法</h4>
 <div class="outline-text-4" id="text-orga2cfb2d">
 <p>
-将一组互不相同的(x_0, x_1, x_2, &#x2026;, x_n)分别带入A(x)，得到取值(y_0, y_1, y_2, &#x2026; y_n)
+将一组互不相同的(x_0, x_1, x_2, &#x2026;, x_n)分别带入A(x)，得到取值(y_0, y_1, y_2, &#x2026; y_n)<br>
 </p>
 
 <p>
-定理：一个n-1次多项式在n个不同点的取值唯一确定了该多项式证明：假设存在不同的两个多项式A(x), B(x)同时满足对于任何一个x_i &isin; [x_0, x_{n-1}]，有A(x_i) = B(x_i) = y_i
-令C(x) = A(x) - B(x)，则C(x)也是一个n-1次多项式，那么对于所有的(x_i, y_i)，有C(x_i) = 0，即C(x)有n个根，这与代数基本定理(一个n-1次多项式在有且仅有n-1个根)相矛盾，故C(x)不是一个n-1次多项式，推倒矛盾，原命题成立
+定理：一个n-1次多项式在n个不同点的取值唯一确定了该多项式<br>
+证明：假设存在不同的两个多项式A(x), B(x)同时满足对于任何一个x_i &isin; [x_0, x<sub>n-1</sub>]，有A(x_i) = B(x_i) = y_i<br>
+令C(x) = A(x) - B(x)，则C(x)也是一个n-1次多项式，那么对于所有的(x_i, y_i)，有C(x_i) = 0，即C(x)有n个根，这与代数基本定理(一个n-1次多项式在有且仅有n-1个根)相矛盾，故C(x)不是一个n-1次多项式，推倒矛盾，原命题成立<br>
 </p>
 
 <ol class="org-ol">
-<li>首先通过两个多项式的点值表达式得到结果的点值表达式已知一组横坐标(x_0, x_1, x_2, &#x2026; x_{n-1})，得到两个多项式的纵坐标分别为 \((y_{a0}, y_{a1}, y_{a2}, ... y_{a(n-1)})，(y_{b0}, y_{b1}, y_{b2}, ... y_{b(n-1)})\)
-那么可以在O(n)的时间复杂度内得到结果的点值表达式(y_{a0} &sdot; y_{b0}, y_{a1} &sdot; y_{b1}, y_{a2} &sdot; y_{b2}, &#x2026; y_{a(n-1)} &sdot; y_{b(n-1)})
-其实不需要先算出两个表达式的值之后乘出结果，可以直接通过y_i = A(x_i) &sdot; B(x_i)得到</li>
+<li>首先通过两个多项式的点值表达式得到结果的点值表达式<br>
+已知一组横坐标(x_0, x_1, x_2, &#x2026; x<sub>n-1</sub>)，得到两个多项式的纵坐标分别为 \((y_{a0}, y_{a1}, y_{a2}, ... y_{a(n-1)})，(y_{b0}, y_{b1}, y_{b2}, ... y_{b(n-1)})\)<br>
+那么可以在O(n)的时间复杂度内得到结果的点值表达式(y<sub>a0</sub> &sdot; y<sub>b0</sub>, y<sub>a1</sub> &sdot; y<sub>b1</sub>, y<sub>a2</sub> &sdot; y<sub>b2</sub>, &#x2026; y<sub>a(n-1)</sub> &sdot; y<sub>b(n-1)</sub>)<br>
+其实不需要先算出两个表达式的值之后乘出结果，可以直接通过y_i = A(x_i) &sdot; B(x_i)得到<br></li>
 </ol>
 
 <p>
-因为C(x)的项数为A(x)与B(x)的项数之和，设A(x)与B(x)的项数分别为n, m，则C(x)的项数为n + m，如果我们能够快速通过点值表达式得到系数表达式，那么我们就能在两者之间搭起一座桥了这也是快速傅里叶变换的基本思路，由系数表达式到点值表达式到结果的点值表达式再到结果的系数表达式
+因为C(x)的项数为A(x)与B(x)的项数之和，设A(x)与B(x)的项数分别为n, m，则C(x)的项数为n + m，如果我们能够快速通过点值表达式得到系数表达式，那么我们就能在两者之间搭起一座桥了<br>
+这也是快速傅里叶变换的基本思路，由系数表达式到点值表达式到结果的点值表达式再到结果的系数表达式<br>
 </p>
 </div>
 </div>
@@ -143,39 +147,39 @@
 <h3 id="orgf0861b4">关于复数</h3>
 <div class="outline-text-3" id="text-orgf0861b4">
 <p>
-我们把形如 a + bi 这样的数叫做复数，复数集合用C来表示。其中a称为实部(real part)，b称为虚部(imaginary part) ,i为虚数单位，指满足 x^2 = -1 的一个解 \sqrt{-1} ；此外，对于这样对复数开偶次幂的数叫做虚数(imaginary number)
+我们把形如 a + bi 这样的数叫做复数，复数集合用C来表示。其中a称为实部(real part)，b称为虚部(imaginary part) ,i为虚数单位，指满足 x^2 = -1 的一个解 \sqrt{-1} ；此外，对于这样对复数开偶次幂的数叫做虚数(imaginary number)<br>
 </p>
 
 <p>
-每一个复数a + bi都对应了一个平面上的向量(a, b)我们把这样的平面称为复平面(complex plane)，它是由水平的实轴与垂直的虚轴建立起来的复数的几何表示
+每一个复数a + bi都对应了一个平面上的向量(a, b)我们把这样的平面称为复平面(complex plane)，它是由水平的实轴与垂直的虚轴建立起来的复数的几何表示<br>
 </p>
 
 <p>
-故每一个复数唯一对应了一个复平面上的向量，每一个复平面上的向量也唯一对应了一个复数。其中0既被认为是实数，也被认为是虚数
+故每一个复数唯一对应了一个复平面上的向量，每一个复平面上的向量也唯一对应了一个复数。其中0既被认为是实数，也被认为是虚数<br>
 </p>
 
 <p>
-其中复数z = a + bi的模长 |z| 定义为 z 在复平面的距离到原点的距离， |z| = \sqrt{a^2 + b^2}。幅角 &theta; 为实轴的正半轴正方向（逆时针）旋转到 z 的有向角度
+其中复数z = a + bi的模长 |z| 定义为 z 在复平面的距离到原点的距离， |z| = \sqrt{a^2 + b^2}。幅角 &theta; 为实轴的正半轴正方向（逆时针）旋转到 z 的有向角度<br>
 </p>
 
 <p>
-由于虚数无法比较大小。复数之间的大小关系只存在等于与不等于两种关系，两个复数相等当且仅当实部虚部对应相等。对于虚部为 0 的复数之间是可以比较大小的，相当于实数之间的比较
+由于虚数无法比较大小。复数之间的大小关系只存在等于与不等于两种关系，两个复数相等当且仅当实部虚部对应相等。对于虚部为 0 的复数之间是可以比较大小的，相当于实数之间的比较<br>
 </p>
 
 <p>
-复数之间的运算满足结合律，交换律和分配律
+复数之间的运算满足结合律，交换律和分配律<br>
 </p>
 
 <p>
-复数运算的加法满足平行四边形法则，乘法满足幅角相加，模长相乘
+复数运算的加法满足平行四边形法则，乘法满足幅角相加，模长相乘<br>
 </p>
 
 <p>
-对于一个复数 z = a + bi,它的共轭复数是 z' = a - bi, z' 称为 z 的复共轭(complex conjugate)
+对于一个复数 z = a + bi,它的共轭复数是 z' = a - bi, z' 称为 z 的复共轭(complex conjugate)<br>
 </p>
 
 <p>
-共轭复数的性质：\(z \cdot z' = a^2 + b^2，|z| = |z'|\)
+共轭复数的性质：\(z \cdot z' = a^2 + b^2，|z| = |z'|\)<br>
 </p>
 </div>
 </div>
@@ -183,56 +187,57 @@
 <h3 id="org6c84437">复数中的单位根</h3>
 <div class="outline-text-3" id="text-org6c84437">
 <p>
-<a href="img/复平面中的单位圆.png">img-复平面中的单位圆</a>
+<a href="img/复平面中的单位圆.png">img-复平面中的单位圆</a><br>
 </p>
 
 <p>
-其中 \bar{OA} 单位根，表示为 e^{i&theta;} ，可知 e^{i&theta;}=cos&theta;+i&sdot; sin&theta;
-（顺便一提著名的欧拉幅角公式 e^{i&pi;}+1=0 其实是由定义来的&#x2026;）
+其中 \bar{OA} 单位根，表示为 e<sup>i&theta;</sup> ，可知 e<sup>i&theta;</sup>=cos&theta;+i&sdot; sin&theta;<br>
+（顺便一提著名的欧拉幅角公式 e<sup>i&pi;</sup>+1=0 其实是由定义来的&#x2026;）<br>
 </p>
 
 <p>
-严谨地，我们称x^n = 1在复数意义下的解是n次复根。显然，这样的解有n个，设&omega;_n = e^{\frac{2 \pi i}{n}}，则x^n = 1的解集表示为{&omega;_{n}^{k} | k = 0, 1, &#x2026; n-1}。我们称&omega;_n是n次单位复根(the -th root of unity)。根据复平面的知识，n次单位复根是复平面把单位圆n等分的第一个角所对应的向量。其它复根均可以用单位复根的幂表示。
+严谨地，我们称x^n = 1在复数意义下的解是n次复根。显然，这样的解有n个，设&omega;_n = e<sup>\frac{2 \pi i}{n}</sup>，则x^n = 1的解集表示为{&omega;<sub>n</sub><sup>k</sup> | k = 0, 1, &#x2026; n-1}。我们称&omega;_n是n次单位复根(the -th root of unity)。根据复平面的知识，n次单位复根是复平面把单位圆n等分的第一个角所对应的向量。其它复根均可以用单位复根的幂表示。<br>
 </p>
 
 <p>
-将单位圆等分成 n 个部分（以单位圆与实轴正半轴的交点一个等分点），以原点为起点，圆的这 n 个 n 等分点为终点，作出 n 个向量
+将单位圆等分成 n 个部分（以单位圆与实轴正半轴的交点一个等分点），以原点为起点，圆的这 n 个 n 等分点为终点，作出 n 个向量<br>
 </p>
 
 <p>
-其中幅角为正且最小的向量称为 n 次单位向量，记为 &omega;_{n}^{1} 
+其中幅角为正且最小的向量称为 n 次单位向量，记为 &omega;<sub>n</sub><sup>1</sup> <br>
 </p>
 
 <p>
-<a href="img/复平面中的n个向量.jpg">img-复平面中的n次向量</a>
+<a href="img/复平面中的n个向量.jpg">img-复平面中的n次向量</a><br>
 </p>
 
 <p>
-其余的 n-1 个向量分别为 &omega;_{n}^{2},&omega;_{n}^{3},&#x2026;&#x2026;,&omega;_{n}^{n} ，它们可以由复数之间的乘法得来 &omega;_{n}^{k} = &omega;_{n}^{k-1} &sdot; &omega;_{n}^{1}\ (2 &le; k &le; n) 
+其余的 n-1 个向量分别为 &omega;<sub>n</sub><sup>2</sup>,&omega;<sub>n</sub><sup>3</sup>,&#x2026;&#x2026;,&omega;<sub>n</sub><sup>n</sup> ，它们可以由复数之间的乘法得来 &omega;<sub>n</sub><sup>k</sup> = &omega;<sub>n</sub><sup>k-1</sup> &sdot; &omega;<sub>n</sub><sup>1</sup>\ (2 &le; k &le; n)<br>
 </p>
 
 <p>
-容易看出 &omega;_{n}^{n} = &omega;_{n}^{0} = 1 
+容易看出 &omega;<sub>n</sub><sup>n</sup> = &omega;<sub>n</sub><sup>0</sup> = 1<br>
 </p>
 
 <p>
-对于 &omega;_{n}^{k} ,它事实上就是 e^{2 &pi; &sdot; \frac{k}{n}i} 
+对于 &omega;<sub>n</sub><sup>k</sup> ,它事实上就是 e<sup>2 &pi; &sdot; \frac{k}{n}i</sup> <br>
 </p>
 
 <p>
-所以 &omega;_{n}^{k} = cos(2 &pi; &sdot; \frac{k}{n}) + i &sdot; sin(2 &pi; &sdot; \frac{k}{n})
+所以 &omega;<sub>n</sub><sup>k</sup> = cos(2 &pi; &sdot; \frac{k}{n}) + i &sdot; sin(2 &pi; &sdot; \frac{k}{n})<br>
 </p>
 
 <p>
-关于单位根有两个性质
+关于单位根有两个性质<br>
 </p>
 </div>
 <div id="outline-container-org2b17cdf" class="outline-4">
 <h4 id="org2b17cdf">性质一(折半引理)</h4>
 <div class="outline-text-4" id="text-org2b17cdf">
 <p>
-&omega;_{2n}^{2k}  = &omega;_{n}^{k}
-使用欧拉公式易证引申 &omega;_{mn}^{mk} = &omega;_{n}^{k}
+&omega;<sub>2n</sub><sup>2k</sup>  = &omega;<sub>n</sub><sup>k</sup><br>
+使用欧拉公式易证<br>
+引申 &omega;<sub>mn</sub><sup>mk</sup> = &omega;<sub>n</sub><sup>k</sup><br>
 </p>
 </div>
 </div>
@@ -240,8 +245,8 @@
 <h4 id="orgb4b61ac">性质二(消去引理)</h4>
 <div class="outline-text-4" id="text-orgb4b61ac">
 <p>
-&omega;_{n}^{k + \frac{n}{2}}  = - &omega;_{n}^{k}
-由几何意义，这两者表示的向量终点是相反的，左边较右边在单位圆上多转了半圈
+&omega;<sub>n</sub><sup>k + \frac{n}{2}</sup>  = - &omega;<sub>n</sub><sup>k</sup><br>
+由几何意义，这两者表示的向量终点是相反的，左边较右边在单位圆上多转了半圈<br>
 </p>
 </div>
 </div>
@@ -250,131 +255,131 @@
 <h3 id="orgd006eb9">离散傅里叶变换DFT</h3>
 <div class="outline-text-3" id="text-orgd006eb9">
 <p>
-归纳来说，DFT是分治地求x = &omega;_n^k 的时候f[x]的值，它的分治思想体现在将多项式分为奇次项和偶次项处理
+归纳来说，DFT是分治地求x = &omega;_n^k 的时候f[x]的值，它的分治思想体现在将多项式分为奇次项和偶次项处理<br>
 </p>
 
 <p>
-首先我们单独考虑一个n项（n = 2^x）的多项式A(x)，其系数向量为(a_0, a_1, a_2, &#x2026; a_{n-1})。我们将n次单位根的0 ~ n-1次幂分别带入A(x)得到其点值向量(A(&omega;_{n}^{0}), A(&omega;_{n}^{1}), A(&omega;_{n}^{2}), &#x2026;, A(&omega;_{n}^{n-1}))
+首先我们单独考虑一个n项（n = 2^x）的多项式A(x)，其系数向量为(a_0, a_1, a_2, &#x2026; a<sub>n-1</sub>)。我们将n次单位根的0 ~ n-1次幂分别带入A(x)得到其点值向量(A(&omega;<sub>n</sub><sup>0</sup>), A(&omega;<sub>n</sub><sup>1</sup>), A(&omega;<sub>n</sub><sup>2</sup>), &#x2026;, A(&omega;<sub>n</sub><sup>n-1</sup>))<br>
 </p>
 
 <p>
-这就是离散傅里叶变换（Discrete Fourier Transform）
+这就是离散傅里叶变换（Discrete Fourier Transform）<br>
 </p>
 
 <p>
-如果朴素带入，时间复杂度也是O(n^2)的
+如果朴素带入，时间复杂度也是O(n^2)的<br>
 </p>
 
 <p>
-所以我们必须要利用到单位根 &omega; 的特殊性质
+所以我们必须要利用到单位根 &omega; 的特殊性质<br>
 </p>
 
 <p>
-对于 A(x) = a_0 + a_1 &sdot; x + a_2 &sdot; x^2 + &#x2026; + a_{n-1} &sdot; x^{n-1}
+对于 A(x) = a_0 + a_1 &sdot; x + a_2 &sdot; x^2 + &#x2026; + a<sub>n-1</sub> &sdot; x<sup>n-1</sup><br>
 </p>
 
 <p>
-考虑将其按照奇偶分组
+考虑将其按照奇偶分组<br>
 </p>
 
 <p>
-A(x) = (a_0 + a_2 &sdot; x^2 + a_4 &sdot; x^4 + &#x2026; + a_{n-2} &sdot; x^{n-2}) + (a_1 &sdot; x^1 + a_3 &sdot; x^3 + a_5 &sdot; x^5 + &#x2026; + a_{n-1} &sdot; x^{n-1})
+A(x) = (a_0 + a_2 &sdot; x^2 + a_4 &sdot; x^4 + &#x2026; + a<sub>n-2</sub> &sdot; x<sup>n-2</sup>) + (a_1 &sdot; x^1 + a_3 &sdot; x^3 + a_5 &sdot; x^5 + &#x2026; + a<sub>n-1</sub> &sdot; x<sup>n-1</sup>)<br>
 </p>
 
 <p>
-A(x) = (a_0 + a_2 &sdot; x^2 + a_4 &sdot; x^4 + &#x2026; + a_{n-2} &sdot; x^{n-2}) + x &sdot; (a_1 + a_3 &sdot; x^2 + a_5 &sdot; x^4 + &#x2026; + a_{n-1} &sdot; x^{n-2})
+A(x) = (a_0 + a_2 &sdot; x^2 + a_4 &sdot; x^4 + &#x2026; + a<sub>n-2</sub> &sdot; x<sup>n-2</sup>) + x &sdot; (a_1 + a_3 &sdot; x^2 + a_5 &sdot; x^4 + &#x2026; + a<sub>n-1</sub> &sdot; x<sup>n-2</sup>)<br>
 </p>
 
 <p>
-令
+令<br>
 </p>
 
 <p>
-A1(x) = (a_0 + a_2 &sdot; x + a_4 &sdot; x^2 + &#x2026; + a_{n-2} &sdot; x^{ \frac{n-2}{2}})
+A1(x) = (a_0 + a_2 &sdot; x + a_4 &sdot; x^2 + &#x2026; + a<sub>n-2</sub> &sdot; x<sup> \frac{n-2}{2}</sup>)<br>
 </p>
 
 <p>
-A2(x) = (a_1 + a_3 &sdot; x + a_5 &sdot; x^2 + &#x2026; + a_{n-1} &sdot; x^{ \frac{n-2}{2}})
+A2(x) = (a_1 + a_3 &sdot; x + a_5 &sdot; x^2 + &#x2026; + a<sub>n-1</sub> &sdot; x<sup> \frac{n-2}{2}</sup>)<br>
 </p>
 
 <p>
-则可得到
+则可得到<br>
 </p>
 
 <p>
-A(x) = A1(x) + x &sdot; A2(x^2)
+A(x) = A1(x) + x &sdot; A2(x^2)<br>
 </p>
 
 <p>
-分类讨论
+分类讨论<br>
 </p>
 
 <p>
-设 0 &le; k &le; \frac{n}{2} - 1  ， k &isin; Z
+设 0 &le; k &le; \frac{n}{2} - 1  ， k &isin; Z<br>
 </p>
 
 <p>
-A(&omega;_{n}^{k}) = A1(&omega;_{n}^{2k}) + &omega;_{n}^{k} &sdot; A2(&omega;_{n}^{2k})
+A(&omega;<sub>n</sub><sup>k</sup>) = A1(&omega;<sub>n</sub><sup>2k</sup>) + &omega;<sub>n</sub><sup>k</sup> &sdot; A2(&omega;<sub>n</sub><sup>2k</sup>)<br>
 </p>
 
 <p>
-由上文提到的折半引理
+由上文提到的折半引理<br>
 </p>
 
 <p>
-A(&omega;_{n}^{k}) = A1(&omega;_{\frac{n}{2}}^{k}) + &omega;_{n}^{k} &sdot; A2(&omega;_{\frac{n}{2}}^{k})
+A(&omega;<sub>n</sub><sup>k</sup>) = A1(&omega;<sub>\frac{n}{2}</sub><sup>k</sup>) + &omega;<sub>n</sub><sup>k</sup> &sdot; A2(&omega;<sub>\frac{n}{2}</sub><sup>k</sup>)<br>
 </p>
 
 <p>
-对于 \frac{n}{2} &le; k + \frac{n}{2} &le; n - 1
+对于 \frac{n}{2} &le; k + \frac{n}{2} &le; n - 1<br>
 </p>
 
 <p>
-A(&omega;_{n}^{k + \frac{n}{2}}) = A1(&omega;_{n}^{2k + n}) + &omega;_{n}^{k + \frac{n}{2}} &sdot; A2(&omega;_{n}^{2k + n})
+A(&omega;<sub>n</sub><sup>k + \frac{n}{2}</sup>) = A1(&omega;<sub>n</sub><sup>2k + n</sup>) + &omega;<sub>n</sub><sup>k + \frac{n}{2}</sup> &sdot; A2(&omega;<sub>n</sub><sup>2k + n</sup>)<br>
 </p>
 
 <p>
-其中 &omega;__{n}^{2k + n} = &omega;_{n}^{2k} &sdot; &omega;_{n}^{n} = &omega;_{n}^{2k} = &omega;_{\frac{n}{2}}^{k}
+其中 &omega;_<sub>n</sub><sup>2k + n</sup> = &omega;<sub>n</sub><sup>2k</sup> &sdot; &omega;<sub>n</sub><sup>n</sup> = &omega;<sub>n</sub><sup>2k</sup> = &omega;<sub>\frac{n}{2}</sub><sup>k</sup><br>
 </p>
 
 <p>
-由消去引理 &omega;_{n}^{k + \frac{n}{2}} = - &omega;_{n}^{k}
+由消去引理 &omega;<sub>n</sub><sup>k + \frac{n}{2}</sup> = - &omega;<sub>n</sub><sup>k</sup><br>
 </p>
 
 <p>
-故 A(&omega;_{n}^{k + \frac{n}{2}}) = A1(&omega;_{\frac{n}{2}}^{k}) - &omega;_{n}^{k} &sdot; A2{&omega;_{\frac{n}{2}}^{k}}
+故 A(&omega;<sub>n</sub><sup>k + \frac{n}{2}</sup>) = A1(&omega;<sub>\frac{n}{2}</sub><sup>k</sup>) - &omega;<sub>n</sub><sup>k</sup> &sdot; A2{&omega;<sub>\frac{n}{2}</sub><sup>k</sup>}<br>
 </p>
 
 <p>
-注意， k 与 k + \frac{n}{2} 取遍了 [0, n-1] 中的 n 个整数，保证了可以由这 n 个点值反推解出系数（上文已证明）。
+注意， k 与 k + \frac{n}{2} 取遍了 [0, n-1] 中的 n 个整数，保证了可以由这 n 个点值反推解出系数（上文已证明）。<br>
 </p>
 
 <p>
-于是我们可以知道
+于是我们可以知道<br>
 </p>
 
 <p>
-如果已知了 A1(x), A2(x) 分别在 &omega;_{\frac{n}{2}}^{0}, &omega;_{\frac{n}{2}}^{1}, &#x2026;, &omega;_{\frac{n}{2}}^{\frac{n}{2} - 1} 的取值，可以在 O(n) 的时间内求出 A(x) 的取值
+如果已知了 A1(x), A2(x) 分别在 &omega;<sub>\frac{n}{2}</sub><sup>0</sup>, &omega;<sub>\frac{n}{2}</sub><sup>1</sup>, &#x2026;, &omega;<sub>\frac{n}{2}</sub><sup>\frac{n}{2} - 1</sup> 的取值，可以在 O(n) 的时间内求出 A(x) 的取值<br>
 </p>
 
 <p>
-而 A1(x), A2(x) 都是 A(x) 一半的规模，显然可以转化为子问题递归求解。
+而 A1(x), A2(x) 都是 A(x) 一半的规模，显然可以转化为子问题递归求解。<br>
 </p>
 
 <p>
-考虑到分治 DFT 能处理的多项式长度只能是2^m(m &isin; N^{*})，否则在分治的时候左右不一样长，右边就取不到系数了。所以要在第一次 DFT 之前就把序列向上补成长度为2^m(m &isin; N^{*})(高次系数补0)、最高项次数为2^m - 1的多项式
+考虑到分治 DFT 能处理的多项式长度只能是2^m(m &isin; N<sup>*</sup>)，否则在分治的时候左右不一样长，右边就取不到系数了。所以要在第一次 DFT 之前就把序列向上补成长度为2^m(m &isin; N<sup>*</sup>)(高次系数补0)、最高项次数为2^m - 1的多项式<br>
 </p>
 
 <p>
-在代入值的时候，因为要代入n个不同值，所以我们代入&omega;_n^0, &omega;_n^1, &omega;_n^2, &#x2026; &omega;_n^{n-1} (n = 2^m(m &isin; N^{*}))一共2^m个不同值
+在代入值的时候，因为要代入n个不同值，所以我们代入&omega;_n^0, &omega;_n^1, &omega;_n^2, &#x2026; &omega;_n<sup>n-1</sup> (n = 2^m(m &isin; N<sup>*</sup>))一共2^m个不同值<br>
 </p>
 
 <p>
-代码实现方面，STL 提供了复数的模板，当然也可以手动实现。两者区别在于，使用STL的complex可以调用exp函数求出&omega;_n。但事实上使用欧拉公式得到的虚数来求&omega;_n也是等价的
+代码实现方面，STL 提供了复数的模板，当然也可以手动实现。两者区别在于，使用STL的complex可以调用exp函数求出&omega;_n。但事实上使用欧拉公式得到的虚数来求&omega;_n也是等价的<br>
 </p>
 
 <p>
-时间复杂度：T(n) = 2T(\frac{n}{2}) + O(n) = O(nlogn)
+时间复杂度：T(n) = 2T(\frac{n}{2}) + O(n) = O(nlogn)<br>
 </p>
 </div>
 </div>
@@ -382,87 +387,87 @@ A(&omega;_{n}^{k + \frac{n}{2}}) = A1(&omega;_{n}^{2k + n}) + &omega;_{n}^{k + \
 <h3 id="org5d57235">离散傅里叶反变换IDFT</h3>
 <div class="outline-text-3" id="text-org5d57235">
 <p>
-使用快速傅里叶变换将点值表示的多项式转化为系数表示，这个过程叫做离散傅里叶反变换（Inverse Discrete Fourier Transform）
+使用快速傅里叶变换将点值表示的多项式转化为系数表示，这个过程叫做离散傅里叶反变换（Inverse Discrete Fourier Transform）<br>
 </p>
 
 <p>
-即由 n 维点值向量 (A(x_0), A(x_1), A(x_2), &#x2026;, A(x_{n-1})) 推出 n 维系数向量(a_0, a_1, a_2, &#x2026;, a_{n-1})
+即由 n 维点值向量 (A(x_0), A(x_1), A(x_2), &#x2026;, A(x<sub>n-1</sub>)) 推出 n 维系数向量(a_0, a_1, a_2, &#x2026;, a<sub>n-1</sub>)<br>
 </p>
 
 <p>
-设(d_0, d_1, d_2, &#x2026;, d_{n-1}) 为 (a_0, a_1, a_2, &#x2026;, a_{n-1})得到的离散傅里叶变换的结果。
+设(d_0, d_1, d_2, &#x2026;, d<sub>n-1</sub>) 为 (a_0, a_1, a_2, &#x2026;, a<sub>n-1</sub>)得到的离散傅里叶变换的结果。<br>
 </p>
 
 <p>
-我们构造一个多项式F(x) = d_0 + d_1 &sdot; x + d_2 &sdot; x^2 + &#x2026; + d_{n-1} &sdot; x^{n-1}
+我们构造一个多项式F(x) = d_0 + d_1 &sdot; x + d_2 &sdot; x^2 + &#x2026; + d<sub>n-1</sub> &sdot; x<sup>n-1</sup><br>
 </p>
 
 <p>
-设向量(c_0, c_1, c_2, &#x2026; c_{n-1}) 中 c_k 为F(x)在x = &omega;_{x}^{-k}的点值表示
+设向量(c_0, c_1, c_2, &#x2026; c<sub>n-1</sub>) 中 c_k 为F(x)在x = &omega;<sub>x</sub><sup>-k</sup>的点值表示<br>
 </p>
 
 <p>
-即c_k = &sum;_{i=0}^{n-1}di &sdot; (&omega;_{n}^{-k})^i
+即c_k = &sum;<sub>i=0</sub><sup>n-1</sup>di &sdot; (&omega;<sub>n</sub><sup>-k</sup>)^i<br>
 </p>
 
 <p>
-我们考虑对d_i还原，于是 c_k = &sum;_{i=0}^{n-1}[ &sum;_{j=0}^{n-1}a_j &sdot; (&omega;_{n}^{i})^j] &sdot; (&omega;_{n}^{-k})^i
+我们考虑对d_i还原，于是 c_k = &sum;<sub>i=0</sub><sup>n-1</sup>[ &sum;<sub>j=0</sub><sup>n-1</sup>a_j &sdot; (&omega;<sub>n</sub><sup>i</sup>)^j] &sdot; (&omega;<sub>n</sub><sup>-k</sup>)^i<br>
 </p>
 
 <p>
-由和式的性质，c_k = &sum;_{j=0}^{n-1} a_j &sum;_{i=0}^{n-1}(&omega;_n^i)^j &sdot; (&omega;_{n}^{-k})^i = &sum;_{j=0}^{n-1} a_j &sum;_{i=0}^{n-1}(&omega;_n^i)^{j-k}
+由和式的性质，c_k = &sum;<sub>j=0</sub><sup>n-1</sup> a_j &sum;<sub>i=0</sub><sup>n-1</sup>(&omega;_n^i)^j &sdot; (&omega;<sub>n</sub><sup>-k</sup>)^i = &sum;<sub>j=0</sub><sup>n-1</sup> a_j &sum;<sub>i=0</sub><sup>n-1</sup>(&omega;_n^i)<sup>j-k</sup><br>
 </p>
 
 <p>
-令S(j, k) = &sum;_{i=0}^{n-1}(&omega;_{n}^{i})^{j-k}
+令S(j, k) = &sum;<sub>i=0</sub><sup>n-1</sup>(&omega;<sub>n</sub><sup>i</sup>)<sup>j-k</sup><br>
 </p>
 
 <p>
-对其进行化简，设j - k = &delta; ，则S(j, k) = &omega;_{n}^{0} + &omega;_{n}^{&delta;} + &omega;_{n}^{2&delta;} + &#x2026; + &omega;_{n}^{(n-1)&delta;}
+对其进行化简，设j - k = &delta; ，则S(j, k) = &omega;<sub>n</sub><sup>0</sup> + &omega;<sub>n</sub><sup>&delta;</sup> + &omega;<sub>n</sub><sup>2&delta;</sup> + &#x2026; + &omega;<sub>n</sub><sup>(n-1)&delta;</sup><br>
 </p>
 
 <p>
-其公比为&omega;_{n}^{&delta;}，当&omega;_{n}^{&delta;} = 1 即 &delta; = 0 时，S(j, k) = n, 此时&delta; = 0 &rArr; j - k = 0 &rArr; j = k
+其公比为&omega;<sub>n</sub><sup>&delta;</sup>，当&omega;<sub>n</sub><sup>&delta;</sup> = 1 即 &delta; = 0 时，S(j, k) = n, 此时&delta; = 0 &rArr; j - k = 0 &rArr; j = k<br>
 </p>
 
 <p>
-当&omega;_{n}^{&delta;} &ne; 1 即 &delta; &ne; 0 时
+当&omega;<sub>n</sub><sup>&delta;</sup> &ne; 1 即 &delta; &ne; 0 时<br>
 </p>
 
 <p>
-由等比数列求和公式 S(j, k) = \frac{&omega;_{n}^{0}[(&omega;_{n}^{&delta;})^n - 1]}{&omega;_{n}^{&delta;} - 1} = \frac{1[(&omega;_{n}^{n})^{&delta;} - 1]}{&omega;_{n}^{&delta;} - 1} = \frac{[(1)^{&delta;} - 1]}{&omega;_{n}^{&delta;} - 1} = \frac{0}{&omega;_{n}^{&delta;} - 1} = 0，此时j &ne; k
+由等比数列求和公式 S(j, k) = \frac{&omega;<sub>n</sub><sup>0</sup>[(&omega;<sub>n</sub><sup>&delta;</sup>)^n - 1]}{&omega;<sub>n</sub><sup>&delta;</sup> - 1} = \frac{1[(&omega;<sub>n</sub><sup>n</sup>)<sup>&delta;</sup> - 1]}{&omega;<sub>n</sub><sup>&delta;</sup> - 1} = \frac{[(1)<sup>&delta;</sup> - 1]}{&omega;<sub>n</sub><sup>&delta;</sup> - 1} = \frac{0}{&omega;<sub>n</sub><sup>&delta;</sup> - 1} = 0，此时j &ne; k<br>
 </p>
 
 <p>
-所以S(j, k) = [j = k] &sdot; n
+所以S(j, k) = [j = k] &sdot; n<br>
 </p>
 
 <p>
-将S(j, k)带入原式
+将S(j, k)带入原式<br>
 </p>
 
 <p>
-c_k = &sum;_{j=0}^{n-1}a_j &sdot; S(j, k) = &sum;_{j=0}^{n-1}a_j &sdot; [j = k] &sdot; n = a_k &sdot; n
+c_k = &sum;<sub>j=0</sub><sup>n-1</sup>a_j &sdot; S(j, k) = &sum;<sub>j=0</sub><sup>n-1</sup>a_j &sdot; [j = k] &sdot; n = a_k &sdot; n<br>
 </p>
 
 <p>
-所以a_k = \frac{c_k}{n}
+所以a_k = \frac{c_k}{n}<br>
 </p>
 
 <p>
-其中a_k为原多项式A(x)的系数向量(a_0, a_1, a_2, &#x2026;, a_n)中的a_k
+其中a_k为原多项式A(x)的系数向量(a_0, a_1, a_2, &#x2026;, a_n)中的a_k<br>
 </p>
 
 <p>
-由此得到：对于多项式A(x)由插值节点(&omega;_{n}^{0}, &omega;_{n}^{1}, &omega;_{n}^{2}, &#x2026;, &omega;_{n}^{n-1})做离散傅里叶变换得到的点值向量(d_0, d_1, d_2, &#x2026;, d_{n-1}), 我们将(&omega;_{n}^{0}, &omega;_{n}^{-1}, &omega;_{n}^{-2}, &#x2026;, &omega;_{n}^{-(n-1)})作为插值节点，(d_0, d_1, d_2, &#x2026;, d_{n-1})作为系数向量，做一次离散傅里叶变换得到的向量每一项都除以n之后得到的(\frac{c_0}{n}, \frac{c_1}{n}, &#x2026;, \frac{c_{n-1}}{n})就是多项式的系数向量(a_0, a_1, a_2, &#x2026;, a_{n-1})
+由此得到：对于多项式A(x)由插值节点(&omega;<sub>n</sub><sup>0</sup>, &omega;<sub>n</sub><sup>1</sup>, &omega;<sub>n</sub><sup>2</sup>, &#x2026;, &omega;<sub>n</sub><sup>n-1</sup>)做离散傅里叶变换得到的点值向量(d_0, d_1, d_2, &#x2026;, d<sub>n-1</sub>), 我们将(&omega;<sub>n</sub><sup>0</sup>, &omega;<sub>n</sub><sup>-1</sup>, &omega;<sub>n</sub><sup>-2</sup>, &#x2026;, &omega;<sub>n</sub><sup>-(n-1)</sup>)作为插值节点，(d_0, d_1, d_2, &#x2026;, d<sub>n-1</sub>)作为系数向量，做一次离散傅里叶变换得到的向量每一项都除以n之后得到的(\frac{c_0}{n}, \frac{c_1}{n}, &#x2026;, \frac{c<sub>n-1</sub>}{n})就是多项式的系数向量(a_0, a_1, a_2, &#x2026;, a<sub>n-1</sub>)<br>
 </p>
 
 <p>
-注意到&omega;_{n}^{-k}是&omega;_{k}^{n}的共轭复数
+注意到&omega;<sub>n</sub><sup>-k</sup>是&omega;<sub>k</sub><sup>n</sup>的共轭复数<br>
 </p>
 
 <p>
-$$
+\[<br>
 </p>
 \begin{bmatrix}y[0] \ y[1] \ y[2] \ y[3] \ \dots \ y[n-1] \end{bmatrix}
 \begin{matrix}= \ = \ = \ = \ \ = \end{matrix}
@@ -474,11 +479,11 @@ $$
 1 & \omega_n^{n-1} & \omega_n^{2(n-1)} & \omega_n^{3(n-1)} & \dots & \omega_n^{(n-1)^2} \end{bmatrix}
 \begin{bmatrix} a[0] \ a[1] \ a[2] \ a[3] \ \dots \ a[n-1] \end{bmatrix}
 <p>
-$$
+\]<br>
 </p>
 
 <p>
-这个过程称为离散傅里叶反变换
+这个过程称为离散傅里叶反变换<br>
 </p>
 </div>
 </div>
