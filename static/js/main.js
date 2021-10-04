@@ -63,8 +63,7 @@ $(window).scroll(() => scrollToTop($('.top-btn')[0]));
 
 // HOME PAGE
 // ---------------------------------
-// if (isPageHome()) {
-if (isCurPage('index')) {
+if (isPageHome()) {
     // Hide nav and top button in index page.
     CONTENT.addClass('js-home-content');
     if (TOC) TOC.css('display', 'none');  // Hide table of contents.
