@@ -26,7 +26,7 @@ export function browserRedirect() {
 }
 
 export function isPageHome() {
-    if (['/index.html', '/', 'haoran-mc.github.io'].includes(location.pathname)) {
+		if (['/index.html', '/', 'index'].includes(location.pathname)) {
         return true;
     }
 }
