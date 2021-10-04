@@ -1,12 +1,9 @@
 'use strict';
 import 'https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js';
-import 'https://cdn.jsdelivr.net/npm/darkreader@4.9.34/darkreader.min.js';
 import {
     isPageHome,
     isCurPage,
     browserRedirect,
-    scrollToTop,
-    betterLocalStorage as bls,
 } from './utils.js';
 
 // Init global variables
@@ -17,45 +14,9 @@ const TOC = $('#table-of-contents');
 const BODY = $('body');
 const TITLE = $('.title');
 const CONTENT = $('#content');
-
-// nav & top button
-// ------------------------------------------------------------------
-BODY.append(
-    `<div class="nav-btn" onclick="location.href = './index.html'">IDX ←</div>`
-);
-// `behavior` - instant, smooth, auto
-BODY.append(
-    `<div class="top-btn" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })">TOP ↑</div>`
-);
-
-function toggleColor() {
-    if (!isDark) {
-        // ^ Switch to dark
-        DarkReader.enable({
-            brightness: 100,
-            contrast: 90,
-            sepia: 10,
-        });
-
-        isDark = true;
-        bls.set('isDark', isDark);
-    } else {
-        // ^ to light
-        DarkReader.disable();
-
-        bls.del('isDark');
-        location.reload();
-    }
-}
-
-// Toggle color of site.
-TITLE.click(toggleColor);
-
-// Calculate the scroll top distance.
-$(window).scroll(() => scrollToTop($('.top-btn')[0]));
-
 // HOME PAGE
 // ---------------------------------
+
 if (isPageHome()) {
     // Hide nav and top button in index page.
     CONTENT.addClass('js-home-content');
@@ -76,14 +37,6 @@ if (isPageHome()) {
     });
 }
 
-// About PAGE
-// ---------------------------------
-if (isCurPage('About')) {
-    CONTENT.addClass('js-about-content');
-}
-
-// NAVIGATIONS PAGE
-// ---------------------------------
 if (isCurPage('Navigation')) {
     BODY.addClass('js-nav-body');
     $('td a').each(function (idx, item) {
@@ -114,12 +67,4 @@ if (isCurPage('Navigation')) {
             $('.js-nav-link-container').append('<a></a>');
         }
     }
-}
-
-// Link PAGE
-// ---------------------------------
-if (isCurPage('Links')) {
-    $('a').each(function (idx, item) {
-        $(this).attr('target', '_blank');
-    });
 }

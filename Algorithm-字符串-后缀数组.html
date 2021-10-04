@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-09-30 四 03:24 -->
+<!-- 2021-10-04 一 10:57 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>后缀数组</title>
@@ -36,7 +36,8 @@
 <h2 id="org7b9d700">后缀数组</h2>
 <div class="outline-text-2" id="text-org7b9d700">
 <p>
-后缀数组中的数字顺序就是后缀子串的字典顺序例如一个字符串 string text = "vamamadn" ，它的4后缀有8个，即text[0] = "vamamadn"、text[1] = "amamadn"、text[2] = "mamadn"&#x2026;&#x2026;
+后缀数组中的数字顺序就是后缀子串的字典顺序<br>
+例如一个字符串 string text = "vamamadn" ，它的4后缀有8个，即text[0] = "vamamadn"、text[1] = "amamadn"、text[2] = "mamadn"&#x2026;&#x2026;<br>
 </p>
 
 <table>
@@ -49,8 +50,6 @@
 
 <col  class="org-left">
 
-<col  class="org-left">
-
 <col  class="org-right">
 
 <col  class="org-right">
@@ -59,7 +58,6 @@
 <tr>
 <th scope="col" class="org-left">后缀text[i]</th>
 <th scope="col" class="org-right">下标i</th>
-<th scope="col" class="org-left">&#xa0;</th>
 <th scope="col" class="org-left">字典序</th>
 <th scope="col" class="org-right">后缀数组sa[j]</th>
 <th scope="col" class="org-right">下标j</th>
@@ -69,7 +67,6 @@
 <tr>
 <td class="org-left">vamamadn</td>
 <td class="org-right">0</td>
-<td class="org-left">&#xa0;</td>
 <td class="org-left">adn</td>
 <td class="org-right">5</td>
 <td class="org-right">0</td>
@@ -78,7 +75,6 @@
 <tr>
 <td class="org-left">amamadn</td>
 <td class="org-right">1</td>
-<td class="org-left">&#xa0;</td>
 <td class="org-left">amadn</td>
 <td class="org-right">3</td>
 <td class="org-right">1</td>
@@ -87,7 +83,6 @@
 <tr>
 <td class="org-left">mamadn</td>
 <td class="org-right">2</td>
-<td class="org-left">&#xa0;</td>
 <td class="org-left">amamadn</td>
 <td class="org-right">1</td>
 <td class="org-right">2</td>
@@ -96,7 +91,6 @@
 <tr>
 <td class="org-left">amadn</td>
 <td class="org-right">3</td>
-<td class="org-left">&#xa0;</td>
 <td class="org-left">dn</td>
 <td class="org-right">6</td>
 <td class="org-right">3</td>
@@ -105,7 +99,6 @@
 <tr>
 <td class="org-left">madn</td>
 <td class="org-right">4</td>
-<td class="org-left">&#xa0;</td>
 <td class="org-left">madn</td>
 <td class="org-right">4</td>
 <td class="org-right">4</td>
@@ -114,7 +107,6 @@
 <tr>
 <td class="org-left">adn</td>
 <td class="org-right">5</td>
-<td class="org-left">&#xa0;</td>
 <td class="org-left">mamadn</td>
 <td class="org-right">2</td>
 <td class="org-right">5</td>
@@ -123,7 +115,6 @@
 <tr>
 <td class="org-left">dn</td>
 <td class="org-right">6</td>
-<td class="org-left">&#xa0;</td>
 <td class="org-left">n</td>
 <td class="org-right">7</td>
 <td class="org-right">6</td>
@@ -132,7 +123,6 @@
 <tr>
 <td class="org-left">n</td>
 <td class="org-right">7</td>
-<td class="org-left">&#xa0;</td>
 <td class="org-left">vamamadn</td>
 <td class="org-right">0</td>
 <td class="org-right">7</td>
@@ -141,8 +131,8 @@
 </table>
 
 <p>
-sa[0] = 5，意思是：排名0(即字典序最小)的子串，是原字符串中从第5个位置开始的后缀子串，即"adn"
-也即：原字符串中从第sa[0]位置开始的后缀子串在字典序中排列第0
+sa[0] = 5，意思是：排名0(即字典序最小)的子串，是原字符串中从第5个位置开始的后缀子串，即"adn"<br>
+也即：原字符串中从第sa[0]位置开始的后缀子串在字典序中排列第0<br>
 </p>
 </div>
 </div>
@@ -150,9 +140,9 @@ sa[0] = 5，意思是：排名0(即字典序最小)的子串，是原字符串�
 <h2 id="org2fd8517">sa数组 &amp; rk数组</h2>
 <div class="outline-text-2" id="text-org2fd8517">
 <dl class="org-dl">
-<dt>sa[]</dt><dd>后缀数组suffix array，保存0~n-1的全排列，含义是，把所有后缀按字典序排序后，后缀在原串中的位置</dd>
+<dt>sa[]</dt><dd>后缀数组suffix array，保存0~n-1的全排列，含义是，把所有后缀按字典序排序后，后缀在原串中的位置<br></dd>
 <dt>rk[]</dt><dd><p>
-名次数组rank array，rk[]也是0~n-1的全排列，保存suffix(i)在所有后缀中按字典序排序的名次，与sa数组互为逆运算
+名次数组rank array，rk[]也是0~n-1的全排列，保存suffix(i)在所有后缀中按字典序排序的名次，与sa数组互为逆运算<br>
 </p>
 <div class="org-src-container">
 <pre class="src src-cpp">for (int i = 0; i &lt; n; ++i)

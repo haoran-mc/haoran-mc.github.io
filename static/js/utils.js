@@ -1,39 +1,3 @@
-/**
- * Judege whether `args` in current page.
- * @param {Array | String} args - Pages array or page string.
- */
-export function isCurPage(args) {
-    if (typeof args === 'string') {
-        if (
-            [
-                '/public/' + args + '.html',
-                '/public/' + args,
-                '/' + args + '.html',
-                '/' + args,
-            ].includes(location.pathname)
-        )
-            return true;
-    } else if (args instanceof Array) {
-        let _res = 0;
-        args.map((item) => {
-            if (
-                [
-                    '/public/' + item + '.html',
-                    '/public' + item,
-                    '/' + item + '.html',
-                    '/' + item,
-                ].includes(location.pathname)
-            )
-                _res += 1;
-        });
-
-        if (_res > 0) return true;
-    }
-}
-
-/**
- * Diff device type.
- */
 export function browserRedirect() {
     let sUserAgent = navigator.userAgent.toLowerCase();
     let bIsIpad = sUserAgent.match(/ipad/i) == 'ipad';
@@ -61,95 +25,32 @@ export function browserRedirect() {
     }
 }
 
-/**
- * Judge if current page is HOME page.
- */
 export function isPageHome() {
-    if (
-        [
-            '/public/index.html',
-            '/public/index',
-            '/public/',
-            '/index.html',
-            '/index',
-            '/',
-        ].includes(location.pathname)
-    ) {
+    if (['/index.html'].includes(location.pathname)) {
         return true;
     }
 }
 
-/**
- * Beautify item like `Idea`,
- * and you can Activate/Deactivate global card style.
- * @param { Array } cardPages Card pages
- * @param { Boolean } isAllCardStyle Active global site card style
- */
-export function initCardPages(cardPages, isAllCardStyle = false) {
-    if (isAllCardStyle) {
-        $('.outline-2').each(function () {
-            $(this).addClass('js-outline-2');
-        });
-
-        $('.outline-3').each(function () {
-            $(this).addClass('js-outline-3');
-        });
-
-        return;
-    }
-
-    if (isCurPage(cardPages)) {
-        $('.outline-2').each(function () {
-            $(this).addClass('js-outline-2');
-        });
-
-        $('.outline-3').each(function () {
-            $(this).addClass('js-outline-3');
-        });
+export function isCurPage(args) {
+    if (typeof args === 'string') {
+        if (['/' + args + '.html',].includes(location.pathname))
+            return true;
     }
 }
 
-/**
- * To encrypted your pages.
- * @param {Array} encryptedPages - Encrypted pages
- * @param {String} password - Password
- */
-export function initEncryptedPages(encryptedPages, password) {
-    if (isCurPage(encryptedPages)) {
-        if (sessionStorage.getItem('f2f0c89f0c89')) {
-            console.log('Welcome, Sir.');
-        } else {
-            $('body').addClass('body-fuzzy')
-            $('body').append(`
-                <div class='body-mask'>
-                    <div class="body-mask--password">
-                        <div style="display: inline-block; width: 20px;">🔐</div>
-                        <input id="pw" type="password" placeholder="这是私人页面，请离开，谢谢 ！" />
-                        <div id="tip" style="visibility: hidden; color: #900;">真的，你走吧</div>
-                    </div>
-                </div>
-            `)
+export function scrollToTop(ele) {
+    // page height
+    let totalH = $(document).height();
+    // view height
+    let clientH = $(window).height();
+    // scroll height
+    let scrollH = $(document).scrollTop();
 
-            $('#pw').keypress(function(event) {
-                let _password = $(this).val();
-                if(event.keyCode == '13') {
-                    console.log(_password);
-                    if (_password === password) {
-                        $('.body-mask').remove()
-                        sessionStorage.setItem('f2f0c89f0c89', true);
-                    } else {
-                        $('#pw').val('');
-                        $('#tip').css({ visibility: 'visible' })
-                    }
-                }
-            })
-        }
-    }
+    let _cent = parseInt((scrollH / (totalH - clientH)) * 100);
+    _cent = ('' + _cent).length < 2 ? '0' + _cent : _cent;
+    ele.innerHTML = _cent + '% ↑';
 }
 
-/**
- * Active mouse animate.
- */
 export function initMouseClickAnimate() {
     $(document).click((e) => {
         let size = 120; // size of water block
@@ -180,57 +81,6 @@ export function initMouseClickAnimate() {
     });
 }
 
-/**
- * Zoom images.
- */
-export function initImageZoom() {
-    let isZoom = false;
-
-    // Do not zoom in HOME page.
-    if (isPageHome()) {
-        return;
-    }
-
-    $('img').each(function (idx, ele) {
-        $(this).click(function () {
-            if (!isZoom) {
-                $('html').append(
-                    `<div class='img-wrapper'>
-                        <img class='img-zoom' src=${ele.src} />
-                    </div>`
-                );
-
-                $('.img-wrapper').click(function () {
-                    $('.img-wrapper').remove();
-                    isZoom = false;
-                });
-
-                isZoom = true;
-            }
-        });
-    });
-}
-
-/**
- * Update cent of element's innerHHTML when page scroll
- * @param { Object } ele - DOM element
- */
-export function scrollToTop(ele) {
-    // page height
-    let totalH = $(document).height();
-    // view height
-    let clientH = $(window).height();
-    // scroll height
-    let scrollH = $(document).scrollTop();
-
-    let _cent = parseInt((scrollH / (totalH - clientH)) * 100);
-    _cent = ('' + _cent).length < 2 ? '0' + _cent : _cent;
-    ele.innerHTML = _cent + '% ↑';
-}
-
-/**
- * Better localStorage which can remember the data type.
- */
 export const betterLocalStorage = {
     get(key) {
         if (!localStorage.getItem(key)) {
