@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-10-05 Tue 23:27 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>REGULAR-EXPRESSION</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran &lt;haoran.mc@outlook.com&gt;">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">REGULAR-EXPRESSION</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org524dc49">正则表达式语法</a>
+<ul>
+<li><a href="#org46f529f">e.g.</a></li>
+<li><a href="#orga109d45">语法</a></li>
+<li><a href="#org4e8acef">选择</a></li>
+<li><a href="#org2f742a7">反向引用</a></li>
+</ul>
+</li>
+<li><a href="#org58208b0">例子</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org524dc49" class="outline-2">
+<h2 id="org524dc49">正则表达式语法</h2>
+<div class="outline-text-2" id="text-org524dc49">
+</div>
+<div id="outline-container-org46f529f" class="outline-3">
+<h3 id="org46f529f">e.g.</h3>
+<div class="outline-text-3" id="text-org46f529f">
+<ul class="org-ul">
+<li><a href="https://tool.oschina.net/uploads/apidocs/jquery/regexp.html">表达式全集</a> <br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orga109d45" class="outline-3">
+<h3 id="orga109d45">语法</h3>
+<div class="outline-text-3" id="text-orga109d45">
+<dl class="org-dl">
+<dt>runoo+b</dt><dd>可以匹配runoob, runooob, runooooob等，+号代表前面的字符必须至少出现一次(一次或多次)<br></dd>
+<dt>runoo*b</dt><dd>可以匹配runob, runoob, runooooob等，×号代表前面的字符可以不出现，也可以出现一次或多次<br></dd>
+<dt>colou?r</dt><dd><p>
+可以匹配color或者colour，?问号代表前面的字符最多只可以出现一次(零次或一次)<br>
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">非打印字符</th>
+<th scope="col" class="org-left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">[ABC]</td>
+<td class="org-left">匹配字符串中所有的A B C</td>
+</tr>
+
+<tr>
+<td class="org-left">[^ABC]</td>
+<td class="org-left">匹配字符串中所有除了A B C 之外的所有字母</td>
+</tr>
+
+<tr>
+<td class="org-left">[A-Z]</td>
+<td class="org-left">[A-Z]表示一个区间，匹配所有大写字母，[a-z]表示所有小写字母</td>
+</tr>
+
+<tr>
+<td class="org-left">[\s&sect;]</td>
+<td class="org-left">\s匹配所有空白符，\S非空白符，包括换行</td>
+</tr>
+
+<tr>
+<td class="org-left">\w</td>
+<td class="org-left">匹配字母，数字，下划线，等价于[A-Za-zo-9_]</td>
+</tr>
+
+<tr>
+<td class="org-left">\cM</td>
+<td class="org-left">匹配由x指明的控制字符，例如\cM匹配一个Control-M或回车符</td>
+</tr>
+
+<tr>
+<td class="org-left">\f</td>
+<td class="org-left">匹配一个换页符，等价于\x0c和\cL</td>
+</tr>
+
+<tr>
+<td class="org-left">\n</td>
+<td class="org-left">匹配一个换行符，等价于\x0a和\cj</td>
+</tr>
+
+<tr>
+<td class="org-left">\r</td>
+<td class="org-left">匹配一个回车符，等价于\x0d和\cM</td>
+</tr>
+
+<tr>
+<td class="org-left">\s</td>
+<td class="org-left">匹配任何空白字符，包括空格，制表符，换页符，等价于[\f\n\r\t\v]</td>
+</tr>
+
+<tr>
+<td class="org-left">&sect;</td>
+<td class="org-left">匹配任何非空白字符，等价于[^\f\n\r\t\v]</td>
+</tr>
+
+<tr>
+<td class="org-left">\t</td>
+<td class="org-left">匹配一个制表符，等价于\x09和\cI</td>
+</tr>
+
+<tr>
+<td class="org-left">\v</td>
+<td class="org-left">匹配一个垂直制表符，等价于\x0b和\cK</td>
+</tr>
+
+<tr>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">特殊字符</td>
+<td class="org-left">描述</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="org-left"><span class="underline">$</span></td>
+<td class="org-left">匹配输入字符串的结尾位置</td>
+</tr>
+
+<tr>
+<td class="org-left">()</td>
+<td class="org-left">标记一个子表达式的开始和结束位置</td>
+</tr>
+
+<tr>
+<td class="org-left"><span class="underline">*</span></td>
+<td class="org-left">匹配前面的子表达式零次或多次</td>
+</tr>
+
+<tr>
+<td class="org-left"><span class="underline">+</span></td>
+<td class="org-left">匹配前面的子表达式一次或多次</td>
+</tr>
+
+<tr>
+<td class="org-left"><span class="underline">?</span></td>
+<td class="org-left">匹配前面子表达式零次或一次，或指明一个非贪婪限定符</td>
+</tr>
+
+<tr>
+<td class="org-left"><span class="underline">.</span></td>
+<td class="org-left">匹配除换行符\n之外的任何单字符</td>
+</tr>
+
+<tr>
+<td class="org-left"><span class="underline">[</span></td>
+<td class="org-left">标记一个中括号</td>
+</tr>
+
+<tr>
+<td class="org-left"><span class="underline">\</span></td>
+<td class="org-left">将下一个字符标记为特殊字符，或原义字符，或向后引用</td>
+</tr>
+
+<tr>
+<td class="org-left"><span class="underline">^</span></td>
+<td class="org-left">匹配输入字符串的开始位置，除非在方括号表达式中使用，表示不接受该方括号中字符集</td>
+</tr>
+
+<tr>
+<td class="org-left"><span class="underline">{</span></td>
+<td class="org-left">标记限定符表达式的开始</td>
+</tr>
+
+<tr>
+<td class="org-left">竖线</td>
+<td class="org-left">指明两项之间的一个选择</td>
+</tr>
+
+<tr>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">限定符</td>
+<td class="org-left">描述</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="org-left">{n}</td>
+<td class="org-left">n是一个非负整数，匹配确定的n次</td>
+</tr>
+
+<tr>
+<td class="org-left">{n,}</td>
+<td class="org-left">匹配至少n次</td>
+</tr>
+
+<tr>
+<td class="org-left">{n,m}</td>
+<td class="org-left">至少n次，至多m次</td>
+</tr>
+
+<tr>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">定位符</td>
+<td class="org-left">描述</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="org-left">\b</td>
+<td class="org-left">匹配一个单词边界，即字与空格间的位置</td>
+</tr>
+
+<tr>
+<td class="org-left">\B</td>
+<td class="org-left">非单词边界匹配</td>
+</tr>
+
+<tr>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">修饰符</td>
+<td class="org-left">描述</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="org-left">i</td>
+<td class="org-left">ignore - 不区分大小写</td>
+</tr>
+
+<tr>
+<td class="org-left">g</td>
+<td class="org-left">global - 全局匹配</td>
+</tr>
+
+<tr>
+<td class="org-left">m</td>
+<td class="org-left">mutiline - 多行匹配</td>
+</tr>
+
+<tr>
+<td class="org-left">s</td>
+<td class="org-left">使特殊字符_._包含换行符</td>
+</tr>
+</tbody>
+</table></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-org4e8acef" class="outline-3">
+<h3 id="org4e8acef">选择</h3>
+<div class="outline-text-3" id="text-org4e8acef">
+<dl class="org-dl">
+<dt>?= :: exp1(?=exp2)</dt><dd>查找exp2前面的exp1<br></dd>
+<dt>?&lt;= :: (?&lt;= exp2)exp1</dt><dd>查找exp2后面的exp1<br></dd>
+<dt>?! :: exp1(?!exp2)</dt><dd>查找后面不是exp2的exp1<br></dd>
+<dt>?&lt;! :: (?&lt;!exp2)exp1</dt><dd>查找前面不是exp2的exp1<br></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-org2f742a7" class="outline-3">
+<h3 id="org2f742a7">反向引用</h3>
+<div class="outline-text-3" id="text-org2f742a7">
+<ol class="org-ol">
+<li><p>
+查找重复的单词<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-html">&lt;<span style="color: #BD93F9;">!DOCTYPE</span> html&gt;
+&lt;<span style="color: #AFAFAF;">html</span>&gt;
+  &lt;<span style="color: #AFAFAF;">head</span>&gt;
+    &lt;<span style="color: #AFAFAF;">meta</span> <span style="color: #AFAFAF;">charset</span>=<span style="color: #FC9F4E;">"utf-8"</span>&gt;
+    &lt;<span style="color: #AFAFAF;">title</span>&gt;<span style="font-weight: bold; text-decoration: underline;">&#33756;&#40479;&#25945;&#31243;(runoob.com)</span>&lt;/<span style="color: #AFAFAF;">title</span>&gt;
+  &lt;/<span style="color: #AFAFAF;">head</span>&gt;
+
+  &lt;<span style="color: #AFAFAF;">body</span>&gt;
+    &lt;<span style="color: #AFAFAF;">script</span>&gt;
+      var str = "Is is the cost of of gasoline going up up";
+      var patt = /\b([a-z]+) \1\b/ig;
+      document.write(str.match(patt1));
+    &lt;/<span style="color: #AFAFAF;">script</span>&gt;
+  &lt;/<span style="color: #AFAFAF;">body</span>&gt;
+&lt;/<span style="color: #AFAFAF;">html</span>&gt;
+</pre>
+</div></li>
+</ol>
+</div>
+</div>
+</div>
+<div id="outline-container-org58208b0" class="outline-2">
+<h2 id="org58208b0">例子</h2>
+<div class="outline-text-2" id="text-org58208b0">
+<dl class="org-dl">
+<dt><i>[1-9][0-9]*</i></dt><dd>[1-9]第一个数字，[0-9]*设置任意多数字<br></dd>
+<dt><i>[1-9][0-9]?</i></dt><dd>0-99的两位数<br></dd>
+<dt><i>&lt;.*&gt;</i></dt><dd>×、+贪婪，匹配整个&lt;title&gt;headline&lt;/title&gt;<br></dd>
+<dt><i>&lt;.*?&gt;</i></dt><dd>使用?限定非贪婪，只会匹配&lt;title&gt;，同/&lt;\w+?&gt;/<br></dd>
+<dt>(no term)</dt><dd>在* + ? 限定符之后放置?，该表达式从贪婪表达式转换为非贪婪表达式或者最小匹配<br></dd>
+</dl>
+</div>
+</div>
+</div>
+</body>
+</html>

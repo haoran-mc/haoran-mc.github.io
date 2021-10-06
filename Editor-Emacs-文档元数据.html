@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-10-05 二 14:49 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EMACS-元数据</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">EMACS-元数据</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgee8b5c6">文档元数据</a></li>
+<li><a href="#org3652571">内容元数据</a>
+<ul>
+<li><a href="#org9c02a0a">分行区块</a></li>
+<li><a href="#orgcaee446">缩进区块</a></li>
+<li><a href="#org7323095">居中区块</a></li>
+<li><a href="#org108a35a">代码区块</a></li>
+<li><a href="#orgc4ca281">例子</a></li>
+<li><a href="#org89ff3a2">注释</a></li>
+<li><a href="#org571a033">表格与图片</a></li>
+<li><a href="#orgfe646a5">嵌入Html</a></li>
+<li><a href="#org1b6f968">包含文件</a></li>
+<li><a href="#org356a953">嵌入 LaTex</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgee8b5c6" class="outline-2">
+<h2 id="orgee8b5c6">文档元数据</h2>
+<div class="outline-text-2" id="text-orgee8b5c6">
+<p>
+具体包括：<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-org"><span style="color: #6272a4;">#+TITLE:</span>       <span style="color: #FC9F4E;">the title to be shown (default is the buffer name)</span>
+<span style="color: #6272a4;">#+AUTHOR:</span>      <span style="color: #0189cc;">the author (default taken from user-full-name)</span>
+<span style="color: #6272a4;">#+DATE:</span>        <span style="color: #0189cc;">a date, an Org timestamp1, or a format string for format-time-string</span>
+<span style="color: #6272a4;">#+EMAIL:</span>       <span style="color: #0189cc;">his/her email address (default from user-mail-address)</span>
+<span style="color: #7c7c7c; font-style: italic;">#+DESCRIPTION: the page description, e.g. for the XHTML meta tag</span>
+<span style="color: #7c7c7c; font-style: italic;">#+KEYWORDS:    the page keywords, e.g. for the XHTML meta tag</span>
+<span style="color: #7c7c7c; font-style: italic;">#+LANGUAGE:    language for HTML, e.g. &#8216;en&#8217; (org-export-default-language)</span>
+<span style="color: #7c7c7c; font-style: italic;">#+TEXT:        Some descriptive text to be inserted at the beginning.</span>
+<span style="color: #7c7c7c; font-style: italic;">#+TEXT:        Several lines may be given.</span>
+<span style="color: #7c7c7c; font-style: italic;">#+OPTIONS:     H:2 num:t toc:t \n:nil @:t ::t |:t ^:t f:t TeX:t ...</span>
+<span style="color: #7c7c7c; font-style: italic;">#+BIND:        lisp-var lisp-val, e.g.: org-export-latex-low-levels itemize</span>
+You need to confirm using these, or configure org-export-allow-BIND
+<span style="color: #7c7c7c; font-style: italic;">#+LINK_UP:     the ``up'' link of an exported page</span>
+<span style="color: #7c7c7c; font-style: italic;">#+LINK_HOME:   the ``home'' link of an exported page</span>
+<span style="color: #7c7c7c; font-style: italic;">#+LATEX_HEADER: extra line(s) for the LaTeX header, like \usepackage{xyz}</span>
+<span style="color: #7c7c7c; font-style: italic;">#+EXPORT_SELECT_TAGS:   Tags that select a tree for export</span>
+<span style="color: #7c7c7c; font-style: italic;">#+EXPORT_EXCLUDE_TAGS:  Tags that exclude a tree from export</span>
+<span style="color: #7c7c7c; font-style: italic;">#+XSLT:        the XSLT stylesheet used by DocBook exporter to generate FO file</span>
+</pre>
+</div>
+
+<p>
+其中#+OPTIONS是复合的选项，包括：<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-org">H:         set the number of headline levels for export
+num:       turn on/off section-numbers
+toc:       turn on/off table of contents, or set level limit (integer)
+\n:        turn on/off line-break-preservation (DOES NOT WORK)
+@:         turn on/off quoted HTML tags
+::         turn on/off fixed-width sections
+<span style="color: #BD93F9;">|:         turn on/off tables</span>
+^:         turn on/off TeX-like syntax for sub- and superscripts.  If
+you write "^:{}", a_{b} will be interpreted, but
+the simple a_b will be left as it is.
+-:         turn on/off conversion of special strings.
+f:         turn on/off footnotes like this[1].
+todo:      turn on/off inclusion of TODO keywords into exported text
+tasks:     turn on/off inclusion of tasks (TODO items), can be nil to remove
+all tasks, todo to remove DONE tasks, or list of kwds to keep
+pri:       turn on/off priority cookies
+tags:      turn on/off inclusion of tags, may also be not-in-toc
+&lt;:         turn on/off inclusion of any time/date stamps like DEADLINES
+*:         turn on/off emphasized text (bold, italic, underlined)
+TeX:       turn on/off simple TeX macros in plain text
+LaTeX:     configure export of LaTeX fragments.  Default auto
+skip:      turn on/off skipping the text before the first heading
+author:    turn on/off inclusion of author name/email into exported file
+email:     turn on/off inclusion of author email into exported file
+creator:   turn on/off inclusion of creator info into exported file
+timestamp: turn on/off inclusion creation time into exported file
+d:         turn on/off inclusion of drawers
+</pre>
+</div>
+
+<p>
+这些元数据可以根据需要设置。建议放在文档的开头部分。如，本文采用的元数据如下：<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-org"><span style="color: #6272a4;">#+TITLE:</span> <span style="color: #FC9F4E;">org-mode: &#26368;&#22909;&#30340;&#25991;&#26723;&#32534;&#36753;&#21033;&#22120;&#65292;&#27809;&#26377;&#20043;&#19968;</span>
+<span style="color: #6272a4;">#+AUTHOR:</span><span style="color: #0189cc;">Holbrook Wong</span>
+<span style="color: #6272a4;">#+EMAIL:</span> <span style="color: #0189cc;">wanghaikuo@gmail.com</span>
+<span style="color: #7c7c7c; font-style: italic;">#+KEYWORDS: emacs, org-mode</span>
+<span style="color: #7c7c7c; font-style: italic;">#+OPTIONS: H:4 toc:t </span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org3652571" class="outline-2">
+<h2 id="org3652571">内容元数据</h2>
+<div class="outline-text-2" id="text-org3652571">
+<p>
+通常在行首以“#+”开头，可以有多种用途。<br>
+</p>
+</div>
+<div id="outline-container-org9c02a0a" class="outline-3">
+<h3 id="org9c02a0a">分行区块</h3>
+<div class="outline-text-3" id="text-org9c02a0a">
+<p>
+默认内容不换行，需要留出空行才能换行。定义了分行的区块可以实现普通换行：<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-org"><span style="color: #7c7c7c; font-style: italic;">#+BEGIN_VERSE</span>
+ Great clouds overhead
+ Tiny black birds rise and fall
+ Snow covers Emacs
+     -- AlexSchroeder
+<span style="color: #7c7c7c; font-style: italic;">#+END_VERSE</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgcaee446" class="outline-3">
+<h3 id="orgcaee446">缩进区块</h3>
+<div class="outline-text-3" id="text-orgcaee446">
+<p>
+通常用于引用，与默认格式相比左右都会留出缩进：<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-org"><span style="color: #7c7c7c; font-style: italic;">#+BEGIN_QUOTE</span>
+&#32553;&#36827;&#21306;&#22359;
+<span style="color: #7c7c7c; font-style: italic;">#+END_QUOTE</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org7323095" class="outline-3">
+<h3 id="org7323095">居中区块</h3>
+<div class="outline-text-3" id="text-org7323095">
+<div class="org-src-container">
+<pre class="src src-org"><span style="color: #7c7c7c; font-style: italic;">#+BEGIN_CENTER</span>
+Everything should be made as simple as possible, \\
+but not any simpler
+<span style="color: #7c7c7c; font-style: italic;">#+END_CENTER</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org108a35a" class="outline-3">
+<h3 id="org108a35a">代码区块</h3>
+<div class="outline-text-3" id="text-org108a35a">
+<div class="org-src-container">
+<pre class="src src-org">#+BEGIN_SRC ruby
+require 'redcarpet'
+md = Redcarpet.new("Hello, world.")
+puts md.to_html
+</pre>
+</div>
+<p>
+#+end_src<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc4ca281" class="outline-3">
+<h3 id="orgc4ca281">例子</h3>
+<div class="outline-text-3" id="text-orgc4ca281">
+<p>
+<code>:</code> 单行的例子以冒号开头<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-org"><span style="color: #7c7c7c; font-style: italic;">#+BEGIN_EXAMPLE</span>
+ &#22810;&#34892;&#30340;&#20363;&#23376;
+ &#20351;&#29992;&#21306;&#22359;
+<span style="color: #7c7c7c; font-style: italic;">#+END_EXAMPLE</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org89ff3a2" class="outline-3">
+<h3 id="org89ff3a2">注释</h3>
+<div class="outline-text-3" id="text-org89ff3a2">
+<p>
+以 <code>#</code> 开头的行被看作注释，不会被导出<br>
+</p>
+
+<p>
+区块注释采用如下写法：<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-org"><span style="color: #7c7c7c; font-style: italic;">#+BEGIN_COMMENT</span>
+&#22359;&#27880;&#37322;
+...
+<span style="color: #7c7c7c; font-style: italic;">#+END_COMMENT</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org571a033" class="outline-3">
+<h3 id="org571a033">表格与图片</h3>
+<div class="outline-text-3" id="text-org571a033">
+<p>
+对于表格和图片，可以在前面增加标题和标签的说明，以方便交叉引用。<br>
+</p>
+
+<p>
+比如在表格的前面添加：<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-org"><span style="color: #7c7c7c; font-style: italic;">#+CAPTION:</span> <span style="color: #7c7c7c;">This is the caption for the next table (or link)</span>
+<span style="color: #7c7c7c; font-style: italic;">#+LABEL: tbl:table1</span>
+</pre>
+</div>
+<p>
+则在需要的地方可以通过 <code>\ref{table1}</code> 来引用该表格。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgfe646a5" class="outline-3">
+<h3 id="orgfe646a5">嵌入Html</h3>
+<div class="outline-text-3" id="text-orgfe646a5">
+<p>
+对于导出html以及发布，嵌入html代码就很有用。比如下面的例子适用于格式化为cnblogs的代码块：<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-org"><span style="color: #7c7c7c; font-style: italic;">#+BEGIN_HTML</span>
+int main()
+{
+return 0;
+}
+<span style="color: #7c7c7c; font-style: italic;">#+END_HTML</span>
+</pre>
+</div>
+
+<p>
+相当于在cnblogs的网页编辑器中插入”c++”代码。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org1b6f968" class="outline-3">
+<h3 id="org1b6f968">包含文件</h3>
+<div class="outline-text-3" id="text-org1b6f968">
+<p>
+当导出文档时，你可以包含其他文件中的内容。比如，想包含你的“.emacs”文件，你可以用：<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-org"><span style="color: #7c7c7c; font-style: italic;">#+INCLUDE: "~/.emacs" src emacs-lisp</span>
+</pre>
+</div>
+<p>
+可选的第二个第三个参数是组织方式（例如，“quote”，“example”，或者“src”），如果是<br>
+“src”，语言用来格式化内容。组织方式是可选的，如果不给出，文本会被当作<br>
+Org 模式的正常处理。用 C-c ,可以访问包含的文件。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org356a953" class="outline-3">
+<h3 id="org356a953">嵌入 LaTex</h3>
+<div class="outline-text-3" id="text-org356a953">
+<p>
+对于需要包含数学符号和特殊方程的科学笔记，Org 模式支持嵌入 LaTeX<br>
+代码到文件中。你可以直接使用类 TeX<br>
+的宏来输入特殊符号，输入方程，或者整个 LaTeX 环境。<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-org">Angles are written as Greek letters \alpha, \beta and \gamma. The mass if
+the sun is M_sun = 1.989 x 10^30 kg. The radius of the sun is R_{sun} =
+6.96 x 10^8 m. If $a^2=b$ and $b=2$, then the solution must be either
+$a=+\sqrt{2}$ or $a=-\sqrt{2}$.
+\begin{equation}
+x=\sqrt{b}
+\end{equation}
+</pre>
+</div>
+<p>
+特殊设置之后，导出 HTML 时 LaTeX 代码片断会生成图片并包含进来。<br>
+</p>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

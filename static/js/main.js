@@ -86,7 +86,7 @@ if (isPageHome()) {
 // About PAGE
 // ---------------------------------
 if (isCurPage('About')) {
-    CONTENT.addClass('js-about-content');
+    // CONTENT.addClass('js-about-content');
 }
 
 // NAVIGATIONS PAGE
@@ -128,6 +128,8 @@ if (isCurPage('Navigation')) {
 if (isCurPage('Links')) {
     $('a').each(function (idx, item) {
         $(this).attr('target', '_blank');
+        $(this).css('li::before', 'content: "➣ "');
+        $(this).css('font-size', '12.5px');
     });
 }
 
@@ -142,4 +144,7 @@ if (isCurPage('Ideas')) {
         $(this).css('font-family', 'kaiti, 华文细黑, 宋体, Consolas')
         $(this).addClass('js-outline');
     });
+		$('p').each(function () {
+				$(this).css('margin-bottom', '0');
+		});
 }
