@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-10-07 Thu 13:54 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DOCKER-常用命令</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran &lt;haoran.mc@outlook.com&gt;">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">DOCKER-常用命令</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org6efbcd8">帮助命令</a></li>
+<li><a href="#orgb25aada">镜像命令</a>
+<ul>
+<li><a href="#org3326317">docker images</a></li>
+<li><a href="#orgda53ca8">docker search</a></li>
+<li><a href="#org241f29b">docker pull</a></li>
+<li><a href="#orgbabb8a0">docker rmi</a></li>
+</ul>
+</li>
+<li><a href="#orgf963330">容器命令</a>
+<ul>
+<li><a href="#orge0bedf2">新建容器并启动</a></li>
+<li><a href="#orge4505b4">列出所有运行的容器</a></li>
+<li><a href="#org986d01a">退出容器</a></li>
+<li><a href="#orgaf3ea40">启动停止容器</a></li>
+<li><a href="#org7fe6d03">删除容器</a></li>
+</ul>
+</li>
+<li><a href="#orgd23fb84">常用其他命令</a>
+<ul>
+<li><a href="#org874b995">后台启动容器</a></li>
+<li><a href="#org53d7607">查看日志</a></li>
+<li><a href="#orgd94bd24">查看容器中运行的进程信息,支持 ps 命令参数</a></li>
+<li><a href="#orga0358de">查看容器/镜像的元数据</a></li>
+<li><a href="#org346ac85">进入正在运行的容器</a>
+<ul>
+<li><a href="#org660087b">exec</a></li>
+<li><a href="#org61ff49d">attach</a></li>
+</ul>
+</li>
+<li><a href="#orgd2a3985">从容器内拷贝文件到主机上</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org6efbcd8" class="outline-2">
+<h2 id="org6efbcd8">帮助命令</h2>
+<div class="outline-text-2" id="text-org6efbcd8">
+<p>
+docker version # 显示 Docker 版本信息。<br>
+docker info    # 显示 Docker 系统信息,包括镜像和容器数。。<br>
+docker &#x2013;help  # 帮助镜像命令<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb25aada" class="outline-2">
+<h2 id="orgb25aada">镜像命令</h2>
+<div class="outline-text-2" id="text-orgb25aada">
+</div>
+<div id="outline-container-org3326317" class="outline-3">
+<h3 id="org3326317">docker images</h3>
+<div class="outline-text-3" id="text-org3326317">
+<p>
+$ docker images<br>
+REPOSITORY  TAG     IMAGE      ID    CREATED      SIZE<br>
+hello-world latest bf756fb1ae65 4    months ago  13.3kB<br>
+</p>
+
+<p>
+REPOSITORY  镜像的仓库源<br>
+TAG         镜像的标签<br>
+IMAGE ID    镜像的ID<br>
+CREATED     镜像创建时间<br>
+SIZE        镜像大小<br>
+</p>
+
+<p>
+-a:        列出本地所有镜像<br>
+-q:        只显示镜像id<br>
+&#x2013;digests: 显示镜像的摘要信息<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgda53ca8" class="outline-3">
+<h3 id="orgda53ca8">docker search</h3>
+<div class="outline-text-3" id="text-orgda53ca8">
+<p>
+$ docker search mysql<br>
+NAME      DESCRIPTION                                     STARS   OFFICIAL<br>
+mysql     MySQL is a widely used, open-source relation&#x2026; 9484    [OK]<br>
+</p>
+
+<p>
+对应DockerHub仓库中的镜像<br>
+</p>
+
+<p>
+&#x2013;filter=stars=50   : 列出收藏数不小于指定值的镜像，这里=周围不能有空格<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org241f29b" class="outline-3">
+<h3 id="org241f29b">docker pull</h3>
+<div class="outline-text-3" id="text-org241f29b">
+<p>
+$ docker pull mysql<br>
+Using default tag: latest # 不写tag,默认是latest<br>
+latest: Pulling from library/mysql<br>
+54fec2fa59d0: Already exists<br>
+bcc6c6145912: Already exists<br>
+951c3d959c9d: Already exists<br>
+05de4d0e206e: Already exists<br>
+319f0394ef42: Already exists<br>
+d9185034607b: Already exists<br>
+013a9c64dadc: Already exists<br>
+42f3f7d10903: Pull complete<br>
+c4a3851d9207: Pull complete  # 分层下载<br>
+82a1cc65c182: Pull complete<br>
+a0a6b01efa55: Pull complete<br>
+bca5ce71f9ea: Pull complete<br>
+Digest:<br>
+sha256:61a2a33f4b8b4bc93b7b6b9e65e64044aaec594809f818aeffbff69a893d1944 #签名<br>
+Status: Downloaded newer image for mysql:latest<br>
+docker.io/library/mysql:latest # 真实位置<br>
+</p>
+
+<p>
+$ docker pull mysql:5.7<br>
+&#x2026;.<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgbabb8a0" class="outline-3">
+<h3 id="orgbabb8a0">docker rmi</h3>
+<div class="outline-text-3" id="text-orgbabb8a0">
+<p>
+docker rmi -f 镜像名:tag 镜像名:tag # 删除多个<br>
+docker rmi -f $(docker images -qa) # 删除全部<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgf963330" class="outline-2">
+<h2 id="orgf963330">容器命令</h2>
+<div class="outline-text-2" id="text-orgf963330">
+<p>
+说明:有镜像才能创建容器,我们这里使用centos的镜像来测试,就是虚拟一个centos!<br>
+docker pull centos<br>
+</p>
+</div>
+<div id="outline-container-orge0bedf2" class="outline-3">
+<h3 id="orge0bedf2">新建容器并启动</h3>
+<div class="outline-text-3" id="text-orge0bedf2">
+<p>
+docker run [OPTIONS] IMAGE [COMMAND][ARG&#x2026;]<br>
+</p>
+
+<p>
+&#x2013;name="Name" # 给容器指定一个名字   <b>建议改一下名字，不然可能会与镜像弄混</b><br>
+-d # 后台方式运行容器,并返回容器的id!<br>
+-i # 以交互模式运行容器,通过和 -t 一起使用<br>
+-t # 给容器重新分配一个终端,通常和 -i 一起使用<br>
+-P # 随机端口映射(大写)<br>
+-p # 指定端口映射(小结),一般可以有四种写法<br>
+</p>
+<ol class="org-ol">
+<li>ip:hostPort:containerPort<br></li>
+<li>ip::containerPort<br></li>
+<li>hostPort:containerPort (常用)<br></li>
+<li><p>
+containerPort<br>
+</p>
+
+<p>
+$ docker images<br>
+REPOSITORY  TAG      IMAGE ID        CREATED         SIZE<br>
+centos      latest   470671670cac    3 months ago    237MB<br>
+</p>
+
+<p>
+$ docker run -it centos /bin/bash<br>
+$ ls  # 注意地址,已经切换到容器内部了!<br>
+bin etc lib lost+found mnt proc run srv tmp dev home lib64 media opt root sbin sys usr var<br>
+</p>
+
+<p>
+$ exit  # 使用 exit 退出容器<br>
+</p></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orge4505b4" class="outline-3">
+<h3 id="orge4505b4">列出所有运行的容器</h3>
+<div class="outline-text-3" id="text-orge4505b4">
+<p>
+docker ps [OPTIONS]  # 不加参数的话，就只显示正在运行的容器<br>
+</p>
+
+<p>
+-a # 列出当前所有正在运行的容器 + 历史运行过的容器<br>
+-l # 显示最近创建的容器<br>
+-n=? # 显示最近n个创建的容器<br>
+-q # 静默模式,只显示容器编号。<br>
+</p>
+
+<p>
+$ docker ps<br>
+CONTAINER ID   IMAGE     COMMAND       CREATED          STATUS          PORTS     NAMES<br>
+93f4c8395c51   centos    "/bin/bash"   10 seconds ago   Up 9 seconds              trusting_bohr<br>
+3a7035e82dd6   centos    "/bin/bash"   15 minutes ago   Up 32 seconds             friendly_bouman<br>
+你会发现虽然容器名都是cantos，但是可以运行两个，这是因为区分容器是用ID来区分的，可以有相同的名字，这就是为什么推荐每次创建容器的时候重命名(这还只是运行着的容器，没运行的容器还可能有centos)<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org986d01a" class="outline-3">
+<h3 id="org986d01a">退出容器</h3>
+<div class="outline-text-3" id="text-org986d01a">
+<p>
+exit     # 容器停止退出<br>
+ctrl+P+Q # 容器不停止退出<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgaf3ea40" class="outline-3">
+<h3 id="orgaf3ea40">启动停止容器</h3>
+<div class="outline-text-3" id="text-orgaf3ea40">
+<p>
+docker start (容器id or 容器名) # 启动容器<br>
+docker restart (容器id or 容器名) # 重启容器<br>
+docker stop (容器id or 容器名) # 停止容器<br>
+docker kill (容器id or 容器名) # 强制停止容器<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org7fe6d03" class="outline-3">
+<h3 id="org7fe6d03">删除容器</h3>
+<div class="outline-text-3" id="text-org7fe6d03">
+<p>
+docker rm 容器id # 删除指定容器，不能删除正在运行的容器，如果要强制删除，rm -f<br>
+docker rm -f $(docker ps -a -q) # 删除所有容器<br>
+docker ps -a -q|xargs docker rm # 删除所有容器<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgd23fb84" class="outline-2">
+<h2 id="orgd23fb84">常用其他命令</h2>
+<div class="outline-text-2" id="text-orgd23fb84">
+</div>
+<div id="outline-container-org874b995" class="outline-3">
+<h3 id="org874b995">后台启动容器</h3>
+<div class="outline-text-3" id="text-org874b995">
+<p>
+docker run -d 容器名<br>
+</p>
+
+<p>
+docker run -d centos # 启动centos,使用后台方式启动<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org53d7607" class="outline-3">
+<h3 id="org53d7607">查看日志</h3>
+<div class="outline-text-3" id="text-org53d7607">
+<p>
+docker logs -f -t &#x2013;tail 日志条数 容器id<br>
+</p>
+
+<p>
+$ docker run -d centos /bin/sh -c "while true;do echo ogmc;sleep 1;done"<br>
+</p>
+
+<p>
+$ docker ps<br>
+CONTAINER ID         IMAGE<br>
+c8530dbbe3b4         centos<br>
+</p>
+
+<p>
+$ docker logs -tf &#x2013;tail 10 c8530dbbe3b4<br>
+2020-05-11T08:46:40.656901941Z ogmc<br>
+2020-05-11T08:46:41.658765018Z ogmc<br>
+2020-05-11T08:46:42.661015375Z ogmc<br>
+2020-05-11T08:46:43.662865628Z ogmc<br>
+2020-05-11T08:46:44.664571547Z ogmc<br>
+2020-05-11T08:46:45.666718583Z ogmc<br>
+2020-05-11T08:46:46.668556725Z ogmc<br>
+2020-05-11T08:46:47.670424699Z ogmc<br>
+2020-05-11T08:46:48.672324512Z ogmc<br>
+2020-05-11T08:46:49.674092766Z ogmc<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd94bd24" class="outline-3">
+<h3 id="orgd94bd24">查看容器中运行的进程信息,支持 ps 命令参数</h3>
+<div class="outline-text-3" id="text-orgd94bd24">
+<p>
+docker top 容器id<br>
+</p>
+
+<p>
+$ docker top c8530dbbe3b4<br>
+UID    PID    PPID  C  STIME  TTY  TIME      CMD<br>
+root  27437  27421  0  16:43  ?   00:00:00  /bin/sh -c &#x2026;.<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga0358de" class="outline-3">
+<h3 id="orga0358de">查看容器/镜像的元数据</h3>
+<div class="outline-text-3" id="text-orga0358de">
+<div class="org-src-container">
+<pre class="src src-shell"><span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&#21629;&#20196;</span>
+docker inspect &#23481;&#22120;id
+
+<span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&#27979;&#35797;</span>
+$ docker inspect c8530dbbe3b4
+[
+    {
+        <span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&#23436;&#25972;&#30340;id,&#26377;&#24847;&#24605;&#21834;,&#36825;&#37324;&#19978;&#38754;&#30340;&#23481;&#22120;id,&#23601;&#26159;&#25130;&#21462;&#30340;&#36825;&#20010;id&#21069;&#20960;&#20301;!</span>
+        <span style="color: #FC9F4E;">"Id"</span>: <span style="color: #FC9F4E;">"c8530dbbe3b44a0c873f2566442df6543ed653c1319753e34b400efa05f77cf8"</span>,
+        <span style="color: #FC9F4E;">"Created"</span>: <span style="color: #FC9F4E;">"2020-05-11T08:43:45.096892382Z"</span>,
+        <span style="color: #FC9F4E;">"Path"</span>: <span style="color: #FC9F4E;">"/bin/sh"</span>,
+        <span style="color: #FC9F4E;">"Args"</span>: [
+            <span style="color: #FC9F4E;">"-c"</span>,
+            <span style="color: #FC9F4E;">"while true;do echo kuangshen;sleep 1;done"</span>
+        ],
+        <span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&#29366;&#24577;</span>
+        <span style="color: #FC9F4E;">"State"</span>: {
+            <span style="color: #FC9F4E;">"Status"</span>: <span style="color: #FC9F4E;">"running"</span>,
+            <span style="color: #FC9F4E;">"Running"</span>: true,
+            <span style="color: #FC9F4E;">"Paused"</span>: false,
+            <span style="color: #FC9F4E;">"Restarting"</span>: false,
+            <span style="color: #FC9F4E;">"OOMKilled"</span>: false,
+            <span style="color: #FC9F4E;">"Dead"</span>: false,24 <span style="color: #FC9F4E;">"Pid"</span>: <span style="color: #009F9F;">27437,</span>
+            <span style="color: #FC9F4E;">"ExitCode"</span>: <span style="color: #009F9F;">0,</span>
+            <span style="color: #FC9F4E;">"Error"</span>: <span style="color: #FC9F4E;">""</span>,
+            <span style="color: #FC9F4E;">"StartedAt"</span>: <span style="color: #FC9F4E;">"2020-05-11T08:43:45.324474622Z"</span>,
+            <span style="color: #FC9F4E;">"FinishedAt"</span>: <span style="color: #FC9F4E;">"0001-01-01T00:00:00Z"</span>
+        },
+        // ...........
+    }
+]
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org346ac85" class="outline-3">
+<h3 id="org346ac85">进入正在运行的容器</h3>
+<div class="outline-text-3" id="text-org346ac85">
+</div>
+<div id="outline-container-org660087b" class="outline-4">
+<h4 id="org660087b">exec</h4>
+<div class="outline-text-4" id="text-org660087b">
+<p>
+docker exec -it 容器id bashShell<br>
+</p>
+
+<p>
+$ docker ps<br>
+CONTAINER ID   IMAGE    COMMAND                   CREATED         STATUS         PORTS      NAMES<br>
+c8530dbbe3b4   centos  "/bin/sh -c 'while t&#x2026;"   12 minutes ago  Up 12 minutes            happy_chaum<br>
+</p>
+
+<p>
+$ docker exec -it c8530dbbe3b4 /bin/bash<br>
+$ ps -ef<br>
+UID  PID PPID  C  STIME  TTY  TIME         CMD<br>
+root 1    0    0  08:43   ?   00:00:00     /bin/sh -c while true;do<br>
+</p>
+
+<p>
+echo kuangshen;sleep<br>
+root 751 0 0 08:56 pts/0 00:00:00 /bin/bash<br>
+root 769 1 0 08:56 ? 00:00:00 /usr/bin/coreutils &#x2013;<br>
+</p>
+
+<p>
+coreutils-prog-shebang=s<br>
+root 770 751 0 08:56 pts/0 00:00:00 ps -ef<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org61ff49d" class="outline-4">
+<h4 id="org61ff49d">attach</h4>
+<div class="outline-text-4" id="text-org61ff49d">
+<p>
+docker attach 容器id<br>
+</p>
+
+<p>
+$ docker exec -it c8530dbbe3b4 /bin/bash<br>
+$ ps -ef<br>
+UID PID PPID C STIME TTY TIME CMD<br>
+root 1 0 0 08:43 ? 00:00:00 /bin/sh -c while true;do<br>
+echo kuangshen;sleep<br>
+root 856 0 0 08:57 pts/0 00:00:00 /bin/bash<br>
+root 874 1 0 08:57 ? 00:00:00 /usr/bin/coreutils &#x2013;<br>
+</p>
+
+<p>
+coreutils-prog-shebang=s<br>
+root 875 856 0 08:57 pts/0 00:00:00 ps -ef<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgd2a3985" class="outline-3">
+<h3 id="orgd2a3985">从容器内拷贝文件到主机上</h3>
+<div class="outline-text-3" id="text-orgd2a3985">
+<p>
+docker cp 容器id:容器内路径 目的主机路径<br>
+</p>
+
+<p>
+[root@c8530dbbe3b4 /]# cd /home<br>
+[root@c8530dbbe3b4 home]# touch f1<br>
+[root@c8530dbbe3b4 home]# ls9<br>
+f1<br>
+[root@c8530dbbe3b4 home]# exit<br>
+exit<br>
+</p>
+
+<p>
+[root@kuangshen ~]# docker cp c8530dbbe3b4:/home/f1 /home<br>
+[root@kuangshen ~]# cd /home<br>
+[root@kuangshen home]# ls<br>
+f1<br>
+</p>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-10-07 Thu 15:54 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ALGORITHM-图论-BELLMAN-FORD</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">ALGORITHM-图论-BELLMAN-FORD</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgb4787e7">Bellman-Ford找负环:</a></li>
+</ul>
+</div>
+</div>
+<ul class="org-ul">
+<li>Dijkstra不能解决含有负权边图的最短路径问题<br></li>
+<li><p>
+使用Bellman-Ford算法(BF算法)处理负权边的问题<br>
+</p>
+
+<pre class="example" id="orgeb0cda9">
+A  |\                          A  |\                           A  |\
+	 |  \                           |  \                            |  \    
+	 |    \                         |    \                          |    \    
+	 |      \  2                    |      \  2                     |      \  2 
+-4 |        \                  -4 |        \                   -4 |        \
+	 |          \                   |          \                    |          \  
+	 |     2      \                 |     5      \                  |      1     \ 
+B  | ------------ \ C          B  | ------------ \ C           B  | ------------ \ C
+
+				零环                           正环                            负环
+</pre></li>
+</ul>
+
+
+<p>
+在上面负环中，从C到B最短距离是-2，使用Dijkstra算法会比较CB与CA后认为最短路径为CB，得到错误答案<br>
+</p>
+
+<ul class="org-ul">
+<li>与Dijkstra算法相同，Bellman-Ford算法设置一个数组，用于存放从源点到达各个顶点的最短距离<br></li>
+<li>如果图中出现负环，在进行多次松弛之后仍能继续松弛，直到负无穷<br></li>
+<li>此处Bellman-Ford是发现是否有负环，而非找到最短路径<br></li>
+<li>时间复杂度O(VE)<br></li>
+</ul>
+<div id="outline-container-orgb4787e7" class="outline-2">
+<h2 id="orgb4787e7">Bellman-Ford找负环:</h2>
+<div class="outline-text-2" id="text-orgb4787e7">
+<ul class="org-ul">
+<li>Bellman-Ford迭代k次意味着不超过k条边的最短路径距离<br></li>
+<li>所以如果迭代n次，就意味着这里存在从源点到第n个点之间的最短路径上有<br>
+n条边，而如果有n条边，根据抽屉原理，这个路径上一定有环，也一定是负<br>
+环。如果无法迭代n次，就说明没有负环<br></li>
+<li>但是我们不用Bellman-Ford算法找负环，因为时间复杂度，我们使用spfa找<br>
+负环<br></li>
+</ul>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-10-07 Thu 13:51 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>使用VSCODE进行完整的项目开发</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran &lt;haoran.mc@outlook.com&gt;">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">使用VSCODE进行完整的项目开发</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgb977acb">使用vscode进行完整的项目开发</a>
+<ul>
+<li><a href="#org087854e">配置json文件并调试项目</a>
+<ul>
+<li><a href="#orgaf73157">linux</a>
+<ul>
+<li>
+<ul>
+<li><a href="#orgc2ed0f9">使用CMake</a></li>
+<li><a href="#org38fd8bb">不使用CMake</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#orgc2e32f9">windows</a>
+<ul>
+<li><a href="#org591d705">不使用CMake</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgb977acb" class="outline-2">
+<h2 id="orgb977acb">使用vscode进行完整的项目开发</h2>
+<div class="outline-text-2" id="text-orgb977acb">
+</div>
+<div id="outline-container-org087854e" class="outline-3">
+<h3 id="org087854e">配置json文件并调试项目</h3>
+<div class="outline-text-3" id="text-org087854e">
+</div>
+<div id="outline-container-orgaf73157" class="outline-4">
+<h4 id="orgaf73157">linux</h4>
+<div class="outline-text-4" id="text-orgaf73157">
+</div>
+<div id="outline-container-orgc2ed0f9" class="outline-6">
+<h6 id="orgc2ed0f9">使用CMake</h6>
+<div class="outline-text-6" id="text-orgc2ed0f9">
+<ul class="org-ul">
+<li><p>
+task.json<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-js">{
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">See https://go.microsoft.com/fwlink/?LinkId=733558</span>
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">for the documentation about the tasks.json format</span>
+    <span style="color: #FC9F4E;">"version"</span>: <span style="color: #FC9F4E;">"2.0.0"</span>,
+    <span style="color: #FC9F4E;">"options"</span>: {
+        <span style="color: #FC9F4E;">"cwd"</span>: <span style="color: #FC9F4E;">"${workspaceFolder}/build"</span>  <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#36827;&#20837;&#21040;build&#25991;&#20214;&#22841;&#30340;&#32477;&#23545;&#36335;&#24452;&#20013;</span>
+    },
+    <span style="color: #FC9F4E;">"tasks"</span>: [ <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#21253;&#21547;&#20102;&#19977;&#20010;&#23567;&#30340;tasks</span>
+        {
+            <span style="color: #FC9F4E;">"type"</span>: <span style="color: #FC9F4E;">"shell"</span>,
+            <span style="color: #FC9F4E;">"label"</span>: <span style="color: #FC9F4E;">"cmake"</span>,   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">task&#30340;&#21517;&#23383;</span>
+            <span style="color: #FC9F4E;">"command"</span>: <span style="color: #FC9F4E;">"cmake"</span>, <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#21629;&#20196;</span>
+            <span style="color: #FC9F4E;">"args"</span>: [<span style="color: #FC9F4E;">".."</span>]      <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#21442;&#25968;</span>
+        },
+        {
+            <span style="color: #FC9F4E;">"label"</span>: <span style="color: #FC9F4E;">"make"</span>,    <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">task&#30340;&#21517;&#23383;</span>
+            <span style="color: #FC9F4E;">"group"</span>: {
+                <span style="color: #FC9F4E;">"kind"</span>: <span style="color: #FC9F4E;">"build"</span>,
+                <span style="color: #FC9F4E;">"isDefault"</span>: <span style="color: #009F9F;">true</span>
+            },
+            <span style="color: #FC9F4E;">"command"</span>: <span style="color: #FC9F4E;">"make"</span>,  <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#21629;&#20196;</span>
+            <span style="color: #FC9F4E;">"args"</span>: []          <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#27809;&#26377;&#21442;&#25968;</span>
+        },
+        {
+            <span style="color: #FC9F4E;">"label"</span>: <span style="color: #FC9F4E;">"Build"</span>,   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#36825;&#20010;label&#20381;&#36182;&#20110;&#19978;&#38754;&#20004;&#20010;&#23567;&#30340;label</span>
+            <span style="color: #FC9F4E;">"dependsOrder"</span>: <span style="color: #FC9F4E;">"sequence"</span>, <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#25353;&#21015;&#20986;&#30340;&#39034;&#24207;&#25191;&#34892;&#20219;&#21153;&#20381;&#36182;&#39033;</span>
+            <span style="color: #FC9F4E;">"dependsOn"</span>:[
+                <span style="color: #FC9F4E;">"cmake"</span>,
+                <span style="color: #FC9F4E;">"make"</span>
+            ]
+        }
+    ]
+}
+</pre>
+</div></li>
+<li><p>
+launch.json<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-js">{
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">Use IntelliSense to learn about possible attributes.</span>
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">Hover to view descriptions of existing attributes.</span>
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387</span>
+    <span style="color: #FC9F4E;">"version"</span>: <span style="color: #FC9F4E;">"0.2.0"</span>,
+    <span style="color: #FC9F4E;">"configurations"</span>: [
+        {
+            <span style="color: #FC9F4E;">"name"</span>: <span style="color: #FC9F4E;">"g++ - &#29983;&#25104;&#21644;&#35843;&#35797;&#27963;&#21160;&#25991;&#20214;"</span>,  <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">launch&#30340;&#19968;&#20010;&#21517;&#23383;</span>
+            <span style="color: #FC9F4E;">"type"</span>: <span style="color: #FC9F4E;">"cppdbg"</span>,                    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#19981;&#29992;&#31649;&#65292;&#29992;&#19981;&#21040;&#20854;&#20182;&#30340;</span>
+            <span style="color: #FC9F4E;">"request"</span>: <span style="color: #FC9F4E;">"launch"</span>,                 <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#19981;&#29992;&#31649;&#65292;&#29992;&#19981;&#21040;&#20854;&#20182;&#30340;</span>
+            <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">"program": "${fileDirname}/${fileBasenameNoExtension}",</span>
+            <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">*** &#20195;&#34920;&#20102;&#35201;&#35843;&#35797;&#30340;&#21487;&#25191;&#34892;&#25991;&#20214;&#30340;&#32477;&#23545;&#36335;&#24452;(&#38750;&#24120;&#37325;&#35201;)</span>
+            <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#35201;&#25226;&#29983;&#25104;&#30340;&#21487;&#25191;&#34892;&#25991;&#20214;&#30340;&#36335;&#24452;&#25918;&#22312;&#36825;&#37324;&#65292;&#22914;&#26524;&#29992;&#30340;&#26159;CMake&#30340;&#35805;&#65292;&#23601;&#25226;</span>
+            <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">CMake&#29983;&#25104;&#30340;&#21487;&#25191;&#34892;&#25991;&#20214;&#36335;&#24452;&#25918;&#22312;&#36825;&#37324;&#65292;&#22914;&#26524;&#26159;&#20351;&#29992;G++&#21629;&#20196;&#29983;&#25104;&#30340;&#35805;&#65292;&#20063;&#35201;&#25918;&#22312;&#36825;&#37324;</span>
+            <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#22312;&#36825;&#37324;&#20351;&#29992;${workspaceFolder}&#65292;&#20195;&#34920;&#36825;&#20010;&#39033;&#30446;&#30340;&#39030;&#23618;&#30446;&#24405;&#65292;&#21487;&#25191;&#34892;&#25991;&#20214;&#26159;</span>
+            <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">build&#25991;&#20214;&#22841;&#19979;&#30340;my_cmake_exe</span>
+            <span style="color: #FC9F4E;">"program"</span>: <span style="color: #FC9F4E;">"${workspaceFolder}/build/my_cmake_exe"</span>,    
+            <span style="color: #FC9F4E;">"args"</span>: [],  <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">int main(int argc, char **argv)  &#26377;&#21442;&#25968;&#30340;&#26102;&#20505;&#25165;&#38656;&#35201;&#21442;&#25968;</span>
+            <span style="color: #FC9F4E;">"stopAtEntry"</span>: <span style="color: #009F9F;">false</span>,
+            <span style="color: #FC9F4E;">"cwd"</span>: <span style="color: #FC9F4E;">"${workspaceFolder}"</span>, <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#36827;&#20837;&#21040;&#24403;&#21069;&#30446;&#24405;</span>
+            <span style="color: #FC9F4E;">"environment"</span>: [],
+            <span style="color: #FC9F4E;">"externalConsole"</span>: <span style="color: #009F9F;">false</span>,
+            <span style="color: #FC9F4E;">"MIMode"</span>: <span style="color: #FC9F4E;">"gdb"</span>, <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#35843;&#35797;&#22120;&#30340;&#36335;&#24452;</span>
+            <span style="color: #FC9F4E;">"miDebuggerPath"</span>: <span style="color: #FC9F4E;">"/usr/bin/gdb"</span> <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">gdb&#30340;&#36335;&#24452;</span>
+            <span style="color: #FC9F4E;">"setupCommands"</span>: [
+                {
+                    <span style="color: #FC9F4E;">"description"</span>: <span style="color: #FC9F4E;">"&#20026; gdb &#21551;&#29992;&#25972;&#40784;&#25171;&#21360;"</span>,
+                    <span style="color: #FC9F4E;">"text"</span>: <span style="color: #FC9F4E;">"-enable-pretty-printing"</span>,
+                    <span style="color: #FC9F4E;">"ignoreFailures"</span>: <span style="color: #009F9F;">true</span>
+                }
+            ],
+            <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#22312;launch&#20043;&#21069;&#20570;&#19968;&#20010;task&#65292;&#20063;&#23601;&#26159;&#19968;&#20010;&#20219;&#21153;(&#27809;&#26377;CMake&#30340;&#35805;&#19981;&#38656;&#35201;)</span>
+            <span style="color: #FC9F4E;">"preLaunchTask"</span>: <span style="color: #FC9F4E;">"Build"</span>,  <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#35201;&#19982;task&#25991;&#20214;&#20013;&#30340;label&#21517;&#23383;&#30456;&#21516;</span>
+        }
+    ]
+}
+</pre>
+</div></li>
+<li>"miDebuggerPath" 一定是自己当前使用电脑的gdb.exe路径<br></li>
+<li>"program" 一定是cmakelists.txt生成的可执行文件的路径及名字<br></li>
+<li>"preLaunchTask" 如果要只调试当前生成的exe文件，可将此行注释。如果是先build再直接调试则不用注释。(注：build 和debug是分开的，不注释则合并在一起操作了，如果注释了，要先手动build，再debug)<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org38fd8bb" class="outline-6">
+<h6 id="org38fd8bb">不使用CMake</h6>
+<div class="outline-text-6" id="text-org38fd8bb">
+<p>
+注意: 生成的可执行文件一定要在项目目录下，所以需要一个单独的.exe文件夹存储可执行文件<br>
+</p>
+<ul class="org-ul">
+<li><p>
+launch.json<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-js">{
+    <span style="color: #FC9F4E;">"version"</span>: <span style="color: #FC9F4E;">"0.2.0"</span>,
+    <span style="color: #FC9F4E;">"configurations"</span>: [
+        {
+            <span style="color: #FC9F4E;">"name"</span>: <span style="color: #FC9F4E;">"C++ Launch"</span>,
+            <span style="color: #FC9F4E;">"type"</span>: <span style="color: #FC9F4E;">"cppdbg"</span>,
+            <span style="color: #FC9F4E;">"request"</span>: <span style="color: #FC9F4E;">"launch"</span>,
+            <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">1. "program": "${workspaceRoot}/a.out",</span>
+            <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">2. "program": "${fileDirname}/${fileBasenameNoExtension}",</span>
+            <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">3. "program": "${workspaceRoot}/${fileBasenameNoExtension}",</span>
+            <span style="color: #FC9F4E;">"program"</span>: <span style="color: #FC9F4E;">"${workspaceRoot}/.exe/${fileBasenameNoExtension}"</span>,
+            <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">"program": "~/haoran/work/editor/VScode/_exe/${fileBasenameNoExtension}",  //&#36825;&#20010;&#19981;&#21487;&#20197;</span>
+            <span style="color: #FC9F4E;">"args"</span>: [],
+            <span style="color: #FC9F4E;">"stopAtEntry"</span>: <span style="color: #009F9F;">true</span>,
+            <span style="color: #FC9F4E;">"externalConsole"</span>: <span style="color: #009F9F;">false</span>,
+            <span style="color: #FC9F4E;">"cwd"</span>: <span style="color: #FC9F4E;">"${workspaceFolder}"</span>,
+            <span style="color: #FC9F4E;">"preLaunchTask"</span>: <span style="color: #FC9F4E;">"Compile"</span>
+            <span style="color: #7c7c7c; font-style: italic;">/*</span><span style="color: #7c7c7c; font-style: italic;">"windows":{</span>
+<span style="color: #7c7c7c; font-style: italic;">             *  "MIMode": "gdb",</span>
+<span style="color: #7c7c7c; font-style: italic;">             *  "miDebuggerPath": "C:\\Windows\\mingw64\\bin\\gdb.exe"</span>
+<span style="color: #7c7c7c; font-style: italic;">             *}</span>
+<span style="color: #7c7c7c; font-style: italic;">             */</span>
+        }
+    ]
+}
+</pre>
+</div></li>
+<li><p>
+task.json<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-js">{
+    <span style="color: #FC9F4E;">"version"</span>: <span style="color: #FC9F4E;">"2.0.0"</span>,
+    <span style="color: #FC9F4E;">"options"</span>: {<span style="color: #FC9F4E;">"cwd"</span>: <span style="color: #FC9F4E;">"${workspaceFolder}"</span>},
+    <span style="color: #FC9F4E;">"tasks"</span>: [
+        {
+            <span style="color: #FC9F4E;">"label"</span>: <span style="color: #FC9F4E;">"Compile"</span>,
+            <span style="color: #FC9F4E;">"type"</span>: <span style="color: #FC9F4E;">"shell"</span>,
+            <span style="color: #FC9F4E;">"command"</span>: <span style="color: #FC9F4E;">"g++"</span>,
+            <span style="color: #FC9F4E;">"args"</span>:[
+                <span style="color: #FC9F4E;">"-g"</span>,
+                <span style="color: #FC9F4E;">"${file}"</span>,
+                <span style="color: #FC9F4E;">"-o"</span>,
+                <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">1. "${workspaceRoot}/a.out"</span>
+                <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">2. "${fileDirname}/${fileBasenameNoExtension}",</span>
+                <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">3. "${workspaceRoot}/${fileBasenameNoExtension}"</span>
+                <span style="color: #FC9F4E;">"${workspaceRoot}/.exe/${fileBasenameNoExtension}"</span>
+                <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">"~/haoran/work/editor/VScode/_exe/${fileBasenameNoExtension}",</span>
+            ],
+            <span style="color: #FC9F4E;">"group"</span>: {
+                <span style="color: #FC9F4E;">"kind"</span>: <span style="color: #FC9F4E;">"build"</span>,
+                <span style="color: #FC9F4E;">"isDefault"</span>: <span style="color: #009F9F;">true</span>
+            }
+        }
+    ]
+}
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgc2e32f9" class="outline-4">
+<h4 id="orgc2e32f9">windows</h4>
+<div class="outline-text-4" id="text-orgc2e32f9">
+</div>
+<div id="outline-container-org591d705" class="outline-5">
+<h5 id="org591d705">不使用CMake</h5>
+<div class="outline-text-5" id="text-org591d705">
+<ul class="org-ul">
+<li><p>
+launch.json<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-js">{
+    <span style="color: #FC9F4E;">"version"</span>: <span style="color: #FC9F4E;">"0.2.0"</span>,
+    <span style="color: #FC9F4E;">"configurations"</span>: [
+        {
+            <span style="color: #FC9F4E;">"name"</span>: <span style="color: #FC9F4E;">"C++ Launch"</span>,
+            <span style="color: #FC9F4E;">"type"</span>: <span style="color: #FC9F4E;">"cppdbg"</span>,
+            <span style="color: #FC9F4E;">"request"</span>: <span style="color: #FC9F4E;">"launch"</span>,
+            <span style="color: #FC9F4E;">"program"</span>: <span style="color: #FC9F4E;">"${workspaceRoot}/_exe/${fileBasenameNoExtension}.exe"</span>,
+            <span style="color: #FC9F4E;">"args"</span>: [],
+            <span style="color: #FC9F4E;">"stopAtEntry"</span>: <span style="color: #009F9F;">true</span>,
+            <span style="color: #FC9F4E;">"externalConsole"</span>: <span style="color: #009F9F;">false</span>,
+            <span style="color: #FC9F4E;">"cwd"</span>: <span style="color: #FC9F4E;">"${workspaceFolder}"</span>,
+            <span style="color: #FC9F4E;">"preLaunchTask"</span>: <span style="color: #FC9F4E;">"Compile"</span>
+            <span style="color: #FC9F4E;">"windows"</span>:{
+                <span style="color: #FC9F4E;">"MIMode"</span>: <span style="color: #FC9F4E;">"gdb"</span>,
+                <span style="color: #FC9F4E;">"miDebuggerPath"</span>: <span style="color: #FC9F4E;">"C:\\Windows\\mingw64\\bin\\gdb.exe"</span>
+            }
+        }
+    ]
+}
+</pre>
+</div></li>
+<li><p>
+task.json<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-js">{
+    <span style="color: #FC9F4E;">"version"</span>: <span style="color: #FC9F4E;">"2.0.0"</span>,
+    <span style="color: #FC9F4E;">"options"</span>: {<span style="color: #FC9F4E;">"cwd"</span>: <span style="color: #FC9F4E;">"${workspaceFolder}"</span>},
+    <span style="color: #FC9F4E;">"tasks"</span>: [
+        {
+            <span style="color: #FC9F4E;">"label"</span>: <span style="color: #FC9F4E;">"Compile"</span>,
+            <span style="color: #FC9F4E;">"type"</span>: <span style="color: #FC9F4E;">"shell"</span>,
+            <span style="color: #FC9F4E;">"command"</span>: <span style="color: #FC9F4E;">"g++"</span>,
+            <span style="color: #FC9F4E;">"args"</span>:[
+                <span style="color: #FC9F4E;">"-g"</span>,
+                <span style="color: #FC9F4E;">"${file}"</span>,
+                <span style="color: #FC9F4E;">"-o"</span>,
+                <span style="color: #FC9F4E;">"${workspaceRoot}/_exe/${fileBasenameNoExtension}.exe"</span>
+            ],
+            <span style="color: #FC9F4E;">"group"</span>: {
+                <span style="color: #FC9F4E;">"kind"</span>: <span style="color: #FC9F4E;">"build"</span>,
+                <span style="color: #FC9F4E;">"isDefault"</span>: <span style="color: #009F9F;">true</span>
+            }
+        }
+    ]
+}
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

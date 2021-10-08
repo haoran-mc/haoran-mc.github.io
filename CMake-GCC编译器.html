@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-10-07 Thu 13:52 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GCC编译器</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran &lt;haoran.mc@outlook.com&gt;">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">GCC编译器</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org52e640c">GCC编译器</a>
+<ul>
+<li><a href="#org76fec24">编译过程</a></li>
+<li><a href="#orgdfe2424">编译参数</a>
+<ul>
+<li><a href="#org751957d">-g     编译带调试信息的可执行文件</a></li>
+<li><a href="#orge650c76">-O[n]  优化源代码</a></li>
+<li><a href="#orgfaaa468">-l和-L        指定库文件  |  指定库文件路径</a></li>
+<li><a href="#org849cdcd">-I     指定头文件搜索目录</a></li>
+<li><a href="#orge668f30">-Wall  打印警告信息</a></li>
+<li><a href="#org820e6e9">-w     关闭警告信息</a></li>
+<li><a href="#org859b7f6">-std=c++11    设置编译标准</a></li>
+<li><a href="#org41bf497">-o     指定输出文件名</a></li>
+<li><a href="#org38c1d9e">-D     定义宏</a></li>
+</ul>
+</li>
+<li><a href="#org856be2c">[实战]g++命令行编译</a>
+<ul>
+<li><a href="#org3cc135b">直接编译</a>
+<ul>
+<li><a href="#orgc5402fd">最简单的编译，并运行</a></li>
+<li><a href="#orgbd29f61">增加参数编译，并运行</a></li>
+</ul>
+</li>
+<li><a href="#orgb792a8a">生成库文件并编译</a>
+<ul>
+<li><a href="#org669603f">链接静态库生成可执行文件①</a></li>
+<li><a href="#org1a9d86b">链接动态库生成可执行文件②</a></li>
+<li><a href="#org09b612f">编译完成后的目录结构</a></li>
+</ul>
+</li>
+<li><a href="#org9940f02">运行可执行文件</a>
+<ul>
+<li><a href="#orge054edc">运行可执行文件①</a></li>
+<li><a href="#orgfa5ec5d">运行可执行文件②</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org52e640c" class="outline-2">
+<h2 id="org52e640c">GCC编译器</h2>
+<div class="outline-text-2" id="text-org52e640c">
+<p>
+前言：<br>
+</p>
+<ul class="org-ul">
+<li>GCC 编译器支持编译 Go、Objective-C，Objective-C ++，Fortran，Ada，D 和 BRIG（HSAIL）等程序；<br></li>
+<li>Linux  开发C/C++ 一定要熟悉 GCC<br></li>
+<li><p>
+VSCode是通过调用GCC编译器来实现C/C++的编译工作的；<br>
+</p>
+
+<p>
+实际使用中：<br>
+</p>
+<ul class="org-ul">
+<li>使用 gcc 指令编译 C 代码<br></li>
+<li>使用 g++指令编译 C++ 代码<br></li>
+</ul></li>
+</ul>
+</div>
+<div id="outline-container-org76fec24" class="outline-3">
+<h3 id="org76fec24">编译过程</h3>
+<div class="outline-text-3" id="text-org76fec24">
+<ol class="org-ol">
+<li>预处理-Pre-Processing             //.i文件<br>
+<b>-E 选项指示编译器仅对输入文件进行预处理</b><br>
+g++  -E  test.cpp  -o  test.i        //.i文件<br></li>
+</ol>
+
+
+<ol class="org-ol">
+<li>编译-Compiling                    // .s文件<br></li>
+</ol>
+<p>
+<b>-S 编译选项告诉 g++ 在为 C++ 代码产生了汇编语言文件后停止编译</b><br>
+<b>g++ 产生的汇编语言文件的缺省扩展名是 .s</b><br>
+g++  -S  test.i  -o   test.s<br>
+</p>
+
+
+<ol class="org-ol">
+<li>汇编-Assembling                   // .o文件<br></li>
+</ol>
+<p>
+<b>-c 选项告诉 g++ 仅把源代码编译为机器语言的目标代码</b><br>
+<b>缺省时 g++ 建立的目标代码文件有一个 .o 的扩展名</b><br>
+g++  -c  test.s  -o  test.o<br>
+</p>
+
+
+<ol class="org-ol">
+<li>链接-Linking                      // bin文件<br></li>
+</ol>
+<p>
+<b>-o 编译选项来为将产生的可执行文件用指定的文件名</b><br>
+g++  test.o  -o  test<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgdfe2424" class="outline-3">
+<h3 id="orgdfe2424">编译参数</h3>
+<div class="outline-text-3" id="text-orgdfe2424">
+</div>
+<div id="outline-container-org751957d" class="outline-4">
+<h4 id="org751957d">-g     编译带调试信息的可执行文件</h4>
+<div class="outline-text-4" id="text-org751957d">
+<p>
+g++ -g test.cpp<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge650c76" class="outline-4">
+<h4 id="orge650c76">-O[n]  优化源代码</h4>
+<div class="outline-text-4" id="text-orge650c76">
+<p>
+g++ -O2 test.cpp<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgfaaa468" class="outline-4">
+<h4 id="orgfaaa468">-l和-L        指定库文件  |  指定库文件路径</h4>
+<div class="outline-text-4" id="text-orgfaaa468">
+<p>
+g++ -lglog test.cpp<br>
+</p>
+
+<p>
+g++ -L/home/bing/mytestlibfolder -lmytest test.cpp<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org849cdcd" class="outline-4">
+<h4 id="org849cdcd">-I     指定头文件搜索目录</h4>
+<div class="outline-text-4" id="text-org849cdcd">
+<p>
+g++ -I/myinclude test.cpp<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge668f30" class="outline-4">
+<h4 id="orge668f30">-Wall  打印警告信息</h4>
+<div class="outline-text-4" id="text-orge668f30">
+<p>
+g++ -Wall test.cpp<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org820e6e9" class="outline-4">
+<h4 id="org820e6e9">-w     关闭警告信息</h4>
+<div class="outline-text-4" id="text-org820e6e9">
+<p>
+g++ -w test.cpp<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org859b7f6" class="outline-4">
+<h4 id="org859b7f6">-std=c++11    设置编译标准</h4>
+<div class="outline-text-4" id="text-org859b7f6">
+<p>
+g++ -std=c++11 test.cpp<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org41bf497" class="outline-4">
+<h4 id="org41bf497">-o     指定输出文件名</h4>
+<div class="outline-text-4" id="text-org41bf497">
+<p>
+g++ test.cpp -o test<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org38c1d9e" class="outline-4">
+<h4 id="org38c1d9e">-D     定义宏</h4>
+<div class="outline-text-4" id="text-org38c1d9e">
+<p>
+示例代码：<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-C++"><span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">-Dname &#23450;&#20041;&#23439;name,&#40664;&#35748;&#23450;&#20041;&#20869;&#23481;&#20026;&#23383;&#31526;&#20018;&#8220;1&#8221;</span>
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;stdio.h&gt;</span>
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
+<span style="color: #009F9F;">#ifdef</span> DEBUG
+    printf(<span style="color: #FC9F4E;">"DEBUG LOG\n"</span>);
+<span style="color: #009F9F;">#endif</span>
+    printf(<span style="color: #FC9F4E;">"in\n"</span>);
+}
+
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">1. &#22312;&#32534;&#35793;&#30340;&#26102;&#20505;&#65292;&#20351;&#29992;g++ -DDEBUG main.cpp</span>
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">2. &#31532;&#19971;&#34892;&#20195;&#30721;&#21487;&#20197;&#34987;&#25191;&#34892;</span>
+</pre>
+</div>
+<p>
+注：使用 man gcc命令可以查看gcc英文使用手册<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org856be2c" class="outline-3">
+<h3 id="org856be2c">[实战]g++命令行编译</h3>
+<div class="outline-text-3" id="text-org856be2c">
+<p>
+案例：最初目录结构: 2 directories, 3 files<br>
+</p>
+
+<p>
+.<br>
+├── include<br>
+│   └── Swap.h<br>
+├── main.cpp<br>
+└── src<br>
+└── Swap.cpp<br>
+</p>
+
+<p>
+2 directories, 3 files<br>
+</p>
+</div>
+
+<div id="outline-container-org3cc135b" class="outline-4">
+<h4 id="org3cc135b">直接编译</h4>
+<div class="outline-text-4" id="text-org3cc135b">
+</div>
+<div id="outline-container-orgc5402fd" class="outline-5">
+<h5 id="orgc5402fd">最简单的编译，并运行</h5>
+<div class="outline-text-5" id="text-orgc5402fd">
+<p>
+g++ main.cpp src/Swap.cpp -Iinclude<br>
+</p>
+
+<p>
+./a.out<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgbd29f61" class="outline-5">
+<h5 id="orgbd29f61">增加参数编译，并运行</h5>
+<div class="outline-text-5" id="text-orgbd29f61">
+<p>
+g++ main.cpp src/Swap.cpp -Iinclude -std=c++11 -O2 -Wall -o b.out<br>
+</p>
+
+<p>
+./b.out<br>
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgb792a8a" class="outline-4">
+<h4 id="orgb792a8a">生成库文件并编译</h4>
+<div class="outline-text-4" id="text-orgb792a8a">
+</div>
+<div id="outline-container-org669603f" class="outline-5">
+<h5 id="org669603f">链接静态库生成可执行文件①</h5>
+<div class="outline-text-5" id="text-org669603f">
+<p>
+$cd src<br>
+</p>
+
+<p>
+g++ swap.cpp -c -I../include<br>
+</p>
+
+<p>
+ar rs libSwap.a Swap.o<br>
+</p>
+
+<p>
+$cd ..<br>
+</p>
+
+<p>
+g++ main.cpp -Iinclude -Lsrc -lSwap -o staticmain<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org1a9d86b" class="outline-5">
+<h5 id="org1a9d86b">链接动态库生成可执行文件②</h5>
+<div class="outline-text-5" id="text-org1a9d86b">
+<p>
+$cd src<br>
+</p>
+
+<p>
+g++ Swap.cpp -I../include -fPIC -shared -o libSwap.so<br>
+## 上面命令等价于以下两条命令<br>
+</p>
+
+<p>
+$cd ..<br>
+</p>
+
+<p>
+g++ main.cpp -Iinclude -Lsrc -lSwap -o sharemain<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org09b612f" class="outline-5">
+<h5 id="org09b612f">编译完成后的目录结构</h5>
+<div class="outline-text-5" id="text-org09b612f">
+<p>
+最终目录结构：2 directories, 8 files<br>
+</p>
+
+<p>
+.<br>
+├── include<br>
+│   └── Swap.h<br>
+├── main.cpp<br>
+├── sharemain<br>
+├── src<br>
+│   ├── libSwap.a<br>
+│   ├── libSwap.so<br>
+│   ├── Swap.cpp<br>
+│   └── Swap.o<br>
+└── staticmain<br>
+</p>
+
+<p>
+2 directories, 8 files<br>
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org9940f02" class="outline-4">
+<h4 id="org9940f02">运行可执行文件</h4>
+<div class="outline-text-4" id="text-org9940f02">
+</div>
+<div id="outline-container-orge054edc" class="outline-5">
+<h5 id="orge054edc">运行可执行文件①</h5>
+<div class="outline-text-5" id="text-orge054edc">
+<p>
+./staticmain<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgfa5ec5d" class="outline-5">
+<h5 id="orgfa5ec5d">运行可执行文件②</h5>
+<div class="outline-text-5" id="text-orgfa5ec5d">
+<p>
+LD_LIBRARY_PATH=src ./sharemain<br>
+</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

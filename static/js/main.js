@@ -70,13 +70,13 @@ if (isPageHome()) {
     $('.top-btn').css('display', 'none'); // Hide top button.
     $('.nav-btn').css('display', 'none'); // Hide nav button.
     // Customize posts list showwing
-    $('thead').each(function () {
-        if (isPC) {
-            $(this).parent().click(function () {$(this).find('tbody').fadeToggle("fast", "linear");});
-        } else {
-            $(this).parent().click(function () {$(this).find('tbody').fadeToggle("fast", "linear");});
-        }
-    });
+    // $('thead').each(function () {
+    //     if (isPC) {
+    //         $(this).parent().click(function () {$(this).find('tbody').fadeToggle("fast", "linear");});
+    //     } else {
+    //         $(this).parent().click(function () {$(this).find('tbody').fadeToggle("fast", "linear");});
+    //     }
+    // });
     // Open link in a new tab
     $('a').each(function () {
         $(this).attr('target', '_blank');
@@ -147,4 +147,23 @@ if (isCurPage('Ideas')) {
 		$('p').each(function () {
 				$(this).css('margin-bottom', '0');
 		});
+}
+
+
+// Math PAGE
+// ---------------------------------
+if (isCurPage('Math')) {
+    // outline-1 TITLE
+    // outline-2 *
+    // outline-3 **
+    $('.outline-2').each(function () {
+        $(this).css('font-family', '微软雅黑, 宋体, Consolas')
+        $(this).addClass('js-math-outline');
+    });
+		$('p').each(function () {
+				$(this).css('margin-bottom', '0');
+		});
+		$('p+ul').each(function () {
+				$(this).css('margin-top', '0');
+		})
 }

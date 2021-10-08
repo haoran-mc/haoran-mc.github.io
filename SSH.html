@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-10-07 Thu 13:47 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SSH</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran &lt;haoran.mc@outlook.com&gt;">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">SSH</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org9b6bce2">ssh基础使用</a>
+<ul>
+<li><a href="#org7afc208">OpenSSH服务端常用命令</a></li>
+<li><a href="#org3f96290">ssh配置文件</a></li>
+</ul>
+</li>
+<li><a href="#orgce77288">ssh高级配置</a>
+<ul>
+<li><a href="#orgc82c960">配置文件</a></li>
+<li><a href="#org72b2490">服务器别名</a></li>
+<li><a href="#org07cbde0">免密登录</a></li>
+<li><a href="#org5a7bb80">免密钥文件登录</a>
+<ul>
+<li>
+<ul>
+<li><a href="#org220fabc">生成密钥对</a></li>
+<li><a href="#org906d225">上传公钥</a></li>
+<li><a href="#org89bb117">连接GCP</a></li>
+<li><a href="#orgf6cc7c1">简化登录</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org425a06c">创建新用户设置远程登录</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org9b6bce2" class="outline-2">
+<h2 id="org9b6bce2">ssh基础使用</h2>
+<div class="outline-text-2" id="text-org9b6bce2">
+<p>
+ssh客户端是一种使用Secure Shell(ssh)协议连接到运行了ssh服务端的远程服务器上<br>
+ssh是目前较可靠，专为远程登录会话和其他网络服务提供安全性的协议。<br>
+</p>
+<ul class="org-ul">
+<li>有效防止远程管理过程中的信息泄漏<br></li>
+<li>传输 <b>数据加密</b> ，能够防止DNS和IP欺骗<br></li>
+<li><p>
+传输 <b>数据压缩</b> ，加快传输速度<br>
+</p>
+
+<p>
+OpenSSH 是 SSH协议的免费开源实现。OpenSSH提供了服务端程序(openssh-server)和客户端工具(openssh-client)<br>
+Mac和Linux中默认已安装ssh客户端，可直接在终端中使用ssh命令。Windows则需手动安装ssh客户端，较常用的Windows SSH客户端有PuTTY和XShell<br>
+</p></li>
+</ul>
+</div>
+<div id="outline-container-org7afc208" class="outline-3">
+<h3 id="org7afc208">OpenSSH服务端常用命令</h3>
+<div class="outline-text-3" id="text-org7afc208">
+<p>
+$ sudo apt install openssh-server/openssh-client<br>
+</p>
+
+<p>
+$ netstat -tlp | grep ssh<br>
+</p>
+
+<p>
+$ sudo /etc/init.d/ssh start/stop/restart<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org3f96290" class="outline-3">
+<h3 id="org3f96290">ssh配置文件</h3>
+<div class="outline-text-3" id="text-org3f96290">
+<p>
+ssh服务端配置文件默认为/etc/ssh/sshd_config。可以按需修改默认22端口等配置<br>
+</p>
+
+<p>
+$ ssh [-options] [user@hostname]<br>
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">options</th>
+<th scope="col" class="org-left">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">-p</td>
+<td class="org-left">指定ssh端口号,默认端口为22</td>
+</tr>
+
+<tr>
+<td class="org-left">-i</td>
+<td class="org-left">使用指定私钥文件连接服务器(免密登录)</td>
+</tr>
+</tbody>
+</table>
+
+<ul class="org-ul">
+<li>user远程服务器登录的用户名，默认为当前用户<br></li>
+<li>hostname远程服务器地址。可以是IP/域名/别名<br></li>
+<li><p>
+exit或logout命令均可退出当前登录<br>
+</p>
+
+<p>
+$ ssh colin@192.168.1.196<br>
+</p>
+
+<p>
+$ ssh -p 2222 colin@192.168.1.198<br>
+</p>
+
+<p>
+$ ssh 168.1.196<br>
+</p></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgce77288" class="outline-2">
+<h2 id="orgce77288">ssh高级配置</h2>
+<div class="outline-text-2" id="text-orgce77288">
+</div>
+<div id="outline-container-orgc82c960" class="outline-3">
+<h3 id="orgc82c960">配置文件</h3>
+<div class="outline-text-3" id="text-orgc82c960">
+<p>
+ssh配置信息都保存在~/.ssh 中<br>
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">配置文件</th>
+<th scope="col" class="org-left">作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">known_hosts</td>
+<td class="org-left">作为客户端。记录曾连接服务器授权。ssh第一次连接一台服务器会有一个授权提示，确认授权后会记录在此文件中，下次连接记录中的服务器时则不再需要进行授权确认提示</td>
+</tr>
+
+<tr>
+<td class="org-left">authorized_keys</td>
+<td class="org-left">作为服务端。客户端的免密连接公钥文件</td>
+</tr>
+
+<tr>
+<td class="org-left">config</td>
+<td class="org-left">作为客户端。记录连接服务器配置的别名</td>
+</tr>
+</tbody>
+</table>
+
+<ul class="org-ul">
+<li>其中authorized_keys这个文件的权限要是0600 <br></li>
+<li>.ssh这个文件夹的权限要是0700<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org72b2490" class="outline-3">
+<h3 id="org72b2490">服务器别名</h3>
+<div class="outline-text-3" id="text-org72b2490">
+<p>
+远程管理命令(如ssh,scp等)连接一台服务器时一般都需要提供 服务器地址、端口、用户名 ，每次输入比较繁琐，我们可以把经常使用的服务器连接参数打包记录到配置文件中并为其设置一个简单易记的别名。这样我们就可以通过别名方便的访问服务器，而不需要提供地址、端口、用户名等信息了<br>
+</p>
+
+<p>
+配置方法如下：<br>
+创建或打开 ~/.ssh/config，在文件追加服务器配置信息<br>
+一台服务器配置格式如下<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-shell">Host ColinMac
+HostName <span style="color: #009F9F;">192.168.1.196</span>
+User colin
+Port <span style="color: #009F9F;">22</span>
+</pre>
+</div>
+<p>
+以上配置中只有HostName是必选项，其他都可按需省略。<br>
+配置完成后远程管理命令中就可以直接使用别名访问了，如<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell">$ ssh ColinMac
+$ scp <span style="color: #009F9F;">123.txt</span> ColinMac:Desktop
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org07cbde0" class="outline-3">
+<h3 id="org07cbde0">免密登录</h3>
+<div class="outline-text-3" id="text-org07cbde0">
+<div class="org-src-container">
+<pre class="src src-shell">$ ssh-keygen [-options]
+</pre>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">options</th>
+<th scope="col" class="org-left">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">-t</td>
+<td class="org-left">指定加密类型,默认为非对称加密(rsa), 所有可选项[dsa,ecdsa,ed25519,rsa]</td>
+</tr>
+
+<tr>
+<td class="org-left">-f</td>
+<td class="org-left">密钥文件名。</td>
+</tr>
+
+<tr>
+<td class="org-left">-C</td>
+<td class="org-left">注释，将附加在密钥文件尾部</td>
+</tr>
+</tbody>
+</table>
+<p>
+远程管理命令(如ssh, scp等)每次都需要提供用户密码保证安全。除此之外，我们也可配置使指定加密算法验证密钥文件的方式，避免每次输入密码<br>
+配置免密登录后，ssh连接和scp等远程管理命令都不需要再输密码<br>
+生成密钥时若指定了文件名，连接服务器时需要通过-i指定要验证的密钥文件,形如：ssh -i file user@host。默认文件名则可省略<br>
+默认配置只需以下两步：<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-shell"><span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&#23458;&#25143;&#31471;&#29983;&#25104;&#23494;&#38053;&#23545;</span>
+$ ssh-keygen
+
+<span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&#19978;&#20256;&#20844;&#38053;&#21040;&#26381;&#21153;&#22120;</span>
+$ ssh-copy-id user@hostname   <span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&#25991;&#20214;&#20250;&#33258;&#21160;&#19978;&#20256;&#20026;&#26381;&#21153;&#22120;&#29305;&#23450;&#25991;&#20214; &#65374;/.ssh/authorized_keys</span>
+</pre>
+</div>
+<p>
+完成以上步骤后直接使用ssh ColinUbuntu即可登录，服务器地址和密码均不用录入。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5a7bb80" class="outline-3">
+<h3 id="org5a7bb80">免密钥文件登录</h3>
+<div class="outline-text-3" id="text-org5a7bb80">
+<p>
+出于安全考虑，大部分服务器提供商如要求使用密钥文件进行远程登录，如GCP和AWS。下面我们以GCP为例来看如何简化连接操作,这搞起来吧&#x2026;<br>
+</p>
+</div>
+<div id="outline-container-org220fabc" class="outline-5">
+<h5 id="org220fabc">生成密钥对</h5>
+<div class="outline-text-5" id="text-org220fabc">
+<div class="org-src-container">
+<pre class="src src-shell">$ ssh-keygen -t rsa -f ~/.ssh/[KEY_FILENAME] -C [USERNAME]
+$ chmod <span style="color: #009F9F;">400</span> ~/.ssh/[KEY_FILENAME]
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org906d225" class="outline-5">
+<h5 id="org906d225">上传公钥</h5>
+<div class="outline-text-5" id="text-org906d225">
+<p>
+在Compute Engine页面左侧菜单找到元数据,将上一步生成的公钥文件(KEY_FILENAME_pub)内容添加到SSH密钥中即可。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org89bb117" class="outline-5">
+<h5 id="org89bb117">连接GCP</h5>
+<div class="outline-text-5" id="text-org89bb117">
+<p>
+使用以下命令登录即可<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-shell">$ ssh -i ~/.ssh/KEY_FILENAME [USERNAME]@[IP_ADDRESS]
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgf6cc7c1" class="outline-5">
+<h5 id="orgf6cc7c1">简化登录</h5>
+<div class="outline-text-5" id="text-orgf6cc7c1">
+<p>
+以上是GCP官方步骤，使用IdentityFile方式进行登录，每次ssh登录都要通过-i选项指定私钥路径比较繁琐，我们可以将密钥文件添加到ssh客户端config中以简化连接命令。<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-shell">Host *
+AddKeysToAgent yes
+UseKeychain yes  <span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">only for mac</span>
+
+Host tu
+HostName IP_ADDRESS
+Port <span style="color: #009F9F;">22</span>
+User USERNAME
+IdentityFile ~/.ssh/gcp
+</pre>
+</div>
+
+<p>
+按照以上配置添加到～/.ssh/config中<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-shell"><span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&#21518;&#21488;&#36816;&#34892;ssh-agent</span>
+$ eval <span style="color: #FC9F4E;">"$(ssh-agent -s)"</span>
+<span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&#28155;&#21152;&#23494;&#38053;&#21040;ssh-agent</span>
+$ ssh-add -K ~/.ssh/gcp
+</pre>
+</div>
+<p>
+完成以上配置后，连接服务器只需使用 ssh tu即可<br>
+除了连接云服务器，GitHub等服务也可是通过以上方式连接<br>
+</p>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-org425a06c" class="outline-3">
+<h3 id="org425a06c">创建新用户设置远程登录</h3>
+<div class="outline-text-3" id="text-org425a06c">
+<p>
+SSH 登录时提示 Permission denied (publickey,gssapi-keyex,gssapi-with-mic).<br>
+</p>
+
+<p>
+首先在服务器上创建了一个peter用户，为了让peter这个用户也可以使用ssh key的方式登录，在/home/peter用户主目录下新建一个.ssh文件夹，在这个文件夹下又添加了一个authorized_keys的文件，将本地的ssh公钥放在这个文件里<br>
+</p>
+
+<p>
+ssh peter@localhost 登录远程主机时没有成功，提示：<br>
+Permission denied (publickey,gssapi-keyex,gssapi-with-mic).<br>
+</p>
+
+<p>
+原因是用户主目录下的 .ssh 目录与它里面的 authorized_keys 文件的权限不能<br>
+.ssh 目录的权限应该是 700，authorized_keys 这个文件的权限应该设置成 600<br>
+</p>
+
+<p>
+chmod 700 ~/.ssh<br>
+chmod 600 ~/.ssh_authorized_keys<br>
+</p>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

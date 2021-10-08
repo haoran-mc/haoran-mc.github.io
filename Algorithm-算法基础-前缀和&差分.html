@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-09-30 四 03:14 -->
+<!-- 2021-10-07 Thu 10:12 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>前缀和-差分</title>
@@ -13,6 +13,28 @@
                 <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
                 <script type="module" src="static/js/main.js" defer></script>
                 <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
 </head>
 <body>
 <div id="content">
@@ -21,33 +43,78 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgf8679ef">前缀和&amp;差分</a>
+<li><a href="#orgfb3db44">前缀和</a>
 <ul>
-<li><a href="#org2bd1052">前缀和</a></li>
-<li><a href="#orgec73361">差分</a></li>
+<li><a href="#org20f155b">一维前缀和</a></li>
+<li><a href="#orgd18aa66">二维前缀和</a></li>
 </ul>
 </li>
+<li><a href="#orgec73361">差分</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgf8679ef" class="outline-2">
-<h2 id="orgf8679ef">前缀和&amp;差分</h2>
-<div class="outline-text-2" id="text-orgf8679ef">
-</div>
-<div id="outline-container-org2bd1052" class="outline-3">
-<h3 id="org2bd1052">前缀和</h3>
-<div class="outline-text-3" id="text-org2bd1052">
+<div id="outline-container-orgfb3db44" class="outline-2">
+<h2 id="orgfb3db44">前缀和</h2>
+<div class="outline-text-2" id="text-orgfb3db44">
 <p>
-S[i] = &sum;_{j=1}^i A[j]
-C++ 标准库中实现了前缀和函数 std::partial_sum，定义于头文件 &lt;numeric&gt; 中一个部分和，即数列A某个下标区间内的数的和，可表示为前缀和相减的形式
-sum(l, r) = &sum;_{i=l}^r A[i] = S[r] - S[l-1]
-在二维数组(矩阵)中，可类似地求出二维前缀和，进一步求出二维部分和
+前缀和是一种重要的预处理，能大大降低查询的时间复杂度。可以简单理解为“数列的前 \(i\) 项的和”。<br>
+</p>
+</div>
+<div id="outline-container-org20f155b" class="outline-3">
+<h3 id="org20f155b">一维前缀和</h3>
+<div class="outline-text-3" id="text-org20f155b">
+<p>
+\[S[i] = \sum_{j=1}^i A[j]\]<br>
+</p>
+
+<p>
+C++ 标准库中实现了前缀和函数 <code>std::partial_sum</code> ，定义于头文件 <code>&lt;numeric&gt;</code> 中。<br>
+</p>
+
+<p>
+一个部分和，即数列A某个下标区间内的数的和，可表示为前缀和相减的形式。<br>
+</p>
+
+<p>
+\[sum(l, r) = \sum_{i=l}^r A[i] = S[r] - S[l-1]\]<br>
 </p>
 </div>
 </div>
-<div id="outline-container-orgec73361" class="outline-3">
-<h3 id="orgec73361">差分</h3>
+<div id="outline-container-orgd18aa66" class="outline-3">
+<h3 id="orgd18aa66">二维前缀和</h3>
+</div>
+</div>
+<div id="outline-container-orgec73361" class="outline-2">
+<h2 id="orgec73361">差分</h2>
+<div class="outline-text-2" id="text-orgec73361">
+<p>
+差分是一种和前缀和相对的策略，可以当做是求和的逆运算。<br>
+</p>
+
+<p>
+这种策略的定义是令<br>
+</p>
+
+<p>
+\[b_i = \begin{cases} a_i - a_{i - 1}, &i \in [2, n] \\ a_1, &i = 1 \end{cases}\]<br>
+</p>
+
+<p>
+简单性质：<br>
+</p>
+
+<ul class="org-ul">
+<li>\(a_i\) 的值是 \(b_i\) 的前缀和，即 \(a_n=\sum\limits_{i=1}^nb_i\)<br></li>
+<li>计算 \(a_i\) 的前缀和 \(sum=\sum\limits_{i=1}^na_i=\sum\limits_{i=1}^n\sum\limits_{j=1}^{i}b_j=\sum\limits_{i}^n(n-i+1)b_i\)<br></li>
+</ul>
+<p>
+它可以维护多次对序列的一个区间加上一个数，并在最后询问某一位的数或是多次询问某一位的数。注意修改操作一定要在查询操作之前。<br>
+</p>
+
+<p>
+C++ 标准库中实现了差分函数 <code>std::adjacent_difference</code> ，定义于头文件 <code>&lt;numeric&gt;</code> 中。<br>
+</p>
 </div>
 </div>
 </div>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-09-30 四 16:18 -->
+<!-- 2021-10-08 Fri 12:01 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>模拟退火</title>
@@ -18,46 +18,45 @@
 <div id="content">
 <h1 class="title">模拟退火</h1>
 <p>
-模拟退火算法基于这样一个物理原理：一个高温物体降温到常温，温度越高时降温的概率越大(降温更快)，温度越低时降温的概率越小(降温更慢)，模拟退火算法利用这样一种思想进行搜索，即进行多次降温(迭代)，直到获得一个可行解
+模拟退火算法基于这样一个物理原理：一个高温物体降温到常温，温度越高时降温的概率越大(降温更快)，温度越低时降温的概率越小(降温更慢)，模拟退火算法利用这样一种思想进行搜索，即进行多次降温(迭代)，直到获得一个可行解<br>
 </p>
 
 <p>
-在迭代过程中，模拟退火算法随机选择下一个状态，有两种可能：1. 新状态比原状态更优，那么接受这个新状态; 2. 新状态更差，那么以一定的概率接受该状态，不过这个概率应该随着时间的推移逐渐降低
+在迭代过程中，模拟退火算法随机选择下一个状态，有两种可能：1. 新状态比原状态更优，那么接受这个新状态; 2. 新状态更差，那么以一定的概率接受该状态，不过这个概率应该随着时间的推移逐渐降低<br>
 </p>
 
 <p>
-模拟退火算法是贪心思想和概率的结合，常用"爬山"问题来介绍贪心有关的算法．如果A是局部最高点，B是全局最高点，普通的贪心算法，如果当前状态在A附近，会一直爬山，最后停滞在局部最高点A，而无法到达B．模拟退火算法能跳出A，得到B．因为它不仅往上爬山，而且以一定的概率接受比当前点更低的点，使程序有机会摆脱局部最优到达全局最优，这个概率会随时间不断减小，从而最后能限制在最优解附近
+模拟退火算法是贪心思想和概率的结合，常用"爬山"问题来介绍贪心有关的算法．如果A是局部最高点，B是全局最高点，普通的贪心算法，如果当前状态在A附近，会一直爬山，最后停滞在局部最高点A，而无法到达B．模拟退火算法能跳出A，得到B．因为它不仅往上爬山，而且以一定的概率接受比当前点更低的点，使程序有机会摆脱局部最优到达全局最优，这个概率会随时间不断减小，从而最后能限制在最优解附近<br>
 </p>
 
 <p>
-模拟退火算法的主要步骤如下：
+模拟退火算法的主要步骤如下：<br>
 </p>
 <ol class="org-ol">
-<li>设置一个初始的温度T</li>
-<li>温度下降，状态转移．从当前温度按降温系数下降到下一个温度，在新的温度计算当前状态</li>
-<li>如果温度降到设定的温度下界，程序停止</li>
+<li>设置一个初始的温度T<br></li>
+<li>温度下降，状态转移．从当前温度按降温系数下降到下一个温度，在新的温度计算当前状态<br></li>
+<li>如果温度降到设定的温度下界，程序停止<br></li>
 </ol>
 
 <p>
-伪代码如下：
+伪代码如下：<br>
 </p>
 <div class="org-src-container">
-<pre class="src src-C++">now, nxt;                        //当前状态和新状态
-while (T &gt; eps) {                //如果温度未降到eps
-		g(nxt), g(now);              //计算能量
-		dE = g(nxt) - g(now);        //能量差
-		if (dE &gt;= 0)                 //新能量更优，接受新状态
-				now = nxt;
-		else if (exp(dE/T) &gt; rand()) //如果新状态更差，在一定概率下接受它
-				now = nxt;
-		T *= delta;                  //降温，模拟退火过程
+<pre class="src src-C++">now, nxt;                        <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#24403;&#21069;&#29366;&#24577;&#21644;&#26032;&#29366;&#24577;</span>
+<span style="color: #BD93F9;">while</span> (T &gt; eps) {                <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#22914;&#26524;&#28201;&#24230;&#26410;&#38477;&#21040;eps</span>
+    g(nxt), g(now);              <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#35745;&#31639;&#33021;&#37327;</span>
+    dE = g(nxt) - g(now);        <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#33021;&#37327;&#24046;</span>
+    <span style="color: #BD93F9;">if</span> (dE &gt;= <span style="color: #009F9F;">0</span>)                 <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#26032;&#33021;&#37327;&#26356;&#20248;&#65292;&#25509;&#21463;&#26032;&#29366;&#24577;</span>
+        now = nxt;
+    <span style="color: #BD93F9;">else</span> <span style="color: #BD93F9;">if</span> (exp(dE/T) &gt; rand()) <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#22914;&#26524;&#26032;&#29366;&#24577;&#26356;&#24046;&#65292;&#22312;&#19968;&#23450;&#27010;&#29575;&#19979;&#25509;&#21463;&#23427;</span>
+        now = nxt;
+    T *= delta;                  <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#38477;&#28201;&#65292;&#27169;&#25311;&#36864;&#28779;&#36807;&#31243;</span>
 }
 </pre>
 </div>
 
-
 <p>
-模拟退火算法用起来非常简单，不过也有缺点，他得到的是一个可行解，而不是精确解．用户在应用时需要仔细选择初始温度T，降温系数delta，终止温度eps等
+模拟退火算法用起来非常简单，不过也有缺点，他得到的是一个可行解，而不是精确解．用户在应用时需要仔细选择初始温度T，降温系数delta，终止温度eps等<br>
 </p>
 </div>
 </body>

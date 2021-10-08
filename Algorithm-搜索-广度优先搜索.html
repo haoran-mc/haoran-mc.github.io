@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-09-30 四 03:17 -->
+<!-- 2021-10-07 Thu 11:19 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>宽度优先搜索</title>
@@ -13,6 +13,28 @@
                 <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
                 <script type="module" src="static/js/main.js" defer></script>
                 <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
 </head>
 <body>
 <div id="content">
@@ -37,21 +59,21 @@
 <div class="outline-text-2" id="text-org216a4d3">
 <ul class="org-ul">
 <li><p>
-广度优先搜索一般使用队列来实现
+广度优先搜索一般使用队列来实现<br>
 </p>
 <div class="org-src-container">
-<pre class="src src-C++">//基本写法(模板)
-void BFS(int x) {
-	queue&lt;int&gt; quu;
-	quu.push(x);
-	while (!quu.empty()) {
-		/**
-		 * 取出队首元素top
-		 * 访问队首元素top
-		 * 将队首元素出队
-		 * 将top的下一层结点中未曾入队的结点全部入队，并设置为已入队
-		 **/
-	}
+<pre class="src src-C++"><span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#22522;&#26412;&#20889;&#27861;(&#27169;&#26495;)</span>
+<span style="color: #AFAFAF;">void</span> <span style="color: #AFAFAF;">BFS</span>(<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">x</span>) {
+    <span style="color: #AFAFAF;">queue</span>&lt;<span style="color: #AFAFAF;">int</span>&gt; <span style="color: #AFAFAF;">quu</span>;
+    quu.push(x);
+    <span style="color: #BD93F9;">while</span> (!quu.empty()) {
+        <span style="color: #009F9F; font-style: italic;">/**</span>
+<span style="color: #009F9F; font-style: italic;">         * &#21462;&#20986;&#38431;&#39318;&#20803;&#32032;top</span>
+<span style="color: #009F9F; font-style: italic;">         * &#35775;&#38382;&#38431;&#39318;&#20803;&#32032;top</span>
+<span style="color: #009F9F; font-style: italic;">         * &#23558;&#38431;&#39318;&#20803;&#32032;&#20986;&#38431;</span>
+<span style="color: #009F9F; font-style: italic;">         * &#23558;top&#30340;&#19979;&#19968;&#23618;&#32467;&#28857;&#20013;&#26410;&#26366;&#20837;&#38431;&#30340;&#32467;&#28857;&#20840;&#37096;&#20837;&#38431;&#65292;&#24182;&#35774;&#32622;&#20026;&#24050;&#20837;&#38431;</span>
+<span style="color: #009F9F; font-style: italic;">         **/</span>
+    }
 }
 </pre>
 </div></li>
@@ -128,20 +150,22 @@ void BFS(int x) {
 </table>
 
 <p>
-在一个3×3的棋盘上放置编号1～8的8个方块，另外有一个空格，与空格相邻的数字方块可以移动到空格里任务一：从初始棋局到目标棋局最少的移动步数，任务二：数码移动的序列
+在一个 \(3 \times 3\) 的棋盘上放置编号 \(1 ~ 8\) 的 \(8\) 个方块，另外有一个空格，与空格相邻的数字方块可以移动到空格里<br>
+任务一：从初始棋局到目标棋局最少的移动步数，任务二：数码移动的序列<br>
 </p>
 
 <p>
-把棋盘看成一个状态图，总共有9!=362880个状态
-BFS是从近到远的扩散，适合解决最短距离问题，将棋盘中空格放入数字0，也就是BFS移动数字0，直到到达目标状态
+把棋盘看成一个状态图，总共有 \(9 != 362880\) 个状态<br>
+BFS是从近到远的扩散，适合解决最短距离问题，将棋盘中空格放入数字0，也就是BFS移动数字0，直到到达目标状态<br>
 </p>
 
 <p>
-一个重要的点是判重，和一般的BFS不同，0可以重新移动到曾经移动到的地方，可以记住当前棋局序列，如初始棋局：{1, 2, 3, 0, 8, 4, 7, 6, 5}，那么就记录123084765已出现本题可以用数学方法 <a href="Algorithm-数学-组合数学-康托展开.html">康托展开(Cantor Expansion)</a> 来判重
+一个重要的点是判重，和一般的BFS不同，0可以重新移动到曾经移动到的地方，可以记住当前棋局序列，如初始棋局：{1, 2, 3, 0, 8, 4, 7, 6, 5}，那么就记录123084765已出现<br>
+本题可以用数学方法 <a href="Algorithm-数学-组合数学-康托展开.html">康托展开(Cantor Expansion)</a> 来判重<br>
 </p>
 
 <ul class="org-ul">
-<li>用BFS+Cantor解决八数码问题</li>
+<li>用BFS+Cantor解决八数码问题<br></li>
 </ul>
 </div>
 </div>
