@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-09-30 四 22:28 -->
+<!-- 2021-10-08 Fri 22:11 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>循环 &amp; 重复</title>
 <meta name="generator" content="Org mode">
-<meta name="author" content="L.M.haoran">
+<meta name="author" content="haoran">
 <meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
 >
 
@@ -30,17 +30,17 @@
 </div>
 </div>
 <p>
-Scheme 最原始的语法结构是没有循环的，要实现循环功能，可以通过递归调用过程实现
+Scheme 最原始的语法结构是没有循环的，要实现循环功能，可以通过递归调用过程实现<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme">(define loop (lambda(x y)
-							 (if (&lt;= x y)
-									 (begin
-										 (display x) (display #\\space)
-										 (set! x (+ x 1))
-										 (loop x y)))))
-(loop 1 10)
+<pre class="src src-scheme">(<span style="color: #BD93F9;">define</span> <span style="color: #AFAFAF;">loop</span> (<span style="color: #BD93F9;">lambda</span>(x y)
+               (<span style="color: #BD93F9;">if</span> (&lt;= x y)
+                   (<span style="color: #BD93F9;">begin</span>
+                     (display x) (display #\\space)
+                     (<span style="color: #BD93F9;">set!</span> x (+ x <span style="color: #009F9F;">1</span>))
+                     (loop x y)))))
+(loop <span style="color: #009F9F;">1</span> <span style="color: #009F9F;">10</span>)
 </pre>
 </div>
 
@@ -48,45 +48,46 @@ Scheme 最原始的语法结构是没有循环的，要实现循环功能，可�
 <h2 id="org8f49429">递归</h2>
 <div class="outline-text-2" id="text-org8f49429">
 <p>
-阶乘函数
+阶乘函数<br>
 </p>
 <div class="org-src-container">
-<pre class="src src-scheme">(define (fact n)
-	(if (= n 1)
-			1
-			(* n (fact (- n 1)))))
+<pre class="src src-scheme">(<span style="color: #BD93F9;">define</span> (<span style="color: #AFAFAF;">fact</span> n)
+  (<span style="color: #BD93F9;">if</span> (= n <span style="color: #009F9F;">1</span>)
+      <span style="color: #009F9F;">1</span>
+      (* n (fact (- n <span style="color: #009F9F;">1</span>)))))
 
-(display (fact 5))
+(display (fact <span style="color: #009F9F;">5</span>))
 (exit)
 </pre>
 </div>
 
 <p>
-(fact 5)
-⇒ 5 * (fact 4)
-⇒ 5 * 4 * (fact 3)
-⇒ 5 * 4 * 3 * (fact 2)
-⇒ 5 * 4 * 3 * 2 * (fact 1)
-⇒ 5 * 4 * 3 * 2 * 1
-⇒ 5 * 4 * 3 * 2
-⇒ 5 * 4 * 6
-⇒ 5 * 24
-⇒ 120
+(fact 5)<br>
+⇒ 5 * (fact 4)<br>
+⇒ 5 * 4 * (fact 3)<br>
+⇒ 5 * 4 * 3 * (fact 2)<br>
+⇒ 5 * 4 * 3 * 2 * (fact 1)<br>
+⇒ 5 * 4 * 3 * 2 * 1<br>
+⇒ 5 * 4 * 3 * 2<br>
+⇒ 5 * 4 * 6<br>
+⇒ 5 * 24<br>
+⇒ 120<br>
 </p>
 
 
 <p>
-表是被递归定义的，进而表和递归函数可以很好的配合让表中所有元素翻倍，如果参数是空表，那么函数应该停止计算并返回一个空表
+表是被递归定义的，进而表和递归函数可以很好的配合<br>
+让表中所有元素翻倍，如果参数是空表，那么函数应该停止计算并返回一个空表<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme">(define (list*2 ls)
-	(if (null? ls)
-			'()
-			(cons (* 2 (car ls))
-						(list*2 (cdr ls)))))
+<pre class="src src-scheme">(<span style="color: #BD93F9;">define</span> (<span style="color: #AFAFAF;">list*2</span> ls)
+  (<span style="color: #BD93F9;">if</span> (null? ls)
+      '()
+      (cons (* <span style="color: #009F9F;">2</span> (car ls))
+            (list*2 (cdr ls)))))
 
-(define ls (list 0 1 2 3 4 5 6 7 8 9))
+(<span style="color: #BD93F9;">define</span> <span style="color: #AFAFAF;">ls</span> (list <span style="color: #009F9F;">0</span> <span style="color: #009F9F;">1</span> <span style="color: #009F9F;">2</span> <span style="color: #009F9F;">3</span> <span style="color: #009F9F;">4</span> <span style="color: #009F9F;">5</span> <span style="color: #009F9F;">6</span> <span style="color: #009F9F;">7</span> <span style="color: #009F9F;">8</span> <span style="color: #009F9F;">9</span>))
 (display (list*2 ls))
 (display ls)
 (exit)
@@ -98,34 +99,34 @@ Scheme 最原始的语法结构是没有循环的，要实现循环功能，可�
 <h2 id="org116c456">尾递归</h2>
 <div class="outline-text-2" id="text-org116c456">
 <p>
-普通的递归调用并不高效因为它既浪费存储空间又具有函数调用开销。与之相反，尾递归函数包含了计算结果，当计算结束时直接将其返回。特别地，由于Scheme规范要求尾递归调用转化为循环，因此尾递归调用就不存在函数调用开销。
+普通的递归调用并不高效因为它既浪费存储空间又具有函数调用开销。与之相反，尾递归函数包含了计算结果，当计算结束时直接将其返回。特别地，由于Scheme规范要求尾递归调用转化为循环，因此尾递归调用就不存在函数调用开销。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme">																				;尾递归其实就是一个循环
-																				;函数调用不需要另一个函数在此函数之前声明
-(define (fact-tail n)
-	(fact-rec n n))
+<pre class="src src-scheme">                                        <span style="color: #7c7c7c; font-style: italic;">;</span><span style="color: #7c7c7c; font-style: italic;">&#23614;&#36882;&#24402;&#20854;&#23454;&#23601;&#26159;&#19968;&#20010;&#24490;&#29615;</span>
+                                        <span style="color: #7c7c7c; font-style: italic;">;</span><span style="color: #7c7c7c; font-style: italic;">&#20989;&#25968;&#35843;&#29992;&#19981;&#38656;&#35201;&#21478;&#19968;&#20010;&#20989;&#25968;&#22312;&#27492;&#20989;&#25968;&#20043;&#21069;&#22768;&#26126;</span>
+(<span style="color: #BD93F9;">define</span> (<span style="color: #AFAFAF;">fact-tail</span> n)
+  (fact-rec n n))
 
-(define (fact-rec n p)
-	(if (= n 1)
-			p
-			(let ((m (- n 1)))
-				(fact-rec m (* p m)))))
+(<span style="color: #BD93F9;">define</span> (<span style="color: #AFAFAF;">fact-rec</span> n p)
+  (<span style="color: #BD93F9;">if</span> (= n <span style="color: #009F9F;">1</span>)
+      p
+      (<span style="color: #BD93F9;">let</span> ((m (- n <span style="color: #009F9F;">1</span>)))
+        (fact-rec m (* p m)))))
 
-(display (fact-tail 5))
+(display (fact-tail <span style="color: #009F9F;">5</span>))
 (exit)
 </pre>
 </div>
 
 <p>
-(fact-tail 5)
-⇒ (fact-rec 5 5)
-⇒ (fact-rec 4 20)
-⇒ (fact-rec 3 60)
-⇒ (fact-rec 2 120)
-⇒ (fact-rec 1 120)
-⇒ 120
+(fact-tail 5)<br>
+⇒ (fact-rec 5 5)<br>
+⇒ (fact-rec 4 20)<br>
+⇒ (fact-rec 3 60)<br>
+⇒ (fact-rec 2 120)<br>
+⇒ (fact-rec 1 120)<br>
+⇒ 120<br>
 </p>
 </div>
 </div>
@@ -133,20 +134,20 @@ Scheme 最原始的语法结构是没有循环的，要实现循环功能，可�
 <h2 id="org5814fb9">命名let</h2>
 <div class="outline-text-2" id="text-org5814fb9">
 <p>
-命名let（named let）可以用来表达循环。[代码片段3]中的函数fact-let展示了如何使用命名let来计算阶乘。fact-let函数使用了一个命名let表达式(loop)，这与在[代码片段2]中展示的fact-rec函数是不同的。在被注释为;1的那行，代码将参数n1和p都初始化为n。再每次循环后，参数在被注释为;2的那行更新：将n1减1，而将p乘以(n1 - 1)
+命名let（named let）可以用来表达循环。[代码片段3]中的函数fact-let展示了如何使用命名let来计算阶乘。fact-let函数使用了一个命名let表达式(loop)，这与在[代码片段2]中展示的fact-rec函数是不同的。在被注释为;1的那行，代码将参数n1和p都初始化为n。再每次循环后，参数在被注释为;2的那行更新：将n1减1，而将p乘以(n1 - 1)<br>
 </p>
 
 <p>
-在Scheme中，用命名let来表达循环是俗成的方法
+在Scheme中，用命名let来表达循环是俗成的方法<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme">(define (fact-let n)
-	(let loop((n1 n) (p n))    ;; 1
-		(if (= n1 1)
-				p
-				(let ((m (- n1 1)))
-					(loop m (* p m))))))   ;; 2
+<pre class="src src-scheme">(<span style="color: #BD93F9;">define</span> (<span style="color: #AFAFAF;">fact-let</span> n)
+  (<span style="color: #BD93F9;">let</span> <span style="color: #AFAFAF;">loop</span>((n1 n) (p n))    <span style="color: #7c7c7c; font-style: italic;">;; </span><span style="color: #7c7c7c; font-style: italic;">1</span>
+    (<span style="color: #BD93F9;">if</span> (= n1 <span style="color: #009F9F;">1</span>)
+        p
+        (<span style="color: #BD93F9;">let</span> ((m (- n1 <span style="color: #009F9F;">1</span>)))
+          (loop m (* p m))))))   <span style="color: #7c7c7c; font-style: italic;">;; </span><span style="color: #7c7c7c; font-style: italic;">2</span>
 </pre>
 </div>
 </div>
@@ -155,22 +156,22 @@ Scheme 最原始的语法结构是没有循环的，要实现循环功能，可�
 <h2 id="orgbb9f6ca">letrec</h2>
 <div class="outline-text-2" id="text-orgbb9f6ca">
 <p>
-letrec类似于let，但它允许一个名字递归地调用它自己。语法letrec通常用于定义复杂的递归函数
+letrec类似于let，但它允许一个名字递归地调用它自己。语法letrec通常用于定义复杂的递归函数<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme">(define (fact-letrec n)
-	(letrec ((iter (lambda (n1 p)
-									 (if (= n1 1)
-											 p
-											 (let ((m (- n1 1)))
-												 (iter m (* p m)))))))   ;; *
-		(iter n n)))
+<pre class="src src-scheme">(<span style="color: #BD93F9;">define</span> (<span style="color: #AFAFAF;">fact-letrec</span> n)
+  (<span style="color: #BD93F9;">letrec</span> ((iter (<span style="color: #BD93F9;">lambda</span> (n1 p)
+                   (<span style="color: #BD93F9;">if</span> (= n1 <span style="color: #009F9F;">1</span>)
+                       p
+                       (<span style="color: #BD93F9;">let</span> ((m (- n1 <span style="color: #009F9F;">1</span>)))
+                         (iter m (* p m)))))))   <span style="color: #7c7c7c; font-style: italic;">;; </span><span style="color: #7c7c7c; font-style: italic;">*</span>
+    (iter n n)))
 </pre>
 </div>
 
 <p>
-正如被注释为`;*`的那行代码所示，局部变量iter可以在它的定义里面引用它自己。语法letrec是定义局部变量的俗成方式
+正如被注释为`;*`的那行代码所示，局部变量iter可以在它的定义里面引用它自己。语法letrec是定义局部变量的俗成方式<br>
 </p>
 </div>
 </div>
@@ -178,34 +179,34 @@ letrec类似于let，但它允许一个名字递归地调用它自己。语法le
 <h2 id="org3172be2">do表达式</h2>
 <div class="outline-text-2" id="text-org3172be2">
 <p>
-虽然并不常见，但语法do也可用于表达重复。它的格式如下：
+虽然并不常见，但语法do也可用于表达重复。它的格式如下：<br>
 </p>
 <div class="org-src-container">
-<pre class="src src-scheme">(do binds (predicate value)
-	body)
+<pre class="src src-scheme">(<span style="color: #BD93F9;">do</span> binds (predicate value)
+  body)
 </pre>
 </div>
 <p>
-变量在binds部分被绑定，而如果predicate被求值为真，则函数从循环中**逃逸（escape）**出来，并返回值value，否则循环继续进行。
+变量在binds部分被绑定，而如果predicate被求值为真，则函数从循环中**逃逸（escape）**出来，并返回值value，否则循环继续进行。<br>
 </p>
 
 <p>
-binds部分的格式如下所示：
-<code>[binds] → ((p1 i1 u1) (p2 i2 u2) ... )</code>
+binds部分的格式如下所示：<br>
+<code>[binds] → ((p1 i1 u1) (p2 i2 u2) ... )</code><br>
 </p>
 
 <p>
-变量p1，p2，…被分别初始化为i1，i2，…并在循环后分别被更新为u1，u2，…。
+变量p1，p2，…被分别初始化为i1，i2，…并在循环后分别被更新为u1，u2，…。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme">(define (fact-do n)
-	(do ((n1 n (- n1 1)) (p n (* p (- n1 1)))) ((= n1 1) p)))
+<pre class="src src-scheme">(<span style="color: #BD93F9;">define</span> (<span style="color: #AFAFAF;">fact-do</span> n)
+  (<span style="color: #BD93F9;">do</span> ((n1 n (- n1 <span style="color: #009F9F;">1</span>)) (p n (* p (- n1 <span style="color: #009F9F;">1</span>)))) ((= n1 <span style="color: #009F9F;">1</span>) p)))
 </pre>
 </div>
 
 <p>
-变量n1和p分别被初始化为n和n，在每次循环后分别被减去1和乘以(n1 - 1)。当n1变为1时，函数返回p
+变量n1和p分别被初始化为n和n，在每次循环后分别被减去1和乘以(n1 - 1)。当n1变为1时，函数返回p<br>
 </p>
 </div>
 </div>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-10-10 Sun 23:24 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>最大公约数</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">最大公约数</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgb18f3bd">最大公因数</a>
+<ul>
+<li><a href="#org56d1b53">性质:</a></li>
+</ul>
+</li>
+<li><a href="#org7e3726f">辗转相除法(欧几里德算法)</a>
+<ul>
+<li><a href="#orge63b3c0">代码实现</a></li>
+</ul>
+</li>
+<li><a href="#org926a5ff">最小公倍数</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgb18f3bd" class="outline-2">
+<h2 id="orgb18f3bd">最大公因数</h2>
+<div class="outline-text-2" id="text-orgb18f3bd">
+<p>
+最大公约数即为 Greatest Common Divisor，常缩写为 gcd。<br>
+</p>
+</div>
+<div id="outline-container-org56d1b53" class="outline-3">
+<h3 id="org56d1b53">性质:</h3>
+<div class="outline-text-3" id="text-org56d1b53">
+<ol class="org-ol">
+<li>\(gcd(a, b) = gcd(b, a)\)<br></li>
+<li>\(gcd(a, b) = gcd(a - b, b) (a >= b)\)<br></li>
+<li>\(gcd(a, b) = gcd(a \% b, b)\)<br></li>
+<li>\(gcd(a, b, c) = gcd(gcd(a, b), c)\)<br></li>
+<li>\(gcd(ka, kb) = k \times gcd(a, b)\)<br></li>
+</ol>
+</div>
+</div>
+</div>
+<div id="outline-container-org7e3726f" class="outline-2">
+<h2 id="org7e3726f">辗转相除法(欧几里德算法)</h2>
+<div class="outline-text-2" id="text-org7e3726f">
+<blockquote>
+<p>
+定理：\(gcd(a, b) = gcd(b, a \% b)\)<br>
+</p>
+</blockquote>
+
+<p>
+已知两个数 \(a, b\) 如何求两者的最大公约数？<br>
+</p>
+
+<blockquote>
+<p>
+证：<br>
+因为 \(gcd(a, b) = gcd(b, a)\)，所以不妨设 \(a > b\)<br>
+</p>
+
+<p>
+设 \(z\) 为 \(a, b\) 的最大公约数，那么有 \(gcd(a, b) = z\)，\(\begin{cases} a = zm\\ b = zn \end{cases}\) <br>
+</p>
+
+<p>
+设 \(\frac{a}{b} = p \dots r\)<br>
+\(\rightarrow a = bp + r\)<br>
+\(\rightarrow zm = znp + r\)<br>
+\(\rightarrow z(m - np) = r = a \% b\)<br>
+</p>
+
+<p>
+因为 \(zn = b\)<br>
+所以若要证 \(b\) 与 \(a % b\) 的最大公约数也是 \(z\)，那么 \(n\) 与 \(m - np\) 互质<br>
+</p>
+
+<p>
+假设 \(n\) 与 \(m - np\) 不互质 \(\begin{cases} m - np = km'\\ n = kn' \end{cases}\)<br>
+</p>
+
+<p>
+代入得 \(m - pkn' = km'\)<br>
+\(\rightarrow \begin{cases}m = k(m' + n'p)// n = kn' \end{cases}\)<br>
+</p>
+
+<p>
+代入\(\begin{cases}a = zm\\ b = zn \end{cases}\) 有 \(\begin{cases}a = zk(m' + n'p)\\ b = zkn'\end{cases}\)<br>
+</p>
+
+<p>
+由假设得到 \(a, b\) 的最大公约数是 \(zk\)，矛盾，所以 \(m - np\) 与 \(n\) 互质，所以 \(b\) 与 \(r\) 的最大公约数是 \(z\)<br>
+</p>
+
+<p>
+所以 \(gcd(a, b) = gcd(b, a \% b)\)<br>
+</p>
+</blockquote>
+</div>
+<div id="outline-container-orge63b3c0" class="outline-3">
+<h3 id="orge63b3c0">代码实现</h3>
+<div class="outline-text-3" id="text-orge63b3c0">
+<div class="org-src-container">
+<pre class="src src-cpp"><span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">gcd(a, b) = gcd(b, a mod b)</span>
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">gcd</span>(<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">a</span>, <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">b</span>) {
+    <span style="color: #BD93F9;">return</span> b ? gcd(b, a % b) : a;
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org926a5ff" class="outline-2">
+<h2 id="org926a5ff">最小公倍数</h2>
+<div class="outline-text-2" id="text-org926a5ff">
+<p>
+两个数 \(a, b\) 的最小公倍数是 \(\frac{a \times b}{gcd(a, b)}\)<br>
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: haoran</p>
+<p class="date">Created: 2021-10-10 Sun 23:24</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

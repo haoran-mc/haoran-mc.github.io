@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-10-11 Mon 00:02 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>位运算</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">位运算</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org121263b">位运算符号</a></li>
+<li><a href="#org9b8fde6">补码</a></li>
+<li><a href="#org3b1cc29">移位运算</a>
+<ul>
+<li><a href="#org4bf6009">左移</a></li>
+<li><a href="#org78d26a1">除以2向0取整</a></li>
+</ul>
+</li>
+<li><a href="#orgbb60933">二进制状态压缩</a></li>
+<li><a href="#org0a7dadb">成对变换</a></li>
+<li><a href="#org723f567">lowbit运算</a></li>
+<li><a href="#orgbe5de67">位运算的简单运用</a>
+<ul>
+<li><a href="#org2163d36">判断奇偶数(x &amp; 1)</a></li>
+<li><a href="#org942b560">交换两个变量的值</a></li>
+<li><a href="#org80c6f7a">求整数的绝对值</a></li>
+<li><a href="#org8d618d0">找到唯一成对的数</a></li>
+<li><a href="#org28f6abb">找到唯一落单的数</a></li>
+<li><a href="#org11ce3a7">奇偶位交换</a></li>
+<li><a href="#org5b5ff57">出现K次与出现1次</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-org121263b" class="outline-2">
+<h2 id="org121263b">位运算符号</h2>
+<div class="outline-text-2" id="text-org121263b">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">运算符</th>
+<th scope="col" class="org-left">功能</th>
+<th scope="col" class="org-left">用法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">~</td>
+<td class="org-left">位求反</td>
+<td class="org-left">~ expr</td>
+</tr>
+
+<tr>
+<td class="org-left">&lt;&lt;</td>
+<td class="org-left">左移</td>
+<td class="org-left">expr1 &lt;&lt; expr2</td>
+</tr>
+
+<tr>
+<td class="org-left">&gt;&gt;</td>
+<td class="org-left">右移</td>
+<td class="org-left">expr1 &gt;&gt; expr2</td>
+</tr>
+
+<tr>
+<td class="org-left">&amp;</td>
+<td class="org-left">位与</td>
+<td class="org-left">expr1 &amp; expr2</td>
+</tr>
+
+<tr>
+<td class="org-left">xor(^)</td>
+<td class="org-left">位异或</td>
+<td class="org-left">expr1 ^ expr2</td>
+</tr>
+
+<tr>
+<td class="org-left">竖线</td>
+<td class="org-left">位或</td>
+<td class="org-left">expr1 竖线 expr2</td>
+</tr>
+</tbody>
+</table>
+
+<ul class="org-ul">
+<li>位与&amp;   如果两个运算对象的对应位置都是1，则运算结果中该位为1，否则为0<br></li>
+<li>位或|   如果两个运算对象中对应位置至少有1个为则运算结果中该位为1，否则为0<br></li>
+<li>位异或^ 如果两个运算对象中的对应位置中只有一个为1，则运算结果为1，否则为0<br></li>
+<li>左移运算符&lt;&lt;   在右侧插入值为0的二进制位<br></li>
+<li>右移运算符&gt;&gt;<br>
+<ul class="org-ul">
+<li>如果该运算对象是无符号类型，在左侧插入值为0的二进制位<br></li>
+<li>如果该运算对象是有符号类型，在左侧插入符号位的副本或值为0的二进制位<br></li>
+</ul></li>
+<li>位求反运算符~  运算对象逐位取反<br></li>
+</ul>
+
+<p>
+在m位二进制数中，为了方便起见，通常称 <b>最低位为第0位，从右到左依次类推，最高位为第m-1位</b><br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9b8fde6" class="outline-2">
+<h2 id="org9b8fde6">补码</h2>
+<div class="outline-text-2" id="text-org9b8fde6">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">32位补码表示</th>
+<th scope="col" class="org-right">unsigned int</th>
+<th scope="col" class="org-right">int</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">000000&#x2026;000000</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+</tr>
+
+<tr>
+<td class="org-left">011111&#x2026;111111</td>
+<td class="org-right">2147483647</td>
+<td class="org-right">2147483647</td>
+</tr>
+
+<tr>
+<td class="org-left">100000&#x2026;000000</td>
+<td class="org-right">2147483648</td>
+<td class="org-right">-2147483648</td>
+</tr>
+
+<tr>
+<td class="org-left">111111&#x2026;111111</td>
+<td class="org-right">4294967295</td>
+<td class="org-right">-1</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-org3b1cc29" class="outline-2">
+<h2 id="org3b1cc29">移位运算</h2>
+<div class="outline-text-2" id="text-org3b1cc29">
+</div>
+<div id="outline-container-org4bf6009" class="outline-3">
+<h3 id="org4bf6009">左移</h3>
+<div class="outline-text-3" id="text-org4bf6009">
+<p>
+在二进制表示下把数字同时向左移动，低位以0填充，高位越界后舍弃<br>
+</p>
+
+<p>
+\[1 << n = 2^n\\ n << 1 = 2n\]<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org78d26a1" class="outline-3">
+<h3 id="org78d26a1">除以2向0取整</h3>
+</div>
+</div>
+<div id="outline-container-orgbb60933" class="outline-2">
+<h2 id="orgbb60933">二进制状态压缩</h2>
+<div class="outline-text-2" id="text-orgbb60933">
+<p>
+二进制状态压缩是指将一个长度为m的bool数组用一个m位二进制整数表示并存储的方法，其实表示起来还不如bool数组容易，但之所以用二进制状态压缩是为了可以使用dp，dp[i]中的i可以通过这种方式一次性表示那么多的状态<br>
+</p>
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">操作</th>
+<th scope="col" class="org-left">运算</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">取出整数n在二进制表示下的第k位</td>
+<td class="org-left">(n &gt;&gt; k) &amp; 1</td>
+</tr>
+
+<tr>
+<td class="org-left">取出整数n在二进制表示下的第0~k-1位</td>
+<td class="org-left">n &amp; ((1 &lt;&lt; k) - 1)</td>
+</tr>
+
+<tr>
+<td class="org-left">把整数n在二进制表示下的第k位取反</td>
+<td class="org-left">n xor (1 &lt;&lt; k)</td>
+</tr>
+
+<tr>
+<td class="org-left">对整数n在二进制表示下的第k位赋1</td>
+<td class="org-left">n or (1 &lt;&lt; k)</td>
+</tr>
+
+<tr>
+<td class="org-left">对整数n在二进制表示下的第k位赋0</td>
+<td class="org-left">n &amp; (~(1 &lt;&lt; k))</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+使用实例：Hamilton<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org0a7dadb" class="outline-2">
+<h2 id="org0a7dadb">成对变换</h2>
+<div class="outline-text-2" id="text-org0a7dadb">
+<p>
+通过计算发现，对于非负整数n<br>
+</p>
+
+<ul class="org-ul">
+<li>当n为偶数时，n xor 1 等于x + 1<br></li>
+<li>当n为奇数时，n xor 1 等于x - 1<br></li>
+</ul>
+
+<p>
+因此，0与1，2与3，4与5&#x2026;关于xor 1运算构成"成对变换"<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org723f567" class="outline-2">
+<h2 id="org723f567">lowbit运算</h2>
+<div class="outline-text-2" id="text-org723f567">
+<p>
+<code>lowbit(x) = ((x) &amp; -(x))</code><br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgbe5de67" class="outline-2">
+<h2 id="orgbe5de67">位运算的简单运用</h2>
+<div class="outline-text-2" id="text-orgbe5de67">
+</div>
+<div id="outline-container-org2163d36" class="outline-3">
+<h3 id="org2163d36">判断奇偶数(x &amp; 1)</h3>
+</div>
+<div id="outline-container-org942b560" class="outline-3">
+<h3 id="org942b560">交换两个变量的值</h3>
+<div class="outline-text-3" id="text-org942b560">
+<p>
+A = A ^ A<br>
+B = A ^ B (B = A ^ B ^ B = A)<br>
+A = A ^ B (A = A ^ A ^ B = B)<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org80c6f7a" class="outline-3">
+<h3 id="org80c6f7a">求整数的绝对值</h3>
+<div class="outline-text-3" id="text-org80c6f7a">
+<p>
+将一个整型整数x，带符号右移31位，则结果要么是0，要么是-1。其中如果是0，则x为正数，为-1则x为负数。然后，将x与右移31位后的结果做异或运算，当与x^0是，结果还是x。 当x^-1时，结果为x取反，即x的反码，然后+1，即为x的绝对值<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8d618d0" class="outline-3">
+<h3 id="org8d618d0">找到唯一成对的数</h3>
+<div class="outline-text-3" id="text-org8d618d0">
+<div class="org-src-container">
+<pre class="src src-C++"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cstdio&gt;</span>
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
+    <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">arr</span>[] = {<span style="color: #009F9F;">0</span>, <span style="color: #009F9F;">1</span>, <span style="color: #009F9F;">2</span>, <span style="color: #009F9F;">3</span>, <span style="color: #009F9F;">4</span>, <span style="color: #009F9F;">5</span>, <span style="color: #009F9F;">6</span>, <span style="color: #009F9F;">6</span>, <span style="color: #009F9F;">7</span>, <span style="color: #009F9F;">8</span>, <span style="color: #009F9F;">9</span>};
+    <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">x</span> = <span style="color: #009F9F;">0</span>;
+    <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">0</span>; i &lt; <span style="color: #009F9F;">11</span>; ++i)
+        x ^= arr[i];
+    <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">0</span>; i &lt; <span style="color: #009F9F;">10</span>; ++i)
+        x ^= i;
+    printf(<span style="color: #FC9F4E;">"%d\n"</span>, x);
+    <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">0</span>;
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org28f6abb" class="outline-3">
+<h3 id="org28f6abb">找到唯一落单的数</h3>
+<div class="outline-text-3" id="text-org28f6abb">
+<div class="org-src-container">
+<pre class="src src-C++"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cstdio&gt;</span>
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
+    <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">arr</span>[] = {<span style="color: #009F9F;">0</span>, <span style="color: #009F9F;">1</span>, <span style="color: #009F9F;">2</span>, <span style="color: #009F9F;">3</span>, <span style="color: #009F9F;">4</span>, <span style="color: #009F9F;">5</span>, <span style="color: #009F9F;">6</span>, <span style="color: #009F9F;">7</span>, <span style="color: #009F9F;">8</span>, <span style="color: #009F9F;">9</span>, <span style="color: #009F9F;">0</span>, <span style="color: #009F9F;">1</span>, <span style="color: #009F9F;">2</span>, <span style="color: #009F9F;">3</span>, <span style="color: #009F9F;">4</span>, <span style="color: #009F9F;">5</span>, <span style="color: #009F9F;">7</span>, <span style="color: #009F9F;">8</span>, <span style="color: #009F9F;">9</span>};
+    <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">x</span> = <span style="color: #009F9F;">0</span>;
+    <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">0</span>; i &lt; <span style="color: #009F9F;">19</span>; ++i)
+        x ^= arr[i];
+    printf(<span style="color: #FC9F4E;">"%d\n"</span>, x);
+    <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">0</span>;
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org11ce3a7" class="outline-3">
+<h3 id="org11ce3a7">奇偶位交换</h3>
+<div class="outline-text-3" id="text-org11ce3a7">
+<pre class="example" id="org9c61423">
+&gt; //例如：求10,交换后的数。 10的二进制为：1010
+&gt;
+&gt; 								   1010
+&gt; &amp; 01010101 01010101 01010101 01010101
+&gt; ---------------------------------------
+&gt;                x                 0000 //保留奇数位上的数
+&gt;
+&gt;                                  1010
+&gt; &amp; 10101010 10101010 10101010 10101010
+&gt; ---------------------------------------
+&gt;                y                 1010 //保留偶数位上的数
+&gt;
+&gt;  (x&lt;&lt;1) ^ (y&gt;&gt;1) = (0000&lt;&lt;1) ^ (1010&gt;&gt;1)
+&gt;                  =  0000 ^ 0101
+&gt;                  =  0101   //从而实现了，奇偶位互换
+&gt;
+</pre>
+</div>
+</div>
+<div id="outline-container-org5b5ff57" class="outline-3">
+<h3 id="org5b5ff57">出现K次与出现1次</h3>
+<div class="outline-text-3" id="text-org5b5ff57">
+<p>
+数组中只有一个数出现了1次，其他的数都出现了K次，请输出只出现了一次的数<br>
+2个相同的2进制数做不进位加法，结果为0<br>
+10个相同的10进制数做不进位加法，结果为0<br>
+k个相同的k进制数做不进位加法，结果为0<br>
+解题方式：做k进制的不进位加<br>
+</p>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

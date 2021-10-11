@@ -146,6 +146,8 @@ if (isCurPage('Ideas')) {
     });
 		$('p').each(function () {
 				$(this).css('margin-bottom', '0');
+				$(this).css('margin-top', '0');
+				$(this).css('text-indent', '0');
 		});
 }
 
@@ -160,8 +162,50 @@ if (isCurPage('Math')) {
         $(this).css('font-family', '微软雅黑, 宋体, Consolas')
         $(this).addClass('js-math-outline');
     });
+		// $('#content').each(function () {
+		// 		$(this).css('background-color', '#E6E6E6');
+		// })
 		$('p').each(function () {
 				$(this).css('margin-bottom', '0');
+		});
+		$('p+ul').each(function () {
+				$(this).css('margin-top', '0');
+		})
+}
+
+
+// VIM PAGE
+// ---------------------------------
+if (isCurPage('Editor-Vim')) {
+    // outline-1 TITLE
+    // outline-2 *
+    // outline-3 **
+    $('.outline-2').each(function () {
+        $(this).css('font-family', '微软雅黑, 宋体, Consolas')
+        $(this).addClass('js-math-outline');
+    });
+		$('p').each(function () {
+				$(this).css('margin-bottom', '0');
+		});
+		$('p+ul').each(function () {
+				$(this).css('margin-top', '0');
+		})
+}
+
+
+// POEM PAGE
+// ---------------------------------
+if (isCurPage('Poem')) {
+    // outline-1 TITLE
+    // outline-2 *
+    // outline-3 **
+    $('.outline-2').each(function () {
+        $(this).css('font-family', '微软雅黑, 宋体, Consolas')
+        $(this).addClass('js-math-outline');
+    });
+		$('p').each(function () {
+				// $(this).css('margin-bottom', '0');
+				$(this).css('text-indent', '2em');
 		});
 		$('p+ul').each(function () {
 				$(this).css('margin-top', '0');
