@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-10-12 Tue 14:01 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ALGORITHM-数学-生成函数-普通生成函数</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">ALGORITHM-数学-生成函数-普通生成函数</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org877cd40">普通生成函数</a>
+<ul>
+<li>
+<ul>
+<li><a href="#orgc6609e5">多项式乘法</a></li>
+<li><a href="#orga9179b0">母函数定义</a></li>
+<li><a href="#orgd92b37c">砝码称重</a></li>
+<li><a href="#org9dc5b5e">贴邮票</a></li>
+<li><a href="#org6455397">整数拆分</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org877cd40" class="outline-2">
+<h2 id="org877cd40">普通生成函数</h2>
+<div class="outline-text-2" id="text-org877cd40">
+<p>
+原理：把组合问题的加法与幂级数的乘幂对应起来<br>
+</p>
+</div>
+<div id="outline-container-orgc6609e5" class="outline-4">
+<h4 id="orgc6609e5">多项式乘法</h4>
+<div class="outline-text-4" id="text-orgc6609e5">
+<p>
+(1+a1x)(1+a2x)(1+a3x)&#x2026;(1+anx)<br>
+= 1 + (a1+a2+a3+&#x2026;+an)x^1 + (a1a2+a1a3+&#x2026;+a(n-1)an)x^2 + &#x2026; + (a1a2a3&#x2026;an)x^n<br>
+</p>
+
+<p>
+可以看出：x^2项的系数a1a2 + a1a3 + a(n-1)an中所有的项包括n个元素a1, a2, &#x2026; an中取两个组合的全体<br>
+同理：x^3项系数包含了从n个元素a1, a2, &#x2026; an中取3个元素组合的全体，以此类推<br>
+若令a1 = a2 = a3 = &#x2026; = an = 1，则(x + 1)^n = 1 + C(n, 1)x^1 + C(n, 2)x^2 + &#x2026; + C(n, n)X^n<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga9179b0" class="outline-4">
+<h4 id="orga9179b0">母函数定义</h4>
+<div class="outline-text-4" id="text-orga9179b0">
+<p>
+对于序列a0, a1, a2, &#x2026;构造一个函数G(x) = a0 + a1x^1 + a2x^2 + &#x2026;<br>
+则称G(x)是序列a0, a1, a2, &#x2026;的母函数<br>
+</p>
+
+<p>
+(x + 1)^n是序列C(n, 0), C(n, 1), &#x2026; , C(n, n)的母函数<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd92b37c" class="outline-4">
+<h4 id="orgd92b37c">砝码称重</h4>
+<div class="outline-text-4" id="text-orgd92b37c">
+<p>
+若有1克、2克、3克、4克的砝码各一 枚，能称出哪几种重量？各有几种可能方案？<br>
+</p>
+
+<p>
+如何解决这个问题呢？考虑构造母函数<br>
+如果用x的指数表示称出的重量，则：<br>
+1个1克的砝码可以用函数1+x^1表示，<br>
+1个2克的砝码可以用函数1+x^2表示，<br>
+1个3克的砝码可以用函数1+x^3表示，<br>
+1个4克的砝码可以用函数1+x^4表示，<br>
+</p>
+
+<p>
+(1 + x)(1 + x^2)(1 + x^3)(1 + x^4)<br>
+= 1 + x^1 + x^2 + 2x^3 + 2x^4 + 2x^5 + 2x^6 + 2x^7 + x^8 + x^9 + x^10<br>
+右端有2x^5，那么称出5克的方案有2种<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9dc5b5e" class="outline-4">
+<h4 id="org9dc5b5e">贴邮票</h4>
+<div class="outline-text-4" id="text-org9dc5b5e">
+<p>
+求用1分、2分、3分的邮票贴出不同数值的方案数<br>
+因为邮票允许重复，故母函数为：<br>
+G(x) = (1 + x + x^2 + x^3 + &#x2026;)(1 + x^2 + x^4 + &#x2026;)(1 + x^3 + x^6 + &#x2026;)<br>
+展开后x^4的系数为4，即4拆成1, 2, 3, 之和的拆分数为4<br>
+4 = 1 + 1 + 1 + 1 = 1 + 1 + 2 = 1 + 3 = 2 + 2<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org6455397" class="outline-4">
+<h4 id="org6455397">整数拆分</h4>
+<div class="outline-text-4" id="text-org6455397">
+<p>
+所谓整数拆分即把整数分解成若干整数的和（相当于把n个无区别的球放到n个无标志的盒子，盒子允许空，也允许放多于一个球）<br>
+整数拆分成若干整数的和，办法不一，不同拆分法的总数叫做拆分数<br>
+</p>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2021-10-12 14:10 Tue</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2021-10-12 Tue 14:01</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-10-11 Mon 17:34 -->
+<!-- 2021-10-12 Tue 00:20 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>中国剩余定理</title>
@@ -46,7 +46,12 @@
 <li><a href="#orgce2517b">"物不知数"问题</a></li>
 <li><a href="#org17069ba">算法简介</a></li>
 <li><a href="#org10a7544">算法流程</a></li>
-<li><a href="#org07060c3">算法的证明</a></li>
+<li><a href="#org07060c3">算法的证明</a>
+<ul>
+<li><a href="#orgab22753">证明1：</a></li>
+<li><a href="#org8c2508b">证明2：</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -107,20 +112,145 @@
 <ol class="org-ol">
 <li>计算 \(m_i = \frac{n}{n_i}\)<br></li>
 <li>计算 \(m_i\) 在模 \(n_i\) 意义下的 <a href="Algorithm-数学-数论-乘法逆元.html">逆元</a> \(m_i^{-1}\)<br></li>
-<li>计算 \(c_i = m_i m_i^{-1}\)\ (不要对 \(n_i\) 取模)<br></li>
+<li>计算 \(c_i = m_i m_i^{-1}\) (不要对 \(n_i\) 取模)<br></li>
 </ol></li>
-<li>方程组的唯一解为： \(x = \sum_{i = 1}^{k} a_i c_i\ (mod\ n)\)<br></li>
+<li>方程组的唯一解为：\(x = \sum_{i = 1}^{k} a_i c_i\ (mod\ n)\)<br></li>
 </ol>
 </div>
 </div>
 <div id="outline-container-org07060c3" class="outline-2">
 <h2 id="org07060c3">算法的证明</h2>
+<div class="outline-text-2" id="text-org07060c3">
+</div>
+<div id="outline-container-orgab22753" class="outline-3">
+<h3 id="orgab22753">证明1：</h3>
+<div class="outline-text-3" id="text-orgab22753">
+<p>
+\(\begin{cases}
+	 x\ mod\ n_1 = a_1\\
+	 x\ mod\ n_2 = a_2\\
+	 x\ mod\ n_3 = a_3\\
+	 \ \ \ \ \vdots \\
+	 x\ mod\ n_k = a_k\\
+	 \end{cases}\)<br>
+</p>
+
+<p>
+从特殊到一般，先求前两个式子 \(\begin{cases}x\ mod\ n_1 = a_1\\ x\ mod\ n_2 = a_2 \end{cases}\) 的解。<br>
+</p>
+
+<p>
+它们等价于 \(\Rightarrow \begin{cases}x = k_1 n_1 + a_1\\ x = k_2 n_2 + a_2 \end{cases}\ (k1, k2 \in Z)\)<br>
+</p>
+
+<p>
+\(\rightarrow k_1 n_1 + a_1 = k_2 n_2 + a_2\)，<br>
+</p>
+
+<p>
+\(\rightarrow k_1 n_1 - k_2 n_2 = a_2 - a_1\) 已知 \(n_1, n_2, a_1, a_2\)，未知 \(k_1, k_2\)。<br>
+</p>
+
+<p>
+有解的充要条件是：\(gcd(n_1, n_2)\ |\ (a_2 - a_1)\)，如果有解：<br>
+</p>
+
+<p>
+使用扩展欧几里德算法求出 \(k_1 n_1 - k_2 n_2 = gcd(n_1, n_2)\) 的解 \(\begin{cases}k_1 = k_1'\\ k_2 = k_2' \end{cases}\)<br>
+</p>
+
+<p>
+所以原式的解为 \(\begin{cases}k_1 = k_1' \frac{a_2 - a_1}{gcd(n_1, n_2)}\\ k_2 = k_2' \frac{a_2 - a_1}{gcd(n_1, n_2)} \end{cases}\)<br>
+</p>
+
+<p>
+最终可以求出 \(k_1, k_2\) 的多组解 \(\begin{cases}k_1 = k_1' \frac{a_2 - a_1}{gcd(n_1, n_2)} + k\frac{n_2}{gcd(n_1, n_2)}\\ k_2 = k_2' \frac{a_2 - a_1}{gcd(n_1, n_2)} + k\frac{n_1}{gcd(n_1, n_2)} \end{cases}\ (k \in Z) \)。<br>
+</p>
+
+<p>
+所以 \(x = k_1 n_1 + a_1 = n_1 k_1' + a_1 + k \frac{n_1 n_2}{gcd(n_1, n_2)} = n_1 k_1' \frac{a_2 - a_1}{gcd(n_1, n_2)} + a_1 + k\ lcm(n_1, n_2)\)，仅有一个未知量，整数 \(k\)。<br>
+</p>
+
+<p>
+令 \(\begin{cases}n_1' = lcm(n_1, n_2)\\ a_1' = n_1 k_1' \frac{a_2 - a_1}{gcd(n_1, n_2)} + a_1 \end{cases}\)，则 \(x = k n_1' + a_1'\)<br>
+</p>
+
+<p>
+发现这个式子形同上面的 \(\Rightarrow \begin{cases}x = k_1 n_1 + a_1\\ x = k_2 n_2 + a_2 \end{cases}\ (k1, k2 \in Z)\)<br>
+</p>
+
+<p>
+所以前两个式子变为一个式子，且形式一样，那么我们就可以不断将两个式子变为一个式子，最终只留下一个式子 \(x = kn + x_0\) 里面仅有一个未知数，整数 \(k\)，显然我们能够很容易的得到 \(x\) 的最小的非负整数解。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-cpp"><span style="color: #AFAFAF;">ll</span> <span style="color: #AFAFAF;">CRT</span>(<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">k</span>, <span style="color: #AFAFAF;">ll</span> <span style="color: #AFAFAF;">n</span>[], <span style="color: #AFAFAF;">ll</span> <span style="color: #AFAFAF;">a</span>[]) {
+    <span style="color: #AFAFAF;">bool</span> <span style="color: #AFAFAF;">has_result</span> = <span style="color: #009F9F;">true</span>;
+    <span style="color: #AFAFAF;">ll</span> <span style="color: #AFAFAF;">n1</span> = n[<span style="color: #009F9F;">0</span>], <span style="color: #AFAFAF;">a1</span> = a[<span style="color: #009F9F;">0</span>];
+    <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">1</span>; i &lt; k; ++ i) {
+        <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">n2</span> = n[i], <span style="color: #AFAFAF;">a2</span> = a[i];
+        <span style="color: #AFAFAF;">ll</span> <span style="color: #AFAFAF;">k1</span>, <span style="color: #AFAFAF;">k2</span>;   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">k1', k2'</span>
+        <span style="color: #AFAFAF;">ll</span> <span style="color: #AFAFAF;">gcd</span> = exgcd(n1, n2, k1, k2);
+        <span style="color: #BD93F9;">if</span> ((a2 - a1) % gcd)
+            <span style="color: #BD93F9;">return</span> -<span style="color: #009F9F;">1</span>;
+        k1 = k1 * (a2 - a1) / gcd;
+        <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#27492;&#21477;&#19981;&#38656;&#35201;&#65292;&#22240;&#20026;&#21482;&#35201;&#30693;&#36947; k1 &#23601;&#30693;&#36947; x &#20102;</span>
+        <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">k2 = k2 * (a2 - a1) / gcd;</span>
+        <span style="color: #AFAFAF;">ll</span> <span style="color: #AFAFAF;">t</span> = n2 / gcd;
+        k1 = (k1 % t + t) % t;
+        a1 = n1 * k1 + a1;
+        n1 = abs(n1 / gcd * n2);   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">lcm</span>
+    }
+    <span style="color: #BD93F9;">return</span> (a1 % n1 + n1) % n1;
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org8c2508b" class="outline-3">
+<h3 id="org8c2508b">证明2：</h3>
+<div class="outline-text-3" id="text-org8c2508b">
+<p>
+上面给出的求解公式：\(x = \sum_{i = 1}^{k} a_i c_i\ (mod\ n)\)<br>
+</p>
+
+<p>
+\(\rightarrow x \equiv a_i c_i\ (mod\ n_i)\)<br>
+</p>
+
+<p>
+\(\rightarrow x \equiv a_i \cdot m_i \cdot (m_i^{-1}\ mod\ n_i)\)<br>
+</p>
+
+<p>
+\(\rightarrow x \equiv a_i\ mod\ n_i\)，所以对于任意一个式子都成立。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-cpp"><span style="color: #AFAFAF;">ll</span> <span style="color: #AFAFAF;">CRT</span>(<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">k</span>, <span style="color: #AFAFAF;">ll</span> <span style="color: #AFAFAF;">n</span>[], <span style="color: #AFAFAF;">ll</span> <span style="color: #AFAFAF;">a</span>[]) {
+    <span style="color: #AFAFAF;">ll</span> <span style="color: #AFAFAF;">prod_n</span> = <span style="color: #009F9F;">1</span>, <span style="color: #AFAFAF;">res</span> = <span style="color: #009F9F;">0</span>;
+    <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">0</span>; i &lt; k; ++ i)
+        prod_n *= n[i];
+    <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">0</span>; i &lt; k; ++ i) {
+        <span style="color: #AFAFAF;">ll</span> <span style="color: #AFAFAF;">mi</span> = prod_n / n[i];
+        <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#35745;&#31639; mi &#22312;&#27169; ni &#24847;&#20041;&#19979;&#30340;&#36870;&#20803; inv_mi</span>
+        <span style="color: #AFAFAF;">ll</span> <span style="color: #AFAFAF;">inv_mi</span>, <span style="color: #AFAFAF;">y</span>;
+        exgcd(mi, n[i], inv_mi, y);
+        <span style="color: #AFAFAF;">ll</span> <span style="color: #AFAFAF;">ci</span> = mi * inv_mi;
+        res = (res + a[i] * ci % prod_n) % prod_n;
+    }
+    <span style="color: #BD93F9;">return</span> (res % prod_n + prod_n) % prod_n;
+}
+</pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div id="postamble" class="status">
 <p class="date">Date: 2021-10-11 17:10 Mon</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2021-10-11 Mon 17:34</p>
+<p class="date">Created: 2021-10-12 Tue 00:20</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
