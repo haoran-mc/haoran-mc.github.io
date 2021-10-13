@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-10-13 Wed 22:21 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>卡特兰数</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">卡特兰数</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgcf83c08">Catalan_number</a>
+<ul>
+<li><a href="#org2e994b4">递推式</a></li>
+<li><a href="#orgb19eddf">题目</a>
+<ul>
+<li><a href="#org5d8187d">括号化</a></li>
+<li><a href="#org4225f11">出栈次序 一个栈(无穷大)的进栈序列为1，2，3，…，n，有多少个不同的出栈序列?</a>
+<ul>
+<li><a href="#orgdc09b51">常规分析</a></li>
+<li><a href="#orgd10f1a2">非常规分析</a></li>
+</ul>
+</li>
+<li><a href="#org3bb8177">类似问题 买票找零</a></li>
+<li><a href="#orgb39d171">排身高</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#orgfde67ac">卡特兰数</a>
+<ul>
+<li><a href="#org793882f">Catalan两种基本模型</a>
+<ul>
+<li><a href="#org1480aac">模型1</a></li>
+<li><a href="#org3b092db">模型2</a></li>
+<li><a href="#org8d7c4ff">应用场景</a>
+<ul>
+<li><a href="#org709624d">棋盘问题</a></li>
+<li><a href="#org5a3ddfb">括号问题</a></li>
+<li><a href="#org5ab1204">出栈序列问题</a></li>
+<li><a href="#org10d3f7a">二叉树问题</a></li>
+<li><a href="#org50de059">买票找零问题</a></li>
+<li><a href="#org999bb4b">三角剖分问题</a></li>
+</ul>
+</li>
+<li><a href="#orgae18119">编程计算Catalan数</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-orgcf83c08" class="outline-2">
+<h2 id="orgcf83c08">Catalan_number</h2>
+<div class="outline-text-2" id="text-orgcf83c08">
+<ul class="org-ul">
+<li><a href="https://blog.csdn.net/u011080472/article/details/51162768">Catalan</a><br></li>
+</ul>
+<p>
+给定n个0和n个1，它们按照某种顺序排成长度为2n的序列，满足前缀中0的个数都不少与1的个数的序列的数量为 Catn = C_2n^n / (n+1)<br>
+给定m个0和n-m个1，它们按照某种顺序排成长度为n的序列，满足前缀中0的个数都不少与1的个数的序列的数量为 Catn = C_2n^m - C2n^(m-1)<br>
+</p>
+</div>
+<div id="outline-container-org2e994b4" class="outline-3">
+<h3 id="org2e994b4">递推式</h3>
+<div class="outline-text-3" id="text-org2e994b4">
+</div>
+</div>
+<div id="outline-container-orgb19eddf" class="outline-3">
+<h3 id="orgb19eddf">题目</h3>
+<div class="outline-text-3" id="text-orgb19eddf">
+</div>
+<div id="outline-container-org5d8187d" class="outline-4">
+<h4 id="org5d8187d">括号化</h4>
+<div class="outline-text-4" id="text-org5d8187d">
+<p>
+矩阵连乘： P=a1×a2×a3×……×an，依据乘法结合律，不改变其顺序，只用括号表示成对的乘积，试问有几种括号化的方案<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4225f11" class="outline-4">
+<h4 id="org4225f11">出栈次序 一个栈(无穷大)的进栈序列为1，2，3，…，n，有多少个不同的出栈序列?</h4>
+<div class="outline-text-4" id="text-org4225f11">
+</div>
+<div id="outline-container-orgdc09b51" class="outline-5">
+<h5 id="orgdc09b51">常规分析</h5>
+<div class="outline-text-5" id="text-orgdc09b51">
+<p>
+首先，我们设 f(n)=序列个数为n的出栈序列种数(我们假定，最后出栈的元素为k，显然，k取不同值时的情况是相互独立的，也就是求出每种k最后出栈的情况数后可用加法原则，由于k最后出栈，因此，在k入栈之前，比k小的值均出栈，此处情况有f(k-1)种，而之后比k大的值入栈，且都在k之前出栈，因此有f(n-k)种方式，由于比k小和比k大的值入栈出栈情况是相互独立的，此处可用乘法原则，f(n-k)*f(k-1)种，求和便是Catalan递归式)<br>
+首次出空之前第一个出栈的序数k将1~n的序列分成两个序列，其中一个是1~k-1，序列个数为k-1，另外一个是k+1~n，序列个数是n-k<br>
+此时，我们若把k视为确定一个序数，那么根据乘法原理，f（n）的问题就等价于——序列个数为k-1的出栈序列种数乘以序列个数为n - k的出栈序列种数，即选择k这个序数的 f(n) =f(k-1) × f(n-k)。而k可以选1到n，所以再根据加法原理，将k取不同值的序列种数相加，得到的总序列种数为：f(n) = f(0)f(n-1) + f(1)f(n-2) + …… + f(n-1)f(0)<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd10f1a2" class="outline-5">
+<h5 id="orgd10f1a2">非常规分析</h5>
+<div class="outline-text-5" id="text-orgd10f1a2">
+<p>
+对于每一个数来说，必须进栈一次、出栈一次。我们把进栈设为状态‘1’，出栈设为状态‘0’。n个数的所有状态对应n个1和n个0组成的2n位二进制数。由于等待入栈的操作数按照1‥n的顺序排列、入栈的操作数b大于等于出栈的操作数a(a≤b)，因此输出序列的总数目=由左而右扫描由n个1和n个0组成的2n位二进制数，1的累计数不小于0的累计数的方案种数<br>
+在2n位二进制数中填入n个1的方案数为c(2n,n),不填1的其余n位自动填0。从中减去不符合要求（由左而右扫描，0的累计数大于1的累计数）的方案数即为所求<br>
+不符合要求的数的特征是由左而右扫描时，必然在某一奇数位2m+1位上首先出现m+1个0的累计数和m个1的累计数，此后的2(n-m)-1位上有n-m个 1和n-m-1个0。如若把后面这2(n-m)-1位上的0和1互换，使之成为n-m个0和n-m-1个1，结果得1个由n+1个0和n-1个1组成的2n位数，即一个不合要求的数对应于一个由n+1个0和n-1个1组成的排列<br>
+反过来，任何一个由n+1个0和n-1个1组成的2n位二进制数，由于0的个数多2个，2n为偶数，故必在某一个奇数位上出现0的累计数超过1的累计数。同样在后面部分0和1互换，使之成为由n个0和n个1组成的2n位数，即n+1个0和n-1个1组成的2n位数必对应一个不符合要求的数<br>
+因而不合要求的2n位数与n+1个0，n－1个1组成的排列一一对应<br>
+显然，不符合要求的方案数为c(2n,n+1)。由此得出输出序列的总数目=c(2n,n)-c(2n,n-1)=c(2n,n)/(n+1)=h(n)<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org3bb8177" class="outline-4">
+<h4 id="org3bb8177">类似问题 买票找零</h4>
+<div class="outline-text-4" id="text-org3bb8177">
+<p>
+有2n个人排成一行进入剧场。入场费5元。其中只有n个人有一张5元钞票，另外n人只有10元钞票，剧院无其它钞票，问有多少种方法使得只要有10元的人买票，售票处就有5元的钞票找零(将持5元者到达视作将5元入栈，持10元者到达视作使栈中某5元出栈)<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb39d171" class="outline-4">
+<h4 id="orgb39d171">排身高</h4>
+<div class="outline-text-4" id="text-orgb39d171">
+<p>
+10个高矮不同的人，排成两排，每排必须是从矮到高排列，而且第二排比对应的第一排的人高，问有多少种排列方式?<br>
+我们可以先把这10个人从低到高排列，然后，选择5个人排在第一排，那么剩下的5个人肯定是在第二排。用0表示对应的人在第一排，用1表示对应的人在第二排，那么含有5个0，5个1的序列，就对应一种方案。<br>
+比如0000011111就对应着<br>
+第一排:0 1 2 3 4<br>
+第二排:5 6 7 8 9<br>
+0101010101就对应着<br>
+第一排:0 2 4 6 8<br>
+第二排:1 3 5 7 9<br>
+所以，看到问题相应的转换为，这样的满足条件的01序列有多少个。<br>
+观察规律我们发现1的出现前边必须有一个相应的0对应，所以从左到右的所有序列中0的个数要一直大于1的个数。那这种数列有多少种排列方式呢？那么我们从左往右扫描，第一次出现1的个数等于0的个数是第k位，那么在此之前，0的个数是大于1的个数的。在此之后，0的个数也是大于1的个数的。所以第k位0和1的个数第一次相等的排列有他们这两部分的个数相称的结果。<br>
+</p>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgfde67ac" class="outline-2">
+<h2 id="orgfde67ac">卡特兰数</h2>
+<div class="outline-text-2" id="text-orgfde67ac">
+<p>
+Catalan数是一个数列，它的一种定义如下：<br>
+\[
+  C_n = \frac{1}{n+1}C_{2n}^{n}
+  \] <br>
+</p>
+
+<p>
+前一部分的Catalan数是<br>
+1, 1, 2, 5, 14, 42, 132, 429, 1430, 4862, 16796, 58786, 208012, 742900, 2674440, 9694845, 35357670<br>
+</p>
+</div>
+<div id="outline-container-org793882f" class="outline-3">
+<h3 id="org793882f">Catalan两种基本模型</h3>
+<div class="outline-text-3" id="text-org793882f">
+</div>
+<div id="outline-container-org1480aac" class="outline-4">
+<h4 id="org1480aac">模型1</h4>
+<div class="outline-text-4" id="text-org1480aac">
+<p>
+\[
+    C_n = C_{2n}^n - C_{2n}^{n-1} = C_{2n}^n - C_{2n}^{n+1}
+    \]<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org3b092db" class="outline-4">
+<h4 id="org3b092db">模型2</h4>
+<div class="outline-text-4" id="text-org3b092db">
+<p>
+第二种模型是递推<br>
+\[
+    C-n = C_0C_{n-1} + C_1C_{n-2} + ... + C_{n-2}C_1 + C_{n-1}C_0
+    \]<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8d7c4ff" class="outline-4">
+<h4 id="org8d7c4ff">应用场景</h4>
+<div class="outline-text-4" id="text-org8d7c4ff">
+</div>
+<div id="outline-container-org709624d" class="outline-5">
+<h5 id="org709624d">棋盘问题</h5>
+</div>
+<div id="outline-container-org5a3ddfb" class="outline-5">
+<h5 id="org5a3ddfb">括号问题</h5>
+</div>
+<div id="outline-container-org5ab1204" class="outline-5">
+<h5 id="org5ab1204">出栈序列问题</h5>
+</div>
+<div id="outline-container-org10d3f7a" class="outline-5">
+<h5 id="org10d3f7a">二叉树问题</h5>
+</div>
+<div id="outline-container-org50de059" class="outline-5">
+<h5 id="org50de059">买票找零问题</h5>
+</div>
+<div id="outline-container-org999bb4b" class="outline-5">
+<h5 id="org999bb4b">三角剖分问题</h5>
+</div>
+</div>
+<div id="outline-container-orgae18119" class="outline-4">
+<h4 id="orgae18119">编程计算Catalan数</h4>
+<div class="outline-text-4" id="text-orgae18119">
+<p>
+$$<br>
+C-n = C_0C<sub>n-1</sub> + C_1C<sub>n-2</sub> + &#x2026; + C<sub>n-2</sub>C_1 + C<sub>n-1</sub>C_0 = &sum; C_kC<sub>n-k</sub><br>
+</p>
+
+<p>
+C_n = \frac{4n-2}{n+1}C<sub>n-1</sub><br>
+</p>
+
+<p>
+C_n = \frac{1}{n+1}C<sub>2n</sub>^n = \frac{(2n)!}{(n+1)!n!}<br>
+$$<br>
+</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2021-10-13 Wed 22:21</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

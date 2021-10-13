@@ -211,3 +211,21 @@ if (isCurPage('Poem')) {
 				$(this).css('margin-top', '0');
 		})
 }
+
+// WIKI PAGE
+// ---------------------------------
+if (isCurPage('wiki')) {
+    // outline-1 TITLE
+    // outline-2 *
+    // outline-3 **
+    $('.outline-2').each(function () {
+        $(this).css('font-family', '微软雅黑, 宋体, Consolas')
+        $(this).addClass('js-math-outline');
+    });
+		$('p').each(function () {
+				$(this).css('margin-bottom', '0');
+		});
+		$('p+ul').each(function () {
+				$(this).css('margin-top', '0');
+		})
+}
