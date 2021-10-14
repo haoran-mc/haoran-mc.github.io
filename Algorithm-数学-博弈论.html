@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-10-14 Thu 22:15 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>博弈论</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">博弈论</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org49845ef">公平组合游戏</a></li>
+<li><a href="#orgfdd61b3">Nim Game</a>
+<ul>
+<li><a href="#orgd022ec6">游戏内容</a></li>
+<li><a href="#org6a43275">必胜手段</a></li>
+<li><a href="#orge57ee09">推广到 n 堆牌</a></li>
+<li><a href="#org297ed18">判断胜者多少种胜法</a></li>
+</ul>
+</li>
+<li><a href="#org88b0b03">Bash Game</a>
+<ul>
+<li><a href="#org7b2296c">推广到n张牌</a></li>
+<li><a href="#org11c3055">限制取石子的数量</a></li>
+<li><a href="#org8f1f2b0">继续推广到二维平面</a></li>
+<li><a href="#org3897903">一步两步</a></li>
+</ul>
+</li>
+<li><a href="#org5455ae6">图游戏与Sprague-Grundy函数</a>
+<ul>
+<li><a href="#orgf8be066">使用sg函数求解nim游戏</a></li>
+</ul>
+</li>
+<li><a href="#org60b2a2f">Wythoff Game</a></li>
+<li><a href="#org4c96112">有向图游戏的和</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org49845ef" class="outline-2">
+<h2 id="org49845ef">公平组合游戏</h2>
+<div class="outline-text-2" id="text-org49845ef">
+<p>
+公平组合游戏的定义如下：<br>
+</p>
+<ul class="org-ul">
+<li>游戏有两个人参与，二者轮流做出决策，双方均知道游戏的完整信息；<br></li>
+<li>任意一个游戏者在某一确定状态可以作出的决策集合只与当前的状态有关，而与游戏者无关；<br></li>
+<li>游戏中的同一个状态不可能多次抵达，游戏以玩家无法行动为结束，且游戏一定会在有限步后以非平局结束。<br></li>
+</ul>
+
+<p>
+大部分的棋类游戏都 不是 公平组合游戏，如国际象棋、中国象棋、围棋、五子棋等（因为双方都不能使用对方的棋子）。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgfdd61b3" class="outline-2">
+<h2 id="orgfdd61b3">Nim Game</h2>
+<div class="outline-text-2" id="text-orgfdd61b3">
+</div>
+<div id="outline-container-orgd022ec6" class="outline-3">
+<h3 id="orgd022ec6">游戏内容</h3>
+<div class="outline-text-3" id="text-orgd022ec6">
+<ul class="org-ul">
+<li>两个玩家以及 \(3\) 堆扑克，分别有 \(5, 7, 9\) 张牌<br></li>
+<li>游戏双方轮流操作<br></li>
+<li>玩家的每次操作是选择其中一堆从中取走任意张牌，不能不取牌<br></li>
+<li>最后一次取牌的玩家为获胜方<br></li>
+</ul>
+
+<p>
+游戏双方 \(A\) 和 \(B\)，看似游戏输赢是随机的，但实则先手取牌的人必赢；后手取牌的人必输。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org6a43275" class="outline-3">
+<h3 id="org6a43275">必胜手段</h3>
+<div class="outline-text-3" id="text-org6a43275">
+<p>
+本世纪初，哈佛大学数学系副教授查理士•理昂纳德•包顿（Chales Leonard Bouton）利用数的二进制表示法，解答了这个游戏的一般法则。<br>
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">&#xa0;</th>
+<th scope="col" class="org-right">\(2^3 = 8\)</th>
+<th scope="col" class="org-right">\(2^2 = 4\)</th>
+<th scope="col" class="org-right">\(2^1 = 2\)</th>
+<th scope="col" class="org-right">\(2^0 = 1\)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">5</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+</tr>
+
+<tr>
+<td class="org-right">7</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+<td class="org-right">1</td>
+<td class="org-right">1</td>
+</tr>
+
+<tr>
+<td class="org-right">9</td>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+将每堆牌数化为二进制数，如果每列的"1"的个数是偶数的话，则是平衡点；每列的"1"的个数不是偶数的话，就是非平衡点。<br>
+</p>
+
+<p>
+操作一次后达到平衡点的玩家必赢，反之必输。<br>
+</p>
+
+<p>
+在本局游戏中，如果先手玩家 \(A\) 从 \(9\) 堆里拿走 \(7\) 张牌，二进制表示就变为了：<br>
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">&#xa0;</th>
+<th scope="col" class="org-right">\(2^3 = 8\)</th>
+<th scope="col" class="org-right">\(2^2 = 4\)</th>
+<th scope="col" class="org-right">\(2^1 = 2\)</th>
+<th scope="col" class="org-right">\(2^0 = 1\)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">5</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+</tr>
+
+<tr>
+<td class="org-right">7</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+<td class="org-right">1</td>
+<td class="org-right">1</td>
+</tr>
+
+<tr>
+<td class="org-right">9</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+每列"1"的个数变为偶数，游戏状态变为平衡态，先手玩家 \(A\) 必赢。<br>
+</p>
+
+<p>
+因为无论 \(B\) 怎么拿牌，一定不能使每列"1"的个数变为偶数，也就是说 \(B\) 一定会将游戏状态变为非平衡态。<br>
+</p>
+
+<p>
+而无论 \(B\) 怎么拿牌，\(A\) 一定能重新使每列"1"的个数变为偶数，也就是说一次轮流操作中，\(B\) 一定会将游戏状态变为非平衡态；而 \(A\) 一定会将游戏状态重新变为平衡态，最终 \(B\) 将游戏变为非平衡态，而 \(A\) 终结游戏获得胜利。<br>
+</p>
+
+<hr>
+
+<ul class="org-ul">
+<li><p>
+例如 \(A\) 已经从有 \(9\) 张牌的堆中取走 \(7\) 张牌，这时 \(B\) 有很多中选择，假设 \(B\) 从含有 \(5\) 张牌的堆中取走 \(5\) 张牌，游戏状态变为：<br>
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">&#xa0;</th>
+<th scope="col" class="org-right">\(2^3 = 8\)</th>
+<th scope="col" class="org-right">\(2^2 = 4\)</th>
+<th scope="col" class="org-right">\(2^1 = 2\)</th>
+<th scope="col" class="org-right">\(2^0 = 1\)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">5</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+</tr>
+
+<tr>
+<td class="org-right">7</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+<td class="org-right">1</td>
+<td class="org-right">1</td>
+</tr>
+
+<tr>
+<td class="org-right">9</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
+</tr>
+</tbody>
+</table></li>
+
+<li><p>
+这时 \(A\) 从含有 \(7\) 张牌的堆中取走 \(5\) 张，游戏状态变为：<br>
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">&#xa0;</th>
+<th scope="col" class="org-right">\(2^3 = 8\)</th>
+<th scope="col" class="org-right">\(2^2 = 4\)</th>
+<th scope="col" class="org-right">\(2^1 = 2\)</th>
+<th scope="col" class="org-right">\(2^0 = 1\)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">5</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+</tr>
+
+<tr>
+<td class="org-right">7</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
+</tr>
+
+<tr>
+<td class="org-right">9</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
+</tr>
+</tbody>
+</table></li>
+
+<li><p>
+如果接下来 \(B\) 从 \(7\) 堆中选 \(1\) 张牌，为了使游戏状态变为平衡态，\(A\) 从 \(9\) 堆中取走 \(1\) 张牌，这时的游戏状态变为：<br>
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">&#xa0;</th>
+<th scope="col" class="org-right">\(2^3 = 8\)</th>
+<th scope="col" class="org-right">\(2^2 = 4\)</th>
+<th scope="col" class="org-right">\(2^1 = 2\)</th>
+<th scope="col" class="org-right">\(2^0 = 1\)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">5</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+</tr>
+
+<tr>
+<td class="org-right">7</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+</tr>
+
+<tr>
+<td class="org-right">9</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+</tr>
+</tbody>
+</table></li>
+
+<li>容易发现这时 \(B\) 只有两种取法，都是必输的。<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orge57ee09" class="outline-3">
+<h3 id="orge57ee09">推广到 n 堆牌</h3>
+<div class="outline-text-3" id="text-orge57ee09">
+<p>
+推广到 \(n\) 堆牌，每堆中有 \(m_1, m_2, m_3 \dots m_n\) 张牌。<br>
+</p>
+
+<p>
+如果 \(m_1 \bigoplus m_2 \bigoplus m_3 \bigoplus \dots \bigoplus m_n == 0\)，那么这是一个平衡点，否则不是一个平衡点。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org297ed18" class="outline-3">
+<h3 id="org297ed18">判断胜者多少种胜法</h3>
+<div class="outline-text-3" id="text-org297ed18">
+<p>
+除了知道谁会赢之外，如何判断必赢的人有多少种必胜的操作方案？<br>
+</p>
+
+<p>
+令 \(nim\_xor = m_1 \bigoplus m_2 \bigoplus m_3 \bigoplus \dots \bigoplus m_n\)<br>
+</p>
+
+<p>
+由上面直到如果 \(nim\_xor\) 不是 \(0\)，则先手的玩家必胜。<br>
+</p>
+
+<ul class="org-ul">
+<li>定义 \(sum1 = nim \bigoplus m_1\) ，如果 \(sum1 <= m_1，res += sum1;\)<br></li>
+<li>定义 \(sum2 = nim \bigoplus m_2\) ，如果 \(sum2 <= m_2，res += sum2;\)<br></li>
+<li>\(\dots\)<br></li>
+<li>定义 \(sumn = nim \bigoplus m_n\) ，如果 \(sumn <= m_n，res += sumn;\)<br></li>
+</ul>
+
+<p>
+\(res\) 就是必赢的人有多少种必胜的操作方案。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org88b0b03" class="outline-2">
+<h2 id="org88b0b03">Bash Game</h2>
+<div class="outline-text-2" id="text-org88b0b03">
+<p>
+玩家:两人<br>
+道具:23张扑克<br>
+规则:<br>
+</p>
+<ul class="org-ul">
+<li>游戏双方轮流取牌<br></li>
+<li>每人每次取牌仅限于取1张、2张或3张<br></li>
+<li>扑克牌取光，则游戏结束<br></li>
+<li>最后取牌的一方为胜者<br></li>
+</ul>
+
+<p>
+游戏双方A和B，看似游戏输赢是随机的，但实则先手取牌的人必赢；后手取牌的人必输<br>
+假设先手取牌的人是A，A取3张牌后还剩20张牌，是4的倍数；B无论取多少张牌，都会打破"4的倍数"这一状态，假设取m张牌<br>
+这时A取(4-m)张牌，就又会恢复到"4的倍数"这一平衡的状态<br>
+这样当进行8次操作后，牌还剩4张，无论B取几张牌，A都可以最后取牌得到胜利<br>
+</p>
+</div>
+<div id="outline-container-org7b2296c" class="outline-3">
+<h3 id="org7b2296c">推广到n张牌</h3>
+<div class="outline-text-3" id="text-org7b2296c">
+<p>
+推广到有n张牌，每次取牌的数量不超过m张<br>
+有n == k*(m+1) + r<br>
+</p>
+<ol class="org-ol">
+<li>如果r == 0，先手取牌的人会打破平衡态，必输<br></li>
+<li><p>
+如果r != 0，先手取牌的人取r张牌，达到平衡态，必赢<br>
+</p>
+
+<p>
+<b>N-positiong为胜利</b><br>
+由此看来，(m+1)*k是必胜点，除了必胜点都是必败点;只要一方达到必胜点，也就达到平衡点，另一方的下一次操作就一定会打破这种平衡态，到达必输点<br>
+定义P-position和N-position: P(previous)、N(next)，也就是操作一次达到必胜点的人的位置是P-position，操作一次脱离必胜点的人的位置是N-position<br>
+</p>
+<ol class="org-ol">
+<li>最终操作结束时的局面是N-position<br></li>
+<li>能够操作一次达到N-position的位置是P-position<br></li>
+<li>能够操作一次达到P-position的位置是N-position<br></li>
+</ol></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-org11c3055" class="outline-3">
+<h3 id="org11c3055">限制取石子的数量</h3>
+<div class="outline-text-3" id="text-org11c3055">
+<p>
+如果设置取石子的数量不是1~m内的连续数字，而是只能在{a1, a2, &#x2026; ak}中选<br>
+同样使用P-positiong与N-position<br>
+例如只能拿{1, 4}数量的石头，<br>
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-left">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">x</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+<td class="org-right">2</td>
+<td class="org-right">3</td>
+<td class="org-right">4</td>
+<td class="org-right">5</td>
+<td class="org-right">6</td>
+<td class="org-right">7</td>
+<td class="org-right">8</td>
+<td class="org-right">9</td>
+<td class="org-right">10</td>
+<td class="org-right">11</td>
+<td class="org-right">12</td>
+<td class="org-right">13</td>
+<td class="org-left">&#x2026;</td>
+</tr>
+
+<tr>
+<td class="org-left">pos</td>
+<td class="org-right">P</td>
+<td class="org-right">N</td>
+<td class="org-right">P</td>
+<td class="org-right">N</td>
+<td class="org-right">N</td>
+<td class="org-right">P</td>
+<td class="org-right">N</td>
+<td class="org-right">P</td>
+<td class="org-right">N</td>
+<td class="org-right">N</td>
+<td class="org-right">P</td>
+<td class="org-right">N</td>
+<td class="org-right">P</td>
+<td class="org-right">N</td>
+<td class="org-left">&#x2026;</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+发现有周期变化，而且计算过程符合动态规划的思想，可以使用动态规划完成<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8f1f2b0" class="outline-3">
+<h3 id="org8f1f2b0">继续推广到二维平面</h3>
+<div class="outline-text-3" id="text-org8f1f2b0">
+<p>
+棋盘上有一枚棋子位置是(x, y)，棋盘的左上角位置是(0, 0)<br>
+这个棋子可以左移也可以上移，可以移动一格或者两格，直到有一方不能移动(棋子已经处于(0, 0))的一方为输<br>
+打表发现abs(x - y) % 3 == 0时为必输点<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-cpp"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cstdio&gt;</span>
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;algorithm&gt;</span>
+<span style="color: #BD93F9;">using</span> <span style="color: #BD93F9;">namespace</span> <span style="color: #009F9F;">std</span>;
+
+<span style="color: #AFAFAF;">bool</span> <span style="color: #AFAFAF;">coord</span>[<span style="color: #009F9F;">100</span>][<span style="color: #009F9F;">100</span>] = {<span style="color: #009F9F;">false</span>};
+<span style="color: #AFAFAF;">bool</span> <span style="color: #AFAFAF;">rem</span>[<span style="color: #009F9F;">100</span>][<span style="color: #009F9F;">100</span>] = {<span style="color: #009F9F;">false</span>};
+
+<span style="color: #AFAFAF;">void</span> <span style="color: #AFAFAF;">buildCoord</span>(<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">x</span>, <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">y</span>) {
+    <span style="color: #BD93F9;">if</span> (rem[x][y] == <span style="color: #009F9F;">true</span>)
+        <span style="color: #BD93F9;">return</span> ;
+    rem[x][y] = <span style="color: #009F9F;">true</span>;
+
+    <span style="color: #BD93F9;">if</span> (x &gt; <span style="color: #009F9F;">30</span> + <span style="color: #009F9F;">1</span> || y &gt; <span style="color: #009F9F;">30</span> + <span style="color: #009F9F;">1</span>)
+        <span style="color: #BD93F9;">return</span> ;
+
+    coord[x + <span style="color: #009F9F;">1</span>][y] = <span style="color: #009F9F;">true</span>;
+    coord[x + <span style="color: #009F9F;">2</span>][y] = <span style="color: #009F9F;">true</span>;
+    coord[x][y + <span style="color: #009F9F;">1</span>] = <span style="color: #009F9F;">true</span>;
+    coord[x][y + <span style="color: #009F9F;">2</span>] = <span style="color: #009F9F;">true</span>;
+    buildCoord(x + <span style="color: #009F9F;">3</span>, y);
+    buildCoord(x, y + <span style="color: #009F9F;">3</span>);
+    buildCoord(x + <span style="color: #009F9F;">1</span>, y + <span style="color: #009F9F;">1</span>);
+}
+
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
+    buildCoord(<span style="color: #009F9F;">0</span>, <span style="color: #009F9F;">0</span>);
+    <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">0</span>; i &lt; <span style="color: #009F9F;">30</span>; i++) {
+        <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">j</span> = <span style="color: #009F9F;">0</span>; j &lt; <span style="color: #009F9F;">30</span>; j++) 
+            printf(<span style="color: #FC9F4E;">"%d "</span>, coord[i][j]);
+        printf(<span style="color: #FC9F4E;">"\n"</span>);
+    }
+    <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">0</span>;
+}
+</pre>
+</div>
+
+<pre class="example" id="orgc1a93c1">
+0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1
+1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1
+1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0
+0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1
+1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1
+1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0
+0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1
+1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1
+1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0
+0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1
+1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1
+1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0
+0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1
+1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1
+1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0
+0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1
+1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1
+1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0
+0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1
+1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1
+1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0
+0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1
+1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1
+1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0
+</pre>
+</div>
+</div>
+<div id="outline-container-org3897903" class="outline-3">
+<h3 id="org3897903">一步两步</h3>
+<div class="outline-text-3" id="text-org3897903">
+<ul class="org-ul">
+<li><p>
+棋盘一步两步问题<br>
+&gt; [牛客月赛28](<a href="https://ac.nowcoder.com/acm/contest/7412#question">https://ac.nowcoder.com/acm/contest/7412#question</a>)<br>
+B 牛牛和牛可乐的赌约2<br>
+0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1<br>
+1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1<br>
+1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0<br>
+0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1<br>
+1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1<br>
+1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0<br>
+0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1<br>
+1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1<br>
+1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0<br>
+0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1<br>
+1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1<br>
+1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0<br>
+0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1<br>
+1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1<br>
+1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0<br>
+0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1<br>
+1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1<br>
+1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0<br>
+0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1<br>
+1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1<br>
+1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0<br>
+0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1<br>
+1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1<br>
+1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0<br>
+</p>
+
+<p>
+观察得 <code>abs(x - y) % 3 =</code> 0= 的点都是0<br>
+</p></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-org5455ae6" class="outline-2">
+<h2 id="org5455ae6">图游戏与Sprague-Grundy函数</h2>
+<div class="outline-text-2" id="text-org5455ae6">
+<p>
+定义一个sg函数，在一个有向图中，当前结点存储的值是指向的所有结点中未存在的最小非负整数<br>
+例如在下面的有向图中，结点值为2的结点指向的结点的值有0, 1, 1，那么未存在的最小的非负整数就是2<br>
+</p>
+<pre class="example" id="org9fef092">
+				0       2                        |
+			 /|\     /|\                       |
+			/ | \   / | \                      |
+		 /  |  \ /  |  \                箭   |
+		/   |   \   |   \               头   |
+	 /    |  / \  |    \              都   |
+	/     | /   \ |     \             是   |
+ /      |/     \|      \            向   |
+1       1       1       0           下   |
+ \       \     /|                   的   |
+	\       \   / |                        |
+	 \       \ /  |                        |
+		\       /   |                        |
+		 \     / \  |                        |
+			\   /   \ |                      \ | /
+			 \ /     \|                       \|/
+				0       0                        v
+</pre>
+</div>
+<div id="outline-container-orgf8be066" class="outline-3">
+<h3 id="orgf8be066">使用sg函数求解nim游戏</h3>
+<div class="outline-text-3" id="text-orgf8be066">
+<ol class="org-ol">
+<li>求解每堆石子的sg值<br></li>
+<li>求所有石子堆sg值的异或<br>
+\[
+			sg(x1) \bigoplus sg(x2) \bigoplus sg(x3) \bigoplus ... \bigoplus sg(xn) != 0  先手必胜 \\
+			sg(x1) \bigoplus sg(x2) \bigoplus sg(x3) \bigoplus ... \bigoplus sg(xn) != 0  先手必败
+			\]<br></li>
+</ol>
+</div>
+</div>
+</div>
+<div id="outline-container-org60b2a2f" class="outline-2">
+<h2 id="org60b2a2f">Wythoff Game</h2>
+<div class="outline-text-2" id="text-org60b2a2f">
+<p>
+有两堆各若干个物品，两个人轮流从某一堆或同时从两堆中取同样多的物品，规定每次至少取一个，多者不限，规定最后取光者得胜<br>
+</p>
+
+<p>
+<a href="img/wythoff.png">image-wythoff</a><br>
+</p>
+
+<p>
+仔细分析，就能看出其差值为0,1,2,3,4,5,6…n;<br>
+用数学方法分析发现局面中第一个值为前面局面中没有出现过的第一个值，比如第三个局面，前面出现了 0 1 2，那么第三个局面的第一个值为 3 ，比如第五个局面，前面出现了 0 1 2 3 4 5 ,那么第五个局面第一个值为6。<br>
+在分析一下规律，我们发现第一个值 = 差值 * 1.618；<br>
+而1.618 = (sqrt(5)+ 1) / 2<br>
+大家都知道0.618是黄金分割率，而威佐夫博弈正好是1.618，这就是博弈的奇妙之处！<br>
+</p>
+
+<p>
+威佐夫两类问题<br>
+1、给你一个局面，让你求是先手输赢。<br>
+有了上面的分析，那么这个问题应该不难解决。首先求出差值，差值 * p == 最小值 的话后手赢，否则先手赢(注意这里的p = (sqrt(5)+ 1) / 2)<br>
+2、给你一个局面，让你求先手输赢，假设先手赢的话输出他第一次的取法<br>
+首先讨论在两边同时取的情况，很明显两边同时取的话，不论怎样取他的差值是不变的，那么我们可以根据差值计算出其中的小值，然后加上差值就是大的值<br>
+能取的条件是求出的最小的值不能大于其中小的一堆的石子数目<br>
+只在一堆中取的话，可以取任意一堆，那么其差值是不定的，所以我们枚举差值，差值范围是0 到 大的一堆石子数目，然后根据上面的理论判断满足条件的话就是一种合理的取法<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4c96112" class="outline-2">
+<h2 id="org4c96112">有向图游戏的和</h2>
+<div class="outline-text-2" id="text-org4c96112">
+<p>
+设G1、G2 &#x2026;&#x2026;  Gn是n个有向图游戏，定义游戏G是G1、G2 &#x2026;&#x2026;  Gn的和(Sum)，游戏G的移动规则是:任选一个子游戏Gi并移动上面的棋子<br>
+Sprague-Grundy Theorem就是: g(G) = g(G1)^g(G2)^&#x2026;&#x2026;^g(Gn)，游戏的和的SG值就是它的所有子游戏的SG函数值的异或<br>
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2021-10-14 Thu 22:15</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
