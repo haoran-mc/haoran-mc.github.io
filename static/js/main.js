@@ -219,8 +219,8 @@ if (isCurPage('wiki')) {
     // outline-2 *
     // outline-3 **
     $('.outline-2').each(function () {
-        $(this).css('font-family', '微软雅黑, 宋体, Consolas')
-        $(this).addClass('js-math-outline');
+        $(this).css('font-family', 'Consolas, 微软雅黑, 宋体')
+        $(this).addClass('js-wiki-outline');
     });
 		$('p').each(function () {
 				$(this).css('margin-bottom', '0');

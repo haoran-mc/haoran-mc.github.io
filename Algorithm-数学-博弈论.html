@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-10-14 Thu 22:15 -->
+<!-- 2021-10-15 Fri 21:08 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>博弈论</title>
@@ -46,27 +46,35 @@
 <li><a href="#org49845ef">公平组合游戏</a></li>
 <li><a href="#orgfdd61b3">Nim Game</a>
 <ul>
-<li><a href="#orgd022ec6">游戏内容</a></li>
+<li><a href="#org5479a1b">游戏内容</a></li>
 <li><a href="#org6a43275">必胜手段</a></li>
 <li><a href="#orge57ee09">推广到 n 堆牌</a></li>
 <li><a href="#org297ed18">判断胜者多少种胜法</a></li>
+<li><a href="#org840f1a0">证明一定有从非平衡态到平衡态的取法</a></li>
+<li><a href="#org9a070c6">证明一定没有从平衡态到平衡态的取法</a></li>
+</ul>
+</li>
+<li><a href="#orgc848da8">有向图游戏的和 Sprague-Grundy 函数</a>
+<ul>
+<li><a href="#org4615b41">mex 运算</a></li>
+<li><a href="#org797b512">sg 函数</a></li>
+<li><a href="#orgf8be066">使用sg函数求解nim游戏</a></li>
 </ul>
 </li>
 <li><a href="#org88b0b03">Bash Game</a>
 <ul>
-<li><a href="#org7b2296c">推广到n张牌</a></li>
+<li><a href="#orgaaf9935">游戏内容</a></li>
+<li><a href="#org652192b">推广到 n 张牌</a></li>
 <li><a href="#org11c3055">限制取石子的数量</a></li>
 <li><a href="#org8f1f2b0">继续推广到二维平面</a></li>
 <li><a href="#org3897903">一步两步</a></li>
 </ul>
 </li>
-<li><a href="#org5455ae6">图游戏与Sprague-Grundy函数</a>
+<li><a href="#org60b2a2f">Wythoff Game</a>
 <ul>
-<li><a href="#orgf8be066">使用sg函数求解nim游戏</a></li>
+<li><a href="#org99cd0d5">威佐夫两类问题：</a></li>
 </ul>
 </li>
-<li><a href="#org60b2a2f">Wythoff Game</a></li>
-<li><a href="#org4c96112">有向图游戏的和</a></li>
 </ul>
 </div>
 </div>
@@ -92,9 +100,9 @@
 <h2 id="orgfdd61b3">Nim Game</h2>
 <div class="outline-text-2" id="text-orgfdd61b3">
 </div>
-<div id="outline-container-orgd022ec6" class="outline-3">
-<h3 id="orgd022ec6">游戏内容</h3>
-<div class="outline-text-3" id="text-orgd022ec6">
+<div id="outline-container-org5479a1b" class="outline-3">
+<h3 id="org5479a1b">游戏内容</h3>
+<div class="outline-text-3" id="text-org5479a1b">
 <ul class="org-ul">
 <li>两个玩家以及 \(3\) 堆扑克，分别有 \(5, 7, 9\) 张牌<br></li>
 <li>游戏双方轮流操作<br></li>
@@ -415,7 +423,7 @@
 </p>
 
 <p>
-如果 \(m_1 \bigoplus m_2 \bigoplus m_3 \bigoplus \dots \bigoplus m_n == 0\)，那么这是一个平衡点，否则不是一个平衡点。<br>
+如果 \(m_1 \oplus m_2 \oplus m_3 \oplus \dots \oplus m_n == 0\)，那么这是一个平衡点（先手必败），否则不是一个平衡点（先手必胜）。<br>
 </p>
 </div>
 </div>
@@ -427,7 +435,7 @@
 </p>
 
 <p>
-令 \(nim\_xor = m_1 \bigoplus m_2 \bigoplus m_3 \bigoplus \dots \bigoplus m_n\)<br>
+令 \(nim\_xor = m_1 \oplus m_2 \oplus m_3 \oplus \dots \oplus m_n\)<br>
 </p>
 
 <p>
@@ -435,10 +443,10 @@
 </p>
 
 <ul class="org-ul">
-<li>定义 \(sum1 = nim \bigoplus m_1\) ，如果 \(sum1 <= m_1，res += sum1;\)<br></li>
-<li>定义 \(sum2 = nim \bigoplus m_2\) ，如果 \(sum2 <= m_2，res += sum2;\)<br></li>
+<li>定义 \(sum1 = nim \oplus m_1\) ，如果 \(sum1 <= m_1，res += sum1;\)<br></li>
+<li>定义 \(sum2 = nim \oplus m_2\) ，如果 \(sum2 <= m_2，res += sum2;\)<br></li>
 <li>\(\dots\)<br></li>
-<li>定义 \(sumn = nim \bigoplus m_n\) ，如果 \(sumn <= m_n，res += sumn;\)<br></li>
+<li>定义 \(sumn = nim \oplus m_n\) ，如果 \(sumn <= m_n，res += sumn;\)<br></li>
 </ul>
 
 <p>
@@ -446,52 +454,152 @@
 </p>
 </div>
 </div>
+<div id="outline-container-org840f1a0" class="outline-3">
+<h3 id="org840f1a0">证明一定有从非平衡态到平衡态的取法</h3>
+<div class="outline-text-3" id="text-org840f1a0">
+<p>
+有 \(n\) 堆牌，每堆中有 \(m_1, m_2, m_3 \dots m_n\) 张牌，且现在为非平衡态。<br>
+</p>
+
+<p>
+由于当前为非平衡态，那么 \(m_1 \oplus m_2 \oplus m_3 \oplus \dots \oplus m_n = x\ (x \neq 0)\)<br>
+</p>
+
+<p>
+设 \(x\) 的二进制表示中最高一位 \(1\) 在第 \(k\) 位，\(m_1, m_2, \dots m_n\) 中必然存在一个 \(m_i\) 的第 \(k\) 位是 \(1\)。<br>
+</p>
+
+<p>
+我们从 \(m_i\) 中取出 \(m_i - (m_i \oplus x)\) 张牌。由于 \(m_i\) 与 \(x\) 的第 \(k\) 位是 \(1\)，所以无论 \(m_i\) 二进制表示中其余位是什么，\(m_i \oplus x\) 的值一定小于 \(m_i\)，所以 \(m_i - (m_i \oplus x) < m_i\)，所以一定可以取出这个值。<br>
+</p>
+
+<p>
+取出后这堆还有 \(m_i - (m_i - m_i \oplus x) = m_i \oplus x\) 张牌，原本 \(m_1 \oplus m_2 \oplus m_3 \oplus \dots \oplus m_n = x\ (x \neq 0)\)，\((m_1 \oplus m_2 \oplus m_3 \oplus \dots \oplus m_{i - 1} \oplus m_{i + 1} \dots \oplus m_n) \oplus m_i' = (x \oplus m_i) \oplus m_i' = (x \oplus m_i) \oplus (x \oplus m_i) = 0\)，一定有从非平衡态到平衡态的取法。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9a070c6" class="outline-3">
+<h3 id="org9a070c6">证明一定没有从平衡态到平衡态的取法</h3>
+<div class="outline-text-3" id="text-org9a070c6">
+<p>
+有 \(n\) 堆牌，每堆中有 \(m_1, m_2, m_3 \dots m_n\) 张牌，且现在为平衡态。<br>
+</p>
+
+<p>
+由于当前为平衡态，那么 \(m_1 \oplus m_2 \oplus m_3 \oplus \dots \oplus m_n = 0\)<br>
+</p>
+
+<p>
+使用反证法，假设取走 \(m_i\) 一些牌之后仍有 \(m_1 \oplus m_2 \oplus m_3 \oplus \dots \oplus m_{i - 1} \oplus m_i' \oplus m_{i + 1} \dots \oplus m_n = 0\)<br>
+</p>
+
+<p>
+则 \(m_1 \oplus m_2 \oplus m_3 \oplus \dots \oplus m_n = m_1 \oplus m_2 \oplus m_3 \oplus \dots \oplus m_{i - 1} \oplus m_i' \oplus m_{i + 1} \dots \oplus m_n\)<br>
+</p>
+
+<p>
+\(\rightarrow m_i = m_i'\)，矛盾，得证。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgc848da8" class="outline-2">
+<h2 id="orgc848da8">有向图游戏的和 Sprague-Grundy 函数</h2>
+<div class="outline-text-2" id="text-orgc848da8">
+</div>
+<div id="outline-container-org4615b41" class="outline-3">
+<h3 id="org4615b41">mex 运算</h3>
+<div class="outline-text-3" id="text-org4615b41">
+<p>
+设 \(S\) 表示一个非负整数，定义 \(mex(S)\) 为求出不属于集合 \(S\) 的最小非负整数的运算，即：\(mex(S) = min(x)\ (x \in N \land x \notin S)\)<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org797b512" class="outline-3">
+<h3 id="org797b512">sg 函数</h3>
+<div class="outline-text-3" id="text-org797b512">
+<p>
+定义一个 \(sg\) 函数，在一个有向图中，当前结点存储的值是指向的所有结点中未存在的最小非负整数。<br>
+</p>
+
+<p>
+\(Sprague-Grundy Theorem\) 就是: \(g(G) = g(G1) \oplus g(G2) \oplus \dots \oplus g(Gn)\)，游戏的和的 \(SG\) 值就是它的所有子游戏的SG函数值的异或。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf8be066" class="outline-3">
+<h3 id="orgf8be066">使用sg函数求解nim游戏</h3>
+<div class="outline-text-3" id="text-orgf8be066">
+<ol class="org-ol">
+<li>求解每堆石子的 \(sg\) 值<br></li>
+<li>求所有石子堆 \(sg\) 值的异或<br></li>
+</ol>
+
+<p>
+\[sg(x1) \oplus sg(x2) \oplus sg(x3) \oplus ... \oplus sg(xn) != 0\ \ 先手必胜\\ sg(x1) \oplus sg(x2) \oplus sg(x3) \oplus ... \oplus sg(xn) != 0\ \ 先手必败\]<br>
+</p>
+</div>
+</div>
 </div>
 <div id="outline-container-org88b0b03" class="outline-2">
 <h2 id="org88b0b03">Bash Game</h2>
 <div class="outline-text-2" id="text-org88b0b03">
-<p>
-玩家:两人<br>
-道具:23张扑克<br>
-规则:<br>
-</p>
+</div>
+<div id="outline-container-orgaaf9935" class="outline-3">
+<h3 id="orgaaf9935">游戏内容</h3>
+<div class="outline-text-3" id="text-orgaaf9935">
 <ul class="org-ul">
+<li>两个玩家，\(23\) 张扑克牌<br></li>
 <li>游戏双方轮流取牌<br></li>
-<li>每人每次取牌仅限于取1张、2张或3张<br></li>
+<li>每人每次取牌仅限于取 \(1\) 张、\(2\) 张或 \(3\) 张<br></li>
 <li>扑克牌取光，则游戏结束<br></li>
 <li>最后取牌的一方为胜者<br></li>
 </ul>
 
 <p>
-游戏双方A和B，看似游戏输赢是随机的，但实则先手取牌的人必赢；后手取牌的人必输<br>
-假设先手取牌的人是A，A取3张牌后还剩20张牌，是4的倍数；B无论取多少张牌，都会打破"4的倍数"这一状态，假设取m张牌<br>
-这时A取(4-m)张牌，就又会恢复到"4的倍数"这一平衡的状态<br>
-这样当进行8次操作后，牌还剩4张，无论B取几张牌，A都可以最后取牌得到胜利<br>
-</p>
-</div>
-<div id="outline-container-org7b2296c" class="outline-3">
-<h3 id="org7b2296c">推广到n张牌</h3>
-<div class="outline-text-3" id="text-org7b2296c">
-<p>
-推广到有n张牌，每次取牌的数量不超过m张<br>
-有n == k*(m+1) + r<br>
-</p>
-<ol class="org-ol">
-<li>如果r == 0，先手取牌的人会打破平衡态，必输<br></li>
-<li><p>
-如果r != 0，先手取牌的人取r张牌，达到平衡态，必赢<br>
+游戏双方 \(A\) 和 \(B\)，看似游戏输赢是随机的，但实则先手取牌的人必赢；后手取牌的人必输。<br>
 </p>
 
 <p>
-<b>N-positiong为胜利</b><br>
-由此看来，(m+1)*k是必胜点，除了必胜点都是必败点;只要一方达到必胜点，也就达到平衡点，另一方的下一次操作就一定会打破这种平衡态，到达必输点<br>
-定义P-position和N-position: P(previous)、N(next)，也就是操作一次达到必胜点的人的位置是P-position，操作一次脱离必胜点的人的位置是N-position<br>
+假设先手取牌的人是 \(A\)，\(A\) 取 \(3\) 张牌后还剩 \(20\) 张牌，是 \(4\) 的倍数；\(B\) 无论取多少张牌，都会打破"\(4\) 的倍数"这一状态，假设取 \(m\) 张牌。<br>
+</p>
+
+<p>
+这时 \(A\) 取 \((4 - m)\)张牌，就又会恢复到"\(4\) 的倍数"这一平衡的状态。<br>
+</p>
+
+<p>
+这样当进行 \(8\) 次操作后，牌还剩 \(4\) 张，无论 \(B\) 取几张牌，\(A\) 都可以最后取牌得到胜利。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org652192b" class="outline-3">
+<h3 id="org652192b">推广到 n 张牌</h3>
+<div class="outline-text-3" id="text-org652192b">
+<p>
+推广到有 \(n\) 张牌，每次取牌的数量不超过 \(m\) 张<br>
+</p>
+
+<p>
+有 \(n == k \times (m + 1) + r\)<br>
 </p>
 <ol class="org-ol">
-<li>最终操作结束时的局面是N-position<br></li>
-<li>能够操作一次达到N-position的位置是P-position<br></li>
-<li>能够操作一次达到P-position的位置是N-position<br></li>
-</ol></li>
+<li>如果 \(r == 0\)，先手取牌的人会打破平衡态，必输<br></li>
+<li>如果 \(r != 0\)，先手取牌的人取r张牌，达到平衡态，必赢<br></li>
+</ol>
+
+<p>
+<b>N-positiong为胜利</b><br>
+</p>
+
+<p>
+由此看来，\((m + 1) \times k\) 是必胜点，除了必胜点都是必败点；只要一方达到必胜点，也就达到平衡点，另一方的下一次操作就一定会打破这种平衡态，到达必输点。<br>
+定义 \(P-position\) 和 \(N-position\)；\(P(previous)\)、\(N(next)\)，也就是操作一次达到必胜点的人的位置是 \(P-position\)，操作一次脱离必胜点的人的位置是 \(N-position\)。<br>
+</p>
+<ol class="org-ol">
+<li>最终操作结束时的局面是 \(N-position\)<br></li>
+<li>能够操作一次达到 \(N-position\) 的位置是 \(P-position\)<br></li>
+<li>能够操作一次达到 \(P-position\) 的位置是 \(N-position\)<br></li>
 </ol>
 </div>
 </div>
@@ -499,9 +607,9 @@
 <h3 id="org11c3055">限制取石子的数量</h3>
 <div class="outline-text-3" id="text-org11c3055">
 <p>
-如果设置取石子的数量不是1~m内的连续数字，而是只能在{a1, a2, &#x2026; ak}中选<br>
-同样使用P-positiong与N-position<br>
-例如只能拿{1, 4}数量的石头，<br>
+如果设置取石子的数量不是 \([1, m]\) 内的连续数字，而是只能在 \({a_1, a_2, \dots a_k}\)中选<br>
+同样使用 \(P-position\) 与 \(N-position\)<br>
+例如只能拿 \({1, 4}\) 数量的石头，<br>
 </p>
 
 <table>
@@ -582,7 +690,7 @@
 </table>
 
 <p>
-发现有周期变化，而且计算过程符合动态规划的思想，可以使用动态规划完成<br>
+发现有周期变化，而且计算过程符合动态规划的思想，可以使用动态规划完成。<br>
 </p>
 </div>
 </div>
@@ -590,9 +698,9 @@
 <h3 id="org8f1f2b0">继续推广到二维平面</h3>
 <div class="outline-text-3" id="text-org8f1f2b0">
 <p>
-棋盘上有一枚棋子位置是(x, y)，棋盘的左上角位置是(0, 0)<br>
-这个棋子可以左移也可以上移，可以移动一格或者两格，直到有一方不能移动(棋子已经处于(0, 0))的一方为输<br>
-打表发现abs(x - y) % 3 == 0时为必输点<br>
+棋盘上有一枚棋子位置是 \((x, y)\)，棋盘的左上角位置是 \((0, 0)\)。<br>
+这个棋子可以左移也可以上移，可以移动一格或者两格，直到有一方不能移动(棋子已经处于 \((0, 0)\) 的一方为输。<br>
+打表发现 \(abs(x - y) % 3 == 0\) 时为必输点。<br>
 </p>
 <div class="org-src-container">
 <pre class="src src-cpp"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cstdio&gt;</span>
@@ -631,7 +739,7 @@
 </pre>
 </div>
 
-<pre class="example" id="orgc1a93c1">
+<pre class="example" id="org72b10c5">
 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1
 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1
 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0
@@ -662,82 +770,48 @@
 <div id="outline-container-org3897903" class="outline-3">
 <h3 id="org3897903">一步两步</h3>
 <div class="outline-text-3" id="text-org3897903">
-<ul class="org-ul">
-<li><p>
+<p>
 棋盘一步两步问题<br>
-&gt; [牛客月赛28](<a href="https://ac.nowcoder.com/acm/contest/7412#question">https://ac.nowcoder.com/acm/contest/7412#question</a>)<br>
-B 牛牛和牛可乐的赌约2<br>
-0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1<br>
-1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1<br>
-1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0<br>
-0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1<br>
-1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1<br>
-1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0<br>
-0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1<br>
-1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1<br>
-1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0<br>
-0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1<br>
-1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1<br>
-1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0<br>
-0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1<br>
-1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1<br>
-1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0<br>
-0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1<br>
-1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1<br>
-1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0<br>
-0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1<br>
-1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1<br>
-1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0<br>
-0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1<br>
-1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1<br>
-1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0<br>
 </p>
 
 <p>
-观察得 <code>abs(x - y) % 3 =</code> 0= 的点都是0<br>
-</p></li>
-</ul>
-</div>
-</div>
-</div>
-<div id="outline-container-org5455ae6" class="outline-2">
-<h2 id="org5455ae6">图游戏与Sprague-Grundy函数</h2>
-<div class="outline-text-2" id="text-org5455ae6">
-<p>
-定义一个sg函数，在一个有向图中，当前结点存储的值是指向的所有结点中未存在的最小非负整数<br>
-例如在下面的有向图中，结点值为2的结点指向的结点的值有0, 1, 1，那么未存在的最小的非负整数就是2<br>
+<a href="https://ac.nowcoder.com/acm/contest/7412#question">牛客月赛28</a><br>
 </p>
-<pre class="example" id="org9fef092">
-				0       2                        |
-			 /|\     /|\                       |
-			/ | \   / | \                      |
-		 /  |  \ /  |  \                箭   |
-		/   |   \   |   \               头   |
-	 /    |  / \  |    \              都   |
-	/     | /   \ |     \             是   |
- /      |/     \|      \            向   |
-1       1       1       0           下   |
- \       \     /|                   的   |
-	\       \   / |                        |
-	 \       \ /  |                        |
-		\       /   |                        |
-		 \     / \  |                        |
-			\   /   \ |                      \ | /
-			 \ /     \|                       \|/
-				0       0                        v
+
+<p>
+B 牛牛和牛可乐的赌约2<br>
+</p>
+
+<pre class="example" id="orgc33261f">
+0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1
+1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1
+1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0
+0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1
+1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1
+1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0
+0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1
+1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1
+1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0
+0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1
+1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1
+1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0
+0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1
+1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1
+1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0
+0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1
+1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1
+1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0
+0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1
+1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1
+1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0
+0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1
+1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1
+1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0 1 1 0
 </pre>
-</div>
-<div id="outline-container-orgf8be066" class="outline-3">
-<h3 id="orgf8be066">使用sg函数求解nim游戏</h3>
-<div class="outline-text-3" id="text-orgf8be066">
-<ol class="org-ol">
-<li>求解每堆石子的sg值<br></li>
-<li>求所有石子堆sg值的异或<br>
-\[
-			sg(x1) \bigoplus sg(x2) \bigoplus sg(x3) \bigoplus ... \bigoplus sg(xn) != 0  先手必胜 \\
-			sg(x1) \bigoplus sg(x2) \bigoplus sg(x3) \bigoplus ... \bigoplus sg(xn) != 0  先手必败
-			\]<br></li>
-</ol>
+
+<p>
+观察得 <code>abs(x - y) % 3 == 0</code> 的点都是 \(0\)。<br>
+</p>
 </div>
 </div>
 </div>
@@ -745,45 +819,57 @@ B 牛牛和牛可乐的赌约2<br>
 <h2 id="org60b2a2f">Wythoff Game</h2>
 <div class="outline-text-2" id="text-org60b2a2f">
 <p>
-有两堆各若干个物品，两个人轮流从某一堆或同时从两堆中取同样多的物品，规定每次至少取一个，多者不限，规定最后取光者得胜<br>
+有两堆各若干个物品，两个人轮流从某一堆或同时从两堆中取同样多的物品，规定每次至少取一个，多者不限，规定最后取光者得胜。<br>
+</p>
+
+<img src="./images/wythoff.png" />
+
+<p>
+仔细分析，就能看出其差值为 \(0, 1, 2, 3, \dots n\);<br>
 </p>
 
 <p>
-<a href="img/wythoff.png">image-wythoff</a><br>
+在分析一下规律，我们发现第一个值 = 差值 \(\times 1.618\)；<br>
 </p>
 
 <p>
-仔细分析，就能看出其差值为0,1,2,3,4,5,6…n;<br>
-用数学方法分析发现局面中第一个值为前面局面中没有出现过的第一个值，比如第三个局面，前面出现了 0 1 2，那么第三个局面的第一个值为 3 ，比如第五个局面，前面出现了 0 1 2 3 4 5 ,那么第五个局面第一个值为6。<br>
-在分析一下规律，我们发现第一个值 = 差值 * 1.618；<br>
-而1.618 = (sqrt(5)+ 1) / 2<br>
-大家都知道0.618是黄金分割率，而威佐夫博弈正好是1.618，这就是博弈的奇妙之处！<br>
+而 \(1.618 = (sqrt(5)+ 1) / 2\) 是黄金分割率，而威佐夫博弈正好是 \(1.618\)，这就是博弈的奇妙之处！<br>
 </p>
+</div>
+
+<div id="outline-container-org99cd0d5" class="outline-3">
+<h3 id="org99cd0d5">威佐夫两类问题：</h3>
+<div class="outline-text-3" id="text-org99cd0d5">
+<ol class="org-ol">
+<li>一个局面，求先手输赢。<br></li>
+</ol>
 
 <p>
-威佐夫两类问题<br>
-1、给你一个局面，让你求是先手输赢。<br>
 有了上面的分析，那么这个问题应该不难解决。首先求出差值，差值 * p == 最小值 的话后手赢，否则先手赢(注意这里的p = (sqrt(5)+ 1) / 2)<br>
-2、给你一个局面，让你求先手输赢，假设先手赢的话输出他第一次的取法<br>
+</p>
+
+<ol class="org-ol">
+<li>一个局面，求先手输赢，假设先手赢的话输出他第一次的取法<br></li>
+</ol>
+
+<p>
 首先讨论在两边同时取的情况，很明显两边同时取的话，不论怎样取他的差值是不变的，那么我们可以根据差值计算出其中的小值，然后加上差值就是大的值<br>
+</p>
+
+<p>
 能取的条件是求出的最小的值不能大于其中小的一堆的石子数目<br>
+</p>
+
+<p>
 只在一堆中取的话，可以取任意一堆，那么其差值是不定的，所以我们枚举差值，差值范围是0 到 大的一堆石子数目，然后根据上面的理论判断满足条件的话就是一种合理的取法<br>
 </p>
 </div>
-</div>
-<div id="outline-container-org4c96112" class="outline-2">
-<h2 id="org4c96112">有向图游戏的和</h2>
-<div class="outline-text-2" id="text-org4c96112">
-<p>
-设G1、G2 &#x2026;&#x2026;  Gn是n个有向图游戏，定义游戏G是G1、G2 &#x2026;&#x2026;  Gn的和(Sum)，游戏G的移动规则是:任选一个子游戏Gi并移动上面的棋子<br>
-Sprague-Grundy Theorem就是: g(G) = g(G1)^g(G2)^&#x2026;&#x2026;^g(Gn)，游戏的和的SG值就是它的所有子游戏的SG函数值的异或<br>
-</p>
 </div>
 </div>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2021-10-14 Thu 22:15</p>
+<p class="date">Created: 2021-10-15 Fri 21:08</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
