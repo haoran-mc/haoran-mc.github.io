@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-10-17 Sun 22:39 -->
+<!-- 2021-10-18 Mon 08:47 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>RPC</title>
@@ -22,7 +22,9 @@
 <div id="text-table-of-contents">
 <ul>
 <li><a href="#org1f283ed">什么是 RPC ？</a></li>
+<li><a href="#org1c1940f">HTTP 和 RPC 有什么区别？</a></li>
 <li><a href="#org4f8f95f">什么是 gRPC ？</a></li>
+<li><a href="#org7fbace0">基于 HTTP/2 相比于 HTTP/1.x 的优势</a></li>
 <li><a href="#orgf4516e9">RPC 编程实践</a>
 <ul>
 <li><a href="#org9268071">RPC 官方库 net/rpc 介绍</a></li>
@@ -37,9 +39,76 @@
 
 <div id="outline-container-org1f283ed" class="outline-2">
 <h2 id="org1f283ed">什么是 RPC ？</h2>
+<div class="outline-text-2" id="text-org1f283ed">
+<p>
+RPC（Remote Procedure Call）—远程过程调用，它是一种通过网络从远程计算机程序上请求服务，而不需要了解底层网络技术的协议。比如两个不同的服务 A、B 部署在两台不同的机器上，那么服务 A 如果想要调用服务 B 中的某个方法该怎么办呢？使用 HTTP请求 当然可以，但是可能会比较慢而且一些优化做的并不好。 RPC 的出现就是为了解决这个问题。<br>
+</p>
+
+<p>
+实现 RPC 之前需要满足有以下三个约定。<br>
+</p>
+
+<ul class="org-ul">
+<li>调用的语义，也可以理解为接口规范。(比如RESTful)<br></li>
+<li>网络传输协议 (比如HTTP)<br></li>
+<li>数据序列化反序列化规范(比如JSON)。<br></li>
+</ul>
+
+<p>
+有了这些约定，我就知道如何给你发数据，发什么样的数据，你返回给我的又是什么样的数据。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org1c1940f" class="outline-2">
+<h2 id="org1c1940f">HTTP 和 RPC 有什么区别？</h2>
+<div class="outline-text-2" id="text-org1c1940f">
+<p>
+我之前也问个这个问题。<br>
+</p>
+
+<p>
+首先这个问题本身不太严谨。<br>
+</p>
+
+<p>
+HTTP只是一个通信协议，工作在OSI第七层。<br>
+</p>
+
+<p>
+而RPC是一个完整的远程调用方案。它包含了:接口规范、传输协议、数据序列化反序列化规范。<br>
+</p>
+
+<p>
+这样看，RPC和 HTTP的关系只可能是包含关系。为什么是可能？因为RPC传输协议那块我可以不基于HTTP呀。<br>
+</p>
+
+<p>
+所以这个问题应该改成:基于HTTP的远程调用方案 (如:HTTP+RESTful+JSON) 和直接使用RPC远程调用方案有什么区别？<br>
+</p>
+</div>
 </div>
 <div id="outline-container-org4f8f95f" class="outline-2">
 <h2 id="org4f8f95f">什么是 gRPC ？</h2>
+<div class="outline-text-2" id="text-org4f8f95f">
+<p>
+gRPC 是 RPC 的一种，它使用 Protocol Buffer (简称 Protobuf) 作为序列化格式，Protocol Buffer 是来自 google 的序列化框架，比 Json 更加轻便高效，同时基于 HTTP/2 标准设计，带来诸如双向流、流控、头部压缩、单 TCP 连接上的多复用请求等特性。这些特性使得其在移动设备上表现更好，更省电和节省空间占用。用 protoc 就能使用 proto 文件帮助我们生成上面的 option 层代码。<br>
+</p>
+
+<p>
+在 gRPC 中，客户端应用程序可以直接在另一台计算机上的服务器应用程序上调用方法，就好像它是本地对象一样，从而使您更轻松地创建分布式应用程序和服务。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org7fbace0" class="outline-2">
+<h2 id="org7fbace0">基于 HTTP/2 相比于 HTTP/1.x 的优势</h2>
+<div class="outline-text-2" id="text-org7fbace0">
+<ul class="org-ul">
+<li>用于数据传输的二进制分帧<br></li>
+<li>多路复用<br></li>
+<li>服务端推送<br></li>
+<li>减少网络流量的头部压缩<br></li>
+</ul>
+</div>
 </div>
 <div id="outline-container-orgf4516e9" class="outline-2">
 <h2 id="orgf4516e9">RPC 编程实践</h2>
@@ -62,7 +131,7 @@
 <div id="postamble" class="status">
 <p class="date">Date: 2021-09-10 00:09 五</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2021-10-17 Sun 22:39</p>
+<p class="date">Created: 2021-10-18 Mon 08:47</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

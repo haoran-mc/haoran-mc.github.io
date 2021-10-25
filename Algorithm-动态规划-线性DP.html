@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-10-24 Sun 11:30 -->
+<!-- 2021-10-25 Mon 20:07 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>卢卡斯定理</title>
+<title>线性DP</title>
 <meta name="generator" content="Org mode">
 <meta name="author" content="L.M.haoran">
 <meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
@@ -38,45 +38,71 @@
 </head>
 <body>
 <div id="content">
-<h1 class="title">卢卡斯定理</h1>
+<h1 class="title">线性DP</h1>
 <div id="table-of-contents">
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org297d9c0">Lucas</a></li>
-<li><a href="#orgc3ee8a7">求解方式</a></li>
+<li><a href="#orgcda4a6c">数字三角形</a></li>
+<li><a href="#orgae9772d">最长上升子序列</a></li>
 </ul>
 </div>
 </div>
-<div id="outline-container-org297d9c0" class="outline-2">
-<h2 id="org297d9c0">Lucas</h2>
-<div class="outline-text-2" id="text-org297d9c0">
+
+<div id="outline-container-orgcda4a6c" class="outline-2">
+<h2 id="orgcda4a6c">数字三角形</h2>
+<div class="outline-text-2" id="text-orgcda4a6c">
+<pre class="example" id="orgaf8c385">
+.       7
+.     3   8
+.   8   1   0
+. 2   7   4   4
+4   5   2   6   5
+</pre>
+
 <p>
-Lucas 定理用于求解大组合数取模的问题，其中模数必须为素数。正常的组合数运算可以通过 <a href="Algorithm-数学-组合数学-排列组合.html#org1808376">递推公式</a> 求解，但当问题规模很大，而模数是一个不大的质数的时候，就不能简单地通过递推求解来得到答案，需要用到 Lucas 定理。<br>
-</p>
-</div>
-</div>
-<div id="outline-container-orgc3ee8a7" class="outline-2">
-<h2 id="orgc3ee8a7">求解方式</h2>
-<div class="outline-text-2" id="text-orgc3ee8a7">
-<p>
-Lucas 定理内容如下：对于质数 \(p\)，有 \(C_n^m\ mod\ p = C_{\lfloor {n / p} \rfloor}^{\lfloor {m / p} \rfloor} \cdot C_{\lfloor {n\ mod\ p} \rfloor}^{\lfloor {m\ mod\ p} \rfloor}\ mod\ p\)<br>
+给出上面的数字三角形，求出从三角形上顶点走到最下面的边的路径上数字和的最大值。<br>
 </p>
 
 <p>
-观察上述表达式，可知 \(n\ mod\ p\) 和 \(m\ mod\ p\) 一定是小于 \(p\) 的数，可以直接求解，\(C_{\lfloor {n / p} \rfloor}^{\lfloor {m / p} \rfloor}\) 可以继续用 Lucas 定理求解。这也就要求 \(p\) 的范围不能够太大，一般在 \(10^{5}\) 左右。边界条件：当 \(m = 1\) 的时候，返回 \(0\)。<br>
+如果简单地从最上面搜索到最下面的边，时间复杂度是 \(O(2^n)\) 的，时间复杂度很高。<br>
 </p>
 
 <p>
-时间复杂度为 \(O(f(p) + g(n) log n)\)，其中 \(f(n)\) 为预处理组合数的复杂度，\(g(n)\) 为单次求组合数的复杂度。<br>
+如果我们从下往上走的话，就可以在 \(O(n^2)\) 的时间复杂度内找到最大路径。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgae9772d" class="outline-2">
+<h2 id="orgae9772d">最长上升子序列</h2>
+<div class="outline-text-2" id="text-orgae9772d">
+<p>
+给一个长度为 \(N\) 的数列，求数值严格单调递增的子序列的长度最长是多少。<br>
+</p>
+
+<pre class="example" id="org0dbf3c1">
+7
+3 1 2 1 8 5 6
+</pre>
+
+<p>
+在上面这个例子中，最长的子序列就是 \(1 2 5 6\)。<br>
+</p>
+
+<p>
+设 \(dp[i]\) 表示前 \(i\) 个数字的最长上升子序列的长度。<br>
+</p>
+
+<p>
+状态转移方程：\(dp[i] = max(dp[j] + 1)\ (j = 1, 2, 3, \dots i - 1)\)<br>
 </p>
 </div>
 </div>
 </div>
 <div id="postamble" class="status">
-<p class="date">Date: 2021-10-13 16:10 Wed</p>
+<p class="date">Date: 2021-10-25 09:10 Mon</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2021-10-24 Sun 11:30</p>
+<p class="date">Created: 2021-10-25 Mon 20:07</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

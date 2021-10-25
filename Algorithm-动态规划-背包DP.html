@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-09-30 四 03:22 -->
+<!-- 2021-10-25 Mon 08:50 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>背包DP</title>
@@ -13,6 +13,28 @@
                 <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
                 <script type="module" src="static/js/main.js" defer></script>
                 <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
 </head>
 <body>
 <div id="content">
@@ -23,8 +45,6 @@
 <ul>
 <li><a href="#org668a095">01背包问题</a></li>
 <li><a href="#org1c67297">完全背包问题</a></li>
-<li><a href="#org7584d82">01恰好背包</a></li>
-<li><a href="#orga0c2b97">完全恰好背包</a></li>
 <li><a href="#org8e36368">多重背包</a>
 <ul>
 <li><a href="#org25eebad">朴素算法</a></li>
@@ -34,7 +54,12 @@
 </li>
 <li><a href="#org26b9780">混合背包</a></li>
 <li><a href="#org6df14ec">二维费用背包</a></li>
-<li><a href="#orga235ab7">分组背包</a></li>
+<li><a href="#orga235ab7">分组背包</a>
+<ul>
+<li><a href="#org738820a">AC 代码</a></li>
+</ul>
+</li>
+<li><a href="#org40d694c">恰好背包</a></li>
 </ul>
 </div>
 </div>
@@ -43,26 +68,67 @@
 <h2 id="org668a095">01背包问题</h2>
 <div class="outline-text-2" id="text-org668a095">
 <p>
-0-1 背包例题中已知条件有第i个物品的重量bone[i].vol，价值bone[i].val，以及背包的总容量V
-设 DP 状态dp[i][j]为在只能放前i个物品的情况下，容量为j的背包所能达到的最大总价值考虑转移。假设当前已经处理好了前i-1个物品的所有状态，那么对于第i个物品，当其不放入背包时，背包的剩余容量不变，背包中物品的总价值也不变，故这种情况的最大价值为dp[i-1][j]；当其放入背包时，背包的剩余容量会减小bone[i].vol，背包中物品的总价值会增大bone[i].val，故这种情况的最大价值为dp[i-1][j-bone[i].vol] + bone[i].val
-由此可以得出状态转移方程：dp[i][j] = max(dp[i-1][j], dp[i-1][j-bone[i].vol] + bone[i]val);
-这里如果直接采用二维数组对状态进行记录，会出现MLE，可以考虑改用滚动数组的形式来优化由于对dp[i]有影响的只有dp[i-1]，可以去掉第一维，直接用dp[i]来表示处理到当前物品时背包容量为i的最大价值，得出以下方程： <code>dp[j] = max(dp[j], dp[j-bone[i].vol] + bone[i].val);</code>
-务必牢记并理解这个转移方程，因为大部分背包问题的转移方程都是在此基础上推导出来的还有一点需要注意的是，很容易写出这样的错误核心代码：
+例题: <a href="https://www.luogu.com.cn/problem/P2871">[USACO07 DEC] Charm Bracelet</a><br>
 </p>
+
+<blockquote>
+<p>
+题意概要：有 \(n\) 个物品和一个容量为 \(W\) 的背包，每个物品有重量 \(w_i\) 和价值 \(v_i\) 两种属性，要求选若干物品放入背包使背包中物品的总价值最大且背包中物品的总重量不超过背包的容量。<br>
+</p>
+</blockquote>
+
+<p>
+上面这个问题就是经典的 \(01\) 背包问题，为什么叫 \(01\) 背包呢？因为每个物品仅有取与不取两个状态，对应计算机中的 \(01\)，这类问题便称为 \(01\) 背包问题。<br>
+</p>
+
+<p>
+直接给出状态转移方程：\(f_{i, j} = max(f_{i - 1, j},\ f_{i - 1, j - w_i} + v_i)\)<br>
+</p>
+
+<p>
+\(DP\) 状态 \(f_{i, j}\) 是指只能放前 \(i\) 个物品的情况下，容量为 \(j\) 的背包所能达到的最大价值。<br>
+</p>
+
+<p>
+转移过程中，如果前 \(i - 1\) 个物品的所有状态都已得到，那么对于第 \(i\) 个物品，当其不放入背包时，背包的剩余容量不变，背包的总价值也不变，故这种情况的最大值为 \(f_{i - 1, j}\)；当其放入背包时，背包的剩余容量会减少 \(w_i\)，背包中的总价值会增大 \(v_i\)，故这种情况的最大价值为 \(f_{i - 1, j - w_i} + v_i\)。<br>
+</p>
+
+<p>
+发现使用这个状态转移方程写出的代码出现 MLE，所以需要进行优化，可以使用滚动数组进行优化。<br>
+</p>
+
+<p>
+由于对 \(f_i\) 有影响的只有 \(f_{i - 1}\)，可以去掉第一维，直接用 \(f_i\) 来表示当前处理到当前物品时容量为 \(i\) 的最大价值，方程：\(f_j = max(f_j, f_{j - w_i} + v_i)\)<br>
+</p>
+
+<p>
+<b>务必牢记并理解这个转移方程，因为大部分背包问题的转移方程都是在此基础上推导出来的。</b><br>
+</p>
+
+<p>
+需要注意，由于我们需要用到 \(f_{j - w_i}\)，而显然有 \(j - w_i < j\)，所以要避免以下代码：<br>
+</p>
+
 <div class="org-src-container">
-<pre class="src src-C++">for (int i = 1; i &lt;= N; ++i)
-		for (int j = 0; j &lt;= V-bone[i].vol; ++j)
-				dp[j+bone[i].vol] = max(dp[j+bone[i].vol], dp[j]+bone[i].val);
+<pre class="src src-cpp"><span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">1</span>; i &lt;= n; ++ i)
+    <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">j</span> = <span style="color: #009F9F;">1</span>; j &lt;= m; ++ j)
+        <span style="color: #BD93F9;">if</span> (j &gt;= w[i])
+            f[j] = max(f[j], f[j - w[i]] + v[i])
 </pre>
 </div>
+
 <p>
-这段代码哪里错了呢？枚举顺序错了仔细观察代码可发现：对于当前处理的物品i和当前状态dp[i][j]，在j &gt;= bone[i].vol时，dp[i][j]是会被dp[i][j-bone[i].vol]所影响的。这就相当于物品i可以多次被放入背包，与题意不符(事实上，这正是完全背包问题的解法)
-为了避免这种情况发生，我们可以改变枚举的顺序，从V枚举到bone[i].vol，这样就不会出现上述的错误，因为dp[i][j]总是在dp[i][j-bone[i].vol]前被更新因此实际核心代码为
+对于当前物品 \(i\)，在 \(j \geq w_i\) 时，\(f_{i, j}\) 本该从 \(f_{i - 1, j}\) 状态转移而来，但现在从 \(f_{i, j}\) 状态转移而来，这就相当于物品 \(i\) 可以多次放入背包（这正是完全背包的解法）。<br>
 </p>
+
+<p>
+为了避免这种情况，改变枚举的顺序，从 \(W\) 到 \(w_i\)，这时，\(f_{i, j}\) 总是在 \(f_{i, j - w_i}\) 前更新。<br>
+</p>
+
 <div class="org-src-container">
-<pre class="src src-C++">for (int i = 1; i &lt;= N; ++i)
-		for (int j = V; j &gt;= bone[i].vol; --j) 
-				dp[j] = max(dp[j], dp[j-bone[i].vol] + bone[i].val);
+<pre class="src src-cpp"><span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">1</span>; i &lt;= n; ++ i)
+    <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">j</span> = m; j &gt;= w[i]; -- j)
+        f[j] = max(f[j], f[j - w[i]] + v[i])
 </pre>
 </div>
 </div>
@@ -71,30 +137,46 @@
 <h2 id="org1c67297">完全背包问题</h2>
 <div class="outline-text-2" id="text-org1c67297">
 <p>
-完全背包模型与 0-1 背包类似，与 0-1 背包的区别仅在于一个物品可以选取无限次，而非仅能选取一次我们可以借鉴 0-1 背包的思路，进行状态定义：设dp[i][j]为只能选前i个物品时，容量为j的背包可以达到的最大价值需要注意的是，虽然定义与 0-1 背包类似，但是其状态转移方程与 0-1 背包并不相同可以考虑一个朴素的做法：对于第i件物品，枚举其选了多少个来转移。这样做的时间复杂度是O(n^3)的状态转移方程如下：dp[i][j] = max{dp[i-1][j-k*bone[i].vol] + k*bone[i].val} (0 &lt;= k &lt;= inf)
-考虑做一个简单的优化。可以发现，对于dp[i][j]，只要通过dp[i][j-bone[i].vol]转移就可以了。因此状态转移方程为：dp[i][j] = max(dp[i-1][j], dp[i][j-bone[i].vol] + bone[i].val)
-理由是当我们这样转移时，dp[i][j-bone[i].vol]已经由dp[i][j-2*bone[i].vol]更新过，那么dp[i][j-bone[i].vol]就是充分考虑了第i件物品所选次数后得到的最优结果。换言之，我们通过局部最优子结构的性质重复使用了之前的枚举过程，优化了枚举的复杂度与 0-1 背包相同地，我们可以将第一维去掉来优化空间复杂度。如果理解了 0-1 背包的优化方式，就不难明白压缩后的循环是正向的（也就是上文中提到的错误优化）
+例题：<a href="https://www.luogu.com.cn/problem/P1616">疯狂的采药</a> <br>
+</p>
+
+<p>
+完全背包模型与 \(01\) 背包类似，与 \(01\) 背包的区别仅在于一个物品可以选取无限次，而非仅能选取一次。<br>
+</p>
+
+<p>
+同样设状态 \(f_{i, j}\) 为只能选前 \(i\) 个物品时，容量为 \(j\) 的背包可以达到的最大价值。<br>
+</p>
+
+<p>
+考虑一种朴素的做法：对于第 \(i\) 件物品，枚举其选了多少个进行转移，状态转移方程：\(f_{i, j} = \max\limits_{k = 0}^{+\infty}(f_{i - 1, j - k \times w_i} + v_i \times k)\)，时间复杂度是 \(O(n^3)\)。<br>
+</p>
+
+<p>
+不难发现，对于 \(f_{i, j}\)，只要通过 \(f_{i, j - w_i}\) 转移就可以了，因为 \(f_{i, j - w_i}\) 是从 \(f_{i, j - 2 \times w_i}\) 转移而来，\(f_{i, j - w_i}\) 就是考虑了第 \(i\) 件物品所选次数后得到的最优结果，即：\(f_{i, j} = \max(f_{i - 1, j}, f_{i, j - w_i} + v_i)\)。<br>
+</p>
+
+<p>
+同样，可以去掉第一维优化空间复杂度。<br>
+</p>
+
+<p>
+对比 \(01\) 背包与完全背包：\(\begin{cases}01背包： & f_{i, j} = max(f_{i - 1, j},\ f_{i - 1, j - w_i} + v_i)\\ 完全背包： & f_{i, j} = \max(f_{i - 1, j}, f_{i, j - w_i} + v_i)\end{cases}\)<br>
 </p>
 </div>
-</div>
-<div id="outline-container-org7584d82" class="outline-2">
-<h2 id="org7584d82">01恰好背包</h2>
-</div>
-<div id="outline-container-orga0c2b97" class="outline-2">
-<h2 id="orga0c2b97">完全恰好背包</h2>
 </div>
 <div id="outline-container-org8e36368" class="outline-2">
 <h2 id="org8e36368">多重背包</h2>
 <div class="outline-text-2" id="text-org8e36368">
 <p>
-多重背包也是 0-1 背包的一个变式。与 0-1 背包的区别在于每种物品有ki个，而非1个
+多重背包也是 \(01\) 背包的一个变式。与 \(01\) 背包的区别在于每种物品有 \(k_i\) 个，而非 \(1\) 个。<br>
 </p>
 </div>
 <div id="outline-container-org25eebad" class="outline-3">
 <h3 id="org25eebad">朴素算法</h3>
 <div class="outline-text-3" id="text-org25eebad">
 <p>
-一个很朴素的想法就是：把「每种物品选ki次」等价转换为「有ki个相同的物品，每个物品选一次」。这样就转换成了一个 0-1 背包模型，套用上文所述的方法就可已解决
+一个很朴素的想法就是：把每种物品选 \(k_i\) 次等价转换为有 \(k_i\) 个相同的物品，每个物品选一次。这样就转换成了一个 \(01\) 背包模型，套用上文所述的方法就可以解决。<br>
 </p>
 </div>
 </div>
@@ -102,24 +184,116 @@
 <h3 id="orgee6670f">二进制分组优化</h3>
 <div class="outline-text-3" id="text-orgee6670f">
 <p>
-考虑优化，我们仍考虑把多重背包转化成 0-1 背包模型来求解为了表述方便，我们用Aij代表第i种物品拆分出的第j个物品。那么我们效率低的原因主要在于我们进行了大量重复性的工作。举例来说，我们考虑了「同时选Ai1, Ai2」与「同时选Ai2, Ai3」这两个完全等效的情况这样的重复性工作我们进行了许多次。那么优化拆分方式就成为了解决问题的突破口我们可以通过「二进制分组」的方式使拆分方式更加优美具体地说就是令Aij分别表示由2^j个单个物品「捆绑」而成的大物品。特殊地，若最后一次分组不是2的整数次幂，则需要在最后添加一个剩余的大物品组成的分组用于补足显然，通过上述拆分方式，可以表示任意 &lt;= ki个物品的等效选择方式。将每种物品按照上述方式拆分后，使用 0-1 背包的方法解决即可
+朴素算法中，如果有一种物品有 \(7\) 个，那么会把它看成 \(7\) 种物品，每种物品有 \(1\) 个，它们的价值如体积相等。<br>
+</p>
+
+<p>
+发现，这 \(7\) 种物品，选择 \(a_1、a_2\) 与 \(a_2、a_3\) 的结果是一样的，都占据相同的体积，提供相同的价值。<br>
+</p>
+
+<p>
+使用二进制分组优化，同样是上面的例子，将 \(7\) 个物品分成 \(3\) 种，分别是 \(1, 2, 4\) 个，这样我们既可以表示到每一种的选法：<br>
+</p>
+
+<dl class="org-dl">
+<dt>选 \(1\) 个</dt><dd>1<br></dd>
+<dt>选 \(2\) 个</dt><dd>2<br></dd>
+<dt>选 \(3\) 个</dt><dd>1 + 2<br></dd>
+<dt>选 \(4\) 个</dt><dd>4<br></dd>
+<dt>选 \(5\) 个</dt><dd>1 + 4<br></dd>
+<dt>选 \(6\) 个</dt><dd>2 + 4<br></dd>
+<dt>选 \(7\) 个</dt><dd>1 + 2 + 4<br></dd>
+</dl>
+
+<p>
+而且时间复杂度也从 \(O(k)\) 降到 \(O(log(k))\)。将每种物品按照这种方式拆分后，使用 \(01\) 背包的方法解决即可。<br>
 </p>
 </div>
 </div>
 <div id="outline-container-org41e0b62" class="outline-3">
 <h3 id="org41e0b62">单调队列优化</h3>
+<div class="outline-text-3" id="text-org41e0b62">
+<p>
+假设输入的第 \(i\) 件物品的体积是 \(v\)，价值是 \(w\)，这件物品一共有 \(s\) 个。<br>
+</p>
+
+<p>
+对于体积为 \(j\) 的这个背包，它的状态只能从体积分别为 \(j - v, j - 2v, j - 3v, j - 4v, \dots, j - sv\) 的背包转移而来。<br>
+</p>
+
+<p>
+也就是 \(dp[j] = max(dp[j - v] + w, dp[j - 2v] + 2w, dp[j - 3v] + 3w, dp[j - 4v] + 4w, \dots, dp[j - sv] + sw)\)。<br>
+</p>
+
+<p>
+对于体积为 \(j - v\) 的这个背包，它的状态只能从体积分别为 \(j - 2v, j - 3v, j - 4v, j - 5v, \dots, j - (s + 1)v\) 的背包转移而来。<br>
+</p>
+
+<p>
+对于体积为 \(j - 2v\) 的这个背包，它的状态只能从体积分别为 \(j - 3v, j - 4v, j - 5v, j - 6v, \dots, j - (s + 2)v\) 的背包转移而来。<br>
+</p>
+
+<p>
+\(\vdots\)<br>
+</p>
+
+<p>
+发现了什么？对于第 \(i\) 件物品，每个状态只会从前 \(k\) 个 \(mod\ v\) 同余的状态转移而来，我们把同余的状态称为等价类。<br>
+</p>
+
+<p>
+下面是所有的等价类：<br>
+</p>
+<ul class="org-ul">
+<li>\(0, 0 + v, 0 + 2v, 0 + 3v, \dots, 0 + k_0 v\ (k_0 v \leq m \land (k_0 + 1)v > m)\)<br></li>
+<li>\(1, 1 + v, 1 + 2v, 1 + 3v, \dots, 1 + k_1 v\ (k_1 v \leq m \land (k_1 + 1)v > m)\)<br></li>
+<li>\(2, 2 + v, 2 + 2v, 2 + 3v, \dots, 2 + k_2 v\ (k_2 v \leq m \land (k_2 + 1)v > m)\)<br></li>
+<li>\(3, 3 + v, 3 + 2v, 3 + 3v, \dots, 3 + k_3 v\ (k_3 v \leq m \land (k_3 + 1)v > m)\)<br></li>
+<li>\(\dots\)<br></li>
+<li>\((v - 1), (v - 1) + v, (v - 1) + 2v, (v - 1) + 3v, \dots, (v - 1) + k_{v - 1} v\ (k_{v - 1} v \leq m \land (k_{v - 1} + 1)v > m)\)<br></li>
+</ul>
+
+<p>
+所有等价类中的数就是 \(0 \sim m\) 所有的数。<br>
+</p>
+
+<p>
+明显的，这个问题可以用 <a href="Algorithm-数据结构-单调队列.html">单调队列</a> 解决。<br>
+</p>
+
+<p>
+使用单调队列解决的一个经典问题就是滑动窗口：有 \(n\) 个数，一个大小为 \(k\) 的窗口从这个长度为 \(n\) 的数组的左边滑到右边，决策滑动过程中窗口内的最大值和最小值。<br>
+</p>
+
+<p>
+对应于上面的等价类，则长度为 \(k_i + 1\)，窗口的大小为 \(s\)，但是决策的并不是窗口内的最大值。<br>
+</p>
+
+<p>
+\(dp[j] = max(dp[j - v] + w, dp[j - 2v] + 2w, dp[j - 3v] + 3w, dp[j - 4v] + 4w, \dots, dp[j - sv] + sw)\)，因为还要加上价值，而价值是不固定的。比如 \(j - 2v\) 这个体积，对于 \(j\) 需要 \(dp[j - 2v] + 2w\)，而对于 \(j + 1\) 需要 \(dp[j - 2w] + 3w\)。<br>
+</p>
+
+<p>
+虽然每个数都是变动的，但是它们的相对大小是不变的，这也是我们可以使用单调队列的原因。<br>
+</p>
+</div>
 </div>
 </div>
 <div id="outline-container-org26b9780" class="outline-2">
 <h2 id="org26b9780">混合背包</h2>
 <div class="outline-text-2" id="text-org26b9780">
 <p>
-混合背包就是将前面三种的背包问题混合起来，有的只能取一次，有的能取无限次，有的只能取k次这种题目看起来很吓人，可是只要领悟了前面几种背包的中心思想，并将其合并在一起就可以了。下面给出伪代码：
+混合背包就是将前面三种的背包问题混合起来，有的只能取一次，有的能取无限次，有的只能取 \(k\) 次。<br>
 </p>
-<pre class="example" id="orgd72e105">
+
+<p>
+只要明白了前面几种背包的思想就能很容易做出来，下面给出伪代码：<br>
+</p>
+
+<pre class="example" id="org4f0d7d7">
 for (循环物品种类) {
-	if (是 0 - 1 背包)
-		套用 0 - 1 背包代码;
+	if (是 01 背包)
+		套用 01 背包代码;
 	else if (是完全背包)
 		套用完全背包代码;
 	else if (是多重背包)
@@ -132,13 +306,81 @@ for (循环物品种类) {
 <h2 id="org6df14ec">二维费用背包</h2>
 <div class="outline-text-2" id="text-org6df14ec">
 <p>
-这道题是很明显的 0-1 背包问题，可是不同的是选一个物品会消耗两种价值(经费、时间)。这种问题其实很简单：方程基本不用变，只需再开一维数组，同时转移两个价值就行了!(完全、多重背包同理)
-这时候就要注意，再开一维存放物品编号就不合适了，因为容易MLE
+这道题是很明显的 \(01\) 背包问题，可是不同的是选一个物品会消耗两种价值(经费、时间)。这种问题其实很简单：方程基本不用变，只需再开一维数组，同时转移两个价值就行了!(完全、多重背包同理)。<br>
+</p>
+
+<p>
+这时候就要注意，再开一维存放物品编号就不合适了，因为容易 \(MLE\)。<br>
 </p>
 </div>
 </div>
 <div id="outline-container-orga235ab7" class="outline-2">
 <h2 id="orga235ab7">分组背包</h2>
+<div class="outline-text-2" id="text-orga235ab7">
+<p>
+例题：<a href="https://www.luogu.com.cn/problem/P1757">[luogu P1757] 通天之分组背包</a><br>
+</p>
+
+<p>
+将物品分组，每组物品相互冲突，最多只能选一个物品放进去。<br>
+</p>
+
+<p>
+可以看成 \(01\) 背包的变形，当前物品选与不选变成了当前组选其中一个或者不选。<br>
+</p>
+
+<p>
+选择哪一个则要遍历判断。<br>
+</p>
+</div>
+
+<div id="outline-container-org738820a" class="outline-3">
+<h3 id="org738820a">AC 代码</h3>
+<div class="outline-text-3" id="text-org738820a">
+<div class="org-src-container">
+<pre class="src src-cpp"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cstdio&gt;</span>
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;algorithm&gt;</span>
+<span style="color: #BD93F9;">using</span> <span style="color: #BD93F9;">namespace</span> <span style="color: #009F9F;">std</span>;
+<span style="color: #BD93F9;">const</span> <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">maxn</span> = <span style="color: #009F9F;">1000</span> + <span style="color: #009F9F;">5</span>;
+<span style="color: #BD93F9;">const</span> <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">INF</span> = <span style="color: #009F9F;">0x3f3f3f3f</span>;
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">n</span>, <span style="color: #AFAFAF;">m</span>;
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">dp</span>[maxn], <span style="color: #AFAFAF;">v</span>[maxn][maxn], <span style="color: #AFAFAF;">w</span>[maxn][maxn];
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">cnt</span>[maxn];
+<span style="color: #009F9F;">#define</span> <span style="color: #AFAFAF;">bug</span> puts(<span style="color: #FC9F4E;">"&lt;--&gt;"</span>);
+<span style="color: #009F9F;">#define</span> <span style="color: #AFAFAF;">NEXTLINE</span> puts(<span style="color: #FC9F4E;">""</span>);
+
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
+    scanf(<span style="color: #FC9F4E;">"%d %d"</span>, &amp;m, &amp;n);
+    <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">group</span> = -INF;
+    <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">0</span>; i &lt; n; ++ i) {
+        <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">wi</span>, <span style="color: #AFAFAF;">vi</span>, <span style="color: #AFAFAF;">gi</span>;   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#20998;&#21035;&#26159;&#20215;&#20540;&#65292;&#37325;&#37327;&#65292;&#25152;&#23646;&#32452;&#21495;</span>
+        scanf(<span style="color: #FC9F4E;">"%d %d %d"</span>, &amp;vi, &amp;wi, &amp;gi);
+        ++ cnt[gi];   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#27599;&#32452;&#20013;&#29289;&#21697;&#24635;&#25968;</span>
+        v[gi][cnt[gi]] = vi;   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#34920;&#31034;&#31532; gi &#32452;&#65292;&#31532; cnt[gi] &#20010;&#29289;&#21697;&#30340;&#37325;&#37327;</span>
+        w[gi][cnt[gi]] = wi;
+        group = max(group, gi);   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#19968;&#20849;&#22810;&#23569;&#32452;</span>
+    }
+    <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">1</span>; i &lt;= group; ++ i)   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#29289;&#21697;&#32452;&#25968;</span>
+        <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">j</span> = m; j &gt;= <span style="color: #009F9F;">0</span>; -- j)   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#26522;&#20030;&#37325;&#37327;</span>
+            <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">k</span> = <span style="color: #009F9F;">1</span>; k &lt;= cnt[i]; ++ k)   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#36941;&#21382;&#36825;&#32452;&#25152;&#26377;&#29289;&#21697;&#65292;&#25214;&#21040;&#26368;&#36866;&#21512;&#30340;&#37027;&#20010;&#29289;&#21697;</span>
+                <span style="color: #BD93F9;">if</span> (j &gt;= v[i][k])
+                    dp[j] = max(dp[j], dp[j - v[i][k]] + w[i][k]);
+    printf(<span style="color: #FC9F4E;">"%d\n"</span>, dp[m]);
+    <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">0</span>;
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org40d694c" class="outline-2">
+<h2 id="org40d694c">恰好背包</h2>
+<div class="outline-text-2" id="text-org40d694c">
+<p>
+如果初始状态赋值为 \(dp[0] = 0, dp[i] = -INF\ (i \neq 0)\)，那么得到的结果就一定是从 \(dp[0]\) 转移过来，从其余状态转移而来的一定还是负无穷。<br>
+</p>
+</div>
 </div>
 </div>
 </body>

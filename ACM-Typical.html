@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-10-20 Wed 21:08 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>经典题目</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">经典题目</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org5a16f11">HDU 2844 Coins</a>
+<ul>
+<li><a href="#orgc1c61b0">题目大意</a></li>
+<li><a href="#org31841b0">使用多重背包的方法解决</a></li>
+<li><a href="#orge8d74e3">AC 代码</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org5a16f11" class="outline-2">
+<h2 id="org5a16f11">HDU 2844 Coins</h2>
+<div class="outline-text-2" id="text-org5a16f11">
+</div>
+<div id="outline-container-orgc1c61b0" class="outline-3">
+<h3 id="orgc1c61b0">题目大意</h3>
+<div class="outline-text-3" id="text-orgc1c61b0">
+<p>
+有 \(n\) 种面值的硬币，每枚硬币的面值是 \(A_i\)，数量是 \(C_i\)，选出一部分硬币，其面值总和为 \(sum\)，则不超过 \(m\) 的 \(sum\) 有多少种。<br>
+</p>
+
+<pre class="example" id="org2f9a74f">
+看一组数据：
+3 10
+1 2 4 2 1 1
+</pre>
+
+<p>
+一共有 \(3\) 种面值的硬币，分别是：面值为 \(1\) 的硬币有 \(2\) 个；面值为 \(2\) 的硬币有 \(1\) 个；面值为 \(4\) 的硬币有 \(1\) 个。<br>
+</p>
+
+<p>
+所以它们能组成的面值总和有：<br>
+</p>
+<ol class="org-ol">
+<li>1 = 1<br></li>
+<li>2 = 2<br></li>
+<li>3 = 1 + 2<br></li>
+<li>4 = 4<br></li>
+<li>5 = 1 + 4<br></li>
+<li>6 = 2 + 4<br></li>
+<li>7 = 1 + 2 + 4<br></li>
+<li>8 = 1 + 1 + 2 + 4<br></li>
+<li>面值总和不能为 \(9\) 或 \(10\)。<br></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-org31841b0" class="outline-3">
+<h3 id="org31841b0">使用多重背包的方法解决</h3>
+<div class="outline-text-3" id="text-org31841b0">
+<p>
+转化为有 \(m\) 种不同容量的背包，容量分别为 \(1, 2, 3, \dots, m\)，现在给你 \(n\) 个体积是 \(A_i\)，价值是 \(1\)，数量是 \(C_i\) 的物品来装背包，问能恰好装满的背包数量。<br>
+</p>
+
+<p>
+这里的价值可以随便取大于 \(0\) 的值，因为我们把面值转化为了体积，无论是总面值还是单个硬币的面值，体积才是本题的关键。最后判断 \(dp[i]\) 是否大于 \(0\) 就知道这个面值能否被组成。<br>
+</p>
+
+<p>
+这里是恰好背包，初始化应该是 \(dp[0] = 0, dp[i] = -INF\ (i \neq 0)\)。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge8d74e3" class="outline-3">
+<h3 id="orge8d74e3">AC 代码</h3>
+<div class="outline-text-3" id="text-orge8d74e3">
+<div class="org-src-container">
+<pre class="src src-cpp"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cstdio&gt;</span>
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;algorithm&gt;</span>
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cstring&gt;</span>
+<span style="color: #BD93F9;">using</span> <span style="color: #BD93F9;">namespace</span> <span style="color: #009F9F;">std</span>;
+<span style="color: #BD93F9;">const</span> <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">maxn</span> = <span style="color: #009F9F;">100</span> + <span style="color: #009F9F;">5</span>, <span style="color: #AFAFAF;">maxm</span> = <span style="color: #009F9F;">1e5</span> + <span style="color: #009F9F;">5</span>;
+<span style="color: #BD93F9;">const</span> <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">INF</span> = <span style="color: #009F9F;">0x3f3f3f3f</span>;
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">n</span>, <span style="color: #AFAFAF;">m</span>;
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">dp</span>[maxm];
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">w</span>[maxn], <span style="color: #AFAFAF;">s</span>[maxn];
+
+<span style="color: #BD93F9;">struct</span> <span style="color: #AFAFAF;">Bone</span> {
+    <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">v</span>, <span style="color: #AFAFAF;">w</span>;
+} <span style="color: #AFAFAF;">bone</span>[maxn * <span style="color: #009F9F;">10</span>];
+
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
+<span style="color: #009F9F;">#if</span><span style="color: #009F9F;">n</span><span style="color: #009F9F;">def</span> ONLINE_JUDGE
+    freopen(<span style="color: #FC9F4E;">"in.txt"</span>, <span style="color: #FC9F4E;">"r"</span>, stdin);
+    freopen(<span style="color: #FC9F4E;">"out.txt"</span>, <span style="color: #FC9F4E;">"w"</span>, stdout);
+<span style="color: #009F9F;">#endif</span>
+    <span style="color: #BD93F9;">while</span> (scanf(<span style="color: #FC9F4E;">"%d %d"</span>, &amp;n, &amp;m) &amp;&amp; (n || m)) {
+        <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">1</span>; i &lt;= n; ++ i)
+            scanf(<span style="color: #FC9F4E;">"%d"</span>, &amp;w[i]);   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#27599;&#31181;&#30828;&#24065;&#30340;&#20215;&#20540;</span>
+        <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">1</span>; i &lt;= n; ++ i)
+            scanf(<span style="color: #FC9F4E;">"%d"</span>, &amp;s[i]);   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#27599;&#31181;&#30828;&#24065;&#30340;&#25968;&#37327;</span>
+        <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">idx</span> = <span style="color: #009F9F;">1</span>;
+        <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">1</span>; i &lt;= n; ++ i) {
+            <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">b</span> = <span style="color: #009F9F;">1</span>;
+            <span style="color: #BD93F9;">while</span> (s[i] - b &gt; <span style="color: #009F9F;">0</span>) {
+                s[i] -= b;
+                bone[idx].v = b * w[i];
+                bone[idx].w = <span style="color: #009F9F;">1</span>;
+                idx ++ ;
+                b *= <span style="color: #009F9F;">2</span>;
+            }
+            <span style="color: #BD93F9;">if</span> (s[i]) {
+                bone[idx].v = s[i] * w[i];
+                bone[idx].w = <span style="color: #009F9F;">1</span>;
+                idx ++ ;
+            }
+        }
+        memset(dp, -INF, <span style="color: #BD93F9;">sizeof</span> dp);
+        dp[<span style="color: #009F9F;">0</span>] = <span style="color: #009F9F;">0</span>;
+        <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">1</span>; i &lt; idx; ++ i)
+            <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">j</span> = m; j &gt;= bone[i].v; -- j)
+                dp[j] = max(dp[j], dp[j - bone[i].v] + bone[i].w);
+        <span style="color: #7c7c7c; font-style: italic;">/*</span>
+<span style="color: #7c7c7c; font-style: italic;">         * for (int i = 0; i &lt;= m; ++ i)</span>
+<span style="color: #7c7c7c; font-style: italic;">         *     printf("-- %d\n", dp[i]);</span>
+<span style="color: #7c7c7c; font-style: italic;">         */</span>
+        <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">sum</span> = <span style="color: #009F9F;">0</span>;
+        <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">1</span>; i &lt;= m; ++ i)
+            <span style="color: #BD93F9;">if</span> (dp[i] &gt; <span style="color: #009F9F;">0</span>)
+                sum ++ ;
+        printf(<span style="color: #FC9F4E;">"%d\n"</span>, sum);
+    }
+    <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">0</span>;
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2021-10-19 20:10 Tue</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2021-10-20 Wed 21:08</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

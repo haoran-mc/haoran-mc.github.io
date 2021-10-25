@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-10-07 Thu 15:54 -->
+<!-- 2021-10-20 Wed 21:46 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ALGORITHM-图论-DIJKSTRA</title>
+<title>DIJKSTRA</title>
 <meta name="generator" content="Org mode">
 <meta name="author" content="L.M.haoran">
 <meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
@@ -13,25 +13,223 @@
                 <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
                 <script type="module" src="static/js/main.js" defer></script>
                 <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
 </head>
 <body>
 <div id="content">
-<h1 class="title">ALGORITHM-图论-DIJKSTRA</h1>
+<h1 class="title">DIJKSTRA</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org25d394e">介绍</a></li>
+<li><a href="#orgf315053">流程</a></li>
+<li><a href="#orgb993fcc">时间复杂度</a>
+<ul>
+<li><a href="#org7d997a1">暴力</a></li>
+<li><a href="#org3d64f76">优先队列</a></li>
+</ul>
+</li>
+<li><a href="#org877d2a6">正确性证明</a></li>
+<li><a href="#org808bd38">代码实现</a>
+<ul>
+<li><a href="#org667502a">暴力</a></li>
+<li><a href="#org1587a1d">优先队列优化</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org25d394e" class="outline-2">
+<h2 id="org25d394e">介绍</h2>
+<div class="outline-text-2" id="text-org25d394e">
 <p>
-Dijkstra算法基于贪心算法<br>
+\(Dijkstra（/ˈdikstrɑ/或/ˈdɛikstrɑ/）\) 算法由荷兰计算机科学家 \(E. W. Dijkstra\) 于 \(1956\) 年发现，\(1959\) 年公开发表。是一种求解 <b>非负权图</b> 上单源最短路径的算法。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf315053" class="outline-2">
+<h2 id="orgf315053">流程</h2>
+<div class="outline-text-2" id="text-orgf315053">
+<p>
+将节点分为两个集合：已经确定最短路长度的点集（记为 \(S\) 集合）和未确定最短路长度的点集（记为 \(T\) 集合），一开始所有的点都属于 \(T\) 集合。<br>
 </p>
 
-<p>
-Dijkstra算法的局限性<br>
-</p>
 <ol class="org-ol">
-<li>只适用于所有边的长度都是非负数的图<br></li>
+<li>初始化 \(dist[1] = 0\)，其余节点的 \(dist\) 值为正无穷大。<br></li>
+<li>从 \(T\) 集合中找出一个最短路长度最小的节点，然后将此节点移到 \(S\) 集合中。<br></li>
+<li>对刚刚加入 \(S\) 集合的节点进行松弛操作，更新它的所有出边 \((x, y, z)\)，若 \(dist[y] > dist[x] + z\)，则使用 \(dist[x] + z\) 更新 \(dist[y]\)。<br></li>
+<li>重复上面 \(2 \sim 3\) 的两个步骤，直到所有节点都被标记。<br></li>
 </ol>
-
-
+</div>
+</div>
+<div id="outline-container-orgb993fcc" class="outline-2">
+<h2 id="orgb993fcc">时间复杂度</h2>
+<div class="outline-text-2" id="text-orgb993fcc">
+</div>
+<div id="outline-container-org7d997a1" class="outline-3">
+<h3 id="org7d997a1">暴力</h3>
+<div class="outline-text-3" id="text-org7d997a1">
 <p>
-对于无向图，只需在邻接矩阵和邻接表上作变动，把无向边当成两条指向相反的有向边<br>
+\(2\) 操作需要遍历每个节点找到最短路最近的 \(O(n)\)，且需要操作 \(n\) 次，则 \(2\) 操作的总时间复杂度是 \(O(n^2)\)，松弛操作总时间复杂度 \(O(m)\)，所以全过程时间复杂度 \(O(n^2 + m) = O(n^2)\)。<br>
 </p>
+</div>
+</div>
+<div id="outline-container-org3d64f76" class="outline-3">
+<h3 id="org3d64f76">优先队列</h3>
+<div class="outline-text-3" id="text-org3d64f76">
+<p>
+暴力的时间复杂度为 \(O(n^2)\)，主要瓶颈在于寻找全局最小值的过程，使用优先队列可以使 \(2\) 操作时间复杂度降为 \(O(1)\)，由于队列中会进入 \(m\) 条边，每条边的插入与删除都是 \(O(logm)\)，所以总时间复杂度是 \(O(mlogm)\)。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org877d2a6" class="outline-2">
+<h2 id="org877d2a6">正确性证明</h2>
+</div>
+<div id="outline-container-org808bd38" class="outline-2">
+<h2 id="org808bd38">代码实现</h2>
+<div class="outline-text-2" id="text-org808bd38">
+</div>
+<div id="outline-container-org667502a" class="outline-3">
+<h3 id="org667502a">暴力</h3>
+<div class="outline-text-3" id="text-org667502a">
+<div class="org-src-container">
+<pre class="src src-cpp"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cstdio&gt;</span>
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cstring&gt;</span>
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;algorithm&gt;</span>
+<span style="color: #BD93F9;">using</span> <span style="color: #BD93F9;">namespace</span> <span style="color: #009F9F;">std</span>;
+<span style="color: #BD93F9;">const</span> <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">maxn</span> = <span style="color: #009F9F;">500</span> + <span style="color: #009F9F;">5</span>;
+<span style="color: #BD93F9;">const</span> <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">INF</span> = <span style="color: #009F9F;">0x3f3f3f3f</span>;
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">n</span>, <span style="color: #AFAFAF;">m</span>;
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">g</span>[maxn][maxn], <span style="color: #AFAFAF;">dist</span>[maxn];
+<span style="color: #AFAFAF;">bool</span> <span style="color: #AFAFAF;">used</span>[maxn];
+
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">dist[n]&#34920;&#31034;&#20174;&#28304;&#28857;&#21040;&#31532;n&#20010;&#28857;&#30340;&#26368;&#30701;&#36335;</span>
+<span style="color: #AFAFAF;">void</span> <span style="color: #AFAFAF;">dijkstra</span>() {
+    memset(dist, <span style="color: #009F9F;">0x3f</span>, <span style="color: #BD93F9;">sizeof</span> dist);
+    memset(used, <span style="color: #009F9F;">0</span>, <span style="color: #BD93F9;">sizeof</span> used);
+    <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">source</span> = <span style="color: #009F9F;">1</span>; dist[source] = <span style="color: #009F9F;">0</span>;  <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#35774;&#32622;&#28304;&#28857;</span>
+    <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">0</span>; i &lt; n; ++i) {
+        <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">vert</span> = -<span style="color: #009F9F;">1</span>;
+        <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">j</span> = <span style="color: #009F9F;">1</span>; j &lt;= n; ++j)
+            <span style="color: #BD93F9;">if</span> (!used[j] &amp;&amp; (vert == -<span style="color: #009F9F;">1</span> || dist[j] &lt; dist[vert]))
+                vert = j;
+        used[vert] = <span style="color: #009F9F;">true</span>;
+        <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">j</span> = <span style="color: #009F9F;">1</span>; j &lt;= n; ++j)
+            <span style="color: #BD93F9;">if</span> (!used[j])
+                dist[j] = min(dist[j], dist[vert] + g[vert][j]);
+    }
+}
+
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
+    scanf(<span style="color: #FC9F4E;">"%d %d"</span>, &amp;n, &amp;m);
+    memset(g, <span style="color: #009F9F;">0x3f</span>, <span style="color: #BD93F9;">sizeof</span> g);
+    <span style="color: #BD93F9;">while</span> (m--) {
+        <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">a</span>, <span style="color: #AFAFAF;">b</span>, <span style="color: #AFAFAF;">c</span>;
+        scanf(<span style="color: #FC9F4E;">"%d %d %d"</span>, &amp;a, &amp;b, &amp;c);
+        g[a][b] = min(g[a][b], c);
+    }
+    dijkstra();
+    <span style="color: #BD93F9;">if</span> (dist[n] == INF)
+        printf(<span style="color: #FC9F4E;">"-1\n"</span>);
+    <span style="color: #BD93F9;">else</span>
+        printf(<span style="color: #FC9F4E;">"%d\n"</span>, dist[n]);
+    <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">0</span>;
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org1587a1d" class="outline-3">
+<h3 id="org1587a1d">优先队列优化</h3>
+<div class="outline-text-3" id="text-org1587a1d">
+<div class="org-src-container">
+<pre class="src src-cpp"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cstdio&gt;</span>
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cstring&gt;</span>
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;algorithm&gt;</span>
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;queue&gt;</span>
+<span style="color: #BD93F9;">using</span> <span style="color: #BD93F9;">namespace</span> <span style="color: #009F9F;">std</span>;
+<span style="color: #BD93F9;">typedef</span> <span style="color: #AFAFAF;">pair</span>&lt;<span style="color: #AFAFAF;">int</span>, <span style="color: #AFAFAF;">int</span>&gt; <span style="color: #AFAFAF;">PII</span>;
+<span style="color: #BD93F9;">const</span> <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">maxn</span> = <span style="color: #009F9F;">2e5</span> + <span style="color: #009F9F;">5</span>;
+<span style="color: #BD93F9;">const</span> <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">INF</span> = <span style="color: #009F9F;">0x3f3f3f3f</span>;
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">n</span>, <span style="color: #AFAFAF;">m</span>;
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">h</span>[maxn], <span style="color: #AFAFAF;">e</span>[maxn], <span style="color: #AFAFAF;">ne</span>[maxn], <span style="color: #AFAFAF;">w</span>[maxn], <span style="color: #AFAFAF;">idx</span>;  <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#37051;&#25509;&#34920;&#65292;&#36824;&#35201;&#23384;&#26435;&#37325;</span>
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">dist</span>[maxn];
+<span style="color: #AFAFAF;">bool</span> <span style="color: #AFAFAF;">used</span>[maxn];
+
+<span style="color: #AFAFAF;">void</span> <span style="color: #AFAFAF;">add</span>(<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">a</span>, <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">b</span>, <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">c</span>) {
+    e[idx] = b, w[idx] = c, ne[idx] = h[a], h[a] = idx ++;
+}
+
+<span style="color: #AFAFAF;">void</span> <span style="color: #AFAFAF;">dijkstra</span>() {
+    memset(dist, <span style="color: #009F9F;">0x3f</span>, <span style="color: #BD93F9;">sizeof</span> dist);
+    memset(used, <span style="color: #009F9F;">0</span>, <span style="color: #BD93F9;">sizeof</span> used);
+    <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">source</span> = <span style="color: #009F9F;">1</span>; dist[source] = <span style="color: #009F9F;">0</span>;
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#23567;&#26681;&#22534;&#65292;&#20248;&#20808;&#38431;&#21015;&#20250;&#25353;&#32467;&#26500;&#20307;&#30340;&#31532;&#19968;&#20301;&#25490;&#24207;&#65292;&#25152;&#20197;&#23558;&#36317;&#31163;&#25918;&#22312;&#31532;&#19968;&#20301;&#65292;&#23427;&#23601;&#20250;&#25226;&#36317;&#31163;&#26368;&#23567;&#30340;&#25918;&#22312;&#26368;&#21069;&#38754;&#65292;&#24471;&#21040;&#26368;&#36817;&#30340;&#28857;</span>
+    <span style="color: #AFAFAF;">priority_queue</span>&lt;<span style="color: #AFAFAF;">PII</span>, <span style="color: #AFAFAF;">vector</span>&lt;<span style="color: #AFAFAF;">PII</span>&gt;, <span style="color: #AFAFAF;">greater</span>&lt;<span style="color: #AFAFAF;">PII</span>&gt;&gt; <span style="color: #AFAFAF;">he</span>;
+    he.push({<span style="color: #009F9F;">0</span>, source});  <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#36317;&#31163;&#65306;0, &#28304;&#28857;&#65306;source</span>
+    <span style="color: #BD93F9;">while</span> (he.size()) {
+        <span style="color: #BD93F9;">auto</span> <span style="color: #AFAFAF;">t</span> = he.top();  <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">t = top&#65292;&#23567;&#26681;&#22534;&#30340;&#22534;&#39030;&#65292;&#36317;&#31163;&#38598;&#21512;&#26368;&#36817;&#30340;&#28857;</span>
+        he.pop();
+        <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">d</span> = t.first, <span style="color: #AFAFAF;">vert</span> = t.second;   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">d = dist, &#22534;&#39030;&#20803;&#32032;vert&#36317;&#31163;&#28304;&#28857;&#30340;&#36317;&#31163;</span>
+        <span style="color: #BD93F9;">if</span> (used[vert])   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#20887;&#20313;</span>
+            <span style="color: #BD93F9;">continue</span>;
+        used[vert] = <span style="color: #009F9F;">true</span>;
+        <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#29992;vert&#26356;&#26032;&#25152;&#26377;&#23427;&#37051;&#25509;&#30340;&#28857;</span>
+        <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#22240;&#20026;&#19968;&#20010;&#28857;&#21487;&#33021;&#21516;&#26102;&#34987;&#19978;&#19968;&#20010;vert&#21644;&#24403;&#21069;vert&#26356;&#26032;&#65292;&#23601;&#20250;&#21387;&#20837;&#22534;&#20013;&#20004;&#27425;&#65292;&#25152;&#20197;&#23601;&#26377;&#20102;&#19978;&#38754;&#30340;&#28040;&#38500;&#20887;&#20313;</span>
+        <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = h[vert]; i != -<span style="color: #009F9F;">1</span>; i = ne[i]) {
+            <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">j</span> = e[i];
+            <span style="color: #BD93F9;">if</span> (dist[j] &gt; d + w[i]) {
+                dist[j] = d + w[i];
+                he.push({dist[j], j});
+            }
+        }
+    }
+}
+
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
+    scanf(<span style="color: #FC9F4E;">"%d %d"</span>, &amp;n, &amp;m);
+    memset(h, -<span style="color: #009F9F;">1</span>, <span style="color: #BD93F9;">sizeof</span> h);  <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#37051;&#25509;&#34920;</span>
+    <span style="color: #BD93F9;">while</span> (m --) {
+        <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">a</span>, <span style="color: #AFAFAF;">b</span>, <span style="color: #AFAFAF;">c</span>;
+        scanf(<span style="color: #FC9F4E;">"%d %d %d"</span>, &amp;a, &amp;b, &amp;c);
+        add(a, b, c);
+    }
+    dijkstra();
+    <span style="color: #BD93F9;">if</span> (dist[n] == INF)
+        printf(<span style="color: #FC9F4E;">"-1\n"</span>);
+    <span style="color: #BD93F9;">else</span>
+        printf(<span style="color: #FC9F4E;">"%d\n"</span>, dist[n]);
+    <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">0</span>;
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
 </div>
 </body>
 </html>

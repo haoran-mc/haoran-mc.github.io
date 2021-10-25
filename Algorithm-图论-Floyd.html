@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-10-07 Thu 15:54 -->
+<!-- 2021-10-20 Wed 22:39 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ALGORITHM-图论-FLOYD</title>
+<title>FLOYD</title>
 <meta name="generator" content="Org mode">
 <meta name="author" content="L.M.haoran">
 <meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
@@ -13,19 +13,89 @@
                 <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
                 <script type="module" src="static/js/main.js" defer></script>
                 <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
 </head>
 <body>
 <div id="content">
-<h1 class="title">ALGORITHM-图论-FLOYD</h1>
-<ul class="org-ul">
-<li>如果存在顶点k，使得以k作为中介点时顶点i和顶点j的当前最短距离缩短，则使用顶点k作为顶点i和顶点j的中介点<br>
-<ul class="org-ul">
-<li>if dis[i]\[k] + dis[k]\[j] &lt; dis[i]\[j]<br></li>
-<li>dis[i]\[j] = dis[i]\[k] + dis[k]\[j]<br></li>
-</ul></li>
-<li>时间复杂度O(n^3)<br></li>
-<li>时间复杂度决定了顶点数n被限制在200以内，因此使用邻接表来实现Floyd算法是合适且方便的<br></li>
+<h1 class="title">FLOYD</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org5e97da9">介绍</a></li>
+<li><a href="#orgef9963a">实现</a></li>
+<li><a href="#org890a957">代码</a></li>
 </ul>
+</div>
+</div>
+
+<div id="outline-container-org5e97da9" class="outline-2">
+<h2 id="org5e97da9">介绍</h2>
+<div class="outline-text-2" id="text-org5e97da9">
+<p>
+求多源最短路，容易实现但复杂度非常高，常数小的情况下使用，可以有负权边。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgef9963a" class="outline-2">
+<h2 id="orgef9963a">实现</h2>
+<div class="outline-text-2" id="text-orgef9963a">
+<p>
+设 \(D[k, i, j]\) 表示 <b>经过若干个编号不超过 \(k\) 的节点</b> 从 \(i\) 到 \(j\) 的最短路长度。该问题可划分为两个子问题：经过编号不超过 \(k - 1\) 的节点从 \(i\) 到 \(j\)，或者从 \(i\) 先到 \(k\) 再到 \(j\)，于是：\(D[k, i, j] = min(D[k - 1, i, j], D[k - 1, i, k] + D[k - 1, k, j]\)。<br>
+</p>
+
+<p>
+初值为 \(D[0, i, j] = g[i, j]\)，\(g\) 为邻接矩阵。<br>
+</p>
+
+<p>
+与背包问题的状态转移方程类似，\(k\) 这一维可被省略：\(D[i, j] = min(D[i, j], D[i, k] + D[k, j])\)。<br>
+</p>
+
+<p>
+另一种理解方式： 判断节点 \(k\) 是否能更新 \(i\) 与 \(j\) 之间的最短距离。<br>
+</p>
+
+<p>
+因为时间复杂度高，所以 \(floyd\) 的题目节点数会控制在 \(200\) 之内，使用邻接矩阵存储就好。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org890a957" class="outline-2">
+<h2 id="org890a957">代码</h2>
+<div class="outline-text-2" id="text-org890a957">
+<div class="org-src-container">
+<pre class="src src-cpp"><span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">k</span> = <span style="color: #009F9F;">1</span>; k &lt;= n; k++)
+    <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">1</span>; i &lt;= n; ++i)
+        <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">j</span> = <span style="color: #009F9F;">1</span>; j &lt;= n; ++j) {
+            d[i][j] = min(d[i][j], d[i][k] + d[k][j]);
+            <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">d[j][i] = d[i][j];</span>
+        }
+</pre>
+</div>
+</div>
+</div>
 </div>
 </body>
 </html>

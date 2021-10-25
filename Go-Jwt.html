@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-10-02 六 22:11 -->
+<!-- 2021-10-25 Mon 22:27 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GO-JWT</title>
@@ -17,9 +17,432 @@
 <body>
 <div id="content">
 <h1 class="title">GO-JWT</h1>
-<ul class="org-ul">
-<li><a href="Back-Cookie-Session-Token-Jwt.html">Cookie、Session、Token、JWT</a></li>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org5d44580">资料</a></li>
+<li><a href="#orgd45601c">简单使用</a></li>
+<li><a href="#orgd626fdc">使用 struct</a>
+<ul>
+<li><a href="#org22154db">生成一个 jwt 的详细过程</a>
+<ul>
+<li><a href="#org8a4fc63">1. 生成一个带参的 jwt</a></li>
+<li><a href="#org0d3f601">NewWithClaims 函数</a></li>
+<li><a href="#org4851f43">Claims 接口</a></li>
+<li><a href="#orga55deac">2. 如何依赖一个结构体实现接口</a></li>
+<li><a href="#orgda48d18">3. 选择使用加密方式</a></li>
+<li><a href="#org8bd715a">4. 加密生成的 token</a></li>
 </ul>
+</li>
+<li><a href="#org8b73b6c">解析一个 jwt 的详细过程</a>
+<ul>
+<li><a href="#orge80fb1a">1. 前端返回一个 token 字符串，我们来解析它</a></li>
+<li><a href="#orgafa7133">2. 使用解析的 token</a></li>
+</ul>
+</li>
+<li><a href="#org614f1a8">全部代码</a></li>
+</ul>
+</li>
+<li><a href="#orgb1c98cb">使用 map</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org5d44580" class="outline-2">
+<h2 id="org5d44580">资料</h2>
+<div class="outline-text-2" id="text-org5d44580">
+<ul class="org-ul">
+<li><a href="https://pkg.go.dev/github.com/dgrijalva/jwt-go?utm_source=godoc">官网</a> <br></li>
+<li><a href="Back-Cookie-Session-Token-Jwt.html">Cookie、Session、Token、JWT</a> <br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgd45601c" class="outline-2">
+<h2 id="orgd45601c">简单使用</h2>
+<div class="outline-text-2" id="text-orgd45601c">
+<p>
+我们从官网的例子学起，下面就是官网提供的例子。<br>
+</p>
+
+<img src="./images/go-jwt-example.png" />
+
+<p>
+选择 NewWithClaims(CustomClaimsType)，看到下面这段代码。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #AFAFAF;">mySigningKey</span> := []<span style="color: #AFAFAF;">byte</span>(<span style="color: #FC9F4E;">"AllYourBase"</span>)
+
+<span style="color: #BD93F9;">type</span> <span style="color: #AFAFAF;">MyCustomClaims</span> <span style="color: #BD93F9;">struct</span> {
+    Foo <span style="color: #AFAFAF;">string</span> <span style="color: #FC9F4E;">`json:"foo"`</span>
+    jwt.StandardClaims
+}
+
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">Create the Claims</span>
+<span style="color: #AFAFAF;">claims</span> := <span style="color: #AFAFAF;">MyCustomClaims</span>{
+    <span style="color: #FC9F4E;">"bar"</span>,
+    <span style="color: #AFAFAF;">jwt.StandardClaims</span>{
+        <span style="color: #009F9F;">ExpiresAt</span>: <span style="color: #009F9F;">15000</span>,
+        <span style="color: #009F9F;">Issuer</span>:    <span style="color: #FC9F4E;">"test"</span>,
+    },
+}
+
+<span style="color: #AFAFAF;">token</span> := jwt.<span style="color: #AFAFAF;">NewWithClaims</span>(jwt.SigningMethodHS256, claims)
+<span style="color: #AFAFAF;">ss</span>, <span style="color: #AFAFAF;">err</span> := token.<span style="color: #AFAFAF;">SignedString</span>(mySigningKey)
+fmt.<span style="color: #AFAFAF;">Printf</span>(<span style="color: #FC9F4E;">"%v %v"</span>, ss, err)
+</pre>
+</div>
+
+<p>
+把完整代码补全有：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #BD93F9;">package</span> main
+
+<span style="color: #BD93F9;">import</span> (
+    <span style="color: #FC9F4E;">"fmt"</span>
+    <span style="color: #FC9F4E;">"github.com/dgrijalva/jwt-go"</span>
+)
+
+<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">main</span>() {
+    <span style="color: #AFAFAF;">mySigningKey</span> := []<span style="color: #AFAFAF;">byte</span>(<span style="color: #FC9F4E;">"AllYourBase"</span>)
+
+    <span style="color: #BD93F9;">type</span> <span style="color: #AFAFAF;">MyCustomClaims</span> <span style="color: #BD93F9;">struct</span> {
+        Foo <span style="color: #AFAFAF;">string</span> <span style="color: #FC9F4E;">`json:"foo"`</span>
+        jwt.StandardClaims
+    }
+
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">Create the Claims</span>
+    <span style="color: #AFAFAF;">claims</span> := <span style="color: #AFAFAF;">MyCustomClaims</span>{
+        <span style="color: #FC9F4E;">"bar"</span>,
+        <span style="color: #AFAFAF;">jwt.StandardClaims</span>{
+            <span style="color: #009F9F;">ExpiresAt</span>: <span style="color: #009F9F;">15000</span>,
+            <span style="color: #009F9F;">Issuer</span>:    <span style="color: #FC9F4E;">"test"</span>,
+        },
+    }
+
+    <span style="color: #AFAFAF;">token</span> := jwt.<span style="color: #AFAFAF;">NewWithClaims</span>(jwt.SigningMethodHS256, claims)
+    <span style="color: #AFAFAF;">ss</span>, <span style="color: #AFAFAF;">err</span> := token.<span style="color: #AFAFAF;">SignedString</span>(mySigningKey)
+    fmt.<span style="color: #AFAFAF;">Printf</span>(<span style="color: #FC9F4E;">"%v %v"</span>, ss, err)
+}
+</pre>
+</div>
+
+<p>
+输出：<br>
+</p>
+<pre class="example" id="orgfde17b3">
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIiLCJleHAiOjE1MDAwLCJpc3MiOiJ0ZXN0In0.HE7fK0xOQwFEr4WDgRWj4teRPZ6i3GLwD5YCm6Pwu_c &lt;nil&gt;
+</pre>
+
+<p>
+第一段也就是我们得到的 jwt。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd626fdc" class="outline-2">
+<h2 id="orgd626fdc">使用 struct</h2>
+<div class="outline-text-2" id="text-orgd626fdc">
+</div>
+<div id="outline-container-org22154db" class="outline-3">
+<h3 id="org22154db">生成一个 jwt 的详细过程</h3>
+<div class="outline-text-3" id="text-org22154db">
+</div>
+<div id="outline-container-org8a4fc63" class="outline-4">
+<h4 id="org8a4fc63">1. 生成一个带参的 jwt</h4>
+<div class="outline-text-4" id="text-org8a4fc63">
+<div class="org-src-container">
+<pre class="src src-go">jwt.<span style="color: #AFAFAF;">NewWithClaims</span>()
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org0d3f601" class="outline-4">
+<h4 id="org0d3f601">NewWithClaims 函数</h4>
+<div class="outline-text-4" id="text-org0d3f601">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">NewWithClaims</span>(<span style="color: #AFAFAF;">method</span> <span style="color: #AFAFAF;">SigningMethod</span>, <span style="color: #AFAFAF;">claims</span> <span style="color: #AFAFAF;">Claims</span>) *<span style="color: #AFAFAF;">Token</span> {
+    <span style="color: #BD93F9;">return</span> &amp;<span style="color: #AFAFAF;">Token</span>{
+        <span style="color: #009F9F;">Header</span>: <span style="color: #BD93F9;">map</span>[<span style="color: #AFAFAF;">string</span>]<span style="color: #BD93F9;">interface</span>{}{
+            <span style="color: #FC9F4E;">"typ"</span>: <span style="color: #FC9F4E;">"JWT"</span>,
+            <span style="color: #FC9F4E;">"alg"</span>: method.<span style="color: #AFAFAF;">Alg</span>(),
+        },
+        <span style="color: #009F9F;">Claims</span>: claims,
+        <span style="color: #009F9F;">Method</span>: method,
+    }
+}
+</pre>
+</div>
+
+<p>
+返回值就是 Token。<br>
+</p>
+
+<p>
+第一个参数是加密方法，第二个参数是一个实现 Claims 接口的东西：<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4851f43" class="outline-4">
+<h4 id="org4851f43">Claims 接口</h4>
+<div class="outline-text-4" id="text-org4851f43">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #BD93F9;">type</span> <span style="color: #AFAFAF;">Claims</span> <span style="color: #BD93F9;">interface</span> {
+    <span style="color: #AFAFAF;">Valid</span>() <span style="color: #AFAFAF;">error</span>
+}
+</pre>
+</div>
+
+<p>
+实现它的有：<br>
+</p>
+
+<ol class="org-ol">
+<li><p>
+map<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #BD93F9;">type</span> <span style="color: #AFAFAF;">MapClaims</span> <span style="color: #BD93F9;">map</span>[<span style="color: #AFAFAF;">string</span>]<span style="color: #BD93F9;">interface</span>{}
+</pre>
+</div></li>
+
+<li><p>
+struct<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #BD93F9;">type</span> <span style="color: #AFAFAF;">StandardClaims</span> <span style="color: #BD93F9;">struct</span> {
+    Audience  <span style="color: #AFAFAF;">string</span> <span style="color: #FC9F4E;">`json:"aud,omitempty"`</span>
+    ExpiresAt <span style="color: #AFAFAF;">int64</span>  <span style="color: #FC9F4E;">`json:"exp,omitempty"`</span>
+    Id        <span style="color: #AFAFAF;">string</span> <span style="color: #FC9F4E;">`json:"jti,omitempty"`</span>
+    IssuedAt  <span style="color: #AFAFAF;">int64</span>  <span style="color: #FC9F4E;">`json:"iat,omitempty"`</span>
+    Issuer    <span style="color: #AFAFAF;">string</span> <span style="color: #FC9F4E;">`json:"iss,omitempty"`</span>
+    NotBefore <span style="color: #AFAFAF;">int64</span>  <span style="color: #FC9F4E;">`json:"nbf,omitempty"`</span>
+    Subject   <span style="color: #AFAFAF;">string</span> <span style="color: #FC9F4E;">`json:"sub,omitempty"`</span>
+}
+</pre>
+</div></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orga55deac" class="outline-4">
+<h4 id="orga55deac">2. 如何依赖一个结构体实现接口</h4>
+<div class="outline-text-4" id="text-orga55deac">
+<ol class="org-ol">
+<li><p>
+定义一个结构体<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #BD93F9;">type</span> <span style="color: #AFAFAF;">MyClaims</span> <span style="color: #BD93F9;">struct</span> {
+    Username <span style="color: #AFAFAF;">string</span> <span style="color: #FC9F4E;">`json:"username"`</span>
+    jwt.StandardClaims   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#36825;&#23601;&#23454;&#29616;&#20102;&#25509;&#21475;&#65292;&#19978;&#38754;&#23601;&#26159;&#25105;&#20204;&#33258;&#24049;&#30340;&#19996;&#35199;</span>
+}
+</pre>
+</div></li>
+
+<li><p>
+定义一个 MyClaims 结构体变量<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #AFAFAF;">c</span> := MyClaims {
+    <span style="color: #009F9F;">Username</span>: <span style="color: #FC9F4E;">"ogmc"</span>,
+        <span style="color: #009F9F;">StandardClaims</span>: jwt.StandardClaims {
+        <span style="color: #009F9F;">NotBefore</span>: time.<span style="color: #AFAFAF;">Now</span>().<span style="color: #AFAFAF;">Unix</span>() - <span style="color: #009F9F;">60</span>,   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#29983;&#25928;&#26102;&#38388;</span>
+            <span style="color: #009F9F;">ExpiresAt</span>: time.<span style="color: #AFAFAF;">Now</span>().<span style="color: #AFAFAF;">Unix</span>() + <span style="color: #009F9F;">60</span> * <span style="color: #009F9F;">60</span> * <span style="color: #009F9F;">2</span>,   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#22833;&#25928;&#26102;&#38388;   </span>
+            <span style="color: #009F9F;">Issuer</span>: <span style="color: #FC9F4E;">"ogmc"</span>,   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#31614;&#21457;&#20154;</span>
+        }
+}
+</pre>
+</div></li>
+
+<li><p>
+使用我们定义的结构体<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-go">jwt.<span style="color: #AFAFAF;">NewWithClaims</span>(, c)
+</pre>
+</div></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgda48d18" class="outline-4">
+<h4 id="orgda48d18">3. 选择使用加密方式</h4>
+<div class="outline-text-4" id="text-orgda48d18">
+<p>
+加密方式有多种，这里选择 HS256 的加密方式。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #AFAFAF;">t</span> := jwt.<span style="color: #AFAFAF;">NewWithClaims</span>(jwt.SigningMethodHS256, c)   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#36820;&#22238;&#20540;&#26159; t</span>
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">fmt.Println(t)</span>
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#35201;&#21152;&#23494; t &#21518;&#20877;&#32473;&#21069;&#31471;&#20351;&#29992;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org8bd715a" class="outline-4">
+<h4 id="org8bd715a">4. 加密生成的 token</h4>
+<div class="outline-text-4" id="text-org8bd715a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #AFAFAF;">mySigningKey</span> := []<span style="color: #AFAFAF;">byte</span>(<span style="color: #FC9F4E;">"AllYourBase"</span>)   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#38543;&#20415;&#30340;&#19968;&#20010;&#23383;&#31526;&#20018;</span>
+<span style="color: #AFAFAF;">str</span>, <span style="color: #AFAFAF;">err</span> := t.<span style="color: #AFAFAF;">SignedString</span>(mySigningKey)   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#36820;&#22238;&#21152;&#23494;&#21518;&#30340;&#23383;&#31526;&#20018;&#21644; err</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org8b73b6c" class="outline-3">
+<h3 id="org8b73b6c">解析一个 jwt 的详细过程</h3>
+<div class="outline-text-3" id="text-org8b73b6c">
+<p>
+在官网中的例子中选择 ParseWithClaims(CustomClaimsType)。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #AFAFAF;">tokenString</span> := <span style="color: #FC9F4E;">"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIiLCJleHAiOjE1MDAwLCJpc3MiOiJ0ZXN0In0.HE7fK0xOQwFEr4WDgRWj4teRPZ6i3GLwD5YCm6Pwu_c"</span>
+
+<span style="color: #BD93F9;">type</span> <span style="color: #AFAFAF;">MyCustomClaims</span> <span style="color: #BD93F9;">struct</span> {
+    Foo <span style="color: #AFAFAF;">string</span> <span style="color: #FC9F4E;">`json:"foo"`</span>
+    jwt.StandardClaims
+}
+
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">sample token is expired.  override time so it parses as valid</span>
+<span style="color: #AFAFAF;">at</span>(time.<span style="color: #AFAFAF;">Unix</span>(<span style="color: #009F9F;">0</span>, <span style="color: #009F9F;">0</span>), <span style="color: #BD93F9;">func</span>() {
+    <span style="color: #AFAFAF;">token</span>, <span style="color: #AFAFAF;">err</span> := jwt.<span style="color: #AFAFAF;">ParseWithClaims</span>(tokenString, &amp;<span style="color: #AFAFAF;">MyCustomClaims</span>{}, <span style="color: #BD93F9;">func</span>(<span style="color: #AFAFAF;">token</span> *<span style="color: #AFAFAF;">jwt.Token</span>) (<span style="color: #BD93F9;">interface</span>{}, <span style="color: #AFAFAF;">error</span>) {
+        <span style="color: #BD93F9;">return</span> []<span style="color: #AFAFAF;">byte</span>(<span style="color: #FC9F4E;">"AllYourBase"</span>), <span style="color: #009F9F;">nil</span>
+    })
+
+    <span style="color: #BD93F9;">if</span> <span style="color: #AFAFAF;">claims</span>, <span style="color: #AFAFAF;">ok</span> := token.Claims.(*<span style="color: #AFAFAF;">MyCustomClaims</span>); ok &amp;&amp; token.Valid {
+        fmt.<span style="color: #AFAFAF;">Printf</span>(<span style="color: #FC9F4E;">"%v %v"</span>, claims.Foo, claims.StandardClaims.ExpiresAt)
+    } <span style="color: #BD93F9;">else</span> {
+        fmt.<span style="color: #AFAFAF;">Println</span>(err)
+    }
+})
+</pre>
+</div>
+
+<p>
+上面是官网给出的解密的一个例子。<br>
+</p>
+</div>
+<div id="outline-container-orge80fb1a" class="outline-4">
+<h4 id="orge80fb1a">1. 前端返回一个 token 字符串，我们来解析它</h4>
+<div class="outline-text-4" id="text-orge80fb1a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #AFAFAF;">token</span>, <span style="color: #AFAFAF;">err</span> := jwt.<span style="color: #AFAFAF;">ParseWithClaims</span>(str, &amp;<span style="color: #AFAFAF;">MyClaims</span>{}, <span style="color: #BD93F9;">func</span>(<span style="color: #AFAFAF;">token</span> *<span style="color: #AFAFAF;">jwt.Token</span>) (<span style="color: #BD93F9;">interface</span>{}, <span style="color: #AFAFAF;">error</span>) {
+    <span style="color: #BD93F9;">return</span> mySigningKey, <span style="color: #009F9F;">nil</span>
+})   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#21442;&#25968;&#20998;&#21035;&#26159;&#65306;&#21152;&#23494;&#30340; token &#23383;&#31526;&#20018;&#65292;&#35299;&#26512;&#30340;&#27169;&#26495;&#65292;&#19968;&#20010;&#20989;&#25968; func</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgafa7133" class="outline-4">
+<h4 id="orgafa7133">2. 使用解析的 token</h4>
+<div class="outline-text-4" id="text-orgafa7133">
+<div class="org-src-container">
+<pre class="src src-go">fmt.<span style="color: #AFAFAF;">Println</span>(token.Claims.(*<span style="color: #AFAFAF;">MyClaims</span>).Username)
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org614f1a8" class="outline-3">
+<h3 id="org614f1a8">全部代码</h3>
+<div class="outline-text-3" id="text-org614f1a8">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #BD93F9;">package</span> main
+
+<span style="color: #BD93F9;">import</span> (
+    <span style="color: #FC9F4E;">"fmt"</span>
+    <span style="color: #FC9F4E;">"github.com/dgrijalva/jwt-go"</span>
+    <span style="color: #FC9F4E;">"time"</span>
+)
+
+<span style="color: #BD93F9;">type</span> <span style="color: #AFAFAF;">MyClaims</span> <span style="color: #BD93F9;">struct</span> {
+    Username <span style="color: #AFAFAF;">string</span> <span style="color: #FC9F4E;">`json:"username"`</span>
+    jwt.StandardClaims
+}
+
+<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">main</span>() {
+    <span style="color: #AFAFAF;">mySigningKey</span> := []<span style="color: #AFAFAF;">byte</span>(<span style="color: #FC9F4E;">"AllYourBase"</span>)   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#38543;&#20415;&#30340;&#23383;&#31526;&#20018;</span>
+    <span style="color: #AFAFAF;">c</span> := MyClaims {
+        <span style="color: #009F9F;">Username</span>: <span style="color: #FC9F4E;">"ogmc"</span>,
+        <span style="color: #009F9F;">StandardClaims</span>: <span style="color: #AFAFAF;">jwt.StandardClaims</span>{
+            <span style="color: #009F9F;">NotBefore</span>: time.<span style="color: #AFAFAF;">Now</span>().<span style="color: #AFAFAF;">Unix</span>() - <span style="color: #009F9F;">60</span>,   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#29983;&#25928;&#26102;&#38388;</span>
+            <span style="color: #009F9F;">ExpiresAt</span>: time.<span style="color: #AFAFAF;">Now</span>().<span style="color: #AFAFAF;">Unix</span>() + <span style="color: #009F9F;">5</span>,    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#22833;&#25928;&#26102;&#38388;</span>
+            <span style="color: #009F9F;">Issuer</span>: <span style="color: #FC9F4E;">"ogmc"</span>,   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#31614;&#21457;&#20154;</span>
+        },
+    }
+    <span style="color: #AFAFAF;">token1</span> := jwt.<span style="color: #AFAFAF;">NewWithClaims</span>(jwt.SigningMethodHS256, c)
+    <span style="color: #AFAFAF;">str1</span>, <span style="color: #AFAFAF;">err1</span> := token1.<span style="color: #AFAFAF;">SignedString</span>(mySigningKey)
+    <span style="color: #BD93F9;">if</span> err1 != <span style="color: #009F9F;">nil</span> {
+        fmt.<span style="color: #AFAFAF;">Printf</span>(<span style="color: #FC9F4E;">"%s"</span>, err1)
+    }
+    fmt.<span style="color: #AFAFAF;">Println</span>(str1)
+
+    <span style="color: #AFAFAF;">token2</span>, <span style="color: #AFAFAF;">err2</span> := jwt.<span style="color: #AFAFAF;">ParseWithClaims</span>(str1, &amp;<span style="color: #AFAFAF;">MyClaims</span>{}, <span style="color: #BD93F9;">func</span>(<span style="color: #AFAFAF;">token</span> *<span style="color: #AFAFAF;">jwt.Token</span>) (<span style="color: #BD93F9;">interface</span>{}, <span style="color: #AFAFAF;">error</span>) {
+        <span style="color: #BD93F9;">return</span> mySigningKey, <span style="color: #009F9F;">nil</span>
+    })
+    <span style="color: #BD93F9;">if</span> err2 != <span style="color: #009F9F;">nil</span> {
+        fmt.<span style="color: #AFAFAF;">Printf</span>(<span style="color: #FC9F4E;">"%s"</span>, err2)
+        <span style="color: #BD93F9;">return</span>
+    }
+    fmt.<span style="color: #AFAFAF;">Println</span>(token.Claims.(*<span style="color: #AFAFAF;">MyClaims</span>).Username)
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb1c98cb" class="outline-2">
+<h2 id="orgb1c98cb">使用 map</h2>
+<div class="outline-text-2" id="text-orgb1c98cb">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #BD93F9;">package</span> main
+
+<span style="color: #BD93F9;">import</span> (
+    <span style="color: #FC9F4E;">"fmt"</span>
+    <span style="color: #FC9F4E;">"github.com/dgrijalva/jwt-go"</span>
+    <span style="color: #FC9F4E;">"time"</span>
+)
+
+<span style="color: #BD93F9;">type</span> <span style="color: #AFAFAF;">MyClaims</span> <span style="color: #BD93F9;">struct</span> {
+    Username <span style="color: #AFAFAF;">string</span> <span style="color: #FC9F4E;">`json:"username"`</span>
+    jwt.StandardClaims
+}
+
+<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">main</span>() {
+    <span style="color: #AFAFAF;">mySigningKey</span> := []<span style="color: #AFAFAF;">byte</span>(<span style="color: #FC9F4E;">"AllYourBase"</span>)   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#38543;&#20415;&#30340;&#23383;&#31526;&#20018;</span>
+
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">jwt.StandardClaims{}   // map &#20013;&#30340; key &#22312;&#36825;&#37324;&#33021;&#30475;&#21040;</span>
+    <span style="color: #AFAFAF;">token1</span> := jwt.<span style="color: #AFAFAF;">NewWithClaims</span>(jwt.SigningMethodHS256, <span style="color: #AFAFAF;">jwt.MapClaims</span>{
+        <span style="color: #FC9F4E;">"exp"</span>: time.<span style="color: #AFAFAF;">Now</span>().<span style="color: #AFAFAF;">Unix</span>() + <span style="color: #009F9F;">5</span>,
+        <span style="color: #FC9F4E;">"nbf"</span>: time.<span style="color: #AFAFAF;">Now</span>().<span style="color: #AFAFAF;">Unix</span>() - <span style="color: #009F9F;">5</span>,
+        <span style="color: #FC9F4E;">"iss"</span>: <span style="color: #FC9F4E;">"ogmc"</span>,
+        <span style="color: #FC9F4E;">"username"</span>: <span style="color: #FC9F4E;">"ogmc"</span>,
+    })
+    <span style="color: #AFAFAF;">str1</span>, <span style="color: #AFAFAF;">err1</span> := token1.<span style="color: #AFAFAF;">SignedString</span>(mySigningKey)
+    <span style="color: #BD93F9;">if</span> err1 != <span style="color: #009F9F;">nil</span> {
+        fmt.<span style="color: #AFAFAF;">Printf</span>(<span style="color: #FC9F4E;">"%s"</span>, err1)
+    }
+    fmt.<span style="color: #AFAFAF;">Println</span>(str1)
+
+    <span style="color: #AFAFAF;">token2</span>, <span style="color: #AFAFAF;">err2</span> := jwt.<span style="color: #AFAFAF;">ParseWithClaims</span>(str1, &amp;<span style="color: #AFAFAF;">jwt.MapClaims</span>{}, <span style="color: #BD93F9;">func</span>(<span style="color: #AFAFAF;">token</span> *<span style="color: #AFAFAF;">jwt.Token</span>) (<span style="color: #BD93F9;">interface</span>{}, <span style="color: #AFAFAF;">error</span>) {
+        <span style="color: #BD93F9;">return</span> mySigningKey, <span style="color: #009F9F;">nil</span>
+    })
+    <span style="color: #BD93F9;">if</span> err2 != <span style="color: #009F9F;">nil</span> {
+        fmt.<span style="color: #AFAFAF;">Printf</span>(<span style="color: #FC9F4E;">"%s"</span>, err2)
+        <span style="color: #BD93F9;">return</span>
+    }
+    fmt.<span style="color: #AFAFAF;">Println</span>(token.Claims.(*<span style="color: #AFAFAF;">jwt.MapClaims</span>))
+}
+</pre>
+</div>
+</div>
+</div>
 </div>
 </body>
 </html>
