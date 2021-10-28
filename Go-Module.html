@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-10-28 Thu 20:33 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GO MODULE</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">GO MODULE</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org39e6c38">什么是go.mod？</a></li>
+<li><a href="#org60d8dec">Modules 与传统 GOPATH 的区别</a></li>
+<li><a href="#org92dc7d5">使用 go.mod</a></li>
+<li><a href="#orgd7b9b0c">GO111MODULE</a></li>
+<li><a href="#orga3a6df2">go.mod 命令</a></li>
+<li><a href="#org439acc3">go.mod 如何在项目中使用？</a>
+<ul>
+<li><a href="#org513d7fb">1. 写一个 hello.go 文件</a></li>
+<li><a href="#org1cf9121">2. 在当前目录下运行命令行 go mod init + 模块名称 初始化模板</a></li>
+</ul>
+</li>
+<li><a href="#org67b0d10">go.sum</a></li>
+<li><a href="#org7ebb4a5">自动下载依赖包</a></li>
+<li><a href="#org36cabec">依赖的包下载到哪里了？</a></li>
+<li><a href="#org9dcaa99">如何控制依赖包的版本？</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org39e6c38" class="outline-2">
+<h2 id="org39e6c38">什么是go.mod？</h2>
+<div class="outline-text-2" id="text-org39e6c38">
+<p>
+Go.mod是Golang1.11版本新引入的官方包管理工具用于解决之前没有地方记录依赖包具体版本的问题，方便依赖包的管理。<br>
+</p>
+
+<p>
+就是一个 Modules，关于 Modules 的 <a href="https://pkg.go.dev/cmd/go#hdr-Modules__module_versions__and_more">官方定义</a> 为：<br>
+</p>
+
+<blockquote>
+<p>
+A module is a collection of packages that are released, versioned, and distributed together. Modules may be downloaded directly from version control repositories or from module proxy servers.<br>
+</p>
+
+<p>
+Modules 是相关 Go 包的集合，是源代码发行，版本控制，分布式的单元。Modules 可以直接从版本控制库或代理服务器直接下载。<br>
+</p>
+</blockquote>
+</div>
+</div>
+<div id="outline-container-org60d8dec" class="outline-2">
+<h2 id="org60d8dec">Modules 与传统 GOPATH 的区别</h2>
+<div class="outline-text-2" id="text-org60d8dec">
+<p>
+Modules和传统的GOPATH不同，不需要包含例如src，bin这样的子目录，一个源代码目录甚至是空目录都可以作为Modules，只要其中包含有go.mod文件。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org92dc7d5" class="outline-2">
+<h2 id="org92dc7d5">使用 go.mod</h2>
+<div class="outline-text-2" id="text-org92dc7d5">
+<ol class="org-ol">
+<li>首先将 go 的版本升级到 1.11 以上<br></li>
+<li>设置 GO111MODULE<br></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgd7b9b0c" class="outline-2">
+<h2 id="orgd7b9b0c">GO111MODULE</h2>
+<div class="outline-text-2" id="text-orgd7b9b0c">
+<p>
+GO111MODULE有三个值：off, on和auto。<br>
+</p>
+
+<ul class="org-ul">
+<li>GO111MODULE=off，go命令行将不会支持module功能，寻找依赖包的方式将会沿用旧版本那种通过vendor目录或者GOPATH模式来查找。<br></li>
+<li>GO111MODULE=on，go命令行会使用modules，而一点也不会去GOPATH目录下查找。<br></li>
+<li>GO111MODULE=auto，默认值，go命令行将会根据当前目录来决定是否启用module功能。<br>
+<ul class="org-ul">
+<li>当前目录在GOPATH/src之外且该目录包含go.mod文件，启用module功能。<br></li>
+<li>当前文件在包含go.mod文件的目录下面，启用module功能。<br></li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orga3a6df2" class="outline-2">
+<h2 id="orga3a6df2">go.mod 命令</h2>
+<div class="outline-text-2" id="text-orga3a6df2">
+<p>
+在使用模块的时候， GOPATH 是无意义的，不过它还是会把下载的依赖储存在 GOPATH/src/mod 中，也会把 go install 的结果放在 GOPATH/bin（如果 GOBIN 不存在的话）。<br>
+</p>
+
+<dl class="org-dl">
+<dt>go mod download</dt><dd>下载模块到本地缓存，缓存路径是 $GOPATH/pkg/mod/cache<br></dd>
+<dt>go mod edit</dt><dd>是提供了命令版编辑 go.mod 的功能，例如 go mod edit -fmt go.mod 会格式化 go.mod<br></dd>
+<dt>go mod graph</dt><dd>把模块之间的依赖图显示出来<br></dd>
+<dt>go mod init</dt><dd>初始化模块（例如把原本dep管理的依赖关系转换过来）<br></dd>
+<dt>go mod tidy</dt><dd>增加缺失的包，移除没用的包<br></dd>
+<dt>go mod vendor</dt><dd>把依赖拷贝到 vendor/ 目录下<br></dd>
+<dt>go mod verify</dt><dd>确认依赖关系<br></dd>
+<dt>go mod why</dt><dd>解释为什么需要包和模块<br></dd>
+<dt>go mod init example.com/hello</dt><dd>指定module的根目录并生成go.mod文件<br></dd>
+<dt>go build, go test</dt><dd>下载并添加依赖到go.mod文件中<br></dd>
+<dt>go list -m all</dt><dd>查看module下的所有依赖<br></dd>
+<dt>go get rec.io/sampler</dt><dd>更新稳定版依赖<br></dd>
+<dt>go mod tidy</dt><dd>清理无用的依赖<br></dd>
+<dt>go mod vendor</dt><dd>将依赖复制到路径的vendor文件夹中<br></dd>
+<dt>go build -mod=vendor</dt><dd>忽略cache里的包，只使用vendor目录里的依赖进行编译<br></dd>
+<dt>go mod verify</dt><dd>校验依赖并查看是否有修改<br></dd>
+</dl>
+
+<hr>
+
+<ul class="org-ul">
+<li><p>
+更新为指定版本依赖<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">go list -m -versions rsc.io/sampler
+
+rsc.io/sampler v1.0.0 v1.2.0 v1.2.1 v1.3.0 v1.3.1 v1.99.99
+
+go get rsc.io/sampler@v1.3.1
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org439acc3" class="outline-2">
+<h2 id="org439acc3">go.mod 如何在项目中使用？</h2>
+<div class="outline-text-2" id="text-org439acc3">
+</div>
+<div id="outline-container-org513d7fb" class="outline-3">
+<h3 id="org513d7fb">1. 写一个 hello.go 文件</h3>
+<div class="outline-text-3" id="text-org513d7fb">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #BD93F9;">package</span> main
+
+<span style="color: #BD93F9;">import</span> <span style="color: #FC9F4E;">"fmt"</span>
+
+<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">main</span>() {
+    fmt.<span style="color: #AFAFAF;">Println</span>(<span style="color: #FC9F4E;">"Hello World!"</span>)
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org1cf9121" class="outline-3">
+<h3 id="org1cf9121">2. 在当前目录下运行命令行 go mod init + 模块名称 初始化模板</h3>
+<div class="outline-text-3" id="text-org1cf9121">
+<div class="org-src-container">
+<pre class="src src-sh">go mod init hello
+</pre>
+</div>
+
+<p>
+运行完后，会在当前目录下生成一个 go.mod 文件，这是一个关键文件，之后的包管理都是通过这个文件管理。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org67b0d10" class="outline-2">
+<h2 id="org67b0d10">go.sum</h2>
+<div class="outline-text-2" id="text-org67b0d10">
+<p>
+除了 go.mod 之外，go 命令还维护了一个名为 go.sum 的文件，其中包含特定模块版本内容的预期加密哈系。<br>
+</p>
+
+<p>
+go命令使用go.sum文件确保这些模块的未来下载检索与第一次下载相同的位，以确保项目所依赖的模块不会出现意外更改，无论是出于恶意、意外还是其他原因。 go.mod和go.sum都应检入版本控制。<br>
+</p>
+
+<p>
+go.sum 不需要手工维护，所以可以不用太关注。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org7ebb4a5" class="outline-2">
+<h2 id="org7ebb4a5">自动下载依赖包</h2>
+<div class="outline-text-2" id="text-org7ebb4a5">
+<p>
+注意：子目录里是不需要init的，所有的子目录里的依赖都会组织在根目录的go.mod文件里。<br>
+</p>
+
+<p>
+现在比如修改了 hello.go 文件，按照过去的做法，要运行hello.go需要执行go get 命令 下载gorose包到 $GOPATH/src。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #BD93F9;">package</span> main
+
+<span style="color: #BD93F9;">import</span> (
+    <span style="color: #FC9F4E;">"fmt"</span>
+    <span style="color: #FC9F4E;">"gohouse/gorose"</span>
+)
+
+<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">main</span>() {
+    fmt.<span style="color: #AFAFAF;">Println</span>(<span style="color: #FC9F4E;">"Hello, world!"</span>)
+}
+</pre>
+</div>
+
+<p>
+但是使用了新的包管理就不再需要这样做了，只需要 go run hello.go，稍等片刻&#x2026; go 会自动查找代码中的包，下载未下载的依赖包，并把具体的依赖关系和版本写入到 go.mod 和 go.sum 文件中去。<br>
+</p>
+
+<p>
+查看 go.mod：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">module <span style="color: #AFAFAF;">hello</span>
+
+<span style="color: #AFAFAF;">require</span> (
+    gohouse/gorose v1.<span style="color: #009F9F;">0</span>.<span style="color: #009F9F;">5</span>
+)
+</pre>
+</div>
+
+<p>
+require 关键字是引用，后面是包，最后v1.0.5 是引用的版本号。<br>
+</p>
+
+<p>
+这样，一个使用Go包管理方式创建项目的小例子就完成了。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org36cabec" class="outline-2">
+<h2 id="org36cabec">依赖的包下载到哪里了？</h2>
+<div class="outline-text-2" id="text-org36cabec">
+<p>
+不是下载到 GOPATH 里，依赖的第三方包被下载到了 $GOPATH/pkg/mod 路径下。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9dcaa99" class="outline-2">
+<h2 id="org9dcaa99">如何控制依赖包的版本？</h2>
+<div class="outline-text-2" id="text-org9dcaa99">
+<p>
+在上一个问题里，可以看到最终下载在$GOPATH/pkg/mod 下的包中最后会有一个版本号 v1.0.5，也就是说，$GOPATH/pkg/mod里可以保存相同包的不同版本。<br>
+</p>
+
+<p>
+版本是在go.mod中指定的。如果，在go.mod中没有指定，go命令会自动下载代码中的依赖的最新版本，本例就是自动下载最新的版本。如果，在go.mod用require语句指定包和版本 ，go命令会根据指定的路径和版本下载包，<br>
+</p>
+
+<p>
+指定版本时可以用latest，这样它会自动下载指定包的最新版本；<br>
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2021-10-28 19:10 Thu</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2021-10-28 Thu 20:33</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

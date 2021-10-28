@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-10-28 Thu 23:06 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PROTOC</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">PROTOC</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgdf312a8">protobuf 在 go 项目中的基本使用</a></li>
+<li><a href="#org4baadbb">字段作废</a></li>
+<li><a href="#orgf83cd38">枚举</a>
+<ul>
+<li><a href="#orga399bab">枚举出现相同的值</a></li>
+</ul>
+</li>
+<li><a href="#org68f557c">import 包之间的引用</a></li>
+<li><a href="#orgd1e4456">oneof</a></li>
+<li><a href="#org826fdaa">四种形式的服务定义</a></li>
+<li><a href="#orgb5032b7">Go RPC 与 Protoc</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgdf312a8" class="outline-2">
+<h2 id="orgdf312a8">protobuf 在 go 项目中的基本使用</h2>
+<div class="outline-text-2" id="text-orgdf312a8">
+<ol class="org-ol">
+<li>初始化 go.mod： <code>go mod init hello</code><br></li>
+<li>在项目中创建一个 proto 文件夹用来存放项目所需要的所有的 protobuf 文件。<br></li>
+<li>在 proto 中分包，在 proto 文件夹下创建 person 文件夹，用来存储有关 person 的 protobuf。<br></li>
+<li><p>
+在 person 文件夹下创建一个 protobuf 文件。<br>
+</p>
+<img src="./images/protobuf项目结构.png" /></li>
+<li><p>
+定义一个 person 结构体。<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-go">syntax = <span style="color: #FC9F4E;">"proto3"</span>;   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#20351;&#29992; proto3 &#35299;&#35835;&#36825;&#20010; proto</span>
+
+<span style="color: #BD93F9;">package</span> person;   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#19982; go &#39033;&#30446;&#20013;&#30340; package &#26377;&#25152;&#19981;&#21516;&#65292;&#26159;&#25351; proto &#25991;&#20214;&#25152;&#22312;&#30340;&#21253;</span>
+
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">option go_package="&#21253;&#36335;&#24452;&#65288;&#20174;mod&#19979;&#24320;&#22987;&#20889;&#65289;;&#21035;&#21517;;"</span>
+option <span style="color: #AFAFAF;">go_package</span>=<span style="color: #FC9F4E;">"hello/proto/person;person"</span>;   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#30456;&#24403;&#20110;&#21035;&#21517;&#36824;&#26159; person</span>
+
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#23884;&#22871;&#65292;&#19968;&#20010;&#25151;&#23376;&#37324;&#21487;&#20197;&#26377;&#22810;&#20010;&#20154;</span>
+message <span style="color: #AFAFAF;">House</span> {
+    repeated <span style="color: #AFAFAF;">Person</span> persons = <span style="color: #009F9F;">1</span>;
+    message <span style="color: #AFAFAF;">Dog</span> {
+        string <span style="color: #AFAFAF;">name</span> = <span style="color: #009F9F;">1</span>;
+        int32 <span style="color: #AFAFAF;">age</span> = <span style="color: #009F9F;">2</span>;
+    }
+    Dog <span style="color: #AFAFAF;">dog_one</span> = <span style="color: #009F9F;">2</span>;
+}
+
+<span style="color: #7c7c7c; font-style: italic;">/* </span><span style="color: #7c7c7c; font-style: italic;">protobuf &#30340;&#27491;&#24335;&#35821;&#21477;</span>
+<span style="color: #7c7c7c; font-style: italic;"> * &#19979;&#38754;&#36825;&#27573;&#30456;&#24403;&#20110; go &#20013;&#30340;&#32467;&#26500;&#20307;</span>
+<span style="color: #7c7c7c; font-style: italic;"> * &#36981;&#24490; golang &#30340;&#35268;&#21017;&#65292;&#21464;&#37327;&#21517;&#22823;&#20889;</span>
+<span style="color: #7c7c7c; font-style: italic;"> */</span>
+message <span style="color: #AFAFAF;">Person</span> {
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#31867;&#22411;&#65292;&#32467;&#26500;&#20307;&#20013;&#30340;&#21464;&#37327;&#65292;&#21807;&#19968;&#26631;&#35782;&#31526;</span>
+    string <span style="color: #AFAFAF;">name</span> = <span style="color: #009F9F;">1</span>;
+    int32 <span style="color: #AFAFAF;">age</span> = <span style="color: #009F9F;">2</span>;
+    bool <span style="color: #AFAFAF;">sex</span> = <span style="color: #009F9F;">3</span>;
+    repeated <span style="color: #AFAFAF;">string</span> test = <span style="color: #009F9F;">4</span>;
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">map &#31532;&#19968;&#20010;&#21442;&#25968;&#21482;&#33021;&#26159; string &#25110;&#32773; int</span>
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#31532;&#20108;&#20010;&#21442;&#25968;&#37117;&#21487;&#20197;&#65292;&#29978;&#33267;&#21487;&#20197;&#36882;&#24402; map &lt;string, Person&gt; mp;</span>
+    <span style="color: #BD93F9;">map</span> &lt;string, string&gt; test_map = <span style="color: #009F9F;">5</span>;
+}
+</pre>
+</div></li>
+<li><p>
+把 proto 文件中的内容解析为数据结构<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-shell">protoc --go_out=. --go_opt=<span style="color: #AFAFAF;">paths</span>=source_relative person/person.proto  <span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&#25226; person &#30446;&#24405;&#19979;&#30340; person.proto &#25991;&#20214;&#20013;&#30340;&#20869;&#23481;&#35299;&#26512;&#20026;&#25968;&#25454;&#32467;&#26500;&#65292;&#36755;&#20986;&#30340; go &#25991;&#20214;&#22312; person &#30446;&#24405;&#19979;</span>
+</pre>
+</div>
+
+<img src="./images/proto生成go文件.png" />
+
+<img src="./images/proto生成的go文件.png" /></li>
+<li><p>
+查看生成的 go 文件<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">protobuf &#30340;&#27491;&#24335;&#35821;&#21477;</span>
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#19979;&#38754;&#36825;&#27573;&#30456;&#24403;&#20110; go &#20013;&#30340;&#32467;&#26500;&#20307;</span>
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#36981;&#24490; golang &#30340;&#35268;&#21017;&#65292;&#21464;&#37327;&#21517;&#22823;&#20889;</span>
+<span style="color: #BD93F9;">type</span> <span style="color: #AFAFAF;">Person</span> <span style="color: #BD93F9;">struct</span> {
+    state         <span style="color: #AFAFAF;">protoimpl.MessageState</span>
+    sizeCache     <span style="color: #AFAFAF;">protoimpl.SizeCache</span>
+    unknownFields <span style="color: #AFAFAF;">protoimpl.UnknownFields</span>
+
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#31867;&#22411;&#65292;&#32467;&#26500;&#20307;&#20013;&#30340;&#21464;&#37327;&#65292;&#21807;&#19968;&#26631;&#35782;&#31526;</span>
+    Name <span style="color: #AFAFAF;">string</span>   <span style="color: #FC9F4E;">`protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`</span>
+    Age  <span style="color: #AFAFAF;">int32</span>    <span style="color: #FC9F4E;">`protobuf:"varint,2,opt,name=age,proto3" json:"age,omitempty"`</span>
+    Sex  <span style="color: #AFAFAF;">bool</span>     <span style="color: #FC9F4E;">`protobuf:"varint,3,opt,name=sex,proto3" json:"sex,omitempty"`</span>
+    Test []<span style="color: #AFAFAF;">string</span> <span style="color: #FC9F4E;">`protobuf:"bytes,4,rep,name=test,proto3" json:"test,omitempty"`</span>
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">map &#31532;&#19968;&#20010;&#21442;&#25968;&#21482;&#33021;&#26159; string &#25110;&#32773; int</span>
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#31532;&#20108;&#20010;&#21442;&#25968;&#37117;&#21487;&#20197;&#65292;&#29978;&#33267;&#21487;&#20197;&#36882;&#24402; map &lt;string, Person&gt; mp;</span>
+    TestMap <span style="color: #BD93F9;">map</span>[<span style="color: #AFAFAF;">string</span>]<span style="color: #AFAFAF;">string</span> <span style="color: #FC9F4E;">`protobuf:"bytes,5,rep,name=test_map,json=testMap,proto3" json:"test_map,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`</span>
+}
+</pre>
+</div>
+
+<p>
+这段是 person 结构，注释也保留了下来。<br>
+</p></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-org4baadbb" class="outline-2">
+<h2 id="org4baadbb">字段作废</h2>
+<div class="outline-text-2" id="text-org4baadbb">
+<div class="org-src-container">
+<pre class="src src-go">message <span style="color: #AFAFAF;">Person</span> {
+    string <span style="color: #AFAFAF;">name</span> = <span style="color: #009F9F;">1</span>;
+    int32 <span style="color: #AFAFAF;">age</span> = <span style="color: #009F9F;">2</span>;
+    bool <span style="color: #AFAFAF;">sex</span> = <span style="color: #009F9F;">3</span>;
+    repeated <span style="color: #AFAFAF;">string</span> test = <span style="color: #009F9F;">4</span>;
+    <span style="color: #BD93F9;">map</span> &lt;string, string&gt; test_map = <span style="color: #009F9F;">5</span>;
+
+    reserved <span style="color: #FC9F4E;">"test_map"</span>, <span style="color: #FC9F4E;">"test_string"</span>;   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#23558;&#36825;&#20123;&#23383;&#27573;&#20445;&#30041;</span>
+    reserved <span style="color: #009F9F;">6</span>;   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#36824;&#21487;&#20197;&#20445;&#30041;&#21807;&#19968;&#26631;&#35782;</span>
+}
+</pre>
+</div>
+
+<img src="./images/proto字段作废.png" />
+</div>
+</div>
+<div id="outline-container-orgf83cd38" class="outline-2">
+<h2 id="orgf83cd38">枚举</h2>
+<div class="outline-text-2" id="text-orgf83cd38">
+<div class="org-src-container">
+<pre class="src src-go">message <span style="color: #AFAFAF;">Person</span> {
+    string <span style="color: #AFAFAF;">name</span> = <span style="color: #009F9F;">1</span>;
+    int32 <span style="color: #AFAFAF;">age</span> = <span style="color: #009F9F;">2</span>;
+    bool <span style="color: #AFAFAF;">sex</span> = <span style="color: #009F9F;">3</span>;
+    repeated <span style="color: #AFAFAF;">string</span> test = <span style="color: #009F9F;">4</span>;
+    <span style="color: #BD93F9;">map</span> &lt;string, string&gt; test_map = <span style="color: #009F9F;">5</span>;
+
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#26522;&#20030;&#31867;&#22411;&#19968;&#23450;&#35201;&#26377;&#19968;&#20010; 0 &#20540;</span>
+    enum <span style="color: #AFAFAF;">Hobby</span> {
+        PingPong = <span style="color: #009F9F;">0</span>;
+        Badminton = <span style="color: #009F9F;">1</span>;
+        Tennis = <span style="color: #009F9F;">2</span>;
+        Swim = <span style="color: #009F9F;">3</span>;
+    }
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#23450;&#20041;&#19968;&#20010;&#26522;&#20030;&#31867;&#22411;&#21518;&#20351;&#29992;&#23427;</span>
+    Hobby <span style="color: #AFAFAF;">hobby</span> = <span style="color: #009F9F;">7</span>;
+}
+</pre>
+</div>
+
+<img src="./images/proto枚举.png" />
+
+<p>
+golang 并没有枚举，这里是一个假枚举。<br>
+</p>
+</div>
+<div id="outline-container-orga399bab" class="outline-3">
+<h3 id="orga399bab">枚举出现相同的值</h3>
+<div class="outline-text-3" id="text-orga399bab">
+<div class="org-src-container">
+<pre class="src src-go">enum <span style="color: #AFAFAF;">Hobby</span> {
+    PingPong = <span style="color: #009F9F;">0</span>;
+    Badminton = <span style="color: #009F9F;">1</span>;
+    Tennis = <span style="color: #009F9F;">2</span>;
+    Swim = <span style="color: #009F9F;">3</span>;
+    Soccer = <span style="color: #009F9F;">4</span>;
+    Football = <span style="color: #009F9F;">4</span>;
+}
+</pre>
+</div>
+
+<img src="./images/proto枚举使用相同的值.png" />
+
+<p>
+这时编译会出错，按提示我们需要设置 <code>option allow_alias = true;</code><br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">enum <span style="color: #AFAFAF;">Hobby</span> {
+    option <span style="color: #AFAFAF;">allow_alias</span> = <span style="color: #009F9F;">true</span>;
+    PingPong = <span style="color: #009F9F;">0</span>;
+    Badminton = <span style="color: #009F9F;">1</span>;
+    Tennis = <span style="color: #009F9F;">2</span>;
+    Swim = <span style="color: #009F9F;">3</span>;
+    Soccer = <span style="color: #009F9F;">4</span>;
+    Football = <span style="color: #009F9F;">4</span>;
+}
+</pre>
+</div>
+
+<p>
+其实是忽略了相同的key。<br>
+</p>
+<img src="./images/proto枚举忽略允许的相同的值.png" />
+</div>
+</div>
+</div>
+<div id="outline-container-org68f557c" class="outline-2">
+<h2 id="org68f557c">import 包之间的引用</h2>
+<div class="outline-text-2" id="text-org68f557c">
+<ol class="org-ol">
+<li><p>
+首先新建一个包<br>
+</p>
+<img src="./images/proto新建一个包.png" /></li>
+<li><p>
+在 person.proto 中引用<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #BD93F9;">import</span> <span style="color: #FC9F4E;">"pet/pet.proto"</span>;   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#24341;&#29992; pet &#21253;</span>
+
+message <span style="color: #AFAFAF;">House</span> {
+    repeated <span style="color: #AFAFAF;">Person</span> persons = <span style="color: #009F9F;">1</span>;
+    <span style="color: #7c7c7c; font-style: italic;">/*</span>
+<span style="color: #7c7c7c; font-style: italic;">        message Dog {</span>
+<span style="color: #7c7c7c; font-style: italic;">                string name = 1;</span>
+<span style="color: #7c7c7c; font-style: italic;">                int32 age = 2;</span>
+<span style="color: #7c7c7c; font-style: italic;">        }</span>
+<span style="color: #7c7c7c; font-style: italic;">        Dog dog_one = 2;</span>
+<span style="color: #7c7c7c; font-style: italic;">    */</span>
+    pet.Dog <span style="color: #AFAFAF;">dog_one</span> = <span style="color: #009F9F;">2</span>;   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#20351;&#29992; pet &#21253;&#19979;&#38754;&#30340; Dog &#32467;&#26500;</span>
+}
+</pre>
+</div></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgd1e4456" class="outline-2">
+<h2 id="orgd1e4456">oneof</h2>
+</div>
+<div id="outline-container-org826fdaa" class="outline-2">
+<h2 id="org826fdaa">四种形式的服务定义</h2>
+</div>
+<div id="outline-container-orgb5032b7" class="outline-2">
+<h2 id="orgb5032b7">Go RPC 与 Protoc</h2>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2021-09-18 13:09 六</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2021-10-28 Thu 23:06</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

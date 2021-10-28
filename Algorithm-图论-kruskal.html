@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-10-21 Thu 19:43 -->
+<!-- 2021-10-28 Thu 11:25 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>KRUSKAL</title>
@@ -13,19 +13,70 @@
                 <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
                 <script type="module" src="static/js/main.js" defer></script>
                 <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
 </head>
 <body>
 <div id="content">
 <h1 class="title">KRUSKAL</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgde0e1c5">算法内容</a></li>
+<li><a href="#org6ce3080">算法流程</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgde0e1c5" class="outline-2">
+<h2 id="orgde0e1c5">算法内容</h2>
+<div class="outline-text-2" id="text-orgde0e1c5">
 <p>
-算法步骤：<br>
+\(Krustal\) 算法总是维护无向图的最小生成森林，最初认为生成森林由零条边构成，每个节点各自构成一棵仅包含一个点的树。<br>
 </p>
+
+<p>
+在任意时刻，\(Kruskal\) 算法从剩余的边中选出一条权值最小的，并且这条边的两个断点属于生成森林中两棵不同的树（不连通），把该边加入生成森林。图中节点的连通情况可以用 <a href="Algorithm-数据结构-并查集.html">并查集</a> 维护。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org6ce3080" class="outline-2">
+<h2 id="org6ce3080">算法流程</h2>
+<div class="outline-text-2" id="text-org6ce3080">
 <ol class="org-ol">
-<li>将所有边按边权从小到大排序<br></li>
-<li>按边权从小到大测试所有边，如果当前测试边所连接的两个顶点不再同一个连通块中，则把这条边加入到当前最小生成树中，否则，将边舍去<br></li>
-<li>重复执行步骤2，直到生成树的边数等于总顶点数减一或是测试完所有的边<br></li>
-<li>结束时如果最小生成树的边数小于总顶点数减一，说明该图不连通<br></li>
+<li>建立并查集，每个点各自构成一个集合<br></li>
+<li>把所有边按照权值从小到大排序，一次扫描每条边 \((x, y, z)\)。<br></li>
+<li>若 \(x, y\) 属于同一个集合（连通），则忽略这条边，继续扫描下一条。<br></li>
+<li>否则，合并 \(x, y\) 所在的集合，并把 \(z\) 累加到答案中<br></li>
+<li>所有边扫描完成后，所有在第 \(4\) 步中处理过的边就构成最小生成树。<br></li>
 </ol>
+
+<p>
+时间复杂度是 \(O(mlogm)\)。<br>
+</p>
+</div>
+</div>
 </div>
 </body>
 </html>

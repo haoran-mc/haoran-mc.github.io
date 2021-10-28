@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-10-26 Tue 20:18 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CF-747-2</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">CF-747-2</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org4d35ae5">A - Consecutive Sum Riddle</a></li>
+<li><a href="#orgc4191f0">B - Special Numbers</a></li>
+<li><a href="#org52508c0">C - Make Them Equal</a></li>
+<li><a href="#orgb171a60">E1 - Rubik's Cube Coloring(easy version)</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org4d35ae5" class="outline-2">
+<h2 id="org4d35ae5">A - Consecutive Sum Riddle</h2>
+<div class="outline-text-2" id="text-org4d35ae5">
+<p>
+从 \(- n + 1\) 加到 \(n\)。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-cpp"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cstdio&gt;</span>
+<span style="color: #BD93F9;">typedef</span> <span style="color: #AFAFAF;">long</span> <span style="color: #AFAFAF;">long</span> <span style="color: #AFAFAF;">ll</span>;
+
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
+    <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">t</span>; scanf(<span style="color: #FC9F4E;">"%d"</span>, &amp;t);
+    <span style="color: #BD93F9;">while</span> (t -- ) {
+        <span style="color: #AFAFAF;">ll</span> <span style="color: #AFAFAF;">n</span>; scanf(<span style="color: #FC9F4E;">"%lld"</span>, &amp;n);
+        printf(<span style="color: #FC9F4E;">"%lld %lld\n"</span>, <span style="color: #009F9F;">1</span> - n, n);
+    }
+    <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">0</span>;
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgc4191f0" class="outline-2">
+<h2 id="orgc4191f0">B - Special Numbers</h2>
+<div class="outline-text-2" id="text-orgc4191f0">
+<p>
+使用二进制解决。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-cpp"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cstdio&gt;</span>
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;vector&gt;</span>
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cmath&gt;</span>
+<span style="color: #BD93F9;">using</span> <span style="color: #BD93F9;">namespace</span> <span style="color: #009F9F;">std</span>;
+<span style="color: #BD93F9;">typedef</span> <span style="color: #AFAFAF;">long</span> <span style="color: #AFAFAF;">long</span> <span style="color: #AFAFAF;">ll</span>;
+<span style="color: #AFAFAF;">vector</span>&lt;<span style="color: #AFAFAF;">int</span>&gt; <span style="color: #AFAFAF;">vec</span>;
+<span style="color: #BD93F9;">const</span> <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">MOD</span> = <span style="color: #009F9F;">1e9</span> + <span style="color: #009F9F;">7</span>;
+<span style="color: #009F9F;">#define</span> <span style="color: #AFAFAF;">NEXTLINE</span> puts(<span style="color: #FC9F4E;">""</span>);
+
+<span style="color: #AFAFAF;">void</span> <span style="color: #AFAFAF;">base10To2</span>(<span style="color: #AFAFAF;">ll</span> <span style="color: #AFAFAF;">k</span>) {
+    <span style="color: #BD93F9;">while</span> (k) {
+        vec.push_back(k % <span style="color: #009F9F;">2</span>);
+        k /= <span style="color: #009F9F;">2</span>;
+    }
+}
+
+<span style="color: #AFAFAF;">ll</span> <span style="color: #AFAFAF;">binPow</span>(<span style="color: #AFAFAF;">ll</span> <span style="color: #AFAFAF;">base</span>, <span style="color: #AFAFAF;">ll</span> <span style="color: #AFAFAF;">expo</span>) {
+    <span style="color: #AFAFAF;">ll</span> <span style="color: #AFAFAF;">res</span> = <span style="color: #009F9F;">1</span>;
+    <span style="color: #BD93F9;">while</span> (expo) {
+        <span style="color: #BD93F9;">if</span> (expo &amp; <span style="color: #009F9F;">1</span>)
+            res = (<span style="color: #009F9F;">1LL</span> * res * base) % MOD;
+        base = (<span style="color: #009F9F;">1LL</span> * base * base) % MOD;
+        <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#20063;&#23601;&#26159;base&#20998;&#21035;&#26159;2, 4, 8, 16, ...</span>
+        expo &gt;&gt;= <span style="color: #009F9F;">1</span>;
+    }
+    <span style="color: #BD93F9;">return</span> res % MOD;
+}
+
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
+    <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">t</span>; scanf(<span style="color: #FC9F4E;">"%d"</span>, &amp;t);
+    <span style="color: #BD93F9;">while</span> (t -- ) {
+        <span style="color: #AFAFAF;">ll</span> <span style="color: #AFAFAF;">n</span>, <span style="color: #AFAFAF;">k</span>;
+        scanf(<span style="color: #FC9F4E;">"%lld %lld"</span>, &amp;n, &amp;k);
+        base10To2(k);
+        <span style="color: #AFAFAF;">ll</span> <span style="color: #AFAFAF;">res</span> = <span style="color: #009F9F;">0</span>;
+        <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">0</span>; i &lt; vec.size(); ++ i) {
+            <span style="color: #BD93F9;">if</span> (vec[i])
+                res += binPow(n, (<span style="color: #AFAFAF;">ll</span>)i);
+            res %= MOD;
+        }
+        printf(<span style="color: #FC9F4E;">"%lld\n"</span>, res);
+        vec.clear();
+    }
+    <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">0</span>;
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org52508c0" class="outline-2">
+<h2 id="org52508c0">C - Make Them Equal</h2>
+<div class="outline-text-2" id="text-org52508c0">
+<p>
+实际上只要看后半段，如果字符串中有字符 \(c\) 那么就选这个位置。否则就选择 \(n - 1, n\) 两个位置。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-cpp"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cstdio&gt;</span>
+<span style="color: #009F9F;">#define</span> <span style="color: #AFAFAF;">bug</span> printf(<span style="color: #FC9F4E;">"&lt;--&gt;\n"</span>);
+<span style="color: #BD93F9;">const</span> <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">maxn</span> = <span style="color: #009F9F;">3e5</span> + <span style="color: #009F9F;">5</span>;
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
+    <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">t</span>; scanf(<span style="color: #FC9F4E;">"%d"</span>, &amp;t);
+    <span style="color: #BD93F9;">while</span> (t -- ) {
+        <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">n</span>;
+        <span style="color: #AFAFAF;">char</span> <span style="color: #AFAFAF;">ch</span>[<span style="color: #009F9F;">2</span>];
+        scanf(<span style="color: #FC9F4E;">"%d %s"</span>, &amp;n, ch);
+        <span style="color: #AFAFAF;">char</span> <span style="color: #AFAFAF;">str</span>[maxn];
+        scanf(<span style="color: #FC9F4E;">"%s"</span>, str);
+        <span style="color: #AFAFAF;">bool</span> <span style="color: #AFAFAF;">f</span> = <span style="color: #009F9F;">false</span>;
+        <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">0</span>; i &lt; n; ++ i)
+            <span style="color: #BD93F9;">if</span> (str[i] != *ch) {
+                f = <span style="color: #009F9F;">true</span>;
+                <span style="color: #BD93F9;">break</span>;
+            }
+        <span style="color: #BD93F9;">if</span> (!f) {
+            printf(<span style="color: #FC9F4E;">"0\n"</span>);
+            <span style="color: #BD93F9;">continue</span>;
+        }
+        f = <span style="color: #009F9F;">false</span>;
+        <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = n / <span style="color: #009F9F;">2</span>; i &lt; n; ++ i)
+            <span style="color: #BD93F9;">if</span> (str[i] == *ch) {
+                f = <span style="color: #009F9F;">true</span>;
+                printf(<span style="color: #FC9F4E;">"%d\n%d\n"</span>, <span style="color: #009F9F;">1</span>, i + <span style="color: #009F9F;">1</span>);
+                <span style="color: #BD93F9;">break</span>;
+            }
+        <span style="color: #BD93F9;">if</span> (!f)
+            printf(<span style="color: #FC9F4E;">"%d\n%d %d\n"</span>, <span style="color: #009F9F;">2</span>, n - <span style="color: #009F9F;">1</span>, n);
+    }
+    <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">0</span>;
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb171a60" class="outline-2">
+<h2 id="orgb171a60">E1 - Rubik's Cube Coloring(easy version)</h2>
+<div class="outline-text-2" id="text-orgb171a60">
+<p>
+推公式。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-cpp"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cstdio&gt;</span>
+<span style="color: #BD93F9;">typedef</span> <span style="color: #AFAFAF;">long</span> <span style="color: #AFAFAF;">long</span> <span style="color: #AFAFAF;">ll</span>;
+<span style="color: #BD93F9;">const</span> <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">MOD</span> = <span style="color: #009F9F;">1e9</span> + <span style="color: #009F9F;">7</span>;
+
+<span style="color: #AFAFAF;">ll</span> <span style="color: #AFAFAF;">work</span>(<span style="color: #AFAFAF;">ll</span> <span style="color: #AFAFAF;">base</span>) {
+    base %= MOD;
+    <span style="color: #BD93F9;">return</span> base * base % MOD;
+}
+
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
+    <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">k</span>; scanf(<span style="color: #FC9F4E;">"%d"</span>, &amp;k);
+    <span style="color: #AFAFAF;">ll</span> <span style="color: #AFAFAF;">idx</span> = k - <span style="color: #009F9F;">1</span>, <span style="color: #AFAFAF;">base</span> = <span style="color: #009F9F;">1</span>;
+    <span style="color: #BD93F9;">while</span> (idx -- )
+        base = work(base * <span style="color: #009F9F;">4</span>);
+    base = base * <span style="color: #009F9F;">6</span> % MOD;
+    printf(<span style="color: #FC9F4E;">"%lld\n"</span>, base);
+    <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">0</span>;
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2021-10-26 16:10 Tue</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2021-10-26 Tue 20:18</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

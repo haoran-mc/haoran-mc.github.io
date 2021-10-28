@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-09-30 四 03:22 -->
+<!-- 2021-10-28 Thu 16:49 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>区间DP</title>
@@ -13,6 +13,28 @@
                 <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
                 <script type="module" src="static/js/main.js" defer></script>
                 <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
 </head>
 <body>
 <div id="content">
@@ -21,28 +43,88 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
+<li><a href="#org14e3aeb">石子合并</a></li>
 <li><a href="#orgbd13114">最长回文字串</a></li>
 </ul>
 </div>
 </div>
 
+<div id="outline-container-org14e3aeb" class="outline-2">
+<h2 id="org14e3aeb">石子合并</h2>
+<div class="outline-text-2" id="text-org14e3aeb">
+<p>
+有 \(n\) 堆石子排成一排，其编号为 \(1, 2, 3, \dots, n\)，每堆石子有一定的质量，可以用一个整数表示，要将这 \(n\) 堆石子合并为一堆，每次合并只能合并相邻的的两堆，合并的代价为这两堆石子的质量之和，合并后与这两堆石子相邻的石子将和新堆相邻，合并时由于选择顺序不同，合并的总代价也不同，计算最小的合并为一堆的代价。<br>
+</p>
 
+<p>
+状态表示：\(dp[i][j]\) 表示将区间 \([i, j]\) 内的石子合并为一堆的最小代价。<br>
+</p>
+
+<p>
+状态转移方程：\(dp[i][j] = dp[i][k] + dp[k + 1][j] + (preS[j] - preS[i - 1])\)。<br>
+</p>
+
+<p>
+\(preS[]\) 是 <a href="Algorithm-算法基础-前缀和&amp;差分.html">前缀和</a>。<br>
+</p>
+
+<p>
+如果要将 \(i \sim j\) 的石子合并，无论期间的合并过程是什么样的，最后一次合并一定是合并左右两堆的石子。<br>
+</p>
+
+<pre class="example" id="orgb0fdeb8">
+|--------------|-----------------|
+left_stone             right_stone
+</pre>
+
+<p>
+而且左右两堆的合并互不影响，那么我们就可以枚举 \(k\) 从 \(i + 1\) 到 \(j - 1\)，计算出代价最小时 \(k\) 的值。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-cpp"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cstdio&gt;</span>
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;algorithm&gt;</span>
+<span style="color: #BD93F9;">using</span> <span style="color: #BD93F9;">namespace</span> <span style="color: #009F9F;">std</span>;
+<span style="color: #BD93F9;">const</span> <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">maxn</span> = <span style="color: #009F9F;">300</span> + <span style="color: #009F9F;">5</span>;
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">preS</span>[maxn], <span style="color: #AFAFAF;">dp</span>[maxn][maxn];
+<span style="color: #BD93F9;">const</span> <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">INF</span> = <span style="color: #009F9F;">0x3f3f3f3f</span>;
+
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
+    <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">n</span>; scanf(<span style="color: #FC9F4E;">"%d"</span>, &amp;n);
+    <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">1</span>; i &lt;= n; ++ i) {
+        scanf(<span style="color: #FC9F4E;">"%d"</span>, &amp;preS[i]);
+        preS[i] += preS[i - <span style="color: #009F9F;">1</span>];
+    }
+    <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">len</span> = <span style="color: #009F9F;">2</span>; len &lt;= n; ++ len)
+        <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">1</span>; i + len - <span style="color: #009F9F;">1</span> &lt;= n; ++ i) {
+            <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">j</span> = i + len - <span style="color: #009F9F;">1</span>;
+            dp[i][j] = INF;
+            <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">k</span> = i; k &lt; j; ++ k)
+                dp[i][j] = min(dp[i][j], dp[i][k] + dp[k + <span style="color: #009F9F;">1</span>][j] + preS[j] - preS[i - <span style="color: #009F9F;">1</span>]);
+        }
+    printf(<span style="color: #FC9F4E;">"%d\n"</span>, dp[<span style="color: #009F9F;">1</span>][n]);
+    <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">0</span>;
+}
+</pre>
+</div>
+</div>
+</div>
 <div id="outline-container-orgbd13114" class="outline-2">
 <h2 id="orgbd13114">最长回文字串</h2>
 <div class="outline-text-2" id="text-orgbd13114">
 <ul class="org-ul">
-<li>dp[i][j]表示str[i]至str[j]所表示的子串是否是回文子串，是则为1，不是为0，根据str[i]是否等于str[j]
+<li>dp[i][j]表示str[i]至str[j]所表示的子串是否是回文子串，是则为1，不是为0，根据str[i]是否等于str[j]<br>
 <ul class="org-ul">
-<li>若str[i] == str[j]，那么只要str[i+1]至str[j-1]是回文子串，str[i]至str[j]就是回文子串，如果str[i+1]至str[j-1]不是回文子串，则str[i]至str[j]也不是回文子串</li>
-<li>若str[i] != str[j]，那么str[i]至str[j]一定不是回文子串</li>
-<li>动态转移方程：
+<li>若str[i] == str[j]，那么只要str[i+1]至str[j-1]是回文子串，str[i]至str[j]就是回文子串，如果str[i+1]至str[j-1]不是回文子串，则str[i]至str[j]也不是回文子串<br></li>
+<li>若str[i] != str[j]，那么str[i]至str[j]一定不是回文子串<br></li>
+<li>动态转移方程：<br>
 <ul class="org-ul">
-<li>dp[i][j] = dp[i+1][j-1]    (str[i] == str[j])</li>
-<li>dp[i][j] = 0               (str[i] != str[j])</li>
-<li>边界dp[i][i] = 1; dp[i][i+1] = (str[i] == str[j])?1:0</li>
-<li>但是如果按照i和j从小到大的顺序来枚举子串的两个端点，然后更新dp[i][j]，会无法保证dp[i+1][j-1]已经被计算过，从而无法得到正确的dp[i][j]</li>
+<li>dp[i][j] = dp[i+1][j-1]    (str[i] == str[j])<br></li>
+<li>dp[i][j] = 0               (str[i] != str[j])<br></li>
+<li>边界dp[i][i] = 1; dp[i][i+1] = (str[i] == str[j])?1:0<br></li>
+<li>但是如果按照i和j从小到大的顺序来枚举子串的两个端点，然后更新dp[i][j]，会无法保证dp[i+1][j-1]已经被计算过，从而无法得到正确的dp[i][j]<br></li>
 </ul></li>
-<li>所以这种方法不行，观察看到转移方程按子串的长度逐渐减少，所以考虑按子串的长度和子串的初始位置进行枚举</li>
+<li>所以这种方法不行，观察看到转移方程按子串的长度逐渐减少，所以考虑按子串的长度和子串的初始位置进行枚举<br></li>
 </ul></li>
 </ul>
 </div>
