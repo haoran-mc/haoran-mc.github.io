@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-10-28 Thu 16:59 -->
+<!-- 2021-10-31 Sun 22:01 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>计数DP</title>
@@ -13,6 +13,28 @@
                 <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
                 <script type="module" src="static/js/main.js" defer></script>
                 <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
 </head>
 <body>
 <div id="content">
@@ -24,6 +46,7 @@
 <li><a href="#orgfdc578e">整数划分</a>
 <ul>
 <li><a href="#org8151903">完全背包</a></li>
+<li><a href="#org29575e0">计数DP</a></li>
 </ul>
 </li>
 </ul>
@@ -33,16 +56,104 @@
 <div id="outline-container-orgfdc578e" class="outline-2">
 <h2 id="orgfdc578e">整数划分</h2>
 <div class="outline-text-2" id="text-orgfdc578e">
+<p>
+一个正整数 \(n\) 可以表示成若干个正整数之和，形如：\(n = n_1 + n_2 + \dots + n_k\)，其中 \(n_1 \geq n_2 \geq \dots \geq n_k, k \geq 1\)。<br>
+</p>
+
+<p>
+我们将这样的一种表示称为正整数 \(n\) 的一种划分。<br>
+</p>
+
+<p>
+现在给定一个正整数 \(n\)，请你求出 \(n\) 共有多少种不同的划分方法。<br>
+</p>
+
+<p>
+例如给出一个正整数 \(5\)。<br>
+</p>
+
+<p>
+可以划分为：<br>
+</p>
+<pre class="example" id="orgf8a99b1">
+5 = 5
+5 = 4 + 1
+5 = 3 + 2
+5 = 3 + 1 + 1
+5 = 2 + 2 + 1
+5 = 2 + 1 + 1 + 1
+5 = 1 + 1 + 1 + 1 + 1
+</pre>
 </div>
 <div id="outline-container-org8151903" class="outline-3">
 <h3 id="org8151903">完全背包</h3>
+<div class="outline-text-3" id="text-org8151903">
+<p>
+看成有一个体积为 \(n\) 的背包和体积分别为 \(1, 2, 3, \dots, n\) 的 \(n\) 种物品，物品的数量不限，问装满这个背包的选法有多少种。<br>
+</p>
+
+<p>
+状态表示：\(dp[i][j]\)：从 \(1 \sim i\) 的物品中恰好选出体积为 \(j\) 的选法的数量。<br>
+</p>
+
+<p>
+状态转移：\(dp[i][j] = dp[i - 1][j] + dp[i - 1][j - i] + dp[i - 1][j - 2i] + dp[i - 1][j - 3i] + \dots + dp[i - 1][j - si], (si \leq j)\)<br>
+</p>
+
+<p>
+即：<br>
+</p>
+<dl class="org-dl">
+<dt>\(dp[i - 1][j]\)</dt><dd>从 \(1 \sim i - 1\) 的物品中恰好选出体积为 \(j\) 的选法的数量。<br></dd>
+<dt>\(dp[i - 1][j - i]\)</dt><dd>从 \(1 \sim i - 1\) 的物品中恰好选出体积为 \(j - i\) 的选法的数量。<br></dd>
+<dt>\(dp[i - 1][j - 2i]\)</dt><dd>从 \(1 \sim i - 1\) 的物品中恰好选出体积为 \(j - 2i\) 的选法的数量。<br></dd>
+<dt>\(\dots\)</dt><dd>\(\dots\)<br></dd>
+<dt>\(dp[i - 1][j - si]\)</dt><dd>从 \(1 \sim i - 1\) 的物品中恰好选出体积为 \(j - si\) 的选法的数量。<br></dd>
+</dl>
+
+<p>
+又有：\(dp[i][j - i] = dp[i - 1][j - i] + dp[i - 1][j - 2i] + dp[i - 1][j - 3i] + \dots + dp[i - 1][j - si]\)<br>
+</p>
+
+<p>
+所以：\(dp[i][j] = dp[i - 1][j] + dp[i][j - i]\)<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org29575e0" class="outline-3">
+<h3 id="org29575e0">计数DP</h3>
+<div class="outline-text-3" id="text-org29575e0">
+<p>
+直接给出状态表示：\(dp[i][j]\)：所有总和是 \(i\)，并且恰好表示成 \(j\) 个数的和的方案数量。<br>
+</p>
+
+<p>
+分为两种情况：<br>
+</p>
+<ol class="org-ol">
+<li>这 \(j\) 个数中最小值是 \(1\)，那么把这个 \(1\) 给去掉，就有 \(j - 1\) 个数的总和是 \(i - 1\)。<br></li>
+<li>这 \(j\) 个数中最小值不是 \(1\)，那么把这 \(j\) 个数都减 \(1\)，就还是 \(j\) 个数，总和变成了 \(i - j\)。<br></li>
+</ol>
+
+<p>
+显然所有的数的组合都被这两种情况所涵盖，且不重合。<br>
+</p>
+
+<p>
+就有：\(dp[i][j] = dp[i - 1][j - 1] + dp[i - j][j];\)<br>
+</p>
+
+<p>
+最后的结果是 \(dp[n][1] + dp[n][2] + \dots + dp[n][n]\)。<br>
+</p>
+</div>
 </div>
 </div>
 </div>
 <div id="postamble" class="status">
 <p class="date">Date: 2021-10-28 16:10 Thu</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2021-10-28 Thu 16:59</p>
+<p class="date">Created: 2021-10-31 Sun 22:01</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

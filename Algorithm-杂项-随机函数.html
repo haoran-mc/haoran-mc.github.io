@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-09-30 四 16:18 -->
+<!-- 2021-10-30 Sat 17:46 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>随机函数</title>
@@ -13,6 +13,28 @@
                 <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
                 <script type="module" src="static/js/main.js" defer></script>
                 <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
 </head>
 <body>
 <div id="content">
@@ -39,15 +61,71 @@
 <h2 id="org20f1713">随机函数</h2>
 <div class="outline-text-2" id="text-org20f1713">
 <p>
-要想使用随机化技巧，前提条件是能够快速生成随机数说一个单独的数是“随机数”是无意义的，所以以下我们都默认讨论“随机数列”，即使提到“随机数”，指的也是“随机数列中的一个元素”现有的计算机的运算过程都是确定性的，因此，仅凭借算法来生成真正 不可预测、不可重复 的随机数列是不可能的然而在绝大部分情况下，我们都不需要如此强的随机性，而只需要所生成的数列在统计学上具有随机数列的种种特征(比如均匀分布、互相独立等等)，这样的数列即称为 伪随机数序列
+要想使用随机化技巧，前提条件是能够快速生成随机数。<br>
+</p>
+
+<p>
+说一个单独的数是“随机数”是无意义的，所以以下我们都默认讨论“随机数列”，即使提到“随机数”，指的也是“随机数列中的一个元素”。<br>
+</p>
+
+<p>
+现有的计算机的运算过程都是确定性的，因此，仅凭借算法来生成真正 不可预测、不可重复 的随机数列是不可能的。<br>
+</p>
+
+<p>
+然而在绝大部分情况下，我们都不需要如此强的随机性，而只需要所生成的数列在统计学上具有随机数列的种种特征(比如均匀分布、互相独立等等)，这样的数列即称为 伪随机数序列。<br>
 </p>
 </div>
 <div id="outline-container-org1dec8da" class="outline-3">
 <h3 id="org1dec8da">rand</h3>
 <div class="outline-text-3" id="text-org1dec8da">
 <p>
-用于生成伪随机数，缺点是比较慢，使用时需要 #include &lt;cstdlib&gt;
-调用rand()函数会返回一个 [0,RAND_MAX] 中的随机非负整数，其中RAND_MAX是标准库中的一个宏，在 Linux 系统下 RAND_MAX 等于2^31-1。可以用取模来限制所生成的数的大小使用rand()需要一个随机数种子，可以使用srand(seed)函数来将随机种子更改为seed，当然不初始化也是可以的同一程序使用相同的seed两次运行，在同一机器、同一编译器下，随机出的结果将会是相同的有一个选择是使用当前系统时间来作为随机种子：srand(time(0))
+用于生成伪随机数，缺点是比较慢，使用时需要 <code>#include &lt;cstdlib&gt;</code> 。<br>
+</p>
+
+<p>
+调用 <code>rand()</code> 函数会返回一个 <code>[0, RAND_MAX]</code> 中的随机非负整数，其中 <code>RAND_MAX</code> 是标准库中的一个宏，在 <code>Linux</code> 系统下 <code>RAND_MAX</code> 等于 <code>2^31-1</code> 。可以用取模来限制所生成的数的大小。<br>
+</p>
+
+<p>
+使用 <code>rand()</code> 需要一个随机数种子，可以使用 <code>srand(seed)</code> 函数来将随机种子更改为 <code>seed</code> ，当然不初始化也是可以的。<br>
+</p>
+
+<p>
+同一程序使用相同的 <code>seed</code> 两次运行，在同一机器、同一编译器下，随机出的结果将会是相同的。<br>
+</p>
+
+<p>
+有一个选择是使用当前系统时间来作为随机种子： <code>srand(time(0))</code> 。<br>
+</p>
+
+<p>
+用于生成伪随机数，缺点是比较慢，使用时需要 #include &lt;cstdlib&gt;<br>
+</p>
+
+<p>
+调用rand()函数会返回一个[0,RAND_MAX]中的随机非负整数，其中 RAND_MAX 是标准库中的一个宏，在Linux系统下RAND_MAX等于$2<sup>31</sup> - 1$，可以用取模来限制所生成的数的大小，或者#define EAND_MAX重定义宏<br>
+</p>
+
+<p>
+使用rand()需要一个随机数种子，可以使用srand(seed)函数来将随机种子更改为seed，当然不初始化也是可以的<br>
+同一程序使用相同的seed两次运行，在同一机器、同一编译器下，随机出的结果将会是相同的<br>
+有一个选择是使用当前系统时间来作为随机种子：srand(time(0))<br>
+</p>
+
+<p>
+在 Windows 系统下rand()返回值的取值范围为[\(0, 2^{15}\))(即 RAND_MAX 等于\(2^{15} - 1\))，当需要生成的数不小于$2<sup>15</sup>$时建议使用(rand() &lt;&lt; 15 | rand()) 来生成更大的随机数<br>
+</p>
+
+<p>
+关于rand()和rand()%n的随机性：<br>
+C/C++ 标准并未关于 rand() 所生成随机数的任何方面的质量做任何规定<br>
+GCC 编译器对 rand() 所采用的实现方式，保证了分布的均匀性等基本性质，但具有 低位周期长度短 等明显缺陷。(例如在笔者的机器上， rand()%2 所生成的序列的周期长约)<br>
+即使假设rand()是均匀随机的， rand()%n 也不能保证均匀性，因为 [0,n) 中的每个数在 0%n,1%n,&#x2026;,RAND_MAX%n 中的出现次数可能不相同<br>
+</p>
+
+<p>
+在有mt19937后就不建议使用rand函数了<br>
 </p>
 </div>
 </div>
@@ -55,20 +133,34 @@
 <h3 id="org9cc9f7a">mt19937</h3>
 <div class="outline-text-3" id="text-org9cc9f7a">
 <p>
-是一个随机数生成器类，效用同rand，随机数的范围同unsigned int类型的取值范围其优点是随机数质量高(一个表现为，出现循环的周期更长；其他方面也都至少不逊于rand())，且速度比rand()快很多，使用时需要 #include &lt;random&gt;
-mt19937基于Mersenne Twister algorithm，使用时用其定义一个随机数生成器即可: std::mt19937 myrand(seed)，seed可不填，不填seed则会使用默认随机种子
-mt19937重载了operator()，需要生成随机数时调用myrand()即可返回一个随机数另一个类似的生成器是mt19937_64，使用方式同mt19937，但随机数范围扩大到了unsigned long long 类型的取值范围
+是一个随机数生成器类，效用同rand，随机数的范围同unsigned int类型的取值范围。<br>
+</p>
+
+<p>
+其优点是随机数质量高(一个表现为，出现循环的周期更长；其他方面也都至少不逊于rand())，且速度比rand()快很多，使用时需要 #include &lt;random&gt;。<br>
+</p>
+
+<p>
+mt19937基于Mersenne Twister algorithm，使用时用其定义一个随机数生成器即可: std::mt19937 myrand(seed)，seed可不填，不填seed则会使用默认随机种子。<br>
+</p>
+
+<p>
+mt19937重载了operator()，需要生成随机数时调用myrand()即可返回一个随机数。<br>
+</p>
+
+<p>
+另一个类似的生成器是mt19937_64，使用方式同mt19937，但随机数范围扩大到了unsigned long long 类型的取值范围。<br>
 </p>
 <div class="org-src-container">
-<pre class="src src-C++">#include &lt;cstdio&gt;
-#include &lt;ctime&gt;
-#include &lt;random&gt;
-using namespace std;
+<pre class="src src-C++"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cstdio&gt;</span>
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;ctime&gt;</span>
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;random&gt;</span>
+<span style="color: #BD93F9;">using</span> <span style="color: #BD93F9;">namespace</span> <span style="color: #009F9F;">std</span>;
 
-int main() {
-		mt19937 myrand(time(0));
-		printf("%ld\n", myrand());
-		return 0;
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
+    <span style="color: #AFAFAF;">mt19937</span> <span style="color: #AFAFAF;">myrand</span>(time(<span style="color: #009F9F;">0</span>));
+    printf(<span style="color: #FC9F4E;">"%ld\n"</span>, myrand());
+    <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">0</span>;
 }
 </pre>
 </div>
@@ -78,15 +170,35 @@ int main() {
 <h3 id="org1c3a945">random_shuffle(弃用)</h3>
 <div class="outline-text-3" id="text-org1c3a945">
 <p>
-random_shuffle 已于 C++14 标准中被弃用，于 C++17 标准中被移除用于随机打乱指定序列。使用时需要 #include &lt;algorithm&gt;
-使用时传入指定区间的首尾指针或迭代器（左闭右开）即可: std::random_shuffle(first, last) 或 std::random_shuffle(first, last, myrand)
-内部使用的随机数生成器默认为 rand() ，当然也可以传入自定义的随机数生成器
+random_shuffle 已于 C++14 标准中被弃用，于 C++17 标准中被移除。<br>
 </p>
 
 <p>
-关于 random_shuffle 的随机性：
-C++ 标准中要求random_shuffle在所有可能的排列中等概率随机选取，但GCC2编译器并未严格执行
-GCC中random_shuffle随机性上的缺陷的原因之一，是因为它使用了rand()%n这样的写法。如先前所述，这样生成的不是均匀随机的整数原因之二，是因为rand()的值域有限。如果所传入的区间长度超过RAND_MAX，将存在某些排列不可能被产生1
+用于随机打乱指定序列。使用时需要 #include &lt;algorithm&gt;。<br>
+</p>
+
+<p>
+使用时传入指定区间的首尾指针或迭代器（左闭右开）即可: std::random_shuffle(first, last) 或 std::random_shuffle(first, last, myrand)。<br>
+</p>
+
+<p>
+内部使用的随机数生成器默认为 rand() ，当然也可以传入自定义的随机数生成器。<br>
+</p>
+
+<p>
+关于 random_shuffle 的随机性：<br>
+</p>
+
+<p>
+C++ 标准中要求random_shuffle在所有可能的排列中等概率随机选取，但GCC2编译器并未严格执行。<br>
+</p>
+
+<p>
+GCC中random_shuffle随机性上的缺陷的原因之一，是因为它使用了rand()%n这样的写法。如先前所述，这样生成的不是均匀随机的整数。<br>
+</p>
+
+<p>
+原因之二，是因为rand()的值域有限。如果所传入的区间长度超过RAND_MAX，将存在某些排列不可能被产生1。<br>
 </p>
 </div>
 </div>
@@ -94,9 +206,15 @@ GCC中random_shuffle随机性上的缺陷的原因之一，是因为它使用了
 <h3 id="org78cb358">shuffle</h3>
 <div class="outline-text-3" id="text-org78cb358">
 <p>
-效用同random_shuffle，使用时需要#include &lt;algorithm&gt;
-区别在于必须使用自定义的随机数生成器：std::shuffle(first, last, myrand)
-GCC2实现的shuffle符合C++标准的要求，即在所有可能的排列中等概率随机选取
+效用同random_shuffle，使用时需要#include &lt;algorithm&gt;。<br>
+</p>
+
+<p>
+区别在于必须使用自定义的随机数生成器：std::shuffle(first, last, myrand)。<br>
+</p>
+
+<p>
+GCC2实现的shuffle符合C++标准的要求，即在所有可能的排列中等概率随机选取。<br>
 </p>
 </div>
 </div>
@@ -104,7 +222,7 @@ GCC2实现的shuffle符合C++标准的要求，即在所有可能的排列中等
 <h3 id="orgd872c57">非确定随机数的均匀分布整数随机数生成器</h3>
 <div class="outline-text-3" id="text-orgd872c57">
 <p>
-random_device 是一个基于硬件的均匀分布随机数生成器， 在熵池耗尽 前可以高速生成随机数。该类在 C++11 定义，需要 random 头文件。由于熵池耗尽后性能急剧下降，所以建议用此方法生成 mt19937 等伪随机数的种子，而不是直接生成
+random_device 是一个基于硬件的均匀分布随机数生成器， 在熵池耗尽 前可以高速生成随机数。该类在 C++11 定义，需要 random 头文件。由于熵池耗尽后性能急剧下降，所以建议用此方法生成 mt19937 等伪随机数的种子，而不是直接生成。<br>
 </p>
 </div>
 </div>

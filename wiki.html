@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-10-17 Sun 16:26 -->
+<!-- 2021-11-04 Thu 20:20 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>WIKI</title>
@@ -13,6 +13,28 @@
                 <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
                 <script type="module" src="static/js/main.js" defer></script>
                 <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
 </head>
 <body>
 <div id="content">
@@ -24,6 +46,42 @@
 <li><a href="#orge29e986">将html与body的height属性设置为100%</a></li>
 <li><a href="#org4322e9a">更改spacemacs的启动界面logo</a></li>
 <li><a href="#org7ae7b4f">C++在线编译器</a></li>
+<li><a href="#org7f5a924">静态网页与动态网页</a></li>
+<li><a href="#org8fbb5d6">同步与异步、阻塞与非阻塞</a>
+<ul>
+<li><a href="#org6d7f4b6">前言</a></li>
+<li><a href="#orgcfdf1de">同步与异步</a></li>
+<li><a href="#org69a6d3f">阻塞与非阻塞</a></li>
+</ul>
+</li>
+<li><a href="#org11c697a">时间</a>
+<ul>
+<li><a href="#orgbc11595">一、GMT</a></li>
+<li><a href="#orgcf9d0c2">二、UTC</a>
+<ul>
+<li><a href="#orga51744c">UTC 的构成</a></li>
+<li><a href="#org5534a84">GMT 与 UTC 的区别</a></li>
+</ul>
+</li>
+<li><a href="#org9eab081">三、时区</a></li>
+<li><a href="#org997e289">四、夏令时</a>
+<ul>
+<li><a href="#orgff82f8e">什么是夏令时</a></li>
+<li><a href="#org544f092">夏令时的历史</a></li>
+<li><a href="#org89108a9">夏令时的争议</a></li>
+</ul>
+</li>
+<li><a href="#org28946cc">五、冬令时</a></li>
+<li><a href="#org3af0cb1">时间单位换算</a></li>
+<li><a href="#org2d76d29">表示时间的格式/标准</a>
+<ul>
+<li><a href="#org5674bcf">1、RFC-2822标准格式</a></li>
+<li><a href="#org8a75bca">2、ISO-8601标准格式</a></li>
+</ul>
+</li>
+<li><a href="#orga7187ac">时间戳</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -54,11 +112,355 @@
 </ul>
 </div>
 </div>
+<div id="outline-container-org7f5a924" class="outline-2">
+<h2 id="org7f5a924">静态网页与动态网页</h2>
+<div class="outline-text-2" id="text-org7f5a924">
+<p>
+静态网页是网站建设的基础，静态网页和动态网页之间也并不矛盾，为了网站适应搜索引擎检索的需要，即使采用动态网站技术，也可以将网页内容转化为静态网页发布。<br>
+</p>
+
+<p>
+一、静态页面<br>
+</p>
+<ol class="org-ol">
+<li>在静态Web程序中，客户端使用Web浏览器（IE、FireFox等）经过网络(Network)连接到服务器上，使用HTTP协议发起一个请求（Request），告诉服务器我现在需要得到哪个页面，所有的请求交给Web服务器，之后WEB服务器根据用户的需要，从文件系统（存放了所有静态页面的磁盘）取出内容。之后通过Web服务器返回给客户端，客户端接收到内容之后经过浏览器渲染解析，得到显示的效果。<br></li>
+<li>为了让静态web页面显示更加好看，使用javascript／VBScript／ajax（AJAX即“Asynchronous Javascript And XML”（异步JavaScript和XML），是指一种创建交互式网页应用的网页开发技术。）但是这些特效都是在客户端上借助于浏览器展现给用户的，所以在服务器上本身并没有任何的变化。<br></li>
+</ol>
+
+<p>
+二、动态页面<br>
+动态WEB中，程序依然使用客户端和服务端，客户端依然使用浏览器（IE、FireFox等），通过网络(Network)连接到服务器上，使用HTTP协议发起请求（Request），现在的所有请求都先经过一个WEB Server来处理。<br>
+如果客户端请求的是静态资源(.htm或者是.htm)，则将请求直接转交给WEB服务器，之后WEB服务器从文件系统中取出内容，发送回客户端浏览器进行解析执行。<br>
+</p>
+
+<ol class="org-ol">
+<li>如果客户端请求的是动态资源（.jsp、.asp/.aspx、.php），则先将请求转交给WEB Container(WEB容器)，在WEB Container中连接数据库，从数据库中取出数据等一系列操作后动态拼凑页面的展示内容，拼凑页面的展示内容后，把所有的展示内容交给WEB服务器，之后通过WEB服务器将内容发送回客户端浏览器进行解析执行。再进一步深入分析动态web的访问过程：浏览器访问web时，看似是直接访问的jsp页面，其实是，最先到达的地方是服务器，服务器创建好req和resp对象后再给jsp页面使用。在jsp中完成设置字符集和取得表单参数后再调用servlet，完成业务处理。然后返回到jsp，jsp就会生成相应的html页面。该页面会返回到服务器，再由服务器，通过response对象返回给客户端。<br></li>
+<li>采用动态网页技术的网站可以实现更多的功能，如用户注册、用户登录、在线调查、用户管理、订单管理等等；<br></li>
+<li>动态网页实际上并不是独立存在于服务器上的网页文件，只有当用户请求时服务器才返回一个完整的网页；<br></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-org8fbb5d6" class="outline-2">
+<h2 id="org8fbb5d6"><a href="https://segmentfault.com/a/1190000022478666">同步与异步、阻塞与非阻塞</a></h2>
+<div class="outline-text-2" id="text-org8fbb5d6">
+</div>
+<div id="outline-container-org6d7f4b6" class="outline-3">
+<h3 id="org6d7f4b6">前言</h3>
+<div class="outline-text-3" id="text-org6d7f4b6">
+<p>
+在网上看到过很多讲有关同步与异步、阻塞与非阻塞的文章，但是很多都是抛出一堆相关定义，看了之后还是云里雾里的，对这几个概念还是不能很好的去区分它们。本文通过通俗易懂的语言和相关例子让你深入理解其本质。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgcfdf1de" class="outline-3">
+<h3 id="orgcfdf1de">同步与异步</h3>
+<div class="outline-text-3" id="text-orgcfdf1de">
+<p>
+首先我们要明确的是，同步和异步都是针对两个或者两个以上的事物来说的。比如当我们在网上购物看中一件物品，然后去浏览该商品详情的时候，首先页面会先发送一个请求，后台服务器查询对应商品的相关数据，然后前端详情页面才根据返回数据展示该商品的详细信息。而此时你的网速比较差，一个详情页面等了将近一分钟才全部展示完成，这时候你问这个请求是同步还是异步？答案显然是同步请求，它给我们最直观的表现形式就是页面一直显示在加载中，商品的详情页面渲染必须要等待后台服务器返回商品详情数据后才能进行。也就是说下一个操作必须要等待上一个操作完成才能进行，它依赖于上一个操作的返回结果。<br>
+</p>
+
+<p>
+你可能会问，在同步的情况下，当一个事物正在进行操作的时候，其它的事物此时在干嘛呢？这个实际上并没有明确的规定，其实同步更多的是关注事物一个一个的串行执行的过程，保证不会交叉执行，至于某个时刻处于什么状态并不关心。这在计算机中大部分时候其它事物都是处于一个等待的状态，而我们人则要灵活得多，在我们日常生活中常用的同步手段就是排队，比如我们上下班坐地铁进行安检的时候，需要依次排队安检进站乘车，但是你在排队的过程是在看手机、聊天还是什么也不做都可以，安检人员并不会在意你在做什么，这种就是由于安检资源有限导致的同步。<br>
+</p>
+
+<img src="./images/同步与异步-阻塞与非阻塞.png" />
+
+<p>
+对于同步这里有两个点需要注意，一是同步的范围，有时候并不需要全局的大范围的去同步，只需要在特定的操作同步即可，这样可以提升执行效率，比如 Java 语言中的同步方法和同步代码块。另一个是同步的粒度，并不是在一些大的操作粒度上才需要同步操作，小的粒度操作也需要同步操作，只是有的小粒度操作天然就已经是同步操作，并不需要我们人为的去添加同步操作控制。比如 Java 语言中的同步都是针对有两个或者两个以上线程的程序来说的，因为单线程的程序里它天然就是同步的。<br>
+而异步则完全相反，在异步情况下多个事务可以同时进行，互不影响，你进行你的，我进行我的，谁都不用关心谁。总的来说就是:<br>
+</p>
+
+<ul class="org-ul">
+<li><b>同步</b> 两个事物相互依赖，并且一个事物必须以依赖于另一事物的执行结果。比如在事物 A-&gt;B 事件模型中，你需要先完成事物 A 才能执行事物 B。也就是说，同步调用在被调用者未处理完请求之前，调用不返回，调用者会一直等待结果的返回。<br></li>
+<li><b>异步</b> 两个事物完全独立，一个事物的执行不需要等待另外一个事物的执行。也就是说，异步调用可以返回结果不需要等待结果返回，当结果返回的时候通过回调函数或者其他方式带着调用结果再做相关事情。<br></li>
+</ul>
+
+<p>
+可以看出同步与异步是从行为角度描述事物的，你品，你细品。（PS：这里的多个事务可以指代不同的操作、不同的方法或者不同的代码语句等等）<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org69a6d3f" class="outline-3">
+<h3 id="org69a6d3f">阻塞与非阻塞</h3>
+<div class="outline-text-3" id="text-org69a6d3f">
+<p>
+所谓阻塞，简单来说就是发出一个请求不能立刻返回响应，要等所有的逻辑全处理完才能返回响应。非阻塞反之，发出一个请求立刻返回应答，不用等处理完所有逻辑。阻塞与非阻塞指的是单个线程内遇到同步等待时，是否在原地不做任何操作。<br>
+</p>
+
+<p>
+堵车就是阻塞与非阻塞最好的例子，在一线城市生活过的朋友应该都有体会，在交通正常的时候汽车可以正常通行，就是非阻塞，上下班高峰的时候经常发生堵车，交通正常的时候半个小时车程，高峰期可能需要二、三个小时才能到。。。而且一旦发生交通堵塞，所有马路上的车子都一动不动，只能在车子里等待，就是阻塞，当然大多数人不会选择干等，他们会玩手机或者和朋友聊天等等，同样的在计算机里，阻塞就意味着停止执行停下来等待，非阻塞表明操作可以继续向下执行，但是在发生阻塞的时候计算机可就没有像人这么灵活了，通常计算机的处理方式就是挂起当前线程，然后干等着，阻塞结束后才继续执行该线程。可以看出阻塞和非阻塞描述的当前事物的状态（等待调用结果时的状态）。<br>
+</p>
+
+<img src="./images/阻塞与非阻塞.jpeg" />
+
+<p>
+结合前面介绍的同步与异步，两两组合就会有四种情况，分别是同步阻塞、同步非阻塞、异步阻塞和异步非阻塞。下面通过车道的例子来形象的解释这几种状态：<br>
+</p>
+
+<ul class="org-ul">
+<li><b>同步阻塞</b> 只有一个车道，不能超车，所有车子依次行使，一次只能通过一辆车，尴尬的是这个车道还堵车了。<br></li>
+<li><b>同步非阻塞</b> 只有一个车道，不能超车，所有车子依次行使，一次只能通过一辆车，不过比较幸运这个车道没有堵车，可以正常通行。<br></li>
+<li><b>异步阻塞</b> 有两个或两个以上车道，每条马路都可以通行，不同车道上的车子可以并行行使，尴尬的是所有的车道都堵车了。<br></li>
+<li><b>异步非阻塞</b> 有两个或两个以上车道，每条马路都可以通行，不同车道上的车子可以并行行使，不过比较幸运的是没有一个车道堵车，都可以正常通行。<br></li>
+</ul>
+
+<p>
+对应到我们计算机里也是一样的，同步阻塞相当于只有一个线程，而且该线程处于阻塞（Blocked）状态，同步非阻塞相当于只有一个线程，而且该线程处于运行（Running）状态。异步阻塞相当于有多个线程，而且所有线程都处于阻塞（Blocked）状态，异步非阻塞相当于有多个线程，而且所有线程都在正常运行。<br>
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org11c697a" class="outline-2">
+<h2 id="org11c697a">时间</h2>
+<div class="outline-text-2" id="text-org11c697a">
+</div>
+<div id="outline-container-orgbc11595" class="outline-3">
+<h3 id="orgbc11595">一、GMT</h3>
+<div class="outline-text-3" id="text-orgbc11595">
+<p>
+GMT（Greenwich Mean Time），格林威治平时，也称格林威治时间。它规定太阳每天经过位于英国伦敦郊区的皇家格林威治天文台的时间为中午12点。<br>
+</p>
+
+<p>
+格林威治皇家天文台为了海上霸权的扩张计划，在十七世纪就开始进行天体观测。为了天文观测，选择了穿过英国伦敦格林威治天文台子午仪中心的一条经线作为零度参考线，这条线，简称格林威治子午线。<br>
+</p>
+
+<p>
+1884年10月在美国华盛顿召开了一个国际子午线会议，该会议将格林威治子午线设定为本初子午线，并将格林威治平时 (GMT, Greenwich Mean Time) 作为世界时间标准（UT, Universal Time）。由此也确定了全球24小时自然时区的划分，所有时区都以和 GMT 之间的偏移量做为参考。<br>
+</p>
+
+<p>
+1972年之前，格林威治时间（GMT）一直是世界时间的标准。1972年之后，GMT 不再是一个时间标准了。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgcf9d0c2" class="outline-3">
+<h3 id="orgcf9d0c2">二、UTC</h3>
+<div class="outline-text-3" id="text-orgcf9d0c2">
+<p>
+UTC（Coodinated Universal Time），协调世界时，又称世界统一时间、世界标准时间、国际协调时间。由于英文（CUT）和法文（TUC）的缩写不同，作为妥协，简称UTC。<br>
+</p>
+
+<p>
+UTC 是现在全球通用的时间标准，全球各地都同意将各自的时间进行同步协调。UTC 时间是经过平均太阳时（以格林威治时间GMT为准）、地轴运动修正后的新时标以及以秒为单位的国际原子时所综合精算而成，计算过程相当严谨精密，因此若以「世界标准时间」的角度来说，UTC比GMT来得更加精准。其误差值必须保持在0.9秒以内，若大于0.9秒则由位于巴黎的国际地球自转事务中央局发布闰秒，使UTC与地球自转周期一致。所以基本上UTC的本质强调的是比GMT更为精确的世界时间标准，不过对于现行表款来说，GMT与UTC的功能与精确度是没有差别的。<br>
+</p>
+
+<p>
+在军事中，协调世界时会使用“Z”来表示。又由于Z在无线电联络中使用“Zulu”作代称，协调世界时也会被称为"Zulu time"。<br>
+</p>
+</div>
+<div id="outline-container-orga51744c" class="outline-4">
+<h4 id="orga51744c">UTC 的构成</h4>
+<div class="outline-text-4" id="text-orga51744c">
+<dl class="org-dl">
+<dt>原子时间（TAI, International Atomic Time）</dt><dd>结合了全球400个所有的原子钟而得到的时间，它决定了我们每个人的钟表中，时间流动的速度。<br></dd>
+<dt>世界时间（UT, Universal Time）</dt><dd>也称天文时间，或太阳时，他的依据是地球的自转，我们用它来确定多少原子时，对应于一个地球日的时间长度。<br></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-org5534a84" class="outline-4">
+<h4 id="org5534a84">GMT 与 UTC 的区别</h4>
+<div class="outline-text-4" id="text-org5534a84">
+<ul class="org-ul">
+<li>两者的区别在于前者是一个天文上的概念，而后者是基于原子钟。<br></li>
+<li>在 UTC 中，每一年或两年会有一个闰秒。<br></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-org9eab081" class="outline-3">
+<h3 id="org9eab081">三、时区</h3>
+<div class="outline-text-3" id="text-org9eab081">
+<p>
+整个地球分为二十四时区，每个时区都有自己的本地时间 。本地时间 = UTC + 时区差，时区差东为正，西为负。因此，把东八时区（北京时间 ）记为 UTC+8。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org997e289" class="outline-3">
+<h3 id="org997e289">四、夏令时</h3>
+<div class="outline-text-3" id="text-org997e289">
+</div>
+<div id="outline-container-orgff82f8e" class="outline-4">
+<h4 id="orgff82f8e">什么是夏令时</h4>
+<div class="outline-text-4" id="text-orgff82f8e">
+<p>
+DST（Daylight Saving Time），夏令时又称夏季时间，或者夏时制。<br>
+</p>
+
+<p>
+它是为节约能源而人为规定地方时间的制度。一般在天亮早的夏季人为将时间提前一小时，可以使人早起早睡，减少照明量，以充分利用光照资源，从而节约照明用电。<br>
+</p>
+
+<p>
+全球约40%的国家在夏季使用夏令时，其他国家则全年只使用标准时间。标准时间在有的国家也因此被相应地称为冬季时间。<br>
+</p>
+
+<p>
+在施行夏令时的国家，一年里面有一天只有23小时（夏令时开始那一天），有一天有25小时（夏令时结束那一天），其他时间每天都是24小时。<br>
+</p>
+
+<p>
+time-daylight-time.jpg<br>
+</p>
+
+<p>
+绿色部分为2019年统计的在全球施行冬夏令时的国家和地区。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org544f092" class="outline-4">
+<h4 id="org544f092">夏令时的历史</h4>
+<div class="outline-text-4" id="text-org544f092">
+<p>
+1784年，美国驻法国大使本杰明·富兰克林（Benjamin Franklin）提出“日光节约时间制”。1908年，英国建筑师威廉·维莱特（William Willett）再次提出，但当时该提案并未被采纳。<br>
+</p>
+
+<p>
+1916年，处于一战时期的德国政府下令将时钟推至一个小时后，通过获得额外一小时的日光来节省战争所需的煤炭，成为第一个实行夏时制的国家。随后，英法俄美四个一战参战国纷纷效仿。<br>
+</p>
+
+<p>
+美国在一战结束后于1919年取消夏时制，但在1942年二战时，美国重新启动夏令时制，1966年正式立法确定永久使用。1973至1975年石油危机爆发期间，美国连续两年延长夏令时制，以节省石油。<br>
+</p>
+
+<p>
+欧洲大部分国家则是从1976年——第四次中东战争导致首次石油危机（1973年）的3年后才开始施行夏令时制。<br>
+</p>
+
+<p>
+1986年4月，中国国务院办公厅发出《在全国范围内实行夏时制的通知》，要求全民早睡早起节约能源：每年4月中旬的第一个星期日2时，将时钟拨快一小时；10月中旬第一个星期日的2时，再将时钟拨慢一小时。但此夏令时只实行了6年，在1992年停止施行，主因是中国东西地域广阔却只奉行一个北京时间，实时夏令时制带来很多不切实际的反效果。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org89108a9" class="outline-4">
+<h4 id="org89108a9">夏令时的争议</h4>
+<div class="outline-text-4" id="text-org89108a9">
+<p>
+从过去的100多年来看，夏令时往往是在国家发生严重危机（如战争和能源短缺）的情况下才会受到青睐。而在相对和平的近10年里，这种时间制度则变得越来越不受欢迎。<br>
+</p>
+
+<p>
+它会使得人们的生物钟被扰乱，常常陷入睡眠不足的情况，不仅对人体健康有害、导致车祸，还会对旅游、航空领域造成极大的混乱。<br>
+</p>
+
+<p>
+另外，冬、夏令时究竟能否起到节能的作用，也仍有待商榷。美国一项截至2014年3月的研究表明，这种时间转换制度最多能在3、4月帮助美国减少1%的用电量，而美国国家标准局则认为，夏令时对用电量没有丝毫影响。<br>
+</p>
+
+<p>
+在俄罗斯，此前的一份报告也显示，夏令时帮助俄罗斯每年节约的电量，仅相当于两三个火力发电厂的发电量，十分的“鸡肋”。<br>
+</p>
+
+<p>
+去年（2019年）3月26日，作为全世界第一个提出并实行夏令时的国家，德国，在欧洲议会上以410比192的赞成票通过了取消冬、夏令时转换制提案，拟定于2021年4月起，所有欧盟国家不再实行冬、夏令时转换。待各成员国形成最终法案后，将选择永久使用夏令时时间或是冬令时时间。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org28946cc" class="outline-3">
+<h3 id="org28946cc">五、冬令时</h3>
+<div class="outline-text-3" id="text-org28946cc">
+<p>
+就是格林威治标准时，是相对于夏令时产生的概念。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org3af0cb1" class="outline-3">
+<h3 id="org3af0cb1">时间单位换算</h3>
+<div class="outline-text-3" id="text-org3af0cb1">
+<blockquote>
+<p>
+时间单位"秒（second）"是国际单位制中时间的基本单位，符号是 s。<br>
+</p>
+</blockquote>
+
+<ul class="org-ul">
+<li>\(1\)皮秒 = \(10^{-12}\)秒<br></li>
+<li>\(1\)纳秒 = \(10^{-9}\)秒<br></li>
+<li>\(1\)微妙 = \(10^{-6}\)秒<br></li>
+<li>\(1\)毫秒 = \(10^{-3}\)秒<br></li>
+<li>\(1\)分钟 = \(60\)秒<br></li>
+<li>\(1\)小时 = \(60\)分钟<br></li>
+<li>\(1\)天 = \(24\)小时<br></li>
+<li>\(1\)星期 = \(7\)天<br></li>
+<li>\(1\)月 = \(28、29、30\) 或 \(31\) 天<br></li>
+<li>\(1\)年 = \(12\)月<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org2d76d29" class="outline-3">
+<h3 id="org2d76d29">表示时间的格式/标准</h3>
+<div class="outline-text-3" id="text-org2d76d29">
+</div>
+<div id="outline-container-org5674bcf" class="outline-4">
+<h4 id="org5674bcf">1、RFC-2822标准格式</h4>
+<div class="outline-text-4" id="text-org5674bcf">
+<pre class="example" id="orge42c3df">
+// GMT+0800(CST)代表东八区
+// CST(china standard time)表示中国标准时间
+
+Sun Apr 08 2018 11:38:39 GMT+0800(CST)
+</pre>
+</div>
+</div>
+<div id="outline-container-org8a75bca" class="outline-4">
+<h4 id="org8a75bca">2、ISO-8601标准格式</h4>
+<div class="outline-text-4" id="text-org8a75bca">
+<p>
+其中一种常见的格式形如：<br>
+</p>
+<pre class="example" id="org7663d73">
+2018-04-08T11:38:39+08:00  // 日期用'-'相隔，与时间用'T'连接
+2018-04-08T11:38:39Z  // Z代表UTC时间，Z也可写成00:00
+</pre>
+
+<p>
+ISO 8601的标准格式是：YYYY-MM-DDTHH:mm:ss.sssZ，分别表示：<br>
+</p>
+
+<pre class="example" id="org4877ad3">
+YYYY：年份，0000 ~ 9999
+MM：月份，01 ~ 12
+DD：日，01 ~ 31
+T：分隔日期和时间
+HH：小时，00 ~ 24
+mm：分钟，00 ~ 59
+ss：秒，00 ~ 59
+.sss：毫秒
+Z：时区，可以是：Z（UFC）、+HH:mm、-HH:mm
+
+// ISO格式例子
+// 1997
+// 1997-07
+// 1997-07-16
+// 1997-07-16T19：20 + 01:00
+// 1997-07-16T19：20：30 + 01:00
+// 1997-07-16T19：20：30.45 + 01:00
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orga7187ac" class="outline-3">
+<h3 id="orga7187ac">时间戳</h3>
+<div class="outline-text-3" id="text-orga7187ac">
+<p>
+也被称为 Unix 时间、POSIX 时间，是一种时间表示方式，定义为从 <code>格林威治时间 1970 年 01 月 01 日 00 时 00 分 00 秒</code> （ <code>北京时间 1970 年 01 月 01 日 08 时 00 分 00 秒</code> ）起至现在的总秒数（不考虑闰秒）。<br>
+</p>
+
+<p>
+时间戳是不会跟着时区的改变而改变的。<br>
+</p>
+</div>
+</div>
+</div>
 </div>
 <div id="postamble" class="status">
 <p class="date">Date: 2021-10-13 22:10 Wed</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2021-10-17 Sun 16:26</p>
+<p class="date">Created: 2021-11-04 Thu 20:20</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

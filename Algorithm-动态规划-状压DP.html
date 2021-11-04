@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-09-30 四 03:22 -->
+<!-- 2021-11-01 Mon 20:56 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>状压DP</title>
@@ -13,6 +13,28 @@
                 <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
                 <script type="module" src="static/js/main.js" defer></script>
                 <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
 </head>
 <body>
 <div id="content">
@@ -22,7 +44,8 @@
 <div id="text-table-of-contents">
 <ul>
 <li><a href="#org81b7007">eg. Corn Fields</a></li>
-<li><a href="#org24537e3">旅行商问题</a></li>
+<li><a href="#org917f786">Mondriaan's Dream</a></li>
+<li><a href="#org2ec049f">最短哈密顿路径</a></li>
 </ul>
 </div>
 </div>
@@ -31,8 +54,8 @@
 <h2 id="org81b7007">eg. Corn Fields</h2>
 <div class="outline-text-2" id="text-org81b7007">
 <p>
-poj3254 Corn Fields
-输入一个矩阵，选择不相邻的方格的方案数
+poj3254 Corn Fields<br>
+输入一个矩阵，选择不相邻的方格的方案数<br>
 </p>
 <table>
 
@@ -59,11 +82,11 @@ poj3254 Corn Fields
 </tbody>
 </table>
 <p>
-可以的方案数有{}、{1}、{2}、{3}、{4}、{1, 3}、{1, 4}、{3, 4}、{1, 3, 4}
+可以的方案数有{}、{1}、{2}、{3}、{4}、{1, 3}、{1, 4}、{3, 4}、{1, 3, 4}<br>
 </p>
 
 <p>
-单看第一行，使用二进制描述方格，1表示种玉米，0表示不种玉米
+单看第一行，使用二进制描述方格，1表示种玉米，0表示不种玉米<br>
 </p>
 <table>
 
@@ -103,7 +126,7 @@ poj3254 Corn Fields
 </table>
 
 <p>
-单看第二行，使用二进制描述方格，1表示种玉米，0表示不种玉米
+单看第二行，使用二进制描述方格，1表示种玉米，0表示不种玉米<br>
 </p>
 <table>
 
@@ -131,21 +154,160 @@ poj3254 Corn Fields
 </table>
 
 <p>
-如果第二行选编号1，第一行可以选五种不冲突方案如果第二行选编号2，会与第一行010冲突，其他四种没问题
+如果第二行选编号1，第一行可以选五种不冲突方案<br>
+如果第二行选编号2，会与第一行010冲突，其他四种没问题<br>
 </p>
 
 <p>
-dp[i][j]表示第i行采用第j种编号的方案时前i行可以得到的可行方案总数例如dp[2][2] = 4表示第二行使用第二种方案时的方案总数是4
+dp[i][j]表示第i行采用第j种编号的方案时前i行可以得到的可行方案总数<br>
+例如dp[2][2] = 4表示第二行使用第二种方案时的方案总数是4<br>
 </p>
 
 <p>
-状态转移方程dp[i][k] = dp[i-1][j] (j From 1 To n)
-最后一行的dp[m][k]相加就得到了答案
+状态转移方程dp[i][k] = dp[i-1][j] (j From 1 To n)<br>
+最后一行的dp[m][k]相加就得到了答案<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org24537e3" class="outline-2">
-<h2 id="org24537e3">旅行商问题</h2>
+<div id="outline-container-org917f786" class="outline-2">
+<h2 id="org917f786">Mondriaan's Dream</h2>
+<div class="outline-text-2" id="text-org917f786">
+<p>
+<a href="http://poj.org/problem?id=2411">题目在这</a> <br>
+</p>
+
+<p>
+给出一个 \(N \times M\) 的棋盘，将这个棋盘分割成若干个 \(1 \times 2\) 的小方块，问方案数是多少。<br>
+</p>
+
+<p>
+棋盘分别为 \(2 \times 4\)、\(2 \times 3\) 时的方案如下：<br>
+</p>
+
+<img src="./images/蒙德里安的梦想01.gif" />
+
+<p>
+状压 \(DP\) 解决方法：<br>
+</p>
+
+<ul class="org-ul">
+<li>优先排横着的方块，把横着的方块放完之后，剩下的位置自然放竖着的方块，当然要判断放完横着的方块后剩余的位置是否可以放竖着的方块。<br></li>
+<li>状态是从前一列转移到当前列。<br></li>
+<li><p>
+我们把当前列中被前一列横着放的方块占据的位置记作 \(1\)，没被占据的位置记作 \(0\)，那么我们可以用一个二进制数表示这一列的状态。<br>
+</p>
+
+<img src="./images/蒙德里安的梦想02.png" width=450px height=470px />
+
+<p>
+例如上面这个图中，第 \(i\) 列的状态就可以用 \(1100100100001\) 来表示。<br>
+</p></li>
+</ul>
+
+<p>
+状态表示：\(dp[i][j]\) 表示已经将前 \(i - 1\) 列放好，第 \(i - 1\) 列中横放的方块且占据第 \(i\) 列的状态为 \(j\) 的方案数。<br>
+</p>
+
+<p>
+状态转移：\(dp[i][j] = dp[i - 1][k]\)，这里的 \(k\) 是第 \(i - 1\) 的状态，显然需要满足 \(k \& j == 0\)，也就是不能有横着的方块冲突，而且剩余位置还要能恰好放的下竖着的方块。<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-cpp"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cstdio&gt;</span>
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;vector&gt;</span>
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cstring&gt;</span>
+<span style="color: #BD93F9;">using</span> <span style="color: #BD93F9;">namespace</span> <span style="color: #009F9F;">std</span>;
+<span style="color: #BD93F9;">const</span> <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">maxn</span> = <span style="color: #009F9F;">12</span>, <span style="color: #AFAFAF;">maxm</span> = <span style="color: #009F9F;">1</span> &lt;&lt; maxn;
+<span style="color: #BD93F9;">typedef</span> <span style="color: #AFAFAF;">long</span> <span style="color: #AFAFAF;">long</span> <span style="color: #AFAFAF;">ll</span>;
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">n</span>, <span style="color: #AFAFAF;">m</span>;
+<span style="color: #AFAFAF;">ll</span> <span style="color: #AFAFAF;">dp</span>[maxn][maxm];
+<span style="color: #AFAFAF;">vector</span>&lt;<span style="color: #AFAFAF;">int</span>&gt; <span style="color: #AFAFAF;">state</span>[maxm];
+<span style="color: #AFAFAF;">bool</span> <span style="color: #AFAFAF;">used</span>[maxm];
+
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
+    <span style="color: #BD93F9;">while</span> (scanf(<span style="color: #FC9F4E;">"%d %d"</span>, &amp;n, &amp;m) &amp;&amp; (n || m)) {
+        <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#39044;&#22788;&#29702;&#24403;&#21069;&#29366;&#24577; i &#26159;&#21542;&#23384;&#22312;&#65292;&#20063;&#23601;&#26159;&#27809;&#26377;&#22855;&#25968;&#38271;&#24230;&#30340;&#31354;&#20301;&#32622;</span>
+        <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">0</span>; i &lt; <span style="color: #009F9F;">1</span> &lt;&lt; n; ++ i) {
+            <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">cnt</span> = <span style="color: #009F9F;">0</span>;   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#36825;&#20010;&#31354;&#20301;&#30340;&#38271;&#24230;</span>
+            <span style="color: #AFAFAF;">bool</span> <span style="color: #AFAFAF;">is_valid</span> = <span style="color: #009F9F;">true</span>;   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#21028;&#26029;&#26159;&#21542;&#21512;&#27861;&#65292;&#22914;&#26524;&#26377;&#22855;&#25968;&#20010;&#38646;&#65292;&#34920;&#31034;&#19981;&#21512;&#27861;</span>
+            <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">j</span> = <span style="color: #009F9F;">0</span>; j &lt; n; ++ j) {
+                <span style="color: #BD93F9;">if</span> (i &gt;&gt; j &amp; <span style="color: #009F9F;">1</span>) {
+                    <span style="color: #BD93F9;">if</span> (cnt &amp; <span style="color: #009F9F;">1</span>) {
+                        is_valid = <span style="color: #009F9F;">false</span>;
+                        <span style="color: #BD93F9;">break</span>;
+                    }
+                    cnt = <span style="color: #009F9F;">0</span>;
+                }
+                <span style="color: #BD93F9;">else</span> {
+                    cnt ++ ;
+                }
+            }
+            <span style="color: #BD93F9;">if</span> (cnt &amp; <span style="color: #009F9F;">1</span>)   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#36824;&#35201;&#21028;&#26029;&#26368;&#21518;&#19968;&#20010;&#31354;&#30340;&#38271;&#24230;</span>
+                is_valid = <span style="color: #009F9F;">false</span>;
+            used[i] = is_valid;
+        }
+        <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">0</span>; i &lt; <span style="color: #009F9F;">1</span> &lt;&lt; n; ++ i) {
+            state[i].clear();
+            <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">j</span> = <span style="color: #009F9F;">0</span>; j &lt; <span style="color: #009F9F;">1</span> &lt;&lt; n; ++ j)
+                <span style="color: #BD93F9;">if</span> ((i &amp; j) == <span style="color: #009F9F;">0</span> &amp;&amp; used[i | j])
+                    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#23545;&#20110;&#21069;&#19968;&#21015;&#30340;&#29366;&#24577; i &#26469;&#35828;&#65292;&#24403;&#21069;&#21015;&#30340;&#29366;&#24577; j &#26159;&#28385;&#36275;&#30340;</span>
+                    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#23545;&#20110;&#24403;&#21069;&#21015;&#30340;&#29366;&#24577; i &#26469;&#35828;&#65292;&#21069;&#19968;&#21015;&#30340;&#29366;&#24577; j &#26159;&#28385;&#36275;&#30340;</span>
+                    state[i].push_back(j);
+        }
+        memset(dp, <span style="color: #009F9F;">0</span>, <span style="color: #BD93F9;">sizeof</span> dp);
+        dp[<span style="color: #009F9F;">0</span>][<span style="color: #009F9F;">0</span>] = <span style="color: #009F9F;">1</span>;
+        <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">1</span>; i &lt;= m; ++ i)
+            <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">j</span> = <span style="color: #009F9F;">0</span>; j &lt; <span style="color: #009F9F;">1</span> &lt;&lt; n; ++ j)   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">i - 1 &#21015;&#27178;&#25918;&#30340;&#26041;&#22359;&#21344;&#25454;&#30340;&#31532; i &#21015;&#30340;&#29366;&#24577;&#20026; j</span>
+                <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">k</span> = <span style="color: #009F9F;">0</span>; k &lt; state[j].size(); ++ k)
+                    dp[i][j] += dp[i - <span style="color: #009F9F;">1</span>][state[j][k]];
+        printf(<span style="color: #FC9F4E;">"%lld\n"</span>, dp[m][<span style="color: #009F9F;">0</span>]);
+    }
+    <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">0</span>;
+}
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org2ec049f" class="outline-2">
+<h2 id="org2ec049f">最短哈密顿路径</h2>
+<div class="outline-text-2" id="text-org2ec049f">
+<p>
+又称旅行商问题，给定一张 \(n\) 个点的带权无向图，点从 \(0 \sim n - 1\) 标号，求起点 \(0\) 到终点 \(n - 1\) 的最短 \(Hamiton\) 路径。<br>
+</p>
+
+<p>
+\(Hamiton\) 路径的定义是从 \(0\) 到 \(n - 1\) 不重不漏地经过每个点恰好一次。<br>
+</p>
+
+<p>
+暴力遍历每一条路径的时间复杂度为 \((n - 2)!\)，复杂度太高，思考剪枝。<br>
+</p>
+
+<pre class="example" id="org3552485">
+0 -&gt; 2 -&gt; 1 -&gt; 3 -&gt; ...   距离：18
+0 -&gt; 1 -&gt; 2 -&gt; 3 -&gt; ...   距离：20
+</pre>
+
+<p>
+观察上面这两条路径，发现我们一定不会选择下面的那条路径。因为对于下面的这条路径，上面路径的后面一部分可以和下面路径的一样，而前一部分又小于下面路径所以一定不选择下面这条路径。<br>
+</p>
+
+<p>
+推广到一般情况，现在已经选择了一部分点，对于后面的点的选择，我们只需要知道前面路径的最短路径和前面路径的最后一个点。<br>
+</p>
+
+<p>
+对于点的选择，我们使用状态压缩。<br>
+</p>
+
+<p>
+状态表示：\(dp[state][x]\) 表示当前状态是 \(state\)，且最后一个点是点 \(x\)。<br>
+</p>
+
+<p>
+于是有：\(dp[state][j] = dp[state_k][k] + dist[k][j]\)，即：当前状态（最后一个点的位置是 \(j\)）由当前状态去除最后一个点 \(j\) 且最后一个点是 \(k\) 的状态转移过来。<br>
+</p>
+</div>
 </div>
 </div>
 </body>

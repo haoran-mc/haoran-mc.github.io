@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-10-30 Sat 18:14 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>常用函数</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">常用函数</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org62bc349">stdio.h</a></li>
+<li><a href="#org0d70476">stdlib.h</a></li>
+<li><a href="#orgd44b6fa">string.h</a>
+<ul>
+<li><a href="#org4cc37a1">strcpy</a></li>
+<li><a href="#orgb959455">atoi</a></li>
+<li><a href="#org4be8068">stoi</a></li>
+</ul>
+</li>
+<li><a href="#org2295f6a">math.h</a></li>
+<li><a href="#org5a314f7">assert.h</a></li>
+<li><a href="#org060e2ed">ctype.h</a></li>
+<li><a href="#org87153a9">algorithm</a>
+<ul>
+<li><a href="#orge8799d8">sort</a>
+<ul>
+<li><a href="#orgc70cca9">int char型数组从小到大排序</a></li>
+<li><a href="#orgfb059f4">int char型数组从大到小排序</a></li>
+<li><a href="#org3a9b2cd">结构体排序</a></li>
+<li><a href="#orgb9a3dd3">容器排序</a></li>
+</ul>
+</li>
+<li><a href="#orge59924e">lower_bound</a></li>
+<li><a href="#org93bd7e1">upper_bound</a></li>
+<li><a href="#org88ea5c9">copy</a></li>
+<li><a href="#org17a3492">nth_element</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org62bc349" class="outline-2">
+<h2 id="org62bc349">stdio.h</h2>
+<div class="outline-text-2" id="text-org62bc349">
+<ul class="org-ul">
+<li><p>
+sscanf sprintf<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-C++"><span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">sscanf &#20989;&#25968;&#23558;&#22810;&#20010;&#19981;&#21516;&#31867;&#22411;&#30340;&#21464;&#37327;&#20889;&#20837;&#21040;&#23383;&#31526;&#20018;&#31867;&#22411;&#30340;&#19968;&#20010;&#21464;&#37327;&#20013;</span>
+<span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">sprintf &#20989;&#25968;&#23558;&#19968;&#20010;&#23383;&#31526;&#20018;&#31867;&#22411;&#30340;&#21464;&#37327;&#20889;&#20837;&#21040;&#22810;&#20010;&#19981;&#21516;&#31867;&#22411;&#30340;&#21464;&#37327;&#20013;</span>
+<span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#20004;&#32773;&#19981;&#20855;&#22791;&#36755;&#20837;&#19982;&#36755;&#20986;&#21151;&#33021;&#65292;&#32780;&#26159;&#20855;&#26377;&#20889;&#20837;&#21040;&#20854;&#20182;&#21464;&#37327;&#20013;&#30340;&#21151;&#33021;</span>
+
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;iostream&gt;</span>
+<span style="color: #BD93F9;">using</span> <span style="color: #BD93F9;">namespace</span> <span style="color: #009F9F;">std</span>;
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
+    <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">n</span>;
+    <span style="color: #AFAFAF;">double</span> <span style="color: #AFAFAF;">db</span>;
+    <span style="color: #AFAFAF;">char</span> <span style="color: #AFAFAF;">str1</span>[<span style="color: #009F9F;">20</span>] = <span style="color: #FC9F4E;">"12345"</span>;
+    <span style="color: #AFAFAF;">char</span> <span style="color: #AFAFAF;">str2</span>[<span style="color: #009F9F;">20</span>];
+    <span style="color: #AFAFAF;">char</span> <span style="color: #AFAFAF;">str3</span>[<span style="color: #009F9F;">20</span>] = <span style="color: #FC9F4E;">"2048:3.14,hello"</span>;
+    <span style="color: #AFAFAF;">char</span> <span style="color: #AFAFAF;">str4</span>[<span style="color: #009F9F;">20</span>] = <span style="color: #FC9F4E;">"good"</span>;
+
+    <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#33258;&#24038;&#33267;&#21491;</span>
+    sscanf(str1, <span style="color: #FC9F4E;">"%d"</span>, &amp;n); <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#27492;&#26102; str1 &#20013;&#30340;&#23383;&#31526;&#20018;&#36716;&#25442;&#20026;&#25972;&#22411;</span>
+    printf(<span style="color: #FC9F4E;">"%d\n"</span>, n);  <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#36755;&#20986;12345</span>
+
+    <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#33258;&#21491;&#21521;&#24038;</span>
+    sprintf(str2, <span style="color: #FC9F4E;">"%d"</span>, n); <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#25226;&#20043;&#21069; n &#20013;&#30340;12345&#20197;&#23383;&#31526;&#20018;&#30340;&#26041;&#24335;&#25918;&#22312;str2&#20013;</span>
+    printf(<span style="color: #FC9F4E;">"%s\n"</span>, str2);   <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#36755;&#20986;&#23383;&#31526;&#20018;12345</span>
+
+    <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#22797;&#26434;&#26684;&#24335;&#36755;&#20837;&#36755;&#20986;</span>
+    sscanf(str3, <span style="color: #FC9F4E;">"%d:%lf,%s"</span>, &amp;n, &amp;db, str2);
+    printf(<span style="color: #FC9F4E;">"n = %d, db = %.2f, str2 = %s\n"</span>, n, db, str2);
+
+    sprintf(str2, <span style="color: #FC9F4E;">"%d:%.2f,%s"</span>, n, db, str4);
+    printf(<span style="color: #FC9F4E;">"str2 = %s\n"</span>, str2);
+
+    <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">0</span>;
+}
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org0d70476" class="outline-2">
+<h2 id="org0d70476">stdlib.h</h2>
+<div class="outline-text-2" id="text-org0d70476">
+<dl class="org-dl">
+<dt>malloc</dt><dd><p>
+C 库函数 void *malloc(size_t size) 分配所需的内存空间，并返回一个指向它的指针<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-C"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;stdio.h&gt;</span>
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;string.h&gt;</span>
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;stdlib.h&gt;</span>
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
+    <span style="color: #AFAFAF;">char</span> *<span style="color: #AFAFAF;">str</span>;
+    <span style="color: #7c7c7c; font-style: italic;">/* </span><span style="color: #7c7c7c; font-style: italic;">&#26368;&#21021;&#30340;&#20869;&#23384;&#20998;&#37197;</span><span style="color: #7c7c7c; font-style: italic;"> */</span>
+    str = (<span style="color: #AFAFAF;">char</span> *) malloc(<span style="color: #009F9F;">15</span>);
+    strcpy(str, <span style="color: #FC9F4E;">"runoob"</span>);
+    printf(<span style="color: #FC9F4E;">"String = %s,  Address = %u\n"</span>, str, str);
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#36755;&#20986;String = runoob,  Address = 3662685808</span>
+
+    <span style="color: #7c7c7c; font-style: italic;">/* </span><span style="color: #7c7c7c; font-style: italic;">&#37325;&#26032;&#20998;&#37197;&#20869;&#23384;</span><span style="color: #7c7c7c; font-style: italic;"> */</span>
+    str = (<span style="color: #AFAFAF;">char</span> *) realloc(str, <span style="color: #009F9F;">25</span>);
+    strcat(str, <span style="color: #FC9F4E;">".com"</span>);
+    printf(<span style="color: #FC9F4E;">"String = %s,  Address = %u\n"</span>, str, str);
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#36755;&#20986;String = runoob.com,  Address = 3662685808</span>
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#19981;&#35206;&#30422;str&#20013;&#21407;&#26412;&#30340;&#19996;&#35199;</span>
+    free(str);
+    <span style="color: #BD93F9;">return</span>(<span style="color: #009F9F;">0</span>);
+}
+</pre>
+</div></dd>
+<dt>calloc</dt><dd><p>
+C 库函数 void \*calloc(size_t nitems, size_t size) 分配所需的内存空间，并返回一个指向它的指针。malloc 和 calloc 之间的不同点是，malloc 不会设置内存为零，而 calloc 会设置分配的内存为零。<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-C"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;stdio.h&gt;</span>
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;stdlib.h&gt;</span>
+
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
+    <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span>, <span style="color: #AFAFAF;">n</span>;
+    <span style="color: #AFAFAF;">int</span> *<span style="color: #AFAFAF;">a</span>;
+
+    printf(<span style="color: #FC9F4E;">"&#35201;&#36755;&#20837;&#30340;&#20803;&#32032;&#20010;&#25968;&#65306;"</span>);
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#35201;&#36755;&#20837;&#30340;&#20803;&#32032;&#20010;&#25968;&#65306;3</span>
+    scanf(<span style="color: #FC9F4E;">"%d"</span>,&amp;n);
+
+    a = (<span style="color: #AFAFAF;">int</span>*)calloc(n, <span style="color: #BD93F9;">sizeof</span>(<span style="color: #AFAFAF;">int</span>));
+    printf(<span style="color: #FC9F4E;">"&#36755;&#20837; %d &#20010;&#25968;&#23383;&#65306;\n"</span>,n);
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#36755;&#20837; 3 &#20010;&#25968;&#23383;&#65306;</span>
+    <span style="color: #BD93F9;">for</span>( i=<span style="color: #009F9F;">0</span> ; i &lt; n ; i++ ) {
+        scanf(<span style="color: #FC9F4E;">"%d"</span>,&amp;a[i]);
+    }
+    <span style="color: #7c7c7c; font-style: italic;">/* </span><span style="color: #7c7c7c; font-style: italic;">22 55 14</span><span style="color: #7c7c7c; font-style: italic;"> */</span>
+
+    printf(<span style="color: #FC9F4E;">"&#36755;&#20837;&#30340;&#25968;&#23383;&#20026;&#65306;"</span>);
+    <span style="color: #BD93F9;">for</span>( i=<span style="color: #009F9F;">0</span> ; i &lt; n ; i++ ) {
+        printf(<span style="color: #FC9F4E;">"%d "</span>,a[i]);
+    }
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#36755;&#20837;&#30340;&#25968;&#23383;&#20026;&#65306;22 55 14</span>
+
+    free (a);  <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#37322;&#25918;&#20869;&#23384;</span>
+    <span style="color: #BD93F9;">return</span> (<span style="color: #009F9F;">0</span>);
+}
+</pre>
+</div></dd>
+<dt>realloc</dt><dd><p>
+C 库函数 void \*realloc(void \*ptr, size_t size) 尝试重新调整之前调用 malloc 或 calloc 所分配的 ptr 所指向的内存块的大小<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-C"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;stdio.h&gt;</span>
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;stdlib.h&gt;</span>
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;string.h&gt;</span>
+
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
+    <span style="color: #AFAFAF;">char</span> *<span style="color: #AFAFAF;">str</span>;
+
+    <span style="color: #7c7c7c; font-style: italic;">/* </span><span style="color: #7c7c7c; font-style: italic;">&#26368;&#21021;&#30340;&#20869;&#23384;&#20998;&#37197;</span><span style="color: #7c7c7c; font-style: italic;"> */</span>
+    str = (<span style="color: #AFAFAF;">char</span> *) malloc(<span style="color: #009F9F;">15</span>);
+    strcpy(str, <span style="color: #FC9F4E;">"runoob"</span>);
+    printf(<span style="color: #FC9F4E;">"String = %s,  Address = %p\n"</span>, str, str);
+    <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#36755;&#20986;String = runoob,  Address = 0x7fa2f8c02b10</span>
+
+    <span style="color: #7c7c7c; font-style: italic;">/* </span><span style="color: #7c7c7c; font-style: italic;">&#37325;&#26032;&#20998;&#37197;&#20869;&#23384;</span><span style="color: #7c7c7c; font-style: italic;"> */</span>
+    str = (<span style="color: #AFAFAF;">char</span> *) realloc(str, <span style="color: #009F9F;">25</span>);
+    strcat(str, <span style="color: #FC9F4E;">".com"</span>);
+    printf(<span style="color: #FC9F4E;">"String = %s,  Address = %p\n"</span>, str, str);
+    <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#36755;&#20986;String = runoob.com,  Address = 0x7fa2f8c02b10</span>
+
+    free(str);
+    <span style="color: #BD93F9;">return</span>(<span style="color: #009F9F;">0</span>);
+}
+</pre>
+</div></dd>
+<dt>free</dt><dd><p>
+C 库函数 void free(void *ptr) 释放之前调用 calloc、malloc 或 realloc 所分配的内存空间<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-C"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;stdio.h&gt;</span>
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;stdlib.h&gt;</span>
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;string.h&gt;</span>
+
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
+    <span style="color: #AFAFAF;">char</span> *<span style="color: #AFAFAF;">str</span>;
+
+    <span style="color: #7c7c7c; font-style: italic;">/* </span><span style="color: #7c7c7c; font-style: italic;">&#26368;&#21021;&#30340;&#20869;&#23384;&#20998;&#37197;</span><span style="color: #7c7c7c; font-style: italic;"> */</span>
+    str = (<span style="color: #AFAFAF;">char</span> *) malloc(<span style="color: #009F9F;">15</span>);
+    strcpy(str, <span style="color: #FC9F4E;">"runoob"</span>);
+    printf(<span style="color: #FC9F4E;">"String = %s,  Address = %p\n"</span>, str, str);
+    <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#36755;&#20986;String = runoob,  Address = 3662685808</span>
+
+    <span style="color: #7c7c7c; font-style: italic;">/* </span><span style="color: #7c7c7c; font-style: italic;">&#37325;&#26032;&#20998;&#37197;&#20869;&#23384;</span><span style="color: #7c7c7c; font-style: italic;"> */</span>
+    str = (<span style="color: #AFAFAF;">char</span> *) realloc(str, <span style="color: #009F9F;">25</span>);
+    strcat(str, <span style="color: #FC9F4E;">".com"</span>);
+    printf(<span style="color: #FC9F4E;">"String = %s,  Address = %p\n"</span>, str, str);
+    <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#36755;&#20986;String = runoob.com,  Address = 3662685808</span>
+    <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#19981;&#35206;&#30422;str&#20013;&#21407;&#26412;&#30340;&#19996;&#35199;</span>
+
+    <span style="color: #7c7c7c; font-style: italic;">/* </span><span style="color: #7c7c7c; font-style: italic;">&#37322;&#25918;&#24050;&#20998;&#37197;&#30340;&#20869;&#23384;</span><span style="color: #7c7c7c; font-style: italic;"> */</span>
+    free(str);
+
+    <span style="color: #BD93F9;">return</span>(<span style="color: #009F9F;">0</span>);
+}
+</pre>
+</div></dd>
+<dt>(no term)</dt><dd><a href="Algorithm-杂项-随机函数.html">rand</a><br></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgd44b6fa" class="outline-2">
+<h2 id="orgd44b6fa">string.h</h2>
+<div class="outline-text-2" id="text-orgd44b6fa">
+<dl class="org-dl">
+<dt>strcat</dt><dd>连接<br></dd>
+<dt>strcmp</dt><dd>C 库函数 int strcmp(const char *str1, const char *str2) 把 str1 所指向的字符串和 str2 所指向的字符串进行比较<br></dd>
+<dt>strlen</dt><dd>len = strlen(str);<br></dd>
+<dt>strupr</dt><dd>大写字符<br></dd>
+<dt>strlwr</dt><dd>小写字符<br></dd>
+<dt>memset</dt><dd><p>
+C库函数 void *memset(void *str, int c, size_t n) 复制字符c(一个无符号字符)到参数str所指向的字符串的前n个字符<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-C"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;stdio.h&gt;</span>
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;string.h&gt;</span>
+
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span> () {
+    <span style="color: #AFAFAF;">char</span> <span style="color: #AFAFAF;">str</span>[<span style="color: #009F9F;">50</span>];
+
+    strcpy(str,<span style="color: #FC9F4E;">"This is string.h library function"</span>);
+    puts(str);
+
+    memset(str,<span style="color: #FC9F4E;">'$'</span>,<span style="color: #009F9F;">7</span>);
+    puts(str);
+    <span style="color: #009F9F; font-style: italic;">/**</span>
+<span style="color: #009F9F; font-style: italic;">     * This is string.h library function</span>
+<span style="color: #009F9F; font-style: italic;">     * $$$$$$$ string.h library function</span>
+<span style="color: #009F9F; font-style: italic;">     */</span>
+
+    <span style="color: #BD93F9;">return</span>(<span style="color: #009F9F;">0</span>);
+}
+</pre>
+</div></dd>
+<dt>memcpy</dt><dd>C 库函数 void *memcpy(void *str1, const void *str2, size_t n) 从存储区 str2 复制 n 个字节到存储区 str1。<br></dd>
+</dl>
+</div>
+<div id="outline-container-org4cc37a1" class="outline-3">
+<h3 id="org4cc37a1">strcpy</h3>
+<div class="outline-text-3" id="text-org4cc37a1">
+<p>
+C 库函数 char *strcpy(char *dest, const char *src) 把 src 所指向的字符串复制到 dest<br>
+需要注意的是如果目标数组 dest 不够大，而源字符串的长度又太长，可能会造成缓冲溢出的情况<br>
+声明：char *strcpy(char *dest, const char *src)<br>
+dest &#x2013; 指向用于存储复制内容的目标数组<br>
+src &#x2013; 要复制的字符串<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb959455" class="outline-3">
+<h3 id="orgb959455">atoi</h3>
+<div class="outline-text-3" id="text-orgb959455">
+<p>
+atoi()的参数是 const char* ,因此对于一个字符串str我们必须调用 c_str()的方法把这个string转换成 const char*类型的,而stoi()的参数是const string*,不需要转化为 const char*；<br>
+</p>
+
+<p>
+stoi()会做范围检查，默认范围是在int的范围内的，如果超出范围的话则会runtime error！<br>
+</p>
+
+<p>
+atoi()不会做范围检查，如果超出范围的话，超出上界，则输出上界，超出下界，则输出下界；<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4be8068" class="outline-3">
+<h3 id="org4be8068">stoi</h3>
+<div class="outline-text-3" id="text-org4be8068">
+<p>
+atoi()的参数是 const char* ,因此对于一个字符串str我们必须调用 c_str()的方法把这个string转换成 const char*类型的,而stoi()的参数是const string*,不需要转化为 const char*；<br>
+</p>
+
+<p>
+stoi()会做范围检查，默认范围是在int的范围内的，如果超出范围的话则会runtime error！<br>
+</p>
+
+<p>
+atoi()不会做范围检查，如果超出范围的话，超出上界，则输出上界，超出下界，则输出下界；<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org2295f6a" class="outline-2">
+<h2 id="org2295f6a">math.h</h2>
+<div class="outline-text-2" id="text-org2295f6a">
+<ul class="org-ul">
+<li>pow(32.01, 1.54) = 208.036691<br></li>
+</ul>
+
+<hr>
+
+<dl class="org-dl">
+<dt>ceil(double x)</dt><dd>向上取整<br></dd>
+<dt>floor(doule x)</dt><dd>向下取整<br></dd>
+<dt>round(double x)</dt><dd>返回四舍五入的值<br></dd>
+<dt>hypot(double x, double y)</dt><dd>计算三角形斜边长<br></dd>
+<dt>sqrt(double x)</dt><dd>开平方<br></dd>
+<dt>exp(n)</dt><dd>\(e^n\)<br></dd>
+<dt>log(n)</dt><dd>\(log_e(n)\)<br></dd>
+<dt>log10(n)</dt><dd>\(log_{10}(n)\)<br></dd>
+<dt>\(log_{n}^{m}\)</dt><dd>\(\frac{log(m)}{log(n)}\)<br></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-org5a314f7" class="outline-2">
+<h2 id="org5a314f7">assert.h</h2>
+<div class="outline-text-2" id="text-org5a314f7">
+<dl class="org-dl">
+<dt>assert</dt><dd>断言，用于判断<br></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-org060e2ed" class="outline-2">
+<h2 id="org060e2ed">ctype.h</h2>
+<div class="outline-text-2" id="text-org060e2ed">
+<dl class="org-dl">
+<dt>isdigit</dt><dd><p>
+判断传入的字符是否为数字<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-cpp"><span style="color: #BD93F9;">if</span> (isdigit(c)) printf(<span style="color: #FC9F4E;">"It is a digit!"</span>);
+</pre>
+</div></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-org87153a9" class="outline-2">
+<h2 id="org87153a9">algorithm</h2>
+<div class="outline-text-2" id="text-org87153a9">
+<ul class="org-ul">
+<li>max<br></li>
+<li>min<br></li>
+<li id="abs">返回x的绝对值，x必须是整数，浮点型的绝对值应使用math头文件下的fabs<br></li>
+<li>swap<br></li>
+<li id="reverse"><p>
+reverse(it, it + i)，将数组指针或容器的迭代器在[it, it + i)范围内的元素进行反转<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-C++">reverse(vec.begin(), vec.end())
+</pre>
+</div></li>
+<li id="next_permutation"><p>
+next_permutation()给出一个序列在全排列中的下一个序列，在已经到达全排列的最后一个时会返回false<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-C++"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cstdio&gt;</span>
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;algorithm&gt;</span>
+<span style="color: #BD93F9;">using</span> <span style="color: #BD93F9;">namespace</span> <span style="color: #009F9F;">std</span>;
+
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
+    <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">A</span>[<span style="color: #009F9F;">5</span>] = {<span style="color: #009F9F;">0</span>, <span style="color: #009F9F;">1</span>, <span style="color: #009F9F;">2</span>, <span style="color: #009F9F;">3</span>, <span style="color: #009F9F;">4</span>};
+    <span style="color: #BD93F9;">do</span> {
+        printf(<span style="color: #FC9F4E;">"%d %d %d %d %d\n"</span>, A[<span style="color: #009F9F;">0</span>], A[<span style="color: #009F9F;">1</span>], A[<span style="color: #009F9F;">2</span>], A[<span style="color: #009F9F;">3</span>], A[<span style="color: #009F9F;">4</span>]);
+    } <span style="color: #BD93F9;">while</span>(next_permutation(A, A + <span style="color: #009F9F;">5</span>));
+
+    printf(<span style="color: #FC9F4E;">"\n"</span>);
+    <span style="color: #BD93F9;">do</span> {
+        printf(<span style="color: #FC9F4E;">"%d %d %d\n"</span>, A[<span style="color: #009F9F;">1</span>], A[<span style="color: #009F9F;">2</span>], A[<span style="color: #009F9F;">3</span>]);
+    } <span style="color: #BD93F9;">while</span>(next_permutation(A + <span style="color: #009F9F;">1</span>, A + <span style="color: #009F9F;">4</span>));
+
+    <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">0</span>;
+}
+</pre>
+</div></li>
+<li id="fill"><p>
+和memset不同，fill()可以把数组或容器中的某一段区间赋为某个相同的值，可以是数组类型对应范围中的任意值<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-C++"><span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">array</span>[<span style="color: #009F9F;">5</span>] = {<span style="color: #009F9F;">1</span>, <span style="color: #009F9F;">2</span>, <span style="color: #009F9F;">3</span>, <span style="color: #009F9F;">4</span>, <span style="color: #009F9F;">5</span>};
+fill(array, array + <span style="color: #009F9F;">4</span>, <span style="color: #009F9F;">0</span>);
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">-&gt; 0, 0, 0, 0, 5</span>
+</pre>
+</div></li>
+</ul>
+</div>
+<div id="outline-container-orge8799d8" class="outline-3">
+<h3 id="orge8799d8">sort</h3>
+<div class="outline-text-3" id="text-orge8799d8">
+<p>
+sort(首地址元素，尾地址元素下一个地址，比较函数)<br>
+</p>
+</div>
+<div id="outline-container-orgc70cca9" class="outline-4">
+<h4 id="orgc70cca9">int char型数组从小到大排序</h4>
+<div class="outline-text-4" id="text-orgc70cca9">
+<div class="org-src-container">
+<pre class="src src-C++"><span style="color: #AFAFAF;">int</span>  <span style="color: #AFAFAF;">A</span>[<span style="color: #009F9F;">10</span>] = {<span style="color: #009F9F;">1</span>, <span style="color: #009F9F;">2</span>, <span style="color: #009F9F;">3</span>, <span style="color: #009F9F;">4</span>, <span style="color: #009F9F;">5</span>, <span style="color: #009F9F;">6</span>, <span style="color: #009F9F;">7</span>, <span style="color: #009F9F;">8</span>, <span style="color: #009F9F;">9</span>, <span style="color: #009F9F;">0</span>};
+<span style="color: #AFAFAF;">char</span> <span style="color: #AFAFAF;">B</span>[<span style="color: #009F9F;">10</span>] = {<span style="color: #FC9F4E;">'A'</span>, <span style="color: #FC9F4E;">'B'</span>, <span style="color: #FC9F4E;">'C'</span>, <span style="color: #FC9F4E;">'D'</span>, <span style="color: #FC9F4E;">'E'</span>, <span style="color: #FC9F4E;">'F'</span>, <span style="color: #FC9F4E;">'G'</span>, <span style="color: #FC9F4E;">'H'</span>, <span style="color: #FC9F4E;">'I'</span>, <span style="color: #FC9F4E;">'J'</span>};
+sort(A, A + <span style="color: #009F9F;">10</span>);
+sort(B, B + <span style="color: #009F9F;">10</span>);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgfb059f4" class="outline-4">
+<h4 id="orgfb059f4">int char型数组从大到小排序</h4>
+<div class="outline-text-4" id="text-orgfb059f4">
+<div class="org-src-container">
+<pre class="src src-C++"><span style="color: #AFAFAF;">bool</span> <span style="color: #AFAFAF;">cmp1</span>(<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">numA</span>, <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">numB</span>) {
+    <span style="color: #BD93F9;">return</span> numA &gt; numB;
+}
+<span style="color: #AFAFAF;">bool</span> <span style="color: #AFAFAF;">cmp2</span>(<span style="color: #AFAFAF;">char</span> <span style="color: #AFAFAF;">charA</span>, <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">charB</span>) {
+    <span style="color: #BD93F9;">return</span> charA &gt; charB;
+}
+
+<span style="color: #AFAFAF;">int</span>  <span style="color: #AFAFAF;">A</span>[<span style="color: #009F9F;">10</span>] = {<span style="color: #009F9F;">1</span>, <span style="color: #009F9F;">2</span>, <span style="color: #009F9F;">3</span>, <span style="color: #009F9F;">4</span>, <span style="color: #009F9F;">5</span>, <span style="color: #009F9F;">6</span>, <span style="color: #009F9F;">7</span>, <span style="color: #009F9F;">8</span>, <span style="color: #009F9F;">9</span>, <span style="color: #009F9F;">0</span>};
+<span style="color: #AFAFAF;">char</span> <span style="color: #AFAFAF;">B</span>[<span style="color: #009F9F;">10</span>] = {<span style="color: #FC9F4E;">'A'</span>, <span style="color: #FC9F4E;">'B'</span>, <span style="color: #FC9F4E;">'C'</span>, <span style="color: #FC9F4E;">'D'</span>, <span style="color: #FC9F4E;">'E'</span>, <span style="color: #FC9F4E;">'F'</span>, <span style="color: #FC9F4E;">'G'</span>, <span style="color: #FC9F4E;">'H'</span>, <span style="color: #FC9F4E;">'I'</span>, <span style="color: #FC9F4E;">'J'</span>};
+sort(A, A + <span style="color: #009F9F;">10</span>, cmp1);
+sort(B, B + <span style="color: #009F9F;">10</span>, cmp2);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org3a9b2cd" class="outline-4">
+<h4 id="org3a9b2cd">结构体排序</h4>
+<div class="outline-text-4" id="text-org3a9b2cd">
+<div class="org-src-container">
+<pre class="src src-C++"><span style="color: #BD93F9;">struct</span> <span style="color: #AFAFAF;">Node</span> {
+    <span style="color: #AFAFAF;">int</span>  <span style="color: #AFAFAF;">x</span>;
+    <span style="color: #AFAFAF;">char</span> <span style="color: #AFAFAF;">ch</span>;
+} <span style="color: #AFAFAF;">node</span>[<span style="color: #009F9F;">10</span>];
+<span style="color: #AFAFAF;">bool</span> <span style="color: #AFAFAF;">cmp1</span>(<span style="color: #AFAFAF;">Node</span> <span style="color: #AFAFAF;">A</span>, <span style="color: #AFAFAF;">Node</span> <span style="color: #AFAFAF;">B</span>) {
+    <span style="color: #BD93F9;">return</span> A.x  &lt; B.x;
+}
+<span style="color: #AFAFAF;">bool</span> <span style="color: #AFAFAF;">cmp2</span>(<span style="color: #AFAFAF;">Node</span> <span style="color: #AFAFAF;">A</span>, <span style="color: #AFAFAF;">Node</span> <span style="color: #AFAFAF;">B</span>) {
+    <span style="color: #BD93F9;">return</span> A.x  &gt; B.x;
+}
+<span style="color: #AFAFAF;">bool</span> <span style="color: #AFAFAF;">cmp3</span>(<span style="color: #AFAFAF;">Node</span> <span style="color: #AFAFAF;">A</span>, <span style="color: #AFAFAF;">Node</span> <span style="color: #AFAFAF;">B</span>) {
+    <span style="color: #BD93F9;">return</span> A.ch &lt; B.ch;
+}
+<span style="color: #AFAFAF;">bool</span> <span style="color: #AFAFAF;">cmp3</span>(<span style="color: #AFAFAF;">Node</span> <span style="color: #AFAFAF;">A</span>, <span style="color: #AFAFAF;">Node</span> <span style="color: #AFAFAF;">B</span>) {
+    <span style="color: #BD93F9;">return</span> A.ch &gt; B.ch;
+}
+
+sort(node, node + <span style="color: #009F9F;">10</span>, cmp1);
+sort(node, node + <span style="color: #009F9F;">10</span>, cmp2);
+sort(node, node + <span style="color: #009F9F;">10</span>, cmp3);
+sort(node, node + <span style="color: #009F9F;">10</span>, cmp4);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb9a3dd3" class="outline-4">
+<h4 id="orgb9a3dd3">容器排序</h4>
+<div class="outline-text-4" id="text-orgb9a3dd3">
+<p>
+只有vector, string, deque可以使用sort排序<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-C++"><span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">vector</span>
+<span style="color: #AFAFAF;">bool</span> <span style="color: #AFAFAF;">cmp</span>(<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">A</span>, <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">B</span>) {
+    <span style="color: #BD93F9;">return</span> A &gt; B;
+}
+sort(vec.begin(), vec.end())
+sort(vec.begin(), vec.end(), cmp)
+
+<span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">string</span>
+<span style="color: #AFAFAF;">bool</span> <span style="color: #AFAFAF;">cmp</span>(<span style="color: #AFAFAF;">string</span> <span style="color: #AFAFAF;">str1</span>, <span style="color: #AFAFAF;">string</span> <span style="color: #AFAFAF;">str2</span>) {
+    <span style="color: #BD93F9;">return</span> str1.length() &gt; str2.length();
+}
+
+<span style="color: #AFAFAF;">string</span> <span style="color: #AFAFAF;">str</span>[<span style="color: #009F9F;">3</span>] = {<span style="color: #FC9F4E;">"A"</span>, <span style="color: #FC9F4E;">"BB"</span>, <span style="color: #FC9F4E;">"CCC"</span>};
+sort(str, str + <span style="color: #009F9F;">3</span>);
+<span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">0</span>; i &lt; <span style="color: #009F9F;">3</span>; i++)
+    cout &lt;&lt; str[i] &lt;&lt; endl;
+
+sort (str, str + <span style="color: #009F9F;">3</span>, cmp);
+<span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">0</span>; i &lt; <span style="color: #009F9F;">3</span>; i++)
+    cout &lt;&lt; str[i] &lt;&lt; endl;
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orge59924e" class="outline-3">
+<h3 id="orge59924e">lower_bound</h3>
+<div class="outline-text-3" id="text-orge59924e">
+<ul class="org-ul">
+<li>lower_bound(begin, end, val)<br></li>
+<li>[begin, end)范围内第一个小于等于val的元素的位置<br>
+<ul class="org-ul">
+<li>如果是数组，返回该位置指针<br></li>
+<li>如果是容器，返回该位置迭代器<br></li>
+</ul></li>
+<li>如果没有找到val，返回可以插入该元素位置的指针或迭代器<br></li>
+<li><p>
+时间复杂度O(log(begin - end))<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-C++"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cstdio&gt;</span>
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;algorithm&gt;</span>
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;vector&gt;</span>
+<span style="color: #BD93F9;">using</span> <span style="color: #BD93F9;">namespace</span> <span style="color: #009F9F;">std</span>;
+
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
+    <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">num</span>[] = {<span style="color: #009F9F;">0</span>, <span style="color: #009F9F;">1</span>, <span style="color: #009F9F;">1</span>, <span style="color: #009F9F;">1</span>, <span style="color: #009F9F;">1</span>, <span style="color: #009F9F;">1</span>, <span style="color: #009F9F;">2</span>};
+    <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">val</span> = <span style="color: #009F9F;">1</span>;
+    <span style="color: #AFAFAF;">int</span>* <span style="color: #AFAFAF;">lowerPos</span> = lower_bound(num, num + <span style="color: #009F9F;">7</span>, val);
+    printf(<span style="color: #FC9F4E;">"%d\n"</span>, (<span style="color: #AFAFAF;">int</span>)(lowerPos - num));
+    printf(<span style="color: #FC9F4E;">"%d\n"</span>, *lowerPos);
+
+    <span style="color: #AFAFAF;">int</span>* <span style="color: #AFAFAF;">upperPos</span> = upper_bound(num, num + <span style="color: #009F9F;">7</span>, val);
+    printf(<span style="color: #FC9F4E;">"%d\n"</span>, (<span style="color: #AFAFAF;">int</span>)(upperPos - num));
+    printf(<span style="color: #FC9F4E;">"%d\n"</span>, *upperPos);
+
+    <span style="color: #AFAFAF;">vector</span>&lt;<span style="color: #AFAFAF;">int</span>&gt; <span style="color: #AFAFAF;">vec</span>;
+    vec.push_back(<span style="color: #009F9F;">0</span>);
+    vec.push_back(<span style="color: #009F9F;">1</span>);
+    vec.push_back(<span style="color: #009F9F;">1</span>);
+    vec.push_back(<span style="color: #009F9F;">1</span>);
+    vec.push_back(<span style="color: #009F9F;">1</span>);
+    vec.push_back(<span style="color: #009F9F;">1</span>);
+    vec.push_back(<span style="color: #009F9F;">2</span>);
+    <span style="color: #009F9F;">vector</span>&lt;<span style="color: #AFAFAF;">int</span>&gt;::<span style="color: #AFAFAF;">iterator</span> <span style="color: #AFAFAF;">it</span>;
+    it = lower_bound(vec.begin(), vec.end(), val);
+    printf(<span style="color: #FC9F4E;">"%d\n"</span>, (<span style="color: #AFAFAF;">int</span>)(it - vec.begin()));
+    printf(<span style="color: #FC9F4E;">"%d\n"</span>, *it);
+
+    it = upper_bound(vec.begin(), vec.end(), val);
+    printf(<span style="color: #FC9F4E;">"%d\n"</span>, (<span style="color: #AFAFAF;">int</span>)(it - vec.begin()));
+    printf(<span style="color: #FC9F4E;">"%d\n"</span>, *it);
+
+    <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">0</span>;
+}
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org93bd7e1" class="outline-3">
+<h3 id="org93bd7e1">upper_bound</h3>
+<div class="outline-text-3" id="text-org93bd7e1">
+<ul class="org-ul">
+<li>upper_bound(begin, end, val)<br></li>
+<li>[begin, end)范围内第一个大于val的元素的位置<br>
+<ul class="org-ul">
+<li>如果是数组，返回该位置指针<br></li>
+<li>如果是容器，返回该位置迭代器<br></li>
+</ul></li>
+<li>如果没有找到val，返回可以插入该元素位置的指针或迭代器<br></li>
+<li><p>
+时间复杂度O(log(begin - end))<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-C++"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cstdio&gt;</span>
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;algorithm&gt;</span>
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;vector&gt;</span>
+<span style="color: #BD93F9;">using</span> <span style="color: #BD93F9;">namespace</span> <span style="color: #009F9F;">std</span>;
+
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
+    <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">num</span>[] = {<span style="color: #009F9F;">0</span>, <span style="color: #009F9F;">1</span>, <span style="color: #009F9F;">1</span>, <span style="color: #009F9F;">1</span>, <span style="color: #009F9F;">1</span>, <span style="color: #009F9F;">1</span>, <span style="color: #009F9F;">2</span>};
+    <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">val</span> = <span style="color: #009F9F;">1</span>;
+    <span style="color: #AFAFAF;">int</span>* <span style="color: #AFAFAF;">lowerPos</span> = lower_bound(num, num + <span style="color: #009F9F;">7</span>, val);
+    printf(<span style="color: #FC9F4E;">"%d\n"</span>, (<span style="color: #AFAFAF;">int</span>)(lowerPos - num));        <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">1</span>
+    printf(<span style="color: #FC9F4E;">"%d\n"</span>, *lowerPos);                    <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">1</span>
+
+    <span style="color: #AFAFAF;">int</span>* <span style="color: #AFAFAF;">upperPos</span> = upper_bound(num, num + <span style="color: #009F9F;">7</span>, val);
+    printf(<span style="color: #FC9F4E;">"%d\n"</span>, (<span style="color: #AFAFAF;">int</span>)(upperPos - num));        <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">6</span>
+    printf(<span style="color: #FC9F4E;">"%d\n"</span>, *upperPos);                    <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">2</span>
+
+    <span style="color: #AFAFAF;">vector</span>&lt;<span style="color: #AFAFAF;">int</span>&gt; <span style="color: #AFAFAF;">vec</span>;
+    vec.push_back(<span style="color: #009F9F;">0</span>);
+    vec.push_back(<span style="color: #009F9F;">1</span>);
+    vec.push_back(<span style="color: #009F9F;">1</span>);
+    vec.push_back(<span style="color: #009F9F;">1</span>);
+    vec.push_back(<span style="color: #009F9F;">1</span>);
+    vec.push_back(<span style="color: #009F9F;">1</span>);
+    vec.push_back(<span style="color: #009F9F;">2</span>);
+    <span style="color: #009F9F;">vector</span>&lt;<span style="color: #AFAFAF;">int</span>&gt;::<span style="color: #AFAFAF;">iterator</span> <span style="color: #AFAFAF;">it</span>;
+    it = lower_bound(vec.begin(), vec.end(), val);
+    printf(<span style="color: #FC9F4E;">"%d\n"</span>, (<span style="color: #AFAFAF;">int</span>)(it - vec.begin()));     <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">1</span>
+    printf(<span style="color: #FC9F4E;">"%d\n"</span>, *it);                         <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">1</span>
+
+    it = upper_bound(vec.begin(), vec.end(), val);
+    printf(<span style="color: #FC9F4E;">"%d\n"</span>, (<span style="color: #AFAFAF;">int</span>)(it - vec.begin()));     <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">6</span>
+    printf(<span style="color: #FC9F4E;">"%d\n"</span>, *it);                         <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">2</span>
+
+    <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">0</span>;
+}
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org88ea5c9" class="outline-3">
+<h3 id="org88ea5c9">copy</h3>
+<div class="outline-text-3" id="text-org88ea5c9">
+<ul class="org-ul">
+<li><p>
+ostream_iterator<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-C++"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;iostream&gt;</span>
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;vector&gt;</span>
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;algorithm&gt;</span>
+<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;iterator&gt;</span>
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
+    <span style="color: #009F9F;">std</span>::<span style="color: #AFAFAF;">vector</span>&lt;<span style="color: #AFAFAF;">int</span>&gt; <span style="color: #AFAFAF;">data</span> = {<span style="color: #009F9F;">1</span>, <span style="color: #009F9F;">21</span>, <span style="color: #009F9F;">31</span>, <span style="color: #009F9F;">41</span>, <span style="color: #009F9F;">51</span>, <span style="color: #009F9F;">61</span>, <span style="color: #009F9F;">71</span>, <span style="color: #009F9F;">81</span>};
+    <span style="color: #009F9F;">std</span>::<span style="color: #AFAFAF;">ostream_iterator</span>&lt;<span style="color: #AFAFAF;">int</span>&gt; <span style="color: #AFAFAF;">dataIter</span>(<span style="color: #009F9F;">std</span>::cout, <span style="color: #FC9F4E;">", "</span>);
+    <span style="color: #009F9F;">std</span>::copy(data.begin(), data.end(), dataIter);
+    <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">0</span>;
+}
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org17a3492" class="outline-3">
+<h3 id="org17a3492">nth_element</h3>
+<div class="outline-text-3" id="text-org17a3492">
+<div class="org-src-container">
+<pre class="src src-C++"><span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#25490;&#24207;&#35268;&#21017;&#37319;&#29992;&#40664;&#35748;&#30340;&#21319;&#24207;&#25490;&#24207;</span>
+<span style="color: #AFAFAF;">void</span> <span style="color: #AFAFAF;">nth_element</span> (<span style="color: #AFAFAF;">RandomAccessIterator</span> <span style="color: #AFAFAF;">first</span>,
+                  <span style="color: #AFAFAF;">RandomAccessIterator</span> <span style="color: #AFAFAF;">nth</span>,
+                  <span style="color: #AFAFAF;">RandomAccessIterator</span> <span style="color: #AFAFAF;">last</span>);
+<span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#25490;&#24207;&#35268;&#21017;&#20026;&#33258;&#23450;&#20041;&#30340; comp &#25490;&#24207;&#35268;&#21017;</span>
+<span style="color: #AFAFAF;">void</span> <span style="color: #AFAFAF;">nth_element</span> (<span style="color: #AFAFAF;">RandomAccessIterator</span> <span style="color: #AFAFAF;">first</span>,
+                  <span style="color: #AFAFAF;">RandomAccessIterator</span> <span style="color: #AFAFAF;">nth</span>,
+                  <span style="color: #AFAFAF;">RandomAccessIterator</span> <span style="color: #AFAFAF;">last</span>,
+                  <span style="color: #AFAFAF;">Compare</span> <span style="color: #AFAFAF;">comp</span>);
+</pre>
+</div>
+<p>
+其中，各个参数的含义如下：<br>
+</p>
+<ul class="org-ul">
+<li>first 和 last：都是随机访问迭代器，[first, last) 用于指定该函数的作用范围(即要处理哪些数据)<br></li>
+<li>nth：也是随机访问迭代器，其功能是令函数查找“第 nth 大”的元素，并将其移动到 nth 指向的位置<br></li>
+<li>comp：用于自定义排序规则<br></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2021-10-30 Sat 18:14</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

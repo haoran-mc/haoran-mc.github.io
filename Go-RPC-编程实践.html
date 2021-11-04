@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-10-30 Sat 22:16 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GO RPC 编程实践</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">GO RPC 编程实践</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orga6765c7">RPC 官方库 net/rpc 介绍</a></li>
+<li><a href="#orga10b771">net/rpc 实现 RPC 调用编程</a>
+<ul>
+<li><a href="#orgba8b1af">单参数的请求调用实现</a>
+<ul>
+<li><a href="#org531ebff">rpc 的两个参与者</a>
+<ul>
+<li><a href="#orgb286048">一、服务定义及暴露</a></li>
+<li><a href="#orge8b9249">二、注册服务及监听请求</a></li>
+<li><a href="#org898a284">三、客户端调用</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org82abc83">多参数的请求调用实现</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orga6765c7" class="outline-2">
+<h2 id="orga6765c7">RPC 官方库 net/rpc 介绍</h2>
+<div class="outline-text-2" id="text-orga6765c7">
+<p>
+RPC 官方库：<a href="https://pkg.go.dev/net/rpc">https://pkg.go.dev/net/rpc</a>， 官方提供的rpc包完整的包名是：net/rpc，根据官方的解释，rpc包主要是提供通过网络访问一个对象方法的功能。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga10b771" class="outline-2">
+<h2 id="orga10b771">net/rpc 实现 RPC 调用编程</h2>
+<div class="outline-text-2" id="text-orga10b771">
+</div>
+<div id="outline-container-orgba8b1af" class="outline-3">
+<h3 id="orgba8b1af">单参数的请求调用实现</h3>
+<div class="outline-text-3" id="text-orgba8b1af">
+</div>
+<div id="outline-container-org531ebff" class="outline-4">
+<h4 id="org531ebff">rpc 的两个参与者</h4>
+<div class="outline-text-4" id="text-org531ebff">
+<p>
+rpc 调用有两个参与者，分别是 <b>客户端（client）</b> 和服务端 <b>服务端（server）</b> 。<br>
+</p>
+
+<p>
+首先是提供方法暴露的一方 &#x2013; 服务器。<br>
+</p>
+</div>
+<div id="outline-container-orgb286048" class="outline-5">
+<h5 id="orgb286048">一、服务定义及暴露</h5>
+<div class="outline-text-5" id="text-orgb286048">
+<p>
+在编程实现过程中，服务器端需要注册结构体对象，然后通过对象所属方法暴露给调用者，从而提供服务，该方法称之为输出方法，此输出方法可以被远程调用。当然，在定义输出方法时，能够被远程调用的方法需要遵循一定的规则：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #BD93F9;">func</span> (<span style="color: #AFAFAF;">t</span> *<span style="color: #AFAFAF;">T</span>) <span style="color: #AFAFAF;">MethodName</span>(<span style="color: #AFAFAF;">request</span> <span style="color: #AFAFAF;">T1</span>, <span style="color: #AFAFAF;">respose</span> *<span style="color: #AFAFAF;">T2</span>) <span style="color: #AFAFAF;">error</span>
+</pre>
+</div>
+
+<p>
+上述 go 语言官方给出的对外暴露的服务方法的定义标准，其中包含了主要的几条规则，分别是：<br>
+</p>
+<ol class="org-ol">
+<li>对外暴露的方法有且只能有两个参数，这两个参数只能是输出类型或内建类型，两种类型中的一种。<br></li>
+<li>方法的第二个参数必须是指针类型。<br></li>
+<li>方法的返回类型为 error。<br></li>
+<li>方法的类型是可输出的。<br></li>
+<li>方法本身也是可输出的。<br></li>
+</ol>
+
+<p>
+举例说明：假设目前有一个需求，给出一个float类型变量，作为圆形的半径，要求通过 RPC 调用，返回对应的圆形面积。具体的编程思路如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">MathUtil &#25968;&#23398;&#35745;&#31639;</span>
+<span style="color: #BD93F9;">type</span> <span style="color: #AFAFAF;">MathUtil</span> <span style="color: #BD93F9;">struct</span> {
+}
+
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">CalculateCircleArea &#35813;&#26041;&#27861;&#21521;&#22806;&#26292;&#38706;&#65292;&#25552;&#20379;&#35745;&#31639;&#21407;&#22411;&#38754;&#31215;&#30340;&#26381;&#21153;</span>
+<span style="color: #BD93F9;">func</span> (<span style="color: #AFAFAF;">mu</span> *<span style="color: #AFAFAF;">MathUtil</span>) <span style="color: #AFAFAF;">CalculateCircleArea</span>(<span style="color: #AFAFAF;">req</span> <span style="color: #AFAFAF;">float32</span>, <span style="color: #AFAFAF;">resp</span> *<span style="color: #AFAFAF;">float32</span>) <span style="color: #AFAFAF;">error</span> {
+    *resp = math.Pi * req * req   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#22278;&#24418;&#30340;&#38754;&#31215; s = Pi * r * r</span>
+    <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">nil</span>
+}
+</pre>
+</div>
+
+<p>
+在上面的代码中，可以看到：<br>
+</p>
+<ol class="org-ol">
+<li>Calculate 方法是服务对象 MathUtil 向外提供的服务方法，该方法用于接收传入的圆形半径数据，计算圆形面积并返回。<br></li>
+<li>第一个参数 req 代表的是调用者（client）传递提供的参数。<br></li>
+<li>第二个参数 resp 代表要返回给调用者的计算结果，必须是指针类型。<br></li>
+<li>正常情况下，方法的返回值为是 error，为 nil。如果遇到异常或特殊情况，则 error 将作为一个字符串返回给调用者，此时，resp 参数就不会再返回给调用者。<br></li>
+</ol>
+
+<p>
+至此为止，已经实现了服务端的功能定义，接下来就是让服务代码生效，需要将服务进行注册，并启动请求处理。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge8b9249" class="outline-5">
+<h5 id="orge8b9249">二、注册服务及监听请求</h5>
+<div class="outline-text-5" id="text-orge8b9249">
+<p>
+net/rpc 包为我们提供了注册服务和处理请求的一系列方法，结合本案例实现注册及处理逻辑，如下所示：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">1. &#21021;&#22987;&#21270;&#25351;&#38024;&#25968;&#25454;&#31867;&#22411;</span>
+<span style="color: #AFAFAF;">mathUtil</span> := <span style="color: #AFAFAF;">new</span>(<span style="color: #AFAFAF;">MathUtil</span>)
+
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">2. &#35843;&#29992; net/rpc &#21253;&#30340;&#21151;&#33021;&#23558;&#26381;&#21153;&#23545;&#35937;&#36827;&#34892;&#27880;&#20876;</span>
+<span style="color: #AFAFAF;">err</span> := rpc.<span style="color: #AFAFAF;">Register</span>(mathUtil)
+<span style="color: #BD93F9;">if</span> err != <span style="color: #009F9F;">nil</span> {
+    <span style="color: #AFAFAF;">panic</span>(err.<span style="color: #AFAFAF;">Error</span>())
+}
+
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">3. &#36890;&#36807;&#35813;&#20989;&#25968;&#25226; mathUtil &#20013;&#25552;&#20379;&#30340;&#26381;&#21153;&#27880;&#20876;&#21040; HTTP &#21327;&#35758;&#19978;&#65292;&#26041;&#20415;&#35843;&#29992;&#32773;&#21487;&#20197;&#21033;&#29992; http &#30340;&#26041;&#24335;&#36827;&#34892;&#25968;&#25454;&#20256;&#36882;</span>
+rpc.<span style="color: #AFAFAF;">HandleHTTP</span>()
+
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">4. &#22312;&#29305;&#23450;&#30340;&#31471;&#21475;&#36827;&#34892;&#30417;&#21548;</span>
+<span style="color: #AFAFAF;">listen</span>, <span style="color: #AFAFAF;">err</span> := net.<span style="color: #AFAFAF;">Listen</span>(<span style="color: #FC9F4E;">"tcp"</span>, <span style="color: #FC9F4E;">":8081"</span>)
+<span style="color: #BD93F9;">if</span> err != <span style="color: #009F9F;">nil</span> {
+    <span style="color: #AFAFAF;">panic</span>(err.<span style="color: #AFAFAF;">Error</span>())
+}
+http.<span style="color: #AFAFAF;">Serve</span>(listen, <span style="color: #009F9F;">nil</span>)
+</pre>
+</div>
+
+<p>
+经过服务注册和监听处理，RPC 调用过程中的服务端实现就已经完成了。接下来需要实现的是客户端请求代码的实现。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org898a284" class="outline-5">
+<h5 id="org898a284">三、客户端调用</h5>
+<div class="outline-text-5" id="text-org898a284">
+<p>
+在服务端是通过http的端口监听方式等待连接的，因此在客户端就需要通过http连接，首先与服务端实现连接。<br>
+</p>
+
+<ul class="org-ul">
+<li><p>
+客户端连接服务端<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #AFAFAF;">client</span>, <span style="color: #AFAFAF;">err</span> := rpc.<span style="color: #AFAFAF;">DialHTTP</span>(<span style="color: #FC9F4E;">"tcp"</span>, <span style="color: #FC9F4E;">"localhost:8081"</span>)
+<span style="color: #BD93F9;">if</span> err != <span style="color: #009F9F;">nil</span> {
+    <span style="color: #AFAFAF;">panic</span>(err.<span style="color: #AFAFAF;">Error</span>())
+}
+</pre>
+</div></li>
+
+<li><p>
+远端方法调用<br>
+客户端成功连接服务端以后，就可以通过方法调用服务端的方法，具体的调用方法如下：<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #BD93F9;">var</span> <span style="color: #AFAFAF;">req</span> <span style="color: #AFAFAF;">float32</span>   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#35831;&#27714;&#20540;</span>
+req = <span style="color: #009F9F;">3</span>
+
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#21516;&#27493;&#30340;&#35843;&#29992;&#26041;&#24335;</span>
+<span style="color: #BD93F9;">var</span> <span style="color: #AFAFAF;">resp</span> *<span style="color: #AFAFAF;">float32</span>   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#36820;&#22238;&#20540;</span>
+err = client.<span style="color: #AFAFAF;">Call</span>(<span style="color: #FC9F4E;">"MathUtil.CalculateCircleArea"</span>, req, &amp;resp)
+<span style="color: #BD93F9;">if</span> err != <span style="color: #009F9F;">nil</span> {
+    <span style="color: #AFAFAF;">panic</span>(err.<span style="color: #AFAFAF;">Error</span>())
+}
+fmt.<span style="color: #AFAFAF;">Println</span>(*resp)
+</pre>
+</div>
+
+<p>
+上述的调用方法核心在于client.Call方法的调用。该方法有三个参数，第一个参数表示要调用的远端服务的方法名，第二个参数是调用时要传入的参数，第三个参数是调用要接收的返回值。<br>
+</p>
+
+<p>
+上述的Call方法调用实现的方式是同步的调用，除此之外，还有一种异步的方式可以实现调用。异步调用代码实现如下：<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #BD93F9;">var</span> <span style="color: #AFAFAF;">respSync</span> *<span style="color: #AFAFAF;">float32</span>
+<span style="color: #AFAFAF;">syncCall</span> := client.<span style="color: #AFAFAF;">Go</span>(<span style="color: #FC9F4E;">"MathUtil.CalculateCircleArea"</span>, req, &amp;respSync, <span style="color: #009F9F;">nil</span>)
+<span style="color: #AFAFAF;">replayDone</span> := &lt;-syncCall.Done
+fmt.<span style="color: #AFAFAF;">Println</span>(replayDone)
+fmt.<span style="color: #AFAFAF;">Println</span>(*respSync)
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org82abc83" class="outline-3">
+<h3 id="org82abc83">多参数的请求调用实现</h3>
+<div class="outline-text-3" id="text-org82abc83">
+<p>
+上述内容演示了单个参数下的RPC调用，对于多参数下的请求该如何实现。我们通过另外一个案例讲解。<br>
+</p>
+
+<p>
+假设现在需要实现另一个需求：通过RPC调用实现计算两个数字相加功能并返回计算结果。此时，就需要传递两个参数，具体实现如下：<br>
+</p>
+
+<p>
+将参数定义在一个新的结构体中，存放在param包中：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #BD93F9;">type</span> <span style="color: #AFAFAF;">AddParma</span> <span style="color: #BD93F9;">struct</span> {
+    Args1 <span style="color: #AFAFAF;">float32</span>
+    Args2 <span style="color: #AFAFAF;">float32</span>
+}
+</pre>
+</div>
+
+<p>
+在server.go文件中，实现两数相加的功能，并实现服务注册的逻辑：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">Add &#26681;&#25454;RPC&#30340;&#35268;&#23450;&#65292;&#36824;&#26159;&#38656;&#35201;&#20004;&#20010;&#21442;&#25968;&#65292;&#37027;&#20040;&#23601;&#29992;&#32467;&#26500;&#20307;&#20256;&#21442;</span>
+<span style="color: #BD93F9;">func</span> (<span style="color: #AFAFAF;">mu</span> *<span style="color: #AFAFAF;">MathUtil</span>) <span style="color: #AFAFAF;">Add</span>(<span style="color: #AFAFAF;">param</span> <span style="color: #AFAFAF;">param.AddParam</span>, <span style="color: #AFAFAF;">resp</span> *<span style="color: #AFAFAF;">float32</span>) <span style="color: #AFAFAF;">error</span> {
+    *resp = param.Args1 + param.Args2   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#21152;&#27861;</span>
+    <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">nil</span>
+}
+
+<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">main</span>() {
+    <span style="color: #AFAFAF;">mathUtil</span> := <span style="color: #AFAFAF;">new</span>(<span style="color: #AFAFAF;">MathUtil</span>)
+
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">2. &#36825;&#37324;&#20351;&#29992; RegisterName &#30340;&#26041;&#27861;&#65292;&#31532;&#19968;&#20010;&#21442;&#25968;&#26159;&#26381;&#21153;&#30340;&#21517;&#31216;&#65292;&#21487;&#20197;&#33258;&#23450;&#20041;</span>
+    <span style="color: #AFAFAF;">err</span> := rpc.<span style="color: #AFAFAF;">RegisterName</span>(<span style="color: #FC9F4E;">"MathUtil"</span>, mathUtil)
+    <span style="color: #BD93F9;">if</span> err != <span style="color: #009F9F;">nil</span> {
+        <span style="color: #AFAFAF;">panic</span>(err.<span style="color: #AFAFAF;">Error</span>())
+    }
+
+    rpc.<span style="color: #AFAFAF;">HandleHTTP</span>()
+
+    <span style="color: #AFAFAF;">listen</span>, <span style="color: #AFAFAF;">err</span> := net.<span style="color: #AFAFAF;">Listen</span>(<span style="color: #FC9F4E;">"tcp"</span>, <span style="color: #FC9F4E;">":8001"</span>)
+    <span style="color: #BD93F9;">if</span> err != <span style="color: #009F9F;">nil</span> {
+        <span style="color: #AFAFAF;">panic</span>(err.<span style="color: #AFAFAF;">Error</span>())
+    }
+    http.<span style="color: #AFAFAF;">Serve</span>(listen, <span style="color: #009F9F;">nil</span>)
+}
+</pre>
+</div>
+
+<p>
+在本案例中，通过新的注册方法 rpc.RegisterName实现了服务的注册和调用。<br>
+</p>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2021-10-29 19:10 Fri</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2021-10-30 Sat 22:16</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

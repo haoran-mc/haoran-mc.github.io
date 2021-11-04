@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-09-30 四 03:24 -->
+<!-- 2021-11-04 Thu 14:12 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>字典树</title>
@@ -13,6 +13,28 @@
                 <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
                 <script type="module" src="static/js/main.js" defer></script>
                 <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
 </head>
 <body>
 <div id="content">
@@ -21,38 +43,38 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgcb99074">字典树定义</a></li>
+<li><a href="#orgc3a66f2">简介</a></li>
 <li><a href="#org51ec835">字典树的应用</a></li>
-<li><a href="#orgb759a2c">map实现</a></li>
-<li><a href="#org4ce3152">指针实现</a></li>
-<li><a href="#org69734e7">数组实现</a></li>
+<li><a href="#org32bf144">代码实现</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgcb99074" class="outline-2">
-<h2 id="orgcb99074">字典树定义</h2>
-<div class="outline-text-2" id="text-orgcb99074">
-<pre class="example" id="org51ca5c2">
-             _
-            |_|  root
-            /|\
-           / | \
-          /  |  \
-     [t] t   a   i [i]
-        / \       \ 
-       /   \       \
-      /     \       \
-[to] o       e [te]  n [in]
-            /|\       \
-           / | \       \
-          /  |  \       \
-         a   d   n       n [inn]
-     [tea] [ted] [ten]
-</pre>
+<div id="outline-container-orgc3a66f2" class="outline-2">
+<h2 id="orgc3a66f2">简介</h2>
+<div class="outline-text-2" id="text-orgc3a66f2">
 <p>
-每个单词的结束位置对应一个"单词结点"，从根结点到每个单词结点的路径上所有字母连接而成的字符串就是该结点对应的字符串
-ch[i][j]保存结点i的那个编号为j的子结点，ch[i][0] == 0表示结点i的子结点a不存在
+顾名思义，就是一个像字典一样的树。<br>
+</p>
+
+<img src="./images/字典树01.png" width=530px />
+
+<p>
+字典树用节点表示字母，从根结点到树上的某一节点的路径代表一个字符串。<br>
+</p>
+
+<p>
+例如 \(1 \rightarrow 4 \rightarrow 8 \rightarrow 12\) 表示的就是字符串 \(caa\)。<br>
+</p>
+
+<p>
+但并不是每一条路径都是一个我们存储过的字符串，还需要使用 \(cnt\) 数组标记这个字符串是否记录过，记录出现过几次。<br>
+</p>
+
+<img src="./images/字典树02.jpg" width=750px />
+
+<p>
+如上图，如果现在要使用这个字典树存储字符串 <code>"caa"</code> 那么先查找是否出现过字符 <code>'c'</code> ；出现，那么看字符串 <code>"c"</code> 后面是否出现过 <code>'a'</code> ；出现，那么看字符串 <code>"ca"</code> 后面是否出现过 <code>'a'</code> ；出现，那么 <code>cnt[9] ++</code> 。<br>
 </p>
 </div>
 </div>
@@ -60,21 +82,46 @@ ch[i][j]保存结点i的那个编号为j的子结点，ch[i][0] == 0表示结点
 <h2 id="org51ec835">字典树的应用</h2>
 <div class="outline-text-2" id="text-org51ec835">
 <ol class="org-ol">
-<li>字符串的检索</li>
-<li>词频统计</li>
-<li>字符串排序</li>
-<li>前缀匹配</li>
+<li>字符串的检索<br></li>
+<li>词频统计<br></li>
+<li>字符串排序<br></li>
+<li>前缀匹配<br></li>
 </ol>
 </div>
 </div>
-<div id="outline-container-orgb759a2c" class="outline-2">
-<h2 id="orgb759a2c">map实现</h2>
+<div id="outline-container-org32bf144" class="outline-2">
+<h2 id="org32bf144">代码实现</h2>
+<div class="outline-text-2" id="text-org32bf144">
+<div class="org-src-container">
+<pre class="src src-cpp"><span style="color: #BD93F9;">struct</span> <span style="color: #AFAFAF;">Trie</span> {
+    <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">trie</span>[<span style="color: #009F9F;">100000</span> + <span style="color: #009F9F;">5</span>][<span style="color: #009F9F;">26</span>], <span style="color: #AFAFAF;">cnt</span>[<span style="color: #009F9F;">100000</span> + <span style="color: #009F9F;">5</span>], <span style="color: #AFAFAF;">idx</span>;
+
+    <span style="color: #AFAFAF;">void</span> <span style="color: #AFAFAF;">insert</span>(<span style="color: #AFAFAF;">char</span> <span style="color: #AFAFAF;">str</span>[]) {
+        <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">p</span> = <span style="color: #009F9F;">0</span>; 
+        <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">0</span>; str[i]; ++ i) {
+            <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">u</span> = str[i] - <span style="color: #FC9F4E;">'a'</span>;
+            <span style="color: #BD93F9;">if</span> (!trie[p][u])
+                trie[p][u] = ++ idx;
+            p = trie[p][u];
+        }
+        cnt[p] ++ ;
+    }
+
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#26597;&#35810;&#36825;&#20010;&#23383;&#31526;&#20018;&#20986;&#29616;&#27425;&#25968;</span>
+    <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">query</span>(<span style="color: #AFAFAF;">char</span> <span style="color: #AFAFAF;">str</span>[]) {
+        <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">p</span> = <span style="color: #009F9F;">0</span>;
+        <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">0</span>; str[i]; ++i) {
+            <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">u</span> = str[i] - <span style="color: #FC9F4E;">'a'</span>;
+            <span style="color: #BD93F9;">if</span> (!trie[p][u])
+                <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">0</span>;
+            p = trie[p][u];
+        }
+        <span style="color: #BD93F9;">return</span> cnt[p];
+    }
+}
+</pre>
 </div>
-<div id="outline-container-org4ce3152" class="outline-2">
-<h2 id="org4ce3152">指针实现</h2>
 </div>
-<div id="outline-container-org69734e7" class="outline-2">
-<h2 id="org69734e7">数组实现</h2>
 </div>
 </div>
 </body>
