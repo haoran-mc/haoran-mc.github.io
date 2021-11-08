@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-09-29 三 22:56 -->
+<!-- 2021-11-04 Thu 23:01 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>INDEX</title>
+<title>EVAL</title>
 <meta name="generator" content="Org mode">
 <meta name="author" content="L.M.haoran">
 <meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
@@ -16,7 +16,7 @@
 </head>
 <body>
 <div id="content">
-<h1 class="title">INDEX</h1>
+<h1 class="title">EVAL</h1>
 <div id="table-of-contents">
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
@@ -28,88 +28,86 @@
 </div>
 </div>
 <p>
-eval是python的一个内置函数，其作用是返回传入字符串的表达式的结果
+eval是python的一个内置函数，其作用是返回传入字符串的表达式的结果<br>
 </p>
 
 <ul class="org-ul">
-<li>语法：eval(expression[, globals[, locals]])
+<li>语法：eval(expression[, globals[, locals]])<br>
 <ul class="org-ul">
-<li>expression： 这个参数是一个表达式</li>
-<li>globals： 变量作用域，全局命名空间，如果被提供，则必须是一个字典对象</li>
-<li>locals：  变量作用域，局部命名空间，如果被提供，可以是任何映射对象</li>
+<li>expression： 这个参数是一个表达式<br></li>
+<li>globals： 变量作用域，全局命名空间，如果被提供，则必须是一个字典对象<br></li>
+<li>locals：  变量作用域，局部命名空间，如果被提供，可以是任何映射对象<br></li>
 </ul></li>
 </ul>
 
-<p>
-![python命名空间](/home/haoran/图片/typora-photo/python命名空间.png)
-</p>
+<img src="./images/python命名空间.png" />
 
 <div id="outline-container-orgb4c7e37" class="outline-2">
 <h2 id="orgb4c7e37">1. 只提供第一个参数，eval的作用就是将expression的引号去掉，保留引号中字符的原有属性</h2>
 <div class="outline-text-2" id="text-orgb4c7e37">
 <div class="org-src-container">
-<pre class="src src-python">m = "123"
-print(eval(m))
-# 输出123
+<pre class="src src-python"><span style="color: #AFAFAF;">m</span> = <span style="color: #FC9F4E;">"123"</span>
+<span style="color: #BD93F9;">print</span>(<span style="color: #AFAFAF;">eval</span>(m))
+<span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&#36755;&#20986;123</span>
 </pre>
 </div>
 
 <div class="org-src-container">
-<pre class="src src-python">x = 3
-print(eval("3 * x"))
-print(eval("pow(2, x)"))
-# 输出9 8
+<pre class="src src-python"><span style="color: #AFAFAF;">x</span> = <span style="color: #009F9F;">3</span>
+<span style="color: #BD93F9;">print</span>(<span style="color: #AFAFAF;">eval</span>(<span style="color: #FC9F4E;">"3 * x"</span>))
+<span style="color: #BD93F9;">print</span>(<span style="color: #AFAFAF;">eval</span>(<span style="color: #FC9F4E;">"pow(2, x)"</span>))
+<span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&#36755;&#20986;9 8</span>
 </pre>
 </div>
 
 <div class="org-src-container">
-<pre class="src src-python">n = "ABC"
-print(eval(n))
-# NameError: name 'ABC' is not define
-# 在这个程序中，eval会剥去变量n的引号，发现ABC不能像上一个程序一样计算
-# eval就会认为ABC是一个变量名，并在当前作用域查找ABC变量
-# 未能找到，报错
+<pre class="src src-python"><span style="color: #AFAFAF;">n</span> = <span style="color: #FC9F4E;">"ABC"</span>
+<span style="color: #BD93F9;">print</span>(<span style="color: #AFAFAF;">eval</span>(n))
+<span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">NameError: name 'ABC' is not define</span>
+<span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&#22312;&#36825;&#20010;&#31243;&#24207;&#20013;&#65292;eval&#20250;&#21093;&#21435;&#21464;&#37327;n&#30340;&#24341;&#21495;&#65292;&#21457;&#29616;ABC&#19981;&#33021;&#20687;&#19978;&#19968;&#20010;&#31243;&#24207;&#19968;&#26679;&#35745;&#31639;</span>
+<span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">eval&#23601;&#20250;&#35748;&#20026;ABC&#26159;&#19968;&#20010;&#21464;&#37327;&#21517;&#65292;&#24182;&#22312;&#24403;&#21069;&#20316;&#29992;&#22495;&#26597;&#25214;ABC&#21464;&#37327;</span>
+<span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&#26410;&#33021;&#25214;&#21040;&#65292;&#25253;&#38169;</span>
 </pre>
 </div>
 
 <div class="org-src-container">
-<pre class="src src-python">ABC = "DEF"
-n = "ABC"
-print(eval("n"))
-print(eval(n))
-# 第一个eval尝试剥去"n"的引号，n不能进行计算，于是认为n是一个变量，查找变量n并print(n)
-# 第二个eval超市剥去n的引号，ABC不能进行计算，于是认为ABC是一个变量，查找变量ABC并print(ABC)
+<pre class="src src-python"><span style="color: #AFAFAF;">ABC</span> = <span style="color: #FC9F4E;">"DEF"</span>
+<span style="color: #AFAFAF;">n</span> = <span style="color: #FC9F4E;">"ABC"</span>
+<span style="color: #BD93F9;">print</span>(<span style="color: #AFAFAF;">eval</span>(<span style="color: #FC9F4E;">"n"</span>))
+<span style="color: #BD93F9;">print</span>(<span style="color: #AFAFAF;">eval</span>(n))
+<span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&#31532;&#19968;&#20010;eval&#23581;&#35797;&#21093;&#21435;"n"&#30340;&#24341;&#21495;&#65292;n&#19981;&#33021;&#36827;&#34892;&#35745;&#31639;&#65292;&#20110;&#26159;&#35748;&#20026;n&#26159;&#19968;&#20010;&#21464;&#37327;&#65292;&#26597;&#25214;&#21464;&#37327;n&#24182;print(n)</span>
+<span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&#31532;&#20108;&#20010;eval&#36229;&#24066;&#21093;&#21435;n&#30340;&#24341;&#21495;&#65292;ABC&#19981;&#33021;&#36827;&#34892;&#35745;&#31639;&#65292;&#20110;&#26159;&#35748;&#20026;ABC&#26159;&#19968;&#20010;&#21464;&#37327;&#65292;&#26597;&#25214;&#21464;&#37327;ABC&#24182;print(ABC)</span>
 </pre>
 </div>
 
 <div class="org-src-container">
-<pre class="src src-python"># eval函数还能将形似列表的字符串变成真列表
-m = "['123', '456', '789']"
-print(type(m))
+<pre class="src src-python"><span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">eval&#20989;&#25968;&#36824;&#33021;&#23558;&#24418;&#20284;&#21015;&#34920;&#30340;&#23383;&#31526;&#20018;&#21464;&#25104;&#30495;&#21015;&#34920;</span>
+<span style="color: #AFAFAF;">m</span> = <span style="color: #FC9F4E;">"['123', '456', '789']"</span>
+<span style="color: #BD93F9;">print</span>(<span style="color: #AFAFAF;">type</span>(m))
 
-n = eval(m)
-print(type(n))
-print(n)
-# 输出：
-# &lt;class 'str'&gt;
-# &lt;class 'list'&gt;
-# ['123', '456', '789']
+<span style="color: #AFAFAF;">n</span> = <span style="color: #AFAFAF;">eval</span>(m)
+<span style="color: #BD93F9;">print</span>(<span style="color: #AFAFAF;">type</span>(n))
+<span style="color: #BD93F9;">print</span>(n)
+<span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&#36755;&#20986;&#65306;</span>
+<span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&lt;class 'str'&gt;</span>
+<span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&lt;class 'list'&gt;</span>
+<span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">['123', '456', '789']</span>
 </pre>
 </div>
 
 <div class="org-src-container">
-<pre class="src src-python">m = "[A, B, C]"
-print(eval(m))
-# 剥去m的引号发现是一个列表，列表中是一些变量，于是查找变量
-# 未能找到，NameError: name "A' is not defined
+<pre class="src src-python"><span style="color: #AFAFAF;">m</span> = <span style="color: #FC9F4E;">"[A, B, C]"</span>
+<span style="color: #BD93F9;">print</span>(<span style="color: #AFAFAF;">eval</span>(m))
+<span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&#21093;&#21435;m&#30340;&#24341;&#21495;&#21457;&#29616;&#26159;&#19968;&#20010;&#21015;&#34920;&#65292;&#21015;&#34920;&#20013;&#26159;&#19968;&#20123;&#21464;&#37327;&#65292;&#20110;&#26159;&#26597;&#25214;&#21464;&#37327;</span>
+<span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&#26410;&#33021;&#25214;&#21040;&#65292;NameError: name "A' is not defined</span>
 
-A = 1
-B = 2
-C = 3
-n = "['A', 'B', 'C']"
-print(eval(n))
-# 剥去n的引号发现是一个列表，列表中是一些变量，于是查找变量
-# 去不找到，输出：[1, 2, 3]
+<span style="color: #AFAFAF;">A</span> = <span style="color: #009F9F;">1</span>
+<span style="color: #AFAFAF;">B</span> = <span style="color: #009F9F;">2</span>
+<span style="color: #AFAFAF;">C</span> = <span style="color: #009F9F;">3</span>
+<span style="color: #AFAFAF;">n</span> = <span style="color: #FC9F4E;">"['A', 'B', 'C']"</span>
+<span style="color: #BD93F9;">print</span>(<span style="color: #AFAFAF;">eval</span>(n))
+<span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&#21093;&#21435;n&#30340;&#24341;&#21495;&#21457;&#29616;&#26159;&#19968;&#20010;&#21015;&#34920;&#65292;&#21015;&#34920;&#20013;&#26159;&#19968;&#20123;&#21464;&#37327;&#65292;&#20110;&#26159;&#26597;&#25214;&#21464;&#37327;</span>
+<span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&#21435;&#19981;&#25214;&#21040;&#65292;&#36755;&#20986;&#65306;[1, 2, 3]</span>
 </pre>
 </div>
 </div>
@@ -119,17 +117,17 @@ print(eval(n))
 <h2 id="orgad5ae95">2. 同时提供globals这个参数</h2>
 <div class="outline-text-2" id="text-orgad5ae95">
 <div class="org-src-container">
-<pre class="src src-python">A = 1
-B = 2
-C = 3
-dic = {'A': 10, 'B': 20}
-print(eval("A + B", dic))
-# 输出30
-# 相当于eval的作用域变成了dic这个字典，外面的A，B都看不到了
+<pre class="src src-python"><span style="color: #AFAFAF;">A</span> = <span style="color: #009F9F;">1</span>
+<span style="color: #AFAFAF;">B</span> = <span style="color: #009F9F;">2</span>
+<span style="color: #AFAFAF;">C</span> = <span style="color: #009F9F;">3</span>
+<span style="color: #AFAFAF;">dic</span> = {<span style="color: #FC9F4E;">'A'</span>: <span style="color: #009F9F;">10</span>, <span style="color: #FC9F4E;">'B'</span>: <span style="color: #009F9F;">20</span>}
+<span style="color: #BD93F9;">print</span>(<span style="color: #AFAFAF;">eval</span>(<span style="color: #FC9F4E;">"A + B"</span>, dic))
+<span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&#36755;&#20986;30</span>
+<span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&#30456;&#24403;&#20110;eval&#30340;&#20316;&#29992;&#22495;&#21464;&#25104;&#20102;dic&#36825;&#20010;&#23383;&#20856;&#65292;&#22806;&#38754;&#30340;A&#65292;B&#37117;&#30475;&#19981;&#21040;&#20102;</span>
 
-print(eval("A + B + C", dic))
-# Namerror: name 'C' is not defined
-# 找不到变量C
+<span style="color: #BD93F9;">print</span>(<span style="color: #AFAFAF;">eval</span>(<span style="color: #FC9F4E;">"A + B + C"</span>, dic))
+<span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">Namerror: name 'C' is not defined</span>
+<span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&#25214;&#19981;&#21040;&#21464;&#37327;C</span>
 </pre>
 </div>
 </div>
@@ -139,14 +137,14 @@ print(eval("A + B + C", dic))
 <h2 id="org6e82652">3. 同时提供locals这个参数</h2>
 <div class="outline-text-2" id="text-org6e82652">
 <div class="org-src-container">
-<pre class="src src-python">A = 1
-B = 2
-C = 3
-dic1 = {'A': 10, 'B': 20}
-dic2 = {'A': 100, 'C': 300}
-print(eval("A + B + C", dic1, dic2))
-# 输出420
-# dic2的优先级高于dic1，先从dic2中查找变量，为找到的再从dic1中查找
+<pre class="src src-python"><span style="color: #AFAFAF;">A</span> = <span style="color: #009F9F;">1</span>
+<span style="color: #AFAFAF;">B</span> = <span style="color: #009F9F;">2</span>
+<span style="color: #AFAFAF;">C</span> = <span style="color: #009F9F;">3</span>
+<span style="color: #AFAFAF;">dic1</span> = {<span style="color: #FC9F4E;">'A'</span>: <span style="color: #009F9F;">10</span>, <span style="color: #FC9F4E;">'B'</span>: <span style="color: #009F9F;">20</span>}
+<span style="color: #AFAFAF;">dic2</span> = {<span style="color: #FC9F4E;">'A'</span>: <span style="color: #009F9F;">100</span>, <span style="color: #FC9F4E;">'C'</span>: <span style="color: #009F9F;">300</span>}
+<span style="color: #BD93F9;">print</span>(<span style="color: #AFAFAF;">eval</span>(<span style="color: #FC9F4E;">"A + B + C"</span>, dic1, dic2))
+<span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&#36755;&#20986;420</span>
+<span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">dic2&#30340;&#20248;&#20808;&#32423;&#39640;&#20110;dic1&#65292;&#20808;&#20174;dic2&#20013;&#26597;&#25214;&#21464;&#37327;&#65292;&#20026;&#25214;&#21040;&#30340;&#20877;&#20174;dic1&#20013;&#26597;&#25214;</span>
 </pre>
 </div>
 </div>
