@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-11-30 Tue 22:16 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>日志</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">日志</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgc32fce6">介绍</a></li>
+<li><a href="#org69b8c53">内置的日志包</a></li>
+<li><a href="#orgc73d00f">Uber-go zap</a>
+<ul>
+<li><a href="#org3b5ee0e">为什么选择 Uber-go zap</a></li>
+<li><a href="#orgc7cf5b2">安装</a></li>
+<li><a href="#orge0e7cd6">两种日志记录器</a></li>
+<li><a href="#orgf56bb35">zap 简单使用</a></li>
+<li><a href="#orgc278c6a">Logger</a></li>
+<li><a href="#org6938a77">Sugared Logger</a></li>
+<li><a href="#org485666a">定制 logger</a>
+<ul>
+<li><a href="#orgf2ded93">将日志写入文件而不是终端</a></li>
+<li><a href="#orgdc1d07f">将 JSON Encoder 更改为普通的 Log Encoder</a></li>
+<li><a href="#orgcd69858">更改时间编码并添加调用者详细信息</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgc32fce6" class="outline-2">
+<h2 id="orgc32fce6">介绍</h2>
+<div class="outline-text-2" id="text-orgc32fce6">
+<p>
+在许多Go语言项目中，我们需要一个好的日志记录器能够提供下面这些功能：<br>
+</p>
+
+<ul class="org-ul">
+<li>能够将事件记录到文件中，而不是应用程序控制台。<br></li>
+<li>日志切割-能够根据文件大小、时间或间隔等来切割日志文件。<br></li>
+<li>支持不同的日志级别。例如INFO，DEBUG，ERROR等。<br></li>
+<li>能够打印基本信息，如调用文件/函数名和行号，日志时间等。<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org69b8c53" class="outline-2">
+<h2 id="org69b8c53">内置的日志包</h2>
+<div class="outline-text-2" id="text-org69b8c53">
+<ul class="org-ul">
+<li><a href="Go-Log.html">Log</a><br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgc73d00f" class="outline-2">
+<h2 id="orgc73d00f">Uber-go zap</h2>
+<div class="outline-text-2" id="text-orgc73d00f">
+<p>
+zap 是非常快的、结构化的、分日志级别的 Go 日志库。<br>
+</p>
+</div>
+<div id="outline-container-org3b5ee0e" class="outline-3">
+<h3 id="org3b5ee0e">为什么选择 Uber-go zap</h3>
+<div class="outline-text-3" id="text-org3b5ee0e">
+<ol class="org-ol">
+<li>它同时提供了结构化日志记录和 printf 风格的日志记录<br>
+<ul class="org-ul">
+<li>结构化日志就是说相比于直接输出日志文本，使用 json 或者其它编码方式使日志结构化，这样可以方便后续用各种工具分析处理和查找<br></li>
+</ul></li>
+<li>非常快<br></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgc7cf5b2" class="outline-3">
+<h3 id="orgc7cf5b2">安装</h3>
+<div class="outline-text-3" id="text-orgc7cf5b2">
+<div class="org-src-container">
+<pre class="src src-shell">go get -u go.uber.org/zap
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orge0e7cd6" class="outline-3">
+<h3 id="orge0e7cd6">两种日志记录器</h3>
+<div class="outline-text-3" id="text-orge0e7cd6">
+<p>
+Zap 提供两种类型的日志记录器， <code>Sugared Logger</code> 和 <code>Logger</code> 。<br>
+</p>
+
+<p>
+在性能很好但不是很关键的上下文中，使用SugaredLogger。它比其他结构化日志记录包快4-10倍，并且支持结构化和printf风格的日志记录。<br>
+</p>
+
+<p>
+在每一微秒和每一次内存分配都很重要的上下文中，使用Logger。它甚至比SugaredLogger更快，内存分配次数也更少，但它只支持强类型的结构化日志记录。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf56bb35" class="outline-3">
+<h3 id="orgf56bb35">zap 简单使用</h3>
+<div class="outline-text-3" id="text-orgf56bb35">
+<p>
+创建一个 logger 实例，然后在所有要用到它的地方将它作为参数传过去<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #AFAFAF;">logger</span>, <span style="color: #AFAFAF;">_</span> := zap.<span style="color: #AFAFAF;">NewProduction</span>()
+logger.<span style="color: #AFAFAF;">Info</span>(<span style="color: #FC9F4E;">"&#25171;&#21360;&#26085;&#24535;"</span>)
+</pre>
+</div>
+
+<p>
+运行结果：<br>
+</p>
+
+<pre class="example" id="org8e9333f">
+{"level":"info","ts":1638265846.9222066,"caller":"07-Log/04-startZap.go:8","msg":"打印日志"}
+</pre>
+</div>
+</div>
+<div id="outline-container-orgc278c6a" class="outline-3">
+<h3 id="orgc278c6a">Logger</h3>
+<div class="outline-text-3" id="text-orgc278c6a">
+<ul class="org-ul">
+<li>通过调用zap.NewProduction()/zap.NewDevelopment()或者zap.Example()创建一个Logger。<br></li>
+<li>上面的每一个函数都将创建一个logger。唯一的区别在于它将记录的信息不同。例如production logger默认记录调用函数信息、日期和时间等。<br></li>
+<li>通过Logger调用Info/Error等。<br></li>
+<li>默认情况下日志都会打印到应用程序的console界面。<br></li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #BD93F9;">package</span> main
+
+<span style="color: #BD93F9;">import</span> (
+    <span style="color: #FC9F4E;">"net/http"</span>
+
+    <span style="color: #FC9F4E;">"go.uber.org/zap"</span>
+)
+
+<span style="color: #BD93F9;">var</span> <span style="color: #AFAFAF;">logger05</span> *<span style="color: #AFAFAF;">zap.Logger</span>
+
+<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">main</span>() {
+    <span style="color: #AFAFAF;">InitLogger05</span>()
+    <span style="color: #BD93F9;">defer</span> logger05.<span style="color: #AFAFAF;">Sync</span>()
+    <span style="color: #AFAFAF;">simpleHttpGet05</span>(<span style="color: #FC9F4E;">"www.baidu.com"</span>)
+    <span style="color: #AFAFAF;">simpleHttpGet05</span>(<span style="color: #FC9F4E;">"http://www.baidu.com"</span>)
+}
+
+<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">InitLogger05</span>() {
+    logger05, _ = zap.<span style="color: #AFAFAF;">NewProduction</span>()
+}
+
+<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">simpleHttpGet05</span>(<span style="color: #AFAFAF;">url</span> <span style="color: #AFAFAF;">string</span>) {
+    <span style="color: #AFAFAF;">resp</span>, <span style="color: #AFAFAF;">err</span> := http.<span style="color: #AFAFAF;">Get</span>(url)
+    <span style="color: #BD93F9;">if</span> err != <span style="color: #009F9F;">nil</span> {
+        logger05.<span style="color: #AFAFAF;">Error</span>(
+            <span style="color: #FC9F4E;">"Error fetching url.."</span>,
+            zap.<span style="color: #AFAFAF;">String</span>(<span style="color: #FC9F4E;">"url"</span>, url),
+            zap.<span style="color: #AFAFAF;">Error</span>(err))
+    } <span style="color: #BD93F9;">else</span> {
+        logger05.<span style="color: #AFAFAF;">Info</span>(<span style="color: #FC9F4E;">"Success.."</span>,
+            zap.<span style="color: #AFAFAF;">String</span>(<span style="color: #FC9F4E;">"statusCode"</span>, resp.Status),
+            zap.<span style="color: #AFAFAF;">String</span>(<span style="color: #FC9F4E;">"url"</span>, url))
+        resp.Body.<span style="color: #AFAFAF;">Close</span>()
+    }
+}
+</pre>
+</div>
+
+<pre class="example" id="orgcd354d7">
+{"level":"error","ts":1638280858.5779245,"caller":"07-Log/05-Logger.go:25","msg":"Error fetching url..","url":"www.baidu.com","error":"Get \"www.baidu.com\": unsupported protocol scheme \"\"","stacktrace":"main.simpleHttpGet05\n\t/home/haoran/haoran/Code/Language/15-Go/07-Log/05-Logger.go:25\nmain.main\n\t/home/haoran/haoran/Code/Language/15-Go/07-Log/05-Logger.go:14\nruntime.main\n\t/home/haoran/go/go1.17beta1/src/runtime/proc.go:255"}
+{"level":"info","ts":1638280858.6291454,"caller":"07-Log/05-Logger.go:30","msg":"Success..","statusCode":"200 OK","url":"http://www.baidu.com"}
+</pre>
+</div>
+</div>
+<div id="outline-container-org6938a77" class="outline-3">
+<h3 id="org6938a77">Sugared Logger</h3>
+<div class="outline-text-3" id="text-org6938a77">
+<p>
+现在让我们使用Sugared Logger来实现相同的功能。<br>
+</p>
+
+<ul class="org-ul">
+<li>大部分的实现基本都相同。<br></li>
+<li>惟一的区别是，我们通过调用主logger的. Sugar()方法来获取一个SugaredLogger。<br></li>
+<li>然后使用SugaredLogger以printf格式记录语句<br></li>
+</ul>
+
+<p>
+下面是修改过后使用SugaredLogger代替Logger的代码：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #BD93F9;">package</span> main
+
+<span style="color: #BD93F9;">import</span> (
+    <span style="color: #FC9F4E;">"go.uber.org/zap"</span>
+    <span style="color: #FC9F4E;">"net/http"</span>
+)
+
+<span style="color: #BD93F9;">var</span> <span style="color: #AFAFAF;">sugarLogger06</span> *<span style="color: #AFAFAF;">zap.SugaredLogger</span>
+
+<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">main</span>() {
+    <span style="color: #AFAFAF;">InitLogger06</span>()
+    <span style="color: #BD93F9;">defer</span> sugarLogger06.<span style="color: #AFAFAF;">Sync</span>()
+    <span style="color: #AFAFAF;">simpleHttpGet06</span>(<span style="color: #FC9F4E;">"www.baidu.com"</span>)
+    <span style="color: #AFAFAF;">simpleHttpGet06</span>(<span style="color: #FC9F4E;">"http://www.baidu.com"</span>)
+}
+
+<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">InitLogger06</span>() {
+    <span style="color: #AFAFAF;">logger</span>, <span style="color: #AFAFAF;">_</span> := zap.<span style="color: #AFAFAF;">NewProduction</span>()
+    sugarLogger06 = logger.<span style="color: #AFAFAF;">Sugar</span>()
+}
+
+<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">simpleHttpGet06</span>(<span style="color: #AFAFAF;">url</span> <span style="color: #AFAFAF;">string</span>) {
+    sugarLogger06.<span style="color: #AFAFAF;">Debugf</span>(<span style="color: #FC9F4E;">"Trying to hit GET request for %s"</span>, url)
+    <span style="color: #AFAFAF;">resp</span>, <span style="color: #AFAFAF;">err</span> := http.<span style="color: #AFAFAF;">Get</span>(url)
+    <span style="color: #BD93F9;">if</span> err != <span style="color: #009F9F;">nil</span> {
+        sugarLogger06.<span style="color: #AFAFAF;">Errorf</span>(<span style="color: #FC9F4E;">"Error fetching URL %s : Error = %s"</span>, url, err)
+    } <span style="color: #BD93F9;">else</span> {
+        sugarLogger06.<span style="color: #AFAFAF;">Infof</span>(<span style="color: #FC9F4E;">"Success! statusCode = %s for URL %s"</span>, resp.Status, url)
+        resp.Body.<span style="color: #AFAFAF;">Close</span>()
+    }
+}
+</pre>
+</div>
+
+<pre class="example" id="orgdb5d1aa">
+{"level":"error","ts":1638280888.217628,"caller":"07-Log/06-Sugared-Logger.go:26","msg":"Error fetching URL www.baidu.com : Error = Get \"www.baidu.com\": unsupported protocol scheme \"\"","stacktrace":"main.simpleHttpGet06\n\t/home/haoran/haoran/Code/Language/15-Go/07-Log/06-Sugared-Logger.go:26\nmain.main\n\t/home/haoran/haoran/Code/Language/15-Go/07-Log/06-Sugared-Logger.go:13\nruntime.main\n\t/home/haoran/go/go1.17beta1/src/runtime/proc.go:255"}
+{"level":"info","ts":1638280888.2873425,"caller":"07-Log/06-Sugared-Logger.go:28","msg":"Success! statusCode = 200 OK for URL http://www.baidu.com"}
+</pre>
+</div>
+</div>
+<div id="outline-container-org485666a" class="outline-3">
+<h3 id="org485666a">定制 logger</h3>
+<div class="outline-text-3" id="text-org485666a">
+</div>
+<div id="outline-container-orgf2ded93" class="outline-4">
+<h4 id="orgf2ded93">将日志写入文件而不是终端</h4>
+<div class="outline-text-4" id="text-orgf2ded93">
+<p>
+首先的更改是把日志写在文件，而不是打印到应用程序控制台。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">New</span>(<span style="color: #AFAFAF;">core</span> <span style="color: #AFAFAF;">zapcore.Core</span>, <span style="color: #AFAFAF;">options</span> ...<span style="color: #AFAFAF;">Option</span>) *<span style="color: #AFAFAF;">Logger</span>
+</pre>
+</div>
+
+<p>
+上面的参数 zapcore.Core 需要三个配置——Encoder，WriteSyncer，LogLevel：<br>
+</p>
+
+<ol class="org-ol">
+<li><p>
+Encoder:编码器(如何写入日志)。我们将使用开箱即用的NewJSONEncoder()，并使用预先设置的ProductionEncoderConfig()。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">zapcore.<span style="color: #AFAFAF;">NewJSONEncoder</span>(zap.<span style="color: #AFAFAF;">NewProductionEncoderConfig</span>())
+</pre>
+</div></li>
+
+<li><p>
+WriterSyncer ：指定日志将写到哪里去。我们使用zapcore.AddSync()函数并且将打开的文件句柄传进去。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #AFAFAF;">file</span>, <span style="color: #AFAFAF;">_</span> := os.<span style="color: #AFAFAF;">Create</span>(<span style="color: #FC9F4E;">"./test.log"</span>)
+<span style="color: #AFAFAF;">writeSyncer</span> := zapcore.<span style="color: #AFAFAF;">AddSync</span>(file)
+</pre>
+</div></li>
+
+<li>Log Level：哪种级别的日志将被写入。<br></li>
+</ol>
+
+<p>
+我们将修改上述部分中的Logger代码，并重写InitLogger()方法。其余方法—main() /SimpleHttpGet()保持不变。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #BD93F9;">package</span> main
+
+<span style="color: #BD93F9;">import</span> (
+    <span style="color: #FC9F4E;">"net/http"</span>
+    <span style="color: #FC9F4E;">"os"</span>
+
+    <span style="color: #FC9F4E;">"go.uber.org/zap"</span>
+    <span style="color: #FC9F4E;">"go.uber.org/zap/zapcore"</span>
+)
+
+<span style="color: #BD93F9;">var</span> <span style="color: #AFAFAF;">sugarLogger07</span> *<span style="color: #AFAFAF;">zap.SugaredLogger</span>
+
+<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">main</span>() {
+    <span style="color: #AFAFAF;">InitLogger07</span>()
+    <span style="color: #BD93F9;">defer</span> sugarLogger07.<span style="color: #AFAFAF;">Sync</span>()
+    <span style="color: #AFAFAF;">simpleHttpGet07</span>(<span style="color: #FC9F4E;">"www.baidu.com"</span>)
+    <span style="color: #AFAFAF;">simpleHttpGet07</span>(<span style="color: #FC9F4E;">"http://www.baidu.com"</span>)
+}
+
+<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">InitLogger07</span>() {
+    <span style="color: #AFAFAF;">writeSyncer</span> := <span style="color: #AFAFAF;">getLogWriter07</span>()
+    <span style="color: #AFAFAF;">encoder</span> := <span style="color: #AFAFAF;">getEncoder07</span>()
+    <span style="color: #AFAFAF;">core</span> := zapcore.<span style="color: #AFAFAF;">NewCore</span>(encoder, writeSyncer, zapcore.DebugLevel)
+
+    <span style="color: #AFAFAF;">logger</span> := zap.<span style="color: #AFAFAF;">New</span>(core)
+    sugarLogger07 = logger.<span style="color: #AFAFAF;">Sugar</span>()
+}
+
+<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">getEncoder07</span>() <span style="color: #AFAFAF;">zapcore.Encoder</span> {
+    <span style="color: #BD93F9;">return</span> zapcore.<span style="color: #AFAFAF;">NewJSONEncoder</span>(zap.<span style="color: #AFAFAF;">NewProductionEncoderConfig</span>())
+}
+
+<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">getLogWriter07</span>() <span style="color: #AFAFAF;">zapcore.WriteSyncer</span> {
+    <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#22914;&#26524;&#24819;&#35201;&#36861;&#21152;&#20889;&#20837;&#21487;&#20197;&#26597;&#30475;&#25105;&#30340;&#21338;&#23458;&#25991;&#20214;&#25805;&#20316;&#37027;&#19968;&#31456;</span>
+    <span style="color: #AFAFAF;">file</span>, <span style="color: #AFAFAF;">_</span> := os.<span style="color: #AFAFAF;">Create</span>(<span style="color: #FC9F4E;">"./test.log"</span>)
+    <span style="color: #BD93F9;">return</span> zapcore.<span style="color: #AFAFAF;">AddSync</span>(file)
+}
+
+<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">simpleHttpGet07</span>(<span style="color: #AFAFAF;">url</span> <span style="color: #AFAFAF;">string</span>) {
+    sugarLogger07.<span style="color: #AFAFAF;">Debugf</span>(<span style="color: #FC9F4E;">"Trying to hit GET request for %s"</span>, url)
+    <span style="color: #AFAFAF;">resp</span>, <span style="color: #AFAFAF;">err</span> := http.<span style="color: #AFAFAF;">Get</span>(url)
+    <span style="color: #BD93F9;">if</span> err != <span style="color: #009F9F;">nil</span> {
+        sugarLogger07.<span style="color: #AFAFAF;">Errorf</span>(<span style="color: #FC9F4E;">"Error fetching URL %s : Error = %s"</span>, url, err)
+    } <span style="color: #BD93F9;">else</span> {
+        sugarLogger07.<span style="color: #AFAFAF;">Infof</span>(<span style="color: #FC9F4E;">"Success! statusCode = %s for URL %s"</span>, resp.Status, url)
+        resp.Body.<span style="color: #AFAFAF;">Close</span>()
+    }
+}
+</pre>
+</div>
+
+<pre class="example" id="orgb33d940">
+{"level":"debug","ts":1638280996.611096,"msg":"Trying to hit GET request for www.baidu.com"}
+{"level":"error","ts":1638280996.6111786,"msg":"Error fetching URL www.baidu.com : Error = Get \"www.baidu.com\": unsupported protocol scheme \"\""}
+{"level":"debug","ts":1638280996.6111882,"msg":"Trying to hit GET request for http://www.baidu.com"}
+{"level":"info","ts":1638280996.6578424,"msg":"Success! statusCode = 200 OK for URL http://www.baidu.com"}
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgdc1d07f" class="outline-4">
+<h4 id="orgdc1d07f">将 JSON Encoder 更改为普通的 Log Encoder</h4>
+<div class="outline-text-4" id="text-orgdc1d07f">
+<p>
+希望将编码器从JSON Encoder更改为普通Encoder。为此，我们需要将NewJSONEncoder()更改为NewConsoleEncoder()。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #BD93F9;">return</span> zapcore.<span style="color: #AFAFAF;">NewConsoleEncoder</span>(zap.<span style="color: #AFAFAF;">NewProductionEncoderConfig</span>())
+</pre>
+</div>
+
+<p>
+当使用这些修改过的logger配置调用上述部分的main()函数时，以下输出将打印在文件——test.log中。<br>
+</p>
+
+<pre class="example" id="org85e0aa2">
+1.6382812952657666e+09	debug	Trying to hit GET request for www.baidu.com
+1.6382812952658417e+09	error	Error fetching URL www.baidu.com : Error = Get "www.baidu.com": unsupported protocol scheme ""
+1.6382812952658677e+09	debug	Trying to hit GET request for http://www.baidu.com
+1.63828129533037e+09	info	Success! statusCode = 200 OK for URL http://www.baidu.com
+</pre>
+</div>
+</div>
+<div id="outline-container-orgcd69858" class="outline-4">
+<h4 id="orgcd69858">更改时间编码并添加调用者详细信息</h4>
+<div class="outline-text-4" id="text-orgcd69858">
+<p>
+鉴于我们对配置所做的更改，有下面两个问题：<br>
+</p>
+
+<ul class="org-ul">
+<li>时间是以非人类可读的方式展示，例如1.572161051846623e+09<br></li>
+<li>调用方函数的详细信息没有显示在日志中 我们要做的第一件事是覆盖默认的ProductionConfig()，并进行以下更改:<br></li>
+</ul>
+
+<p>
+修改时间编码器<br>
+</p>
+
+<ul class="org-ul">
+<li>在日志文件中使用大写字母记录日志级别<br></li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">getEncoder</span>() <span style="color: #AFAFAF;">zapcore.Encoder</span> {
+    <span style="color: #AFAFAF;">encoderConfig</span> := zap.<span style="color: #AFAFAF;">NewProductionEncoderConfig</span>()
+    encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+    encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
+    <span style="color: #BD93F9;">return</span> zapcore.<span style="color: #AFAFAF;">NewConsoleEncoder</span>(encoderConfig)
+}
+</pre>
+</div>
+
+<p>
+接下来，我们将修改zap logger代码，添加将调用函数信息记录到日志中的功能。为此，我们将在zap.New(..)函数中添加一个Option。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #AFAFAF;">logger</span> := zap.<span style="color: #AFAFAF;">New</span>(core, zap.<span style="color: #AFAFAF;">AddCaller</span>())
+</pre>
+</div>
+
+<pre class="example" id="org9adae70">
+2021-11-30T22:15:10.453+0800	DEBUG	07-Log/09-friendlyRead.go:43	Trying to hit GET request for www.baidu.com
+2021-11-30T22:15:10.453+0800	ERROR	07-Log/09-friendlyRead.go:46	Error fetching URL www.baidu.com : Error = Get "www.baidu.com": unsupported protocol scheme ""
+2021-11-30T22:15:10.453+0800	DEBUG	07-Log/09-friendlyRead.go:43	Trying to hit GET request for http://www.baidu.com
+2021-11-30T22:15:10.505+0800	INFO	07-Log/09-friendlyRead.go:48	Success! statusCode = 200 OK for URL http://www.baidu.com
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2021-11-29 10:11 Mon</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2021-11-30 Tue 22:16</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
