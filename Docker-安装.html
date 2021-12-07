@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-10-07 Thu 13:54 -->
+<!-- 2021-11-30 Tue 22:56 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DOCKER-安装</title>
@@ -63,7 +63,7 @@
 <h3 id="orgba831b0">镜像(image)</h3>
 <div class="outline-text-3" id="text-orgba831b0">
 <p>
-Docker 镜像(Image)就是一个只读的模板。镜像可以用来创建 Docker 容器，一个镜像可以创建很多容器。就好似Java中的类和对象，类就是镜像，容器就是对象<br>
+Docker 镜像(Image)就是一个只读的模板。镜像可以用来创建 Docker 容器，一个镜像可以创建很多容器。就好似Java中的类和对象，类就是镜像，容器就是对象。<br>
 </p>
 </div>
 </div>
@@ -159,13 +159,10 @@ REDHAT_SUPPORT_PRODUCT_VERSION="7"<br>
 <ol class="org-ol">
 <li>官网安装参考手册:<a href="https://docs.docker.com/engine/install/centos/">https://docs.docker.com/engine/install/centos/</a><br></li>
 <li>确定你是CentOS7及以上版本,我们已经做过了<br></li>
-<li><p>
-yum安装gcc相关环境(需要确保 虚拟机可以上外网)<br>
+<li>yum安装gcc相关环境(需要确保 虚拟机可以上外网)<br>
 yum -y install gcc<br>
-yum -y install gcc-c++<br>
-</p>
+yum -y install gcc-c++<br></li>
 
-<ol class="org-ol">
 <li>卸载旧版本<br>
 yum remove docker \<br>
 docker-client \<br>
@@ -176,13 +173,9 @@ docker-latest-logrotate \<br>
 docker-logrotate \<br>
 docker-engine<br></li>
 
-<li>安装需要的软件包<br></li>
-</ol>
-<p>
-yum install -y yum-utils<br>
-</p>
+<li>安装需要的软件包<br>
+yum install -y yum-utils<br></li>
 
-<ol class="org-ol">
 <li><p>
 设置镜像仓库<br>
 </p>
@@ -196,38 +189,27 @@ yum-config-manager &#x2013;add-repo <a href="https://download.docker.com/linux/c
 
 <p>
 yum-config-manager &#x2013;add-repo <a href="http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo">http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo</a><br>
-</p></li>
-</ol>
+</p>
 
 <p>
 TMD网上那群SB一直说在/etc/docker/daemon.json中配置docker源，配尼玛呢，日尼玛一篇博客抄来抄去，他妈的有点自己的东西行吗<br>
 在centos7中/etc/yum.repos.d/目录下有docker源的配置文件<br>
-</p>
+</p></li>
 
-<ol class="org-ol">
-<li>更新yum软件包索引<br></li>
-</ol>
-<p>
-yum makecache fast<br>
-</p>
+<li>更新yum软件包索引<br>
+yum makecache fast<br></li>
 
-<ol class="org-ol">
-<li>安装Docker CE<br></li>
-</ol>
-<p>
-yum install docker-ce docker-ce-cli containerd.io<br>
-</p>
+<li>安装Docker CE<br>
+yum install docker-ce docker-ce-cli containerd.io<br></li>
 
-<ol class="org-ol">
-<li>启动Docker<br></li>
-</ol>
-<p>
+<li><p>
+启动Docker<br>
 systemctl start docker<br>
 这里我遇到问题，是因为/etc/docker/daemon.json，没有配置好<br>
 如果没有这个文件夹或这个文件，那么需要手动创建<br>
 </p>
 <div class="org-src-container">
-<pre class="src src-json">{                                                                                                     
+<pre class="src src-json">{
     <span style="color: #BD93F9;">"registry-mirrors"</span> : [
         <span style="color: #FC9F4E;">"https://mirror.ccs.tencentyun.com"</span>,
         <span style="color: #FC9F4E;">"http://registry.docker-cn.com"</span>,
@@ -242,25 +224,17 @@ systemctl start docker<br>
     <span style="color: #BD93F9;">"experimental"</span> : <span style="color: #009F9F;">true</span>
 }
 </pre>
-</div>
+</div></li>
 
-<ol class="org-ol">
-<li>测试命令<br></li>
-</ol>
-<p>
+<li>测试命令<br>
 docker version<br>
 docker run hello-world<br>
-docker images<br>
-</p>
+docker images<br></li>
 
-<ol class="org-ol">
-<li>卸载<br></li>
-</ol>
-<p>
+<li>卸载<br>
 systemctl stop docker<br>
 yum -y remove docker-ce docker-ce-cli containerd.io<br>
-rm -rf /var/lib/docker<br>
-</p></li>
+rm -rf /var/lib/docker<br></li>
 </ol>
 </div>
 </div>
@@ -297,11 +271,9 @@ sudo systemctl restart docker
 <div class="outline-text-3" id="text-org97d3582">
 <ol class="org-ol">
 <li>启动hello-world<br>
-docker run hello-world<br>
+docker run hello-world<br></li>
 
-<ol class="org-ol">
 <li>run干了什么?<br></li>
-</ol></li>
 </ol>
 </div>
 </div>
@@ -314,7 +286,7 @@ docker run hello-world<br>
 <h3 id="org6701609">Docker是怎么工作的</h3>
 <div class="outline-text-3" id="text-org6701609">
 <p>
-Docker是一个Client-Server结构的系统,Docker守护进程运行在主机上, 然后通过Socket连接从客户端访问,守护进程从客户端接受命令并管理运行在主机上的容器。 容器,是一个运行时环境,就是我们前面说到的集装箱<br>
+Docker是一个Client-Server结构的系统,Docker守护进程运行在主机上, 然后通过Socket连接从客户端访问,守护进程从客户端接受命令并管理运行在主机上的容器。 容器,是一个运行时环境,就是我们前面说到的集装箱。<br>
 </p>
 </div>
 </div>
@@ -322,8 +294,9 @@ Docker是一个Client-Server结构的系统,Docker守护进程运行在主机上
 <h3 id="org5e7e8af">为什么Docker比较VM快</h3>
 <div class="outline-text-3" id="text-org5e7e8af">
 <ol class="org-ol">
-<li>docker有着比虚拟机更少的抽象层。由亍docker不需要Hypervisor实现硬件资源虚拟化,运行在docker容器上的程序直接使用的都是实际物理机的硬件资源。因此在CPU、内存利用率上docker将会在效率上有明显优势<br></li>
-<li>docker利用的是宿主机的内核,而不需要Guest OS。因此,当新建一个容器时,docker不需要和虚拟机一样重新加载一个操作系统内核。仍而避免引寻、加载操作系统内核返个比较费时费资源的过程,当新建一个虚拟机时,虚拟机软件需要加载Guest OS,返个新建过程是分钟级别的。而docker由于直接利用宿主机的操作系统,则省略了返个过程,因此新建一个docker容器只需要几秒钟<br></li>
+<li>docker有着比虚拟机更少的抽象层。由于docker不需要Hypervisor实现硬件资源虚拟化,运行在docker容器上的程序直接使用的都是实际物理机的硬件资源。因此在CPU、内存利用率上docker将会在效率上有明显优势。<br></li>
+
+<li>docker利用的是宿主机的内核,而不需要Guest OS。因此,当新建一个容器时,docker不需要和虚拟机一样重新加载一个操作系统内核。仍而避免引寻、加载操作系统内核返个比较费时费资源的过程,当新建一个虚拟机时,虚拟机软件需要加载Guest OS,返个新建过程是分钟级别的。而docker由于直接利用宿主机的操作系统,则省略了返个过程,因此新建一个docker容器只需要几秒钟。<br></li>
 </ol>
 </div>
 </div>

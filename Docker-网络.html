@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-12-08 Wed 01:54 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>网络</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">网络</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org2dc3d0a">Docker0</a>
+<ul>
+<li><a href="#orgb4ddf46">查看容器内部网络地址</a></li>
+</ul>
+</li>
+<li><a href="#orgba964f0">通过 docker0 来网络连接</a></li>
+<li><a href="#orgca89b11">自定义网络</a></li>
+<li><a href="#org3c684b5">网络连通</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org2dc3d0a" class="outline-2">
+<h2 id="org2dc3d0a">Docker0</h2>
+<div class="outline-text-2" id="text-org2dc3d0a">
+<div class="org-src-container">
+<pre class="src src-shell">$ ip addr
+</pre>
+</div>
+
+<img src="./images/Docker001.png" />
+</div>
+<div id="outline-container-orgb4ddf46" class="outline-3">
+<h3 id="orgb4ddf46">查看容器内部网络地址</h3>
+<div class="outline-text-3" id="text-orgb4ddf46">
+<ul class="org-ul">
+<li>docker run -d -P &#x2013;name tomcat01 tomcat-jdk<br></li>
+
+<li>docker exec -it tomcat01 ip addr：在运行 tomcat01 时，没有使用 /bin/bash 打开，而是用容器运行了一个命令：ip addr<br></li>
+</ul>
+
+<pre class="example" id="orgcfa7adc">
+1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+		link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+		inet 127.0.0.1/8 scope host lo
+			 valid_lft forever preferred_lft forever
+92: eth0@if93: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue state UP group default 
+		link/ether 02:42:ac:11:00:02 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+		inet 172.17.0.2/16 brd 172.17.255.255 scope global eth0
+			 valid_lft forever preferred_lft forever
+</pre>
+
+<p>
+Linux 能 ping 通 172.17.0.2 吗？能！<br>
+</p>
+
+<p>
+我们每启动一个 docker 容器，docker 就会给 docker 容器分配一个 ip，只要安装了 docker，就会有一个网卡 docker0。使用的是桥接模式，evth-pair 技术。<br>
+</p>
+
+<p>
+启动一个容器之后使用 <code>ip addr</code> 命令：<br>
+</p>
+
+<img src="./images/Docker002.png" />
+
+<p>
+发现多了一个网卡。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgba964f0" class="outline-2">
+<h2 id="orgba964f0">通过 docker0 来网络连接</h2>
+<div class="outline-text-2" id="text-orgba964f0">
+<ul class="org-ul">
+<li>docker run -d -P &#x2013;name tomcat01 tomcat-jdk<br></li>
+<li>docker run -d -P &#x2013;name tomcat02 tomcat-jdk<br></li>
+<li>docker exec -it tomcat02 ping 172.0.2<br></li>
+</ul>
+
+<p>
+发现 tomcat02 是能 ping 通 tomcat01 的，这个过程 docker0 充当了路由器的角色，tomcat01 需要经过 docker0 才能到达 tomcat02。<br>
+</p>
+
+<p>
+我们有时希望使用 docker exec -it tomcat02 ping tomcat01 容器名来连接网络， <b>&#x2013;link</b> ：<br>
+</p>
+
+<ul class="org-ul">
+<li>docker run -d -P &#x2013;name tomcat03 &#x2013;link tomcat02 tomcat<br></li>
+<li>docker exec -it tomcat03 ping tomcat02<br>
+<ul class="org-ul">
+<li>发现使用 &#x2013;net 这个参数将 tomcat03 与 tomcat02 连接后就能使用容器名 ping 通<br></li>
+</ul></li>
+
+<li>docker exec -it tomcat02 ping tomcat03：反向连接就不能 ping 通了<br></li>
+
+<li>docker network &#x2013;help<br></li>
+
+<li>docker exec -it tomcat03 cat /etc/hosts<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgca89b11" class="outline-2">
+<h2 id="orgca89b11">自定义网络</h2>
+<div class="outline-text-2" id="text-orgca89b11">
+<p>
+网络模式：<br>
+</p>
+<ol class="org-ol">
+<li>桥接（默认）<br></li>
+<li>不配置网络<br></li>
+<li>host 和宿主机共享网络<br></li>
+
+<li>docker network create &#x2013;driver bridge &#x2013;subnet 192.168.0.0/16 &#x2013;gateway 192.168.0.1 mynet<br>
+<ul class="org-ul">
+<li>&#x2013;driver bridge：默认就是 bridge，这里加不加无所谓<br></li>
+<li>&#x2013;subnet：子网掩码<br></li>
+<li>&#x2013;gateway：网关<br></li>
+</ul></li>
+
+<li>docker network ls<br></li>
+
+<li>docker run -d -P &#x2013;name tomcat-net-01 &#x2013;net mynet：这时候就不会使用默认的 docker0 了，而是使用我们自己创建的 mynet。<br></li>
+<li>docker network inspect<br></li>
+
+<li>docker exec -it tomcat-net-01 ping 192.168.0.3<br></li>
+<li>docker exec -it tomcat-net-01 ping tomcat-net-02<br></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-org3c684b5" class="outline-2">
+<h2 id="org3c684b5">网络连通</h2>
+<div class="outline-text-2" id="text-org3c684b5">
+<ul class="org-ul">
+<li>docker run -d -P &#x2013;name tomcat01 tomcat<br></li>
+<li>docker run -d -P &#x2013;name tomcat02 tomcat<br></li>
+<li>docker run -d -P &#x2013;name tomcat-net01 tomcat &#x2013;net mynet<br></li>
+<li>docker run -d -P &#x2013;name tomcat-net02 tomcat &#x2013;net mynet<br></li>
+
+<li>docker exec -it tomcat01 ping tomcat-net01：失败！<br></li>
+
+<li>docker network connect：连通一个容器到一个网络<br></li>
+
+<li>docker network connect mynet tomcat01<br></li>
+<li>docker network inspect：tomcat01 被放入 mynet 网络中，一个容器两个 ip。<br></li>
+<li>docker exec -it tomcat01 ping tomcat-net01<br></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2021-12-08 00:12 Wed</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2021-12-08 Wed 01:54</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

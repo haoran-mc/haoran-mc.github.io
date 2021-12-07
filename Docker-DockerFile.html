@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-12-07 Tue 23:23 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DOCKERFILE</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">DOCKERFILE</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org7473511">什么是 dockerfile</a></li>
+<li><a href="#org72fb713">使用 dockerfile 构建 docker 镜像</a></li>
+<li><a href="#org33ce1d5">dockerfile 命令</a></li>
+<li><a href="#org9e468a9">创建一个自己的 centos 镜像</a></li>
+<li><a href="#org2d32e7c">CMD 与 ENTRYPOINT 的区别</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org7473511" class="outline-2">
+<h2 id="org7473511">什么是 dockerfile</h2>
+<div class="outline-text-2" id="text-org7473511">
+<p>
+Dockerfile 就是用来构建 docker 镜像的构建文件。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org72fb713" class="outline-2">
+<h2 id="org72fb713">使用 dockerfile 构建 docker 镜像</h2>
+<div class="outline-text-2" id="text-org72fb713">
+<p>
+构建镜像命令：<br>
+</p>
+<ul class="org-ul">
+<li><p>
+docker build -f dockerfile01 -t nl-centos .<br>
+</p>
+
+<pre class="example" id="orgc46b56a">
+FROM centos
+
+VOLUME ["volume01", "volume02"]
+
+CMD echo "---end---"
+CMD /bin/bash
+</pre>
+
+<p>
+这个 dockerfile 文件中说明了来源是 centos，会挂载两个目录。<br>
+</p></li>
+
+<li>docker images：这里就能找到我们创建的 nl-centos 镜像了。<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org33ce1d5" class="outline-2">
+<h2 id="org33ce1d5">dockerfile 命令</h2>
+<div class="outline-text-2" id="text-org33ce1d5">
+<dl class="org-dl">
+<dt>FROM</dt><dd>基础镜像<br></dd>
+<dt>MAINTATNER</dt><dd>镜像作者<br></dd>
+<dt>RUN</dt><dd>镜像构建的时候运行的命令<br></dd>
+<dt>ADD</dt><dd>向基础镜像中添加内容<br></dd>
+<dt>WORKDIR</dt><dd>镜像的工作目录<br></dd>
+<dt>VOLUME</dt><dd>挂载的目录<br></dd>
+<dt>EXPORT</dt><dd>暴露端口<br></dd>
+<dt>CMD</dt><dd>指定容器启动时要运行的命令，只有最后一个命令会生效，可被替代<br></dd>
+<dt>ENTRYPOINT</dt><dd>指定这个容器启动时要运行的命令，可追加命令<br></dd>
+<dt>ONBUILD</dt><dd>当构建一个被继承 DockerFile 的容器时，就会运行 ONBUILD 的指令（触发指令）<br></dd>
+<dt>COPY</dt><dd>类似 ADD，将文件拷贝到镜像中<br></dd>
+<dt>ENV</dt><dd>构建时设置环境变量<br></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-org9e468a9" class="outline-2">
+<h2 id="org9e468a9">创建一个自己的 centos 镜像</h2>
+<div class="outline-text-2" id="text-org9e468a9">
+<p>
+dockerfile:<br>
+</p>
+
+<pre class="example" id="org204cb52">
+FROM centos
+MAINTAINER nl&lt;haoran.mc@outlook.com&gt;
+
+ENV MYPATH /usr/local
+WORKDIR $MYPATH
+
+RUN yum -y install vim
+RUN yum -y install net-tools
+
+EXPOSE 80
+
+CMD echo $MYPATH
+CMD echo "----end----"
+CMD /bin/bash
+</pre>
+
+<ul class="org-ul">
+<li>docker build -f dockerfile -t centos-pro .<br></li>
+</ul>
+
+<blockquote>
+<p>
+&#x2026;<br>
+Successfully built ba9ef653f942<br>
+Successfully tagged centos-pro:latest<br>
+</p>
+</blockquote>
+
+<pre class="example" id="org8248130">
+$ docker run -it --name centos-pro01 centos-pro                                                                    ─╯
+[root@b034981bb626 local]# pwd
+/usr/local
+[root@b034981bb626 local]# vim
+[root@b034981bb626 local]# ifconfig
+eth0: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500
+				inet 172.17.0.3  netmask 255.255.0.0  broadcast 172.17.255.255
+				ether 02:42:ac:11:00:03  txqueuelen 0  (Ethernet)
+				RX packets 27  bytes 3552 (3.4 KiB)
+				RX errors 0  dropped 0  overruns 0  frame 0
+				TX packets 0  bytes 0 (0.0 B)
+				TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+lo: flags=73&lt;UP,LOOPBACK,RUNNING&gt;  mtu 65536
+				inet 127.0.0.1  netmask 255.0.0.0
+				loop  txqueuelen 1000  (Local Loopback)
+				RX packets 0  bytes 0 (0.0 B)
+				RX errors 0  dropped 0  overruns 0  frame 0
+				TX packets 0  bytes 0 (0.0 B)
+				TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+[root@b034981bb626 local]# 
+</pre>
+
+<img src="./images/DockerFile-history.png" />
+</div>
+</div>
+<div id="outline-container-org2d32e7c" class="outline-2">
+<h2 id="org2d32e7c">CMD 与 ENTRYPOINT 的区别</h2>
+<div class="outline-text-2" id="text-org2d32e7c">
+<pre class="example" id="org884aaeb">
+FROM centos
+CMD ["ls", "-a"]
+</pre>
+
+<p>
+构建运行后会展示当前目录。<br>
+</p>
+
+<dl class="org-dl">
+<dt>docker run centos-cmd -l</dt><dd>这个 centos-cmd 镜像是通过 build 命令构建的。想追加一个参数，但是 CMD 不能追加，而是替换为 ls -l，没有这个命令，报错<br></dd>
+</dl>
+
+<pre class="example" id="orgb0968ae">
+FROM centos
+ENTRYPOINT ["ls", "-a"]
+</pre>
+
+<p>
+构建运行后也会展示当前目录。<br>
+</p>
+
+<dl class="org-dl">
+<dt>docker run centos-entrypoint -l</dt><dd>追加参数为 ls -a -l<br></dd>
+</dl>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2021-12-06 11:12 Mon</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2021-12-07 Tue 23:23</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
