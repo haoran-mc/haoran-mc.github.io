@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-11-18 Thu 11:09 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>树状数组</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">树状数组</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org26b8f59">介绍</a></li>
+<li><a href="#org360390e">lowbit</a></li>
+<li><a href="#orgff28e0f">原理</a></li>
+<li><a href="#orgcc47dcf">建树</a></li>
+<li><a href="#org62eac4f">单点修改</a></li>
+<li><a href="#org28c363e">求前缀和</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org26b8f59" class="outline-2">
+<h2 id="org26b8f59">介绍</h2>
+<div class="outline-text-2" id="text-org26b8f59">
+<p>
+树状数组和 <a href="Algorithm-数据结构-线段树.html">线段树</a> 有相似的功能，树状数组有的操作，线段树一定有；线段树有的操作，树状数组不一定有。但树状数组的代码较短，速度也更快，在解决一些单点修改的问题时，树状数组是不二之选。<br>
+</p>
+
+<p>
+如果不使用算法，修改 \(n\) 个数中的一个数的时间复杂度是 \(O(1)\)；求前缀和的时间复杂度是 \(O(n)\)。<br>
+</p>
+
+<p>
+如果使用前缀和，求前缀和的时间复杂度是 \(O(1)\)；修改 \(n\) 个数中的一个数的时间复杂度是 \(O(1)\)。<br>
+</p>
+
+<p>
+而树状数组可以让这两个操作的时间复杂度都降为 \(O(logn)\)。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org360390e" class="outline-2">
+<h2 id="org360390e">lowbit</h2>
+<div class="outline-text-2" id="text-org360390e">
+<p>
+学习树状数组之前需要先回顾一下 \(lowbit\) 操作：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-cpp"><span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">lowbit</span>(<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">x</span>) {
+    <span style="color: #BD93F9;">return</span> x &amp; -x;
+}
+</pre>
+</div>
+
+<p>
+直接说这个函数的作用吧：它返回的是 \(x\) 用二进制表示中，最低位 \(1\) 的位置。<br>
+</p>
+
+<p>
+比如： <code>lowbit(12) = 4;</code><br>
+</p>
+
+<blockquote>
+<p>
+\(lowbit(12) = lowbit(0b1100)\)<br>
+</p>
+
+<p>
+因为在计算机中负数用补码表示，\(12\) 在计算机中的表示是 \(1100\)，而 \(-12\) 在计算机中的表示是 \(0100\)<br>
+</p>
+
+<p>
+\(1100 \& 0100 = 0100\)<br>
+</p>
+
+<p>
+\(lowbit\) 操作总会得到最低位 \(1\) 的位置。<br>
+</p>
+</blockquote>
+</div>
+</div>
+<div id="outline-container-orgff28e0f" class="outline-2">
+<h2 id="orgff28e0f">原理</h2>
+<div class="outline-text-2" id="text-orgff28e0f">
+<p>
+首先我们要知道树状数组并不是一棵树，而是树状。<br>
+</p>
+
+<p>
+树状数组借助二进制的思想，假设有一个 \(x = 2^{i_k} + 2^{i_{k - 1}} + \dots + 2^{i_2} + 2^{i_1}\)。<br>
+</p>
+
+<p>
+我们就把 \((0, x]\) （左开右闭）的区间划分为：<br>
+</p>
+
+<ol class="org-ol">
+<li>\((x - 2^{i_1}, x]\)<br></li>
+<li>\((x - 2^{i_1} - 2^{i_2}, x - 2^{i_1}]\)<br></li>
+<li>\((x - 2^{i_1} - 2^{i_2} - 2^{i_3}, x - 2^{i_1} - 2^{i_2}]\)<br></li>
+<li>\(\dots\)<br></li>
+<li>\((0, x - 2^{i_1} - 2^{i_2} - 2^{i_3} - \dots - 2^{i_{k - 1}}]\)<br></li>
+</ol>
+
+<p>
+这样就会有 \(log(x)\) 个区间，假如我们知道了这 \(log(x)\) 个区间的和，那么就可以在 \(log(x)\) 的时间内得到 \([1, x]\) 的和。<br>
+</p>
+
+<p>
+容易发现，这些区间 \((L, R]\)可以使用 \(lowbit\) 操作表示出来： <code>[R - lowbit(R) + 1, R]</code> 。<br>
+</p>
+
+<p>
+这样就可以用一个数组表示这个区间的总和： \(C(R) = sum((R - lowbit(R) + 1, R])\)<br>
+</p>
+
+<p>
+即： \(C[x] = arr[x - lowbit(x) + 1] + arr[x - lowbit(x) + 2] + arr[x - lowbit(x) + 3] + \dots + arr[x]\) 。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgcc47dcf" class="outline-2">
+<h2 id="orgcc47dcf">建树</h2>
+<div class="outline-text-2" id="text-orgcc47dcf">
+<p>
+如何快速求出这个 \(C\) 数组呢？这个 \(C\) 数组之间会有什么关系吗？<br>
+</p>
+
+<img src="./images/树状数组01.png" />
+
+<p>
+学习树状数组算法就一定离不开上面这张图，通过图片可以很容易的看到：\(C[12] = sum(a[12 - lowbit(12) + 1, 12]) = sum([9, 12])\)，所以 \(C[12]\) 就是 \(a\) 数组下标 \(9 \sim 12\) 的和。<br>
+</p>
+
+<p>
+计算 \(C[12]\) 时当然不能用 \(a[9] + a[10] + a[11] + a[12]\)，这样和前缀和也没啥区别，我们看能不能用前面已算过的 \(C\) 来求出当前的 \(C\)：<br>
+</p>
+
+<img src="./images/树状数组02.png" />
+
+<p>
+以上面这张图来看：<br>
+</p>
+
+<ul class="org-ul">
+<li>\(C_1 = a_1\)<br></li>
+<li>\(C_2 = C_1 + a_2\)<br></li>
+<li>\(C_3 = a_3\)<br></li>
+<li>\(C_4 = C_2 + C_3 + a_4\)<br></li>
+<li>\(\dots\)<br></li>
+<li>\(C_{16} = C_8 + C_{12} + C_{14} + C_{15} + a_{16}\)<br></li>
+</ul>
+
+<p>
+对于一个 \(x = 2^{i_k} + 2^{i_{k - 1}} + \dots + 2^{i_2} + 2^{i_1}\)，假设 \(x = 0b \cdots 10000\) （确定了最后一个 \(1\) 的位置）：\(C_x = sum(a[x - 2^{i_1} + 1, x - 1]) + a_x\)<br>
+</p>
+
+<p>
+分组情况：<br>
+</p>
+
+<ul class="org-ul">
+<li>\(\cdots 01110 \sim \cdots 01111\)<br></li>
+<li>\(\cdots 01100 \sim \cdots 01110\)<br></li>
+<li>\(\cdots 01000 \sim \cdots 01100\)<br></li>
+<li>\(\cdots 00000 \sim \cdots 01000\)<br></li>
+<li>\(\dots\)<br></li>
+</ul>
+
+<p>
+相当于是二进制分组，每个区间的右边界就是一个儿子，则 \(C_{\cdots 10000} = C_{\cdots 01111} + C_{\cdots 01110} + C_{\cdots 01100} + C_{\cdots 01000} + a_{\cdots 10000}\)。<br>
+</p>
+
+<p>
+所以就使用 \(lowbit\) 操作来实现这个过程。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org62eac4f" class="outline-2">
+<h2 id="org62eac4f">单点修改</h2>
+<div class="outline-text-2" id="text-org62eac4f">
+<p>
+上面是通过父结点来找子结点，现在我们来看如何通过子结点来找到父结点。修改了一个结点就也需要修改这个结点的所有祖宗结点。<br>
+</p>
+
+<p>
+假设需要修改结点 \(x = ob \cdots 0011000\)，那么它的父结点就是 \(p = ob \cdots 0100000\)，容易发现找父结点就是找子结点的逆过程：\(p = x + lowbit(x)\)。<br>
+</p>
+
+<p>
+所以一个子结点只有一个父结点，而一个父结点可能有多个子结点，这是树的特征，也就称之为 <code>树状数组</code> 。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-cpp"><span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#21407;&#25968;&#32452;&#19979;&#26631;&#20026; x &#30340;&#25968;&#21152; d</span>
+<span style="color: #AFAFAF;">void</span> <span style="color: #AFAFAF;">add</span>(<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">x</span>, <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">d</span>) {
+    <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = x; i &lt;= n; i += lowbit(i))
+        c[i] += d;
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org28c363e" class="outline-2">
+<h2 id="org28c363e">求前缀和</h2>
+<div class="outline-text-2" id="text-org28c363e">
+<p>
+就是模拟上面建树的过程。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-cpp"><span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#27714;&#20986; preS[x]&#65292;&#25968;&#32452;&#30340;&#21069;&#32512;&#21644;</span>
+<span style="color: #AFAFAF;">void</span> <span style="color: #AFAFAF;">sum</span>(<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">x</span>) {
+    <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">res</span> = <span style="color: #009F9F;">0</span>;
+    <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = x; i; i -= lowbit(i))
+        res += c[i];
+    <span style="color: #BD93F9;">return</span> res;
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2021-11-08 13:11 Mon</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2021-11-18 Thu 11:09</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

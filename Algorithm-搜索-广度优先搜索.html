@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-10-07 Thu 11:19 -->
+<!-- 2021-11-24 Wed 15:19 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>宽度优先搜索</title>
@@ -44,6 +44,9 @@
 <div id="text-table-of-contents">
 <ul>
 <li><a href="#org216a4d3">宽度优先搜索(Breadth First Search BFS)</a></li>
+<li><a href="#org76e5005">洪泛法</a></li>
+<li><a href="#org5a1f2db">最短路模型</a></li>
+<li><a href="#orgc29df9d">多源BFS</a></li>
 <li><a href="#org3a460e4">八数码问题和状态图搜索</a>
 <ul>
 <li><a href="#org145e397">八数码问题</a></li>
@@ -57,6 +60,10 @@
 <div id="outline-container-org216a4d3" class="outline-2">
 <h2 id="org216a4d3">宽度优先搜索(Breadth First Search BFS)</h2>
 <div class="outline-text-2" id="text-org216a4d3">
+<p>
+广度优先搜索是一种枚举所有路径的下一次状态的搜索方法，对于当前状态来说，一次性选择能到达的所有状态，依次判断各个状态是否满足条件。<br>
+</p>
+
 <ul class="org-ul">
 <li><p>
 广度优先搜索一般使用队列来实现<br>
@@ -64,9 +71,9 @@
 <div class="org-src-container">
 <pre class="src src-C++"><span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#22522;&#26412;&#20889;&#27861;(&#27169;&#26495;)</span>
 <span style="color: #AFAFAF;">void</span> <span style="color: #AFAFAF;">BFS</span>(<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">x</span>) {
-    <span style="color: #AFAFAF;">queue</span>&lt;<span style="color: #AFAFAF;">int</span>&gt; <span style="color: #AFAFAF;">quu</span>;
-    quu.push(x);
-    <span style="color: #BD93F9;">while</span> (!quu.empty()) {
+    <span style="color: #AFAFAF;">queue</span>&lt;<span style="color: #AFAFAF;">int</span>&gt; <span style="color: #AFAFAF;">q</span>;
+    q.push(x);
+    <span style="color: #BD93F9;">while</span> (!q.empty()) {
         <span style="color: #009F9F; font-style: italic;">/**</span>
 <span style="color: #009F9F; font-style: italic;">         * &#21462;&#20986;&#38431;&#39318;&#20803;&#32032;top</span>
 <span style="color: #009F9F; font-style: italic;">         * &#35775;&#38382;&#38431;&#39318;&#20803;&#32032;top</span>
@@ -77,8 +84,21 @@
 }
 </pre>
 </div></li>
+
+<li>深度优先搜索和广度优先搜索两种搜索方法都是图形搜索算法，不同点是深度优先搜索底层是通过栈来实现；广度优先搜索底层是通过队列来实现。<br></li>
+<li>深度优先搜索可以用于需要遍历图的情况，结合记忆化搜索和剪枝使深度优先搜索更高效。<br></li>
+<li>深度优先搜索能做到的事广度优先搜索都能够做到，而广度优先搜索能做到的事深度优先搜索不一定能做到，比如搜索的深度足够大导致使用深度优先搜索可能会爆栈。广度优先搜索更适合那些寻找单一最短路径的问题，或者是路线可能很深，使用深度优先搜索可能会爆栈的情况。<br></li>
 </ul>
 </div>
+</div>
+<div id="outline-container-org76e5005" class="outline-2">
+<h2 id="org76e5005">洪泛法</h2>
+</div>
+<div id="outline-container-org5a1f2db" class="outline-2">
+<h2 id="org5a1f2db">最短路模型</h2>
+</div>
+<div id="outline-container-orgc29df9d" class="outline-2">
+<h2 id="orgc29df9d">多源BFS</h2>
 </div>
 <div id="outline-container-org3a460e4" class="outline-2">
 <h2 id="org3a460e4">八数码问题和状态图搜索</h2>
@@ -151,21 +171,31 @@
 
 <p>
 在一个 \(3 \times 3\) 的棋盘上放置编号 \(1 ~ 8\) 的 \(8\) 个方块，另外有一个空格，与空格相邻的数字方块可以移动到空格里<br>
-任务一：从初始棋局到目标棋局最少的移动步数，任务二：数码移动的序列<br>
-</p>
-
-<p>
-把棋盘看成一个状态图，总共有 \(9 != 362880\) 个状态<br>
-BFS是从近到远的扩散，适合解决最短距离问题，将棋盘中空格放入数字0，也就是BFS移动数字0，直到到达目标状态<br>
-</p>
-
-<p>
-一个重要的点是判重，和一般的BFS不同，0可以重新移动到曾经移动到的地方，可以记住当前棋局序列，如初始棋局：{1, 2, 3, 0, 8, 4, 7, 6, 5}，那么就记录123084765已出现<br>
-本题可以用数学方法 <a href="Algorithm-数学-组合数学-康托展开.html">康托展开(Cantor Expansion)</a> 来判重<br>
 </p>
 
 <ul class="org-ul">
-<li>用BFS+Cantor解决八数码问题<br></li>
+<li>任务一：从初始棋局到目标棋局最少的移动步数<br></li>
+<li>任务二：数码移动的序列<br></li>
+</ul>
+
+<p>
+把棋盘看成一个状态图，总共有 \(9 != 362880\) 个状态。<br>
+</p>
+
+<p>
+BFS是从近到远的扩散，适合解决最短距离问题，将棋盘中空格放入数字0，也就是BFS移动数字0，直到到达目标状态。<br>
+</p>
+
+<p>
+一个重要的点是判重，和一般的BFS不同，0可以重新移动到曾经移动到的地方，可以记住当前棋局序列，如初始棋局：{1, 2, 3, 0, 8, 4, 7, 6, 5}，那么就记录123084765已出现。<br>
+</p>
+
+<p>
+本题可以用数学方法 <a href="Algorithm-数学-组合数学-康托展开.html">康托展开(Cantor Expansion)</a> 来判重。<br>
+</p>
+
+<ul class="org-ul">
+<li>用BFS + Cantor解决八数码问题。<br></li>
 </ul>
 </div>
 </div>

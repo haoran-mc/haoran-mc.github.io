@@ -227,5 +227,9 @@ if (isCurPage('wiki')) {
 		});
 		$('p+ul').each(function () {
 				$(this).css('margin-top', '0');
-		})
+		});
+		// table-of-contents -> ul -> li -> ul
+		// $('#table-of-contents').each(function () {
+		// 		$(this).css('li > ul', 'none');
+		// })
 }

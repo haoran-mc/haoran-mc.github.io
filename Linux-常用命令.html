@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-11-24 Wed 14:32 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LINUX常用命令</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">LINUX常用命令</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org3e34ef4">最初接触Linux</a></li>
+<li><a href="#org05c4e03">删除文件夹</a></li>
+<li><a href="#orgbcc29b5">杂记</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org3e34ef4" class="outline-2">
+<h2 id="org3e34ef4">最初接触Linux</h2>
+<div class="outline-text-2" id="text-org3e34ef4">
+<ol class="org-ol">
+<li>用户、权限、目录结构<br>
+<ul class="org-ul">
+<li>默认情况下，所有用户包括root的相关信息存储在/etc/passwd文件内，个人的密码记录在/etc/shadow中，所有的组别记录在/etc/group中<br></li>
+</ul></li>
+<li>扩展：个人学习，shell的熟练使用，用户与用户权限的管理，添加系统启动时自动运行的任务，目录的划分<br></li>
+<li>通过ls -al 查看文件时 每行前面10个字符代表文件权限类型<br>
+<ul class="org-ul">
+<li>-rw-r&#x2013;r&#x2013;<br></li>
+<li>第一个字符代表文件的类型，d代表目录，-代表文件l代表链接文件，b代表设备文件里面的可供存储的周边设备，c代表设备文件里面的串行端口设备<br></li>
+<li>接下来的9个字符，每三个为一组，分别表示文件拥有者的权限，文件所属用户组的权限，其他人的权限<br></li>
+<li>三个一组的权限为rwx，r表示可读，w代表可写，x表示可执行，如果没有对应权限，则用-表示<br></li>
+</ul></li>
+<li>chgroup, chown, chmod<br>
+<ul class="org-ul">
+<li>chgrp [-R] 组别名称 dirname/filename 表示更改文件所属用户组，-R表示递归更改 文件拥有者也无法使用这个命令<br></li>
+<li>chown [-R] 用户名 账号名称[:用户组名称] 文件或目录 表示修改文件所属用户，-R表示递归更改，可选更改所属用户组 文件拥有者也无法使用这个命令<br></li>
+<li>chmod [-R] xyz 文件或目录 表示修改文件权限<br>
+<ul class="org-ul">
+<li>有通过数字类型修改和通过字符类型修改<br></li>
+<li>通过数字类型修改，使用数字代表各个权限， r = 4, w = 2, x = 1， 如果有对应权限就累加，它们的和就是某个身份的权限。然后将文件拥有者，所属组别，其他人的权限按顺序组合起来就是就是xyz处的内容，例如 chmod 740 test.txt 表示文件拥有者拥有rwx权限，所属组别中用户拥有r权限，其他人没有任何权限<br></li>
+<li>-R 表示递归<br></li>
+<li>文件拥有者或root可以使用chmod改变文件权限<br></li>
+</ul></li>
+</ul></li>
+<li>各个权限对文件和目录的意义<br>
+<ul class="org-ul">
+<li>rwx对文件的意义<br>
+<ul class="org-ul">
+<li>r 读取文件内容<br></li>
+<li>w 修改文件内容，但是不具备删除权限<br></li>
+<li>x 执行文件的权限<br></li>
+</ul></li>
+<li>rwx对目录的意义<br>
+<ul class="org-ul">
+<li>r 读取目录结构列表，也就是能读取目录下的文件名<br></li>
+<li>w 能够改动目录结构列表，即创建、删除、更名、移动目录下的文件<br></li>
+<li>x 代表用户能否进入该目录成为工作目录    用户若是只有目录的r权限，没有x权限，那只能读取到目录下的文件名，无法看到其它详细信息,此时需要同时具有rx权限<br></li>
+</ul></li>
+</ul></li>
+<li>简单命令<br>
+<ul class="org-ul">
+<li>ls 文件与目录的查看<br>
+<ul class="org-ul">
+<li>ls 文件名/目录名(可以多个) 查看对应文件(查看属性而不是内容)或对应文件夹 如果没有文件名/目录名，则默认查看当前文件夹<br></li>
+<li>-a 全部的文件<br></li>
+<li>-h 将文件容量以人类较易读的方式列出来<br></li>
+<li>-l 详细信息显示 包括文件的属性和权限等数据<br></li>
+<li>-S 以文件容量大小排序，而不是文件名<br></li>
+<li>-t 以时间排序<br></li>
+<li>-r 将排序结果反向输出<br></li>
+<li>&#x2013;color=never 不要根据文件特性给予颜色显示  &#x2013;color=always 显示颜色  &#x2013;color=auto 让系统自行依据设置来判断是否给予颜色<br></li>
+<li>-F 根据文件、目录等信息，给予附加数据结构，例如：* 代表可执行文件  / 代表目录   = 代表socket文件  | 代表FIFO文件<br></li>
+<li>常用缩写 ll<br></li>
+</ul></li>
+<li>cp 复制文件/文件夹<br>
+<ul class="org-ul">
+<li>cp 源文件 目标文件<br></li>
+<li>-p 连同文件的属性（权限、用户、时间）一起复制过去，而非使用默认属性（备份常用）<br></li>
+<li>在默认条件中，cp的源文件与目标文件的权限是不同的，目标文件的拥有者通常是命令操作者本身<br></li>
+<li>如果需要复制源文件，则需要有对源文件的r权限<br></li>
+<li>-r 递归复制，用于目录的复制<br></li>
+</ul></li>
+<li>rm 删除文件/文件夹<br>
+<ul class="org-ul">
+<li>rm [-fir] 文件/目录<br></li>
+<li>-f 强制删除，忽略不存在的文件，不会出现警告信息<br></li>
+<li>-i 交互模式，在删除前会询问使用者是否操作<br></li>
+<li>-r 递归删除，用于删除含有文件的目录，一般目录非空时不允许删除<br></li>
+</ul></li>
+<li>rmdir 删除空的文件夹<br></li>
+<li>mv 移动文件/文件夹<br>
+<ul class="org-ul">
+<li>mv [-fiu] 源文件 目标文件<br></li>
+<li>-f 强制移动，如果目标文件已存在，不会询问而直接覆盖<br></li>
+<li>-i 若目标文件已经存在，就会询问是否覆盖<br></li>
+<li>-u 若目标文件已经存在，且源文件更新，才会更新<br></li>
+<li>cp 和 mv 命令都涉及目标文件，如果目标文件是一个文件夹，则源文件会以原来的名字存在目标文件夹，如果目标文件是一个文件名，则源文件会以目标文件名保存<br></li>
+</ul></li>
+<li>pwd 查看当前所在目录<br></li>
+<li>touch 修改文件时间或者创建新文件<br>
+<ul class="org-ul">
+<li>文件有三个时间，修改时间、状态时间、读取时间<br></li>
+<li>当文件内容修改时，修改时间(mtime, modification time)会更新; 当文件状态更新时，状态时间(ctime, status time)会更新; 当文件内容被读取时，读取时间(atime, access time)会更新<br></li>
+<li>touch [-acdmt] 文件<br></li>
+<li>在默认情况下，如果touch后面指定的文件存在，则改文件的三个时间都会更新为目前的时间 如果该文件不存在，则会主动创建一个该名字的文件<br></li>
+<li>我们经常使用这个命令来创建新文件<br></li>
+</ul></li>
+<li>mkdir 创建空目录<br></li>
+<li>cat 直接查看文件内容<br>
+<ul class="org-ul">
+<li>cat 文件名<br></li>
+<li>-n 打印出行号<br></li>
+</ul></li>
+<li>more 可翻页查看文件内容<br>
+<ul class="org-ul">
+<li>最后一行会显示目前显示的百分比，而且还可以在最后一行输入一些有用的命令<br></li>
+<li>空格键 代表向下翻一页<br></li>
+<li>Enter 代表向下翻一行<br></li>
+<li>/字符串  代表在这个显示的内容中, 向下查找字符串这个关键词<br></li>
+<li>:f   立即显示出文件名以及目前显示的行数<br></li>
+<li>q    结束命令<br></li>
+<li>b 或 [ctrl]-b 代表向回翻页，不过这个操作只对文件有用，对管道无用<br></li>
+</ul></li>
+<li>less 比more更高级的可翻页查看文件内容<br>
+<ul class="org-ul">
+<li>空格键  向下翻动一页<br></li>
+<li>[pagedowm] 向下翻动一页<br></li>
+<li>[pageup] 向上翻动一页<br></li>
+<li>/字符串 向下查找字符串的功能<br></li>
+<li>?字符串 向上查找字符串<br></li>
+<li>n 重复前一个查找<br></li>
+<li>N 反向重复前一个查找<br></li>
+<li>g 前进到这个文件内容的第一行<br></li>
+<li>G 前进到这个文件内容的最后一行<br></li>
+<li>q 结束命令<br></li>
+</ul></li>
+<li>head 数据截取<br>
+<ul class="org-ul">
+<li>head [-n number] 文件名<br></li>
+<li>如果number前面没有-字符, 截取前number行数据   如果number前面有-字符, 表示不截取后number行数据，其余截取<br></li>
+<li>如果没有-n参数，默认前十行<br></li>
+</ul></li>
+<li>tail 与head反向，从后面开始截取<br>
+<ul class="org-ul">
+<li>tail [-n number] 文件名<br></li>
+<li>如果number前面没有+字符, 截取后number行数据   如果number前面有+字符, 表示从number行开始截取<br></li>
+<li>如果没有-n参数，默认后十行<br></li>
+</ul></li>
+<li>压缩与打包<br></li>
+<li>后缀名  *.zip zip    *.gz gzip   *.bz2 bzip2   *.xz xz  *.tar tar   *.tar.gz  tar+gz  *.tar.bz2 tar+bz2 *.tar.xz tar+xz<br></li>
+<li>gzip  可以解开zip,gzip压缩的文件<br>
+<ul class="org-ul">
+<li>-c 将压缩的文件输出到屏幕上，可通过数据流重定向来处理<br></li>
+<li>-d 解压缩<br></li>
+<li>-v 可以显示原文件/压缩文件等信息<br></li>
+<li>-# #表示数字，代表压缩等级，-1最快 但是压缩比差，-9最慢，但是压缩比最好，默认-6<br></li>
+<li>使用gzip压缩文件，原文件会删除，只保留压缩文件<br></li>
+<li>可以使用zcat/zmore/zless来从压缩文件查看原文件<br></li>
+</ul></li>
+<li>bzip2 对gzip进行优化<br>
+<ul class="org-ul">
+<li>-c 将压缩过程产生的数据输出大屏幕上，实际压缩数据无法输出，只是加上-d可以看到压缩文件的原文件内容，查看时不会删除原文件<br></li>
+<li>-d -v -# 和gzip相同<br></li>
+<li>-k 保留原始文件，而不会删除原始文件<br></li>
+<li>可以使用bzcat/bzmore/bzless从压缩文件查看原文件<br></li>
+</ul></li>
+<li>xz 对bzip2进行优化<br>
+<ul class="org-ul">
+<li>-d -k -c -#和bzip2相同<br></li>
+<li>-l 列出压缩文件的相关信息<br></li>
+<li>可以使用xzcat/xzmore/xzless从压缩文件查看原文件<br></li>
+</ul></li>
+<li>tar 打包命令 可以将多个文件或目录打包成一个文件，可以同时配合gzip,bzip2,xz来使用<br>
+<ul class="org-ul">
+<li>gzip,bzip2,xz在压缩文件时，只能把单一文件压缩成单一压缩文件<br></li>
+<li>-c 建立打包文件 -t 查看打包内容，重点在文件名  -x 解包  -c -t -x 不能同时出现在一条命令中  可配合-z|-j|-J使用<br></li>
+<li>-f 后面立即接要处理的文件名，可以是要打包成的文件名，也可以是要查询的压缩文件，也可以是要解压缩的压缩文件<br></li>
+<li>-z 使用gzip -j 使用bzip2 -J使用xz   三者不能同时出现在同一条命令中<br></li>
+<li>-v 在压缩/解压缩过程中，将正在处理的文件名显示出来<br></li>
+<li>-C 后面接要目录名   表示在特定目录解包 配合-x使用<br></li>
+<li>常用<br>
+<ul class="org-ul">
+<li>打包压缩   tar -jcv -f filename.tar.bz2   要被压缩的文件或目录名称<br></li>
+<li>查看      tar -jtv -f filename.tar.bz2<br></li>
+<li>解压缩解包 tar -jxv -f filename.tar.bz2 -C 欲解压缩到的目录<br></li>
+</ul></li>
+<li>打包后的文件保留的是相对路径，而不是原来的绝对路径，在解压缩解包到对应目录后，会以对应目录为基目录 可以通过tar -jtv -f filename.tar.bz2发现<br></li>
+<li>tar命令打包时需要自己指定最终文件名，文件名最好按照可读性的需要建立对应后缀<br>
+<ul class="org-ul">
+<li>evince hello.pdf 打开pdf文件<br></li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li>用户与用户组<br>
+<ul class="org-ul">
+<li>linux识别用户和用户组是通过UID与GID（即User ID 和 Group ID）<br></li>
+<li>每个文件都是直接存储对应的UID与GID，当要查看属性时，会去/etc/passwd和/etc/group查到对应的用户名和用户组名<br></li>
+<li>/etc/passwd 记录了系统所有用户用户的信息<br>
+<ul class="org-ul">
+<li>每个用户信息占一行  thesky:x:1000:1000:thesky,,,:/home/thesky:/bin/bash<br></li>
+<li>共有7个字段，通过:分隔   第一个字段表示用户名，第二个字段表示密码，由于安全性的问题，实际密码加密存储在/etc/shadow，这里只保留x字符，第三个字段为用户的UID，第四个字段为用户的初始用户组GID，第五个为用户信息说明栏，没什么用，第六个字段为用户的家目录，用户登录后即进入这个目录，第七个是用户登录后获得的shell<br></li>
+<li>当第七个字段为/sbin/nologin时，表示该用户登录时无法获得shell环境（应该就是该用户无法用于登录）<br></li>
+</ul></li>
+<li>/etc/shadow 保存有用户的密码，以及用户密码实效时间等相关属性<br>
+<ul class="org-ul">
+<li>每个用户密码信息占一行   avahi:uewie:18295:0:99999:7:::<br></li>
+<li>共有9个字段，通过:分隔  第一个字段表示用户名，第二个字段表示加密了的密码<br></li>
+<li>第三个字段表示最近修改密码的日期，用一个数字表示，从1970-01-01为第一天开始累计<br></li>
+<li>第四个字段表示密码不可被修改的天数，表示在最近修改密码后要几天才可以再次修改密码，防止用户频繁修改密码<br></li>
+<li>第五个字段表示密码需要重新修改的天数，表示在用户最近修改密码后，多少天内需要再次修改密码，否则密码会进入密码过期特性<br></li>
+<li>第六个字段表示密码需要修改期限前的警告天数，表示在密码修改期限前多少天开始警告用户修改密码<br></li>
+<li>第七个字段表示密码过期后的账号宽限时间，在密码进入密码过期特性状态时，会有一定的宽限天数，用户在这段时间登录，系统会强制要求修改密码，如果在这段时间没有修改密码，密码会进入失效状态，此时用户无法再修改或使用这个密码<br></li>
+<li>第8个字段表示账号失效日期，也是从1970-01-01累计，过了这个日期，账号将无法使用，应该也就是密码失效的意思<br></li>
+<li>第九个字段保留<br></li>
+</ul></li>
+<li>/etc/group 保存用户组信息<br>
+<ul class="org-ul">
+<li>每个用户组信息占一行   test:x:1001:<br></li>
+<li>共有4个字段  第一个字段为用户组名，第二个字段为用户组密码，给用户组管理员使用，实际密码加密存储在/etc/gshadow,实际上已经不怎么使用用户组管理员，第三个字段表示该用户组的GID，第四个字段表示该用户组支持的账号名称，如果该用户组是某用户的初始用户组，该用户现在并不会添加到第四字段<br></li>
+</ul></li>
+<li>用户组<br>
+<ul class="org-ul">
+<li>初始用户组与有效用户组<br>
+<ul class="org-ul">
+<li>当用户登录时，会根据/etc/passwd中用户初始拥护组GID获取初始用户组，用户的非初始用户组（即次要用户组）可以在/etc/group找到<br></li>
+<li>用户支持的用户组也就是用户的初始用户组加上/etc/group中用户加入的次要用户组，可以通过groups查看，此时出现的第一个用户组名也是用户的有效用户组<br></li>
+<li>有效用户组是指用户在创建新文件或者新文件夹等操作时将会指定的用户组<br></li>
+<li>使用newgrp [用户加入的一个用户组名] 可以将用户的有效用户组切换到另一个用户组，不过这个切换实际是开启了另一个shell，在那个shell中，用户的有效用户组发生了改变，因此使用完后记得使用exit退出<br></li>
+</ul></li>
+</ul></li>
+<li>/etc/gshadow 与用户组密码有关，现在实际已经不怎么使用用户组管理员，也就不怎么使用这个文件<br></li>
+</ul></li>
+<li>用户管理和用户组管理<br>
+<ul class="org-ul">
+<li>useradd 新用户名  添加新用户<br>
+<ul class="org-ul">
+<li>-d 家目录绝对路径<br></li>
+<li>-s shell<br></li>
+<li>-m 强制要建立用户家目录<br></li>
+</ul></li>
+<li>passwd 用户名  修改用户密码<br>
+<ul class="org-ul">
+<li>若没有用户名，则代表修改自己的密码<br></li>
+</ul></li>
+<li>usermod 更改用户属性<br>
+<ul class="org-ul">
+<li>通过添加一些参数，可以修改用户属性<br></li>
+</ul></li>
+<li>userdel 用户名  删除用户<br>
+<ul class="org-ul">
+<li>-r 连同用户的家目录也一起删除<br></li>
+</ul></li>
+<li>groupadd 新用户组名  添加新用户组<br></li>
+<li>groupmod 通过参数修改用户组属性<br></li>
+<li>groupdel 用户组名 删除用户组<br></li>
+<li>gpasswd 用户组名   用户组管理员功能<br>
+<ul class="org-ul">
+<li>-A 将用户组的管理权交由后面的使用者管理<br></li>
+<li>-M 将某些用户加入这个用户组<br></li>
+</ul></li>
+
+<li>sudo su root<br></li>
+<li>su<br></li>
+<li>apt<br></li>
+<li>install<br></li>
+<li>remove<br></li>
+<li>update<br></li>
+</ul></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-org05c4e03" class="outline-2">
+<h2 id="org05c4e03">删除文件夹</h2>
+<div class="outline-text-2" id="text-org05c4e03">
+<ul class="org-ul">
+<li>删除linux文件夹<br>
+<ul class="org-ul">
+<li>rmdir myFolder  删除空的文件夹<br></li>
+<li>rm命令用于删除文件，也可以添加参数删除目录<br></li>
+<li>rm [-fir] 文件/目录<br></li>
+<li>-f 强制删除，忽略不存在的文件，不会出现警告信息<br></li>
+<li>-i 交互模式，在删除前会询问使用者是否操作<br></li>
+<li>-r 递归删除，用于删除含有文件的目录，一般目录非空时不允许删除<br></li>
+<li>使用递归选项-r 或 -R删除含有文件的文件夹，如果文件夹受写保护，会出现警告信息，同时使用-f强制删除不警告<br></li>
+<li>![linux-find-删除目录](/home/haoran/图片/typora-photo/linux-find-删除目录.png)<br></li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgbcc29b5" class="outline-2">
+<h2 id="orgbcc29b5">杂记</h2>
+<div class="outline-text-2" id="text-orgbcc29b5">
+<dl class="org-dl">
+<dt>mkdir</dt><dd>新建文件夹<br></dd>
+<dt>cd</dt><dd>切换目录<br></dd>
+<dt>touch</dt><dd>新建文件<br></dd>
+<dt>sudo apt autoremove</dt><dd>自动删除无用的包<br></dd>
+<dt>uname -r</dt><dd>查看系统内核<br></dd>
+<dt>cat /etc/os-release</dt><dd>查看系统版本信息<br></dd>
+</dl>
+
+<hr>
+
+<ul class="org-ul">
+<li>文件重命名<br>
+<ul class="org-ul">
+<li>mv 移动文件/文件夹<br>
+<ul class="org-ul">
+<li>-f 强制移动，如果目标文件已存在，不会询问而直接覆盖<br></li>
+<li>-i 若目标文件已经存在，就会询问是否覆盖<br></li>
+<li>-u 若目标文件已经存在，且源文件更新，才会更新<br></li>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2021-07-05 20:07 一</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2021-11-24 Wed 14:32</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

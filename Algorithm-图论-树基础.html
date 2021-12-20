@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-12-01 Wed 15:55 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>树基础</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">树基础</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org58aaece">有根树与无根树</a></li>
+<li><a href="#org3465509">有关树的定义</a>
+<ul>
+<li><a href="#org3615443">适用于有根树和无根树</a></li>
+<li><a href="#orga74dee3">仅适用于有根树</a></li>
+</ul>
+</li>
+<li><a href="#org86b2fa7">特殊的树</a></li>
+<li><a href="#orgf97ac77">树的存储</a>
+<ul>
+<li><a href="#orgb1c56c6">只记录父结点</a></li>
+<li><a href="#org06600d0">邻接表</a></li>
+<li><a href="#org952f297">左孩子右兄弟表示法</a></li>
+</ul>
+</li>
+<li><a href="#orgba3b3c7">树的遍历</a>
+<ul>
+<li><a href="#org29e8e38">树上 DFS</a></li>
+<li><a href="#orgeca3b19">二叉树上 DFS</a>
+<ul>
+<li><a href="#org9da585f">先序遍历</a></li>
+<li><a href="#org5821bc4">中序遍历</a></li>
+<li><a href="#orgbb2022e">后序遍历</a></li>
+<li><a href="#org0c5ca04">反推</a></li>
+</ul>
+</li>
+<li><a href="#org29a1702">树上 BFS</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org58aaece" class="outline-2">
+<h2 id="org58aaece">有根树与无根树</h2>
+<div class="outline-text-2" id="text-org58aaece">
+<dl class="org-dl">
+<dt>有根树</dt><dd>有根的树<br></dd>
+<dt>无根树</dt><dd>无根的树<br></dd>
+</dl>
+
+<p>
+给无根树指定一个结点为根，则这颗无根树就变成了有根树。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org3465509" class="outline-2">
+<h2 id="org3465509">有关树的定义</h2>
+<div class="outline-text-2" id="text-org3465509">
+</div>
+<div id="outline-container-org3615443" class="outline-3">
+<h3 id="org3615443">适用于有根树和无根树</h3>
+<div class="outline-text-3" id="text-org3615443">
+<ul class="org-ul">
+<li>森林（forest）：每个连通分量（连通块）都是树的图。按照定义，一棵树也是森林。<br></li>
+<li>生成树（spanning tree）：一个连通无向图的生成子图，同时要求是树。也即在图的边集中选择 \(n - 1\) 条，将所有顶点连通。<br></li>
+<li>结点的深度（depth）：到根结点的路径上的边数。<br></li>
+<li>树的高度（height）：所有结点的深度的最大值。<br></li>
+<li>无根树的叶结点（leaf node）：度数不超过 \(1\) 的结点，如果 \(n = 1\)，那么结点的度就是 \(0\)。<br></li>
+<li>有根树的叶结点（leaf node）：没有子结点的结点。<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orga74dee3" class="outline-3">
+<h3 id="orga74dee3">仅适用于有根树</h3>
+<div class="outline-text-3" id="text-orga74dee3">
+<ul class="org-ul">
+<li>父亲（parent node）：对于除根以外的每个结点，定义为从该结点到根路径上的第二个结点。 根结点没有父结点。<br></li>
+<li>祖先（ancestor）：一个结点到根结点的路径上，除了它本身外的结点。 根结点的祖先集合为空。<br></li>
+<li>子结点（child node）：如果 \(u\) 是 \(v\) 的父亲，那么 \(v\) 是 \(u\) 的子结点，子结点的顺序一般不加以区分，二叉树是一个例外。<br></li>
+<li>兄弟（sibling）：同一个父亲的多个子结点互为兄弟。<br></li>
+<li><p>
+后代（descendant）：子结点和子结点的后代。<br>
+</p>
+
+<img src="./images/树的关系.svg" /></li>
+
+<li><p>
+子树（subtree）：删掉与父亲相连的边后，该结点所在的子图。<br>
+</p>
+
+<img src="./images/子树.svg" /></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-org86b2fa7" class="outline-2">
+<h2 id="org86b2fa7">特殊的树</h2>
+<div class="outline-text-2" id="text-org86b2fa7">
+<ul class="org-ul">
+<li>链（chain/path graph）：满足与任一结点相连的边不超过 \(2\) 条的树称为链。<br></li>
+<li>菊花/星星（star）：满足存在 \(u\) 使得所有除 \(u\) 以外结点均与 \(u\) 相连的树称为菊花。<br></li>
+<li>有根二叉树（rooted binary tree）：每个结点最多只有两个儿子（子结点）的有根树称为二叉树。常常对两个子结点的顺序加以区分，分别称之为左子结点和右子结点，大多数情况下，二叉树一词均指有根二叉树。<br></li>
+<li><p>
+完整二叉树（full/proper binary tree）：每个结点的子结点数量均为 \(0\) 或者 \(2\) 的二叉树。换言之，每个结点或者是树叶，或者左右子树均非空。<br>
+</p>
+
+<img src="./images/完整二叉树.svg" /></li>
+
+<li><p>
+完全二叉树（complete binary tree）：只有最下面两层结点的度数可以小于 2，且最下面一层的结点都集中在该层最左边的连续位置上<br>
+</p>
+
+<img src="./images/完全二叉树.svg" /></li>
+
+<li><p>
+完美二叉树（perfect binary tree）：所有叶结点的深度均相同的二叉树称为完美二叉树。<br>
+</p>
+
+<img src="./images/完美二叉树.svg" /></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgf97ac77" class="outline-2">
+<h2 id="orgf97ac77">树的存储</h2>
+<div class="outline-text-2" id="text-orgf97ac77">
+</div>
+<div id="outline-container-orgb1c56c6" class="outline-3">
+<h3 id="orgb1c56c6">只记录父结点</h3>
+</div>
+<div id="outline-container-org06600d0" class="outline-3">
+<h3 id="org06600d0">邻接表</h3>
+</div>
+<div id="outline-container-org952f297" class="outline-3">
+<h3 id="org952f297">左孩子右兄弟表示法</h3>
+</div>
+</div>
+<div id="outline-container-orgba3b3c7" class="outline-2">
+<h2 id="orgba3b3c7">树的遍历</h2>
+<div class="outline-text-2" id="text-orgba3b3c7">
+</div>
+<div id="outline-container-org29e8e38" class="outline-3">
+<h3 id="org29e8e38">树上 DFS</h3>
+</div>
+<div id="outline-container-orgeca3b19" class="outline-3">
+<h3 id="orgeca3b19">二叉树上 DFS</h3>
+<div class="outline-text-3" id="text-orgeca3b19">
+</div>
+<div id="outline-container-org9da585f" class="outline-4">
+<h4 id="org9da585f">先序遍历</h4>
+</div>
+<div id="outline-container-org5821bc4" class="outline-4">
+<h4 id="org5821bc4">中序遍历</h4>
+</div>
+<div id="outline-container-orgbb2022e" class="outline-4">
+<h4 id="orgbb2022e">后序遍历</h4>
+</div>
+<div id="outline-container-org0c5ca04" class="outline-4">
+<h4 id="org0c5ca04">反推</h4>
+</div>
+</div>
+<div id="outline-container-org29a1702" class="outline-3">
+<h3 id="org29a1702">树上 BFS</h3>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2021-12-01 15:12 Wed</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2021-12-01 Wed 15:55</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

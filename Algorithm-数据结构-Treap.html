@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-11-28 Sun 17:45 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TREAP</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">TREAP</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org3eb4fd8">treap 树介绍</a>
+<ul>
+<li><a href="#org1db878a">treap 的结构</a></li>
+</ul>
+</li>
+<li><a href="#orge2a6643">平衡树中两个重要的旋转操作</a></li>
+<li><a href="#orgef6eb46">平衡树的各种操作</a>
+<ul>
+<li><a href="#orgdd45144">插入</a></li>
+<li><a href="#orgb745352">删除</a></li>
+<li><a href="#org7da7c69">找前驱</a></li>
+<li><a href="#orgafcbf16">找后继</a></li>
+<li><a href="#org0c0bd7a">通过排名找数值</a></li>
+<li><a href="#orge5c391e">通过数值找排名</a></li>
+</ul>
+</li>
+<li><a href="#org4723f00">两种 treap</a>
+<ul>
+<li><a href="#org92d1b20">无旋式treap</a>
+<ul>
+<li><a href="#org918a6e8">分裂</a></li>
+<li><a href="#orgda0ce7f">合并</a></li>
+<li><a href="#org51a8aa3">建树</a></li>
+</ul>
+</li>
+<li><a href="#orgebf6c3c">旋转式treap</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org3eb4fd8" class="outline-2">
+<h2 id="org3eb4fd8">treap 树介绍</h2>
+<div class="outline-text-2" id="text-org3eb4fd8">
+<p>
+\(treap\) 是一种弱平衡的二叉搜索树。\(treap\) 这个单词是 \(tree\) 和 \(heap\) 的组合，表明 \(treap\) 是一种由树和堆组合形成的数据结构。<br>
+</p>
+
+<p>
+\(treap\) 的每个结点上要额外储存一个值 \(priority\)。\(treap\) 除了要满足二叉搜索树的性质之外，还需满足父节点的 \(priority\) 大于等于两个儿子的 \(priority\)。而 \(priority\) 是每个结点建立时随机生成的，因此 \(treap\) 是期望平衡的。<br>
+</p>
+</div>
+
+<div id="outline-container-org1db878a" class="outline-3">
+<h3 id="org1db878a">treap 的结构</h3>
+<div class="outline-text-3" id="text-org1db878a">
+<div class="org-src-container">
+<pre class="src src-cpp"><span style="color: #BD93F9;">struct</span> <span style="color: #AFAFAF;">Node</span> {
+    <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">l</span>, <span style="color: #AFAFAF;">r</span>;
+    <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">key</span>;
+    <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">priority</span>;
+    <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">cnt</span>, <span style="color: #AFAFAF;">size</span>;
+} <span style="color: #AFAFAF;">tree</span>[N];
+</pre>
+</div>
+
+<p>
+此外还需要维护 \(cnt、size\) 两个值，分别表示相同权值（\(key\)）的结点有多少个、用来计算排名。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orge2a6643" class="outline-2">
+<h2 id="orge2a6643">平衡树中两个重要的旋转操作</h2>
+<div class="outline-text-2" id="text-orge2a6643">
+<img src="./images/平衡树旋转.png" />
+
+<p>
+如果只有一个权值，这棵树是不唯一的，每个结点再加上 \(priority\) 这棵树就是唯一的了。左右旋操作不会改变平衡树中序遍历的结果，所以我们用这两个操作来维护树的堆形式。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgef6eb46" class="outline-2">
+<h2 id="orgef6eb46">平衡树的各种操作</h2>
+<div class="outline-text-2" id="text-orgef6eb46">
+</div>
+<div id="outline-container-orgdd45144" class="outline-3">
+<h3 id="orgdd45144">插入</h3>
+</div>
+<div id="outline-container-orgb745352" class="outline-3">
+<h3 id="orgb745352">删除</h3>
+</div>
+<div id="outline-container-org7da7c69" class="outline-3">
+<h3 id="org7da7c69">找前驱</h3>
+</div>
+<div id="outline-container-orgafcbf16" class="outline-3">
+<h3 id="orgafcbf16">找后继</h3>
+</div>
+<div id="outline-container-org0c0bd7a" class="outline-3">
+<h3 id="org0c0bd7a">通过排名找数值</h3>
+</div>
+<div id="outline-container-orge5c391e" class="outline-3">
+<h3 id="orge5c391e">通过数值找排名</h3>
+</div>
+</div>
+<div id="outline-container-org4723f00" class="outline-2">
+<h2 id="org4723f00">两种 treap</h2>
+<div class="outline-text-2" id="text-org4723f00">
+</div>
+<div id="outline-container-org92d1b20" class="outline-3">
+<h3 id="org92d1b20">无旋式treap</h3>
+<div class="outline-text-3" id="text-org92d1b20">
+<p>
+无旋式 treap 又称分裂合并 treap。它仅有两种核心操作，即为分裂与合并<br>
+</p>
+</div>
+<div id="outline-container-org918a6e8" class="outline-4">
+<h4 id="org918a6e8">分裂</h4>
+<div class="outline-text-4" id="text-org918a6e8">
+<p>
+分裂过程接受两个参数：根指针root、关键值val。结果为将根指针指向的treap 分裂为两个treap，第一个treap 所有结点的关键值小于等于val，第二个treap所有结点的关键值大于val。该过程首先判断val是否小于root的关键值，若小于，则说明root及其右子树全部属于第二个treap，否则说明root及其左子树全部属于第一个treap。根据此判断决定应向左子树递归还是应向右子树递归，继续分裂子树。待子树分裂完成后按刚刚的判断情况连root的左子树或右子树到递归分裂所得的子树中<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgda0ce7f" class="outline-4">
+<h4 id="orgda0ce7f">合并</h4>
+<div class="outline-text-4" id="text-orgda0ce7f">
+<p>
+合并过程接受两个参数：左treap的根指针rootL、右treap的根指针rootR。必须满足rootL中所有结点的关键值小于等于rootR中所有结点的关键值。因为两个treap已经有序，我们只需要考虑priority来决定哪个treap应与另一个treap的儿子合并。若rootL的根结点的priority大于rootR的，那么rootL即为新根结点，rootR应与rootL的右子树合并；反之，则rootR作为新根结点，然后让rootL与rootR的左子树合并。不难发现，这样合并所得的树依然满足priority的大根堆性质<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org51a8aa3" class="outline-4">
+<h4 id="org51a8aa3">建树</h4>
+</div>
+</div>
+<div id="outline-container-orgebf6c3c" class="outline-3">
+<h3 id="orgebf6c3c">旋转式treap</h3>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2021-11-18 11:11 Thu</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2021-11-28 Sun 17:45</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

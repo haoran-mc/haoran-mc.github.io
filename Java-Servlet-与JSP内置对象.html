@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-12-07 Tue 10:10 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Servlet 与 JSP 内置对象</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">Servlet 与 JSP 内置对象</h1>
+<ol class="org-ol">
+<li><p>
+获得 out 对象<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-java"><span style="color: #BD93F9;">import</span> <span style="color: #009F9F;">java</span>.<span style="color: #009F9F;">io</span>.<span style="color: #AFAFAF;">PrintWriter</span>;
+
+...
+
+<span style="color: #BD93F9;">public</span> <span style="color: #AFAFAF;">void</span> doGet(<span style="color: #AFAFAF;">HttpServletRequest</span> <span style="color: #AFAFAF;">request</span>, <span style="color: #AFAFAF;">HttpServletResponse</span> <span style="color: #AFAFAF;">response</span>) <span style="color: #BD93F9;">throws</span> <span style="color: #AFAFAF;">ServletException</span>, <span style="color: #AFAFAF;">IOException</span> {
+    <span style="color: #AFAFAF;">PrintWriter</span> <span style="color: #AFAFAF;">out</span> = response.getWriter();
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#20351;&#29992; out &#23545;&#35937;</span>
+}
+
+...
+</pre>
+</div>
+
+<p>
+不过默认情况下，out 对象无法打印中文，需要设置编码<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-java">response.setContentType(<span style="color: #FC9F4E;">"text/html; charset=gb2312"</span>);
+<span style="color: #AFAFAF;">PrintWriter</span> <span style="color: #AFAFAF;">out</span> = response.getWriter();
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#20351;&#29992; out &#23545;&#35937;</span>
+</pre>
+</div></li>
+
+<li><p>
+获得 request 和 response 对象<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-java">...
+
+<span style="color: #BD93F9;">public</span> <span style="color: #AFAFAF;">void</span> doGet(<span style="color: #AFAFAF;">HttpServletRequest</span> <span style="color: #AFAFAF;">request</span>, <span style="color: #AFAFAF;">HttpServletResponse</span> <span style="color: #AFAFAF;">response</span>) <span style="color: #BD93F9;">throws</span> <span style="color: #AFAFAF;">ServletException</span>, <span style="color: #AFAFAF;">IOException</span> {
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#23558; request &#21442;&#25968;&#24403;&#25104; request &#23545;&#35937;&#20351;&#29992;</span>
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#23558; response &#21442;&#25968;&#24403;&#25104; response &#23545;&#35937;&#20351;&#29992;</span>
+}
+
+...
+</pre>
+</div></li>
+
+<li><p>
+获得 session 对象<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-java"><span style="color: #BD93F9;">import</span> <span style="color: #009F9F;">javax</span>.<span style="color: #009F9F;">servlet</span>.<span style="color: #009F9F;">http</span>.<span style="color: #AFAFAF;">HttpSession</span>;
+
+...
+
+<span style="color: #BD93F9;">public</span> <span style="color: #AFAFAF;">void</span> doGet(<span style="color: #AFAFAF;">HttpServletRequest</span> <span style="color: #AFAFAF;">request</span>, <span style="color: #AFAFAF;">HttpServletResponse</span> <span style="color: #AFAFAF;">response</span>) <span style="color: #BD93F9;">throws</span> <span style="color: #AFAFAF;">ServletException</span>, <span style="color: #AFAFAF;">IOException</span> {
+    <span style="color: #AFAFAF;">HttpSession</span> <span style="color: #AFAFAF;">session</span> = request.getSession();
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#23558; session &#24403;&#25104; session &#23545;&#35937;&#20351;&#29992;</span>
+}
+
+...
+</pre>
+</div></li>
+
+<li><p>
+获得 application 对象<br>
+application 对象对应的是 ServletContext 接口。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-java"><span style="color: #BD93F9;">import</span> <span style="color: #009F9F;">Java</span>.<span style="color: #009F9F;">servlet</span>.<span style="color: #AFAFAF;">ServletContext</span>;
+
+...
+
+<span style="color: #BD93F9;">public</span> <span style="color: #AFAFAF;">void</span> doGet(<span style="color: #AFAFAF;">HttpServletRequest</span> <span style="color: #AFAFAF;">request</span>, <span style="color: #AFAFAF;">HttpServletResponse</span> <span style="color: #AFAFAF;">response</span>) <span style="color: #BD93F9;">throws</span> <span style="color: #AFAFAF;">ServletException</span>, <span style="color: #AFAFAF;">IOException</span> {
+    <span style="color: #AFAFAF;">ServletContext</span> <span style="color: #AFAFAF;">application</span> = <span style="color: #BD93F9;">this</span>.get ServletContext();
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#23558; application &#24403;&#25104; application &#23545;&#35937;&#26469;&#20351;&#29992;</span>
+}
+
+...
+</pre>
+</div>
+
+<p>
+使用 application 实现服务器内跳转，由于 Servlet 和 JSP 的同质性，常用的 Servlet 内跳转有以下两种。<br>
+</p>
+
+<ol class="org-ol">
+<li><p>
+重定向（对应 JSP 隐含对象中的 sendRedirect）<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-java">response.sendRedirect(<span style="color: #FC9F4E;">"URL &#22320;&#22336;"</span>)
+</pre>
+</div></li>
+
+<li><p>
+服务器内跳转（对应 JSP 隐含对象中的 forward）<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-java"><span style="color: #AFAFAF;">ServletContext</span> <span style="color: #AFAFAF;">application</span> = <span style="color: #BD93F9;">this</span>.getServletContext();
+<span style="color: #AFAFAF;">RequestDispatcher</span> <span style="color: #AFAFAF;">rd</span> = application.getRequestDispatcher(<span style="color: #FC9F4E;">"URL &#22320;&#22336;"</span>);
+rd.forward(request, response);
+</pre>
+</div></li>
+</ol>
+
+<p>
+这两种跳转是等效的，但 URL 地址写法不同，在第1种中，如果写绝对路径，必须将虚拟目录根目录写在里面如”/Pri09/page.jsp“；而在第2种，则不需要”/page.jsp”。<br>
+</p></li>
+</ol>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2021-11-27 11:11 Sat</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2021-12-07 Tue 10:10</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-11-15 Mon 08:46 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>文件读写</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">文件读写</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgaaf1271">文件类型指针</a></li>
+<li><a href="#org2de3224">文件的使用方式</a></li>
+<li><a href="#org56f2e5a">常用函数</a>
+<ul>
+<li><a href="#orgae5ea6f">fopen</a></li>
+<li><a href="#org02f0551">fclose</a></li>
+<li><a href="#orgbaaa0e3">fread</a></li>
+<li><a href="#org5af2ffe">fwrite</a></li>
+<li><a href="#orgfefedb7">fscanf</a></li>
+<li><a href="#org2a91e6a">fprintf</a></li>
+<li><a href="#org32a1911">fgets</a></li>
+<li><a href="#org2b43d3e">fputs</a></li>
+<li><a href="#org96c296f">fgetc</a></li>
+<li><a href="#orgf929ca9">fputc</a></li>
+</ul>
+</li>
+<li><a href="#org39a332a">文件定位</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgaaf1271" class="outline-2">
+<h2 id="orgaaf1271">文件类型指针</h2>
+<div class="outline-text-2" id="text-orgaaf1271">
+<div class="org-src-container">
+<pre class="src src-cpp"><span style="color: #AFAFAF;">FILE</span> *<span style="color: #AFAFAF;">fp</span>
+</pre>
+</div>
+
+<p>
+FILE 是在 stdio.h 中定义的结构体类型，封装了与文件有关的信息，如文件句柄、位置指针及缓冲区等，缓冲文件系统为每个被使用的文件在内存中开辟一个缓冲区。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2de3224" class="outline-2">
+<h2 id="org2de3224">文件的使用方式</h2>
+<div class="outline-text-2" id="text-org2de3224">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">模式</th>
+<th scope="col" class="org-left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">r</td>
+<td class="org-left">打开一个已有的文本文件，允许读取文件。</td>
+</tr>
+
+<tr>
+<td class="org-left">w</td>
+<td class="org-left">打开一个文本文件，允许写入文件。如果文件不存在，则会创建一个新文件。在这里，您的程序会从文件的开头写入内容。如果文件存在，则该会被截断为零长度，重新写入。</td>
+</tr>
+
+<tr>
+<td class="org-left">a</td>
+<td class="org-left">打开一个文本文件，以追加模式写入文件。如果文件不存在，则会创建一个新文件。在这里，您的程序会在已有的文件内容中追加内容。</td>
+</tr>
+
+<tr>
+<td class="org-left">r+</td>
+<td class="org-left">打开一个文本文件，允许读写文件。</td>
+</tr>
+
+<tr>
+<td class="org-left">w+</td>
+<td class="org-left">打开一个文本文件，允许读写文件。如果文件已存在，则文件会被截断为零长度，如果文件不存在，则会创建一个新文件。</td>
+</tr>
+
+<tr>
+<td class="org-left">a+</td>
+<td class="org-left">打开一个文本文件，允许读写文件。如果文件不存在，则会创建一个新文件。读取会从文件的开头开始，写入则只能是追加模式。</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-org56f2e5a" class="outline-2">
+<h2 id="org56f2e5a">常用函数</h2>
+<div class="outline-text-2" id="text-org56f2e5a">
+</div>
+<div id="outline-container-orgae5ea6f" class="outline-3">
+<h3 id="orgae5ea6f">fopen</h3>
+<div class="outline-text-3" id="text-orgae5ea6f">
+<p>
+fopen(文件路径，文件使用方式);<br>
+</p>
+
+<p>
+fopen 打开指定文件，放回一个指向 FILE 类型的指针，无论使用哪种方式，当文件打开时出现了错误，fopen 都将放回 NULL。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-cpp"><span style="color: #AFAFAF;">FILE</span> *<span style="color: #AFAFAF;">fp</span>;
+fp = fopen(<span style="color: #FC9F4E;">"C:\\in.txt"</span>, <span style="color: #FC9F4E;">"r"</span>);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org02f0551" class="outline-3">
+<h3 id="org02f0551">fclose</h3>
+<div class="outline-text-3" id="text-org02f0551">
+<p>
+fclose(文件指针);<br>
+</p>
+
+<p>
+若文件关闭成功则返回0，否则返回非0。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-cpp">fclose(fp);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgbaaa0e3" class="outline-3">
+<h3 id="orgbaaa0e3">fread</h3>
+<div class="outline-text-3" id="text-orgbaaa0e3">
+<p>
+unsigned int fread(void *buffer, unsigned int size, unsigned int count, FILE *fp);<br>
+</p>
+
+<p>
+fread(内存首地址，数据块大小，数据块个数，文件指针);<br>
+</p>
+
+<p>
+从fp所指向的文件中读取数据块并存储到 buffer 所指向的内存中，buffer 是待读入数据块存储的起始地址，size 是每个数据块的大小，count 是最多允许读取的数据块个数，函数返回的是实际读入的数据块个数。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-cpp"><span style="color: #AFAFAF;">char</span> <span style="color: #AFAFAF;">str</span>[<span style="color: #009F9F;">20</span>];
+fread(str, <span style="color: #BD93F9;">sizeof</span>(<span style="color: #AFAFAF;">char</span>), <span style="color: #009F9F;">4</span>, fp);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org5af2ffe" class="outline-3">
+<h3 id="org5af2ffe">fwrite</h3>
+<div class="outline-text-3" id="text-org5af2ffe">
+<p>
+unsigned int fwrite(const void *buffer, unsigned int size, unsigned int count, FILE *fp);<br>
+</p>
+
+<p>
+fwrite(内存首地址，数据块大小，数据块个数，文件指针);<br>
+</p>
+
+<p>
+将buffer指向的内存中的数据块写入fp所指的文件，buffer是待输出数据块的起始地址，size是每个数据块的大小，count是最多允许写入的数据块个数（每个数据块size个字节），函数返回的是实际写入的数据块个数。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-cpp"><span style="color: #AFAFAF;">char</span> <span style="color: #AFAFAF;">str</span>[<span style="color: #009F9F;">20</span>] = <span style="color: #FC9F4E;">"text"</span>;
+fwrite(str, <span style="color: #BD93F9;">sizeof</span>(<span style="color: #AFAFAF;">char</span>), <span style="color: #009F9F;">4</span>, fp);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgfefedb7" class="outline-3">
+<h3 id="orgfefedb7">fscanf</h3>
+<div class="outline-text-3" id="text-orgfefedb7">
+<p>
+int fscanf (FILE *fp, const char *format, &#x2026;);<br>
+</p>
+
+<p>
+fscanf(文件指针, 格式字符, 输入列表);<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-cpp">fscanf(fp, <span style="color: #FC9F4E;">"%d %c"</span>, &amp;a, &amp;c);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org2a91e6a" class="outline-3">
+<h3 id="org2a91e6a">fprintf</h3>
+<div class="outline-text-3" id="text-org2a91e6a">
+<p>
+int fprintf(FILE *fp, const char *format, &#x2026;);<br>
+</p>
+
+<p>
+fprintf(文件指针，格式字符，输出列表);<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-cpp"><span style="color: #AFAFAF;">char</span> <span style="color: #AFAFAF;">c</span> = <span style="color: #FC9F4E;">'a'</span>;
+fprintf(fp, <span style="color: #FC9F4E;">"%c"</span>, c);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org32a1911" class="outline-3">
+<h3 id="org32a1911">fgets</h3>
+<div class="outline-text-3" id="text-org32a1911">
+<p>
+char *fgets(char *str, int n, FILE *fp);<br>
+</p>
+
+<p>
+从 fp 所指的文件中读取字符串并在字符串末尾添加 '\0', 然后存入 str，最多读 n - 1 个字符，当读到回车换行符，到达文件尾或读满 n - 1 个字符时，就停止读取。<br>
+</p>
+
+<p>
+返回该字符串的首地址，读取失败就返回 NULL。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-cpp"><span style="color: #AFAFAF;">char</span> <span style="color: #AFAFAF;">str</span>[<span style="color: #009F9F;">20</span>];
+fgets(str, <span style="color: #009F9F;">20</span>, fp);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org2b43d3e" class="outline-3">
+<h3 id="org2b43d3e">fputs</h3>
+<div class="outline-text-3" id="text-org2b43d3e">
+<p>
+fputs(const char *str, FILE *fp);<br>
+</p>
+
+<p>
+将字符串输出到 fp 所指的文件中，fputs 不会在写入文件的字符串末尾加上换行符。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-cpp"><span style="color: #AFAFAF;">char</span> <span style="color: #AFAFAF;">str</span>[<span style="color: #009F9F;">20</span>] = <span style="color: #FC9F4E;">"abc"</span>;
+fputs(str, fp);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org96c296f" class="outline-3">
+<h3 id="org96c296f">fgetc</h3>
+<div class="outline-text-3" id="text-org96c296f">
+<p>
+int fgetc(FILE *fp);<br>
+</p>
+
+<p>
+从文件中读取一个字符，如果读取成功，则返回该字符；若读取不成功则放回 EOF（EOF 是一个符号常量，stdio.h 中定义为 -1）。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf929ca9" class="outline-3">
+<h3 id="orgf929ca9">fputc</h3>
+<div class="outline-text-3" id="text-orgf929ca9">
+<p>
+int fputc(int c, FILE *fp);<br>
+</p>
+
+<p>
+将字符 c 写到文件中，若写入错误返回 EOF，否则返回字符 c。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org39a332a" class="outline-2">
+<h2 id="org39a332a">文件定位</h2>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2021-11-12 22:11 Fri</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2021-11-15 Mon 08:46</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

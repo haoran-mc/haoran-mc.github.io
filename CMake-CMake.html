@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-10-07 Thu 13:51 -->
+<!-- 2021-11-12 Fri 17:13 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CMAKE</title>
@@ -58,6 +58,9 @@
 <div class="outline-text-2" id="text-org94bff25">
 <p>
 CMake是一个跨平台的安装编译工具，可以用简单的语句来描述所有平台的安装(编译过程)。<br>
+</p>
+
+<p>
 CMake可以说已经成为大部分C++开源项目标配<br>
 </p>
 </div>
@@ -68,43 +71,43 @@ CMake可以说已经成为大部分C++开源项目标配<br>
 <p>
 Let’s assume you have some cross-platform project with C++ code shared along different platforms/IDEs. Say you use Visual Studio on Windows, Xcode on OSX and Makefile for Linux:<br>
 </p>
-<pre class="example" id="orge2cf2c3">
+<pre class="example" id="orga005e31">
 Build tools:   Visual Studio  Xcode   Makefile
-										 |          |         |
-										 |          |         |
-										 |          |         |
-										 V          V         V
+. 									 |          |         |
+. 									 |          |         |
+. 									 |          |         |
+. 									 V          V         V
 Build command:    msbuild   xcodebuild   make
-											 \        |        /
-												\       |       / 
-												 \      |      /  
-													\     |     /   
-																v          
-														 binaries
+. 										 \        |        /
+. 											\       |       / 
+. 											 \      |      /  
+. 												\     |     /   
+. 															v          
+. 													 binaries
 </pre>
 
 <p>
 What you will do if you want to add new bar.cpp source file? You have to add it to every tool you use:<br>
 </p>
-<pre class="example" id="org056cbab">
-														 +bar.cpp
-													 /    |    \  
-								[add]     /     |     \ 
-												 /      |      \
-												/       |       \
-																v        
+<pre class="example" id="org2d95fdc">
+. 													 +bar.cpp
+. 												 /    |    \  
+. 							[add]     /     |     \ 
+. 											 /      |      \
+. 											/       |       \
+. 															v        
 Build tools:   Visual Studio  Xcode   Makefile
-										 |          |         |
-										 |          |         |
-										 |          |         |
-										 V          V         V
+. 									 |          |         |
+. 									 |          |         |
+. 									 |          |         |
+. 									 V          V         V
 Build command:    msbuild   xcodebuild   make
-											 \        |        /
-												\       |       / 
-												 \      |      /  
-													\     |     /   
-																v          
-														 binaries
+. 										 \        |        /
+. 											\       |       / 
+. 											 \      |      /  
+. 												\     |     /   
+. 															v          
+. 													 binaries
 </pre>
 
 <p>
@@ -114,61 +117,61 @@ To keep the environment consistent you have to do the similar update several tim
 <p>
 CMake solve this design flaw by adding extra step to development process. You can describe your project in CMakeLists.txt file and use CMake to generate tools you currently interested in using cross-platform CMake code:<br>
 </p>
-<pre class="example" id="org38f249f">
-													CMakeLists.txt
-																|
-																|
-																|
-														 [cmake] 
-													 /    |    \  
-													/     |     \ 
-												 /      |      \
-												/       |       \
-																v        
+<pre class="example" id="org8eb2920">
+. 												CMakeLists.txt
+. 															|
+. 															|
+. 															|
+. 													 [cmake] 
+. 												 /    |    \  
+. 												/     |     \ 
+. 											 /      |      \
+. 											/       |       \
+. 															v        
 Build tools:   Visual Studio  Xcode   Makefile
-										 |          |         |
-										 |          |         |
-										 |          |         |
-										 V          V         V
+. 									 |          |         |
+. 									 |          |         |
+. 									 |          |         |
+. 									 V          V         V
 Build command:    msbuild   xcodebuild   make
-											 \        |        /
-												\       |       / 
-												 \      |      /  
-													\     |     /   
-																v          
-														 binaries
+. 										 \        |        /
+. 											\       |       / 
+. 											 \      |      /  
+. 												\     |     /   
+. 															v          
+. 													 binaries
 </pre>
 
 <p>
 Same action - adding new bar.cpp file, will be done in one step now:<br>
 </p>
-<pre class="example" id="org47d8cfb">
-														 +bar.cpp
-																|
-									[add]         |
-																|
-													CMakeLists.txt
-																|
-																|
-																|
-														 [cmake] 
-													 /    |    \  
-													/     |     \ 
-												 /      |      \
-												/       |       \
-																v        
+<pre class="example" id="org7c0f67a">
+. 													 +bar.cpp
+. 															|
+. 								[add]         |
+. 															|
+. 												CMakeLists.txt
+. 															|
+. 															|
+. 															|
+. 													 [cmake] 
+. 												 /    |    \  
+. 												/     |     \ 
+. 											 /      |      \
+. 											/       |       \
+. 															v        
 Build tools:   Visual Studio  Xcode   Makefile
-										 |          |         |
-										 |          |         |
-										 |          |         |
-										 V          V         V
+.										 |          |         |
+.										 |          |         |
+.										 |          |         |
+.										 V          V         V
 Build command:    msbuild   xcodebuild   make
-											 \        |        /
-												\       |       / 
-												 \      |      /  
-													\     |     /   
-																v          
-														 binaries
+. 										 \        |        /
+. 											\       |       / 
+. 											 \      |      /  
+. 												\     |     /   
+. 															v          
+. 													 binaries
 </pre>
 
 <p>
@@ -205,11 +208,12 @@ ADD_EXECUTABLE(hello main.cpp ${HELLO})
 <div id="outline-container-orgb2c0dec" class="outline-3">
 <h3 id="orgb2c0dec">重要指令</h3>
 <div class="outline-text-3" id="text-orgb2c0dec">
-<ul class="org-ul">
-<li>cmake_minimum_required - 指定CMake的最小版本要求<br></li>
-<li><p>
-语法：cmake_minimum_required(VERSION versionNumber [FATAL_ERROR])<br>
-</p>
+<dl class="org-dl">
+<dt>cmake_minimum_required</dt><dd>指定CMake的最小版本要求<br></dd>
+
+<dt>语法</dt><dd>cmake_minimum_required(VERSION versionNumber [FATAL_ERROR])<br></dd>
+</dl>
+
 <div class="org-src-container">
 <pre class="src src-cmake"># CMake最小版本要求为2.8.3
 cmake_minimum_required(VERSION 2.8.3)
@@ -218,7 +222,7 @@ cmake_minimum_required(VERSION 2.8.3)
 
 <ul class="org-ul">
 <li>project - 定义工程名称，并可指定工程支持的语言<br></li>
-<li>语法：project(projectname [CXX] [C] [Java])<br></li>
+<li id="语法">project(projectname [CXX] [C] [Java])<br></li>
 </ul>
 <div class="org-src-container">
 <pre class="src src-cmake"># 指定工程名为HELLOWORLD
@@ -226,146 +230,143 @@ project(HELLOWORLD)
 </pre>
 </div>
 
-<ul class="org-ul">
-<li>set - 显式的定义变量<br></li>
-<li>语法：set(VAR [VALUE] [CACHE TYPE DOCSTRING [FORCE]])<br></li>
-</ul>
+<dl class="org-dl">
+<dt>set</dt><dd>显式的定义变量<br></dd>
+<dt>语法</dt><dd>set(VAR [VALUE] [CACHE TYPE DOCSTRING [FORCE]])<br></dd>
+</dl>
 <div class="org-src-container">
 <pre class="src src-cmake"># 定义SRC变量，其值为main.cpp hello.cpp
 set(SRC sayhello.cpp hello.cpp)
 </pre>
 </div>
 
-<ul class="org-ul">
-<li>include_directories - 向工程添加多个特定的头文件搜索路径  &#x2014;&gt;相当于指定g++编译器的-I参数<br></li>
-<li>语法：include_directories([AFTER|BEFORE] [SYSTEM] dir1 dir2 …)<br></li>
-</ul>
+<dl class="org-dl">
+<dt>include_directories</dt><dd>向工程添加多个特定的头文件搜索路径  &#x2014;&gt;相当于指定g++编译器的-I参数<br></dd>
+<dt>语法</dt><dd>include_directories([AFTER|BEFORE] [SYSTEM] dir1 dir2 …)<br></dd>
+</dl>
 <div class="org-src-container">
 <pre class="src src-cmake"># 将/usr/include/myincludefolder 和 ./include 添加到头文件搜索路径
 include_directories(/usr/include/myincludefolder ./include)
 </pre>
 </div>
 
-<ul class="org-ul">
-<li>link_directories - 向工程添加多个特定的库文件搜索路径  &#x2014;&gt;相当于指定g++编译器的-L参数<br></li>
-<li>语法：link_directories(dir1 dir2 …)<br></li>
-</ul>
+<dl class="org-dl">
+<dt>link_directories</dt><dd>向工程添加多个特定的库文件搜索路径  &#x2014;&gt;相当于指定g++编译器的-L参数<br></dd>
+<dt>语法</dt><dd>link_directories(dir1 dir2 …)<br></dd>
+</dl>
 <div class="org-src-container">
 <pre class="src src-cmake"># 将/usr/lib/mylibfolder 和 ./lib 添加到库文件搜索路径
 link_directories(/usr/lib/mylibfolder ./lib)
 </pre>
 </div>
 
-<ul class="org-ul">
-<li>add_library - 生成库文件<br></li>
-<li>语法：add_library(libname [SHARED|STATIC|MODULE] [EXCLUDE_FROM_ALL] source1 source2 … sourceN)<br></li>
-</ul>
+<dl class="org-dl">
+<dt>add_library</dt><dd>生成库文件<br></dd>
+<dt>语法</dt><dd>add_library(libname [SHARED|STATIC|MODULE] [EXCLUDE_FROM_ALL] source1 source2 … sourceN)<br></dd>
+</dl>
 <div class="org-src-container">
 <pre class="src src-cmake"># 通过变量 SRC 生成 libhello.so 共享库
 add_library(hello SHARED ${SRC})
 </pre>
 </div>
 
-<ul class="org-ul">
-<li>add_compile_options - 添加编译参数<br></li>
-<li>语法：add_compile_options<br></li>
-</ul>
+<dl class="org-dl">
+<dt>add_compile_options</dt><dd>添加编译参数<br></dd>
+<dt>语法</dt><dd>add_compile_options<br></dd>
+</dl>
 <div class="org-src-container">
 <pre class="src src-cmake"># 添加编译参数 -Wall -std=c++11
 add_compile_options(-Wall -std=c++11 -O2)
 </pre>
 </div>
 
-<ul class="org-ul">
-<li>add_executable - 生成可执行文件<br></li>
-<li>语法：add_library(exename source1 source2 … sourceN)<br></li>
-</ul>
+<dl class="org-dl">
+<dt>add_executable</dt><dd>生成可执行文件<br></dd>
+<dt>语法</dt><dd>add_library(exename source1 source2 … sourceN)<br></dd>
+</dl>
 <div class="org-src-container">
 <pre class="src src-cmake"># 编译main.cpp生成可执行文件main
 add_executable(main main.cpp)
 </pre>
 </div>
 
-<ul class="org-ul">
-<li>target_link_libraries - 为 target 添加需要链接的共享库  &#x2014;&gt;相同于指定g++编译器-l参数<br></li>
-<li>语法：target_link_libraries(target library1library2…)<br></li>
-</ul>
+<dl class="org-dl">
+<dt>target_link_libraries</dt><dd>为 target 添加需要链接的共享库  &#x2014;&gt;相同于指定g++编译器-l参数<br></dd>
+<dt>语法</dt><dd>target_link_libraries(target library1library2…)<br></dd>
+</dl>
 <div class="org-src-container">
 <pre class="src src-cmake"># 将hello动态库文件链接到可执行文件main
 target_link_libraries(main hello)
 </pre>
 </div>
 
-<ul class="org-ul">
-<li>add_subdirectory - 向当前工程添加存放源文件的子目录，并可以指定中间二进制和目标二进制存放的位置<br></li>
-<li>语法：add_subdirectory(source_dir [binary_dir] [EXCLUDE_FROM_ALL])<br></li>
-</ul>
+<dl class="org-dl">
+<dt>add_subdirectory</dt><dd>向当前工程添加存放源文件的子目录，并可以指定中间二进制和目标二进制存放的位置<br></dd>
+<dt>语法</dt><dd>add_subdirectory(source_dir [binary_dir] [EXCLUDE_FROM_ALL])<br></dd>
+</dl>
 <div class="org-src-container">
 <pre class="src src-cmake"># 添加src子目录，src中需有一个CMakeLists.txt
 add_subdirectory(src)
 </pre>
 </div>
 
-<ul class="org-ul">
-<li>aux_source_directory - 发现一个目录下所有的源代码文件并将列表存储在一个变量中，这个指令临时被用来自动构建源文件列表<br></li>
-<li>语法：aux_source_directory(dir VARIABLE)<br></li>
-</ul>
+<dl class="org-dl">
+<dt>aux_source_directory</dt><dd>发现一个目录下所有的源代码文件并将列表存储在一个变量中，这个指令临时被用来自动构建源文件列表<br></dd>
+<dt>语法</dt><dd>aux_source_directory(dir VARIABLE)<br></dd>
+</dl>
 <div class="org-src-container">
 <pre class="src src-cmake"># 定义SRC变量，其值为当前目录下所有的源代码文件
 aux_source_directory(. SRC)
 # 编译SRC变量所代表的源代码文件，生成main可执行文件
 add_executable(main ${SRC})
 </pre>
-</div></li>
-</ul>
+</div>
 </div>
 </div>
 <div id="outline-container-orga55fcea" class="outline-3">
 <h3 id="orga55fcea">CMake常用变量</h3>
 <div class="outline-text-3" id="text-orga55fcea">
-<ul class="org-ul">
-<li><b>CMAKE_C_FLAGS  gcc编译选项</b><br></li>
-<li><p>
-<b>CMAKE_CXX_FLAGS  g++编译选项</b><br>
-</p>
+<dl class="org-dl">
+<dt><b>CMAKE_C_FLAGS</b></dt><dd>gcc编译选项<br></dd>
+<dt><b>CMAKE_CXX_FLAGS</b></dt><dd>g++编译选项<br></dd>
+</dl>
 <div class="org-src-container">
 <pre class="src src-cmake"># 在CMAKE_CXX_FLAGS编译选项后追加-std=c++11
 set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 </pre>
-</div></li>
-<li><p>
-<b>CMAKE_BUILD_TYPE  编译类型(Debug, Release)</b><br>
-</p>
+</div>
+<dl class="org-dl">
+<dt><b>CMAKE_BUILD_TYPE</b></dt><dd>编译类型(Debug, Release)<br></dd>
+</dl>
 <div class="org-src-container">
 <pre class="src src-cmake"># 设定编译类型为debug，调试时需要选择debug
 set(CMAKE_BUILD_TYPE Debug) 
 # 设定编译类型为release，发布时需要选择release
 set(CMAKE_BUILD_TYPE Release) 
 </pre>
-</div></li>
-<li><b>CMAKE_BINARY_DIR</b><br></li>
-<li><b>PROJECT_BINARY_DIR</b><br></li>
-<li><b>&lt;projectname&gt;__BINARY_DIR</b><br>
+</div>
+<dl class="org-dl">
+<dt><b>CMAKE_C_COMPILER</b></dt><dd>指定C编译器<br></dd>
+<dt><b>CMAKE_CXX_COMPILER</b></dt><dd>指定C++编译器<br></dd>
+<dt><b>EXECUTABLE_OUTPUT_PATH</b></dt><dd>可执行文件输出的存放路径<br></dd>
+<dt><b>LIBRARY_OUTPUT_PATH</b></dt><dd>库文件输出的存放路径<br></dd>
+</dl>
+
+
+<ul class="org-ul">
+<li><b>CMAKE_BINARY_DIR</b> 、 <b>PROJECT_BINARY_DIR</b> 、 <b>&lt;projectname&gt;__BINARY_DIR</b><br>
 <ol class="org-ol">
 <li>这三个变量指代的内容是一致的。<br></li>
 <li>如果是 in source build，指的就是工程顶层目录。<br></li>
 <li>如果是 out-of-source 编译,指的是工程编译发生的目录。<br></li>
 <li>PROJECT_BINARY_DIR 跟其他指令稍有区别，不过现在，你可以理解为他们是一致的。<br></li>
 </ol></li>
-<li><b>CMAKE_SOURCE_DIR</b><br>
-<b>PROJECT_SOURCE_DIR</b><br>
-<b>&lt;projectname&gt;__SOURCE_DIR</b><br>
-
+<li><b>CMAKE_SOURCE_DIR*、*PROJECT_SOURCE_DIR*、*&lt;projectname&gt;__SOURCE_DIR</b><br>
 <ol class="org-ol">
 <li>这三个变量指代的内容是一致的,不论采用何种编译方式,都是工程顶层目录。<br></li>
 <li>也就是在 in source build时,他跟 CMAKE_BINARY_DIR 等变量一致。<br></li>
 <li>PROJECT_SOURCE_DIR 跟其他指令稍有区别,现在,你可以理解为他们是一致的。<br></li>
 </ol></li>
-
-<li>CMAKE_C_COMPILER：指定C编译器<br></li>
-<li>CMAKE_CXX_COMPILER：指定C++编译器<br></li>
-<li>EXECUTABLE_OUTPUT_PATH：可执行文件输出的存放路径<br></li>
-<li>LIBRARY_OUTPUT_PATH：库文件输出的存放路径<br></li>
 </ul>
 </div>
 </div>
@@ -374,7 +375,7 @@ set(CMAKE_BUILD_TYPE Release)
 <h2 id="org6408986">CMake编译工程</h2>
 <div class="outline-text-2" id="text-org6408986">
 <p>
-CMake目录结构：项目主目录存在一个CMakeLists.txt文件<br>
+CMake目录结构：项目主目录存在一个CMakeLists.txt文件。<br>
 </p>
 </div>
 <div id="outline-container-org01c7066" class="outline-3">
@@ -456,7 +457,7 @@ make
 <h2 id="org634bf70">[实战]CMake代码实践</h2>
 <div class="outline-text-2" id="text-org634bf70">
 <p>
-针对第五章写的两个小项目来写对应的CMakeLists.txt<br>
+针对第五章写的两个小项目来写对应的CMakeLists.txt。<br>
 </p>
 </div>
 <div id="outline-container-org2e60b13" class="outline-3">

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-11-08 Mon 09:13 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GRPC四种数据交互模式</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">GRPC四种数据交互模式</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org2dddb38">一、简单模式</a></li>
+<li><a href="#orgef57cd2">二、服务端流模式</a>
+<ul>
+<li><a href="#org2f4c83b">服务接口定义</a></li>
+<li><a href="#org43c0318">编译.proto文件，生成pb.go文件</a></li>
+<li><a href="#org77eb7be">自动生成文件的变化</a>
+<ul>
+<li><a href="#org9540a18">服务端自动生成</a></li>
+<li><a href="#orgfca3d41">客户端自动生成</a></li>
+</ul>
+</li>
+<li><a href="#org146ecfb">服务编码实现</a></li>
+<li><a href="#org5320b95">服务的注册和监听的处理</a></li>
+<li><a href="#org8759cfb">客户端数据接收</a></li>
+</ul>
+</li>
+<li><a href="#org04749a5">三、客户端流模式</a></li>
+<li><a href="#org68b327e">四、双向流模式</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org2dddb38" class="outline-2">
+<h2 id="org2dddb38">一、简单模式</h2>
+<div class="outline-text-2" id="text-org2dddb38">
+<p>
+在上面客户端与服务端之间通过消息结构体定义的方式来传递数据，我们称之为“单项RPC”，也称之为简单模式。除此之外，gRPC中还有数据流模式的RPC调用实现。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgef57cd2" class="outline-2">
+<h2 id="orgef57cd2">二、服务端流模式</h2>
+<div class="outline-text-2" id="text-orgef57cd2">
+<p>
+在服务端流模式的RPC实现中，服务端得到客户端请求后，处理结束返回一个数据应答流。在发送完所有的客户端请求的应答数据后，服务端的状态详情和可选的跟踪元数据发送给客户端。服务端流RPC实现案例如下：<br>
+</p>
+</div>
+<div id="outline-container-org2f4c83b" class="outline-3">
+<h3 id="org2f4c83b">服务接口定义</h3>
+<div class="outline-text-3" id="text-org2f4c83b">
+<p>
+在.proto文件中定义服务接口,使用服务端流模式定义服务接口,如下所示：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">...</span>
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#35746;&#21333;&#26381;&#21153;service&#23450;&#20041;</span>
+service <span style="color: #AFAFAF;">OrderService</span> {
+    rpc <span style="color: #AFAFAF;">GetOrderInfos</span> (OrderRequest) <span style="color: #AFAFAF;">returns</span> (stream <span style="color: #AFAFAF;">OrderInfo</span>) {};   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#26381;&#21153;&#31471;&#27969;&#27169;&#24335;</span>
+}
+</pre>
+</div>
+
+<p>
+我们可以看到与之前简单模式下的数据作为服务接口的参数和返回值不同的是，此处服务接口的返回值使用了stream进行修饰。通过stream修饰的方式表示该接口调用时，服务端会以数据流的形式将数据返回给客户端。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org43c0318" class="outline-3">
+<h3 id="org43c0318">编译.proto文件，生成pb.go文件</h3>
+<div class="outline-text-3" id="text-org43c0318">
+<p>
+使用gRPC插件编译命令编译.proto文件，编译命令如下:<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">protoc --go_out=plugins=grpc:. message.proto
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org77eb7be" class="outline-3">
+<h3 id="org77eb7be">自动生成文件的变化</h3>
+<div class="outline-text-3" id="text-org77eb7be">
+<p>
+与数据结构体发送携带数据实现不同的时，流模式下的数据发送和接收使用新的功能方法完成。在自动生成的go代码程序当中，每一个流模式对应的服务接口，都会自动生成对应的单独的client和server程序，以及对应的结构体实现。具体编程如下图所示：<br>
+</p>
+</div>
+<div id="outline-container-org9540a18" class="outline-4">
+<h4 id="org9540a18">服务端自动生成</h4>
+<div class="outline-text-4" id="text-org9540a18">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #BD93F9;">type</span> <span style="color: #AFAFAF;">OrderService_GetOrderInfosServer</span> <span style="color: #BD93F9;">interface</span> {
+    <span style="color: #AFAFAF;">Send</span>(*<span style="color: #AFAFAF;">OrderInfo</span>) <span style="color: #AFAFAF;">error</span>
+    grpc.ServerStream
+}
+
+<span style="color: #BD93F9;">type</span> <span style="color: #AFAFAF;">orderServiceGetOrderInfosServer</span> <span style="color: #BD93F9;">struct</span> {
+    grpc.ServerStream
+}
+
+<span style="color: #BD93F9;">func</span> (<span style="color: #AFAFAF;">x</span> *<span style="color: #AFAFAF;">orderServiceGetOrderInfosServer</span>) <span style="color: #AFAFAF;">Send</span>(<span style="color: #AFAFAF;">m</span> *<span style="color: #AFAFAF;">OrderInfo</span>) <span style="color: #AFAFAF;">error</span> {
+    <span style="color: #BD93F9;">return</span> x.ServerStream.<span style="color: #AFAFAF;">SendMsg</span>(m)
+}
+</pre>
+</div>
+
+<p>
+流模式下，服务接口的服务端提供Send方法，将数据以流的形式进行发送。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgfca3d41" class="outline-4">
+<h4 id="orgfca3d41">客户端自动生成</h4>
+<div class="outline-text-4" id="text-orgfca3d41">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #BD93F9;">type</span> <span style="color: #AFAFAF;">OrderService_GetOrderInfosClient</span> <span style="color: #BD93F9;">interface</span> {
+    <span style="color: #AFAFAF;">Recv</span>() (*<span style="color: #AFAFAF;">OrderInfo</span>, <span style="color: #AFAFAF;">error</span>)
+    grpc.ClientStream
+}
+
+<span style="color: #BD93F9;">type</span> <span style="color: #AFAFAF;">orderServiceGetOrderInfosClient</span> <span style="color: #BD93F9;">struct</span> {
+    grpc.ClientStream
+}
+
+<span style="color: #BD93F9;">func</span> (<span style="color: #AFAFAF;">x</span> *<span style="color: #AFAFAF;">orderServiceGetOrderInfosClient</span>) <span style="color: #AFAFAF;">Recv</span>() (*<span style="color: #AFAFAF;">OrderInfo</span>, <span style="color: #AFAFAF;">error</span>) {
+    <span style="color: #AFAFAF;">m</span> := <span style="color: #AFAFAF;">new</span>(<span style="color: #AFAFAF;">OrderInfo</span>)
+    <span style="color: #BD93F9;">if</span> <span style="color: #AFAFAF;">err</span> := x.ClientStream.<span style="color: #AFAFAF;">RecvMsg</span>(m); err != <span style="color: #009F9F;">nil</span> {
+        <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">nil</span>, err
+    }
+    <span style="color: #BD93F9;">return</span> m, <span style="color: #009F9F;">nil</span>
+}
+</pre>
+</div>
+
+<p>
+流模式下，服务接口的客户端提供Recv()方法接收服务端发送的流数据。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org146ecfb" class="outline-3">
+<h3 id="org146ecfb">服务编码实现</h3>
+<div class="outline-text-3" id="text-org146ecfb">
+<p>
+定义好服务接口并编译生成代码文件后，即可根据规则对定义的服务进行编码实现。具体的服务编码实现如下所示：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#35746;&#21333;&#26381;&#21153;&#23454;&#29616;</span>
+<span style="color: #BD93F9;">type</span> <span style="color: #AFAFAF;">OrderServiceImpl</span> <span style="color: #BD93F9;">struct</span> {
+}
+
+<span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#33719;&#21462;&#35746;&#21333;&#20449;&#24687;s</span>
+<span style="color: #BD93F9;">func</span> (<span style="color: #AFAFAF;">os</span> *<span style="color: #AFAFAF;">OrderServiceImpl</span>) <span style="color: #AFAFAF;">GetOrderInfos</span>(<span style="color: #AFAFAF;">request</span> *<span style="color: #AFAFAF;">message.OrderRequest</span>, <span style="color: #AFAFAF;">stream</span> <span style="color: #AFAFAF;">message.OrderService_GetOrderInfosServer</span>) <span style="color: #AFAFAF;">error</span> {
+    fmt.<span style="color: #AFAFAF;">Println</span>(<span style="color: #FC9F4E;">" &#26381;&#21153;&#31471;&#27969; RPC &#27169;&#24335;"</span>)
+
+    <span style="color: #AFAFAF;">orderMap</span> := <span style="color: #BD93F9;">map</span>[<span style="color: #AFAFAF;">string</span>]<span style="color: #AFAFAF;">message.OrderInfo</span>{
+        <span style="color: #FC9F4E;">"202111080001"</span>: <span style="color: #AFAFAF;">message.OrderInfo</span>{<span style="color: #009F9F;">OrderId</span>: <span style="color: #FC9F4E;">"202111080001"</span>, <span style="color: #009F9F;">OrderName</span>: <span style="color: #FC9F4E;">"&#34915;&#26381;"</span>, <span style="color: #009F9F;">OrderStatus</span>: <span style="color: #FC9F4E;">"&#24050;&#20184;&#27454;"</span>},
+        <span style="color: #FC9F4E;">"202111080002"</span>: <span style="color: #AFAFAF;">message.OrderInfo</span>{<span style="color: #009F9F;">OrderId</span>: <span style="color: #FC9F4E;">"202111080002"</span>, <span style="color: #009F9F;">OrderName</span>: <span style="color: #FC9F4E;">"&#38646;&#39135;"</span>, <span style="color: #009F9F;">OrderStatus</span>: <span style="color: #FC9F4E;">"&#24050;&#20184;&#27454;"</span>},
+        <span style="color: #FC9F4E;">"202111080003"</span>: <span style="color: #AFAFAF;">message.OrderInfo</span>{<span style="color: #009F9F;">OrderId</span>: <span style="color: #FC9F4E;">"202111080003"</span>, <span style="color: #009F9F;">OrderName</span>: <span style="color: #FC9F4E;">"&#39135;&#21697;"</span>, <span style="color: #009F9F;">OrderStatus</span>: <span style="color: #FC9F4E;">"&#26410;&#20184;&#27454;"</span>},
+    }
+    <span style="color: #BD93F9;">for</span> <span style="color: #AFAFAF;">id</span>, <span style="color: #AFAFAF;">info</span> := <span style="color: #BD93F9;">range</span> orderMap {
+        <span style="color: #BD93F9;">if</span> (time.<span style="color: #AFAFAF;">Now</span>().<span style="color: #AFAFAF;">Unix</span>() &gt;= request.TimeStamp) {
+            fmt.<span style="color: #AFAFAF;">Println</span>(<span style="color: #FC9F4E;">"&#35746;&#21333;&#24207;&#21015;&#21495;ID&#65306;"</span>, id)
+            fmt.<span style="color: #AFAFAF;">Println</span>(<span style="color: #FC9F4E;">"&#35746;&#21333;&#35814;&#24773;&#65306;"</span>, info)
+            <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#36890;&#36807;&#27969;&#27169;&#24335;&#21457;&#36865;&#32473;&#23458;&#25143;&#31471;</span>
+            stream.<span style="color: #AFAFAF;">Send</span>(&amp;info)
+        }
+    }
+    <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">nil</span>
+}
+</pre>
+</div>
+
+<p>
+GetOrderInfos方法就是服务接口的具体实现，因为是流模式开发，服务端将数据以流的形式进行发送,因此，该方法的第二个参数类型为OrderService_GetOrderInfosServer，该参数类型是一个接口，其中包含Send方法，允许发送流数据。Send方法的具体实现在编译好的pb.go文件中，进一步调用grpc.SeverStream.SendMsg方法。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5320b95" class="outline-3">
+<h3 id="org5320b95">服务的注册和监听的处理</h3>
+<div class="outline-text-3" id="text-org5320b95">
+<p>
+服务的监听与处理与前文所学内容没有区别，依然是相同的步骤:<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">main</span>() {
+    <span style="color: #AFAFAF;">server</span> := grpc.<span style="color: #AFAFAF;">NewServer</span>()
+    <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#27880;&#20876;</span>
+    message.<span style="color: #AFAFAF;">RegisterOrderServiceServer</span>(server, <span style="color: #AFAFAF;">new</span>(<span style="color: #AFAFAF;">OrderServiceImpl</span>))
+    <span style="color: #AFAFAF;">lis</span>, <span style="color: #AFAFAF;">err</span> := net.<span style="color: #AFAFAF;">Listen</span>(<span style="color: #FC9F4E;">"tcp"</span>, <span style="color: #FC9F4E;">":8090"</span>)
+    <span style="color: #BD93F9;">if</span> err != <span style="color: #009F9F;">nil</span> {
+        <span style="color: #AFAFAF;">panic</span>(err.<span style="color: #AFAFAF;">Error</span>())
+    }
+    server.<span style="color: #AFAFAF;">Serve</span>(lis)
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org8759cfb" class="outline-3">
+<h3 id="org8759cfb">客户端数据接收</h3>
+<div class="outline-text-3" id="text-org8759cfb">
+<p>
+服务端使用Send方法将数据以流的形式进行发送，客户端可以使用Recv()方法接收流数据,因为数据流失源源不断的，因此使用for无限循环实现数据流的读取，当读取到io.EOF时，表示流数据结束。客户端数据读取实现如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">...</span>
+<span style="color: #BD93F9;">for</span> {
+    <span style="color: #AFAFAF;">orderInfo</span>, <span style="color: #AFAFAF;">err</span> := orderInfoClient.<span style="color: #AFAFAF;">Recv</span>()
+    <span style="color: #BD93F9;">if</span> err == io.EOF {
+        fmt.<span style="color: #AFAFAF;">Println</span>(<span style="color: #FC9F4E;">"&#35835;&#21462;&#32467;&#26463;"</span>)
+        <span style="color: #BD93F9;">return</span>
+    }
+    <span style="color: #BD93F9;">if</span> err != <span style="color: #009F9F;">nil</span> {
+        <span style="color: #AFAFAF;">panic</span>(err.<span style="color: #AFAFAF;">Error</span>())
+    }
+    fmt.<span style="color: #AFAFAF;">Println</span>(<span style="color: #FC9F4E;">"&#35835;&#21462;&#21040;&#30340;&#20449;&#24687;&#65306;"</span>, orderInfo)
+}
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">...</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org04749a5" class="outline-2">
+<h2 id="org04749a5">三、客户端流模式</h2>
+</div>
+<div id="outline-container-org68b327e" class="outline-2">
+<h2 id="org68b327e">四、双向流模式</h2>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2021-11-08 08:11 Mon</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2021-11-08 Mon 09:13</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

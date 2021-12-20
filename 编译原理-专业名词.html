@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-11-26 Fri 18:14 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>有关编译原理的一些专业名词</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">有关编译原理的一些专业名词</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org5e82d5d">文法</a></li>
+<li><a href="#org8657e29">上下文无关文法</a></li>
+<li><a href="#orgc4bbae6">状态转换图</a></li>
+<li><a href="#org2321b2d">正规表达式</a></li>
+<li><a href="#org1260758">有限自动机</a>
+<ul>
+<li><a href="#org68d7d63">确定有限自动机（DFA）</a></li>
+<li><a href="#org6a0cbe3">非确定有限自动机（NFA）</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org5e82d5d" class="outline-2">
+<h2 id="org5e82d5d">文法</h2>
+<div class="outline-text-2" id="text-org5e82d5d">
+<p>
+当我们要描述一种 <b>语言</b> 时，需要给出这种语言的所有 <b>句子</b> ，当句子的数目是有限可数时，就要都列出来；当句子是一个无穷集，也就是无限不可数时，就要给出可以表示它们的结构的描述方法或者说，句子的组成规则。这种规则就是 <b>文法</b> 。<br>
+</p>
+
+<blockquote>
+<p>
+文法 \(G\) 定义为一个四元组（\(VN, VT, P, S\)），其中，\(VN\) 为非终结符集合，\(VT\) 终结符集合；\(P\) 是产生式集合；\(S\) 称为识别符或开始符号，也是一个非终结符，至少要在一条产生式的左边出现。<br>
+</p>
+</blockquote>
+
+<p>
+\(VN\) 是 <b>非终结符</b> 集合，非终结符N指的是可以被拆分的字符或串，它采取递归定义：一个非终结符是由终结符和至少一个非终结符组成的串，相对应的， <b>终结符</b> 就是不可拆分的，语言中要用到的字符。所以 \(VN\) 中所存储的是所有的非终结符，\(VT\) 中存储的是所有的终结符。<br>
+</p>
+
+<p>
+P存储的是 <b>产生式</b> ，产生式就是推导规则，每个产生式的形式是 \(P \rightarrow \alpha\)，其中 \(P \in V_N, \alpha \in (V_T \cup V_N)^*\)，也就是说可以通过 P 推导出 \(\alpha\)。<br>
+</p>
+
+<p>
+最后是 \(S\)，\(S\) 是 <b>开始符号</b> ，也就是最开始的那条产生式左边的非终结符，一切的推导从它开始。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8657e29" class="outline-2">
+<h2 id="org8657e29">上下文无关文法</h2>
+<div class="outline-text-2" id="text-org8657e29">
+<p>
+文法分为四种类型：0型、1型、2型和3型。0型强于1型，1型强于2型，2型强于3型，这几类文法的差别在于对产生式施加不同的限制。<br>
+</p>
+
+<ul class="org-ul">
+<li>0型文法的能力相当于图灵机，任何0型语言都是递归可枚举的；反之，递归可枚举集必定是一个0型语言。<br></li>
+<li>1型文法也称为上下文有关文法，对非终结符的替换务必考虑上下文。<br></li>
+<li>2型文法也称为上下文无关文法，对非终结符的替换不需要考虑上下文。<br></li>
+<li>3型文法也称为右线性文法、正规文法，一个文法G是3型文法，如果G的任何产生式为 \(A \rightarrow B \alpha\) 或 \(A \rightarrow \alpha\)，其中 \(\alpha \in V_T^*, A、B \in V_N\)。正规文法的能力要比上下文无关文法弱得多，例如任何正规文法的不能产生下面的语言：\(L_2 = \{a^nb^n \mid n \geq 1\}\)，可是这个语言可由下面的上下文无关文法产生：\(S \rightarrow aSb \mid ab\)<br></li>
+</ul>
+
+<p>
+我们一般讨论的是 <b>上下文无关文法</b> 。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc4bbae6" class="outline-2">
+<h2 id="orgc4bbae6">状态转换图</h2>
+<div class="outline-text-2" id="text-orgc4bbae6">
+<p>
+转换图是一张有限方向图，在状态转换图中，结点代表状态，用圆圈表示，状态之间用箭弧连结，箭弧上的标记代表在射出结点状态下可能出现的输入字符或字符类。<br>
+</p>
+
+<img src="./images/状态转换图01.png" />
+
+<img src="./images/状态转换图02.png" />
+</div>
+</div>
+<div id="outline-container-org2321b2d" class="outline-2">
+<h2 id="org2321b2d">正规表达式</h2>
+<div class="outline-text-2" id="text-org2321b2d">
+<p>
+对于字母表 \(\Sigma\)，我们感兴趣的是它的一些特殊字集，即所谓 <b>正规集</b> ，我们将使用 <b>正规式</b> 这个概念来表示正规集。下面是正规式和正规集的递归定义：<br>
+</p>
+
+<p>
+（1）\(\varepsilon\) 和 \(\phi\) 都是 \(\Sigma\) 上的正规式，它们所表示的正规集分别为 \(\{\varepsilon\}\) 和 \(\phi\)；<br>
+（2）任何 \(a \in \Sigma\)，\(a\) 是 \(\Sigma\) 上的一个正规式，它所表示的正规集为 \(\{a\}\)；<br>
+（3）假定 \(U\) 和 \(V\) 都是 \(\Sigma\) 上的正规式，它们所表示的正规集分别记为 \(L(U)\) 和 \(L(V)\)，那么，\((U \mid V)\)、\(U \cdot V\) 和 \((U)^*\) 也都是正规式，它们所表示的正规集分别为 \(L(U) \cup L(V)、L(U)L(V)\)（连接积）和\((L(U))^*\)（闭包）。<br>
+</p>
+
+<p>
+仅由有限次使用上述三步骤得到的表达式才是 \(\Sigma\) 上的正规式，仅由这些正规式所表示的字集才是 \(\Sigma\) 上的正规集。<br>
+</p>
+
+<p>
+连接符可省略不写。<br>
+</p>
+
+<p>
+例：令 \(\Sigma = \{a, b\}\)，下面是 \(Sigma\) 上的正规式和相应的正规集。<br>
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">正规式</th>
+<th scope="col" class="org-left">正规集</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">\(ba^*\)</td>
+<td class="org-left">\(\Sigma\) 上所有以 \(b\) 为首后跟任意多个 \(a\) 的字</td>
+</tr>
+
+<tr>
+<td class="org-left">\(a(a \mid b)^*\)</td>
+<td class="org-left">\(\Sigma\) 上所有以 \(a\) 为首的字</td>
+</tr>
+
+<tr>
+<td class="org-left">\((a \mid b)^*(aa \mid bb)(a \mid b)^*\)</td>
+<td class="org-left">\(\Sigma\) 上所有含有两个相继的 \(a\) 或两个相继的 \(b\) 的字</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-org1260758" class="outline-2">
+<h2 id="org1260758">有限自动机</h2>
+<div class="outline-text-2" id="text-org1260758">
+</div>
+<div id="outline-container-org68d7d63" class="outline-3">
+<h3 id="org68d7d63">确定有限自动机（DFA）</h3>
+</div>
+<div id="outline-container-org6a0cbe3" class="outline-3">
+<h3 id="org6a0cbe3">非确定有限自动机（NFA）</h3>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2021-11-26 14:11 Fri</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2021-11-26 Fri 18:14</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

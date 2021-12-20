@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-12-07 Tue 10:06 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>表单提交</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">表单提交</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orga58fce8">submit 提交</a></li>
+<li><a href="#org3c0ff64">ajax提交form表单</a></li>
+<li><a href="#org965ff31">form表单提交附件</a></li>
+<li><a href="#org065cca9">js提交form表单</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orga58fce8" class="outline-2">
+<h2 id="orga58fce8">submit 提交</h2>
+<div class="outline-text-2" id="text-orga58fce8">
+<p>
+一般表单提交通过type=submit实现，input type="submit",浏览器显示为button按钮，通过点击这个按钮提交表单数据跳转到/url.do。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-html">&lt;<span style="color: #AFAFAF;">form</span> <span style="color: #AFAFAF;">action</span>=<span style="color: #FC9F4E;">'http://www.123.com/postValue'</span> <span style="color: #AFAFAF;">method</span>=<span style="color: #FC9F4E;">'post'</span>&gt;
+  &lt;<span style="color: #AFAFAF;">input</span> <span style="color: #AFAFAF;">type</span>=<span style="color: #FC9F4E;">'text'</span> <span style="color: #AFAFAF;">name</span>=<span style="color: #FC9F4E;">'username'</span>/&gt;
+  &lt;<span style="color: #AFAFAF;">input</span> <span style="color: #AFAFAF;">type</span>=<span style="color: #FC9F4E;">'password'</span> <span style="color: #AFAFAF;">name</span>=<span style="color: #FC9F4E;">'password'</span>/&gt;
+  &lt;<span style="color: #AFAFAF;">input</span> <span style="color: #AFAFAF;">type</span>=<span style="color: #FC9F4E;">'submit'</span> <span style="color: #AFAFAF;">value</span>=<span style="color: #FC9F4E;">'&#30331;&#24405;'</span>/&gt; 
+&lt;/<span style="color: #AFAFAF;">form</span>&gt;
+</pre>
+</div>
+<p>
+当点击登录时，提交的数据是：<br>
+</p>
+
+<pre class="example" id="org7ccd325">
+username=username&amp;password=password
+</pre>
+
+<p>
+这种默认的提交方式，一般会进行页面的跳转（不成功时跳转到当前页面），而有时我们是对弹出框进行数据提交，希望提交成功则关闭弹出框并刷选父页面，失败则提示失败原因，且弹出框不关闭。此时可采用ajax进行数据提交。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org3c0ff64" class="outline-2">
+<h2 id="org3c0ff64">ajax提交form表单</h2>
+<div class="outline-text-2" id="text-org3c0ff64">
+<div class="org-src-container">
+<pre class="src src-js">$(<span style="color: #FC9F4E;">'#documentForm'</span>).submitForm({
+    url:<span style="color: #FC9F4E;">"/Document/SubmitDocumentCreate"</span>,
+    dataType:<span style="color: #FC9F4E;">"text"</span>,
+    <span style="color: #AFAFAF;">callback</span>:<span style="color: #BD93F9;">function</span>(<span style="color: #AFAFAF;">data</span>){
+        endFileUpload();
+        data=eval(<span style="color: #FC9F4E;">"("</span>+data+<span style="color: #FC9F4E;">")"</span>);
+        alert(data.Content);
+        <span style="color: #BD93F9;">if</span>(data.Result &gt; <span style="color: #009F9F;">0</span>){
+            location.href = data.Redirect;
+        }
+    },
+    <span style="color: #AFAFAF;">before</span>:<span style="color: #BD93F9;">function</span>(){
+        startFileUpload();
+        <span style="color: #BD93F9;">var</span> <span style="color: #AFAFAF;">errMsg</span> =<span style="color: #FC9F4E;">""</span>;
+    }
+}).submit();
+</pre>
+</div>
+<p>
+此时可以在callback函数中对请求结果进行判断，然后执行不同的动作（页面跳转或数据刷新、提醒错误）。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org965ff31" class="outline-2">
+<h2 id="org965ff31">form表单提交附件</h2>
+<div class="outline-text-2" id="text-org965ff31">
+<p>
+需要设定form的enctype=“multipart/form-data”，并且添加&lt;input type='file'&gt;<br>
+</p>
+
+<p>
+而且附件只能通过submit方法进行提交。<br>
+</p>
+
+<p>
+通过type=submit提交。<br>
+</p>
+
+<p>
+一般表单提交通过type=submit实现，input type="submit",浏览器显示为button按钮，通过点击这个按钮提交表单数据跳转到/url.do。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-html">&lt;<span style="color: #AFAFAF;">form</span>&gt;
+  &lt;<span style="color: #AFAFAF;">input</span> <span style="color: #AFAFAF;">type</span>=<span style="color: #FC9F4E;">"text"</span> <span style="color: #AFAFAF;">name</span>=<span style="color: #FC9F4E;">"name"</span>/&gt;
+  &lt;<span style="color: #AFAFAF;">input</span> <span style="color: #AFAFAF;">type</span>=<span style="color: #FC9F4E;">"submit"</span> <span style="color: #AFAFAF;">value</span>=<span style="color: #FC9F4E;">"&#25552;&#20132;"</span>&gt;
+&lt;/<span style="color: #AFAFAF;">form</span>&gt;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org065cca9" class="outline-2">
+<h2 id="org065cca9">js提交form表单</h2>
+<div class="outline-text-2" id="text-org065cca9">
+<p>
+js事件触发表单提交，通过button、链接等触发事件，js调用submit()方法提交表单数据，jquery通过submit()方法。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-html">&lt;<span style="color: #AFAFAF;">form</span> <span style="color: #AFAFAF;">id</span>=<span style="color: #FC9F4E;">"form"</span> <span style="color: #AFAFAF;">action</span>=<span style="color: #FC9F4E;">"/url.do"</span> <span style="color: #AFAFAF;">method</span>=<span style="color: #FC9F4E;">"post"</span>&gt;
+  &lt;<span style="color: #AFAFAF;">input</span> <span style="color: #AFAFAF;">type</span>=<span style="color: #FC9F4E;">"text"</span> <span style="color: #AFAFAF;">name</span>=<span style="color: #FC9F4E;">"name"</span>/&gt;
+&lt;/<span style="color: #AFAFAF;">form</span>&gt;
+js: document.getElementById("form").submit();
+jquery: $("#form").submit(); 
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2021-11-30 11:11 Tue</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2021-12-07 Tue 10:06</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

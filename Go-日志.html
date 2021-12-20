@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-11-30 Tue 22:16 -->
+<!-- 2021-12-15 Wed 00:46 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>日志</title>
@@ -25,19 +25,29 @@
 <li><a href="#org69b8c53">内置的日志包</a></li>
 <li><a href="#orgc73d00f">Uber-go zap</a>
 <ul>
+<li><a href="#org0a8f6f2">什么是 Uber-go zap</a>
+<ul>
 <li><a href="#org3b5ee0e">为什么选择 Uber-go zap</a></li>
 <li><a href="#orgc7cf5b2">安装</a></li>
-<li><a href="#orge0e7cd6">两种日志记录器</a></li>
-<li><a href="#orgf56bb35">zap 简单使用</a></li>
+<li><a href="#org9e66449">zap 的两种日志记录器</a></li>
+</ul>
+</li>
+<li><a href="#org4e39a28">使用 zap</a>
+<ul>
+<li><a href="#org3e55371">简单使用</a></li>
 <li><a href="#orgc278c6a">Logger</a></li>
 <li><a href="#org6938a77">Sugared Logger</a></li>
+</ul>
+</li>
 <li><a href="#org485666a">定制 logger</a>
 <ul>
 <li><a href="#orgf2ded93">将日志写入文件而不是终端</a></li>
 <li><a href="#orgdc1d07f">将 JSON Encoder 更改为普通的 Log Encoder</a></li>
 <li><a href="#orgcd69858">更改时间编码并添加调用者详细信息</a></li>
+<li><a href="#orgbc698b0">定制最终版：</a></li>
 </ul>
 </li>
+<li><a href="#orgcd8e4b5">常用函数</a></li>
 </ul>
 </li>
 </ul>
@@ -70,13 +80,17 @@
 <div id="outline-container-orgc73d00f" class="outline-2">
 <h2 id="orgc73d00f">Uber-go zap</h2>
 <div class="outline-text-2" id="text-orgc73d00f">
-<p>
-zap 是非常快的、结构化的、分日志级别的 Go 日志库。<br>
-</p>
 </div>
-<div id="outline-container-org3b5ee0e" class="outline-3">
-<h3 id="org3b5ee0e">为什么选择 Uber-go zap</h3>
-<div class="outline-text-3" id="text-org3b5ee0e">
+<div id="outline-container-org0a8f6f2" class="outline-3">
+<h3 id="org0a8f6f2">什么是 Uber-go zap</h3>
+<div class="outline-text-3" id="text-org0a8f6f2">
+<ul class="org-ul">
+<li>zap 是非常快的、结构化的、分日志级别的 Go 日志库。<br></li>
+</ul>
+</div>
+<div id="outline-container-org3b5ee0e" class="outline-4">
+<h4 id="org3b5ee0e">为什么选择 Uber-go zap</h4>
+<div class="outline-text-4" id="text-org3b5ee0e">
 <ol class="org-ol">
 <li>它同时提供了结构化日志记录和 printf 风格的日志记录<br>
 <ul class="org-ul">
@@ -86,34 +100,43 @@ zap 是非常快的、结构化的、分日志级别的 Go 日志库。<br>
 </ol>
 </div>
 </div>
-<div id="outline-container-orgc7cf5b2" class="outline-3">
-<h3 id="orgc7cf5b2">安装</h3>
-<div class="outline-text-3" id="text-orgc7cf5b2">
+<div id="outline-container-orgc7cf5b2" class="outline-4">
+<h4 id="orgc7cf5b2">安装</h4>
+<div class="outline-text-4" id="text-orgc7cf5b2">
 <div class="org-src-container">
 <pre class="src src-shell">go get -u go.uber.org/zap
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orge0e7cd6" class="outline-3">
-<h3 id="orge0e7cd6">两种日志记录器</h3>
-<div class="outline-text-3" id="text-orge0e7cd6">
+<div id="outline-container-org9e66449" class="outline-4">
+<h4 id="org9e66449">zap 的两种日志记录器</h4>
+<div class="outline-text-4" id="text-org9e66449">
 <p>
 Zap 提供两种类型的日志记录器， <code>Sugared Logger</code> 和 <code>Logger</code> 。<br>
 </p>
 
 <p>
-在性能很好但不是很关键的上下文中，使用SugaredLogger。它比其他结构化日志记录包快4-10倍，并且支持结构化和printf风格的日志记录。<br>
+在性能很好但不是很关键的上下文中，使用 SugaredLogger。它比其他结构化日志记录包快4-10倍，并且支持结构化和printf风格的日志记录。<br>
 </p>
 
 <p>
-在每一微秒和每一次内存分配都很重要的上下文中，使用Logger。它甚至比SugaredLogger更快，内存分配次数也更少，但它只支持强类型的结构化日志记录。<br>
+在每一微秒和每一次内存分配都很重要的上下文中，使用 Logger。它甚至比 SugaredLogger 更快，内存分配次数也更少，但它只支持强类型的结构化日志记录。<br>
+</p>
+
+<p>
+什么是强类型？ <b>强类型</b> 指的是程序中表达的任何对象所从属的类型都必须能在编译时刻确定，由于 <code>prinf</code> 函数用到了 <code>interface{}</code> ，所以除非用到了格式化输出，否则建议使用更快的 Logger。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-orgf56bb35" class="outline-3">
-<h3 id="orgf56bb35">zap 简单使用</h3>
-<div class="outline-text-3" id="text-orgf56bb35">
+</div>
+<div id="outline-container-org4e39a28" class="outline-3">
+<h3 id="org4e39a28">使用 zap</h3>
+<div class="outline-text-3" id="text-org4e39a28">
+</div>
+<div id="outline-container-org3e55371" class="outline-4">
+<h4 id="org3e55371">简单使用</h4>
+<div class="outline-text-4" id="text-org3e55371">
 <p>
 创建一个 logger 实例，然后在所有要用到它的地方将它作为参数传过去<br>
 </p>
@@ -128,19 +151,19 @@ logger.<span style="color: #AFAFAF;">Info</span>(<span style="color: #FC9F4E;">"
 运行结果：<br>
 </p>
 
-<pre class="example" id="org8e9333f">
+<pre class="example" id="orgf11cee9">
 {"level":"info","ts":1638265846.9222066,"caller":"07-Log/04-startZap.go:8","msg":"打印日志"}
 </pre>
 </div>
 </div>
-<div id="outline-container-orgc278c6a" class="outline-3">
-<h3 id="orgc278c6a">Logger</h3>
-<div class="outline-text-3" id="text-orgc278c6a">
+<div id="outline-container-orgc278c6a" class="outline-4">
+<h4 id="orgc278c6a">Logger</h4>
+<div class="outline-text-4" id="text-orgc278c6a">
 <ul class="org-ul">
-<li>通过调用zap.NewProduction()/zap.NewDevelopment()或者zap.Example()创建一个Logger。<br></li>
-<li>上面的每一个函数都将创建一个logger。唯一的区别在于它将记录的信息不同。例如production logger默认记录调用函数信息、日期和时间等。<br></li>
-<li>通过Logger调用Info/Error等。<br></li>
-<li>默认情况下日志都会打印到应用程序的console界面。<br></li>
+<li>通过调用 zap.NewProduction()/zap.NewDevelopment() 或者 zap.Example() 创建一个 Logger。<br></li>
+<li>上面的每一个函数都将创建一个logger。唯一的区别在于它将记录的信息不同。例如 production logger默认记录调用函数信息、日期和时间等。<br></li>
+<li>通过 Logger 调用 Info/Error 等。<br></li>
+<li>默认情况下日志都会打印到应用程序的 console 界面。<br></li>
 </ul>
 
 <div class="org-src-container">
@@ -182,27 +205,27 @@ logger.<span style="color: #AFAFAF;">Info</span>(<span style="color: #FC9F4E;">"
 </pre>
 </div>
 
-<pre class="example" id="orgcd354d7">
+<pre class="example" id="org02bed6d">
 {"level":"error","ts":1638280858.5779245,"caller":"07-Log/05-Logger.go:25","msg":"Error fetching url..","url":"www.baidu.com","error":"Get \"www.baidu.com\": unsupported protocol scheme \"\"","stacktrace":"main.simpleHttpGet05\n\t/home/haoran/haoran/Code/Language/15-Go/07-Log/05-Logger.go:25\nmain.main\n\t/home/haoran/haoran/Code/Language/15-Go/07-Log/05-Logger.go:14\nruntime.main\n\t/home/haoran/go/go1.17beta1/src/runtime/proc.go:255"}
 {"level":"info","ts":1638280858.6291454,"caller":"07-Log/05-Logger.go:30","msg":"Success..","statusCode":"200 OK","url":"http://www.baidu.com"}
 </pre>
 </div>
 </div>
-<div id="outline-container-org6938a77" class="outline-3">
-<h3 id="org6938a77">Sugared Logger</h3>
-<div class="outline-text-3" id="text-org6938a77">
+<div id="outline-container-org6938a77" class="outline-4">
+<h4 id="org6938a77">Sugared Logger</h4>
+<div class="outline-text-4" id="text-org6938a77">
 <p>
-现在让我们使用Sugared Logger来实现相同的功能。<br>
+现在让我们使用 Sugared Logger 来实现相同的功能。<br>
 </p>
 
 <ul class="org-ul">
 <li>大部分的实现基本都相同。<br></li>
-<li>惟一的区别是，我们通过调用主logger的. Sugar()方法来获取一个SugaredLogger。<br></li>
-<li>然后使用SugaredLogger以printf格式记录语句<br></li>
+<li>惟一的区别是，我们通过调用主 <code>logger.Sugar()</code> 方法来获取一个 SugaredLogger。<br></li>
+<li>然后使用 SugaredLogger 以 printf 格式记录语句<br></li>
 </ul>
 
 <p>
-下面是修改过后使用SugaredLogger代替Logger的代码：<br>
+下面是修改过后使用 SugaredLogger 代替 Logger 的代码：<br>
 </p>
 
 <div class="org-src-container">
@@ -240,10 +263,11 @@ logger.<span style="color: #AFAFAF;">Info</span>(<span style="color: #FC9F4E;">"
 </pre>
 </div>
 
-<pre class="example" id="orgdb5d1aa">
+<pre class="example" id="org9a788e4">
 {"level":"error","ts":1638280888.217628,"caller":"07-Log/06-Sugared-Logger.go:26","msg":"Error fetching URL www.baidu.com : Error = Get \"www.baidu.com\": unsupported protocol scheme \"\"","stacktrace":"main.simpleHttpGet06\n\t/home/haoran/haoran/Code/Language/15-Go/07-Log/06-Sugared-Logger.go:26\nmain.main\n\t/home/haoran/haoran/Code/Language/15-Go/07-Log/06-Sugared-Logger.go:13\nruntime.main\n\t/home/haoran/go/go1.17beta1/src/runtime/proc.go:255"}
 {"level":"info","ts":1638280888.2873425,"caller":"07-Log/06-Sugared-Logger.go:28","msg":"Success! statusCode = 200 OK for URL http://www.baidu.com"}
 </pre>
+</div>
 </div>
 </div>
 <div id="outline-container-org485666a" class="outline-3">
@@ -268,24 +292,20 @@ logger.<span style="color: #AFAFAF;">Info</span>(<span style="color: #FC9F4E;">"
 
 <ol class="org-ol">
 <li><p>
-Encoder:编码器(如何写入日志)。我们将使用开箱即用的NewJSONEncoder()，并使用预先设置的ProductionEncoderConfig()。<br>
+Encoder：编码器(如何写入日志)。我们将使用开箱即用的NewJSONEncoder()，并使用预先设置的ProductionEncoderConfig()。<br>
 </p>
-
 <div class="org-src-container">
 <pre class="src src-go">zapcore.<span style="color: #AFAFAF;">NewJSONEncoder</span>(zap.<span style="color: #AFAFAF;">NewProductionEncoderConfig</span>())
 </pre>
 </div></li>
-
 <li><p>
-WriterSyncer ：指定日志将写到哪里去。我们使用zapcore.AddSync()函数并且将打开的文件句柄传进去。<br>
+WriterSyncer：指定日志将写到哪里去。我们使用zapcore.AddSync()函数并且将打开的文件句柄传进去。<br>
 </p>
-
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #AFAFAF;">file</span>, <span style="color: #AFAFAF;">_</span> := os.<span style="color: #AFAFAF;">Create</span>(<span style="color: #FC9F4E;">"./test.log"</span>)
 <span style="color: #AFAFAF;">writeSyncer</span> := zapcore.<span style="color: #AFAFAF;">AddSync</span>(file)
 </pre>
 </div></li>
-
 <li>Log Level：哪种级别的日志将被写入。<br></li>
 </ol>
 
@@ -327,7 +347,6 @@ WriterSyncer ：指定日志将写到哪里去。我们使用zapcore.AddSync()�
 }
 
 <span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">getLogWriter07</span>() <span style="color: #AFAFAF;">zapcore.WriteSyncer</span> {
-    <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#22914;&#26524;&#24819;&#35201;&#36861;&#21152;&#20889;&#20837;&#21487;&#20197;&#26597;&#30475;&#25105;&#30340;&#21338;&#23458;&#25991;&#20214;&#25805;&#20316;&#37027;&#19968;&#31456;</span>
     <span style="color: #AFAFAF;">file</span>, <span style="color: #AFAFAF;">_</span> := os.<span style="color: #AFAFAF;">Create</span>(<span style="color: #FC9F4E;">"./test.log"</span>)
     <span style="color: #BD93F9;">return</span> zapcore.<span style="color: #AFAFAF;">AddSync</span>(file)
 }
@@ -345,7 +364,7 @@ WriterSyncer ：指定日志将写到哪里去。我们使用zapcore.AddSync()�
 </pre>
 </div>
 
-<pre class="example" id="orgb33d940">
+<pre class="example" id="org453214a">
 {"level":"debug","ts":1638280996.611096,"msg":"Trying to hit GET request for www.baidu.com"}
 {"level":"error","ts":1638280996.6111786,"msg":"Error fetching URL www.baidu.com : Error = Get \"www.baidu.com\": unsupported protocol scheme \"\""}
 {"level":"debug","ts":1638280996.6111882,"msg":"Trying to hit GET request for http://www.baidu.com"}
@@ -353,12 +372,11 @@ WriterSyncer ：指定日志将写到哪里去。我们使用zapcore.AddSync()�
 </pre>
 </div>
 </div>
-
 <div id="outline-container-orgdc1d07f" class="outline-4">
 <h4 id="orgdc1d07f">将 JSON Encoder 更改为普通的 Log Encoder</h4>
 <div class="outline-text-4" id="text-orgdc1d07f">
 <p>
-希望将编码器从JSON Encoder更改为普通Encoder。为此，我们需要将NewJSONEncoder()更改为NewConsoleEncoder()。<br>
+希望将编码器从 JSON Encoder 更改为普通Encoder。为此，我们需要将 NewJSONEncoder() 更改为 NewConsoleEncoder()。<br>
 </p>
 
 <div class="org-src-container">
@@ -370,7 +388,7 @@ WriterSyncer ：指定日志将写到哪里去。我们使用zapcore.AddSync()�
 当使用这些修改过的logger配置调用上述部分的main()函数时，以下输出将打印在文件——test.log中。<br>
 </p>
 
-<pre class="example" id="org85e0aa2">
+<pre class="example" id="org9a618b6">
 1.6382812952657666e+09	debug	Trying to hit GET request for www.baidu.com
 1.6382812952658417e+09	error	Error fetching URL www.baidu.com : Error = Get "www.baidu.com": unsupported protocol scheme ""
 1.6382812952658677e+09	debug	Trying to hit GET request for http://www.baidu.com
@@ -417,7 +435,7 @@ WriterSyncer ：指定日志将写到哪里去。我们使用zapcore.AddSync()�
 </pre>
 </div>
 
-<pre class="example" id="org9adae70">
+<pre class="example" id="orge47e458">
 2021-11-30T22:15:10.453+0800	DEBUG	07-Log/09-friendlyRead.go:43	Trying to hit GET request for www.baidu.com
 2021-11-30T22:15:10.453+0800	ERROR	07-Log/09-friendlyRead.go:46	Error fetching URL www.baidu.com : Error = Get "www.baidu.com": unsupported protocol scheme ""
 2021-11-30T22:15:10.453+0800	DEBUG	07-Log/09-friendlyRead.go:43	Trying to hit GET request for http://www.baidu.com
@@ -425,13 +443,148 @@ WriterSyncer ：指定日志将写到哪里去。我们使用zapcore.AddSync()�
 </pre>
 </div>
 </div>
+<div id="outline-container-orgbc698b0" class="outline-4">
+<h4 id="orgbc698b0">定制最终版：</h4>
+<div class="outline-text-4" id="text-orgbc698b0">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #BD93F9;">package</span> main
+
+<span style="color: #BD93F9;">import</span> (
+    <span style="color: #FC9F4E;">"net/http"</span>
+    <span style="color: #FC9F4E;">"os"</span>
+
+    <span style="color: #FC9F4E;">"go.uber.org/zap"</span>
+    <span style="color: #FC9F4E;">"go.uber.org/zap/zapcore"</span>
+)
+
+<span style="color: #BD93F9;">var</span> <span style="color: #AFAFAF;">sugarLogger</span> *<span style="color: #AFAFAF;">zap.SugaredLogger</span>   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#23450;&#20041;&#20102;&#19968;&#20010;&#20840;&#23616;&#21464;&#37327;</span>
+
+<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">main</span>() {
+    <span style="color: #AFAFAF;">InitLogger</span>()               <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#21021;&#22987;&#21270; sugerLogger&#65292;&#22914;&#26524;&#27809;&#26377; InitLogger() &#20989;&#25968;&#20013;&#30340; sugarLogger = logger.Sugar()&#65292;&#23601;&#26159;&#20351;&#29992; logger</span>
+    <span style="color: #BD93F9;">defer</span> sugarLogger.<span style="color: #AFAFAF;">Sync</span>()   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#32531;&#23384;&#21516;&#27493;</span>
+    <span style="color: #AFAFAF;">simpleHttpGet</span>(<span style="color: #FC9F4E;">"www.baidu.com"</span>)         <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#27979;&#35797;&#36755;&#20986;&#26085;&#24535;</span>
+    <span style="color: #AFAFAF;">simpleHttpGet</span>(<span style="color: #FC9F4E;">"http://www.baidu.com"</span>)  <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#27979;&#35797;&#36755;&#20986;&#26085;&#24535;</span>
+}
+
+<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">InitLogger</span>() {
+    <span style="color: #AFAFAF;">writeSyncer</span> := <span style="color: #AFAFAF;">getLogWriter</span>()
+    <span style="color: #AFAFAF;">encoder</span> := <span style="color: #AFAFAF;">getEncoder</span>()
+    <span style="color: #AFAFAF;">core</span> := zapcore.<span style="color: #AFAFAF;">NewCore</span>(encoder, writeSyncer, zapcore.DebugLevel)
+
+    <span style="color: #AFAFAF;">logger</span> := zap.<span style="color: #AFAFAF;">New</span>(core, zap.<span style="color: #AFAFAF;">AddCaller</span>())   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#20351;&#29992; New &#20989;&#25968;&#23450;&#21046;&#19968;&#20010; logger</span>
+    sugarLogger = logger.<span style="color: #AFAFAF;">Sugar</span>()               <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#21487;&#20197;&#19981;&#20351;&#29992;&#36825;&#21477;</span>
+}
+
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#32534;&#30721;&#22120;&#65288;&#22914;&#20309;&#20889;&#20837;&#26085;&#24535;&#65289;</span>
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#25105;&#20204;&#27809;&#26377;&#20351;&#29992;&#24320;&#31665;&#21363;&#29992;&#30340; NewJSONEncoder()&#65292;&#22240;&#20026;&#19981;&#20415;&#20110;&#38405;&#35835;&#65292;&#32780;&#26159;&#20351;&#29992; ProductionEncoderConfig()</span>
+<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">getEncoder</span>() <span style="color: #AFAFAF;">zapcore.Encoder</span> {
+    <span style="color: #AFAFAF;">encoderConfig</span> := zap.<span style="color: #AFAFAF;">NewProductionEncoderConfig</span>()         <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#20351;&#29992;&#20415;&#20110;&#38405;&#35835;&#30340; ProductionEncoderConfig()</span>
+    encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder     <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#23558;&#24418;&#22914; 1.6382812952658677e+09 &#30340;&#26102;&#38388;&#26684;&#24335;&#25913;&#20026;&#20154;&#31867;&#21487;&#35835;&#30340;&#24418;&#22914; 2021-11-30T22:15:10.453+0800 &#30340;&#26102;&#38388;&#26684;&#24335;</span>
+    encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#19982;&#19978;&#21477;&#20849;&#21516;&#20351;&#29992;</span>
+    <span style="color: #BD93F9;">return</span> zapcore.<span style="color: #AFAFAF;">NewConsoleEncoder</span>(encoderConfig)           <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#36820;&#22238;&#32534;&#30721;&#22120;</span>
+}
+
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#20915;&#23450;&#20889;&#20837;&#21738;&#20010;&#25991;&#20214;</span>
+<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">getLogWriter</span>() <span style="color: #AFAFAF;">zapcore.WriteSyncer</span> {
+    <span style="color: #AFAFAF;">file</span>, <span style="color: #AFAFAF;">_</span> := os.<span style="color: #AFAFAF;">Create</span>(<span style="color: #FC9F4E;">"./test.log"</span>)
+    <span style="color: #BD93F9;">return</span> zapcore.<span style="color: #AFAFAF;">AddSync</span>(file)
+}
+
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">simpleHttpGet &#19968;&#20010;&#27979;&#35797;&#30340;&#20989;&#25968;</span>
+<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">simpleHttpGet</span>(<span style="color: #AFAFAF;">url</span> <span style="color: #AFAFAF;">string</span>) {
+    sugarLogger.<span style="color: #AFAFAF;">Debugf</span>(<span style="color: #FC9F4E;">"Trying to hit GET request for %s"</span>, url)
+    <span style="color: #AFAFAF;">resp</span>, <span style="color: #AFAFAF;">err</span> := http.<span style="color: #AFAFAF;">Get</span>(url)
+    <span style="color: #BD93F9;">if</span> err != <span style="color: #009F9F;">nil</span> {
+        sugarLogger.<span style="color: #AFAFAF;">Errorf</span>(<span style="color: #FC9F4E;">"Error fetching URL %s : Error = %s"</span>, url, err)
+    } <span style="color: #BD93F9;">else</span> {
+        sugarLogger.<span style="color: #AFAFAF;">Infof</span>(<span style="color: #FC9F4E;">"Success! statusCode = %s for URL %s"</span>, resp.Status, url)
+        resp.Body.<span style="color: #AFAFAF;">Close</span>()
+    }
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgcd8e4b5" class="outline-3">
+<h3 id="orgcd8e4b5">常用函数</h3>
+<div class="outline-text-3" id="text-orgcd8e4b5">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #BD93F9;">package</span> main
+
+<span style="color: #BD93F9;">import</span> (
+    <span style="color: #FC9F4E;">"time"</span>
+
+    <span style="color: #FC9F4E;">"go.uber.org/zap"</span>
+)
+
+<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">main</span>() {
+    <span style="color: #AFAFAF;">logger</span> := zap.<span style="color: #AFAFAF;">NewExample</span>()
+    <span style="color: #BD93F9;">defer</span> logger.<span style="color: #AFAFAF;">Sync</span>()
+
+    <span style="color: #AFAFAF;">url</span> := <span style="color: #FC9F4E;">"http://example.org/api"</span>
+    logger.<span style="color: #AFAFAF;">Info</span>(<span style="color: #FC9F4E;">"failed to fetch URL"</span>,
+        zap.<span style="color: #AFAFAF;">String</span>(<span style="color: #FC9F4E;">"url"</span>, url),
+        zap.<span style="color: #AFAFAF;">Int</span>(<span style="color: #FC9F4E;">"attempt"</span>, <span style="color: #009F9F;">3</span>),
+        zap.<span style="color: #AFAFAF;">Duration</span>(<span style="color: #FC9F4E;">"backoff"</span>, time.Second),
+    )
+
+    <span style="color: #AFAFAF;">sugar</span> := logger.<span style="color: #AFAFAF;">Sugar</span>()
+    sugar.<span style="color: #AFAFAF;">Infow</span>(<span style="color: #FC9F4E;">"failed to fetch URL"</span>,
+        <span style="color: #FC9F4E;">"url"</span>, url,
+        <span style="color: #FC9F4E;">"attempt"</span>, <span style="color: #009F9F;">3</span>,
+        <span style="color: #FC9F4E;">"backoff"</span>, time.Second,
+    )
+    sugar.<span style="color: #AFAFAF;">Infof</span>(<span style="color: #FC9F4E;">"Failed to fetch URL: %s"</span>, url)
+}
+</pre>
+</div>
+
+<pre class="example" id="orgf3b4fba">
+{"level":"info","msg":"failed to fetch URL","url":"http://example.org/api","attempt":3,"backoff":"1s"}
+{"level":"info","msg":"failed to fetch URL","url":"http://example.org/api","attempt":3,"backoff":"1s"}
+{"level":"info","msg":"Failed to fetch URL: http://example.org/api"}
+</pre>
+
+<ul class="org-ul">
+<li>创建 Logger<br>
+<ul class="org-ul">
+<li><code>zap.NewExample()</code> ，适合用于测试代码中<br></li>
+<li><code>zap.NewDevelopment()</code> ，在开发环境中使用<br></li>
+<li><code>zap.NewProduction()</code> ，在生成环境中使用<br></li>
+<li><code>zap.New()</code> ，高度可定制<br></li>
+</ul></li>
+<li>缓存同步<br>
+<ul class="org-ul">
+<li><code>defer logger.Sync()</code><br></li>
+</ul></li>
+<li>打印日志<br>
+<ul class="org-ul">
+<li>zap.Type，（Type 为 bool/int/uint/float64/complex64/time.Time/time.Duration/error等）<br></li>
+<li>zap.Typep 以 p 结尾表示该类型指针的字段，zap.Types 以 s 结尾表示该类型切片的字段。如：<br>
+<ul class="org-ul">
+<li><code>zap.Bool(key string, val bool)</code> ，Field：bool 字段<br></li>
+<li><code>zap.Boolp(key string, val *bool)</code> ，Field：bool 指针字段；<br></li>
+<li><code>zap.Bools(key string, val []bool)</code> ，Field：bool 切片字段。<br></li>
+</ul></li>
+<li><code>zap.Any(key string, value interface{})</code> ，Field：任意类型的字段；<br></li>
+<li><code>zap.Binary(key string, val []byte)</code> ，Field：二进制串的字段。<br></li>
+</ul></li>
+<li>创建 SugaredLogger<br>
+<ul class="org-ul">
+<li><code>logger.Sugar()</code> ，SugaredLogger 的使用比 Logger 简单，只是性能比 Logger 低 50% 左右，可以用在非热点函数中。<br></li>
+<li>调用 <code>SugarLogger</code> 以 <code>f</code> 结尾的方法与 <code>fmt.Printf</code> 没什么区别，如例子中的 <code>Infof</code> 。<br></li>
+<li>同时 <code>SugarLogger</code> 还支持以w结尾的方法，这种方式不需要先创建字段对象，直接将字段名和值依次放在参数中即可，如例子中的 <code>Infow</code> 。<br></li>
+</ul></li>
+</ul>
+</div>
 </div>
 </div>
 </div>
 <div id="postamble" class="status">
 <p class="date">Date: 2021-11-29 10:11 Mon</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2021-11-30 Tue 22:16</p>
+<p class="date">Created: 2021-12-15 Wed 00:46</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

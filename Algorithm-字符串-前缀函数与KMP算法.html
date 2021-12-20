@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-11-06 Sat 17:43 -->
+<!-- 2021-11-23 Tue 10:38 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>前缀函数与KMP算法</title>
@@ -43,23 +43,23 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org7d71ce4">前缀函数定义</a></li>
-<li><a href="#org5c0fe5f">计算前缀函数</a>
+<li><a href="#orgb893497">前缀函数定义</a></li>
+<li><a href="#org893ed08">计算前缀函数</a>
 <ul>
-<li><a href="#org19a2e32">朴素求法</a></li>
-<li><a href="#org935e527">优化</a></li>
-<li><a href="#org33a7b9d">简单解释一下为什么可以这样优化</a></li>
-<li><a href="#org360986d">最终算法</a></li>
+<li><a href="#orgee6ae86">朴素求法</a></li>
+<li><a href="#org22e8129">优化</a></li>
+<li><a href="#org1be80e4">简单解释一下为什么可以这样优化</a></li>
+<li><a href="#org8ae76c8">最终算法</a></li>
 </ul>
 </li>
-<li><a href="#orgc32492e">Knuth-Morris-Pratt 算法</a></li>
+<li><a href="#org920f75e">Knuth-Morris-Pratt 算法</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org7d71ce4" class="outline-2">
-<h2 id="org7d71ce4">前缀函数定义</h2>
-<div class="outline-text-2" id="text-org7d71ce4">
+<div id="outline-container-orgb893497" class="outline-2">
+<h2 id="orgb893497">前缀函数定义</h2>
+<div class="outline-text-2" id="text-orgb893497">
 <p>
 给定一个长度为 \(n\) 的字符串 \(s\)，其前缀函数被定义为一个长度为 \(n\) 的数组 \(next\)，其中 \(next[i]\) 的定义是：<br>
 </p>
@@ -90,21 +90,21 @@
 </ul>
 </div>
 </div>
-<div id="outline-container-org5c0fe5f" class="outline-2">
-<h2 id="org5c0fe5f">计算前缀函数</h2>
-<div class="outline-text-2" id="text-org5c0fe5f">
+<div id="outline-container-org893ed08" class="outline-2">
+<h2 id="org893ed08">计算前缀函数</h2>
+<div class="outline-text-2" id="text-org893ed08">
 </div>
-<div id="outline-container-org19a2e32" class="outline-3">
-<h3 id="org19a2e32">朴素求法</h3>
-<div class="outline-text-3" id="text-org19a2e32">
+<div id="outline-container-orgee6ae86" class="outline-3">
+<h3 id="orgee6ae86">朴素求法</h3>
+<div class="outline-text-3" id="text-orgee6ae86">
 <p>
 遍历字符串，每次计算当前的前缀函数值 \(next[i]\) 时，令变量 \(j\) 从最大的真前缀开始尝试，如果当前长度下真前缀和真后缀不相等，则令 \(j\) 自减 \(1\)，继续匹配，直到找到最长相等的真前缀和真后缀，如果 \(j = 0\) 并且仍没有匹配成功，\(next[i] = 0\)。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org935e527" class="outline-3">
-<h3 id="org935e527">优化</h3>
-<div class="outline-text-3" id="text-org935e527">
+<div id="outline-container-org22e8129" class="outline-3">
+<h3 id="org22e8129">优化</h3>
+<div class="outline-text-3" id="text-org22e8129">
 <blockquote>
 <p>
 相邻的前缀函数值至多增加 \(1\)<br>
@@ -138,9 +138,9 @@
 </p>
 </div>
 </div>
-<div id="outline-container-org33a7b9d" class="outline-3">
-<h3 id="org33a7b9d">简单解释一下为什么可以这样优化</h3>
-<div class="outline-text-3" id="text-org33a7b9d">
+<div id="outline-container-org1be80e4" class="outline-3">
+<h3 id="org1be80e4">简单解释一下为什么可以这样优化</h3>
+<div class="outline-text-3" id="text-org1be80e4">
 <p>
 首先相邻的前缀函数值至多增加 \(1\)，这句不需要证明了，仔细想一下就能知道，所以需要 \(next[i]\) 尽可能大，必然要求后缀新增的 \(s[i]\) 也与前缀新增的字符匹配，即 \(s[i] = s[next[i - 1]]\)，如果匹配，\(next[i] = next[i - 1] + 1\)；<br>
 </p>
@@ -170,9 +170,9 @@
 </p>
 </div>
 </div>
-<div id="outline-container-org360986d" class="outline-3">
-<h3 id="org360986d">最终算法</h3>
-<div class="outline-text-3" id="text-org360986d">
+<div id="outline-container-org8ae76c8" class="outline-3">
+<h3 id="org8ae76c8">最终算法</h3>
+<div class="outline-text-3" id="text-org8ae76c8">
 <div class="org-src-container">
 <pre class="src src-cpp"><span style="color: #AFAFAF;">void</span> <span style="color: #AFAFAF;">prefix_table</span>(<span style="color: #AFAFAF;">char</span> <span style="color: #AFAFAF;">pattern</span>[]) {
     <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">n</span> = strlen(pattern);
@@ -190,15 +190,15 @@
 </div>
 </div>
 </div>
-<div id="outline-container-orgc32492e" class="outline-2">
-<h2 id="orgc32492e">Knuth-Morris-Pratt 算法</h2>
-<div class="outline-text-2" id="text-orgc32492e">
+<div id="outline-container-org920f75e" class="outline-2">
+<h2 id="org920f75e">Knuth-Morris-Pratt 算法</h2>
+<div class="outline-text-2" id="text-org920f75e">
 <p>
 该算法由 Knuth、Pratt 和 Morris 在 1977 年共同发布，简称 KMP 算法，<br>
 </p>
 
 <p>
-给出一个文本串 \(text\) 与一个模式串 \(pattern\)，我们可以将其拼接在一起 \(pattern + "_" + text\)，其中 <code>_</code> 是两个串中都没出现的字符。再使用上面的求前缀函数的算法，如果某个位置的前缀值是 \(len(pattern)\)，那么说明找到了一个 \(pattern\)。<br>
+给出一个文本串 \(text\) 与一个模式串 \(pattern\)，我们可以将其拼接在一起 \(pattern + "\#" + text\)，其中 <code>#</code> 是两个串中都没出现的字符。再使用上面的求前缀函数的算法，如果某个位置的前缀值是 \(len(pattern)\)，那么说明找到了一个 \(pattern\)。<br>
 </p>
 
 <p>

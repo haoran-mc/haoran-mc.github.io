@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-11-29 Mon 11:34 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GO LOG</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">GO LOG</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgdd2ec44">如何简单使用 Log 包</a></li>
+<li><a href="#orgf1f1a18">配置 Log</a>
+<ul>
+<li><a href="#orgb799d22">打印带有前缀的日志</a>
+<ul>
+<li><a href="#org9a28033">log.New 方法</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#orga60e25d">设置输出到文件</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgdd2ec44" class="outline-2">
+<h2 id="orgdd2ec44">如何简单使用 Log 包</h2>
+<div class="outline-text-2" id="text-orgdd2ec44">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #BD93F9;">package</span> main
+
+<span style="color: #BD93F9;">import</span> <span style="color: #FC9F4E;">"log"</span>
+
+<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">main</span>() {
+    log.<span style="color: #AFAFAF;">Println</span>(<span style="color: #FC9F4E;">"&#25171;&#21360;&#26085;&#24535;"</span>)
+    <span style="color: #AFAFAF;">test</span> := <span style="color: #FC9F4E;">"Hello World!"</span>
+    log.<span style="color: #AFAFAF;">Printf</span>(<span style="color: #FC9F4E;">"%s &#25171;&#21360;&#26085;&#24535; ... \n"</span>, test)
+
+    log.<span style="color: #AFAFAF;">Fatalln</span>(<span style="color: #FC9F4E;">"&#25171;&#21360;&#26085;&#24535;&#65292;&#35302;&#21457; Fatal"</span>)
+
+    log.<span style="color: #AFAFAF;">Panicln</span>(<span style="color: #FC9F4E;">"&#25171;&#21360;&#26085;&#24535;&#65292;&#35302;&#21457; Panic"</span>)
+}
+</pre>
+</div>
+
+<p>
+运行结果如下：<br>
+</p>
+
+<pre class="example" id="orgd9693a3">
+2021/11/29 10:46:06 打印日志
+2021/11/29 10:46:06 Hello World! 打印日志 ... 
+2021/11/29 10:46:06 打印日志，触发 Fatal
+exit status 1
+</pre>
+</div>
+</div>
+<div id="outline-container-orgf1f1a18" class="outline-2">
+<h2 id="orgf1f1a18">配置 Log</h2>
+<div class="outline-text-2" id="text-orgf1f1a18">
+</div>
+<div id="outline-container-orgb799d22" class="outline-3">
+<h3 id="orgb799d22">打印带有前缀的日志</h3>
+<div class="outline-text-3" id="text-orgb799d22">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #BD93F9;">package</span> main
+
+<span style="color: #BD93F9;">import</span> (
+    <span style="color: #FC9F4E;">"log"</span>
+    <span style="color: #FC9F4E;">"os"</span>
+)
+
+<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">main</span>() {
+    <span style="color: #AFAFAF;">logger</span> := log.<span style="color: #AFAFAF;">New</span>(os.Stdout, <span style="color: #FC9F4E;">"&lt;++&gt;"</span>, log.Lshortfile|log.Ldate|log.Ltime)
+    logger.<span style="color: #AFAFAF;">Println</span>(<span style="color: #FC9F4E;">"&#25171;&#21360;&#24102;&#26377;&#21069;&#32512;&#30340;&#26085;&#24535; ... "</span>)
+}
+</pre>
+</div>
+
+<p>
+运行结果如下：<br>
+</p>
+
+<pre class="example" id="org22c8e5d">
+&lt;++&gt;2021/11/29 10:57:59 02-configLog.go:10: 打印带有前缀的日志 ... 
+</pre>
+</div>
+<div id="outline-container-org9a28033" class="outline-4">
+<h4 id="org9a28033">log.New 方法</h4>
+<div class="outline-text-4" id="text-org9a28033">
+<p>
+log.New 方法在 <code>src/log/log.go</code> 中。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">New creates a new Logger. The out variable sets the</span>
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">destination to which log data will be written.</span>
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">The prefix appears at the beginning of each generated log line, or</span>
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">after the log header if the Lmsgprefix flag is provided.</span>
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">The flag argument defines the logging properties.</span>
+<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">New</span>(<span style="color: #AFAFAF;">out</span> <span style="color: #AFAFAF;">io.Writer</span>, <span style="color: #AFAFAF;">prefix</span> <span style="color: #AFAFAF;">string</span>, <span style="color: #AFAFAF;">flag</span> <span style="color: #AFAFAF;">int</span>) *<span style="color: #AFAFAF;">Logger</span> {
+    <span style="color: #BD93F9;">return</span> &amp;<span style="color: #AFAFAF;">Logger</span>{<span style="color: #009F9F;">out</span>: out, <span style="color: #009F9F;">prefix</span>: prefix, <span style="color: #009F9F;">flag</span>: flag}
+}
+</pre>
+</div>
+
+<p>
+里面调用了一个数据结构 <code>Logger</code> ：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">A Logger represents an active logging object that generates lines of</span>
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">output to an io.Writer. Each logging operation makes a single call to</span>
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">the Writer's Write method. A Logger can be used simultaneously from</span>
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">multiple goroutines; it guarantees to serialize access to the Writer.</span>
+<span style="color: #BD93F9;">type</span> <span style="color: #AFAFAF;">Logger</span> <span style="color: #BD93F9;">struct</span> {
+    mu     <span style="color: #AFAFAF;">sync.Mutex</span> <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">ensures atomic writes; protects the following fields</span>
+    prefix <span style="color: #AFAFAF;">string</span>     <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">prefix on each line to identify the logger (but see Lmsgprefix)</span>
+    flag   <span style="color: #AFAFAF;">int</span>        <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">properties</span>
+    out    <span style="color: #AFAFAF;">io.Writer</span>  <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">destination for output</span>
+    buf    []<span style="color: #AFAFAF;">byte</span>     <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">for accumulating text to write</span>
+}
+</pre>
+</div>
+
+<p>
+各个成员的含义：<br>
+</p>
+
+<dl class="org-dl">
+<dt>mu sync.Mutex</dt><dd>锁，确保原子操作<br></dd>
+<dt>prefix string</dt><dd>每一行日志的前缀<br></dd>
+<dt>out io.Writer</dt><dd>输出位置，可以是文件，可以是标准输出<br></dd>
+<dt>buf []byte</dt><dd>缓冲区的 buffer<br></dd>
+<dt>flag int</dt><dd>具体参数，有如下几种选择<br></dd>
+</dl>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">These flags define which text to prefix to each log entry generated by the Logger.</span>
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">Bits are or'ed together to control what's printed.</span>
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">With the exception of the Lmsgprefix flag, there is no</span>
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">control over the order they appear (the order listed here)</span>
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">or the format they present (as described in the comments).</span>
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">The prefix is followed by a colon only when Llongfile or Lshortfile</span>
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">is specified.</span>
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">For example, flags Ldate | Ltime (or LstdFlags) produce,</span>
+<span style="color: #7c7c7c; font-style: italic;">//  </span><span style="color: #7c7c7c; font-style: italic;">2009/01/23 01:23:23 message</span>
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">while flags Ldate | Ltime | Lmicroseconds | Llongfile produce,</span>
+<span style="color: #7c7c7c; font-style: italic;">//  </span><span style="color: #7c7c7c; font-style: italic;">2009/01/23 01:23:23.123123 /a/b/c/d.go:23: message</span>
+<span style="color: #BD93F9;">const</span> (
+    <span style="color: #009F9F;">Ldate</span>         = <span style="color: #009F9F;">1</span> &lt;&lt; <span style="color: #009F9F;">iota</span>     <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">the date in the local time zone: 2009/01/23</span>
+    <span style="color: #009F9F;">Ltime</span>                         <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">the time in the local time zone: 01:23:23</span>
+    <span style="color: #009F9F;">Lmicroseconds</span>                 <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">microsecond resolution: 01:23:23.123123.  assumes Ltime.</span>
+    <span style="color: #009F9F;">Llongfile</span>                     <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">full file name and line number: /a/b/c/d.go:23</span>
+    <span style="color: #009F9F;">Lshortfile</span>                    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">final file name element and line number: d.go:23. overrides Llongfile</span>
+    <span style="color: #009F9F;">LUTC</span>                          <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">if Ldate or Ltime is set, use UTC rather than the local time zone</span>
+    <span style="color: #009F9F;">Lmsgprefix</span>                    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">move the "prefix" from the beginning of the line to before the message</span>
+    <span style="color: #009F9F;">LstdFlags</span>     = Ldate | Ltime <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">initial values for the standard logger</span>
+)
+</pre>
+</div>
+
+<p>
+源码的注释还是很清楚的，在上面的案例中，我们使用 <code>logger = log.New(os.Stdout, "&lt;++&gt;", log.Lshortfile|log.Ldate|log.Ltime)</code> 这句代码配置了一个新的 <code>logger</code> ，根据最后的配置，输出了日期、时间、具体内容。<br>
+</p>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orga60e25d" class="outline-2">
+<h2 id="orga60e25d">设置输出到文件</h2>
+<div class="outline-text-2" id="text-orga60e25d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #BD93F9;">package</span> main
+
+<span style="color: #BD93F9;">import</span> (
+    <span style="color: #FC9F4E;">"fmt"</span>
+    <span style="color: #FC9F4E;">"log"</span>
+    <span style="color: #FC9F4E;">"os"</span>
+)
+
+<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">main</span>() {
+    <span style="color: #AFAFAF;">logFile</span>, <span style="color: #AFAFAF;">err</span> := os.<span style="color: #AFAFAF;">OpenFile</span>(<span style="color: #FC9F4E;">"./log"</span>, os.O_CREATE|os.O_WRONLY|os.O_APPEND, <span style="color: #009F9F;">0644</span>)
+    <span style="color: #BD93F9;">if</span> err != <span style="color: #009F9F;">nil</span> {
+        fmt.<span style="color: #AFAFAF;">Println</span>(<span style="color: #FC9F4E;">"os.OpenFile error :"</span>, err)
+        <span style="color: #BD93F9;">return</span>
+    }
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#35774;&#32622;&#36755;&#20986;&#20301;&#32622;&#65292;&#37324;&#38754;&#26377;&#38145;&#36827;&#34892;&#25511;&#21046;</span>
+    log.<span style="color: #AFAFAF;">SetOutput</span>(logFile)
+
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#35774;&#32622;&#26085;&#24535;&#23646;&#24615;</span>
+    log.<span style="color: #AFAFAF;">SetFlags</span>(log.Llongfile|log.Ltime|log.Ldate)
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#25171;&#21360;&#26085;&#24535;</span>
+    log.<span style="color: #AFAFAF;">Println</span>(<span style="color: #FC9F4E;">"&#25171;&#21360;&#26032;&#26085;&#24535; ... "</span>)
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#25163;&#21160;&#35774;&#32622;&#21069;&#32512;</span>
+    log.<span style="color: #AFAFAF;">SetPrefix</span>(<span style="color: #FC9F4E;">"[&#37325;&#28857;]"</span>)
+    log.<span style="color: #AFAFAF;">Println</span>(<span style="color: #FC9F4E;">"&#25171;&#21360;&#37325;&#35201;&#26085;&#24535; ... "</span>)
+}
+</pre>
+</div>
+
+<pre class="example" id="org2bd817b">
+2021/11/29 11:31:32 /home/haoran/haoran/Code/Language/15-Go/07-Log/03-outputToFile.go:21: 打印新日志 ... 
+[重点]2021/11/29 11:31:32 /home/haoran/haoran/Code/Language/15-Go/07-Log/03-outputToFile.go:24: 打印重要日志 ... 
+</pre>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2021-11-29 10:11 Mon</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2021-11-29 Mon 11:34</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

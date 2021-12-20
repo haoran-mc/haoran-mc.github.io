@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-10-01 五 16:19 -->
+<!-- 2021-11-11 Thu 15:11 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>线段树</title>
@@ -13,63 +13,196 @@
                 <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
                 <script type="module" src="static/js/main.js" defer></script>
                 <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
 </head>
 <body>
 <div id="content">
 <h1 class="title">线段树</h1>
-<ul class="org-ul">
-<li><p>
-线段树线段树(segment_tree)
-给定一个数组，数组可能非常大，在程序运行过程中会进行多次query和update操作
-query(arr, L, R)表示计算数组arr中，从下标L到下标R之间所有数字和
-update(arr, i, val)表示将arr[i]中的数字更新为val
-</p>
-
-<ul class="org-ul">
-<li>直接操作
-<ul class="org-ul">
-<li>query时间复杂度O(n)</li>
-<li>update时间复杂度O(1)</li>
-</ul></li>
-<li>前缀和
-<ul class="org-ul">
-<li>query时间复杂度O(1)</li>
-<li>update时间复杂度O(n)</li>
-</ul></li>
-<li>线段树
-<ul class="org-ul">
-<li>query时间复杂度O(logn)</li>
-<li>update时间复杂度O(logn)</li>
-</ul></li>
-
-<li>arr  1, 3, 5, 7, 9</li>
-<li>tree 36, 9, 27, 4, 5, 16, 11, 1, 3, x, x, 7, 9, x, x</li>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org2edb2ca">介绍</a></li>
+<li><a href="#org2e61fd5">基本结构与建树</a></li>
+<li><a href="#org5e6031f">区间查询</a></li>
+<li><a href="#org2eb9fff">单点修改</a></li>
+<li><a href="#orgd27b1e1">区间修改与懒惰标记</a></li>
+<li><a href="#orgcc56cbd">猫树</a></li>
+<li><a href="#org04689de">扫描线</a></li>
 </ul>
+</div>
+</div>
 
-<pre class="example" id="orgb345fe7">
-.............36 [0-5]
-.........../    \
-........../      \
-...[1-2] 9        27 [3-5]
-......../|        | \
-......./ |  [3-4] |  \
-[0-1] 4  5       16   6 [5]
-...../| [2]     /  \
-..../ |        /    \ 
-...1  3       7      9
-.[0] [1]     [3]    [4]
-</pre></li>
-
-<li><p>
-线段树的结点
+<div id="outline-container-org2edb2ca" class="outline-2">
+<h2 id="org2edb2ca">介绍</h2>
+<div class="outline-text-2" id="text-org2edb2ca">
+<p>
+线段树一个常用来维护区间信息的数据结构。<br>
 </p>
 
 <p>
-线段树的结点是一个区间，区间的代号线段树的叶子：这个区间只有一个值，它是原数组中的数
-</p></li>
+线段树可以在 \(O(log(N))\) 的时间复杂度内实现单点修改、区间修改、区间查询（区间求和，求区间最大值，求区间最小值）等操作。<br>
+</p>
 
-<li>线段树的区间是左闭右闭的</li>
+<p>
+看这样一种情况：给定一个数组，数组可能非常大，在程序运行过程中会进行多次查询某个区间的所有数字和和更新数组中某个值的操作。<br>
+</p>
+
+<p>
+定义：\(query(arr, L, R)\) 表示计算数组 \(arr\) 中从下标 \(L\) 和下标 \(R\) 之间所有数字和；\(update(arr, idx, val)\) 表示将 \(arr[idx]\) 中的数字更新为 \(val\)。<br>
+</p>
+
+<dl class="org-dl">
+<dt>直接操作</dt><dd>\(query\) 时间复杂度 \(O(n)\)，\(update\) 时间复杂度 \(O(1)\)；<br></dd>
+<dt>前缀和</dt><dd>\(query\) 时间复杂度 \(O(1)\)，\(update\) 时间复杂度 \(O(n)\)；<br></dd>
+<dt>线段树</dt><dd>\(query\) 时间复杂度 \(O(log(n))\)，\(update\) 时间复杂度 \(O(log(n))\)；<br></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-org2e61fd5" class="outline-2">
+<h2 id="org2e61fd5">基本结构与建树</h2>
+<div class="outline-text-2" id="text-org2e61fd5">
+<p>
+线段树将每个长度不为 \(1\) 的区间划分成左右两个区间递归求解，把整个线段划分为一个树形结构，通过合并左右两个区间信息来求得该区间的信息。<br>
+</p>
+
+<p>
+\(arr\) 数组：\(arr = \{1, 3, 5, 7, 9, 11\}\)<br>
+</p>
+
+<img src="./images/线段树01.png" />
+
+<p>
+上面就是一棵线段树，每个结点代表着一个区间，结点中的值就是这个区间所有数的和。每个叶子结点（用绿色标出的结点）代表的区间长度为一，所以叶子结点存储的是原数组中的值。<br>
+</p>
+
+<img src="./images/线段树02.png" />
+
+<p>
+用数组 \(tr\) 保存线段树，\(tr_i\) 用来保存线段树上编号为 \(i\) 的结点的值。在实际代码中，结点 \(5\) 与结点 \(7\) 也是有子结点的，由于所有的操作到叶子结点就会停止向深处搜索，所以它们的子结点不会被使用，为了还原实际中的线段树，也为了下标的完整，我们用灰色结点把这棵线段树补齐，我们就得到了这棵线段树中的所有值：\(tr = \{36, 9, 27, 4, 5, 16, 11, 1, 3, 0, 0, 7, 9, 0, 0\}\)<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5e6031f" class="outline-2">
+<h2 id="org5e6031f">区间查询</h2>
+<div class="outline-text-2" id="text-org5e6031f">
+<ul class="org-ul">
+<li>如果要查询 \([1 - 6]\) 的区间和，那直接返回根结点的值即可；<br></li>
+<li>如果要查询的区间为 \([3 - 5]\)，就不能直接获取区间和，把 \([3 - 5]\)，拆成 \([3]\) 和 \([4 - 5]\) 分别求和，通过合并这两个区间的答案来求得这个区间的答案。<br></li>
 </ul>
+</div>
+</div>
+<div id="outline-container-org2eb9fff" class="outline-2">
+<h2 id="org2eb9fff">单点修改</h2>
+<div class="outline-text-2" id="text-org2eb9fff">
+<ul class="org-ul">
+<li>递归到需要修改的位置，然后根据要求修改其值<br></li>
+<li>在回溯过程还要更新所有的祖宗结点<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgd27b1e1" class="outline-2">
+<h2 id="orgd27b1e1">区间修改与懒惰标记</h2>
+<div class="outline-text-2" id="text-orgd27b1e1">
+<p>
+如果要求修改区间 \([l, r]\) 中的所有数，把区间里的所有结点都遍历修改的时间复杂度太大，无法承受。<br>
+</p>
+
+<dl class="org-dl">
+<dt>懒惰标记</dt><dd>通过延迟对结点信息的更改，减少不必要的操作次数。每次执行修改时，通过打标记的方法表示该结点对应的区间在某一次操作中被更改，但不更新该结点的子结点的信息，实质性的修改在下一次访问带有标记的结点时才进行。<br></dd>
+</dl>
+
+<p>
+假如现在需要对 \([3, 5]\) 区间里的数都加上 \(d\)，因为现在结点中存储的不仅是结点表示区间的和，还需要一个懒惰标记，所以用 结点中的 \(sum\) 变量表示结点表示区间的和；用 \(add\) 表示区间加上的数。<br>
+</p>
+
+<p>
+我们的修改函数就会从根结点递归到结点 \(5\) 与结点 \(6\)，因为结点 \(5\) 已经是根结点了，所以直接让 <code>tr[5].sum += d</code> ；递归到结点 \(6\) 后，就会标记 <code>tr[6].add += d</code> ，然后就不再向下递归了，等待下一次涉及到区间 \([5]\) 或者区间 \([6]\) 的查询时，就会把标记加到子结点的区间上去。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgcc56cbd" class="outline-2">
+<h2 id="orgcc56cbd">猫树</h2>
+</div>
+<div id="outline-container-org04689de" class="outline-2">
+<h2 id="org04689de">扫描线</h2>
+<div class="outline-text-2" id="text-org04689de">
+<p>
+给定平面直角坐标系中的 \(N\) 个矩形，求它们的面积并，即这些矩形的并集在坐标系中覆盖的总面积。<br>
+</p>
+
+<img src="./images/扫描线01.png" width=500px />
+<img src="./images/扫描线04.png" width=500px />
+
+<p>
+扫描线算法借助积分的思想，将整个图形切成一块块的竖直的矩形，然后用一条竖线从左到右扫过整个坐标系，那么直线上被覆盖的长度只会在每个矩形的左右边界处发生变化。<br>
+</p>
+
+<img src="./images/扫描线02.png" width=500px />
+<img src="./images/扫描线03.png" width=500px />
+
+<p>
+整个并集图形被分成 \(2 \times N\) 段，这样总面积就变成了所有竖直的矩形面积之和，设每个 \(x_i \sim x_{i + 1}\) 的区域内矩形的总长度为 \(h_i\)，则总面积为 \(S = \sum (x_{i + 1} - x_i) \times h_i\)。<br>
+</p>
+
+<p>
+在扫描线扫描之前，需要给矩形的左右边赋权值，左边界赋权值 \(+1\)，右边界赋权值 \(-1\)。<br>
+</p>
+
+<img src="./images/扫描线05.png" width=500px />
+
+<img src="./images/扫描线06.png" width=500px />
+
+<p>
+这样在扫描线从左往右扫描时，当扫描到边界：<br>
+</p>
+<ol class="org-ol">
+<li>总面积加上（当前边界与前一个边界之间的距离）乘以（当前扫描线上权值大于零的区间长度）（从第二个边界开始计算）<br></li>
+<li>然后将当前边界上的权值加到扫描线上<br></li>
+</ol>
+
+<p>
+也就是在扫描线扫描过程中，每一个线段都对应一个操作：将区间上线段对应的位置都加上 \(1\) 或者减去 \(1\)。<br>
+</p>
+
+<p>
+关于区间的信息我们能想到使用线段树维护，线段树结点中需要维护两个结点信息：<br>
+</p>
+<ol class="org-ol">
+<li>\(cnt\)，表示当前位置被覆盖的次数<br></li>
+<li>\(len\)，表示权值大于零的区间总长度。<br></li>
+</ol>
+
+<p>
+对于区间修改本应使用懒惰标记，但由于扫描线的特殊性质，可以不使用懒惰标记。<br>
+</p>
+
+<p>
+这是因为每次获取的是扫描线上所有权值大于零的区间长度总和，不用深究子树上的信息当前是否正确；而且每一个 \(+1\) 都一定对应一个 \(-1\)，且先出现 \(+1\) 后出现 \(-1\)。<br>
+</p>
+</div>
+</div>
 </div>
 </body>
 </html>

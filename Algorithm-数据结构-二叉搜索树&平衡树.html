@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-09-30 四 16:12 -->
+<!-- 2021-11-18 Thu 13:13 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>二叉搜索树</title>
@@ -13,6 +13,28 @@
                 <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
                 <script type="module" src="static/js/main.js" defer></script>
                 <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
 </head>
 <body>
 <div id="content">
@@ -21,227 +43,240 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orge7c4817">二叉搜索树 &amp; 平衡树</a>
+<li><a href="#orgb5c86fb">树的概念</a>
 <ul>
-<li><a href="#org2063dbe">二叉搜索树</a></li>
-<li><a href="#orgf9983e8">AVL树</a>
-<ul>
-<li><a href="#org59f6b05">AVL平衡化操作</a></li>
-<li><a href="#org083376a">右旋操作</a></li>
-<li><a href="#orgae7a997">左旋操作</a></li>
-<li><a href="#orgc2245c6">需要平衡的四种情况</a></li>
-<li><a href="#orgf19b4e4">LL型</a></li>
-<li><a href="#org929629c">RR型</a></li>
-<li><a href="#orgebc9fd8">LR型</a></li>
-<li><a href="#orgfcdd9f6">RL型</a></li>
-<li><a href="#orgcab24da">插入操作</a></li>
-<li><a href="#org7bd366d">删除操作</a></li>
+<li><a href="#orgb73ff59">一般意义的树</a></li>
+<li><a href="#org5a42b35">树的静态写法</a></li>
 </ul>
 </li>
-<li><a href="#orgf6ea237">Treap树</a>
+<li><a href="#org0250988">二叉树</a>
 <ul>
-<li><a href="#orgb961a68">无旋式treap</a>
+<li><a href="#org4a82706">二叉树动态实现</a>
 <ul>
-<li><a href="#org4a4b545">分裂</a></li>
-<li><a href="#orgf11fa6e">合并</a></li>
-<li><a href="#org1ee3e17">建树</a></li>
+<li><a href="#orgae3305e">两种特殊的二叉树</a></li>
+<li><a href="#org2c50db7">二叉树的基本操作</a></li>
+<li><a href="#org40729ed">二叉树的遍历</a></li>
+<li><a href="#org695e261">重建二叉树</a></li>
 </ul>
 </li>
-<li><a href="#orgf773092">旋转式treap</a></li>
+<li><a href="#orgc8f7876">二叉树静态实现</a></li>
+<li><a href="#org90b8cca">二叉树的遍历</a>
+<ul>
+<li><a href="#org4ad3a52">先序遍历</a></li>
+<li><a href="#org7416951">中序遍历</a></li>
+<li><a href="#orgb68f7c4">后序遍历</a></li>
+<li><a href="#org68c5d83">层序遍历</a></li>
 </ul>
 </li>
-<li><a href="#org10ffcbc">Splay树</a></li>
-<li><a href="#orgaac8744">替罪羊树</a></li>
 </ul>
 </li>
+<li><a href="#org9e0d29b">二叉搜索树</a></li>
+<li><a href="#org4aa67d9">插入</a></li>
+<li><a href="#org47a6d6b">删除</a></li>
+<li><a href="#orgeca68b3">找前驱后继</a></li>
+<li><a href="#org455848a">找最大最小值</a></li>
+<li><a href="#org38b773e">求某个值的排名</a></li>
+<li><a href="#org8657776">求排名是k的数是哪个</a></li>
+<li><a href="#org0199946">比某个数大的最小值</a></li>
+<li><a href="#org32c36cb">比某个数小的最大值</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orge7c4817" class="outline-2">
-<h2 id="orge7c4817">二叉搜索树 &amp; 平衡树</h2>
-<div class="outline-text-2" id="text-orge7c4817">
+<div id="outline-container-orgb5c86fb" class="outline-2">
+<h2 id="orgb5c86fb">树的概念</h2>
+<div class="outline-text-2" id="text-orgb5c86fb">
+<ol class="org-ol">
+<li>没有结点的树是 <b>空树</b><br></li>
+<li>树的 <b>层次</b> 从根结点开始算起，根结点为第一层，根结点子树的根结点为第二层<br></li>
+<li>把结点的子树棵数称为   +结点的度  + ，树中结点的最大的度称为树的度(也称为树的宽度)<br></li>
+<li>有n个结点的树，边数一定是n-1<br></li>
+<li>叶子结点被定义为度为0的结点，当树中只有一个结点时(即根结点)，根结点也算作叶子节点<br></li>
+<li><b>结点的深度</b><br></li>
+<li><b>结点的高度</b><br></li>
+<li>多棵树组合在一起称为森林，森林是若干棵树的集合<br></li>
+</ol>
 </div>
-<div id="outline-container-org2063dbe" class="outline-3">
-<h3 id="org2063dbe">二叉搜索树</h3>
-<div class="outline-text-3" id="text-org2063dbe">
+<div id="outline-container-orgb73ff59" class="outline-3">
+<h3 id="orgb73ff59">一般意义的树</h3>
+</div>
+<div id="outline-container-org5a42b35" class="outline-3">
+<h3 id="org5a42b35">树的静态写法</h3>
+<div class="outline-text-3" id="text-org5a42b35">
+<div class="org-src-container">
+<pre class="src src-C++"><span style="color: #BD93F9;">struct</span> <span style="color: #AFAFAF;">Node</span> {
+    <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">data</span>;
+    <span style="color: #AFAFAF;">vector</span>&lt;<span style="color: #AFAFAF;">int</span>&gt; <span style="color: #AFAFAF;">child</span>;
+}<span style="color: #AFAFAF;">node</span>[maxn];
+
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">index</span> = <span style="color: #009F9F;">0</span>;
+<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">newNode</span>(<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">value</span>) {
+    node[index].data = value;
+    node[index].child.clear();
+    <span style="color: #BD93F9;">return</span> index++;
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org0250988" class="outline-2">
+<h2 id="org0250988">二叉树</h2>
+<div class="outline-text-2" id="text-org0250988">
+</div>
+<div id="outline-container-org4a82706" class="outline-3">
+<h3 id="org4a82706">二叉树动态实现</h3>
+<div class="outline-text-3" id="text-org4a82706">
+</div>
+<div id="outline-container-orgae3305e" class="outline-4">
+<h4 id="orgae3305e">两种特殊的二叉树</h4>
+<div class="outline-text-4" id="text-orgae3305e">
 <ul class="org-ul">
-<li>二叉搜索树
+<li>满二叉树<br>
 <ul class="org-ul">
-<li>左结点 &lt; 根结点 &lt; 右结点</li>
+<li>每一层的结点个数都达到了当层能达到的最大结点数<br></li>
+</ul></li>
+<li>完全二叉树<br>
+<ul class="org-ul">
+<li>除了最下面一层之外，其余层的结点个数到达到了当层能达到的最大结点数，且最下面一层只从左至右连续存在若干个结点，而这些连续结点右边的结点全部不存在<br></li>
+<li>对于完全二叉树当中的任何一个结点(设编号为x)，其左孩子的编号一定是2x，右孩子的编号一定是2x+1<br>
+<ul class="org-ul">
+<li>也就是说完全二叉树可以通过建立一个大小为2^k的数组来存储所有结点的信息，其中k为完全二叉树的最大高度，且1号位存放的一定是根结点<br></li>
+<li>当然，如果不是完全二叉树，只需要设为结点上限个数加一即可<br></li>
+</ul></li>
+<li>判断某个结点是否为叶结点的标志：该结点(记下标为index)的左子结点的编号2+index大于结点个数n<br></li>
+<li>判断某个结点是否为空结点的标志：该结点下标index大于结点个数n<br></li>
 </ul></li>
 </ul>
 </div>
 </div>
-<div id="outline-container-orgf9983e8" class="outline-3">
-<h3 id="orgf9983e8">AVL树</h3>
-<div class="outline-text-3" id="text-orgf9983e8">
+<div id="outline-container-org2c50db7" class="outline-4">
+<h4 id="org2c50db7">二叉树的基本操作</h4>
+<div class="outline-text-4" id="text-org2c50db7">
 <ul class="org-ul">
-<li><p>
-AVL树仍然是一颗二叉搜索树，只是在其基础上增加了“平衡”的要求
+<li>二叉树的创建<br></li>
+<li>二叉树的查找与插入<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org40729ed" class="outline-4">
+<h4 id="org40729ed">二叉树的遍历</h4>
+<div class="outline-text-4" id="text-org40729ed">
+<ul class="org-ul">
+<li>先序遍历<br></li>
+<li>中序遍历<br></li>
+<li>后序遍历<br></li>
+<li>层序遍历<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org695e261" class="outline-4">
+<h4 id="org695e261">重建二叉树</h4>
+<div class="outline-text-4" id="text-org695e261">
+<div class="org-src-container">
+<pre class="src src-C++"><span style="color: #7c7c7c; font-style: italic;">/*</span><span style="color: #7c7c7c; font-style: italic;">&#24050;&#30693;&#20808;&#24207;&#24207;&#21015;&#19982;&#20013;&#24207;&#24207;&#21015;&#37325;&#24314;&#20108;&#21449;&#26641;</span><span style="color: #7c7c7c; font-style: italic;">*/</span>
+<span style="color: #AFAFAF;">node</span>* <span style="color: #AFAFAF;">rebuild</span>(<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">preLeft</span>, <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">preRight</span>, <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">inLeft</span>, <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">inRight</span>) {
+    <span style="color: #BD93F9;">if</span> (preLeft &gt; preRight)
+        <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">NULL</span>;
+
+    <span style="color: #AFAFAF;">Node</span>* <span style="color: #AFAFAF;">nowRoot</span> = <span style="color: #BD93F9;">new</span> <span style="color: #AFAFAF;">node</span>;             <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#23384;&#25918;&#24403;&#21069;&#20108;&#21449;&#26641;&#30340;&#26681;&#32467;&#28857;</span>
+    nowRoot -&gt; data = pre[preLeft];       <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#26032;&#32467;&#28857;&#25968;&#25454;&#22495;&#20026;&#26681;&#32467;&#28857;&#30340;&#20540;</span>
+    <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">k</span>;
+    <span style="color: #BD93F9;">for</span> (k = inLeft; k &lt;= inRight; k++)
+        <span style="color: #BD93F9;">if</span> (in[k] == pre[preLeft])
+            <span style="color: #BD93F9;">break</span>;
+
+    <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">numLeft</span> = k - inLeft;             <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#24038;&#23376;&#26641;&#30340;&#32467;&#28857;&#20010;&#25968;&#65292;&#19981;&#19968;&#23450;&#31561;&#20110;&#21491;&#23376;&#26641;&#32467;&#28857;&#20010;&#25968;</span>
+
+    <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#24038;&#23376;&#26641;&#30340;&#20808;&#24207;&#21306;&#38388;&#20026;[preLeft + 1, preLeft + numLeft]&#65292;&#20013;&#24207;&#21306;&#38388;&#20026;[inLeft, k - 1]</span>
+    <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#36820;&#22238;&#24038;&#23376;&#26641;&#30340;&#26681;&#32467;&#28857;&#22320;&#22336;&#65292;&#36171;&#20540;&#32473;nowRoot&#30340;&#24038;&#25351;&#38024;</span>
+    nowRoot -&gt; left = rebuild(preLeft + <span style="color: #009F9F;">1</span>, preLeft + numleft, inLeft, k - <span style="color: #009F9F;">1</span>);
+
+    <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#21491;&#23376;&#26641;&#30340;&#20808;&#24207;&#21306;&#38388;&#20026;[preLeft + numLeft + 1, preRight]&#65292;&#20013;&#24207;&#21306;&#38388;&#20026;[k + 1, inRight]</span>
+    <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#36820;&#22238;&#21491;&#23376;&#26641;&#30340;&#26681;&#32467;&#28857;&#22320;&#22336;&#65292;&#36171;&#20540;&#32473;nowRoot&#30340;&#21491;&#25351;&#38024;</span>
+    nowRoot -&gt; right = rebuild(preLeft + numLeft + <span style="color: #009F9F;">1</span>, preRight, k + <span style="color: #009F9F;">1</span>, inRight);
+
+    <span style="color: #BD93F9;">return</span> nowRoot;
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgc8f7876" class="outline-3">
+<h3 id="orgc8f7876">二叉树静态实现</h3>
+</div>
+<div id="outline-container-org90b8cca" class="outline-3">
+<h3 id="org90b8cca">二叉树的遍历</h3>
+<div class="outline-text-3" id="text-org90b8cca">
+</div>
+<div id="outline-container-org4ad3a52" class="outline-4">
+<h4 id="org4ad3a52">先序遍历</h4>
+</div>
+<div id="outline-container-org7416951" class="outline-4">
+<h4 id="org7416951">中序遍历</h4>
+</div>
+<div id="outline-container-orgb68f7c4" class="outline-4">
+<h4 id="orgb68f7c4">后序遍历</h4>
+</div>
+<div id="outline-container-org68c5d83" class="outline-4">
+<h4 id="org68c5d83">层序遍历</h4>
+</div>
+</div>
+</div>
+<div id="outline-container-org9e0d29b" class="outline-2">
+<h2 id="org9e0d29b">二叉搜索树</h2>
+<div class="outline-text-2" id="text-org9e0d29b">
+<p>
+每个结点都有一个权值。<br>
 </p>
+
 <ul class="org-ul">
-<li>所谓平衡是指，对AVL树的任意节点来说，其左子树与右子树的高度之差的绝对值不超过1</li>
-<li>左子树与右子树的高度差称为该结点的 <b>平衡因子</b></li>
+<li>当前结点的左子树中的任何一个结点的权值都是 &lt; 当前结点的权值<br></li>
+<li>当前结点的右子树中的任何一个结点的权值都是 &gt; 当前结点的权值<br></li>
 </ul>
 
 <p>
-与二叉搜索树不同的操作是插入与删除操作，在介绍插入与删除操作之前，先介绍AVL树的旋转
-</p></li>
-</ul>
-</div>
-<div id="outline-container-org59f6b05" class="outline-4">
-<h4 id="org59f6b05">AVL平衡化操作</h4>
-</div>
-<div id="outline-container-org083376a" class="outline-4">
-<h4 id="org083376a">右旋操作</h4>
-<div class="outline-text-4" id="text-org083376a">
-<pre class="example" id="orge38c73d">
-    4                           4                          2
-   / \                          |\                        / \
-  2   5        --&gt;            2 | 5        --&gt;           1   4
- / \                         / \|                           / \
-1   3                       1   3                          3   5
-</pre>
-</div>
-</div>
-<div id="outline-container-orgae7a997" class="outline-4">
-<h4 id="orgae7a997">左旋操作</h4>
-<div class="outline-text-4" id="text-orgae7a997">
-<pre class="example" id="org13ba52c">
-  2                          2                             4
- / \                        /|                            / \
-1   4         --&gt;          1 | 4          --&gt;            2   5
-   / \                       |/ \                       / \
-  3   5                      3   5                     1   4
-</pre>
-</div>
-</div>
-<div id="outline-container-orgc2245c6" class="outline-4">
-<h4 id="orgc2245c6">需要平衡的四种情况</h4>
-</div>
-<div id="outline-container-orgf19b4e4" class="outline-4">
-<h4 id="orgf19b4e4">LL型</h4>
-<div class="outline-text-4" id="text-orgf19b4e4">
-<pre class="example" id="org777ca16">
-      @             #           对@进行一次右旋
-     / \           / \
-    #   ^         $   @
-   / \           /   / \
-  $   %         +   %   ^
- /
-+  &lt;-+放在$的左右两边情况相同，不做考虑
-</pre>
-</div>
-</div>
-<div id="outline-container-org929629c" class="outline-4">
-<h4 id="org929629c">RR型</h4>
-<div class="outline-text-4" id="text-org929629c">
-<pre class="example" id="org1f66d8d">
-  @               #           对@进行一次左旋
- / \             / \
-^   #           @   %
-   / \         / \   \
-  $   %       ^   $   +
-       \ 
-        +
-</pre>
-</div>
-</div>
-<div id="outline-container-orgebc9fd8" class="outline-4">
-<h4 id="orgebc9fd8">LR型</h4>
-<div class="outline-text-4" id="text-orgebc9fd8">
-<pre class="example" id="orgb2da004">
-    @            @         %          先对#左旋，后对@右旋
-   / \          / \       / \
-  #   ^        %   ^     #   @
- / \          / \       /   / \
-$   %        #   +     $   +   ^
-     \      /
-      +    $
-</pre>
-</div>
-</div>
-<div id="outline-container-orgfcdd9f6" class="outline-4">
-<h4 id="orgfcdd9f6">RL型</h4>
-<div class="outline-text-4" id="text-orgfcdd9f6">
-<pre class="example" id="org799a163">
-  @            @             $        先对#右旋，后对@左旋
- / \          / \           / \
-^   #        ^   $         @   #
-   / \          / \       / \   \
-  $   %        +   #     ^   +   %
- /                  \
-+                    %
-</pre>
-</div>
-</div>
-<div id="outline-container-orgcab24da" class="outline-4">
-<h4 id="orgcab24da">插入操作</h4>
-<div class="outline-text-4" id="text-orgcab24da">
-<p>
-与二叉搜索树唯一不同的地方是平衡二叉树插入一个结点后需要进行平衡化操作
-</p>
-</div>
-</div>
-<div id="outline-container-org7bd366d" class="outline-4">
-<h4 id="org7bd366d">删除操作</h4>
-<div class="outline-text-4" id="text-org7bd366d">
-<p>
-不会
-</p>
-</div>
-</div>
-</div>
-<div id="outline-container-orgf6ea237" class="outline-3">
-<h3 id="orgf6ea237">Treap树</h3>
-<div class="outline-text-3" id="text-orgf6ea237">
-<p>
-treap是一种弱平衡的二叉搜索树。treap这个单词是tree和heap的组合，表明treap是一种由树和堆组合形成的数据结构
-treap的每个结点上要额外储存一个值priority。treap除了要满足二叉搜索树的性质之外，还需满足父节点的 priority大于等于两个儿子的priority。而priority是每个结点建立时随机生成的，因此treap是期望平衡的
+为了使树上存在相同权值的结点，就在每个结点记录一个 \(cnt\)。<br>
 </p>
 
+<img src="./images/二叉搜索树01.png" />
+
 <p>
-treap分为旋转式和无旋式两种。两种treap都易于编写，但无旋式treap的操作方式使得它天生支持维护序列、可持久化等特性。这里以重新实现set&lt;int&gt;(不可重集合)为例，介绍无旋式treap
-</p>
-</div>
-<div id="outline-container-orgb961a68" class="outline-4">
-<h4 id="orgb961a68">无旋式treap</h4>
-<div class="outline-text-4" id="text-orgb961a68">
-<p>
-无旋式 treap 又称分裂合并 treap。它仅有两种核心操作，即为分裂与合并
-</p>
-</div>
-<div id="outline-container-org4a4b545" class="outline-5">
-<h5 id="org4a4b545">分裂</h5>
-<div class="outline-text-5" id="text-org4a4b545">
-<p>
-分裂过程接受两个参数：根指针root、关键值val。结果为将根指针指向的treap 分裂为两个treap，第一个treap 所有结点的关键值小于等于val，第二个treap所有结点的关键值大于val。该过程首先判断val是否小于root的关键值，若小于，则说明root及其右子树全部属于第二个treap，否则说明root及其左子树全部属于第一个treap。根据此判断决定应向左子树递归还是应向右子树递归，继续分裂子树。待子树分裂完成后按刚刚的判断情况连root的左子树或右子树到递归分裂所得的子树中
+二叉搜索树的中序遍历的权值是从小到大的，二叉搜索树也就是动态维护一个有序序列。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-orgf11fa6e" class="outline-5">
-<h5 id="orgf11fa6e">合并</h5>
-<div class="outline-text-5" id="text-orgf11fa6e">
+<div id="outline-container-org4aa67d9" class="outline-2">
+<h2 id="org4aa67d9">插入</h2>
+</div>
+<div id="outline-container-org47a6d6b" class="outline-2">
+<h2 id="org47a6d6b">删除</h2>
+</div>
+<div id="outline-container-orgeca68b3" class="outline-2">
+<h2 id="orgeca68b3">找前驱后继</h2>
+<div class="outline-text-2" id="text-orgeca68b3">
 <p>
-合并过程接受两个参数：左treap的根指针rootL、右treap的根指针rootR。必须满足rootL中所有结点的关键值小于等于rootR中所有结点的关键值。因为两个treap已经有序，我们只需要考虑priority来决定哪个treap应与另一个treap的儿子合并。若rootL的根结点的priority大于rootR的，那么rootL即为新根结点，rootR应与rootL的右子树合并；反之，则rootR作为新根结点，然后让rootL与rootR的左子树合并。不难发现，这样合并所得的树依然满足priority的大根堆性质
+线索二叉树<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org1ee3e17" class="outline-5">
-<h5 id="org1ee3e17">建树</h5>
+<div id="outline-container-org455848a" class="outline-2">
+<h2 id="org455848a">找最大最小值</h2>
+<div class="outline-text-2" id="text-org455848a">
 </div>
 </div>
-<div id="outline-container-orgf773092" class="outline-4">
-<h4 id="orgf773092">旋转式treap</h4>
+<div id="outline-container-org38b773e" class="outline-2">
+<h2 id="org38b773e">求某个值的排名</h2>
 </div>
+<div id="outline-container-org8657776" class="outline-2">
+<h2 id="org8657776">求排名是k的数是哪个</h2>
 </div>
-<div id="outline-container-org10ffcbc" class="outline-3">
-<h3 id="org10ffcbc">Splay树</h3>
+<div id="outline-container-org0199946" class="outline-2">
+<h2 id="org0199946">比某个数大的最小值</h2>
 </div>
-<div id="outline-container-orgaac8744" class="outline-3">
-<h3 id="orgaac8744">替罪羊树</h3>
-</div>
+<div id="outline-container-org32c36cb" class="outline-2">
+<h2 id="org32c36cb">比某个数小的最大值</h2>
 </div>
 </div>
 </body>

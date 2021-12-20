@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-11-21 Sun 22:45 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>数据库模式的理解</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">数据库模式的理解</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orge1d678f">数据库模式的理解</a>
+<ul>
+<li><a href="#org74c3c0f">模式与数据库、数据库中的表的关系：</a></li>
+<li><a href="#orgaced139">为什么把表归属于不同的模式里？</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orge1d678f" class="outline-2">
+<h2 id="orge1d678f">数据库模式的理解</h2>
+<div class="outline-text-2" id="text-orge1d678f">
+<p>
+一个数据库管理系统的实例中，可以建立多个数据库，一个数据库可以建立多个模式，一个模式下通常包括多个表、视图和索引等数据对象。<br>
+</p>
+
+<p>
+不过一般在开发中几乎不用模式这个东西，基本上都是直接建数据库，然后再直接建表。<br>
+</p>
+</div>
+<div id="outline-container-org74c3c0f" class="outline-3">
+<h3 id="org74c3c0f">模式与数据库、数据库中的表的关系：</h3>
+<div class="outline-text-3" id="text-org74c3c0f">
+<p>
+1个数据库下，可以有多个模式<br>
+1个模式下，可以有0个或多个表<br>
+</p>
+
+<p>
+首先我来做一个比喻，什么是User，什么是Database，什么是Schema，什么是Table，什么是列，什么是行？<br>
+</p>
+
+<p>
+我们可以把Database看作是一个大仓库，仓库分了很多很多的房间，Schema就是其中的房间，一个Schema代表一个房间，Table可以看作是每个Schema中的床，Table就被放入每个房间中，不能放置在房间之外。然后床上可以放置很多物品，就好比Table上可以放置很多列和行一样。所以Schema包含的是Object，而不是User。<br>
+</p>
+
+<p>
+User是每个对应数据库的主人，既然有操作数据库的权利，就肯定有操作数据库中每个Schema（房间）的权利。换句话说，如果他是某个仓库的主人，那么这个仓库的使用权和仓库中的所有东西都是他的，他有完全的操作权，。我们还可以给User分配具体的权限，也就是他到某一个房间能做些什么，是只能看（Read-Only），还是可以像主人一样有所有的控制权（R/W），这个就要看这个User所对应的角色Role了，至于分配权限的问题，后面章节有介绍。<br>
+</p>
+
+<p>
+在SQL Server2005中，当我们用Create User创建数据库用户时，我们可以为该用户指定一个已经存在的Schema作为默认Schema，如果我们不指定，则该用户所默认的Schema即为dbo 模式，dbo 房间（Schema）好比一个大的公共房间，在当前登录用户没有默认Schema的前提下，如果你在大仓库中进行一些操作，比如Create Tabe，如果没有指定特定的房间（Schema），那么你的物品就只好放进公共的dbo房间（Schema）了。但是如果当前登录用户有默认的Schema，那么所做的一切操作都是在默认Schema上进行（比如当前登录用户为login1）<br>
+</p>
+
+<p>
+在SQL Server2005中创建一个数据库的时候，会有一些Schema包括进去，被包括进去的Schema有：dbo，INFORMATION_SCHEMA, guest，sys等等。<br>
+</p>
+
+<p>
+我在上文中已经提到了，在SQL Server2005中当用存储过程sp_adduser创建一个user时，同时SQL Server2005也为我们创建了一个默认的和用户名相同的Schema，这个时候问题出来了，当我们create table A时，如果没有特定的Schema做前缀，这个A表创建在了哪个Schema上，即进入了哪个房间？答案是：<br>
+</p>
+
+<p>
+1.如果当前操作数据库的用户有默认的Schema（在创建用户的时候指定了），那么表A被创建在了默认的Schema上。<br>
+</p>
+
+<p>
+2.如果当前操作数据库的用户没有默认的Schema（即在创建User的时候默认为空），那么表A被创建在了dbo Schema上，即使有一个和用户名同名的Schema存在，由于它不是该用户默认的Schema，所以创建表的时候是不会考虑的，当作一般的Schema来处理，别看名字相同，可是没有任何关系哦。<br>
+</p>
+
+<p>
+3.如果在创建表A的时候指定了特定的Schema做前缀，则表A被创建在了指定的 Schema上。<br>
+</p>
+
+<p>
+在这里，为了避免混淆和提高操作数据库的速度，我们最好每次在操作数据库对象的时候都显式地指定特定的Schema最为前缀。现在如果登录的用户为Sue，该用户有一个默认Schema也为Sue，那么如果现在有一条查询语句为Select * from mytable, 那么搜寻每个房间（Schema）的顺序是怎样的呢？顺序如下：<br>
+</p>
+
+<ol class="org-ol">
+<li>首先搜寻sys.mytable （Sys Schema）<br></li>
+
+<li>然后搜寻Sue.mytable (Default Schema)<br></li>
+
+<li>最后搜寻 dbo.mytable (Dbo Schema)<br></li>
+</ol>
+
+<p>
+执行的顺序大家既然清楚了，那么以后在查询数据库表中的数据时，最好指定特定的Schema前缀，这样子，数据库就不用去扫描Sys Schema了，当然可以提高查询的速度了。<br>
+</p>
+
+<p>
+另外需要提示一下的是，每个数据库在创建后，有4个Schema是必须的（删都删不掉），这4个Schema为：dbo，guest，sys和INFORMATION_SCHEMA，其余的Schema都可以删除。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgaced139" class="outline-3">
+<h3 id="orgaced139">为什么把表归属于不同的模式里？</h3>
+<div class="outline-text-3" id="text-orgaced139">
+<p>
+例如你的数据库里面有很多的表。就以一个学校作为例子吧：<br>
+</p>
+
+<p>
+有很多表分别用于存储学生、课程、成绩、学分等信息。<br>
+</p>
+
+<p>
+还有很多表用于存储 老师、工资、奖金等信息。<br>
+</p>
+
+<p>
+还有很多表用于存储学校的固定资产、流动资产、财务相关信息。<br>
+</p>
+
+<p>
+如果这么多的表，都混杂在一起。管理起来非常麻烦。<br>
+</p>
+
+<p>
+通过 create schema ， 划分区域，<br>
+</p>
+
+<p>
+把学生的，创建一个 schema 叫 Student<br>
+</p>
+
+<p>
+教师的，创建一个 schema 叫 Teacher<br>
+</p>
+
+<p>
+学校财务的，创建一个 schema 叫 School<br>
+</p>
+
+<p>
+这样，对于专门负责学生信息管理的，就只负责 Student 这个 schema，表名全部是 Student.具体表名。<br>
+</p>
+
+<p>
+对于，负责教师系统开发的人来说，程序里面的表名，都是Teacher.具体表名。<br>
+</p>
+
+<p>
+学校财务的也是一样，查询的时候，是：SELECT * FROM School.具体表名。<br>
+</p>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2021-04-16 01:04 五</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2021-11-21 Sun 22:45</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

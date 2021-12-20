@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2021-12-09 Thu 17:02 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CRUD</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">CRUD</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org7e0dbdc">建立一个项目</a></li>
+<li><a href="#org656862c">select</a>
+<ul>
+<li><a href="#orgb8178cd">获取全部的用户</a></li>
+<li><a href="#org0f678c1">通过 id 获取用户</a></li>
+</ul>
+</li>
+<li><a href="#org95c2b35">insert</a></li>
+<li><a href="#orgd7eb10f">update</a></li>
+<li><a href="#orga768ad8">delete</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org7e0dbdc" class="outline-2">
+<h2 id="org7e0dbdc">建立一个项目</h2>
+<div class="outline-text-2" id="text-org7e0dbdc">
+<ul class="org-ul">
+<li><a href="Java-MyBatis-开始一个MyBatis项目.html">开始一个 Mybatis 项目</a><br></li>
+</ul>
+
+<p>
+初始时表 user 内容：<br>
+</p>
+<img src="./images/Mybatis04.png" />
+</div>
+</div>
+<div id="outline-container-org656862c" class="outline-2">
+<h2 id="org656862c">select</h2>
+<div class="outline-text-2" id="text-org656862c">
+</div>
+<div id="outline-container-orgb8178cd" class="outline-3">
+<h3 id="orgb8178cd">获取全部的用户</h3>
+<div class="outline-text-3" id="text-orgb8178cd">
+<div class="org-src-container">
+<pre class="src src-xml"><span style="color: #7c7c7c; font-style: italic;">&lt;!--</span>
+<span style="color: #7c7c7c; font-style: italic;">    </span><span style="color: #7c7c7c; font-style: italic;">- id :: &#26041;&#27861;&#21517;</span>
+<span style="color: #7c7c7c; font-style: italic;">    - resultType :: &#36820;&#22238;&#20540; </span>
+<span style="color: #7c7c7c; font-style: italic;">--&gt;</span>
+&lt;<span style="color: #AFAFAF;">select</span> <span style="color: #AFAFAF;">id</span>=<span style="color: #FC9F4E;">"getUserList"</span> <span style="color: #AFAFAF;">resultType</span>=<span style="color: #FC9F4E;">"com.meta.model.User"</span>&gt;
+  select * from mybatis.user
+&lt;/<span style="color: #AFAFAF;">select</span>&gt;
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-java"><span style="color: #BD93F9;">public</span> <span style="color: #AFAFAF;">void</span> <span style="color: #AFAFAF;">test</span>() {
+    <span style="color: #AFAFAF;">SqlSession</span> <span style="color: #AFAFAF;">sqlSession</span> = MybatisUtils.getSqlSession();
+
+    <span style="color: #AFAFAF;">UserMapper</span> <span style="color: #AFAFAF;">mapper</span> = sqlSession.getMapper(UserMapper.<span style="color: #BD93F9;">class</span>);
+    <span style="color: #AFAFAF;">List</span>&lt;<span style="color: #AFAFAF;">User</span>&gt; <span style="color: #AFAFAF;">userList</span> = mapper.getUserList();
+
+    <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">User</span> <span style="color: #AFAFAF;">user</span> : userList) {
+        System.out.println(user);
+    }
+
+    sqlSession.close();
+}
+</pre>
+</div>
+
+<img src="./images/Mybatis03.png" />
+</div>
+</div>
+<div id="outline-container-org0f678c1" class="outline-3">
+<h3 id="org0f678c1">通过 id 获取用户</h3>
+<div class="outline-text-3" id="text-org0f678c1">
+<div class="org-src-container">
+<pre class="src src-xml"><span style="color: #7c7c7c; font-style: italic;">&lt;!--</span>
+<span style="color: #7c7c7c; font-style: italic;">    </span><span style="color: #7c7c7c; font-style: italic;">- id :: &#26041;&#27861;&#21517;</span>
+<span style="color: #7c7c7c; font-style: italic;">    - resultType :: &#36820;&#22238;&#20540; </span>
+<span style="color: #7c7c7c; font-style: italic;">    - parameterType :: &#20256;&#20837;&#21442;&#25968;&#31867;&#22411;</span>
+<span style="color: #7c7c7c; font-style: italic;">--&gt;</span>
+&lt;<span style="color: #AFAFAF;">select</span> <span style="color: #AFAFAF;">id</span>=<span style="color: #FC9F4E;">"getUserById"</span> <span style="color: #AFAFAF;">resultType</span>=<span style="color: #FC9F4E;">"com.meta.model.User"</span> <span style="color: #AFAFAF;">parameterType</span>=<span style="color: #FC9F4E;">"int"</span>&gt;
+  select * from mybatis.user where id = #{id}
+&lt;/<span style="color: #AFAFAF;">select</span>&gt;
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-java"><span style="color: #BD93F9;">public</span> <span style="color: #AFAFAF;">void</span> <span style="color: #AFAFAF;">getUserById</span>() {
+    <span style="color: #AFAFAF;">SqlSession</span> <span style="color: #AFAFAF;">sqlSession</span> = MybatisUtils.getSqlSession();
+    <span style="color: #AFAFAF;">UserMapper</span> <span style="color: #AFAFAF;">mapper</span> = sqlSession.getMapper(UserMapper.<span style="color: #BD93F9;">class</span>);
+    <span style="color: #AFAFAF;">User</span> <span style="color: #AFAFAF;">user</span> = mapper.getUserById(<span style="color: #009F9F;">1</span>);
+    System.out.println(user);
+    sqlSession.close();
+}
+</pre>
+</div>
+
+<img src="./images/Mybatis05.png" />
+</div>
+</div>
+</div>
+<div id="outline-container-org95c2b35" class="outline-2">
+<h2 id="org95c2b35">insert</h2>
+<div class="outline-text-2" id="text-org95c2b35">
+<div class="org-src-container">
+<pre class="src src-xml">&lt;<span style="color: #AFAFAF;">insert</span> <span style="color: #AFAFAF;">id</span>=<span style="color: #FC9F4E;">"addUser"</span> <span style="color: #AFAFAF;">parameterType</span>=<span style="color: #FC9F4E;">"com.meta.model.User"</span>&gt;
+  insert into mybatis.user (id, username, password) values (#{id}, #{username}, #{password})
+&lt;/<span style="color: #AFAFAF;">insert</span>&gt;
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-java"><span style="color: #BD93F9;">public</span> <span style="color: #AFAFAF;">void</span> <span style="color: #AFAFAF;">addUser</span>() {
+    <span style="color: #AFAFAF;">SqlSession</span> <span style="color: #AFAFAF;">sqlSession</span> = MybatisUtils.getSqlSession();
+    <span style="color: #AFAFAF;">UserMapper</span> <span style="color: #AFAFAF;">mapper</span> = sqlSession.getMapper(UserMapper.<span style="color: #BD93F9;">class</span>);
+    <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">res</span> = mapper.addUser(<span style="color: #BD93F9;">new</span> <span style="color: #AFAFAF;">User</span>(<span style="color: #009F9F;">4</span>, <span style="color: #FC9F4E;">"user04"</span>, <span style="color: #FC9F4E;">"123456"</span>));
+    <span style="color: #BD93F9;">if</span> (res &gt; <span style="color: #009F9F;">0</span>) {
+        System.out.println(<span style="color: #FC9F4E;">"&#25554;&#20837;&#25104;&#21151;&#65281;"</span>);
+    }
+    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#25552;&#20132;&#20107;&#21153;</span>
+    sqlSession.commit();
+
+    sqlSession.close();
+}
+</pre>
+</div>
+
+<img src="./images/Mybatis06.png" />
+</div>
+</div>
+<div id="outline-container-orgd7eb10f" class="outline-2">
+<h2 id="orgd7eb10f">update</h2>
+<div class="outline-text-2" id="text-orgd7eb10f">
+<div class="org-src-container">
+<pre class="src src-xml">&lt;<span style="color: #AFAFAF;">update</span> <span style="color: #AFAFAF;">id</span>=<span style="color: #FC9F4E;">"updateUser"</span> <span style="color: #AFAFAF;">parameterType</span>=<span style="color: #FC9F4E;">"com.meta.model.User"</span>&gt;
+  update mybatis.user set username = #{username}, password = #{password} where id = #{id}
+&lt;/<span style="color: #AFAFAF;">update</span>&gt;
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-java"><span style="color: #BD93F9;">public</span> <span style="color: #AFAFAF;">void</span> <span style="color: #AFAFAF;">updateUser</span>() {
+    <span style="color: #AFAFAF;">SqlSession</span> <span style="color: #AFAFAF;">sqlSession</span> = MybatisUtils.getSqlSession();
+    <span style="color: #AFAFAF;">UserMapper</span> <span style="color: #AFAFAF;">mapper</span> = sqlSession.getMapper(UserMapper.<span style="color: #BD93F9;">class</span>);
+    mapper.updateUser(<span style="color: #BD93F9;">new</span> <span style="color: #AFAFAF;">User</span>(<span style="color: #009F9F;">4</span>, <span style="color: #FC9F4E;">"user04"</span>, <span style="color: #FC9F4E;">"012345"</span>));
+    sqlSession.commit();
+    sqlSession.close();
+}
+</pre>
+</div>
+
+<img src="./images/Mybatis07.png" />
+</div>
+</div>
+<div id="outline-container-orga768ad8" class="outline-2">
+<h2 id="orga768ad8">delete</h2>
+<div class="outline-text-2" id="text-orga768ad8">
+<div class="org-src-container">
+<pre class="src src-xml">&lt;<span style="color: #AFAFAF;">delete</span> <span style="color: #AFAFAF;">id</span>=<span style="color: #FC9F4E;">"deleteUser"</span> <span style="color: #AFAFAF;">parameterType</span>=<span style="color: #FC9F4E;">"int"</span>&gt;
+  delete from mybatis.user where id = #{id}
+&lt;/<span style="color: #AFAFAF;">delete</span>&gt;
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-java"><span style="color: #BD93F9;">public</span> <span style="color: #AFAFAF;">void</span> <span style="color: #AFAFAF;">deleteUser</span>() {
+    <span style="color: #AFAFAF;">SqlSession</span> <span style="color: #AFAFAF;">sqlSession</span> = MybatisUtils.getSqlSession();
+    <span style="color: #AFAFAF;">UserMapper</span> <span style="color: #AFAFAF;">mapper</span> = sqlSession.getMapper(UserMapper.<span style="color: #BD93F9;">class</span>);
+    mapper.deleteUser(<span style="color: #009F9F;">4</span>);
+    sqlSession.commit();
+    sqlSession.close();
+}
+</pre>
+</div>
+
+<img src="./images/Mybatis08.png" />
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2021-12-09 15:12 Thu</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2021-12-09 Thu 17:02</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
