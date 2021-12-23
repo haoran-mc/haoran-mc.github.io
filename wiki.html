@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-12-14 Tue 21:43 -->
+<!-- 2021-12-23 Thu 10:38 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>WIKI</title>
@@ -97,6 +97,7 @@
 <li><a href="#org017e964">4、Cookie</a></li>
 </ul>
 </li>
+<li><a href="#orgf896c83">把 rm 命令更改为 mv 命令</a></li>
 </ul>
 </div>
 </div>
@@ -413,7 +414,7 @@ time-daylight-time.jpg<br>
 <div id="outline-container-org5674bcf" class="outline-4">
 <h4 id="org5674bcf">1、RFC-2822标准格式</h4>
 <div class="outline-text-4" id="text-org5674bcf">
-<pre class="example" id="orgeffea38">
+<pre class="example" id="org3657477">
 // GMT+0800(CST)代表东八区
 // CST(china standard time)表示中国标准时间
 
@@ -427,7 +428,7 @@ Sun Apr 08 2018 11:38:39 GMT+0800(CST)
 <p>
 其中一种常见的格式形如：<br>
 </p>
-<pre class="example" id="org5ab849f">
+<pre class="example" id="org6f10c42">
 2018-04-08T11:38:39+08:00  // 日期用'-'相隔，与时间用'T'连接
 2018-04-08T11:38:39Z  // Z代表UTC时间，Z也可写成00:00
 </pre>
@@ -436,7 +437,7 @@ Sun Apr 08 2018 11:38:39 GMT+0800(CST)
 ISO 8601的标准格式是：YYYY-MM-DDTHH:mm:ss.sssZ，分别表示：<br>
 </p>
 
-<pre class="example" id="org490e167">
+<pre class="example" id="org3c9b73f">
 YYYY：年份，0000 ~ 9999
 MM：月份，01 ~ 12
 DD：日，01 ~ 31
@@ -532,14 +533,14 @@ cURL是一个利用URL语法在命令行下工作的文件传输工具，1997年
 <p>
 （1）URL 路径传参<br>
 </p>
-<pre class="example" id="org879d977">
+<pre class="example" id="org8b1f380">
 http://127.0.0.1:8080/user?name=Tom&amp;age=16
 </pre>
 
 <p>
 （2）URL 路径参数<br>
 </p>
-<pre class="example" id="org31b5a62">
+<pre class="example" id="org6187b7f">
 http://127.0.0.1:8080/user/Tom/16
 </pre>
 </div>
@@ -562,11 +563,39 @@ http://127.0.0.1:8080/user/Tom/16
 <h3 id="org017e964">4、Cookie</h3>
 </div>
 </div>
+<div id="outline-container-orgf896c83" class="outline-2">
+<h2 id="orgf896c83">把 rm 命令更改为 mv 命令</h2>
+<div class="outline-text-2" id="text-orgf896c83">
+<p>
+前几天使用一个日志包，配置指定了日志的输出位置为 <code>~/logs</code> ，然后就项目里多了一个 <code>~/logs</code> 文件夹，看来这个日志包输出位置有默认的前缀就是当前项目，于是我就下意识的 <code>rm -rf ~</code> ，刚按下回车键就猛然想到 <code>~</code> 有家目录的特殊含义，于是我就强行停止了这个命令，后面我大致的看一看也没发现少什么东西，所以还庆幸自己反应快。<br>
+</p>
+
+<p>
+然而今天打开我的 <code>Code</code> 文件夹时，我哇的一声就哭了出来，我的 <code>ACM</code> 模板没了。<br>
+</p>
+
+<p>
+请大家吸取我的教训，把 rm 命令改为 mv 命令，把所有的删除命令改为把需要删除的文件、目录放在 ~/.trash，然后定期清理。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell"><span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&#23558;&#19979;&#38754;&#20960;&#34892;&#25918;&#22312; ~/.bashrc &#25991;&#20214;&#22841;&#30340;&#26368;&#21518;</span>
+
+mkdir -p ~/.trash   <span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&#22312;&#23478;&#30446;&#24405;&#19979;&#21019;&#24314;&#19968;&#20010;.trash&#25991;&#20214;&#22841;(&#38544;&#34255;&#25991;&#20214;&#65292;ls -a &#26597;&#30475;)</span>
+<span style="color: #AFAFAF;">alias</span> <span style="color: #AFAFAF;">rm</span>=del        <span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&#20351;&#29992;&#21035;&#21517;del&#20195;&#26367;rm   </span>
+<span style="color: #AFAFAF;">del</span>()               <span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&#20989;&#25968;del&#65292;&#20316;&#29992;&#65306;&#23558;rm&#21629;&#20196;&#20462;&#25913;&#20026;mv&#21629;&#20196;</span>
+{  
+    mv $<span style="color: #AFAFAF;">@</span> ~/.trash/  
+}  
+</pre>
+</div>
+</div>
+</div>
 </div>
 <div id="postamble" class="status">
 <p class="date">Date: 2021-10-13 22:10 Wed</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2021-12-14 Tue 21:43</p>
+<p class="date">Created: 2021-12-23 Thu 10:38</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
