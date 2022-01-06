@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-01-03 Mon 16:19 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VUE-请求携带TOKEN配置</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">VUE-请求携带TOKEN配置</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org9aabd9a">基本流程</a></li>
+<li><a href="#orgb09ae41">登录逻辑 login.vue</a></li>
+<li><a href="#orgfab56c7">store.js 存储 token</a></li>
+<li><a href="#org65fe4b4">设置路由守卫 router.js</a></li>
+<li><a href="#org7b730ae">请求与响应配置 axios.js</a></li>
+<li><a href="#org743af5a">main.js 挂载 store.js、router.js、axios.js</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org9aabd9a" class="outline-2">
+<h2 id="org9aabd9a">基本流程</h2>
+<div class="outline-text-2" id="text-org9aabd9a">
+<p>
+在前后端完全分离的情况下，Vue项目中实现token验证大致思路如下：<br>
+</p>
+
+<ol class="org-ol">
+<li>第一次登录的时候，前端调后端的登录接口，发送用户名和密码<br></li>
+<li>后端收到请求，验证用户名和密码，验证成功就给前端返回一个 token<br></li>
+<li>前端拿到 token，将 token 存储到 localStorage 和 vuex 中，并跳转路由页面<br></li>
+<li>前端每次跳转路由就判断 localStroage 中是否有 token，有才跳转，没有就跳转到登录页面<br></li>
+<li>在全局请求中添加 token 请求头<br></li>
+<li><p>
+后端判断请求头中是否有 token，有则取出 token 并验证 token，验证成功则返回数据，验证失败就返回 401<br>
+</p>
+<blockquote>
+<p>
+设置全局响应结果，拦截状态码为 401 的响应结果，并提示用户重新登录<br>
+</p>
+</blockquote></li>
+<li>重新调取登录接口成功，会在回调函数中将 token 存储到 localStorage 和 vuex 中，覆盖掉上次的 token<br></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgb09ae41" class="outline-2">
+<h2 id="orgb09ae41">登录逻辑 login.vue</h2>
+<div class="outline-text-2" id="text-orgb09ae41">
+<div class="org-src-container">
+<pre class="src src-js">login () {
+    <span style="color: #87d7ff;">this</span>.$refs.loginFormRef.validate(valid =&gt; {
+        <span style="color: #ff87d7; font-weight: bold;">if</span> (valid) {
+            <span style="color: #ff87d7; font-weight: bold;">const</span> <span style="color: #ffffff; font-weight: bold;">_this</span> = <span style="color: #87d7ff;">this</span>
+            <span style="color: #87d7ff;">this</span>.$axios.post(<span style="color: #ffff87;">'/accounts/login'</span>, {
+                phone: <span style="color: #87d7ff;">this</span>.loginForm.phone,
+                password: <span style="color: #87d7ff;">this</span>.loginForm.password
+            }).then(res =&gt; {
+                <span style="color: #ff87d7; font-weight: bold;">if</span> (res.data.code === <span style="color: #87d7ff;">200</span>) {
+                    console.log(<span style="color: #ffff87;">'&#28857;&#20987;&#30331;&#24405;&#25353;&#38062;&#65292;&#21518;&#31471;&#21457;&#26469;&#30340;&#25968;&#25454;&#65306;'</span>, res)
+
+                    <span style="color: #ff87d7; font-weight: bold;">const</span> <span style="color: #ffffff; font-weight: bold;">token</span> = res.headers.authorization
+                    <span style="color: #ff87d7; font-weight: bold;">const</span> <span style="color: #ffffff; font-weight: bold;">userInfo</span> = res.data.data
+                    _this.$store.commit(<span style="color: #ffff87;">'SET_TOKEN'</span>, token)   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#20445;&#23384; token</span>
+                    _this.$store.commit(<span style="color: #ffff87;">'SET_USERINFO'</span>, userInfo)   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#20445;&#23384;&#29992;&#25143;&#20449;&#24687;</span>
+                    _this.$store.commit(<span style="color: #ffff87;">'increment'</span>)   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#21047;&#26032;&#39029;&#38754;</span>
+
+                    _this.$message.success(<span style="color: #ffff87;">'&#30331;&#24405;&#25104;&#21151;&#65281;'</span>)
+                    _this.loginDialogVisible = <span style="color: #87d7ff;">false</span>
+                } <span style="color: #ff87d7; font-weight: bold;">else</span> {
+                    _this.$message.error(<span style="color: #ffff87;">'&#30331;&#24405;&#22833;&#36133;&#65281;'</span>)
+                }
+            })
+        } <span style="color: #ff87d7; font-weight: bold;">else</span> {
+            <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#22914;&#26524;&#39564;&#35777;&#22833;&#36133;&#65292;&#19981;&#20801;&#35768;&#21457;&#36865;&#35831;&#27714;</span>
+            <span style="color: #87d7ff;">this</span>.$message.error(<span style="color: #ffff87;">'&#39564;&#35777;&#22833;&#36133;'</span>)
+            <span style="color: #ff87d7; font-weight: bold;">return</span> valid
+        }
+    })
+},
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgfab56c7" class="outline-2">
+<h2 id="orgfab56c7">store.js 存储 token</h2>
+<div class="outline-text-2" id="text-orgfab56c7">
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #ff87d7; font-weight: bold;">import</span> Vue from <span style="color: #ffff87;">'vue'</span>
+<span style="color: #ff87d7; font-weight: bold;">import</span> Vuex from <span style="color: #ffff87;">'vuex'</span>
+Vue.use(Vuex)
+<span style="color: #ff87d7; font-weight: bold;">export</span> <span style="color: #ff87d7; font-weight: bold;">default</span> <span style="color: #ff87d7; font-weight: bold;">new</span> <span style="color: #af87ff;">Vuex.Store</span>({
+    state: {
+        <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#27599;&#27425;&#37117;&#20174;&#26412;&#22320;&#20013;&#33719;&#21462;token&#65292;&#36825;&#37324;&#23384;&#30340;token&#23383;&#27573;&#21517;&#20026;Authorization</span>
+        Authorization: localStorage.getItem(<span style="color: #ffff87;">'Authorization'</span>) ? localStorage.getItem(<span style="color: #ffff87;">'Authorization'</span>) : <span style="color: #ffff87;">''</span>
+    },
+    mutations: {
+        <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#25913;&#21464;Authorization&#30340;&#20540;&#21516;&#26102;&#25913;&#21464;localStorage&#30340;Authorization&#20540;</span>
+        changeLogin(state, token) {
+            state.Authorization = token;
+            localStorage.setItem(<span style="color: #ffff87;">'Authorization'</span>, token);
+        }
+    }
+})
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org65fe4b4" class="outline-2">
+<h2 id="org65fe4b4">设置路由守卫 router.js</h2>
+<div class="outline-text-2" id="text-org65fe4b4">
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #ff87d7; font-weight: bold;">import</span> Vue from <span style="color: #ffff87;">'vue'</span>
+<span style="color: #ff87d7; font-weight: bold;">import</span> Router from <span style="color: #ffff87;">'vue-router'</span>
+<span style="color: #ff87d7; font-weight: bold;">import</span> Login from <span style="color: #ffff87;">'../views/login.vue'</span>
+<span style="color: #ff87d7; font-weight: bold;">import</span> Home from <span style="color: #ffff87;">'../views/Home.vue'</span>
+<span style="color: #ff87d7; font-weight: bold;">import</span> Data from <span style="color: #ffff87;">'../views/Data.vue'</span>
+<span style="color: #ff87d7; font-weight: bold;">import</span> notFound from <span style="color: #ffff87;">'../views/NotFound.vue'</span>
+<span style="color: #ff87d7; font-weight: bold;">import</span> Element from <span style="color: #ffff87;">'element-ui'</span>
+
+Vue.use(Router)
+
+<span style="color: #ff87d7; font-weight: bold;">const</span> <span style="color: #ffffff; font-weight: bold;">routers</span> = <span style="color: #ff87d7; font-weight: bold;">new</span> <span style="color: #af87ff;">Router</span>({
+    mode: <span style="color: #ffff87;">'hash'</span>,
+    base: process.env.BASE_URL,
+    routes: [
+        <span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#24403;&#39029;&#38754;&#36335;&#24452;&#20026;/&#26102;&#37325;&#23450;&#21521;&#21040;/login&#39029;&#38754;</span>
+        {
+            path: <span style="color: #ffff87;">'/'</span>,
+            redirect:<span style="color: #ffff87;">'/home'</span>,
+        },
+        {
+            path: <span style="color: #ffff87;">'/home'</span>,
+            name: <span style="color: #ffff87;">'home'</span>,
+            component: Home,
+        },
+        {
+            path: <span style="color: #ffff87;">'/data'</span>,
+            name: data,
+            component: Data,
+        },
+        {
+            path: <span style="color: #ffff87;">'/404'</span>,
+            name: <span style="color: #ffff87;">'notFound'</span>,
+            component: NotFound
+        }
+    ]
+})
+
+<span style="color: #ff87d7; font-weight: bold;">const</span> <span style="color: #ffffff; font-weight: bold;">router</span> = <span style="color: #ff87d7; font-weight: bold;">new</span> <span style="color: #af87ff;">Router</span>({
+    routes
+})
+
+router.beforeEach((to, from, next) =&gt; {
+    <span style="color: #ff87d7; font-weight: bold;">if</span> (to.path === <span style="color: #ffff87;">'/'</span> || to.path === <span style="color: #ffff87;">'/home'</span> || to.path === <span style="color: #ffff87;">'/data'</span>) {
+        next()
+    } <span style="color: #ff87d7; font-weight: bold;">else</span> {
+        <span style="color: #ff87d7; font-weight: bold;">const</span> <span style="color: #ffffff; font-weight: bold;">token</span> = localStorage.getItem(<span style="color: #ffff87;">'token'</span>)
+        <span style="color: #ff87d7; font-weight: bold;">if</span> (token === <span style="color: #87d7ff;">null</span> || token === <span style="color: #ffff87;">''</span>) {
+            <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#22914;&#26524;&#26377; login &#39029;&#38754;&#65292;&#37027;&#23601;&#30452;&#25509; next('/login')</span>
+            Element.Message.error(<span style="color: #ffff87;">'&#35831;&#30331;&#24405;'</span>)
+            next(from.path)
+        } <span style="color: #ff87d7; font-weight: bold;">else</span> {
+            next()
+        }
+    }
+})
+
+<span style="color: #ff87d7; font-weight: bold;">export</span> <span style="color: #ff87d7; font-weight: bold;">default</span> router
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org7b730ae" class="outline-2">
+<h2 id="org7b730ae">请求与响应配置 axios.js</h2>
+<div class="outline-text-2" id="text-org7b730ae">
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #ff87d7; font-weight: bold;">import</span> axios from <span style="color: #ffff87;">'axios'</span>
+<span style="color: #ff87d7; font-weight: bold;">import</span> Vue from <span style="color: #ffff87;">'vue'</span>
+<span style="color: #ff87d7; font-weight: bold;">import</span> Element from <span style="color: #ffff87;">'element-ui'</span>
+<span style="color: #ff87d7; font-weight: bold;">import</span> store from <span style="color: #ffff87;">'./store'</span>
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">import router from './router'</span>
+
+Vue.<span style="color: #87d7ff;">prototype</span>.$axios = axios
+axios.defaults.baseURL = <span style="color: #ffff87;">'http://127.0.0.1:8081'</span> <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#35831;&#27714;&#36335;&#24452;</span>
+axios.defaults.withCredentials = <span style="color: #87d7ff;">true</span> <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#20801;&#35768;&#36328;&#22495;</span>
+
+<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#21069;&#32622;&#25318;&#25130;</span>
+axios.interceptors.request.use(config =&gt; {
+    <span style="color: #ff87d7; font-weight: bold;">if</span> (localStorage.getItem(<span style="color: #ffff87;">'token'</span>)) {
+        <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#37197;&#32622;&#35831;&#27714;&#22836;&#30340; token</span>
+        config.headers.authorization = localStorage.getItem(<span style="color: #ffff87;">'token'</span>)
+    }
+    <span style="color: #ff87d7; font-weight: bold;">return</span> config
+}, error =&gt; {
+    <span style="color: #ff87d7; font-weight: bold;">return</span> Promise.reject(error)
+})
+
+axios.interceptors.response.use(response =&gt; {
+    <span style="color: #ff87d7; font-weight: bold;">const</span> <span style="color: #ffffff; font-weight: bold;">res</span> = response.data
+
+    <span style="color: #ff87d7; font-weight: bold;">if</span> (res.code === <span style="color: #87d7ff;">200</span>) {
+        <span style="color: #ff87d7; font-weight: bold;">return</span> response
+    } <span style="color: #ff87d7; font-weight: bold;">else</span> {
+        Element.Message.error(<span style="color: #ffff87;">'&#23494;&#30721;&#38169;&#35823;'</span>, { duration: <span style="color: #87d7ff;">3</span> * <span style="color: #87d7ff;">1000</span> })
+        <span style="color: #ff87d7; font-weight: bold;">return</span> Promise.reject(response.data.msg)
+    }
+}, error =&gt; {
+    <span style="color: #ff87d7; font-weight: bold;">if</span> (error.response.data) {
+        error.message = error.response.data.msg
+    }
+    <span style="color: #ff87d7; font-weight: bold;">if</span> (error.response.status === <span style="color: #87d7ff;">401</span>) {
+        <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#20808;&#25226; vuex &#20013;&#20449;&#24687;&#28165;&#31354;</span>
+        store.commit(<span style="color: #ffff87;">'REMOVE_INFO'</span>)
+        Element.Message.warning(<span style="color: #ffff87;">'&#35831;&#30331;&#24405;&#21518;&#35775;&#38382;'</span>)
+    } <span style="color: #ff87d7; font-weight: bold;">else</span> {
+        Element.Message.error(error.message, { duration: <span style="color: #87d7ff;">3</span> * <span style="color: #87d7ff;">1000</span> })
+        <span style="color: #ff87d7; font-weight: bold;">return</span> Promise.reject(error)
+    }
+})
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org743af5a" class="outline-2">
+<h2 id="org743af5a">main.js 挂载 store.js、router.js、axios.js</h2>
+<div class="outline-text-2" id="text-org743af5a">
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #ff87d7; font-weight: bold;">import</span> Vue from <span style="color: #ffff87;">'vue'</span>
+<span style="color: #ff87d7; font-weight: bold;">import</span> App from <span style="color: #ffff87;">'./App.vue'</span>
+<span style="color: #ff87d7; font-weight: bold;">import</span> router from <span style="color: #ffff87;">'./router'</span>
+<span style="color: #ff87d7; font-weight: bold;">import</span> store from <span style="color: #ffff87;">'./store'</span>
+<span style="color: #ff87d7; font-weight: bold;">import</span> _axios from <span style="color: #ffff87;">'./utils/axios'</span>
+<span style="color: #ff87d7; font-weight: bold;">import</span> ElementUI from <span style="color: #ffff87;">'element-ui'</span>;
+<span style="color: #ff87d7; font-weight: bold;">import</span> <span style="color: #ffff87;">'element-ui/lib/theme-chalk/index.css'</span>;
+
+Vue.config.productionTip = <span style="color: #87d7ff;">false</span>
+Vue.use(ElementUI);
+Vue.<span style="color: #87d7ff;">prototype</span>.$axios = _axios
+<span style="color: #ff87d7; font-weight: bold;">new</span> <span style="color: #af87ff;">Vue</span>({
+    router,
+    store,
+    render: h =&gt; h(App)
+}).$mount(<span style="color: #ffff87;">'#app'</span>)
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-01-01 16:01 Sat</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-01-03 Mon 16:19</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
