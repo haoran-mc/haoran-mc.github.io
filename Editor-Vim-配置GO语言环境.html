@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-01-22 Sat 23:31 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VIM 配置GO语言环境</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">VIM 配置GO语言环境</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org9f03b8a">1、首先安装 vim-go 与 coc 插件</a></li>
+<li><a href="#orgd309481">2、coc.nvim 配置 Language servers</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org9f03b8a" class="outline-2">
+<h2 id="org9f03b8a">1、首先安装 vim-go 与 coc 插件</h2>
+<div class="outline-text-2" id="text-org9f03b8a">
+<p>
+这里使用 vim-plug 来为 vim 安装插件（非必须，更方便），使用下面的命令获取 vim-plug，这条命令会将 vim-plug 放在 ~/.vim/autoload 目录下，容易猜出这个文件会自动加载。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell">curl -fLo ~/.vim/autoload/plug.vim --create-dirs <span style="color: #FC9F4E;">\</span>
+     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+</pre>
+</div>
+
+<p>
+怎么使用它呢？<br>
+</p>
+
+<p>
+使用下面这条命令来编辑 vim 的配置文件 .vimrc（windows 下是 _vimrc，这里只介绍 Linux 下的配置）。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell">vim ~/.vimrc
+</pre>
+</div>
+
+<p>
+写下下面内容：<br>
+</p>
+
+<pre class="example" id="org1df3507">
+" 插件开始的位置
+call plug#begin('~/.vim/plug')
+
+" 此处放准备安装的插件......
+
+" 插件结束的位置
+call plug#end()
+</pre>
+
+<p>
+放入我们需要的插件：<br>
+</p>
+
+<pre class="example" id="orgbe02251">
+" 插件开始的位置
+call plug#begin('~/.vim/plug')
+
+" 代码补全，异步检错......
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+" 支持 go 的插件
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+
+" 插件结束的位置
+call plug#end()
+</pre>
+
+<p>
+在 vim 中运行 <code>:PlugInstall</code> 命令下载插件。<br>
+</p>
+
+<p>
+然后重新打开vim，输入 <code>:GoInstallBinaries</code> 命令，下载所有必要的二进制文件。这些二进制文件将会下载并安装到 "$GOPATH/bin" 下。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd309481" class="outline-2">
+<h2 id="orgd309481">2、coc.nvim 配置 Language servers</h2>
+<div class="outline-text-2" id="text-orgd309481">
+<p>
+详细文档见：<a href="https://github.com/neoclide/coc.nvim">https://github.com/neoclide/coc.nvim</a><br>
+</p>
+
+<p>
+coc.nvim 需要 <a href="https://nodejs.org/en/download/">nodejs</a> 支持。<br>
+</p>
+
+<ol class="org-ol">
+<li>提前配置好 GO 环境：<a href="https://golang.google.cn/">https://golang.google.cn/</a> 和 <a href="https://goproxy.cn/">https://goproxy.cn/</a><br></li>
+<li><p>
+安装 gopls，终端中执行：<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-shell">go get golang.org/x/tools/gopls@latest
+</pre>
+</div></li>
+<li><p>
+安装 coc-go，在 vim 中运行：<br>
+</p>
+<pre class="example" id="org890463a">
+:CocInstall coc-go
+</pre></li>
+<li><p>
+shell 支持<br>
+</p>
+<pre class="example" id="orge33a882">
+:CocInstall coc-sh
+</pre></li>
+</ol>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-01-22 21:01 Sat</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-01-22 Sat 23:31</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
