@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-01-27 Thu 00:25 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>REDIS-数据类型</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">REDIS-数据类型</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org51cd492">基本数据类型</a>
+<ul>
+<li><a href="#orgb100654">string</a></li>
+<li><a href="#orgcc70716">set</a></li>
+</ul>
+</li>
+<li><a href="#orgcc7425b">特殊数据类型</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org51cd492" class="outline-2">
+<h2 id="org51cd492">基本数据类型</h2>
+<div class="outline-text-2" id="text-org51cd492">
+</div>
+<div id="outline-container-orgb100654" class="outline-3">
+<h3 id="orgb100654">string</h3>
+<div class="outline-text-3" id="text-orgb100654">
+<dl class="org-dl">
+<dt>append key01 value01</dt><dd>向 key01 后扩充字符串 "value01"<br></dd>
+</dl>
+
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #268bd2;">set</span> key01 value01
+append key01 value01
+get key01   <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">value01value01</span>
+</pre>
+</div>
+
+<dl class="org-dl">
+<dt>strlen key01</dt><dd>获取 key01 的长度<br></dd>
+</dl>
+
+<hr>
+
+<dl class="org-dl">
+<dt>incr num01</dt><dd>对 num01 自增，num01 必须是数字才可以，否则 error<br></dd>
+</dl>
+
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #268bd2;">set</span> num01 <span style="color: #d75fd7;">0</span>
+incr num01
+incr num01
+get num01   <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">"2"</span>
+</pre>
+</div>
+
+<dl class="org-dl">
+<dt>decr num01</dt><dd>对 num01 自减<br></dd>
+<dt>incrby num01 10</dt><dd>num01 += 10<br></dd>
+<dt>decrby num01 10</dt><dd>num01 -= 10<br></dd>
+</dl>
+
+<hr>
+
+<dl class="org-dl">
+<dt>getrange key01 0 3</dt><dd>截取 key01 的值从 0 到 3<br></dd>
+</dl>
+
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #268bd2;">set</span> key01 value01
+getrange key01 <span style="color: #d75fd7;">0</span> <span style="color: #d75fd7;">3</span>    <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">valu</span>
+getrange key01 <span style="color: #d75fd7;">0</span> -1   <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#26597;&#30475;&#20840;&#37096;&#30340;&#23383;&#31526;&#20018;</span>
+</pre>
+</div>
+
+<dl class="org-dl">
+<dt>setrange key01 2 --</dt><dd>从 key01 的第 3 个字符开始替换<br></dd>
+</dl>
+
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #268bd2;">set</span> key01 value01
+get key01   <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">value01</span>
+setrange key01 <span style="color: #d75fd7;">2</span> --
+get key01   <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">va--e01</span>
+</pre>
+</div>
+
+<hr>
+
+<dl class="org-dl">
+<dt>setex key01 30 value01</dt><dd>set with expire 同时设置过期时间<br></dd>
+<dt>setnx key02 value02</dt><dd>set if not exist 不存在时才设置键值对<br></dd>
+</dl>
+
+<div class="org-src-container">
+<pre class="src src-bash">setex key01 <span style="color: #d75fd7;">30</span> value01
+ttl key01   <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">27</span>
+
+setnx key02 value02   <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">(integer) 1</span>
+setnx key02 value03   <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">(integer) 0</span>
+get key02             <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">"value02"</span>
+</pre>
+</div>
+
+<hr>
+
+<dl class="org-dl">
+<dt>mset k1 v1 k2 v2 k3 v3</dt><dd>批量设置值<br></dd>
+<dt>mget k1 k2 k3</dt><dd>批量获取值<br></dd>
+<dt>msetnx k1 v1 k4 v4</dt><dd>只有所有的键都不存在时才批量设置值<br></dd>
+</dl>
+
+<div class="org-src-container">
+<pre class="src src-bash">mset k1 v1 k2 v2 k3 v3
+mget k1 k2 k3        <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">"v1" "v2" "v3"</span>
+msetnx k1 v1 k4 v4   <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">(integer) 0</span>
+get k4               <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">(nil)</span>
+msetnx k4 v4 k1 v1   <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">(integer) 0</span>
+get k4               <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">(nil)</span>
+</pre>
+</div>
+
+<hr>
+
+<dl class="org-dl">
+<dt>getset key01 value02</dt><dd>先获取再设置<br></dd>
+</dl>
+
+<div class="org-src-container">
+<pre class="src src-bash">getset key01 value01   <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">(nil)</span>
+get key01              <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">value01</span>
+getset key01 value02   <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">value01</span>
+get key01              <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">value02</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgcc70716" class="outline-3">
+<h3 id="orgcc70716">set</h3>
+</div>
+</div>
+<div id="outline-container-orgcc7425b" class="outline-2">
+<h2 id="orgcc7425b">特殊数据类型</h2>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-01-26 23:01 Wed</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-01-27 Thu 00:25</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
