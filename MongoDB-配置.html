@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-01-27 Thu 20:58 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MONGODB-配置</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">MONGODB-配置</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org53c0df9">配置文件 /etc/mongdb.conf</a></li>
+<li><a href="#orgc7e38ff">意外断开重启</a></li>
+</ul>
+</div>
+</div>
+<p>
+以下内容从网上收集，没有被我测试！<br>
+</p>
+
+<div id="outline-container-org53c0df9" class="outline-2">
+<h2 id="org53c0df9">配置文件 /etc/mongdb.conf</h2>
+<div class="outline-text-2" id="text-org53c0df9">
+<div class="org-src-container">
+<pre class="src src-conf"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">mongod.conf</span>
+
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">for documentation of all options, see:</span>
+<span style="color: #008787; background-color: #262626;">#   </span><span style="color: #008787; background-color: #262626;">http://docs.mongodb.org/manual/reference/configuration-options/</span>
+
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">Where and how to store data.</span>
+storage:
+dbPath: /var/lib/mongodb
+journal:
+enabled: true
+<span style="color: #008787; background-color: #262626;">#  </span><span style="color: #008787; background-color: #262626;">engine:</span>
+<span style="color: #008787; background-color: #262626;">#  </span><span style="color: #008787; background-color: #262626;">mmapv1:</span>
+<span style="color: #008787; background-color: #262626;">#  </span><span style="color: #008787; background-color: #262626;">wiredTiger:</span>
+
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">where to write logging data.</span>
+systemLog:
+destination: file
+logAppend: true
+path: /var/log/mongodb/mongod.log
+
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">network interfaces</span>
+net:
+port: 27017
+bindIp: 127.0.0.1
+
+
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">how the process runs</span>
+processManagement:
+timeZoneInfo: /usr/share/zoneinfo
+
+<span style="color: #008787; background-color: #262626;">#</span><span style="color: #008787; background-color: #262626;">security:</span>
+
+<span style="color: #008787; background-color: #262626;">#</span><span style="color: #008787; background-color: #262626;">operationProfiling:</span>
+
+<span style="color: #008787; background-color: #262626;">#</span><span style="color: #008787; background-color: #262626;">replication:</span>
+
+<span style="color: #008787; background-color: #262626;">#</span><span style="color: #008787; background-color: #262626;">sharding:</span>
+
+<span style="color: #008787; background-color: #262626;">## </span><span style="color: #008787; background-color: #262626;">Enterprise-Only Options:</span>
+
+<span style="color: #008787; background-color: #262626;">#</span><span style="color: #008787; background-color: #262626;">auditLog:</span>
+
+<span style="color: #008787; background-color: #262626;">#</span><span style="color: #008787; background-color: #262626;">snmp:</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgc7e38ff" class="outline-2">
+<h2 id="orgc7e38ff">意外断开重启</h2>
+<div class="outline-text-2" id="text-orgc7e38ff">
+<p>
+默认的 mongodb 的服务是没有加 mongodb 意外断开重启的，所以对服务文件 /usr/lib/systemd/system/mongodb.service 修改：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-conf">[<span style="color: #df005f; font-weight: bold;">Unit</span>]
+<span style="color: #8787d7;">Description</span>=High-performance, schema-free document-oriented database
+<span style="color: #8787d7;">After</span>=network.target
+
+[<span style="color: #df005f; font-weight: bold;">Service</span>]
+<span style="color: #8787d7;">User</span>=mongodb
+<span style="color: #8787d7;">ExecStart</span>=/usr/bin/mongod --quiet --config /etc/mongodb.conf
+<span style="color: #8787d7;">Restart</span>=always
+<span style="color: #8787d7;">RestartSec</span>=10
+[<span style="color: #df005f; font-weight: bold;">Install</span>]
+<span style="color: #8787d7;">WantedBy</span>=multi-user.target
+</pre>
+</div>
+
+<p>
+该配置的意思就是让mongodb意外中断后10秒重启。<br>
+</p>
+
+<p>
+现在大家也能看到服务文件中的 User=mongodb 也就是说该服务是以 mongodb 这个用启动的，那么该服务所需要操作的所有文件 mongodb 都要有权限操作才能启动成功，所以执行以下命令修改该服务所用到的文件和目录的所有者为 mongodb 用户：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">sudo chown -R mongodb:mongodb /home/alair/Sources/Repositories/DBS/MongoDB
+sudo chown -R mongodb:mongodb /usr/bin/mongod
+sudo chown -R mongodb:mongodb /etc/mongodb.conf   
+</pre>
+</div>
+
+<p>
+上面如果有遗漏自行看错误日志补全就 ok 了。<br>
+</p>
+
+<p>
+还有就是 mongodb 的开机启动以及查看服务状态命令，还有更新刚刚修改的服务命令。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-01-27 20:01 Thu</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-01-27 Thu 20:58</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
