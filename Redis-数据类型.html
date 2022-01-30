@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-01-27 Thu 00:25 -->
+<!-- 2022-01-30 Sun 20:09 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>REDIS-数据类型</title>
@@ -13,6 +13,28 @@
                 <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
                 <script type="module" src="static/js/main.js" defer></script>
                 <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
 </head>
 <body>
 <div id="content">
@@ -23,11 +45,20 @@
 <ul>
 <li><a href="#org51cd492">基本数据类型</a>
 <ul>
-<li><a href="#orgb100654">string</a></li>
-<li><a href="#orgcc70716">set</a></li>
+<li><a href="#org615f6fb">String</a></li>
+<li><a href="#org3073667">Mylist</a></li>
+<li><a href="#orgefc2e92">Set</a></li>
+<li><a href="#org5bf42ad">Hash</a></li>
+<li><a href="#org8848c2c">Zset</a></li>
 </ul>
 </li>
-<li><a href="#orgcc7425b">特殊数据类型</a></li>
+<li><a href="#orgcc7425b">特殊数据类型</a>
+<ul>
+<li><a href="#orgd18d9ee">geospatial</a></li>
+<li><a href="#org6fd0a54">hyperloglog</a></li>
+<li><a href="#orgd3f93ea">bitmaps</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -36,9 +67,9 @@
 <h2 id="org51cd492">基本数据类型</h2>
 <div class="outline-text-2" id="text-org51cd492">
 </div>
-<div id="outline-container-orgb100654" class="outline-3">
-<h3 id="orgb100654">string</h3>
-<div class="outline-text-3" id="text-orgb100654">
+<div id="outline-container-org615f6fb" class="outline-3">
+<h3 id="org615f6fb">String</h3>
+<div class="outline-text-3" id="text-org615f6fb">
 <dl class="org-dl">
 <dt>append key01 value01</dt><dd>向 key01 后扩充字符串 "value01"<br></dd>
 </dl>
@@ -149,18 +180,368 @@ get key01              <span style="color: #008787; background-color: #262626;">
 </div>
 </div>
 </div>
-<div id="outline-container-orgcc70716" class="outline-3">
-<h3 id="orgcc70716">set</h3>
+
+<div id="outline-container-org3073667" class="outline-3">
+<h3 id="org3073667">Mylist</h3>
+<div class="outline-text-3" id="text-org3073667">
+<p>
+使用 Mylist 可以完成栈、队列等的操作。<br>
+</p>
+
+<dl class="org-dl">
+<dt>lpush mylist one</dt><dd>向 mylist 中插入 "one"<br></dd>
+<dt>lrange mylist 0 -1</dt><dd>查看 mylist 中的所有值<br></dd>
+</dl>
+
+<div class="org-src-container">
+<pre class="src src-bash">lpush mylist one
+lpush mylist two
+lpush mylist three
+lrange mylist <span style="color: #d75fd7;">0</span> -1
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">three two one</span>
+</pre>
+</div>
+
+<dl class="org-dl">
+<dt>rpush mylist right</dt><dd>向 mylist 中插入 "right"，但是插入的方向与 lpush 不同<br></dd>
+
+<dt>lpop mylist</dt><dd>弹出 mylist 的第一个元素<br></dd>
+<dt>rpop mylist</dt><dd>弹出 mylist 的最后一个元素<br></dd>
+
+<dt>lindex mylist 1</dt><dd>通过下标获取值<br></dd>
+<dt>llen mylist</dt><dd>查看 mylist 的长度<br></dd>
+
+<dt>lrem mylist 1 one</dt><dd>移除 mylist 中的一个 one<br></dd>
+<dt>lrem mylist 2 three</dt><dd>移除 mylist 中的两个 three<br></dd>
+
+<dt>ltrim mylist 1 2</dt><dd>截断，只保留 [1, 2] 这个下标区间的值<br></dd>
+
+<dt>rpoplpush mylist othermylist</dt><dd>移除 mylist 列表的最后一个元素并放在 othermylist 第一个位置<br></dd>
+
+<dt>lset mylist 0 item</dt><dd>将 mylist 的第 0 个替换为 "item"（redis 会自动识别字符串，所以加不加双引号无所谓），mylist 不能为空<br></dd>
+
+<dt>linsert mylist before "world" "hello"	</dt><dd>在 mylist 中 "world" 单词的前面插入 "hello"<br></dd>
+<dt>linsert mylist after "hello" "!"</dt><dd>在 mylist 中 "hello" 单词的后面插入 "!"<br></dd>
+</dl>
+
+<div class="org-src-container">
+<pre class="src src-bash">lpush mylist world
+linsert mylist before <span style="color: #2aa198;">"world"</span> <span style="color: #2aa198;">"hello"</span>
+lrange mylist <span style="color: #d75fd7;">0</span> -1
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgefc2e92" class="outline-3">
+<h3 id="orgefc2e92">Set</h3>
+<div class="outline-text-3" id="text-orgefc2e92">
+<p>
+set 中的值是不能重复的。<br>
+</p>
+
+<dl class="org-dl">
+<dt>sadd myset "hello"</dt><dd>向 myset 中添加一个元素 "hello"<br></dd>
+<dt>smembers myset</dt><dd>查看 myset 中的所有值<br></dd>
+<dt>sismember myset hello</dt><dd>判断 myset 中是否有 "hello"<br></dd>
+
+<dt>scard myset</dt><dd>查看 myset 中的元素个数<br></dd>
+
+<dt>srem myset hello</dt><dd>移除 myset 中的 "hello"<br></dd>
+
+<dt>srandmember myset</dt><dd>随机得到 myset 中的一个元素<br></dd>
+<dt>srandmember myset 2</dt><dd>随机得到两个<br></dd>
+<dt>spop myset</dt><dd>随机弹出 myset 中的一个元素<br></dd>
+
+<dt>smove myset otherset "hello"</dt><dd>把 myset 中的 "hello" 移动到 otherset 中<br></dd>
+</dl>
+
+<hr>
+
+<dl class="org-dl">
+<dt>sdiff set01 set02</dt><dd>set01 与 set02 的差集<br></dd>
+</dl>
+
+<div class="org-src-container">
+<pre class="src src-bash">sadd set01 a
+sadd set01 b
+sadd set01 c
+sadd set02 c
+sadd set02 d
+sadd set02 e
+
+sdiff set01 set02
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">"b" "a"</span>
+</pre>
+</div>
+
+<dl class="org-dl">
+<dt>sinter set01 set02</dt><dd>交集<br></dd>
+</dl>
+
+<div class="org-src-container">
+<pre class="src src-bash">sinter set01 set02
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">"c"</span>
+</pre>
+</div>
+
+<dl class="org-dl">
+<dt>sunion set01 set02</dt><dd>并集<br></dd>
+</dl>
+
+<div class="org-src-container">
+<pre class="src src-bash">sunion set01 set02
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">"a" "b" "c" "d" "e"</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org5bf42ad" class="outline-3">
+<h3 id="org5bf42ad">Hash</h3>
+<div class="outline-text-3" id="text-org5bf42ad">
+<p>
+Map 集合，key - &lt;key, value&gt; 集合。<br>
+</p>
+
+<dl class="org-dl">
+<dt>hset myhash name haoran</dt><dd>存储键值对<br></dd>
+<dt>hget myhash name</dt><dd>获取 name 对应的的值<br></dd>
+
+<dt>hmset myhash field01 value01 field02 value02 field03 value03</dt><dd>多组设置<br></dd>
+<dt>hmget myhash field01 field02 field03</dt><dd>多组获取<br></dd>
+
+<dt>hgetall myhash</dt><dd>获取全部的键值对<br></dd>
+
+<dt>hdel myhash field01</dt><dd>删除指定键值对<br></dd>
+
+<dt>hlen myset</dt><dd>查看长度<br></dd>
+
+<dt>hexists myhash field01</dt><dd>判断是否存在<br></dd>
+
+<dt>hkeys myhash</dt><dd>获取所有的 key<br></dd>
+<dt>hvals myhash</dt><dd>获取所有的 value<br></dd>
+
+<dt>hincrby myhash field03 1</dt><dd>给 field03 的值自增 1<br></dd>
+<dt>hdecrby myhash field03 1</dt><dd>给 field03 的值自减 1<br></dd>
+
+<dt>hsetnx myhash field04 hello</dt><dd>不存在 field04 时才创建<br></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-org8848c2c" class="outline-3">
+<h3 id="org8848c2c">Zset</h3>
+<div class="outline-text-3" id="text-org8848c2c">
+<p>
+有序集合，在 set 的基础上增加了一个值（collection score value），用于排序。<br>
+</p>
+
+<dl class="org-dl">
+<dt>zadd myset 1 one</dt><dd>添加一个值<br></dd>
+<dt>zadd myset 2 two 3 three</dt><dd>添加多个值<br></dd>
+<dt>zrange myset 0 -1</dt><dd>查看所有数据<br></dd>
+</dl>
+
+<div class="org-src-container">
+<pre class="src src-bash">zadd salary <span style="color: #d75fd7;">1500</span> peo01
+zadd salary <span style="color: #d75fd7;">500</span>  peo02
+zadd salary <span style="color: #d75fd7;">1000</span> peo03
+</pre>
+</div>
+
+<dl class="org-dl">
+<dt>zrangebyscore salary -inf +inf</dt><dd>按 score 排序<br></dd>
+<dt>zrangebyscore salary -inf +inf withscores</dt><dd>按 score 排序，同时输出 score<br></dd>
+<dt>zreverange salary 0 -1</dt><dd>从大到小排序<br></dd>
+
+<dt>zrem salary peo03</dt><dd>移除 peo03<br></dd>
+
+<dt>zcard salary</dt><dd>查看长度<br></dd>
+<dt>zcount myset 1 3</dt><dd>1 ~ 3 之间有几个值<br></dd>
+</dl>
+</div>
 </div>
 </div>
 <div id="outline-container-orgcc7425b" class="outline-2">
 <h2 id="orgcc7425b">特殊数据类型</h2>
+<div class="outline-text-2" id="text-orgcc7425b">
+</div>
+<div id="outline-container-orgd18d9ee" class="outline-3">
+<h3 id="orgd18d9ee">geospatial</h3>
+<div class="outline-text-3" id="text-orgd18d9ee">
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">geoadd &#28155;&#21152;&#22320;&#29702;&#20301;&#32622;</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#20004;&#32423;&#26080;&#27861;&#30452;&#25509;&#28155;&#21152;</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">key value&#65288;&#32428;&#24230;&#12289;&#32463;&#24230;&#12289;&#21517;&#31216;&#65289;</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#26377;&#25928;&#30340;&#32463;&#24230;&#20174; -180 &#21040; 180</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#26377;&#25928;&#30340;&#32428;&#24230;&#20174; -85.05112878 &#21040; 85.05112878</span>
+geoadd china:city <span style="color: #d75fd7;">116.40</span> <span style="color: #d75fd7;">39.90</span> beijing
+geoadd china:city <span style="color: #d75fd7;">121.47</span> <span style="color: #d75fd7;">31.23</span> shanghai
+geoadd china:city <span style="color: #d75fd7;">106.50</span> <span style="color: #d75fd7;">29.53</span> chongqing
+geoadd china:city <span style="color: #d75fd7;">114.05</span> <span style="color: #d75fd7;">22.52</span> shenzhen
+geoadd china:city <span style="color: #d75fd7;">120.16</span> <span style="color: #d75fd7;">30.24</span> hangzhou
+geoadd china:city <span style="color: #d75fd7;">108.96</span> <span style="color: #d75fd7;">34.26</span> xian
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">geopos &#33719;&#21462;&#23450;&#20301;</span>
+geopos china:city beijing
+geopos china:city beijing chongqing
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">geodist &#36820;&#22238;&#20004;&#20010;&#20301;&#32622;&#20043;&#38388;&#30340;&#36317;&#31163;</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#21333;&#20301;&#65306;</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">- m &#31859;</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">- km &#21315;&#31859;</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">- mi &#33521;&#37324;</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">- ft &#33521;&#23610;</span>
+geodist china:city beijing shanghai
+geodist china:city beijing shanghai km
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">georadius &#26681;&#25454;&#32473;&#23450;&#30340;&#32463;&#32428;&#24230;&#20026;&#20013;&#24515;&#65292;&#25214;&#20986;&#26576;&#19968;&#21322;&#24452;&#20869;&#30340;&#20803;&#32032;</span>
+georadius china:city <span style="color: #d75fd7;">110</span> <span style="color: #d75fd7;">30</span> <span style="color: #d75fd7;">500</span> km
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">chongqing</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">xian</span>
+georadius china:city <span style="color: #d75fd7;">110</span> <span style="color: #d75fd7;">30</span> <span style="color: #d75fd7;">500</span> km withdist
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">chongqing 341.9374</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">xian 483.8340</span>
+georadius china:city <span style="color: #d75fd7;">110</span> <span style="color: #d75fd7;">30</span> <span style="color: #d75fd7;">500</span> km withcoord
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">chongqing 106.499 29.52</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">xian 108.96 34.25</span>
+georadius china:city <span style="color: #d75fd7;">110</span> <span style="color: #d75fd7;">30</span> <span style="color: #d75fd7;">500</span> km withdist whithcoord count <span style="color: #d75fd7;">1</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#38480;&#23450;&#21482;&#26597;&#19968;&#20010;</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">chongqing 341.9374 106.499 29.52</span>
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-bash">georadiusbymember china:city beijing <span style="color: #d75fd7;">1000</span> km
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">beijing</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">xian</span>
+georadiusbymember china:city shanghai <span style="color: #d75fd7;">400</span> km
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">hangzhou</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">shanghai</span>
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">geohash &#36820;&#22238;&#19968;&#20010;&#25110;&#22810;&#20010;&#20301;&#32622;&#20803;&#32032;&#30340; geohash &#34920;&#31034;</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">11 &#20010;&#23383;&#31526;&#30340; geohash &#23383;&#31526;&#20018;</span>
+geohash china:city beijing
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">wx4fbxxfke0</span>
+geohash china:city beijing chongqing
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">wm5xzrybty0</span>
+</pre>
+</div>
+
+<p>
+GEO 底层的实现原理是 Zset，可以使用 Zset 命令来操作 geo。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">zrange china:city <span style="color: #d75fd7;">0</span> -1
+zrem china:city beijing
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org6fd0a54" class="outline-3">
+<h3 id="org6fd0a54">hyperloglog</h3>
+<div class="outline-text-3" id="text-org6fd0a54">
+<blockquote>
+<p>
+什么是基数？<br>
+</p>
+
+<p>
+在数学上，是集合论中刻画任意集合大小的概念。<br>
+</p>
+
+<p>
+可以通俗的理解为不重复的元素个数。<br>
+</p>
+</blockquote>
+
+<p>
+hyperloglog 基数统计的算法！<br>
+</p>
+
+<p>
+官网给出，使用 hyperloglog 计数可能会有 0.81% 的错误率，但是对于 \(2^{64}\) 的数量的 uid，只需要 12kb 的内存。<br>
+</p>
+
+<p>
+所以如果允许容错，在占用内存极少的优秀特性下 hyperloglog 计数是可以接受的。<br>
+</p>
+
+<p>
+如果不允许容错，那就使用 set 或自己的数据结构。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">pfadd mykey01 a b c d
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#28155;&#21152;&#20540;</span>
+
+pfcount mykey01
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#35745;&#31639;&#22522;&#25968;&#25968;&#37327;</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">4</span>
+
+pfadd mykey02 c d e f
+
+pfmerge mykey03 mykey01 mykey02
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">OK</span>
+
+pfcount mykey03
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">6</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgd3f93ea" class="outline-3">
+<h3 id="orgd3f93ea">bitmaps</h3>
+<div class="outline-text-3" id="text-orgd3f93ea">
+<p>
+位存储。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">setbit sign <span style="color: #d75fd7;">0</span> <span style="color: #d75fd7;">1</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#35774;&#32622; sign &#30340;&#31532; 0 &#20301;&#20026; 1</span>
+
+setbit sign <span style="color: #d75fd7;">1</span> <span style="color: #d75fd7;">0</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#35774;&#32622; sign &#30340;&#31532; 1 &#20301;&#20026; 0</span>
+
+setbit sign <span style="color: #d75fd7;">2</span> <span style="color: #d75fd7;">0</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#35774;&#32622; sign &#30340;&#31532; 2 &#20301;&#20026; 0</span>
+
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#21487;&#20197;&#29992;&#26469;&#35760;&#24405;&#21608;&#19968;&#21040;&#21608;&#26085;&#30340;&#25171;&#21345;&#24773;&#20917;&#65292;&#26159;&#21542;&#25171;&#21345;&#12290;</span>
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-bash">getbit sign <span style="color: #d75fd7;">0</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#26597;&#30475; sign &#30340;&#31532; 0 &#20301;</span>
+
+getbit sign <span style="color: #d75fd7;">1</span>
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-bash">bitcount sign
+</pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div id="postamble" class="status">
 <p class="date">Date: 2022-01-26 23:01 Wed</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-01-27 Thu 00:25</p>
+<p class="date">Created: 2022-01-30 Sun 20:09</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

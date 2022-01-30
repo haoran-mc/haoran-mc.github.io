@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-01-30 Sun 21:09 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>REDIS-乐观锁</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">REDIS-乐观锁</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgcaacb4d">乐观锁</a></li>
+<li><a href="#orga474e07">Redis 监视测试：</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgcaacb4d" class="outline-2">
+<h2 id="orgcaacb4d">乐观锁</h2>
+<div class="outline-text-2" id="text-orgcaacb4d">
+<ul class="org-ul">
+<li>悲观锁<br>
+<ul class="org-ul">
+<li>认为什么时候都会出现问题，无论做什么都会加锁！<br></li>
+</ul></li>
+<li>乐观锁<br>
+<ul class="org-ul">
+<li>认为什么时候都不会出问题，无论做什么都不加锁！更新数据时判断，在此期间是否修改过数据。<br></li>
+<li>获取 version<br></li>
+<li>更新时比较 version<br></li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orga474e07" class="outline-2">
+<h2 id="orga474e07">Redis 监视测试：</h2>
+<div class="outline-text-2" id="text-orga474e07">
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #268bd2;">set</span> money <span style="color: #d75fd7;">100</span>
+<span style="color: #268bd2;">set</span> spending <span style="color: #d75fd7;">0</span>
+
+watch money
+
+multi
+decrby money <span style="color: #d75fd7;">20</span>
+incrby spending <span style="color: #d75fd7;">20</span>
+<span style="color: #268bd2; font-weight: bold;">exec</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">(integer) 80</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">(integer) 20</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#27491;&#24120;&#25191;&#34892;&#25104;&#21151;</span>
+</pre>
+</div>
+
+<p>
+线程1：<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-bash">watch money
+multi
+decrby money <span style="color: #d75fd7;">10</span>
+incrby spending <span style="color: #d75fd7;">10</span>
+</pre>
+</div>
+
+<p>
+线程2:<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-bash">get money
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">80</span>
+
+<span style="color: #268bd2;">set</span> money <span style="color: #d75fd7;">200</span>
+</pre>
+</div>
+
+<p>
+线程1:<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #268bd2; font-weight: bold;">exec</span>   <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#25191;&#34892;&#20043;&#21069;&#65292;&#21478;&#22806;&#19968;&#20010;&#32447;&#31243;&#20462;&#25913;&#20102; money &#30340;&#20540;&#65292;&#23548;&#33268;&#20107;&#21153;&#22833;&#36133;</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">(nil)</span>
+</pre>
+</div>
+
+<p>
+使用 watch 可以当做 redis 的乐观锁操作。<br>
+</p>
+
+<hr>
+
+<p>
+线程1:<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-bash">unwatch   <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#20107;&#21153;&#30417;&#35270;&#22833;&#36133;&#65292;&#25152;&#20197;&#20808;&#35299;&#38145;</span>
+watch money   <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#33719;&#21462;&#26032;&#20540;&#65292;&#37325;&#26032;&#30417;&#35270;</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">...</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-01-30 20:01 Sun</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-01-30 Sun 21:09</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

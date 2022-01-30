@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-01-30 Sun 20:55 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>REDIS-事务操作</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">REDIS-事务操作</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgca693e7">事务</a>
+<ul>
+<li><a href="#org2a3db14">编译型异常</a></li>
+<li><a href="#org7b6aac5">运行时异常</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgca693e7" class="outline-2">
+<h2 id="orgca693e7">事务</h2>
+<div class="outline-text-2" id="text-orgca693e7">
+<p>
+Redis 事务本质：一组命令的集合！一个事务中的所有命令都会被序列化，在事务执行过程中，顺序执行。<br>
+</p>
+
+<p>
+一次性、顺序性、排他性。<br>
+</p>
+
+<p>
+Redis 单条命令是保存原子性的，但是事务不保证原子性。<br>
+</p>
+
+<p>
+Redis 事务三个阶段：<br>
+</p>
+<ul class="org-ul">
+<li>开启事务（multi）<br></li>
+<li>命令入队<br></li>
+<li>执行事务（exec）<br></li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-bash">multi   <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#24320;&#21551;&#20107;&#21153;</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">OK</span>
+
+<span style="color: #268bd2;">set</span> k1 v1
+<span style="color: #268bd2;">set</span> k2 v2
+get k2
+<span style="color: #268bd2;">set</span> k3 v3
+
+<span style="color: #268bd2; font-weight: bold;">exec</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">OK</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">OK</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">"v2"</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">OK</span>
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-bash">multi
+
+<span style="color: #268bd2;">set</span> k1 v1
+<span style="color: #268bd2;">set</span> k2 v2
+<span style="color: #268bd2;">set</span> k4 v4
+
+discard   <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#25918;&#24323;&#20107;&#21153;</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">OK</span>
+
+get k4   <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#20107;&#21153;&#38431;&#21015;&#20013;&#21629;&#20196;&#37117;&#19981;&#20250;&#34987;&#25191;&#34892;</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">(nil)</span>
+</pre>
+</div>
+
+<blockquote>
+<p>
+编译型异常（代码有问题，命令出错），事务中的所有命令都不会被执行。<br>
+</p>
+
+<p>
+运行时异常（1/0），如果事务队列中存在语法性，那么执行命令的时候，其他命令可以正常执行。错误命令抛出异常。<br>
+</p>
+</blockquote>
+</div>
+<div id="outline-container-org2a3db14" class="outline-3">
+<h3 id="org2a3db14">编译型异常</h3>
+<div class="outline-text-3" id="text-org2a3db14">
+<div class="org-src-container">
+<pre class="src src-bash">multi
+
+<span style="color: #268bd2;">set</span> k1 v1
+
+<span style="color: #268bd2;">set</span> k2 v2
+
+getset k1
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">(error) ERR wrong number of arguments for 'getset' command</span>
+
+<span style="color: #268bd2;">set</span> k3 v3
+
+<span style="color: #268bd2; font-weight: bold;">exec</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">(error) EXECABORT Transaction discarded because of previous errors.</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#25191;&#34892;&#20107;&#21153;&#25253;&#38169;</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#25152;&#26377;&#30340;&#21629;&#20196;&#37117;&#19981;&#20250;&#25191;&#34892;</span>
+
+get k1
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">(nil)</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org7b6aac5" class="outline-3">
+<h3 id="org7b6aac5">运行时异常</h3>
+<div class="outline-text-3" id="text-org7b6aac5">
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #268bd2;">set</span> k1 <span style="color: #2aa198;">"v1"</span>
+
+multi
+
+incr k1
+
+<span style="color: #268bd2;">set</span> k2 v2
+
+get k2
+
+<span style="color: #268bd2; font-weight: bold;">exec</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">(error) ERR value is not an integer or out of range</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">OK</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">OK</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">"v2"</span>
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#25253;&#38169;&#30340;&#21629;&#20196;&#19981;&#20250;&#25191;&#34892;&#65292;&#20854;&#20182;&#20250;&#25191;&#34892;</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-01-30 18:01 Sun</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-01-30 Sun 20:55</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
