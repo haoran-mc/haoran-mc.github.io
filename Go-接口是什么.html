@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-10-08 Fri 12:03 -->
+<!-- 2022-02-03 Thu 16:48 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GO-接口是什么</title>
@@ -22,7 +22,7 @@ Go 语言不是一种 “传统” 的面向对象编程语言：它里面没有
 </p>
 
 <p>
-但是 Go 语言里有非常灵活的 接口 概念，通过它可以实现很多面向对象的特性。接口提供了一种方式来 说明 对象的行为：如果谁能搞定这件事，它就可以用在这儿。<br>
+但是 Go 语言里有非常灵活的接口概念，通过它可以实现很多面向对象的特性。接口提供了一种方式来说明对象的行为：如果谁能搞定这件事，它就可以用在这儿。<br>
 </p>
 
 <p>
@@ -33,10 +33,10 @@ Go 语言不是一种 “传统” 的面向对象编程语言：它里面没有
 通过如下格式定义接口：<br>
 </p>
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #BD93F9;">type</span> <span style="color: #AFAFAF;">Namer</span> <span style="color: #BD93F9;">interface</span> {
-    <span style="color: #AFAFAF;">Method1</span>(<span style="color: #AFAFAF;">param_list</span>) <span style="color: #AFAFAF;">return_type</span>
-    <span style="color: #AFAFAF;">Method2</span>(<span style="color: #AFAFAF;">param_list</span>) <span style="color: #AFAFAF;">return_type</span>
-    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">...</span>
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Namer</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+    <span style="color: #d75fd7; font-weight: bold;">Method1</span>(<span style="color: #df005f; font-weight: bold;">param_list</span>) <span style="color: #df005f; font-weight: bold;">return_type</span>
+    <span style="color: #d75fd7; font-weight: bold;">Method2</span>(<span style="color: #df005f; font-weight: bold;">param_list</span>) <span style="color: #df005f; font-weight: bold;">return_type</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">...</span>
 }
 </pre>
 </div>
@@ -55,6 +55,280 @@ Go 语言中的接口都很简短，通常它们会包含 0 个、最多 3 个�
 
 <p>
 不像大多数面向对象编程语言，在 Go 语言中接口可以有值，一个接口类型的变量或一个 接口值 ：var ai Namer，ai 是一个多字（multiword）数据结构，它的值是 nil。它本质上是一个指针，虽然不完全是一回事。指向接口值的指针是非法的，它们不仅一点用也没有，还会导致代码错误。<br>
+</p>
+
+
+<p>
+此处的方法指针表示通过运行时反射能力构建的。<br>
+</p>
+
+<p>
+类型（比如结构体）实现接口方法集中的方法，每一个方法的实现说明了此方法是如何作用于该类型的：即实现接口，同时方法集也构成了该类型的接口。实现了 Namer 接口类型的变量可以赋值给 ai （接收者值），此时方法表中的指针会指向被实现的接口方法。当然如果另一个类型（也实现了该接口）的变量被赋值给 ai，这二者（译者注：指针和方法实现）也会随之改变。<br>
+</p>
+
+<p>
+类型不需要显式声明它实现了某个接口：接口被隐式地实现。多个类型可以实现同一个接口。<br>
+</p>
+
+<p>
+实现某个接口的类型（除了实现接口方法外）可以有其他的方法。<br>
+</p>
+
+<p>
+一个类型可以实现多个接口。<br>
+</p>
+
+<p>
+接口类型可以包含一个实例的引用， 该实例的类型实现了此接口（接口是动态类型）。<br>
+</p>
+
+<p>
+即使接口在类型之后才定义，二者处于不同的包中，被单独编译：只要类型实现了接口中的方法，它就实现了此接口。<br>
+</p>
+
+<p>
+所有这些特性使得接口具有很大的灵活性。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Shaper</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+    <span style="color: #d75fd7; font-weight: bold;">Area</span>() <span style="color: #df005f; font-weight: bold;">float32</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Square</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    side <span style="color: #df005f; font-weight: bold;">float32</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">sq</span> *<span style="color: #df005f; font-weight: bold;">Square</span>) <span style="color: #d75fd7; font-weight: bold;">Area</span>() <span style="color: #df005f; font-weight: bold;">float32</span> {
+    <span style="color: #268bd2; font-weight: bold;">return</span> sq.side * sq.side
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">sq1</span> := <span style="color: #268bd2;">new</span>(<span style="color: #df005f; font-weight: bold;">Square</span>)
+    sq1.side = <span style="color: #d75fd7;">5</span>
+
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">areaIntf</span> <span style="color: #df005f; font-weight: bold;">Shaper</span>
+    areaIntf = sq1
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">shorter,without separate declaration:</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">areaIntf := Shaper(sq1)</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">or even:</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">areaIntf := sq1</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"The square has area: %f\n"</span>, areaIntf.<span style="color: #d75fd7; font-weight: bold;">Area</span>())
+}
+</pre>
+</div>
+
+<p>
+输出：<br>
+</p>
+
+<pre class="example" id="org724e344">
+The square has area: 25.000000
+</pre>
+
+<p>
+上面的程序定义了一个结构体 Square 和一个接口 Shaper，接口有一个方法 Area()。<br>
+</p>
+
+<p>
+在 main() 方法中创建了一个 Square 的实例。在主程序外边定义了一个接收者类型是 Square 方法的 Area()，用来计算正方形的面积：结构体 Square 实现了接口 Shaper 。<br>
+</p>
+
+<p>
+所以可以将一个 Square 类型的变量赋值给一个接口类型的变量：areaIntf = sq1 。<br>
+</p>
+
+<p>
+现在接口变量包含一个指向 Square 变量的引用，通过它可以调用 Square 上的方法 Area()。当然也可以直接在 Square 的实例上调用此方法，但是在接口实例上调用此方法更令人兴奋，它使此方法更具有一般性。接口变量里包含了接收者实例的值和指向对应方法表的指针。<br>
+</p>
+
+<p>
+这是 多态 的 Go 版本，多态是面向对象编程中一个广为人知的概念：根据当前的类型选择正确的方法，或者说：同一种类型在不同的实例上似乎表现出不同的行为。<br>
+</p>
+
+<p>
+如果 Square 没有实现 Area() 方法，编译器将会给出清晰的错误信息：<br>
+</p>
+
+<pre class="example" id="org5160a12">
+cannot use sq1 (type *Square) as type Shaper in assignment:
+*Square does not implement Shaper (missing Area method)
+</pre>
+
+<p>
+如果 Shaper 有另外一个方法 Perimeter()，但是 Square 没有实现它，即使没有人在 Square 实例上调用这个方法，编译器也会给出上面同样的错误。<br>
+</p>
+
+<p>
+扩展一下上面的例子，类型 Rectangle 也实现了 Shaper 接口。接着创建一个 Shaper 类型的数组，迭代它的每一个元素并在上面调用 Area() 方法，以此来展示多态行为：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Shaper</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+    <span style="color: #d75fd7; font-weight: bold;">Area</span>() <span style="color: #df005f; font-weight: bold;">float32</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Square</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    side <span style="color: #df005f; font-weight: bold;">float32</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">sq</span> *<span style="color: #df005f; font-weight: bold;">Square</span>) <span style="color: #d75fd7; font-weight: bold;">Area</span>() <span style="color: #df005f; font-weight: bold;">float32</span> {
+    <span style="color: #268bd2; font-weight: bold;">return</span> sq.side * sq.side
+}
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Rectangle</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    length, width <span style="color: #df005f; font-weight: bold;">float32</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">Rectangle</span>) <span style="color: #d75fd7; font-weight: bold;">Area</span>() <span style="color: #df005f; font-weight: bold;">float32</span> {
+    <span style="color: #268bd2; font-weight: bold;">return</span> r.length * r.width
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+
+    <span style="color: #8787d7;">r</span> := <span style="color: #df005f; font-weight: bold;">Rectangle</span>{<span style="color: #d75fd7;">5</span>, <span style="color: #d75fd7;">3</span>} <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Area() of Rectangle needs a value</span>
+    <span style="color: #8787d7;">q</span> := &amp;<span style="color: #df005f; font-weight: bold;">Square</span>{<span style="color: #d75fd7;">5</span>}      <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Area() of Square needs a pointer</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">shapes := []Shaper{Shaper(r), Shaper(q)}</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">or shorter</span>
+    <span style="color: #8787d7;">shapes</span> := []<span style="color: #df005f; font-weight: bold;">Shaper</span>{r, q}
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Looping through shapes for area ..."</span>)
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">n</span>, <span style="color: #8787d7;">_</span> := <span style="color: #268bd2; font-weight: bold;">range</span> shapes {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Shape details: "</span>, shapes[n])
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Area of this shape is: "</span>, shapes[n].<span style="color: #d75fd7; font-weight: bold;">Area</span>())
+    }
+}
+</pre>
+</div>
+
+<p>
+输出：<br>
+</p>
+
+<pre class="example" id="orga5e24cc">
+Looping through shapes for area ...
+Shape details:  {5 3}
+Area of this shape is:  15
+Shape details:  &amp;{5}
+Area of this shape is:  25
+</pre>
+
+<p>
+在调用 shapes[n].Area()) 这个时，只知道 shapes[n] 是一个 Shaper 对象，最后它摇身一变成为了一个 Square 或 Rectangle 对象，并且表现出了相对应的行为。<br>
+</p>
+
+<p>
+也许从现在开始你将看到通过接口如何产生 <b>更干净、更简单 及 更具有扩展性</b> 的代码。在 <a href="Go-接口与动态类型.html">接口与动态类型</a> 中将看到在开发中为类型添加新的接口是多么的容易。<br>
+</p>
+
+<p>
+下面是一个更具体的例子：有两个类型 stockPosition 和 car，它们都有一个 getValue() 方法，我们可以定义一个具有此方法的接口 valuable。接着定义一个使用 valuable 类型作为参数的函数 showValue()，所有实现了 valuable 接口的类型都可以用这个函数。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">stockPosition</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        ticker     <span style="color: #df005f; font-weight: bold;">string</span>
+        sharePrice <span style="color: #df005f; font-weight: bold;">float32</span>
+        count      <span style="color: #df005f; font-weight: bold;">float32</span>
+}
+
+<span style="color: #008787; background-color: #262626;">/* </span><span style="color: #008787; background-color: #262626;">method to determine the value of a stock position */</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">stockPosition</span>) <span style="color: #d75fd7; font-weight: bold;">getValue</span>() <span style="color: #df005f; font-weight: bold;">float32</span> {
+        <span style="color: #268bd2; font-weight: bold;">return</span> s.sharePrice * s.count
+}
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">car</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        make  <span style="color: #df005f; font-weight: bold;">string</span>
+        model <span style="color: #df005f; font-weight: bold;">string</span>
+        price <span style="color: #df005f; font-weight: bold;">float32</span>
+}
+
+<span style="color: #008787; background-color: #262626;">/* </span><span style="color: #008787; background-color: #262626;">method to determine the value of a car */</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> <span style="color: #df005f; font-weight: bold;">car</span>) <span style="color: #d75fd7; font-weight: bold;">getValue</span>() <span style="color: #df005f; font-weight: bold;">float32</span> {
+        <span style="color: #268bd2; font-weight: bold;">return</span> c.price
+}
+
+<span style="color: #008787; background-color: #262626;">/* </span><span style="color: #008787; background-color: #262626;">contract that defines different things that have value */</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">valuable</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+        <span style="color: #d75fd7; font-weight: bold;">getValue</span>() <span style="color: #df005f; font-weight: bold;">float32</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">showValue</span>(<span style="color: #8787d7;">asset</span> <span style="color: #df005f; font-weight: bold;">valuable</span>) {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"Value of the asset is %f\n"</span>, asset.<span style="color: #d75fd7; font-weight: bold;">getValue</span>())
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+        <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">o</span> <span style="color: #df005f; font-weight: bold;">valuable</span> = <span style="color: #df005f; font-weight: bold;">stockPosition</span>{<span style="color: #2aa198;">"GOOG"</span>, <span style="color: #d75fd7;">577</span>.<span style="color: #d75fd7;">20</span>, <span style="color: #d75fd7;">4</span>}
+        <span style="color: #d75fd7; font-weight: bold;">showValue</span>(o)
+        o = <span style="color: #df005f; font-weight: bold;">car</span>{<span style="color: #2aa198;">"BMW"</span>, <span style="color: #2aa198;">"M3"</span>, <span style="color: #d75fd7;">66500</span>}
+        <span style="color: #d75fd7; font-weight: bold;">showValue</span>(o)
+}
+</pre>
+</div>
+
+<p>
+输出：<br>
+</p>
+
+<pre class="example" id="orgffb985a">
+Value of the asset is 2308.800049
+Value of the asset is 66500.000000
+</pre>
+
+<p>
+<b>一个标准库的例子</b><br>
+</p>
+
+<p>
+io 包里有一个接口类型 Reader:<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Reader</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+        <span style="color: #d75fd7; font-weight: bold;">Read</span>(<span style="color: #8787d7;">p</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+}
+</pre>
+</div>
+
+<p>
+定义变量 r：var r io.Reader<br>
+</p>
+
+<p>
+那么就可以写如下的代码：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">io.Reader</span>
+r = os.Stdin    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">see 12.1</span>
+r = bufio.<span style="color: #d75fd7; font-weight: bold;">NewReader</span>(r)
+r = <span style="color: #268bd2;">new</span>(<span style="color: #df005f; font-weight: bold;">bytes.Buffer</span>)
+<span style="color: #8787d7;">f</span>,_ := os.<span style="color: #d75fd7; font-weight: bold;">Open</span>(<span style="color: #2aa198;">"test.txt"</span>)
+r = bufio.<span style="color: #d75fd7; font-weight: bold;">NewReader</span>(f)
+</pre>
+</div>
+
+<p>
+上面 r 右边的类型都实现了 Read() 方法，并且有相同的方法签名，r 的静态类型是 io.Reader。<br>
+</p>
+
+<p>
+<b>备注</b><br>
+</p>
+
+<p>
+有的时候，也会以一种稍微不同的方式来使用接口这个词：从某个类型的角度来看，它的接口指的是：它的所有导出方法，只不过没有显式地为这些导出方法额外定一个接口而已。<br>
 </p>
 </div>
 </body>

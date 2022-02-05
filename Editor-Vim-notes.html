@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-02 Wed 16:45 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EDITOR-VIM-NOTES</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">EDITOR-VIM-NOTES</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org7ca00ec">与系统剪切板共用</a></li>
+<li><a href="#org7ccd53f">好玩的命令</a></li>
+<li><a href="#orgf55d0c2">vim-plug换源</a></li>
+<li><a href="#org4d9dd08">在 vim 中设置当前目录</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org7ca00ec" class="outline-2">
+<h2 id="org7ca00ec">与系统剪切板共用</h2>
+<div class="outline-text-2" id="text-org7ca00ec">
+<ul class="org-ul">
+<li>ubuntu<br></li>
+</ul>
+<p>
+sudo apt install vim-gonme<br>
+</p>
+
+<ul class="org-ul">
+<li>manjaro<br></li>
+</ul>
+
+<p>
+sudo pacman -S gvim<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org7ccd53f" class="outline-2">
+<h2 id="org7ccd53f">好玩的命令</h2>
+<div class="outline-text-2" id="text-org7ccd53f">
+<p>
+<code>:ab string strings</code><br>
+</p>
+<pre class="example" id="orge8181ad">
+例如 ":ab PROC the People's Republic of China" ,
+当你在文见里插入 PROC 时
+the People's Republic of China 就蹦出来了
+</pre>
+
+<dl class="org-dl">
+<dt><code>:g/^/m0</code></dt><dd>把文件内容反转<br></dd>
+<dt><code>:map keys new_seq</code></dt><dd>定义你当前 键盘命令<br></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgf55d0c2" class="outline-2">
+<h2 id="orgf55d0c2">vim-plug换源</h2>
+<div class="outline-text-2" id="text-orgf55d0c2">
+<p>
+因为中国地区访问像 github 这种国外网站很不稳定, 所以在一般都是采用镜像网站的方式间接访问. 而 vim-plug 下载时都是用的实际网站, 我们可以修改 plug.vim 来将实际网站变为镜像网站, 提高下载成功率.<br>
+</p>
+
+<p>
+在 plug.vim 中搜索 github, 修改两条语句，即可成功下载GitHub资源。 <br>
+</p>
+
+<pre class="example" id="org48cda7f">
+1 将该行
+let fmt = get(g:, 'plug_url_format', 'https://git::@github.com/%s.git')
+改为
+let fmt = get(g:, 'plug_url_format', 'https://git::@hub.fastgit.org/%s.git')
+
+2 将该行
+\ '^https://git::@github\.com', 'https://github.com', '')
+改为
+\ '^https://git::@hub.fastgit\.org', 'https://hub.fastgit.org', '')
+</pre>
+</div>
+</div>
+<div id="outline-container-org4d9dd08" class="outline-2">
+<h2 id="org4d9dd08">在 vim 中设置当前目录</h2>
+<div class="outline-text-2" id="text-org4d9dd08">
+<ol class="org-ol">
+<li><p>
+使用 cd 命令更改当前目录：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">:cd mydirectory
+</pre>
+</div></li>
+
+<li><p>
+更改目录为当前打开文件的目录：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">:cd %:h
+</pre>
+</div></li>
+
+<li><p>
+目录上升一级：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">:cd ..
+</pre>
+</div></li>
+
+<li><p>
+更改目录为前一次访问的目录：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">:cd -
+</pre>
+</div></li>
+</ol>
+
+<p>
+不知道为什么我配置了 <code>set autochdir</code> ，但是通过 :pwd 查看当前目录时，始终是第一个打开的文件的目录，还好更改目录的操作也不是很频繁，所以最后我选择了通过键映射手动更改为当前文件的目录。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">nmap &lt;leader&gt;dc :cd %:h&lt;cr&gt;
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-02 16:02 Wed</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-02 Wed 16:45</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

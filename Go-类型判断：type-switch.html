@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-03 Thu 21:31 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>类型判断：TYPE-SWITCH</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">类型判断：TYPE-SWITCH</h1>
+<p>
+接口变量的类型也可以使用一种特殊形式的 switch 来检测：type-switch （下面是 <a href="Go-类型断言：如何检测和转换接口变量的类型.html">类型断言：如何检测和转换接口变量的类型</a> 的第二部分）：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">switch</span> <span style="color: #8787d7;">t</span> := areaIntf.(<span style="color: #268bd2; font-weight: bold;">type</span>) {
+<span style="color: #268bd2; font-weight: bold;">case</span> *<span style="color: #df005f; font-weight: bold;">Square</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"Type Square %T with value %v\n"</span>, t, t)
+<span style="color: #268bd2; font-weight: bold;">case</span> *<span style="color: #df005f; font-weight: bold;">Circle</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"Type Circle %T with value %v\n"</span>, t, t)
+<span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #d75fd7;">nil</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"nil value: nothing to check?\n"</span>)
+<span style="color: #268bd2; font-weight: bold;">default</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"Unexpected type %T\n"</span>, t)
+}
+</pre>
+</div>
+
+<p>
+输出：<br>
+</p>
+
+<pre class="example" id="org39b40fe">
+Type Square *main.Square with value &amp;{5}
+</pre>
+
+<p>
+变量 t 得到了 areaIntf 的值和类型， 所有 case 语句中列举的类型（nil 除外）都必须实现对应的接口（在上例中即 Shaper），如果被检测类型没有在 case 语句列举的类型中，就会执行 default 语句。<br>
+</p>
+
+<p>
+可以用 type-switch 进行运行时类型分析，但是在 type-switch 不允许有 fallthrough 。<br>
+</p>
+
+<p>
+如果仅仅是测试变量的类型，不用它的值，那么就可以不需要赋值语句，比如：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">switch</span> areaIntf.(<span style="color: #268bd2; font-weight: bold;">type</span>) {
+<span style="color: #268bd2; font-weight: bold;">case</span> *<span style="color: #df005f; font-weight: bold;">Square</span>:
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #dc752f; background-color: #262626;">TODO</span>
+<span style="color: #268bd2; font-weight: bold;">case</span> *<span style="color: #df005f; font-weight: bold;">Circle</span>:
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #dc752f; background-color: #262626;">TODO</span>
+    ...
+        <span style="color: #268bd2; font-weight: bold;">default</span>:
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #dc752f; background-color: #262626;">TODO</span>
+}
+</pre>
+</div>
+
+<p>
+下面的代码片段展示了一个类型分类函数，它有一个可变长度参数，可以是任意类型的数组，它会根据数组元素的实际类型执行不同的动作：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">classifier</span>(<span style="color: #8787d7;">items</span> ...<span style="color: #268bd2; font-weight: bold;">interface</span>{}) {
+        <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">x</span> := <span style="color: #268bd2; font-weight: bold;">range</span> items {
+                <span style="color: #268bd2; font-weight: bold;">switch</span> x.(<span style="color: #268bd2; font-weight: bold;">type</span>) {
+                <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #df005f; font-weight: bold;">bool</span>:
+                        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"Param #%d is a bool\n"</span>, i)
+                <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #df005f; font-weight: bold;">float64</span>:
+                        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"Param #%d is a float64\n"</span>, i)
+                <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #df005f; font-weight: bold;">int64</span>:
+                        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"Param #%d is a int\n"</span>, i)
+                <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #d75fd7;">nil</span>:
+                        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"Param #%d is a nil\n"</span>, i)
+                <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #df005f; font-weight: bold;">string</span>:
+                        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"Param #%d is a string\n"</span>, i)
+                <span style="color: #268bd2; font-weight: bold;">default</span>:
+                        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"Param #%d is unknown\n"</span>, i)
+                }
+        }
+}
+</pre>
+</div>
+
+<p>
+可以这样调用此方法：classifier(13, -14.3, "BELGIUM", complex(1, 2), nil, false) 。<br>
+</p>
+
+<p>
+在处理来自于外部的、类型未知的数据时，比如解析诸如 JSON 或 XML 编码的数据，类型测试和转换会非常有用。<br>
+</p>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-03 21:02 Thu</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-03 Thu 21:31</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-04 Fri 22:36 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GO LIST</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">GO LIST</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org4a8a790">简介</a></li>
+<li><a href="#orgea4af75">type Element</a>
+<ul>
+<li><a href="#orgff7c1dc">func (*Element) Next</a></li>
+<li><a href="#org29cb96e">func (*Element) Prev</a></li>
+</ul>
+</li>
+<li><a href="#orge0e8ee9">type List</a>
+<ul>
+<li><a href="#org1e7b02a">func New</a></li>
+<li><a href="#org96be004">func (*List) Init</a></li>
+<li><a href="#org606a1c7">func (*List) Len</a></li>
+<li><a href="#org437e31e">func (*List) Front</a></li>
+<li><a href="#org05c4ff6">func (*List) Back</a></li>
+<li><a href="#org8e00c67">func (*List) PushFront</a></li>
+<li><a href="#orge0d025c">func (*List) PushFrontList</a></li>
+<li><a href="#org3a808b2">func (*List) PushBack</a></li>
+<li><a href="#orgf4098b3">func (*List) PushBackList</a></li>
+<li><a href="#orgb3853fa">func (*List) InsertBefore</a></li>
+<li><a href="#org96dd156">func (*List) InsertAfter</a></li>
+<li><a href="#org7b2c907">func (*List) MoveToFront</a></li>
+<li><a href="#org8d28472">func (*List) MoveToBack</a></li>
+<li><a href="#orgbe4c87f">func (*List) MoveBefore</a></li>
+<li><a href="#orgf5ad172">func (*List) MoveAfter</a></li>
+<li><a href="#org83a9d03">func (*List) Remove</a></li>
+</ul>
+</li>
+<li><a href="#orge965096">初始化一个 list</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org4a8a790" class="outline-2">
+<h2 id="org4a8a790">简介</h2>
+<div class="outline-text-2" id="text-org4a8a790">
+<p>
+list 包实现了双向链表，要遍历一个链表：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">e</span> := l.<span style="color: #d75fd7; font-weight: bold;">Front</span>(); e!= <span style="color: #d75fd7;">nil</span>; e = e.<span style="color: #d75fd7; font-weight: bold;">Next</span>() {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">do something with e.Value</span>
+}
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"container/list"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Create a new list and put some numbers in it.</span>
+    <span style="color: #8787d7;">l</span> := list.<span style="color: #d75fd7; font-weight: bold;">New</span>()
+    <span style="color: #8787d7;">e4</span> := l.<span style="color: #d75fd7; font-weight: bold;">PushBack</span>(<span style="color: #d75fd7;">4</span>)
+    <span style="color: #8787d7;">e1</span> := l.<span style="color: #d75fd7; font-weight: bold;">PushFront</span>(<span style="color: #d75fd7;">1</span>)
+    l.<span style="color: #d75fd7; font-weight: bold;">InsertBefore</span>(<span style="color: #d75fd7;">3</span>, e4)
+    l.<span style="color: #d75fd7; font-weight: bold;">InsertAfter</span>(<span style="color: #d75fd7;">2</span>, e1)
+
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Iterate throut list and print its contents.</span>
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">e</span> := l.<span style="color: #d75fd7; font-weight: bold;">Front</span>(); e != <span style="color: #d75fd7;">nil</span>; e = e.<span style="color: #d75fd7; font-weight: bold;">Next</span>() {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(e.Value)
+    }
+}
+</pre>
+</div>
+
+<p>
+输出：<br>
+</p>
+
+<pre class="example" id="orga47ce4b">
+1
+2
+3
+4
+</pre>
+</div>
+</div>
+<div id="outline-container-orgea4af75" class="outline-2">
+<h2 id="orgea4af75">type Element</h2>
+<div class="outline-text-2" id="text-orgea4af75">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Element</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20803;&#32032;&#20445;&#31649;&#30340;&#20540;</span>
+    Value <span style="color: #268bd2; font-weight: bold;">interface</span>{}
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20869;&#21547;&#38544;&#34255;&#25110;&#38750;&#23548;&#20986;&#23383;&#27573;</span>
+}
+</pre>
+</div>
+
+<p>
+Element 类型代表是双向链表的一个元素<br>
+</p>
+</div>
+
+<div id="outline-container-orgff7c1dc" class="outline-3">
+<h3 id="orgff7c1dc">func (*Element) Next</h3>
+<div class="outline-text-3" id="text-orgff7c1dc">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">e</span> *<span style="color: #df005f; font-weight: bold;">Element</span>) <span style="color: #d75fd7; font-weight: bold;">Next</span>() *<span style="color: #df005f; font-weight: bold;">Element</span>
+</pre>
+</div>
+
+<p>
+Next返回链表的后一个元素或者nil。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org29cb96e" class="outline-3">
+<h3 id="org29cb96e">func (*Element) Prev</h3>
+<div class="outline-text-3" id="text-org29cb96e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">e</span> *<span style="color: #df005f; font-weight: bold;">Element</span>) <span style="color: #d75fd7; font-weight: bold;">Prev</span>() *<span style="color: #df005f; font-weight: bold;">Element</span>
+</pre>
+</div>
+
+<p>
+Prev返回链表的前一个元素或者nil。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orge0e8ee9" class="outline-2">
+<h2 id="orge0e8ee9">type List</h2>
+<div class="outline-text-2" id="text-orge0e8ee9">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">List</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20869;&#21547;&#38544;&#34255;&#25110;&#38750;&#23548;&#20986;&#23383;&#27573;</span>
+}
+</pre>
+</div>
+
+<p>
+List代表一个双向链表。List零值为一个空的、可用的链表。<br>
+</p>
+</div>
+<div id="outline-container-org1e7b02a" class="outline-3">
+<h3 id="org1e7b02a">func New</h3>
+<div class="outline-text-3" id="text-org1e7b02a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">New</span>() *<span style="color: #df005f; font-weight: bold;">List</span>
+</pre>
+</div>
+
+<p>
+New创建一个链表。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org96be004" class="outline-3">
+<h3 id="org96be004">func (*List) Init</h3>
+<div class="outline-text-3" id="text-org96be004">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">l</span> *<span style="color: #df005f; font-weight: bold;">List</span>) <span style="color: #d75fd7; font-weight: bold;">Init</span>() *<span style="color: #df005f; font-weight: bold;">List</span>
+</pre>
+</div>
+
+<p>
+Init清空链表。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org606a1c7" class="outline-3">
+<h3 id="org606a1c7">func (*List) Len</h3>
+<div class="outline-text-3" id="text-org606a1c7">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">l</span> *<span style="color: #df005f; font-weight: bold;">List</span>) <span style="color: #d75fd7; font-weight: bold;">Len</span>() <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+Len返回链表中元素的个数，复杂度O(1)。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org437e31e" class="outline-3">
+<h3 id="org437e31e">func (*List) Front</h3>
+<div class="outline-text-3" id="text-org437e31e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">l</span> *<span style="color: #df005f; font-weight: bold;">List</span>) <span style="color: #d75fd7; font-weight: bold;">Front</span>() *<span style="color: #df005f; font-weight: bold;">Element</span>
+</pre>
+</div>
+
+<p>
+Front返回链表第一个元素或nil。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org05c4ff6" class="outline-3">
+<h3 id="org05c4ff6">func (*List) Back</h3>
+<div class="outline-text-3" id="text-org05c4ff6">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">l</span> *<span style="color: #df005f; font-weight: bold;">List</span>) <span style="color: #d75fd7; font-weight: bold;">Back</span>() *<span style="color: #df005f; font-weight: bold;">Element</span>
+</pre>
+</div>
+
+<p>
+Back返回链表最后一个元素或nil。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8e00c67" class="outline-3">
+<h3 id="org8e00c67">func (*List) PushFront</h3>
+<div class="outline-text-3" id="text-org8e00c67">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">l</span> *<span style="color: #df005f; font-weight: bold;">List</span>) <span style="color: #d75fd7; font-weight: bold;">PushFront</span>(<span style="color: #8787d7;">v</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}) *<span style="color: #df005f; font-weight: bold;">Element</span>
+</pre>
+</div>
+
+<p>
+PushBack将一个值为v的新元素插入链表的第一个位置，返回生成的新元素。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge0d025c" class="outline-3">
+<h3 id="orge0d025c">func (*List) PushFrontList</h3>
+<div class="outline-text-3" id="text-orge0d025c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">l</span> *<span style="color: #df005f; font-weight: bold;">List</span>) <span style="color: #d75fd7; font-weight: bold;">PushFrontList</span>(<span style="color: #8787d7;">other</span> *<span style="color: #df005f; font-weight: bold;">List</span>)
+</pre>
+</div>
+
+<p>
+PushFrontList创建链表other的拷贝，并将拷贝的最后一个位置连接到链表l的第一个位置。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org3a808b2" class="outline-3">
+<h3 id="org3a808b2">func (*List) PushBack</h3>
+<div class="outline-text-3" id="text-org3a808b2">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">l</span> *<span style="color: #df005f; font-weight: bold;">List</span>) <span style="color: #d75fd7; font-weight: bold;">PushBack</span>(<span style="color: #8787d7;">v</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}) *<span style="color: #df005f; font-weight: bold;">Element</span>
+</pre>
+</div>
+
+<p>
+PushBack将一个值为v的新元素插入链表的最后一个位置，返回生成的新元素。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf4098b3" class="outline-3">
+<h3 id="orgf4098b3">func (*List) PushBackList</h3>
+<div class="outline-text-3" id="text-orgf4098b3">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">l</span> *<span style="color: #df005f; font-weight: bold;">List</span>) <span style="color: #d75fd7; font-weight: bold;">PushBackList</span>(<span style="color: #8787d7;">other</span> *<span style="color: #df005f; font-weight: bold;">List</span>)
+</pre>
+</div>
+
+<p>
+PushBack创建链表other的拷贝，并将链表l的最后一个位置连接到拷贝的第一个位置。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb3853fa" class="outline-3">
+<h3 id="orgb3853fa">func (*List) InsertBefore</h3>
+<div class="outline-text-3" id="text-orgb3853fa">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">l</span> *<span style="color: #df005f; font-weight: bold;">List</span>) <span style="color: #d75fd7; font-weight: bold;">InsertBefore</span>(<span style="color: #8787d7;">v</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}, <span style="color: #8787d7;">mark</span> *<span style="color: #df005f; font-weight: bold;">Element</span>) *<span style="color: #df005f; font-weight: bold;">Element</span>
+</pre>
+</div>
+
+<p>
+InsertBefore将一个值为v的新元素插入到mark前面，并返回生成的新元素。如果mark不是l的元素，l不会被修改。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org96dd156" class="outline-3">
+<h3 id="org96dd156">func (*List) InsertAfter</h3>
+<div class="outline-text-3" id="text-org96dd156">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">l</span> *<span style="color: #df005f; font-weight: bold;">List</span>) <span style="color: #d75fd7; font-weight: bold;">InsertAfter</span>(<span style="color: #8787d7;">v</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}, <span style="color: #8787d7;">mark</span> *<span style="color: #df005f; font-weight: bold;">Element</span>) *<span style="color: #df005f; font-weight: bold;">Element</span>
+</pre>
+</div>
+
+<p>
+InsertAfter将一个值为v的新元素插入到mark后面，并返回新生成的元素。如果mark不是l的元素，l不会被修改。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org7b2c907" class="outline-3">
+<h3 id="org7b2c907">func (*List) MoveToFront</h3>
+<div class="outline-text-3" id="text-org7b2c907">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">l</span> *<span style="color: #df005f; font-weight: bold;">List</span>) <span style="color: #d75fd7; font-weight: bold;">MoveToFront</span>(<span style="color: #8787d7;">e</span> *<span style="color: #df005f; font-weight: bold;">Element</span>)
+</pre>
+</div>
+
+<p>
+MoveToFront将元素e移动到链表的第一个位置，如果e不是l的元素，l不会被修改。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8d28472" class="outline-3">
+<h3 id="org8d28472">func (*List) MoveToBack</h3>
+<div class="outline-text-3" id="text-org8d28472">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">l</span> *<span style="color: #df005f; font-weight: bold;">List</span>) <span style="color: #d75fd7; font-weight: bold;">MoveToBack</span>(<span style="color: #8787d7;">e</span> *<span style="color: #df005f; font-weight: bold;">Element</span>)
+</pre>
+</div>
+
+<p>
+MoveToBack将元素e移动到链表的最后一个位置，如果e不是l的元素，l不会被修改。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgbe4c87f" class="outline-3">
+<h3 id="orgbe4c87f">func (*List) MoveBefore</h3>
+<div class="outline-text-3" id="text-orgbe4c87f">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">l</span> *<span style="color: #df005f; font-weight: bold;">List</span>) <span style="color: #d75fd7; font-weight: bold;">MoveBefore</span>(<span style="color: #8787d7;">e</span>, <span style="color: #8787d7;">mark</span> *<span style="color: #df005f; font-weight: bold;">Element</span>)
+</pre>
+</div>
+
+<p>
+MoveBefore将元素e移动到mark的前面。如果e或mark不是l的元素，或者e==mark，l不会被修改。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf5ad172" class="outline-3">
+<h3 id="orgf5ad172">func (*List) MoveAfter</h3>
+<div class="outline-text-3" id="text-orgf5ad172">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">l</span> *<span style="color: #df005f; font-weight: bold;">List</span>) <span style="color: #d75fd7; font-weight: bold;">MoveAfter</span>(<span style="color: #8787d7;">e</span>, <span style="color: #8787d7;">mark</span> *<span style="color: #df005f; font-weight: bold;">Element</span>)
+</pre>
+</div>
+
+<p>
+MoveAfter将元素e移动到mark的后面。如果e或mark不是l的元素，或者e==mark，l不会被修改。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org83a9d03" class="outline-3">
+<h3 id="org83a9d03">func (*List) Remove</h3>
+<div class="outline-text-3" id="text-org83a9d03">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">l</span> *<span style="color: #df005f; font-weight: bold;">List</span>) <span style="color: #d75fd7; font-weight: bold;">Remove</span>(<span style="color: #8787d7;">e</span> *<span style="color: #df005f; font-weight: bold;">Element</span>) <span style="color: #268bd2; font-weight: bold;">interface</span>{}
+</pre>
+</div>
+
+<p>
+Remove删除链表中的元素e，并返回e.Value。<br>
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orge965096" class="outline-2">
+<h2 id="orge965096">初始化一个 list</h2>
+<div class="outline-text-2" id="text-orge965096">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">lst01</span> := list.<span style="color: #d75fd7; font-weight: bold;">New</span>()
+<span style="color: #8787d7;">lst02</span> := <span style="color: #268bd2;">new</span>(<span style="color: #df005f; font-weight: bold;">list.List</span>)
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-04 19:02 Fri</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-04 Fri 22:36</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

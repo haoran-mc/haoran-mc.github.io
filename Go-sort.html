@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-05 Sat 22:26 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GO SORT</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">GO SORT</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org7ed7487">简单使用</a></li>
+<li><a href="#orga969dd5">type Interface</a></li>
+<li><a href="#orgd263ce3">type IntSlice</a>
+<ul>
+<li><a href="#org3ebfdda">func (IntSlice) Len</a></li>
+<li><a href="#orgcd2704a">func (IntSlice) Less</a></li>
+<li><a href="#orgeafa03a">func (IntSlice) Swap</a></li>
+<li><a href="#org4a299f6">func (IntSlice) Sort</a></li>
+<li><a href="#orgad47966">func (IntSlice) Search</a></li>
+</ul>
+</li>
+<li><a href="#org207aa40">type Float64Slice</a>
+<ul>
+<li><a href="#org2d9a7d5">func (Float64Slice) Len</a></li>
+<li><a href="#org9426bd5">func (Float64Slice) Less</a></li>
+<li><a href="#orga158e03">func (Float64Slice) Swap</a></li>
+<li><a href="#orgc8a29a2">func (Float64Slice) Sort</a></li>
+<li><a href="#org4fb8d68">func (Float64Slice) Search</a></li>
+</ul>
+</li>
+<li><a href="#orga0fafad">type StringSlice</a>
+<ul>
+<li><a href="#orgf621683">func (StringSlice) Len</a></li>
+<li><a href="#org5f742b2">func (StringSlice) Less</a></li>
+<li><a href="#orgcc19a44">func (StringSlice) Swap</a></li>
+<li><a href="#org11f0940">func (StringSlice) Sort</a></li>
+<li><a href="#orgc17e7d5">func (StringSlice) Search</a></li>
+</ul>
+</li>
+<li><a href="#org3d7e24a">func Sort</a></li>
+<li><a href="#org948a48d">func Stable</a></li>
+<li><a href="#orga30c026">func IsSorted</a></li>
+<li><a href="#org87cb319">func Reverse</a></li>
+<li><a href="#orgba59306">func Search</a></li>
+<li><a href="#org6de3687">func Ints</a></li>
+<li><a href="#org5cedae5">func IntsAreSorted</a></li>
+<li><a href="#orga351acd">func SearchInts</a></li>
+<li><a href="#org640d19d">func Float64s</a></li>
+<li><a href="#org8c71630">func Float64sAreSorted</a></li>
+<li><a href="#orgd5bb665">func SearchFloat64s</a></li>
+<li><a href="#org6df6c16">func Strings</a></li>
+<li><a href="#orgb8ce319">func StringsAreSorted</a></li>
+<li><a href="#org9cb9367">func SearchStrings</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org7ed7487" class="outline-2">
+<h2 id="org7ed7487">简单使用</h2>
+<div class="outline-text-2" id="text-org7ed7487">
+<p>
+sort 包提供了排序切片和用户自定义数据集的函数。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> sort_test
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"sort"</span>
+)
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Person</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    Name <span style="color: #df005f; font-weight: bold;">string</span>
+    Age  <span style="color: #df005f; font-weight: bold;">int</span>
+}
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">p</span> <span style="color: #df005f; font-weight: bold;">Person</span>) <span style="color: #d75fd7; font-weight: bold;">String</span>() <span style="color: #df005f; font-weight: bold;">string</span> {
+    <span style="color: #268bd2; font-weight: bold;">return</span> fmt.<span style="color: #d75fd7; font-weight: bold;">Sprintf</span>(<span style="color: #2aa198;">"%s: %d"</span>, p.Name, p.Age)
+}
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">ByAge implements sort.Interface for []Person based on</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">the Age field.</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">ByAge</span> []<span style="color: #df005f; font-weight: bold;">Person</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">a</span> <span style="color: #df005f; font-weight: bold;">ByAge</span>) <span style="color: #d75fd7; font-weight: bold;">Len</span>() <span style="color: #df005f; font-weight: bold;">int</span>           { <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #268bd2;">len</span>(a) }
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">a</span> <span style="color: #df005f; font-weight: bold;">ByAge</span>) <span style="color: #d75fd7; font-weight: bold;">Swap</span>(<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">j</span> <span style="color: #df005f; font-weight: bold;">int</span>)      { a[i], a[j] = a[j], a[i] }
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">a</span> <span style="color: #df005f; font-weight: bold;">ByAge</span>) <span style="color: #d75fd7; font-weight: bold;">Less</span>(<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">j</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">bool</span> { <span style="color: #268bd2; font-weight: bold;">return</span> a[i].Age &lt; a[j].Age }
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Example</span>() {
+    <span style="color: #8787d7;">people</span> := []<span style="color: #df005f; font-weight: bold;">Person</span>{
+        {<span style="color: #2aa198;">"Bob"</span>, <span style="color: #d75fd7;">31</span>},
+        {<span style="color: #2aa198;">"John"</span>, <span style="color: #d75fd7;">42</span>},
+        {<span style="color: #2aa198;">"Michael"</span>, <span style="color: #d75fd7;">17</span>},
+        {<span style="color: #2aa198;">"Jenny"</span>, <span style="color: #d75fd7;">26</span>},
+    }
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(people)
+    sort.<span style="color: #d75fd7; font-weight: bold;">Sort</span>(<span style="color: #d75fd7; font-weight: bold;">ByAge</span>(people))
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(people)
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">[Bob: 31 John: 42 Michael: 17 Jenny: 26]</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">[Michael: 17 Jenny: 26 Bob: 31 John: 42]</span>
+}
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> sort_test
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"sort"</span>
+)
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">A couple of type definitions to make the units clear.</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">earthMass</span> <span style="color: #df005f; font-weight: bold;">float64</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">au</span> <span style="color: #df005f; font-weight: bold;">float64</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">A Planet defines the properties of a solar system object.</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Planet</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    name     <span style="color: #df005f; font-weight: bold;">string</span>
+    mass     <span style="color: #df005f; font-weight: bold;">earthMass</span>
+    distance <span style="color: #df005f; font-weight: bold;">au</span>
+}
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">By is the type of a "less" function that defines the ordering of its Planet arguments.</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">By</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">p1</span>, <span style="color: #8787d7;">p2</span> *<span style="color: #df005f; font-weight: bold;">Planet</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Sort is a method on the function type, By, that sorts the argument slice according to the function.</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">by</span> <span style="color: #df005f; font-weight: bold;">By</span>) <span style="color: #d75fd7; font-weight: bold;">Sort</span>(<span style="color: #8787d7;">planets</span> []<span style="color: #df005f; font-weight: bold;">Planet</span>) {
+    <span style="color: #8787d7;">ps</span> := &amp;<span style="color: #df005f; font-weight: bold;">planetSorter</span>{
+        <span style="color: #d75fd7;">planets</span>: planets,
+        <span style="color: #d75fd7;">by</span>:      by, <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">The Sort method's receiver is the function (closure) that defines the sort order.</span>
+    }
+    sort.<span style="color: #d75fd7; font-weight: bold;">Sort</span>(ps)
+}
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">planetSorter joins a By function and a slice of Planets to be sorted.</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">planetSorter</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    planets []<span style="color: #df005f; font-weight: bold;">Planet</span>
+    by      <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">p1</span>, <span style="color: #8787d7;">p2</span> *<span style="color: #df005f; font-weight: bold;">Planet</span>) <span style="color: #df005f; font-weight: bold;">bool</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Closure used in the Less method.</span>
+}
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Len is part of sort.Interface.</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">s</span> *<span style="color: #df005f; font-weight: bold;">planetSorter</span>) <span style="color: #d75fd7; font-weight: bold;">Len</span>() <span style="color: #df005f; font-weight: bold;">int</span> {
+    <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #268bd2;">len</span>(s.planets)
+}
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Swap is part of sort.Interface.</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">s</span> *<span style="color: #df005f; font-weight: bold;">planetSorter</span>) <span style="color: #d75fd7; font-weight: bold;">Swap</span>(<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">j</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
+    s.planets[i], s.planets[j] = s.planets[j], s.planets[i]
+}
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Less is part of sort.Interface. It is implemented by calling the "by" closure in the sorter.</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">s</span> *<span style="color: #df005f; font-weight: bold;">planetSorter</span>) <span style="color: #d75fd7; font-weight: bold;">Less</span>(<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">j</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">bool</span> {
+    <span style="color: #268bd2; font-weight: bold;">return</span> s.<span style="color: #d75fd7; font-weight: bold;">by</span>(&amp;s.planets[i], &amp;s.planets[j])
+}
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">planets</span> = []<span style="color: #df005f; font-weight: bold;">Planet</span>{
+    {<span style="color: #2aa198;">"Mercury"</span>, <span style="color: #d75fd7;">0</span>.<span style="color: #d75fd7;">055</span>, <span style="color: #d75fd7;">0</span>.<span style="color: #d75fd7;">4</span>},
+    {<span style="color: #2aa198;">"Venus"</span>, <span style="color: #d75fd7;">0</span>.<span style="color: #d75fd7;">815</span>, <span style="color: #d75fd7;">0</span>.<span style="color: #d75fd7;">7</span>},
+    {<span style="color: #2aa198;">"Earth"</span>, <span style="color: #d75fd7;">1</span>.<span style="color: #d75fd7;">0</span>, <span style="color: #d75fd7;">1</span>.<span style="color: #d75fd7;">0</span>},
+    {<span style="color: #2aa198;">"Mars"</span>, <span style="color: #d75fd7;">0</span>.<span style="color: #d75fd7;">107</span>, <span style="color: #d75fd7;">1</span>.<span style="color: #d75fd7;">5</span>},
+}
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">ExampleSortKeys demonstrates a technique for sorting a struct type using programmable sort criteria.</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Example_sortKeys</span>() {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Closures that order the Planet structure.</span>
+    <span style="color: #8787d7;">name</span> := <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">p1</span>, <span style="color: #8787d7;">p2</span> *<span style="color: #df005f; font-weight: bold;">Planet</span>) <span style="color: #df005f; font-weight: bold;">bool</span> {
+        <span style="color: #268bd2; font-weight: bold;">return</span> p1.name &lt; p2.name
+    }
+    <span style="color: #8787d7;">mass</span> := <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">p1</span>, <span style="color: #8787d7;">p2</span> *<span style="color: #df005f; font-weight: bold;">Planet</span>) <span style="color: #df005f; font-weight: bold;">bool</span> {
+        <span style="color: #268bd2; font-weight: bold;">return</span> p1.mass &lt; p2.mass
+    }
+    <span style="color: #8787d7;">distance</span> := <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">p1</span>, <span style="color: #8787d7;">p2</span> *<span style="color: #df005f; font-weight: bold;">Planet</span>) <span style="color: #df005f; font-weight: bold;">bool</span> {
+        <span style="color: #268bd2; font-weight: bold;">return</span> p1.distance &lt; p2.distance
+    }
+    <span style="color: #8787d7;">decreasingDistance</span> := <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">p1</span>, <span style="color: #8787d7;">p2</span> *<span style="color: #df005f; font-weight: bold;">Planet</span>) <span style="color: #df005f; font-weight: bold;">bool</span> {
+        <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">!</span><span style="color: #d75fd7; font-weight: bold;">distance</span>(p1, p2)
+    }
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Sort the planets by the various criteria.</span>
+    <span style="color: #d75fd7; font-weight: bold;">By</span>(name).<span style="color: #d75fd7; font-weight: bold;">Sort</span>(planets)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"By name:"</span>, planets)
+    <span style="color: #d75fd7; font-weight: bold;">By</span>(mass).<span style="color: #d75fd7; font-weight: bold;">Sort</span>(planets)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"By mass:"</span>, planets)
+    <span style="color: #d75fd7; font-weight: bold;">By</span>(distance).<span style="color: #d75fd7; font-weight: bold;">Sort</span>(planets)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"By distance:"</span>, planets)
+    <span style="color: #d75fd7; font-weight: bold;">By</span>(decreasingDistance).<span style="color: #d75fd7; font-weight: bold;">Sort</span>(planets)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"By decreasing distance:"</span>, planets)
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output: By name: [{Earth 1 1} {Mars 0.107 1.5} {Mercury 0.055 0.4} {Venus 0.815 0.7}]</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">By mass: [{Mercury 0.055 0.4} {Mars 0.107 1.5} {Venus 0.815 0.7} {Earth 1 1}]</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">By distance: [{Mercury 0.055 0.4} {Venus 0.815 0.7} {Earth 1 1} {Mars 0.107 1.5}]</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">By decreasing distance: [{Mars 0.107 1.5} {Earth 1 1} {Venus 0.815 0.7} {Mercury 0.055 0.4}]</span>
+}
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> sort_test
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"sort"</span>
+)
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">A Change is a record of source code changes, recording user, language, and delta size.</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Change</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    user     <span style="color: #df005f; font-weight: bold;">string</span>
+    language <span style="color: #df005f; font-weight: bold;">string</span>
+    lines    <span style="color: #df005f; font-weight: bold;">int</span>
+}
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">lessFunc</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">p1</span>, <span style="color: #8787d7;">p2</span> *<span style="color: #df005f; font-weight: bold;">Change</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">multiSorter implements the Sort interface, sorting the changes within.</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">multiSorter</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    changes []<span style="color: #df005f; font-weight: bold;">Change</span>
+    less    []<span style="color: #df005f; font-weight: bold;">lessFunc</span>
+}
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Sort sorts the argument slice according to the less functions passed to OrderedBy.</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">ms</span> *<span style="color: #df005f; font-weight: bold;">multiSorter</span>) <span style="color: #d75fd7; font-weight: bold;">Sort</span>(<span style="color: #8787d7;">changes</span> []<span style="color: #df005f; font-weight: bold;">Change</span>) {
+    ms.changes = changes
+    sort.<span style="color: #d75fd7; font-weight: bold;">Sort</span>(ms)
+}
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">OrderedBy returns a Sorter that sorts using the less functions, in order.</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Call its Sort method to sort the data.</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">OrderedBy</span>(<span style="color: #8787d7;">less</span> ...<span style="color: #df005f; font-weight: bold;">lessFunc</span>) *<span style="color: #df005f; font-weight: bold;">multiSorter</span> {
+    <span style="color: #268bd2; font-weight: bold;">return</span> &amp;<span style="color: #df005f; font-weight: bold;">multiSorter</span>{
+        <span style="color: #d75fd7;">less</span>: less,
+    }
+}
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Len is part of sort.Interface.</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">ms</span> *<span style="color: #df005f; font-weight: bold;">multiSorter</span>) <span style="color: #d75fd7; font-weight: bold;">Len</span>() <span style="color: #df005f; font-weight: bold;">int</span> {
+    <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #268bd2;">len</span>(ms.changes)
+}
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Swap is part of sort.Interface.</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">ms</span> *<span style="color: #df005f; font-weight: bold;">multiSorter</span>) <span style="color: #d75fd7; font-weight: bold;">Swap</span>(<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">j</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
+    ms.changes[i], ms.changes[j] = ms.changes[j], ms.changes[i]
+}
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Less is part of sort.Interface. It is implemented by looping along the</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">less functions until it finds a comparison that is either Less or</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">!Less. Note that it can call the less functions twice per call. We</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">could change the functions to return -1, 0, 1 and reduce the</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">number of calls for greater efficiency: an exercise for the reader.</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">ms</span> *<span style="color: #df005f; font-weight: bold;">multiSorter</span>) <span style="color: #d75fd7; font-weight: bold;">Less</span>(<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">j</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">bool</span> {
+    <span style="color: #8787d7;">p</span>, <span style="color: #8787d7;">q</span> := &amp;ms.changes[i], &amp;ms.changes[j]
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Try all but the last comparison.</span>
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">k</span> <span style="color: #df005f; font-weight: bold;">int</span>
+    <span style="color: #268bd2; font-weight: bold;">for</span> k = <span style="color: #d75fd7;">0</span>; k &lt; <span style="color: #268bd2;">len</span>(ms.less)-<span style="color: #d75fd7;">1</span>; k++ {
+        <span style="color: #8787d7;">less</span> := ms.less[k]
+        <span style="color: #268bd2; font-weight: bold;">switch</span> {
+        <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #d75fd7; font-weight: bold;">less</span>(p, q):
+            <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">p &lt; q, so we have a decision.</span>
+            <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">true</span>
+        <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #d75fd7; font-weight: bold;">less</span>(q, p):
+            <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">p &gt; q, so we have a decision.</span>
+            <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">false</span>
+        }
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">p == q; try the next comparison.</span>
+    }
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">All comparisons to here said "equal", so just return whatever</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">the final comparison reports.</span>
+    <span style="color: #268bd2; font-weight: bold;">return</span> ms.less[k](p, q)
+}
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">changes</span> = []<span style="color: #df005f; font-weight: bold;">Change</span>{
+    {<span style="color: #2aa198;">"gri"</span>, <span style="color: #2aa198;">"Go"</span>, <span style="color: #d75fd7;">100</span>},
+    {<span style="color: #2aa198;">"ken"</span>, <span style="color: #2aa198;">"C"</span>, <span style="color: #d75fd7;">150</span>},
+    {<span style="color: #2aa198;">"glenda"</span>, <span style="color: #2aa198;">"Go"</span>, <span style="color: #d75fd7;">200</span>},
+    {<span style="color: #2aa198;">"rsc"</span>, <span style="color: #2aa198;">"Go"</span>, <span style="color: #d75fd7;">200</span>},
+    {<span style="color: #2aa198;">"r"</span>, <span style="color: #2aa198;">"Go"</span>, <span style="color: #d75fd7;">100</span>},
+    {<span style="color: #2aa198;">"ken"</span>, <span style="color: #2aa198;">"Go"</span>, <span style="color: #d75fd7;">200</span>},
+    {<span style="color: #2aa198;">"dmr"</span>, <span style="color: #2aa198;">"C"</span>, <span style="color: #d75fd7;">100</span>},
+    {<span style="color: #2aa198;">"r"</span>, <span style="color: #2aa198;">"C"</span>, <span style="color: #d75fd7;">150</span>},
+    {<span style="color: #2aa198;">"gri"</span>, <span style="color: #2aa198;">"Smalltalk"</span>, <span style="color: #d75fd7;">80</span>},
+}
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">ExampleMultiKeys demonstrates a technique for sorting a struct type using different</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">sets of multiple fields in the comparison. We chain together "Less" functions, each of</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">which compares a single field.</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Example_sortMultiKeys</span>() {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Closures that order the Change structure.</span>
+    <span style="color: #8787d7;">user</span> := <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c1</span>, <span style="color: #8787d7;">c2</span> *<span style="color: #df005f; font-weight: bold;">Change</span>) <span style="color: #df005f; font-weight: bold;">bool</span> {
+        <span style="color: #268bd2; font-weight: bold;">return</span> c1.user &lt; c2.user
+    }
+    <span style="color: #8787d7;">language</span> := <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c1</span>, <span style="color: #8787d7;">c2</span> *<span style="color: #df005f; font-weight: bold;">Change</span>) <span style="color: #df005f; font-weight: bold;">bool</span> {
+        <span style="color: #268bd2; font-weight: bold;">return</span> c1.language &lt; c2.language
+    }
+    <span style="color: #8787d7;">increasingLines</span> := <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c1</span>, <span style="color: #8787d7;">c2</span> *<span style="color: #df005f; font-weight: bold;">Change</span>) <span style="color: #df005f; font-weight: bold;">bool</span> {
+        <span style="color: #268bd2; font-weight: bold;">return</span> c1.lines &lt; c2.lines
+    }
+    <span style="color: #8787d7;">decreasingLines</span> := <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c1</span>, <span style="color: #8787d7;">c2</span> *<span style="color: #df005f; font-weight: bold;">Change</span>) <span style="color: #df005f; font-weight: bold;">bool</span> {
+        <span style="color: #268bd2; font-weight: bold;">return</span> c1.lines &gt; c2.lines <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Note: &gt; orders downwards.</span>
+    }
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Simple use: Sort by user.</span>
+    <span style="color: #d75fd7; font-weight: bold;">OrderedBy</span>(user).<span style="color: #d75fd7; font-weight: bold;">Sort</span>(changes)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"By user:"</span>, changes)
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">More examples.</span>
+    <span style="color: #d75fd7; font-weight: bold;">OrderedBy</span>(user, increasingLines).<span style="color: #d75fd7; font-weight: bold;">Sort</span>(changes)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"By user,&lt;lines:"</span>, changes)
+    <span style="color: #d75fd7; font-weight: bold;">OrderedBy</span>(user, decreasingLines).<span style="color: #d75fd7; font-weight: bold;">Sort</span>(changes)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"By user,&gt;lines:"</span>, changes)
+    <span style="color: #d75fd7; font-weight: bold;">OrderedBy</span>(language, increasingLines).<span style="color: #d75fd7; font-weight: bold;">Sort</span>(changes)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"By language,&lt;lines:"</span>, changes)
+    <span style="color: #d75fd7; font-weight: bold;">OrderedBy</span>(language, increasingLines, user).<span style="color: #d75fd7; font-weight: bold;">Sort</span>(changes)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"By language,&lt;lines,user:"</span>, changes)
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">By user: [{dmr C 100} {glenda Go 200} {gri Smalltalk 80} {gri Go 100} {ken Go 200} {ken C 150} {r Go 100} {r C 150} {rsc Go 200}]</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">By user,&lt;lines: [{dmr C 100} {glenda Go 200} {gri Smalltalk 80} {gri Go 100} {ken C 150} {ken Go 200} {r Go 100} {r C 150} {rsc Go 200}]</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">By user,&gt;lines: [{dmr C 100} {glenda Go 200} {gri Go 100} {gri Smalltalk 80} {ken Go 200} {ken C 150} {r C 150} {r Go 100} {rsc Go 200}]</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">By language,&lt;lines: [{dmr C 100} {ken C 150} {r C 150} {gri Go 100} {r Go 100} {ken Go 200} {glenda Go 200} {rsc Go 200} {gri Smalltalk 80}]</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">By language,&lt;lines,user: [{dmr C 100} {ken C 150} {r C 150} {gri Go 100} {r Go 100} {glenda Go 200} {ken Go 200} {rsc Go 200} {gri Smalltalk 80}]</span>
+}
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> sort_test
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"sort"</span>
+)
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Grams</span> <span style="color: #df005f; font-weight: bold;">int</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">g</span> <span style="color: #df005f; font-weight: bold;">Grams</span>) <span style="color: #d75fd7; font-weight: bold;">String</span>() <span style="color: #df005f; font-weight: bold;">string</span> { <span style="color: #268bd2; font-weight: bold;">return</span> fmt.<span style="color: #d75fd7; font-weight: bold;">Sprintf</span>(<span style="color: #2aa198;">"%dg"</span>, <span style="color: #d75fd7; font-weight: bold;">int</span>(g)) }
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Organ</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    Name   <span style="color: #df005f; font-weight: bold;">string</span>
+    Weight <span style="color: #df005f; font-weight: bold;">Grams</span>
+}
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Organs</span> []*<span style="color: #df005f; font-weight: bold;">Organ</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">Organs</span>) <span style="color: #d75fd7; font-weight: bold;">Len</span>() <span style="color: #df005f; font-weight: bold;">int</span>      { <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #268bd2;">len</span>(s) }
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">Organs</span>) <span style="color: #d75fd7; font-weight: bold;">Swap</span>(<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">j</span> <span style="color: #df005f; font-weight: bold;">int</span>) { s[i], s[j] = s[j], s[i] }
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">ByName implements sort.Interface by providing Less and using the Len and</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Swap methods of the embedded Organs value.</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">ByName</span> <span style="color: #268bd2; font-weight: bold;">struct</span>{ Organs }
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">ByName</span>) <span style="color: #d75fd7; font-weight: bold;">Less</span>(<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">j</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">bool</span> { <span style="color: #268bd2; font-weight: bold;">return</span> s.Organs[i].Name &lt; s.Organs[j].Name }
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">ByWeight implements sort.Interface by providing Less and using the Len and</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Swap methods of the embedded Organs value.</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">ByWeight</span> <span style="color: #268bd2; font-weight: bold;">struct</span>{ Organs }
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">ByWeight</span>) <span style="color: #d75fd7; font-weight: bold;">Less</span>(<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">j</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">bool</span> { <span style="color: #268bd2; font-weight: bold;">return</span> s.Organs[i].Weight &lt; s.Organs[j].Weight }
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Example_sortWrapper</span>() {
+    <span style="color: #8787d7;">s</span> := []*<span style="color: #df005f; font-weight: bold;">Organ</span>{
+        {<span style="color: #2aa198;">"brain"</span>, <span style="color: #d75fd7;">1340</span>},
+        {<span style="color: #2aa198;">"heart"</span>, <span style="color: #d75fd7;">290</span>},
+        {<span style="color: #2aa198;">"liver"</span>, <span style="color: #d75fd7;">1494</span>},
+        {<span style="color: #2aa198;">"pancreas"</span>, <span style="color: #d75fd7;">131</span>},
+        {<span style="color: #2aa198;">"prostate"</span>, <span style="color: #d75fd7;">62</span>},
+        {<span style="color: #2aa198;">"spleen"</span>, <span style="color: #d75fd7;">162</span>},
+    }
+    sort.<span style="color: #d75fd7; font-weight: bold;">Sort</span>(<span style="color: #df005f; font-weight: bold;">ByWeight</span>{s})
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Organs by weight:"</span>)
+    <span style="color: #d75fd7; font-weight: bold;">printOrgans</span>(s)
+    sort.<span style="color: #d75fd7; font-weight: bold;">Sort</span>(<span style="color: #df005f; font-weight: bold;">ByName</span>{s})
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Organs by name:"</span>)
+    <span style="color: #d75fd7; font-weight: bold;">printOrgans</span>(s)
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Organs by weight:</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">prostate (62g)</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">pancreas (131g)</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">spleen   (162g)</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">heart    (290g)</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">brain    (1340g)</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">liver    (1494g)</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Organs by name:</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">brain    (1340g)</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">heart    (290g)</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">liver    (1494g)</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">pancreas (131g)</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">prostate (62g)</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">spleen   (162g)</span>
+}
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">printOrgans</span>(<span style="color: #8787d7;">s</span> []*<span style="color: #df005f; font-weight: bold;">Organ</span>) {
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">_</span>, <span style="color: #8787d7;">o</span> := <span style="color: #268bd2; font-weight: bold;">range</span> s {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%-8s (%v)\n"</span>, o.Name, o.Weight)
+    }
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orga969dd5" class="outline-2">
+<h2 id="orga969dd5">type Interface</h2>
+<div class="outline-text-2" id="text-orga969dd5">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Interface</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Len&#26041;&#27861;&#36820;&#22238;&#38598;&#21512;&#20013;&#30340;&#20803;&#32032;&#20010;&#25968;</span>
+    <span style="color: #d75fd7; font-weight: bold;">Len</span>() <span style="color: #df005f; font-weight: bold;">int</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Less&#26041;&#27861;&#25253;&#21578;&#32034;&#24341;i&#30340;&#20803;&#32032;&#26159;&#21542;&#27604;&#32034;&#24341;j&#30340;&#20803;&#32032;&#23567;</span>
+    <span style="color: #d75fd7; font-weight: bold;">Less</span>(<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">j</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Swap&#26041;&#27861;&#20132;&#25442;&#32034;&#24341;i&#21644;j&#30340;&#20004;&#20010;&#20803;&#32032;</span>
+    <span style="color: #d75fd7; font-weight: bold;">Swap</span>(<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">j</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+}
+</pre>
+</div>
+
+<p>
+一个满足sort.Interface接口的（集合）类型可以被本包的函数进行排序。方法要求集合中的元素可以被整数索引。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd263ce3" class="outline-2">
+<h2 id="orgd263ce3">type IntSlice</h2>
+<div class="outline-text-2" id="text-orgd263ce3">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">IntSlice</span> []<span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+IntSlice给[]int添加方法以满足Interface接口，以便排序为递增序列。<br>
+</p>
+</div>
+<div id="outline-container-org3ebfdda" class="outline-3">
+<h3 id="org3ebfdda">func (IntSlice) Len</h3>
+<div class="outline-text-3" id="text-org3ebfdda">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">p</span> <span style="color: #df005f; font-weight: bold;">IntSlice</span>) <span style="color: #d75fd7; font-weight: bold;">Len</span>() <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgcd2704a" class="outline-3">
+<h3 id="orgcd2704a">func (IntSlice) Less</h3>
+<div class="outline-text-3" id="text-orgcd2704a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">p</span> <span style="color: #df005f; font-weight: bold;">IntSlice</span>) <span style="color: #d75fd7; font-weight: bold;">Less</span>(<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">j</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgeafa03a" class="outline-3">
+<h3 id="orgeafa03a">func (IntSlice) Swap</h3>
+<div class="outline-text-3" id="text-orgeafa03a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">p</span> <span style="color: #df005f; font-weight: bold;">IntSlice</span>) <span style="color: #d75fd7; font-weight: bold;">Swap</span>(<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">j</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org4a299f6" class="outline-3">
+<h3 id="org4a299f6">func (IntSlice) Sort</h3>
+<div class="outline-text-3" id="text-org4a299f6">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">p</span> <span style="color: #df005f; font-weight: bold;">IntSlice</span>) <span style="color: #d75fd7; font-weight: bold;">Sort</span>()
+</pre>
+</div>
+
+<p>
+Sort等价于调用Sort(p)<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgad47966" class="outline-3">
+<h3 id="orgad47966">func (IntSlice) Search</h3>
+<div class="outline-text-3" id="text-orgad47966">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">p</span> <span style="color: #df005f; font-weight: bold;">IntSlice</span>) <span style="color: #d75fd7; font-weight: bold;">Search</span>(<span style="color: #8787d7;">x</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+Search等价于调用SearchInts(p, x)<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org207aa40" class="outline-2">
+<h2 id="org207aa40">type Float64Slice</h2>
+<div class="outline-text-2" id="text-org207aa40">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Float64Slice</span> []<span style="color: #df005f; font-weight: bold;">float64</span>
+</pre>
+</div>
+
+<p>
+Float64Slice给[]float64添加方法以满足Interface接口，以便排序为递增序列。<br>
+</p>
+</div>
+<div id="outline-container-org2d9a7d5" class="outline-3">
+<h3 id="org2d9a7d5">func (Float64Slice) Len</h3>
+<div class="outline-text-3" id="text-org2d9a7d5">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">p</span> <span style="color: #df005f; font-weight: bold;">Float64Slice</span>) <span style="color: #d75fd7; font-weight: bold;">Len</span>() <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org9426bd5" class="outline-3">
+<h3 id="org9426bd5">func (Float64Slice) Less</h3>
+<div class="outline-text-3" id="text-org9426bd5">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">p</span> <span style="color: #df005f; font-weight: bold;">Float64Slice</span>) <span style="color: #d75fd7; font-weight: bold;">Less</span>(<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">j</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orga158e03" class="outline-3">
+<h3 id="orga158e03">func (Float64Slice) Swap</h3>
+<div class="outline-text-3" id="text-orga158e03">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">p</span> <span style="color: #df005f; font-weight: bold;">Float64Slice</span>) <span style="color: #d75fd7; font-weight: bold;">Swap</span>(<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">j</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgc8a29a2" class="outline-3">
+<h3 id="orgc8a29a2">func (Float64Slice) Sort</h3>
+<div class="outline-text-3" id="text-orgc8a29a2">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">p</span> <span style="color: #df005f; font-weight: bold;">Float64Slice</span>) <span style="color: #d75fd7; font-weight: bold;">Sort</span>()
+</pre>
+</div>
+
+<p>
+Sort等价于调用Sort(p)<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4fb8d68" class="outline-3">
+<h3 id="org4fb8d68">func (Float64Slice) Search</h3>
+<div class="outline-text-3" id="text-org4fb8d68">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">p</span> <span style="color: #df005f; font-weight: bold;">Float64Slice</span>) <span style="color: #d75fd7; font-weight: bold;">Search</span>(<span style="color: #8787d7;">x</span> <span style="color: #df005f; font-weight: bold;">float64</span>) <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+Search等价于调用SearchFloat64s(p, x)<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orga0fafad" class="outline-2">
+<h2 id="orga0fafad">type StringSlice</h2>
+<div class="outline-text-2" id="text-orga0fafad">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">StringSlice</span> []<span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+StringSlice给[]string添加方法以满足Interface接口，以便排序为递增序列。<br>
+</p>
+</div>
+<div id="outline-container-orgf621683" class="outline-3">
+<h3 id="orgf621683">func (StringSlice) Len</h3>
+<div class="outline-text-3" id="text-orgf621683">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">p</span> <span style="color: #df005f; font-weight: bold;">StringSlice</span>) <span style="color: #d75fd7; font-weight: bold;">Len</span>() <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org5f742b2" class="outline-3">
+<h3 id="org5f742b2">func (StringSlice) Less</h3>
+<div class="outline-text-3" id="text-org5f742b2">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">p</span> <span style="color: #df005f; font-weight: bold;">StringSlice</span>) <span style="color: #d75fd7; font-weight: bold;">Less</span>(<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">j</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgcc19a44" class="outline-3">
+<h3 id="orgcc19a44">func (StringSlice) Swap</h3>
+<div class="outline-text-3" id="text-orgcc19a44">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">p</span> <span style="color: #df005f; font-weight: bold;">StringSlice</span>) <span style="color: #d75fd7; font-weight: bold;">Swap</span>(<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">j</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org11f0940" class="outline-3">
+<h3 id="org11f0940">func (StringSlice) Sort</h3>
+<div class="outline-text-3" id="text-org11f0940">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">p</span> <span style="color: #df005f; font-weight: bold;">StringSlice</span>) <span style="color: #d75fd7; font-weight: bold;">Sort</span>()
+</pre>
+</div>
+
+<p>
+Sort等价于调用Sort(p)<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc17e7d5" class="outline-3">
+<h3 id="orgc17e7d5">func (StringSlice) Search</h3>
+<div class="outline-text-3" id="text-orgc17e7d5">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">p</span> <span style="color: #df005f; font-weight: bold;">StringSlice</span>) <span style="color: #d75fd7; font-weight: bold;">Search</span>(<span style="color: #8787d7;">x</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+Search等价于调用SearchStrings(p, x)<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org3d7e24a" class="outline-2">
+<h2 id="org3d7e24a">func Sort</h2>
+<div class="outline-text-2" id="text-org3d7e24a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Sort</span>(<span style="color: #8787d7;">data</span> <span style="color: #df005f; font-weight: bold;">Interface</span>)
+</pre>
+</div>
+
+<p>
+Sort排序data。它调用1次data.Len确定长度，调用 O(n*log(n)) 次data.Less和data.Swap。本函数不能保证排序的稳定性（即不保证相等元素的相对次序不变）。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org948a48d" class="outline-2">
+<h2 id="org948a48d">func Stable</h2>
+<div class="outline-text-2" id="text-org948a48d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Stable</span>(<span style="color: #8787d7;">data</span> <span style="color: #df005f; font-weight: bold;">Interface</span>)
+</pre>
+</div>
+
+<p>
+Stable排序data，并保证排序的稳定性，相等元素的相对次序不变。<br>
+</p>
+
+<p>
+它调用 1 次 data.Len，O(n*log(n)) 次 data.Less 和 O(n*log(n)*log(n)) 次 data.Swap。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga30c026" class="outline-2">
+<h2 id="orga30c026">func IsSorted</h2>
+<div class="outline-text-2" id="text-orga30c026">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">IsSorted</span>(<span style="color: #8787d7;">data</span> <span style="color: #df005f; font-weight: bold;">Interface</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+IsSorted 报告 data 是否已经被排序。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org87cb319" class="outline-2">
+<h2 id="org87cb319">func Reverse</h2>
+<div class="outline-text-2" id="text-org87cb319">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Reverse</span>(<span style="color: #8787d7;">data</span> <span style="color: #df005f; font-weight: bold;">Interface</span>) <span style="color: #df005f; font-weight: bold;">Interface</span>
+</pre>
+</div>
+
+<p>
+Reverse包装一个Interface接口并返回一个新的Interface接口，对该接口排序可生成递减序列。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">s</span> := []<span style="color: #df005f; font-weight: bold;">int</span>{<span style="color: #d75fd7;">5</span>, <span style="color: #d75fd7;">2</span>, <span style="color: #d75fd7;">6</span>, <span style="color: #d75fd7;">3</span>, <span style="color: #d75fd7;">1</span>, <span style="color: #d75fd7;">4</span>} <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">unsorted</span>
+sort.<span style="color: #d75fd7; font-weight: bold;">Sort</span>(sort.<span style="color: #d75fd7; font-weight: bold;">Reverse</span>(sort.<span style="color: #d75fd7; font-weight: bold;">IntSlice</span>(s)))
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(s)
+</pre>
+</div>
+
+<p>
+Output:<br>
+</p>
+
+<pre class="example" id="org3ebf6a9">
+[6 5 4 3 2 1]
+</pre>
+</div>
+</div>
+<div id="outline-container-orgba59306" class="outline-2">
+<h2 id="orgba59306">func Search</h2>
+<div class="outline-text-2" id="text-orgba59306">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Search</span>(<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">f</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">bool</span>) <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+Search 函数采用二分法搜索找到 [0, n) 区间内最小的满足 f(i)==true 的值 i。也就是说，Search 函数希望 f 在输入位于区间 [0, n) 的前面某部分（可以为空）时返回假，而在输入位于剩余至结尾的部分（可以为空）时返回真；Search函数会返回满足 f(i)==true 的最小值 i。如果没有该值，函数会返回 n。注意，未找到时的返回值不是-1，这一点和 strings.Index 等函数不同。Search 函数只会用区间 [0, n) 内的值调用 f。<br>
+</p>
+
+<p>
+一般使用 Search 找到值 x 在插入一个有序的、可索引的数据结构时，应插入的位置。这种情况下，参数 f（通常是闭包）会捕捉应搜索的值和被查询的数据集。<br>
+</p>
+
+<p>
+例如，给定一个递增顺序的切片，调用 Search(len(data), func(i int) bool { return data[i] &gt;= 23 }) 会返回 data 中最小的索引 i 满足 data[i] &gt;= 23。如果调用者想要知道 23 是否在切片里，它必须另外检查 data[i] == 23。<br>
+</p>
+
+<p>
+搜索递减顺序的数据时，应使用 &lt;= 运算符代替 &gt;= 运算符。<br>
+</p>
+
+<p>
+下列代码尝试在一个递增顺序的整数切片中找到值x：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">x</span> := <span style="color: #d75fd7;">23</span>
+<span style="color: #8787d7;">i</span> := sort.<span style="color: #d75fd7; font-weight: bold;">Search</span>(<span style="color: #268bd2;">len</span>(data), <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">i</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">bool</span> { <span style="color: #268bd2; font-weight: bold;">return</span> data[i] &gt;= x })
+<span style="color: #268bd2; font-weight: bold;">if</span> i &lt; <span style="color: #268bd2;">len</span>(data) &amp;&amp; data[i] == x {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">x is present at data[i]</span>
+} <span style="color: #268bd2; font-weight: bold;">else</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">x is not present in data,</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">but i is the index where it would be inserted.</span>
+}
+</pre>
+</div>
+
+<p>
+一个更古怪的例子，下面的程序会猜测你持有的数字：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">GuessingGame</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"Pick an integer from 0 to 100.\n"</span>)
+    <span style="color: #8787d7;">answer</span> := sort.<span style="color: #d75fd7; font-weight: bold;">Search</span>(<span style="color: #d75fd7;">100</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">i</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">bool</span> {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"Is your number &lt;= %d? "</span>, i)
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Scanf</span>(<span style="color: #2aa198;">"%s"</span>, &amp;s)
+        <span style="color: #268bd2; font-weight: bold;">return</span> s != <span style="color: #2aa198;">""</span> &amp;&amp; s[<span style="color: #d75fd7;">0</span>] == <span style="color: #2aa198;">'y'</span>
+    })
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"Your number is %d.\n"</span>, answer)
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org6de3687" class="outline-2">
+<h2 id="org6de3687">func Ints</h2>
+<div class="outline-text-2" id="text-org6de3687">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Ints</span>(<span style="color: #8787d7;">a</span> []<span style="color: #df005f; font-weight: bold;">int</span>)
+</pre>
+</div>
+
+<p>
+Ints函数将a排序为递增顺序。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">s</span> := []<span style="color: #df005f; font-weight: bold;">int</span>{<span style="color: #d75fd7;">5</span>, <span style="color: #d75fd7;">2</span>, <span style="color: #d75fd7;">6</span>, <span style="color: #d75fd7;">3</span>, <span style="color: #d75fd7;">1</span>, <span style="color: #d75fd7;">4</span>} <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">unsorted</span>
+sort.<span style="color: #d75fd7; font-weight: bold;">Ints</span>(s)
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(s)
+</pre>
+</div>
+
+<p>
+Output:<br>
+</p>
+
+<pre class="example" id="orgb3f10b8">
+[1 2 3 4 5 6]
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org5cedae5" class="outline-2">
+<h2 id="org5cedae5">func IntsAreSorted</h2>
+<div class="outline-text-2" id="text-org5cedae5">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">IntsAreSorted</span>(<span style="color: #8787d7;">a</span> []<span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+IntsAreSorted检查a是否已排序为递增顺序。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga351acd" class="outline-2">
+<h2 id="orga351acd">func SearchInts</h2>
+<div class="outline-text-2" id="text-orga351acd">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">SearchInts</span>(<span style="color: #8787d7;">a</span> []<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">x</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+SearchInts在递增顺序的a中搜索x，返回x的索引。如果查找不到，返回值是x应该插入a的位置（以保证a的递增顺序），返回值可以是len(a)。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org640d19d" class="outline-2">
+<h2 id="org640d19d">func Float64s</h2>
+<div class="outline-text-2" id="text-org640d19d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Float64s</span>(<span style="color: #8787d7;">a</span> []<span style="color: #df005f; font-weight: bold;">float64</span>)
+</pre>
+</div>
+
+<p>
+Float64s函数将a排序为递增顺序。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8c71630" class="outline-2">
+<h2 id="org8c71630">func Float64sAreSorted</h2>
+<div class="outline-text-2" id="text-org8c71630">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Float64sAreSorted</span>(<span style="color: #8787d7;">a</span> []<span style="color: #df005f; font-weight: bold;">float64</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+Float64sAreSorted检查a是否已排序为递增顺序。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd5bb665" class="outline-2">
+<h2 id="orgd5bb665">func SearchFloat64s</h2>
+<div class="outline-text-2" id="text-orgd5bb665">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">SearchFloat64s</span>(<span style="color: #8787d7;">a</span> []<span style="color: #df005f; font-weight: bold;">float64</span>, <span style="color: #8787d7;">x</span> <span style="color: #df005f; font-weight: bold;">float64</span>) <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+SearchFloat64s在递增顺序的a中搜索x，返回x的索引。如果查找不到，返回值是x应该插入a的位置（以保证a的递增顺序），返回值可以是len(a)。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org6df6c16" class="outline-2">
+<h2 id="org6df6c16">func Strings</h2>
+<div class="outline-text-2" id="text-org6df6c16">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Strings</span>(<span style="color: #8787d7;">a</span> []<span style="color: #df005f; font-weight: bold;">string</span>)
+</pre>
+</div>
+
+<p>
+Strings函数将a排序为递增顺序。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb8ce319" class="outline-2">
+<h2 id="orgb8ce319">func StringsAreSorted</h2>
+<div class="outline-text-2" id="text-orgb8ce319">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">StringsAreSorted</span>(<span style="color: #8787d7;">a</span> []<span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+StringsAreSorted检查a是否已排序为递增顺序。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9cb9367" class="outline-2">
+<h2 id="org9cb9367">func SearchStrings</h2>
+<div class="outline-text-2" id="text-org9cb9367">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">SearchStrings</span>(<span style="color: #8787d7;">a</span> []<span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">x</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+SearchStrings在递增顺序的a中搜索x，返回x的索引。如果查找不到，返回值是x应该插入a的位置（以保证a的递增顺序），返回值可以是len(a)。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-02 15:02 Wed</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-05 Sat 22:26</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

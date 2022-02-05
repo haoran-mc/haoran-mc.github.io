@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-12-15 Wed 00:46 -->
+<!-- 2022-02-03 Thu 21:16 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>日志</title>
@@ -142,8 +142,8 @@ Zap 提供两种类型的日志记录器， <code>Sugared Logger</code> 和 <cod
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #AFAFAF;">logger</span>, <span style="color: #AFAFAF;">_</span> := zap.<span style="color: #AFAFAF;">NewProduction</span>()
-logger.<span style="color: #AFAFAF;">Info</span>(<span style="color: #FC9F4E;">"&#25171;&#21360;&#26085;&#24535;"</span>)
+<pre class="src src-go"><span style="color: #8787d7;">logger</span>, <span style="color: #8787d7;">_</span> := zap.<span style="color: #d75fd7; font-weight: bold;">NewProduction</span>()
+logger.<span style="color: #d75fd7; font-weight: bold;">Info</span>(<span style="color: #2aa198;">"&#25171;&#21360;&#26085;&#24535;"</span>)
 </pre>
 </div>
 
@@ -151,7 +151,7 @@ logger.<span style="color: #AFAFAF;">Info</span>(<span style="color: #FC9F4E;">"
 运行结果：<br>
 </p>
 
-<pre class="example" id="orgf11cee9">
+<pre class="example" id="org3846369">
 {"level":"info","ts":1638265846.9222066,"caller":"07-Log/04-startZap.go:8","msg":"打印日志"}
 </pre>
 </div>
@@ -167,45 +167,45 @@ logger.<span style="color: #AFAFAF;">Info</span>(<span style="color: #FC9F4E;">"
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #BD93F9;">package</span> main
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
 
-<span style="color: #BD93F9;">import</span> (
-    <span style="color: #FC9F4E;">"net/http"</span>
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"net/http"</span>
 
-    <span style="color: #FC9F4E;">"go.uber.org/zap"</span>
+    <span style="color: #2aa198;">"go.uber.org/zap"</span>
 )
 
-<span style="color: #BD93F9;">var</span> <span style="color: #AFAFAF;">logger05</span> *<span style="color: #AFAFAF;">zap.Logger</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">logger05</span> *<span style="color: #df005f; font-weight: bold;">zap.Logger</span>
 
-<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">main</span>() {
-    <span style="color: #AFAFAF;">InitLogger05</span>()
-    <span style="color: #BD93F9;">defer</span> logger05.<span style="color: #AFAFAF;">Sync</span>()
-    <span style="color: #AFAFAF;">simpleHttpGet05</span>(<span style="color: #FC9F4E;">"www.baidu.com"</span>)
-    <span style="color: #AFAFAF;">simpleHttpGet05</span>(<span style="color: #FC9F4E;">"http://www.baidu.com"</span>)
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #d75fd7; font-weight: bold;">InitLogger05</span>()
+    <span style="color: #268bd2; font-weight: bold;">defer</span> logger05.<span style="color: #d75fd7; font-weight: bold;">Sync</span>()
+    <span style="color: #d75fd7; font-weight: bold;">simpleHttpGet05</span>(<span style="color: #2aa198;">"www.baidu.com"</span>)
+    <span style="color: #d75fd7; font-weight: bold;">simpleHttpGet05</span>(<span style="color: #2aa198;">"http://www.baidu.com"</span>)
 }
 
-<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">InitLogger05</span>() {
-    logger05, _ = zap.<span style="color: #AFAFAF;">NewProduction</span>()
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">InitLogger05</span>() {
+    logger05, _ = zap.<span style="color: #d75fd7; font-weight: bold;">NewProduction</span>()
 }
 
-<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">simpleHttpGet05</span>(<span style="color: #AFAFAF;">url</span> <span style="color: #AFAFAF;">string</span>) {
-    <span style="color: #AFAFAF;">resp</span>, <span style="color: #AFAFAF;">err</span> := http.<span style="color: #AFAFAF;">Get</span>(url)
-    <span style="color: #BD93F9;">if</span> err != <span style="color: #009F9F;">nil</span> {
-        logger05.<span style="color: #AFAFAF;">Error</span>(
-            <span style="color: #FC9F4E;">"Error fetching url.."</span>,
-            zap.<span style="color: #AFAFAF;">String</span>(<span style="color: #FC9F4E;">"url"</span>, url),
-            zap.<span style="color: #AFAFAF;">Error</span>(err))
-    } <span style="color: #BD93F9;">else</span> {
-        logger05.<span style="color: #AFAFAF;">Info</span>(<span style="color: #FC9F4E;">"Success.."</span>,
-            zap.<span style="color: #AFAFAF;">String</span>(<span style="color: #FC9F4E;">"statusCode"</span>, resp.Status),
-            zap.<span style="color: #AFAFAF;">String</span>(<span style="color: #FC9F4E;">"url"</span>, url))
-        resp.Body.<span style="color: #AFAFAF;">Close</span>()
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">simpleHttpGet05</span>(<span style="color: #8787d7;">url</span> <span style="color: #df005f; font-weight: bold;">string</span>) {
+    <span style="color: #8787d7;">resp</span>, <span style="color: #8787d7;">err</span> := http.<span style="color: #d75fd7; font-weight: bold;">Get</span>(url)
+    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
+        logger05.<span style="color: #d75fd7; font-weight: bold;">Error</span>(
+            <span style="color: #2aa198;">"Error fetching url.."</span>,
+            zap.<span style="color: #d75fd7; font-weight: bold;">String</span>(<span style="color: #2aa198;">"url"</span>, url),
+            zap.<span style="color: #d75fd7; font-weight: bold;">Error</span>(err))
+    } <span style="color: #268bd2; font-weight: bold;">else</span> {
+        logger05.<span style="color: #d75fd7; font-weight: bold;">Info</span>(<span style="color: #2aa198;">"Success.."</span>,
+            zap.<span style="color: #d75fd7; font-weight: bold;">String</span>(<span style="color: #2aa198;">"statusCode"</span>, resp.Status),
+            zap.<span style="color: #d75fd7; font-weight: bold;">String</span>(<span style="color: #2aa198;">"url"</span>, url))
+        resp.Body.<span style="color: #d75fd7; font-weight: bold;">Close</span>()
     }
 }
 </pre>
 </div>
 
-<pre class="example" id="org02bed6d">
+<pre class="example" id="orgae8e967">
 {"level":"error","ts":1638280858.5779245,"caller":"07-Log/05-Logger.go:25","msg":"Error fetching url..","url":"www.baidu.com","error":"Get \"www.baidu.com\": unsupported protocol scheme \"\"","stacktrace":"main.simpleHttpGet05\n\t/home/haoran/haoran/Code/Language/15-Go/07-Log/05-Logger.go:25\nmain.main\n\t/home/haoran/haoran/Code/Language/15-Go/07-Log/05-Logger.go:14\nruntime.main\n\t/home/haoran/go/go1.17beta1/src/runtime/proc.go:255"}
 {"level":"info","ts":1638280858.6291454,"caller":"07-Log/05-Logger.go:30","msg":"Success..","statusCode":"200 OK","url":"http://www.baidu.com"}
 </pre>
@@ -229,41 +229,41 @@ logger.<span style="color: #AFAFAF;">Info</span>(<span style="color: #FC9F4E;">"
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #BD93F9;">package</span> main
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
 
-<span style="color: #BD93F9;">import</span> (
-    <span style="color: #FC9F4E;">"go.uber.org/zap"</span>
-    <span style="color: #FC9F4E;">"net/http"</span>
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"go.uber.org/zap"</span>
+    <span style="color: #2aa198;">"net/http"</span>
 )
 
-<span style="color: #BD93F9;">var</span> <span style="color: #AFAFAF;">sugarLogger06</span> *<span style="color: #AFAFAF;">zap.SugaredLogger</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">sugarLogger06</span> *<span style="color: #df005f; font-weight: bold;">zap.SugaredLogger</span>
 
-<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">main</span>() {
-    <span style="color: #AFAFAF;">InitLogger06</span>()
-    <span style="color: #BD93F9;">defer</span> sugarLogger06.<span style="color: #AFAFAF;">Sync</span>()
-    <span style="color: #AFAFAF;">simpleHttpGet06</span>(<span style="color: #FC9F4E;">"www.baidu.com"</span>)
-    <span style="color: #AFAFAF;">simpleHttpGet06</span>(<span style="color: #FC9F4E;">"http://www.baidu.com"</span>)
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #d75fd7; font-weight: bold;">InitLogger06</span>()
+    <span style="color: #268bd2; font-weight: bold;">defer</span> sugarLogger06.<span style="color: #d75fd7; font-weight: bold;">Sync</span>()
+    <span style="color: #d75fd7; font-weight: bold;">simpleHttpGet06</span>(<span style="color: #2aa198;">"www.baidu.com"</span>)
+    <span style="color: #d75fd7; font-weight: bold;">simpleHttpGet06</span>(<span style="color: #2aa198;">"http://www.baidu.com"</span>)
 }
 
-<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">InitLogger06</span>() {
-    <span style="color: #AFAFAF;">logger</span>, <span style="color: #AFAFAF;">_</span> := zap.<span style="color: #AFAFAF;">NewProduction</span>()
-    sugarLogger06 = logger.<span style="color: #AFAFAF;">Sugar</span>()
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">InitLogger06</span>() {
+    <span style="color: #8787d7;">logger</span>, <span style="color: #8787d7;">_</span> := zap.<span style="color: #d75fd7; font-weight: bold;">NewProduction</span>()
+    sugarLogger06 = logger.<span style="color: #d75fd7; font-weight: bold;">Sugar</span>()
 }
 
-<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">simpleHttpGet06</span>(<span style="color: #AFAFAF;">url</span> <span style="color: #AFAFAF;">string</span>) {
-    sugarLogger06.<span style="color: #AFAFAF;">Debugf</span>(<span style="color: #FC9F4E;">"Trying to hit GET request for %s"</span>, url)
-    <span style="color: #AFAFAF;">resp</span>, <span style="color: #AFAFAF;">err</span> := http.<span style="color: #AFAFAF;">Get</span>(url)
-    <span style="color: #BD93F9;">if</span> err != <span style="color: #009F9F;">nil</span> {
-        sugarLogger06.<span style="color: #AFAFAF;">Errorf</span>(<span style="color: #FC9F4E;">"Error fetching URL %s : Error = %s"</span>, url, err)
-    } <span style="color: #BD93F9;">else</span> {
-        sugarLogger06.<span style="color: #AFAFAF;">Infof</span>(<span style="color: #FC9F4E;">"Success! statusCode = %s for URL %s"</span>, resp.Status, url)
-        resp.Body.<span style="color: #AFAFAF;">Close</span>()
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">simpleHttpGet06</span>(<span style="color: #8787d7;">url</span> <span style="color: #df005f; font-weight: bold;">string</span>) {
+    sugarLogger06.<span style="color: #d75fd7; font-weight: bold;">Debugf</span>(<span style="color: #2aa198;">"Trying to hit GET request for %s"</span>, url)
+    <span style="color: #8787d7;">resp</span>, <span style="color: #8787d7;">err</span> := http.<span style="color: #d75fd7; font-weight: bold;">Get</span>(url)
+    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
+        sugarLogger06.<span style="color: #d75fd7; font-weight: bold;">Errorf</span>(<span style="color: #2aa198;">"Error fetching URL %s : Error = %s"</span>, url, err)
+    } <span style="color: #268bd2; font-weight: bold;">else</span> {
+        sugarLogger06.<span style="color: #d75fd7; font-weight: bold;">Infof</span>(<span style="color: #2aa198;">"Success! statusCode = %s for URL %s"</span>, resp.Status, url)
+        resp.Body.<span style="color: #d75fd7; font-weight: bold;">Close</span>()
     }
 }
 </pre>
 </div>
 
-<pre class="example" id="org9a788e4">
+<pre class="example" id="org6eaabdf">
 {"level":"error","ts":1638280888.217628,"caller":"07-Log/06-Sugared-Logger.go:26","msg":"Error fetching URL www.baidu.com : Error = Get \"www.baidu.com\": unsupported protocol scheme \"\"","stacktrace":"main.simpleHttpGet06\n\t/home/haoran/haoran/Code/Language/15-Go/07-Log/06-Sugared-Logger.go:26\nmain.main\n\t/home/haoran/haoran/Code/Language/15-Go/07-Log/06-Sugared-Logger.go:13\nruntime.main\n\t/home/haoran/go/go1.17beta1/src/runtime/proc.go:255"}
 {"level":"info","ts":1638280888.2873425,"caller":"07-Log/06-Sugared-Logger.go:28","msg":"Success! statusCode = 200 OK for URL http://www.baidu.com"}
 </pre>
@@ -282,7 +282,7 @@ logger.<span style="color: #AFAFAF;">Info</span>(<span style="color: #FC9F4E;">"
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">New</span>(<span style="color: #AFAFAF;">core</span> <span style="color: #AFAFAF;">zapcore.Core</span>, <span style="color: #AFAFAF;">options</span> ...<span style="color: #AFAFAF;">Option</span>) *<span style="color: #AFAFAF;">Logger</span>
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">New</span>(<span style="color: #8787d7;">core</span> <span style="color: #df005f; font-weight: bold;">zapcore.Core</span>, <span style="color: #8787d7;">options</span> ...<span style="color: #df005f; font-weight: bold;">Option</span>) *<span style="color: #df005f; font-weight: bold;">Logger</span>
 </pre>
 </div>
 
@@ -295,15 +295,15 @@ logger.<span style="color: #AFAFAF;">Info</span>(<span style="color: #FC9F4E;">"
 Encoder：编码器(如何写入日志)。我们将使用开箱即用的NewJSONEncoder()，并使用预先设置的ProductionEncoderConfig()。<br>
 </p>
 <div class="org-src-container">
-<pre class="src src-go">zapcore.<span style="color: #AFAFAF;">NewJSONEncoder</span>(zap.<span style="color: #AFAFAF;">NewProductionEncoderConfig</span>())
+<pre class="src src-go">zapcore.<span style="color: #d75fd7; font-weight: bold;">NewJSONEncoder</span>(zap.<span style="color: #d75fd7; font-weight: bold;">NewProductionEncoderConfig</span>())
 </pre>
 </div></li>
 <li><p>
 WriterSyncer：指定日志将写到哪里去。我们使用zapcore.AddSync()函数并且将打开的文件句柄传进去。<br>
 </p>
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #AFAFAF;">file</span>, <span style="color: #AFAFAF;">_</span> := os.<span style="color: #AFAFAF;">Create</span>(<span style="color: #FC9F4E;">"./test.log"</span>)
-<span style="color: #AFAFAF;">writeSyncer</span> := zapcore.<span style="color: #AFAFAF;">AddSync</span>(file)
+<pre class="src src-go"><span style="color: #8787d7;">file</span>, <span style="color: #8787d7;">_</span> := os.<span style="color: #d75fd7; font-weight: bold;">Create</span>(<span style="color: #2aa198;">"./test.log"</span>)
+<span style="color: #8787d7;">writeSyncer</span> := zapcore.<span style="color: #d75fd7; font-weight: bold;">AddSync</span>(file)
 </pre>
 </div></li>
 <li>Log Level：哪种级别的日志将被写入。<br></li>
@@ -314,57 +314,57 @@ WriterSyncer：指定日志将写到哪里去。我们使用zapcore.AddSync()函
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #BD93F9;">package</span> main
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
 
-<span style="color: #BD93F9;">import</span> (
-    <span style="color: #FC9F4E;">"net/http"</span>
-    <span style="color: #FC9F4E;">"os"</span>
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"net/http"</span>
+    <span style="color: #2aa198;">"os"</span>
 
-    <span style="color: #FC9F4E;">"go.uber.org/zap"</span>
-    <span style="color: #FC9F4E;">"go.uber.org/zap/zapcore"</span>
+    <span style="color: #2aa198;">"go.uber.org/zap"</span>
+    <span style="color: #2aa198;">"go.uber.org/zap/zapcore"</span>
 )
 
-<span style="color: #BD93F9;">var</span> <span style="color: #AFAFAF;">sugarLogger07</span> *<span style="color: #AFAFAF;">zap.SugaredLogger</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">sugarLogger07</span> *<span style="color: #df005f; font-weight: bold;">zap.SugaredLogger</span>
 
-<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">main</span>() {
-    <span style="color: #AFAFAF;">InitLogger07</span>()
-    <span style="color: #BD93F9;">defer</span> sugarLogger07.<span style="color: #AFAFAF;">Sync</span>()
-    <span style="color: #AFAFAF;">simpleHttpGet07</span>(<span style="color: #FC9F4E;">"www.baidu.com"</span>)
-    <span style="color: #AFAFAF;">simpleHttpGet07</span>(<span style="color: #FC9F4E;">"http://www.baidu.com"</span>)
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #d75fd7; font-weight: bold;">InitLogger07</span>()
+    <span style="color: #268bd2; font-weight: bold;">defer</span> sugarLogger07.<span style="color: #d75fd7; font-weight: bold;">Sync</span>()
+    <span style="color: #d75fd7; font-weight: bold;">simpleHttpGet07</span>(<span style="color: #2aa198;">"www.baidu.com"</span>)
+    <span style="color: #d75fd7; font-weight: bold;">simpleHttpGet07</span>(<span style="color: #2aa198;">"http://www.baidu.com"</span>)
 }
 
-<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">InitLogger07</span>() {
-    <span style="color: #AFAFAF;">writeSyncer</span> := <span style="color: #AFAFAF;">getLogWriter07</span>()
-    <span style="color: #AFAFAF;">encoder</span> := <span style="color: #AFAFAF;">getEncoder07</span>()
-    <span style="color: #AFAFAF;">core</span> := zapcore.<span style="color: #AFAFAF;">NewCore</span>(encoder, writeSyncer, zapcore.DebugLevel)
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">InitLogger07</span>() {
+    <span style="color: #8787d7;">writeSyncer</span> := <span style="color: #d75fd7; font-weight: bold;">getLogWriter07</span>()
+    <span style="color: #8787d7;">encoder</span> := <span style="color: #d75fd7; font-weight: bold;">getEncoder07</span>()
+    <span style="color: #8787d7;">core</span> := zapcore.<span style="color: #d75fd7; font-weight: bold;">NewCore</span>(encoder, writeSyncer, zapcore.DebugLevel)
 
-    <span style="color: #AFAFAF;">logger</span> := zap.<span style="color: #AFAFAF;">New</span>(core)
-    sugarLogger07 = logger.<span style="color: #AFAFAF;">Sugar</span>()
+    <span style="color: #8787d7;">logger</span> := zap.<span style="color: #d75fd7; font-weight: bold;">New</span>(core)
+    sugarLogger07 = logger.<span style="color: #d75fd7; font-weight: bold;">Sugar</span>()
 }
 
-<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">getEncoder07</span>() <span style="color: #AFAFAF;">zapcore.Encoder</span> {
-    <span style="color: #BD93F9;">return</span> zapcore.<span style="color: #AFAFAF;">NewJSONEncoder</span>(zap.<span style="color: #AFAFAF;">NewProductionEncoderConfig</span>())
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">getEncoder07</span>() <span style="color: #df005f; font-weight: bold;">zapcore.Encoder</span> {
+    <span style="color: #268bd2; font-weight: bold;">return</span> zapcore.<span style="color: #d75fd7; font-weight: bold;">NewJSONEncoder</span>(zap.<span style="color: #d75fd7; font-weight: bold;">NewProductionEncoderConfig</span>())
 }
 
-<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">getLogWriter07</span>() <span style="color: #AFAFAF;">zapcore.WriteSyncer</span> {
-    <span style="color: #AFAFAF;">file</span>, <span style="color: #AFAFAF;">_</span> := os.<span style="color: #AFAFAF;">Create</span>(<span style="color: #FC9F4E;">"./test.log"</span>)
-    <span style="color: #BD93F9;">return</span> zapcore.<span style="color: #AFAFAF;">AddSync</span>(file)
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">getLogWriter07</span>() <span style="color: #df005f; font-weight: bold;">zapcore.WriteSyncer</span> {
+    <span style="color: #8787d7;">file</span>, <span style="color: #8787d7;">_</span> := os.<span style="color: #d75fd7; font-weight: bold;">Create</span>(<span style="color: #2aa198;">"./test.log"</span>)
+    <span style="color: #268bd2; font-weight: bold;">return</span> zapcore.<span style="color: #d75fd7; font-weight: bold;">AddSync</span>(file)
 }
 
-<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">simpleHttpGet07</span>(<span style="color: #AFAFAF;">url</span> <span style="color: #AFAFAF;">string</span>) {
-    sugarLogger07.<span style="color: #AFAFAF;">Debugf</span>(<span style="color: #FC9F4E;">"Trying to hit GET request for %s"</span>, url)
-    <span style="color: #AFAFAF;">resp</span>, <span style="color: #AFAFAF;">err</span> := http.<span style="color: #AFAFAF;">Get</span>(url)
-    <span style="color: #BD93F9;">if</span> err != <span style="color: #009F9F;">nil</span> {
-        sugarLogger07.<span style="color: #AFAFAF;">Errorf</span>(<span style="color: #FC9F4E;">"Error fetching URL %s : Error = %s"</span>, url, err)
-    } <span style="color: #BD93F9;">else</span> {
-        sugarLogger07.<span style="color: #AFAFAF;">Infof</span>(<span style="color: #FC9F4E;">"Success! statusCode = %s for URL %s"</span>, resp.Status, url)
-        resp.Body.<span style="color: #AFAFAF;">Close</span>()
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">simpleHttpGet07</span>(<span style="color: #8787d7;">url</span> <span style="color: #df005f; font-weight: bold;">string</span>) {
+    sugarLogger07.<span style="color: #d75fd7; font-weight: bold;">Debugf</span>(<span style="color: #2aa198;">"Trying to hit GET request for %s"</span>, url)
+    <span style="color: #8787d7;">resp</span>, <span style="color: #8787d7;">err</span> := http.<span style="color: #d75fd7; font-weight: bold;">Get</span>(url)
+    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
+        sugarLogger07.<span style="color: #d75fd7; font-weight: bold;">Errorf</span>(<span style="color: #2aa198;">"Error fetching URL %s : Error = %s"</span>, url, err)
+    } <span style="color: #268bd2; font-weight: bold;">else</span> {
+        sugarLogger07.<span style="color: #d75fd7; font-weight: bold;">Infof</span>(<span style="color: #2aa198;">"Success! statusCode = %s for URL %s"</span>, resp.Status, url)
+        resp.Body.<span style="color: #d75fd7; font-weight: bold;">Close</span>()
     }
 }
 </pre>
 </div>
 
-<pre class="example" id="org453214a">
+<pre class="example" id="orgfe23d3a">
 {"level":"debug","ts":1638280996.611096,"msg":"Trying to hit GET request for www.baidu.com"}
 {"level":"error","ts":1638280996.6111786,"msg":"Error fetching URL www.baidu.com : Error = Get \"www.baidu.com\": unsupported protocol scheme \"\""}
 {"level":"debug","ts":1638280996.6111882,"msg":"Trying to hit GET request for http://www.baidu.com"}
@@ -380,7 +380,7 @@ WriterSyncer：指定日志将写到哪里去。我们使用zapcore.AddSync()函
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #BD93F9;">return</span> zapcore.<span style="color: #AFAFAF;">NewConsoleEncoder</span>(zap.<span style="color: #AFAFAF;">NewProductionEncoderConfig</span>())
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">return</span> zapcore.<span style="color: #d75fd7; font-weight: bold;">NewConsoleEncoder</span>(zap.<span style="color: #d75fd7; font-weight: bold;">NewProductionEncoderConfig</span>())
 </pre>
 </div>
 
@@ -388,7 +388,7 @@ WriterSyncer：指定日志将写到哪里去。我们使用zapcore.AddSync()函
 当使用这些修改过的logger配置调用上述部分的main()函数时，以下输出将打印在文件——test.log中。<br>
 </p>
 
-<pre class="example" id="org9a618b6">
+<pre class="example" id="orgdc4d34c">
 1.6382812952657666e+09	debug	Trying to hit GET request for www.baidu.com
 1.6382812952658417e+09	error	Error fetching URL www.baidu.com : Error = Get "www.baidu.com": unsupported protocol scheme ""
 1.6382812952658677e+09	debug	Trying to hit GET request for http://www.baidu.com
@@ -417,11 +417,11 @@ WriterSyncer：指定日志将写到哪里去。我们使用zapcore.AddSync()函
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">getEncoder</span>() <span style="color: #AFAFAF;">zapcore.Encoder</span> {
-    <span style="color: #AFAFAF;">encoderConfig</span> := zap.<span style="color: #AFAFAF;">NewProductionEncoderConfig</span>()
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">getEncoder</span>() <span style="color: #df005f; font-weight: bold;">zapcore.Encoder</span> {
+    <span style="color: #8787d7;">encoderConfig</span> := zap.<span style="color: #d75fd7; font-weight: bold;">NewProductionEncoderConfig</span>()
     encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
     encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
-    <span style="color: #BD93F9;">return</span> zapcore.<span style="color: #AFAFAF;">NewConsoleEncoder</span>(encoderConfig)
+    <span style="color: #268bd2; font-weight: bold;">return</span> zapcore.<span style="color: #d75fd7; font-weight: bold;">NewConsoleEncoder</span>(encoderConfig)
 }
 </pre>
 </div>
@@ -431,11 +431,11 @@ WriterSyncer：指定日志将写到哪里去。我们使用zapcore.AddSync()函
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #AFAFAF;">logger</span> := zap.<span style="color: #AFAFAF;">New</span>(core, zap.<span style="color: #AFAFAF;">AddCaller</span>())
+<pre class="src src-go"><span style="color: #8787d7;">logger</span> := zap.<span style="color: #d75fd7; font-weight: bold;">New</span>(core, zap.<span style="color: #d75fd7; font-weight: bold;">AddCaller</span>())
 </pre>
 </div>
 
-<pre class="example" id="orge47e458">
+<pre class="example" id="org2054785">
 2021-11-30T22:15:10.453+0800	DEBUG	07-Log/09-friendlyRead.go:43	Trying to hit GET request for www.baidu.com
 2021-11-30T22:15:10.453+0800	ERROR	07-Log/09-friendlyRead.go:46	Error fetching URL www.baidu.com : Error = Get "www.baidu.com": unsupported protocol scheme ""
 2021-11-30T22:15:10.453+0800	DEBUG	07-Log/09-friendlyRead.go:43	Trying to hit GET request for http://www.baidu.com
@@ -447,58 +447,58 @@ WriterSyncer：指定日志将写到哪里去。我们使用zapcore.AddSync()函
 <h4 id="orgbc698b0">定制最终版：</h4>
 <div class="outline-text-4" id="text-orgbc698b0">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #BD93F9;">package</span> main
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
 
-<span style="color: #BD93F9;">import</span> (
-    <span style="color: #FC9F4E;">"net/http"</span>
-    <span style="color: #FC9F4E;">"os"</span>
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"net/http"</span>
+    <span style="color: #2aa198;">"os"</span>
 
-    <span style="color: #FC9F4E;">"go.uber.org/zap"</span>
-    <span style="color: #FC9F4E;">"go.uber.org/zap/zapcore"</span>
+    <span style="color: #2aa198;">"go.uber.org/zap"</span>
+    <span style="color: #2aa198;">"go.uber.org/zap/zapcore"</span>
 )
 
-<span style="color: #BD93F9;">var</span> <span style="color: #AFAFAF;">sugarLogger</span> *<span style="color: #AFAFAF;">zap.SugaredLogger</span>   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#23450;&#20041;&#20102;&#19968;&#20010;&#20840;&#23616;&#21464;&#37327;</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">sugarLogger</span> *<span style="color: #df005f; font-weight: bold;">zap.SugaredLogger</span>   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23450;&#20041;&#20102;&#19968;&#20010;&#20840;&#23616;&#21464;&#37327;</span>
 
-<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">main</span>() {
-    <span style="color: #AFAFAF;">InitLogger</span>()               <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#21021;&#22987;&#21270; sugerLogger&#65292;&#22914;&#26524;&#27809;&#26377; InitLogger() &#20989;&#25968;&#20013;&#30340; sugarLogger = logger.Sugar()&#65292;&#23601;&#26159;&#20351;&#29992; logger</span>
-    <span style="color: #BD93F9;">defer</span> sugarLogger.<span style="color: #AFAFAF;">Sync</span>()   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#32531;&#23384;&#21516;&#27493;</span>
-    <span style="color: #AFAFAF;">simpleHttpGet</span>(<span style="color: #FC9F4E;">"www.baidu.com"</span>)         <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#27979;&#35797;&#36755;&#20986;&#26085;&#24535;</span>
-    <span style="color: #AFAFAF;">simpleHttpGet</span>(<span style="color: #FC9F4E;">"http://www.baidu.com"</span>)  <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#27979;&#35797;&#36755;&#20986;&#26085;&#24535;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #d75fd7; font-weight: bold;">InitLogger</span>()               <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21021;&#22987;&#21270; sugerLogger&#65292;&#22914;&#26524;&#27809;&#26377; InitLogger() &#20989;&#25968;&#20013;&#30340; sugarLogger = logger.Sugar()&#65292;&#23601;&#26159;&#20351;&#29992; logger</span>
+    <span style="color: #268bd2; font-weight: bold;">defer</span> sugarLogger.<span style="color: #d75fd7; font-weight: bold;">Sync</span>()   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#32531;&#23384;&#21516;&#27493;</span>
+    <span style="color: #d75fd7; font-weight: bold;">simpleHttpGet</span>(<span style="color: #2aa198;">"www.baidu.com"</span>)         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#27979;&#35797;&#36755;&#20986;&#26085;&#24535;</span>
+    <span style="color: #d75fd7; font-weight: bold;">simpleHttpGet</span>(<span style="color: #2aa198;">"http://www.baidu.com"</span>)  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#27979;&#35797;&#36755;&#20986;&#26085;&#24535;</span>
 }
 
-<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">InitLogger</span>() {
-    <span style="color: #AFAFAF;">writeSyncer</span> := <span style="color: #AFAFAF;">getLogWriter</span>()
-    <span style="color: #AFAFAF;">encoder</span> := <span style="color: #AFAFAF;">getEncoder</span>()
-    <span style="color: #AFAFAF;">core</span> := zapcore.<span style="color: #AFAFAF;">NewCore</span>(encoder, writeSyncer, zapcore.DebugLevel)
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">InitLogger</span>() {
+    <span style="color: #8787d7;">writeSyncer</span> := <span style="color: #d75fd7; font-weight: bold;">getLogWriter</span>()
+    <span style="color: #8787d7;">encoder</span> := <span style="color: #d75fd7; font-weight: bold;">getEncoder</span>()
+    <span style="color: #8787d7;">core</span> := zapcore.<span style="color: #d75fd7; font-weight: bold;">NewCore</span>(encoder, writeSyncer, zapcore.DebugLevel)
 
-    <span style="color: #AFAFAF;">logger</span> := zap.<span style="color: #AFAFAF;">New</span>(core, zap.<span style="color: #AFAFAF;">AddCaller</span>())   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#20351;&#29992; New &#20989;&#25968;&#23450;&#21046;&#19968;&#20010; logger</span>
-    sugarLogger = logger.<span style="color: #AFAFAF;">Sugar</span>()               <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#21487;&#20197;&#19981;&#20351;&#29992;&#36825;&#21477;</span>
+    <span style="color: #8787d7;">logger</span> := zap.<span style="color: #d75fd7; font-weight: bold;">New</span>(core, zap.<span style="color: #d75fd7; font-weight: bold;">AddCaller</span>())   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20351;&#29992; New &#20989;&#25968;&#23450;&#21046;&#19968;&#20010; logger</span>
+    sugarLogger = logger.<span style="color: #d75fd7; font-weight: bold;">Sugar</span>()               <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21487;&#20197;&#19981;&#20351;&#29992;&#36825;&#21477;</span>
 }
 
-<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#32534;&#30721;&#22120;&#65288;&#22914;&#20309;&#20889;&#20837;&#26085;&#24535;&#65289;</span>
-<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#25105;&#20204;&#27809;&#26377;&#20351;&#29992;&#24320;&#31665;&#21363;&#29992;&#30340; NewJSONEncoder()&#65292;&#22240;&#20026;&#19981;&#20415;&#20110;&#38405;&#35835;&#65292;&#32780;&#26159;&#20351;&#29992; ProductionEncoderConfig()</span>
-<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">getEncoder</span>() <span style="color: #AFAFAF;">zapcore.Encoder</span> {
-    <span style="color: #AFAFAF;">encoderConfig</span> := zap.<span style="color: #AFAFAF;">NewProductionEncoderConfig</span>()         <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#20351;&#29992;&#20415;&#20110;&#38405;&#35835;&#30340; ProductionEncoderConfig()</span>
-    encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder     <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#23558;&#24418;&#22914; 1.6382812952658677e+09 &#30340;&#26102;&#38388;&#26684;&#24335;&#25913;&#20026;&#20154;&#31867;&#21487;&#35835;&#30340;&#24418;&#22914; 2021-11-30T22:15:10.453+0800 &#30340;&#26102;&#38388;&#26684;&#24335;</span>
-    encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#19982;&#19978;&#21477;&#20849;&#21516;&#20351;&#29992;</span>
-    <span style="color: #BD93F9;">return</span> zapcore.<span style="color: #AFAFAF;">NewConsoleEncoder</span>(encoderConfig)           <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#36820;&#22238;&#32534;&#30721;&#22120;</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#32534;&#30721;&#22120;&#65288;&#22914;&#20309;&#20889;&#20837;&#26085;&#24535;&#65289;</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25105;&#20204;&#27809;&#26377;&#20351;&#29992;&#24320;&#31665;&#21363;&#29992;&#30340; NewJSONEncoder()&#65292;&#22240;&#20026;&#19981;&#20415;&#20110;&#38405;&#35835;&#65292;&#32780;&#26159;&#20351;&#29992; ProductionEncoderConfig()</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">getEncoder</span>() <span style="color: #df005f; font-weight: bold;">zapcore.Encoder</span> {
+    <span style="color: #8787d7;">encoderConfig</span> := zap.<span style="color: #d75fd7; font-weight: bold;">NewProductionEncoderConfig</span>()         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20351;&#29992;&#20415;&#20110;&#38405;&#35835;&#30340; ProductionEncoderConfig()</span>
+    encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23558;&#24418;&#22914; 1.6382812952658677e+09 &#30340;&#26102;&#38388;&#26684;&#24335;&#25913;&#20026;&#20154;&#31867;&#21487;&#35835;&#30340;&#24418;&#22914; 2021-11-30T22:15:10.453+0800 &#30340;&#26102;&#38388;&#26684;&#24335;</span>
+    encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#19982;&#19978;&#21477;&#20849;&#21516;&#20351;&#29992;</span>
+    <span style="color: #268bd2; font-weight: bold;">return</span> zapcore.<span style="color: #d75fd7; font-weight: bold;">NewConsoleEncoder</span>(encoderConfig)           <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;&#32534;&#30721;&#22120;</span>
 }
 
-<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#20915;&#23450;&#20889;&#20837;&#21738;&#20010;&#25991;&#20214;</span>
-<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">getLogWriter</span>() <span style="color: #AFAFAF;">zapcore.WriteSyncer</span> {
-    <span style="color: #AFAFAF;">file</span>, <span style="color: #AFAFAF;">_</span> := os.<span style="color: #AFAFAF;">Create</span>(<span style="color: #FC9F4E;">"./test.log"</span>)
-    <span style="color: #BD93F9;">return</span> zapcore.<span style="color: #AFAFAF;">AddSync</span>(file)
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20915;&#23450;&#20889;&#20837;&#21738;&#20010;&#25991;&#20214;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">getLogWriter</span>() <span style="color: #df005f; font-weight: bold;">zapcore.WriteSyncer</span> {
+    <span style="color: #8787d7;">file</span>, <span style="color: #8787d7;">_</span> := os.<span style="color: #d75fd7; font-weight: bold;">Create</span>(<span style="color: #2aa198;">"./test.log"</span>)
+    <span style="color: #268bd2; font-weight: bold;">return</span> zapcore.<span style="color: #d75fd7; font-weight: bold;">AddSync</span>(file)
 }
 
-<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">simpleHttpGet &#19968;&#20010;&#27979;&#35797;&#30340;&#20989;&#25968;</span>
-<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">simpleHttpGet</span>(<span style="color: #AFAFAF;">url</span> <span style="color: #AFAFAF;">string</span>) {
-    sugarLogger.<span style="color: #AFAFAF;">Debugf</span>(<span style="color: #FC9F4E;">"Trying to hit GET request for %s"</span>, url)
-    <span style="color: #AFAFAF;">resp</span>, <span style="color: #AFAFAF;">err</span> := http.<span style="color: #AFAFAF;">Get</span>(url)
-    <span style="color: #BD93F9;">if</span> err != <span style="color: #009F9F;">nil</span> {
-        sugarLogger.<span style="color: #AFAFAF;">Errorf</span>(<span style="color: #FC9F4E;">"Error fetching URL %s : Error = %s"</span>, url, err)
-    } <span style="color: #BD93F9;">else</span> {
-        sugarLogger.<span style="color: #AFAFAF;">Infof</span>(<span style="color: #FC9F4E;">"Success! statusCode = %s for URL %s"</span>, resp.Status, url)
-        resp.Body.<span style="color: #AFAFAF;">Close</span>()
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">simpleHttpGet &#19968;&#20010;&#27979;&#35797;&#30340;&#20989;&#25968;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">simpleHttpGet</span>(<span style="color: #8787d7;">url</span> <span style="color: #df005f; font-weight: bold;">string</span>) {
+    sugarLogger.<span style="color: #d75fd7; font-weight: bold;">Debugf</span>(<span style="color: #2aa198;">"Trying to hit GET request for %s"</span>, url)
+    <span style="color: #8787d7;">resp</span>, <span style="color: #8787d7;">err</span> := http.<span style="color: #d75fd7; font-weight: bold;">Get</span>(url)
+    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
+        sugarLogger.<span style="color: #d75fd7; font-weight: bold;">Errorf</span>(<span style="color: #2aa198;">"Error fetching URL %s : Error = %s"</span>, url, err)
+    } <span style="color: #268bd2; font-weight: bold;">else</span> {
+        sugarLogger.<span style="color: #d75fd7; font-weight: bold;">Infof</span>(<span style="color: #2aa198;">"Success! statusCode = %s for URL %s"</span>, resp.Status, url)
+        resp.Body.<span style="color: #d75fd7; font-weight: bold;">Close</span>()
     }
 }
 </pre>
@@ -510,37 +510,37 @@ WriterSyncer：指定日志将写到哪里去。我们使用zapcore.AddSync()函
 <h3 id="orgcd8e4b5">常用函数</h3>
 <div class="outline-text-3" id="text-orgcd8e4b5">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #BD93F9;">package</span> main
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
 
-<span style="color: #BD93F9;">import</span> (
-    <span style="color: #FC9F4E;">"time"</span>
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"time"</span>
 
-    <span style="color: #FC9F4E;">"go.uber.org/zap"</span>
+    <span style="color: #2aa198;">"go.uber.org/zap"</span>
 )
 
-<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">main</span>() {
-    <span style="color: #AFAFAF;">logger</span> := zap.<span style="color: #AFAFAF;">NewExample</span>()
-    <span style="color: #BD93F9;">defer</span> logger.<span style="color: #AFAFAF;">Sync</span>()
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">logger</span> := zap.<span style="color: #d75fd7; font-weight: bold;">NewExample</span>()
+    <span style="color: #268bd2; font-weight: bold;">defer</span> logger.<span style="color: #d75fd7; font-weight: bold;">Sync</span>()
 
-    <span style="color: #AFAFAF;">url</span> := <span style="color: #FC9F4E;">"http://example.org/api"</span>
-    logger.<span style="color: #AFAFAF;">Info</span>(<span style="color: #FC9F4E;">"failed to fetch URL"</span>,
-        zap.<span style="color: #AFAFAF;">String</span>(<span style="color: #FC9F4E;">"url"</span>, url),
-        zap.<span style="color: #AFAFAF;">Int</span>(<span style="color: #FC9F4E;">"attempt"</span>, <span style="color: #009F9F;">3</span>),
-        zap.<span style="color: #AFAFAF;">Duration</span>(<span style="color: #FC9F4E;">"backoff"</span>, time.Second),
+    <span style="color: #8787d7;">url</span> := <span style="color: #2aa198;">"http://example.org/api"</span>
+    logger.<span style="color: #d75fd7; font-weight: bold;">Info</span>(<span style="color: #2aa198;">"failed to fetch URL"</span>,
+        zap.<span style="color: #d75fd7; font-weight: bold;">String</span>(<span style="color: #2aa198;">"url"</span>, url),
+        zap.<span style="color: #d75fd7; font-weight: bold;">Int</span>(<span style="color: #2aa198;">"attempt"</span>, <span style="color: #d75fd7;">3</span>),
+        zap.<span style="color: #d75fd7; font-weight: bold;">Duration</span>(<span style="color: #2aa198;">"backoff"</span>, time.Second),
     )
 
-    <span style="color: #AFAFAF;">sugar</span> := logger.<span style="color: #AFAFAF;">Sugar</span>()
-    sugar.<span style="color: #AFAFAF;">Infow</span>(<span style="color: #FC9F4E;">"failed to fetch URL"</span>,
-        <span style="color: #FC9F4E;">"url"</span>, url,
-        <span style="color: #FC9F4E;">"attempt"</span>, <span style="color: #009F9F;">3</span>,
-        <span style="color: #FC9F4E;">"backoff"</span>, time.Second,
+    <span style="color: #8787d7;">sugar</span> := logger.<span style="color: #d75fd7; font-weight: bold;">Sugar</span>()
+    sugar.<span style="color: #d75fd7; font-weight: bold;">Infow</span>(<span style="color: #2aa198;">"failed to fetch URL"</span>,
+        <span style="color: #2aa198;">"url"</span>, url,
+        <span style="color: #2aa198;">"attempt"</span>, <span style="color: #d75fd7;">3</span>,
+        <span style="color: #2aa198;">"backoff"</span>, time.Second,
     )
-    sugar.<span style="color: #AFAFAF;">Infof</span>(<span style="color: #FC9F4E;">"Failed to fetch URL: %s"</span>, url)
+    sugar.<span style="color: #d75fd7; font-weight: bold;">Infof</span>(<span style="color: #2aa198;">"Failed to fetch URL: %s"</span>, url)
 }
 </pre>
 </div>
 
-<pre class="example" id="orgf3b4fba">
+<pre class="example" id="orgf0c4489">
 {"level":"info","msg":"failed to fetch URL","url":"http://example.org/api","attempt":3,"backoff":"1s"}
 {"level":"info","msg":"failed to fetch URL","url":"http://example.org/api","attempt":3,"backoff":"1s"}
 {"level":"info","msg":"Failed to fetch URL: http://example.org/api"}
@@ -584,7 +584,7 @@ WriterSyncer：指定日志将写到哪里去。我们使用zapcore.AddSync()函
 <div id="postamble" class="status">
 <p class="date">Date: 2021-11-29 10:11 Mon</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2021-12-15 Wed 00:46</p>
+<p class="date">Created: 2022-02-03 Thu 21:16</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

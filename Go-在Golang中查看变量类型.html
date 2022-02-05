@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-03 Thu 16:18 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>在GOLANG中查看变量类型</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">在GOLANG中查看变量类型</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org2fc97e2">fmt</a></li>
+<li><a href="#org7e2f9ae">reflect</a></li>
+<li><a href="#org5e0b012">type switch</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org2fc97e2" class="outline-2">
+<h2 id="org2fc97e2">fmt</h2>
+<div class="outline-text-2" id="text-org2fc97e2">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">str</span> := <span style="color: #2aa198;">"Hello World!"</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"%T"</span>, str)
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238; string</span>
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org7e2f9ae" class="outline-2">
+<h2 id="org7e2f9ae">reflect</h2>
+<div class="outline-text-2" id="text-org7e2f9ae">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"reflect"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">str</span> := <span style="color: #2aa198;">"Hello world"</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(reflect.<span style="color: #d75fd7; font-weight: bold;">TypeOf</span>(str))
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238; string</span>
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org5e0b012" class="outline-2">
+<h2 id="org5e0b012">type switch</h2>
+<div class="outline-text-2" id="text-org5e0b012">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">str</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}
+str = <span style="color: #2aa198;">"Hello world"</span>
+
+<span style="color: #268bd2; font-weight: bold;">switch</span> str.(<span style="color: #268bd2; font-weight: bold;">type</span>) {
+<span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #df005f; font-weight: bold;">string</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"string"</span>)
+<span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #df005f; font-weight: bold;">int</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"int"</span>)
+<span style="color: #268bd2; font-weight: bold;">default</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"other)</span>
+<span style="color: #2aa198;">}</span>
+<span style="color: #2aa198;">// &#36820;&#22238; string</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-03 16:02 Thu</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-03 Thu 16:18</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

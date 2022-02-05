@@ -1,6 +1,8 @@
 'use strict';
-import 'https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js';
-import 'https://cdn.jsdelivr.net/npm/darkreader@4.9.34/darkreader.min.js';
+// import 'https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js';
+// import 'https://cdn.jsdelivr.net/npm/darkreader@4.9.34/darkreader.min.js';
+import './jquery.min.js';
+import './darkreader.min.js';
 import {
     isPageHome,
     isCurPage,
@@ -176,7 +178,7 @@ if (isCurPage('Math')) {
 
 // VIM PAGE
 // ---------------------------------
-if (isCurPage('Editor-Vim')) {
+if (isCurPage('Editor-Vim-notes')) {
     // outline-1 TITLE
     // outline-2 *
     // outline-3 **

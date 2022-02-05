@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-06 Sun 00:06 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GO-协程间的信道</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">GO-协程间的信道</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgc188b2e">概念</a></li>
+<li><a href="#org6d2164f">通信操作符 &lt;-</a></li>
+<li><a href="#org69e7ed6">通道阻塞</a></li>
+<li><a href="#orge7ec9a3">通过一个（或多个）通道交换数据进行协程同步</a>
+<ul>
+<li><a href="#orgc5437f1">这里为什么死锁？</a>
+<ul>
+<li><a href="#org631c5e0">无缓冲通道有缓存通道</a></li>
+<li><a href="#orgf571e1a">修改为不死锁的代码</a></li>
+<li><a href="#org3923502">为什么将 out &lt;- 2 滞后不会死锁？</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#orge6ba21c">同步通道 - 使用带缓冲的通道</a></li>
+<li><a href="#orgdb25c43">协程中用通道输出结果</a></li>
+<li><a href="#org0465a8e">信号量模式</a></li>
+<li><a href="#org4645fec">实现并行的 for 循环</a></li>
+<li><a href="#org9919f6d">用带缓冲通道实现一个信号量</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgc188b2e" class="outline-2">
+<h2 id="orgc188b2e">概念</h2>
+<div class="outline-text-2" id="text-orgc188b2e">
+<p>
+在第一个例子中，协程是独立执行的，他们之间没有通信。他们必须通信才会变得更有用：彼此之间发送和接收信息并且协调 / 同步他们的工作。协程可以使用共享变量来通信，但是很不提倡这样做，因为这种方式给所有的共享内存的多线程都带来了困难。<br>
+</p>
+
+<p>
+而 Go 有一个特殊的类型，通道（channel），像是通道（管道），可以通过它们发送类型化的数据在协程之间通信，可以避开所有内存共享导致的坑；通道的通信方式保证了同步性。数据通过通道：同一时间只有一个协程可以访问数据：所以不会出现数据竞争，设计如此。数据的归属（可以读写数据的能力）被传递。<br>
+</p>
+
+<p>
+工厂的传送带是个很有用的例子。一个机器（生产者协程）在传送带上放置物品，另外一个机器（消费者协程）拿到物品并打包。<br>
+</p>
+
+<p>
+通道服务于通信的两个目的：值的交换，同步的，保证了两个计算（协程）任何时候都是可知状态。<br>
+</p>
+
+<p>
+通常使用这样的格式来声明通道：var identifier chan datatype<br>
+</p>
+
+<p>
+未初始化的通道的值是 nil。<br>
+</p>
+
+<p>
+所以通道只能传输一种类型的数据，比如 chan int 或者 chan string，所有的类型都可以用于通道，空接口 interface{} 也可以。甚至可以（有时非常有用）创建通道的通道。<br>
+</p>
+
+<p>
+通道实际上是类型化消息的队列：使数据得以传输。它是先进先出（FIFO）的结构所以可以保证发送给他们的元素的顺序（有些人知道，通道可以比作 Unix shells 中的双向管道（two-way pipe））。通道也是引用类型，所以我们使用 make() 函数来给它分配内存。这里先声明了一个字符串通道 ch1，然后创建了它（实例化）：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">ch1</span> <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #8787d7;">string</span>
+ch1 = <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">string</span>)
+</pre>
+</div>
+
+<p>
+当然可以更短： ch1 := make(chan string)。<br>
+</p>
+
+<p>
+这里我们构建一个 int 通道的通道： chanOfChans := make(chan int)。<br>
+</p>
+
+<p>
+或者函数通道：funcChan := chan func()（相关示例请看第 14.17 节）。<br>
+</p>
+
+<p>
+所以通道是对象的第一类型：可以存储在变量中，作为函数的参数传递，从函数返回以及通过通道发送它们自身。另外它们是类型化的，允许类型检查，比如尝试使用整数通道发送一个指针。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org6d2164f" class="outline-2">
+<h2 id="org6d2164f">通信操作符 &lt;-</h2>
+<div class="outline-text-2" id="text-org6d2164f">
+<p>
+这个操作符直观的标示了数据的传输：信息按照箭头的方向流动。<br>
+</p>
+
+<p>
+流向通道（发送）<br>
+</p>
+
+<p>
+ch &lt;- int1 表示：用通道 ch 发送变量 int1（双目运算符，中缀 = 发送）<br>
+</p>
+
+<p>
+从通道流出（接收），三种方式：<br>
+</p>
+
+<p>
+int2 = &lt;- ch 表示：变量 int2 从通道 ch（一元运算的前缀操作符，前缀 = 接收）接收数据（获取新值）；假设 int2 已经声明过了，如果没有的话可以写成：int2 := &lt;- ch。<br>
+</p>
+
+<p>
+&lt;- ch 可以单独调用获取通道的（下一个）值，当前值会被丢弃，但是可以用来验证，所以以下代码是合法的：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">if</span> &lt;- ch != <span style="color: #d75fd7;">1000</span>{
+    ...
+    }
+</pre>
+</div>
+
+<p>
+操作符 &lt;- 也被用来发送和接收，Go 尽管不必要，为了可读性，通道的命名通常以 ch 开头或者包含 chan。通道的发送和接收操作都是自动的：它们通常一气呵成。下面的示例展示了通信操作。<br>
+</p>
+
+<p>
+示例 14.2-goroutine2.go<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"time"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">ch</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">string</span>)
+
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">sendData</span>(ch)
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">getData</span>(ch)  
+
+    time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(<span style="color: #d75fd7;">1e9</span>)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">sendData</span>(<span style="color: #8787d7;">ch</span> <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">string</span>) {
+    ch &lt;- <span style="color: #2aa198;">"Washington"</span>
+    ch &lt;- <span style="color: #2aa198;">"Tripoli"</span>
+    ch &lt;- <span style="color: #2aa198;">"London"</span>
+    ch &lt;- <span style="color: #2aa198;">"Beijing"</span>
+    ch &lt;- <span style="color: #2aa198;">"Tokio"</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">getData</span>(<span style="color: #8787d7;">ch</span> <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">string</span>) {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">input</span> <span style="color: #df005f; font-weight: bold;">string</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">time.Sleep(2e9)</span>
+    <span style="color: #268bd2; font-weight: bold;">for</span> {
+        input = &lt;-ch
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%s "</span>, input)
+    }
+}
+</pre>
+</div>
+
+<p>
+输出：<br>
+</p>
+
+<pre class="example" id="org06757d7">
+Washington Tripoli London Beijing Tokio
+</pre>
+
+<p>
+main() 函数中启动了两个协程：sendData() 通过通道 ch 发送了 5 个字符串，getData() 按顺序接收它们并打印出来。<br>
+</p>
+
+<p>
+如果 2 个协程需要通信，你必须给他们同一个通道作为参数才行。<br>
+</p>
+
+<p>
+尝试一下如果注释掉 time.Sleep(1e9) 会如何。<br>
+</p>
+
+<p>
+我们发现协程之间的同步非常重要：<br>
+</p>
+
+<ul class="org-ul">
+<li>main () 等待了 1 秒让两个协程完成，如果不这样，sendData () 就没有机会输出。<br></li>
+<li>getData () 使用了无限循环：它随着 sendData () 的发送完成和 ch 变空也结束了。<br></li>
+<li>如果我们移除一个或所有 go 关键字，程序无法运行，Go 运行时会抛出 panic：<br></li>
+</ul>
+
+<pre class="example" id="org21e901f">
+---- Error run E:/Go/Goboek/code examples/chapter 14/goroutine2.exe with code Crashed ---- Program exited with code -2147483645: panic: all goroutines are asleep-deadlock!
+</pre>
+
+<p>
+为什么会这样？运行时会检查所有的协程（也许只有一个是这种情况）是否在等待（可以读取或者写入某个通道），意味着程序无法处理。这是死锁（deadlock）形式，运行时可以检测到这种情况。<br>
+</p>
+
+<p>
+注意：不要使用打印状态来表明通道的发送和接收顺序：由于打印状态和通道实际发生读写的时间延迟会导致和真实发生的顺序不同。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org69e7ed6" class="outline-2">
+<h2 id="org69e7ed6">通道阻塞</h2>
+<div class="outline-text-2" id="text-org69e7ed6">
+<p>
+默认情况下，通信是同步且无缓冲的：在有接收者接收数据之前，发送不会结束。可以想象一个无缓冲的通道在没有空间来保存数据的时候：必须要一个接收者准备好接收通道的数据然后发送者可以直接把数据发送给接收者。所以通道的发送 / 接收操作在对方准备好之前是阻塞的：<br>
+</p>
+
+<p>
+1）对于同一个通道，发送操作（协程或者函数中的），在接收者准备好之前是阻塞的：如果 ch 中的数据无人接收，就无法再给通道传入其他数据：新的输入无法在通道非空的情况下传入。所以发送操作会等待 ch 再次变为可用状态：就是通道值被接收时（可以传入变量）。<br>
+</p>
+
+<p>
+2）对于同一个通道，接收操作是阻塞的（协程或函数中的），直到发送者可用：如果通道中没有数据，接收者就阻塞了。<br>
+</p>
+
+<p>
+尽管这看上去是非常严格的约束，实际在大部分情况下工作的很不错。<br>
+</p>
+
+<p>
+程序 channel_block.go 验证了以上理论，一个协程在无限循环中给通道发送整数数据。不过因为没有接收者，只输出了一个数字 0。<br>
+</p>
+
+<p>
+示例 14.3-channel_block.go<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">ch1</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">pump</span>(ch1)       <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">pump hangs</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(&lt;-ch1) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">prints only 0</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">pump</span>(<span style="color: #8787d7;">ch</span> <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">0</span>; ; i++ {
+        ch &lt;- i
+    }
+}
+</pre>
+</div>
+
+<p>
+输出：<br>
+</p>
+
+<pre class="example" id="org83f03b2">
+0
+</pre>
+
+<p>
+pump() 函数为通道提供数值，也被叫做生产者。<br>
+</p>
+
+<p>
+为通道解除阻塞定义了 suck 函数来在无限循环中读取通道，参见示例 14.4-channel_block2.go：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">suck</span>(<span style="color: #8787d7;">ch</span> <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
+    <span style="color: #268bd2; font-weight: bold;">for</span> {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(&lt;-ch)
+    }
+}
+</pre>
+</div>
+
+<p>
+在 main() 中使用协程开始它：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">pump</span>(ch1)
+<span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">suck</span>(ch1)
+time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(<span style="color: #d75fd7;">1e9</span>)
+</pre>
+</div>
+
+<p>
+给程序 1 秒的时间来运行：输出了上万个整数。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge7ec9a3" class="outline-2">
+<h2 id="orge7ec9a3">通过一个（或多个）通道交换数据进行协程同步</h2>
+<div class="outline-text-2" id="text-orge7ec9a3">
+<p>
+通信是一种同步形式：通过通道，两个协程在通信（协程会和）中某刻同步交换数据。无缓冲通道成为了多个协程同步的完美工具。<br>
+</p>
+
+<p>
+甚至可以在通道两端互相阻塞对方，形成了叫做死锁的状态。Go 运行时会检查并 panic，停止程序。死锁几乎完全是由糟糕的设计导致的。<br>
+</p>
+
+<p>
+无缓冲通道会被阻塞。设计无阻塞的程序可以避免这种情况，或者使用带缓冲的通道。<br>
+</p>
+
+<p>
+练习 14.2： blocking.go<br>
+</p>
+
+<p>
+解释为什么下边这个程序会导致 panic：所有的协程都休眠了 - 死锁！<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">f1</span>(<span style="color: #8787d7;">in</span> <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(&lt;-in)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">out</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+    out &lt;- <span style="color: #d75fd7;">2</span>
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">f1</span>(out)
+}
+Copy
+</pre>
+</div>
+</div>
+<div id="outline-container-orgc5437f1" class="outline-3">
+<h3 id="orgc5437f1">这里为什么死锁？</h3>
+<div class="outline-text-3" id="text-orgc5437f1">
+</div>
+<div id="outline-container-org631c5e0" class="outline-4">
+<h4 id="org631c5e0">无缓冲通道有缓存通道</h4>
+<div class="outline-text-4" id="text-org631c5e0">
+<p>
+首先需要明白两个概念：无缓冲通道和有缓存通道。<br>
+</p>
+
+<ol class="org-ol">
+<li>ch := make(chan int) 和 ch := make(chan int, 0) 创建的都是无缓冲通道。<br></li>
+<li>ch := make(chan int, x)，其中 x &gt; 0，建立的是有缓存通道。<br></li>
+</ol>
+
+<p>
+两者的区别是，无缓冲通道是同步的，写入数据时，必须有协程把数据读走才返回；无缓存通道是半异步的，当缓冲还没有用满时，写入数据时，只要缓存还有空余空间，写入到缓冲就可以返回。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf571e1a" class="outline-4">
+<h4 id="orgf571e1a">修改为不死锁的代码</h4>
+<div class="outline-text-4" id="text-orgf571e1a">
+<ol class="org-ol">
+<li><p>
+设置缓冲<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">f1</span>(<span style="color: #8787d7;">in</span> <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(&lt;-in)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">out</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #d75fd7;">1</span>)
+    out &lt;- <span style="color: #d75fd7;">2</span>
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">f1</span>(out)
+}
+</pre>
+</div></li>
+
+<li><p>
+将 out &lt;- 2 滞后<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">f1</span>(<span style="color: #8787d7;">in</span> <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(&lt;-in)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">out</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">f1</span>(out)
+    out &lt;- <span style="color: #d75fd7;">2</span>
+}
+</pre>
+</div></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-org3923502" class="outline-4">
+<h4 id="org3923502">为什么将 out &lt;- 2 滞后不会死锁？</h4>
+<div class="outline-text-4" id="text-org3923502">
+<img src="./images/Go协程死锁.png" width=670px height=300px />
+
+<p>
+上面左图为 out &lt;- 2 在 go f1(out) 之前的运行流程；右图为 out &lt;- 2 在 go f1(out) 之后的运行流程。<br>
+</p>
+
+<p>
+在右图中，两个协程并发运行，如果先执行到 out &lt;- 2 这行代码，那么不会向通道写入，而是等到有消费者时才写入，所以当运行到 fmt.Println(in) 这行代码时，生产并消费；如果先执行到 fmt.Println(in) 那么就会等待生产，当运行到 out &lt;- 2 时，有消费者等待消费，所以写入，然后消费者这边消费。<br>
+</p>
+
+<p>
+在左图中，向 out 写入数据时，协程 f1 还没有创建，也就无协程读 out 的数据，造成死锁。<br>
+</p>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orge6ba21c" class="outline-2">
+<h2 id="orge6ba21c">同步通道 - 使用带缓冲的通道</h2>
+<div class="outline-text-2" id="text-orge6ba21c">
+<p>
+一个无缓冲通道只能包含 1 个元素，有时显得很局限。我们给通道提供了一个缓存，可以在扩展的 make 命令中设置它的容量，如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">buf</span> := <span style="color: #d75fd7;">100</span>
+<span style="color: #8787d7;">ch1</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">string</span>, buf)
+</pre>
+</div>
+
+<p>
+buf 是通道可以同时容纳的元素（这里是 string）个数<br>
+</p>
+
+<p>
+在缓冲满载（缓冲被全部使用）之前，给一个带缓冲的通道发送数据是不会阻塞的，而从通道读取数据也不会阻塞，直到缓冲空了。<br>
+</p>
+
+<p>
+缓冲容量和类型无关，所以可以（尽管可能导致危险）给一些通道设置不同的容量，只要他们拥有同样的元素类型。内置的 cap 函数可以返回缓冲区的容量。<br>
+</p>
+
+<p>
+如果容量大于 0，通道就是异步的了：缓冲满载（发送）或变空（接收）之前通信不会阻塞，元素会按照发送的顺序被接收。如果容量是 0 或者未设置，通信仅在收发双方准备好的情况下才可以成功。<br>
+</p>
+
+<p>
+同步：ch :=make(chan type, value)<br>
+</p>
+
+<ul class="org-ul">
+<li>value == 0 -&gt; synchronous, unbuffered (阻塞）<br></li>
+<li>value &gt; 0 -&gt; asynchronous, buffered（非阻塞）取决于 value 元素<br></li>
+</ul>
+
+<p>
+若使用通道的缓冲，你的程序会在 “请求” 激增的时候表现更好：更具弹性，专业术语叫：更具有伸缩性（scalable）。要在首要位置使用无缓冲通道来设计算法，只在不确定的情况下使用缓冲。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgdb25c43" class="outline-2">
+<h2 id="orgdb25c43">协程中用通道输出结果</h2>
+<div class="outline-text-2" id="text-orgdb25c43">
+<p>
+为了知道计算何时完成，可以通过信道回报。在例子 go sum(bigArray) 中，要这样写：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">ch</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+<span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">sum</span>(bigArray, ch) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">bigArray puts the calculated sum on ch</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">.. do something else for a while</span>
+<span style="color: #8787d7;">sum</span> := &lt;- ch <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">wait for, and retrieve the sum</span>
+</pre>
+</div>
+
+<p>
+也可以使用通道来达到同步的目的，这个很有效的用法在传统计算机中称为信号量（semaphore）。或者换个方式：通过通道发送信号告知处理已经完成（在协程中）。<br>
+</p>
+
+<p>
+在其他协程运行时让 main 程序无限阻塞的通常做法是在 main 函数的最后放置一个 {}。<br>
+</p>
+
+<p>
+也可以使用通道让 main 程序等待协程完成，就是所谓的信号量模式，我们会在接下来的部分讨论。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org0465a8e" class="outline-2">
+<h2 id="org0465a8e">信号量模式</h2>
+<div class="outline-text-2" id="text-org0465a8e">
+<p>
+下边的片段阐明：协程通过在通道 ch 中放置一个值来处理结束的信号。main 协程等待 &lt;-ch 直到从中获取到值。<br>
+</p>
+
+<p>
+我们期望从这个通道中获取返回的结果，像这样：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">compute</span>(<span style="color: #8787d7;">ch</span> <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>){
+    ch &lt;- <span style="color: #d75fd7; font-weight: bold;">someComputation</span>() <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">when it completes, signal on the channel.</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>(){
+    <span style="color: #8787d7;">ch</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>)     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">allocate a channel.</span>
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">compute</span>(ch)        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">stat something in a goroutines</span>
+    <span style="color: #d75fd7; font-weight: bold;">doSomethingElseForAWhile</span>()
+    <span style="color: #8787d7;">result</span> := &lt;- ch
+}
+</pre>
+</div>
+
+<p>
+这个信号也可以是其他的，不返回结果，比如下面这个协程中的匿名函数（lambda）协程：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">ch</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+<span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>(){
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">doSomething</span>
+    ch &lt;- <span style="color: #d75fd7;">1</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Send a signal; value does not matter</span>
+}()
+<span style="color: #d75fd7; font-weight: bold;">doSomethingElseForAWhile</span>()
+&lt;- ch    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Wait for goroutine to finish; discard sent value.</span>
+</pre>
+</div>
+
+<p>
+或者等待两个协程完成，每一个都会对切片 s 的一部分进行排序，片段如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">done</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">bool</span>)
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">doSort is a lambda function, so a closure which knows the channel done:</span>
+<span style="color: #8787d7;">doSort</span> := <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">s</span> []<span style="color: #df005f; font-weight: bold;">int</span>){
+    <span style="color: #d75fd7; font-weight: bold;">sort</span>(s)
+    done &lt;- <span style="color: #d75fd7;">true</span>
+}
+<span style="color: #8787d7;">i</span> := <span style="color: #d75fd7; font-weight: bold;">pivot</span>(s)
+<span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">doSort</span>(s[:i])
+<span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">doSort</span>(s[i:])
+&lt;-done
+&lt;-done
+</pre>
+</div>
+
+<p>
+下边的代码，用完整的信号量模式对长度为 N 的 float64 切片进行了 N 个 doSomething() 计算并同时完成，通道 sem 分配了相同的长度（且包含空接口类型的元素），待所有的计算都完成后，发送信号（通过放入值）。在循环中从通道 sem 不停的接收数据来等待所有的协程完成。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Empty</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {}
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">empty</span> <span style="color: #df005f; font-weight: bold;">Empty</span>
+...
+    <span style="color: #8787d7;">data</span> := <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">float64</span>, N)
+<span style="color: #8787d7;">res</span> := <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">float64</span>, N)
+<span style="color: #8787d7;">sem</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">Empty</span>, N)
+...
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">xi</span> := <span style="color: #268bd2; font-weight: bold;">range</span> data {
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">i</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">xi</span> <span style="color: #df005f; font-weight: bold;">float64</span>) {
+        res[i] = <span style="color: #d75fd7; font-weight: bold;">doSomething</span>(i, xi)
+        sem &lt;- empty
+    } (i, xi)
+}
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">wait for goroutines to finish</span>
+<span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; N; i++ { &lt;-sem }
+</pre>
+</div>
+
+<p>
+注意闭合：i、xi 都是作为参数传入闭合函数的，从外层循环中隐藏了变量 i 和 xi。让每个协程有一份 i 和 xi 的拷贝；另外，for 循环的下一次迭代会更新所有协程中 i 和 xi 的值。切片 res 没有传入闭合函数，因为协程不需要单独拷贝一份。切片 res 也在闭合函数中但并不是参数。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4645fec" class="outline-2">
+<h2 id="org4645fec">实现并行的 for 循环</h2>
+<div class="outline-text-2" id="text-org4645fec">
+<p>
+在上一部分章节 14.2.7 的代码片段中：for 循环的每一个迭代是并行完成的：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">v</span> := <span style="color: #268bd2; font-weight: bold;">range</span> data {
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">i</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">float64</span>) {
+        <span style="color: #d75fd7; font-weight: bold;">doSomething</span>(i, v)
+        ...
+        } (i, v)
+}
+</pre>
+</div>
+
+<p>
+在 for 循环中并行计算迭代可能带来很好的性能提升。不过所有的迭代都必须是独立完成的。有些语言比如 Fortress 或者其他并行框架以不同的结构实现了这种方式，在 Go 中用协程实现起来非常容易：<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9919f6d" class="outline-2">
+<h2 id="org9919f6d">用带缓冲通道实现一个信号量</h2>
+<div class="outline-text-2" id="text-org9919f6d">
+<p>
+信号量是实现互斥锁（排外锁）常见的同步机制，限制对资源的访问，解决读写问题，比如没有实现信号量的 sync 的 Go 包，使用带缓冲的通道可以轻松实现：<br>
+</p>
+
+<ul class="org-ul">
+<li>带缓冲通道的容量和要同步的资源容量相同<br></li>
+<li>通道的长度（当前存放的元素个数）与当前资源被使用的数量相同<br></li>
+<li>容量减去通道的长度就是未处理的资源个数（标准信号量的整数值）<br></li>
+</ul>
+
+<p>
+不用管通道中存放的是什么，只关注长度；因此我们创建了一个长度可变但容量为 0（字节）的通道：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Empty</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {}
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">semaphore</span> <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">Empty</span>
+</pre>
+</div>
+
+<p>
+将可用资源的数量 N 来初始化信号量 semaphore：sem = make(semaphore, N)<br>
+</p>
+
+<p>
+然后直接对信号量进行操作：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">acquire n resources</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">semaphore</span>) <span style="color: #d75fd7; font-weight: bold;">P</span>(<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
+        <span style="color: #8787d7;">e</span> := <span style="color: #268bd2;">new</span>(<span style="color: #df005f; font-weight: bold;">Empty</span>)
+        <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; n; i++ {
+                s &lt;- e
+        }
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">release n resouces</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">semaphore</span>) <span style="color: #d75fd7; font-weight: bold;">V</span>(<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
+        <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span>:= <span style="color: #d75fd7;">0</span>; i &lt; n; i++{
+                &lt;- s
+        }
+}
+</pre>
+</div>
+
+<p>
+可以用来实现一个互斥的例子：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">/* </span><span style="color: #008787; background-color: #262626;">mutexes */</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">semaphore</span>) <span style="color: #d75fd7; font-weight: bold;">Lock</span>() {
+        s.<span style="color: #d75fd7; font-weight: bold;">P</span>(<span style="color: #d75fd7;">1</span>)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">semaphore</span>) <span style="color: #d75fd7; font-weight: bold;">Unlock</span>(){
+        s.<span style="color: #d75fd7; font-weight: bold;">V</span>(<span style="color: #d75fd7;">1</span>)
+}
+
+<span style="color: #008787; background-color: #262626;">/* </span><span style="color: #008787; background-color: #262626;">signal-wait */</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">semaphore</span>) <span style="color: #d75fd7; font-weight: bold;">Wait</span>(<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
+        s.<span style="color: #d75fd7; font-weight: bold;">P</span>(n)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">semaphore</span>) <span style="color: #d75fd7; font-weight: bold;">Signal</span>() {
+        s.<span style="color: #d75fd7; font-weight: bold;">V</span>(<span style="color: #d75fd7;">1</span>)
+}
+</pre>
+</div>
+
+<p>
+习惯用法：通道工厂模式<br>
+</p>
+
+<p>
+编程中常见的另外一种模式如下：不将通道作为参数传递给协程，而用函数来生成一个通道并返回（工厂角色）；函数内有个匿名函数被协程调用。<br>
+</p>
+
+<p>
+在 channel_block2.go 加入这种模式便有了示例 14.5-channel_idiom.go：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+        <span style="color: #2aa198;">"fmt"</span>
+        <span style="color: #2aa198;">"time"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+        <span style="color: #8787d7;">stream</span> := <span style="color: #d75fd7; font-weight: bold;">pump</span>()
+        <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">suck</span>(stream)
+        time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(<span style="color: #d75fd7;">1e9</span>)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">pump</span>() <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span> {
+        <span style="color: #8787d7;">ch</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+        <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+                <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">0</span>; ; i++ {
+                        ch &lt;- i
+                }
+        }()
+        <span style="color: #268bd2; font-weight: bold;">return</span> ch
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">suck</span>(<span style="color: #8787d7;">ch</span> <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
+        <span style="color: #268bd2; font-weight: bold;">for</span> {
+                fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(&lt;-ch)
+        }
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-01 18:02 Tue</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-06 Sun 00:06</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

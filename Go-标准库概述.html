@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-01 Tue 17:53 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GO-标准库概述</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">GO-标准库概述</h1>
+<p>
+像 fmt、os 等这样具有常用功能的内置包在 Go 语言中有 150 个以上，它们被称为标准库，大部分 (一些底层的除外) 内置于 Go 本身。完整列表可以在 Go Walker 查看。<br>
+</p>
+
+<ul class="org-ul">
+<li>unsafe: 包含了一些打破 Go 语言 “类型安全” 的命令，一般的程序中不会被使用，可用在 C/C++ 程序的调用中。<br></li>
+<li>syscall-os-os/exec:<br>
+<ul class="org-ul">
+<li>os: 提供给我们一个平台无关性的操作系统功能接口，采用类 Unix 设计，隐藏了不同操作系统间差异，让不同的文件系统和操作系统对象表现一致。<br></li>
+<li>os/exec: 提供我们运行外部操作系统命令和程序的方式。<br></li>
+<li>syscall: 底层的外部包，提供了操作系统底层调用的基本接口。<br></li>
+</ul></li>
+</ul>
+
+<p>
+通过一个 Go 程序让 Linux 重启来体现它的能力。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+        <span style="color: #2aa198;">"syscall"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">const</span> <span style="color: #d75fd7;">LINUX_REBOOT_MAGIC1</span> <span style="color: #df005f; font-weight: bold;">uintptr</span> = <span style="color: #d75fd7;">0xfee1dead</span>
+<span style="color: #268bd2; font-weight: bold;">const</span> <span style="color: #d75fd7;">LINUX_REBOOT_MAGIC2</span> <span style="color: #df005f; font-weight: bold;">uintptr</span> = <span style="color: #d75fd7;">672274793</span>
+<span style="color: #268bd2; font-weight: bold;">const</span> <span style="color: #d75fd7;">LINUX_REBOOT_CMD_RESTART</span> <span style="color: #df005f; font-weight: bold;">uintptr</span> = <span style="color: #d75fd7;">0x1234567</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+        syscall.<span style="color: #d75fd7; font-weight: bold;">Syscall</span>(syscall.SYS_REBOOT,
+                LINUX_REBOOT_MAGIC1,
+                LINUX_REBOOT_MAGIC2,
+                LINUX_REBOOT_CMD_RESTART)
+}
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>archive/tar 和 /zip-compress：压缩 (解压缩) 文件功能。<br></li>
+<li>fmt-io-bufio-path/filepath-flag:<br>
+<ul class="org-ul">
+<li>fmt: 提供了格式化输入输出功能。<br></li>
+<li>io: 提供了基本输入输出功能，大多数是围绕系统功能的封装。<br></li>
+<li>bufio: 缓冲输入输出功能的封装。<br></li>
+<li>path/filepath: 用来操作在当前系统中的目标文件名路径。<br></li>
+<li>flag: 对命令行参数的操作。　　<br></li>
+</ul></li>
+<li>strings-strconv-unicode-regexp-bytes:<br>
+<ul class="org-ul">
+<li>strings: 提供对字符串的操作。<br></li>
+<li>strconv: 提供将字符串转换为基础类型的功能。<br></li>
+<li>unicode: 为 unicode 型的字符串提供特殊的功能。<br></li>
+<li>regexp: 正则表达式功能。<br></li>
+<li>bytes: 提供对字符型分片的操作。<br></li>
+<li>index/suffixarray: 子字符串快速查询。<br></li>
+</ul></li>
+<li>math-math/cmath-math/big-math/rand-sort:<br>
+<ul class="org-ul">
+<li>math: 基本的数学函数。<br></li>
+<li>math/cmath: 对复数的操作。<br></li>
+<li>math/rand: 伪随机数生成。<br></li>
+<li>sort: 为数组排序和自定义集合。<br></li>
+<li>math/big: 大数的实现和计算。 　　<br></li>
+</ul></li>
+<li>container-/list-ring-heap: 实现对集合的操作。<br>
+<ul class="org-ul">
+<li>list: 双链表。<br></li>
+<li>ring: 环形链表。<br></li>
+</ul></li>
+</ul>
+
+<p>
+下面代码演示了如何遍历一个链表 (当 l 是 *List)：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">e</span> := l.<span style="color: #d75fd7; font-weight: bold;">Front</span>(); e != <span style="color: #d75fd7;">nil</span>; e = e.<span style="color: #d75fd7; font-weight: bold;">Next</span>() {
+        <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">do something with e.Value</span>
+}
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>time-log:<br>
+<ul class="org-ul">
+<li>time: 日期和时间的基本操作。<br></li>
+<li>log: 记录程序运行时产生的日志，我们将在后面的章节使用它。<br></li>
+</ul></li>
+
+<li>encoding/json-encoding/xml-text/template:<br>
+<ul class="org-ul">
+<li>encoding/json: 读取并解码和写入并编码 JSON 数据。<br></li>
+<li>encoding/xml: 简单的 XML1.0 解析器。<br></li>
+<li>text/template: 生成像 HTML 一样的数据与文本混合的数据驱动模板<br></li>
+</ul></li>
+<li>net-net/http-html:<br>
+<ul class="org-ul">
+<li>net: 网络数据的基本操作。<br></li>
+<li>http: 提供了一个可扩展的 HTTP 服务器和基础客户端，解析 HTTP 请求和回复。<br></li>
+<li>html: HTML5 解析器。<br></li>
+</ul></li>
+<li>runtime: Go 程序运行时的交互操作，例如垃圾回收和协程创建。<br></li>
+<li>reflect: 实现通过程序运行时反射，让程序操作任意类型的变量。<br></li>
+</ul>
+
+<p>
+exp 包中有许多将被编译为新包的实验性的包。它们将成为独立的包在下次稳定版本发布的时候。如果前一个版本已经存在了，它们将被作为过时的包被回收。然而 Go1.0 发布的时候并不包含过时或者实验性的包。<br>
+</p>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-01 17:02 Tue</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-01 Tue 17:53</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
