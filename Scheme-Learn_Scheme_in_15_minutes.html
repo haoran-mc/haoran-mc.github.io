@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-06 Sun 03:11 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LEARN SCHEME IN 15 MINUTES</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">LEARN SCHEME IN 15 MINUTES</h1>
+<div class="org-src-container">
+<pre class="src src-scheme"><span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">This gives an introduction to Scheme in 15 minutes</span>
+<span style="color: #008787; background-color: #262626;">;;</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">First make sure you read this text by Peter Norvig:</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">http://norvig.com/21-days.html</span>
+<span style="color: #008787; background-color: #262626;">;;</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Then install GNU Guile</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #875f00; background-color: #262626;">NOTE</span><span style="color: #008787; background-color: #262626;">: I won't encourage using Racket but if you really want,</span>
+<span style="color: #008787; background-color: #262626;">;;       </span><span style="color: #008787; background-color: #262626;">I still give you some hints in this tutorial. But the</span>
+<span style="color: #008787; background-color: #262626;">;;       </span><span style="color: #008787; background-color: #262626;">tutorial will base on Guile and RnRs.</span>
+<span style="color: #008787; background-color: #262626;">;;</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">openSUSE: zypper install guile</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Debian: apt-get install guile-2.0 (or see your distro instructions)</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">MacOSX: Building Guile 2.0 on the Mac</span>
+<span style="color: #008787; background-color: #262626;">;;         </span><span style="color: #008787; background-color: #262626;">http://irrealblog.blogspot.hk/2011/03/building-guile-2.html</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Windows try web: http://repl.it/languages/Scheme</span>
+<span style="color: #008787; background-color: #262626;">;;</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">More general information can be found at:</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">http://www.gnu.org/software/guile</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Important warning:</span>
+<span style="color: #008787; background-color: #262626;">;;</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Going through this tutorial won't damage your computer unless</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">you get so angry that you throw it on the floor.  In that case,</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">I hereby decline any responsability.  Have fun!</span>
+
+<span style="color: #008787; background-color: #262626;">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+<span style="color: #008787; background-color: #262626;">;; </span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Fire up Scheme:</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Type 'guile' for GNU Guile</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Or just use the browser for web version</span>
+<span style="color: #008787; background-color: #262626;">;;</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Now look at the prompt:</span>
+
+<span style="color: #008787; background-color: #262626;">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+<span style="color: #008787; background-color: #262626;">;;</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Semi-colons start comments anywhere on a line.</span>
+<span style="color: #008787; background-color: #262626;">;;</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Scheme programs are made of symbolic expressions (s-exps):</span>
+(+ <span style="color: #d75fd7;">2</span> <span style="color: #d75fd7;">2</span>)
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">This symbolic expression reads as "Add 2 to 2".</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Sexps are enclosed into parentheses, possibly nested:</span>
+(+ <span style="color: #d75fd7;">2</span> (+ <span style="color: #d75fd7;">1</span> <span style="color: #d75fd7;">1</span>))
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">A symbolic expression contains atoms or other symbolic</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">expressions.  In the above examples, 1 and 2 are atoms,</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">(+ 2 (+ 1 1)) and (+ 1 1) are symbolic expressions.</span>
+
+(+ <span style="color: #d75fd7;">3</span> (+ <span style="color: #d75fd7;">1</span> <span style="color: #d75fd7;">2</span>))
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">=&gt; 6</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">`set!' stores a value into a variable:</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Please define my-name first, or you can't assign it.</span>
+(<span style="color: #268bd2; font-weight: bold;">define</span> <span style="color: #d75fd7; font-weight: bold;">my-name</span> <span style="color: #2aa198;">"unknown"</span>)
+(<span style="color: #268bd2; font-weight: bold;">set!</span> my-name <span style="color: #2aa198;">"NalaGinrut"</span>)
+
+<span style="color: #008787; background-color: #262626;">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">1. Primitive Datatypes and Operators</span>
+<span style="color: #008787; background-color: #262626;">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+
+<span style="color: #008787; background-color: #262626;">;;; </span><span style="color: #008787; background-color: #262626;">Numbers</span>
+<span style="color: #d75fd7;">9999999999999999999999</span> <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">integers</span>
+#b111                  <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">binary =&gt; 7</span>
+#o111                  <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">octal =&gt; 73</span>
+#x111                  <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">hexadecimal =&gt; 273</span>
+<span style="color: #d75fd7;">3.14</span>                   <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">reals</span>
+<span style="color: #d75fd7;">6.02e+23</span>
+<span style="color: #d75fd7;">1/2</span>                    <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">rationals</span>
+1+2i                   <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">complex numbers</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Function application is written (f x y z ...)</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">where f is a function and x, y, z, ... are operands</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">If you want to create a literal list of data, use ' to stop it from</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">being evaluated</span>
+'(+ <span style="color: #d75fd7;">1</span> <span style="color: #d75fd7;">2</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; (+ 1 2)</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Now, some arithmetic operations</span>
+(+ <span style="color: #d75fd7;">1</span> <span style="color: #d75fd7;">1</span>)  <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; 2</span>
+(- <span style="color: #d75fd7;">8</span> <span style="color: #d75fd7;">1</span>)  <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; 7</span>
+(* <span style="color: #d75fd7;">10</span> <span style="color: #d75fd7;">2</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; 20</span>
+(expt <span style="color: #d75fd7;">2</span> <span style="color: #d75fd7;">3</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; 8</span>
+(quotient <span style="color: #d75fd7;">5</span> <span style="color: #d75fd7;">2</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; 2</span>
+(remainder <span style="color: #d75fd7;">5</span> <span style="color: #d75fd7;">2</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; 1</span>
+(/ <span style="color: #d75fd7;">35</span> <span style="color: #d75fd7;">5</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; 7</span>
+(/ <span style="color: #d75fd7;">1</span> <span style="color: #d75fd7;">3</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; 1/3</span>
+(exact-&gt;inexact <span style="color: #d75fd7;">1/3</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; 0.3333333333333333</span>
+(+ 1+2i  2-3i) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; 3-1i</span>
+
+<span style="color: #008787; background-color: #262626;">;;; </span><span style="color: #008787; background-color: #262626;">Booleans</span>
+#t <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">for true</span>
+#f <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">for false -- any value other than #f is true</span>
+(not #t) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; #f</span>
+(<span style="color: #268bd2; font-weight: bold;">and</span> <span style="color: #d75fd7;">0</span> #f (error <span style="color: #2aa198;">"doesn't get here"</span>)) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; #f</span>
+(<span style="color: #268bd2; font-weight: bold;">or</span> #f <span style="color: #d75fd7;">0</span> (error <span style="color: #2aa198;">"doesn't get here"</span>))  <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; 0</span>
+
+<span style="color: #008787; background-color: #262626;">;;; </span><span style="color: #008787; background-color: #262626;">Characters</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">According to RnRs, characters only have two notations:</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">#\ and #\x</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Racket support #\u, but it's never Scheme.</span>
+#\A <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; #\A</span>
+#\&#955; <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; #\&#955;</span>
+#\x03BB <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; #\&#955;</span>
+
+<span style="color: #008787; background-color: #262626;">;;; </span><span style="color: #008787; background-color: #262626;">Strings are fixed-length array of characters.</span>
+<span style="color: #2aa198;">"Hello, world!"</span>
+<span style="color: #2aa198;">"Benjamin \"Bugsy\" Siegel"</span>   <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">backslash is an escaping character</span>
+<span style="color: #2aa198;">"Foo\tbar\x21\a\r\n"</span> <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">includes C escapes (only support hex)</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">try to print the above string</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Printing is pretty easy</span>
+(display <span style="color: #2aa198;">"I'm Guile. Nice to meet you!\n"</span>)
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">and unicode escapes</span>
+<span style="color: #2aa198;">"\u004B"</span> <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; K</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Strings can be added too!</span>
+(string-append <span style="color: #2aa198;">"Hello "</span> <span style="color: #2aa198;">"world!"</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; "Hello world!"</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">A string can be treated like a list of characters</span>
+(string-ref <span style="color: #2aa198;">"Apple"</span> <span style="color: #d75fd7;">0</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; #\A</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">format can be used to format strings:</span>
+(format #t <span style="color: #2aa198;">"~a can be ~a"</span> <span style="color: #2aa198;">"strings"</span> <span style="color: #2aa198;">"formatted"</span>)
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">==&gt; print "strings can be formatted" on screen</span>
+(<span style="color: #268bd2; font-weight: bold;">define</span> <span style="color: #d75fd7; font-weight: bold;">str</span> (format #f <span style="color: #2aa198;">"~a can be ~a"</span> <span style="color: #2aa198;">"strings"</span> <span style="color: #2aa198;">"formatted"</span>))
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">str was assigned to "strings can be formatted"</span>
+
+<span style="color: #008787; background-color: #262626;">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">2. Variables</span>
+<span style="color: #008787; background-color: #262626;">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">You can create a variable using define</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">a variable name can use any character except: ()[]{}",'`;#|\</span>
+(<span style="color: #268bd2; font-weight: bold;">define</span> <span style="color: #d75fd7; font-weight: bold;">some-var</span> <span style="color: #d75fd7;">5</span>)
+some-var <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; 5</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Accessing a previously unassigned variable is an exception</span>
+<span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">x ; =&gt; x: undefined ...</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Local binding: `me' is bound to "Bob" only within the (let ...)</span>
+(<span style="color: #268bd2; font-weight: bold;">let</span> ((me <span style="color: #2aa198;">"Bob"</span>))
+  <span style="color: #2aa198;">"Alice"</span>
+  me) 
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">=&gt; "Bob"</span>
+
+<span style="color: #008787; background-color: #262626;">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">3. Structs and Collections</span>
+<span style="color: #008787; background-color: #262626;">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Record Type (Skip this chapter if you're trying web version</span>
+(use-modules (srfi srfi-9))
+(<span style="color: #268bd2; font-weight: bold;">define-record-type</span> dog 
+  (make-dog name breed age)
+  dog?
+  (name dog-name)
+  (breed dog-breed)
+  (age dog-age))
+(<span style="color: #268bd2; font-weight: bold;">define</span> <span style="color: #d75fd7; font-weight: bold;">my-pet</span>
+  (make-dog <span style="color: #2aa198;">"lassie"</span> <span style="color: #2aa198;">"collie"</span> <span style="color: #d75fd7;">5</span>))
+my-pet <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; #&lt;dog&gt;</span>
+(dog? my-pet) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; #t</span>
+(dog-name my-pet) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; "lassie"</span>
+
+<span style="color: #008787; background-color: #262626;">;;; </span><span style="color: #008787; background-color: #262626;">Pairs (immutable)</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">`cons' constructs pairs, `car' and `cdr' extract the first</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">and second elements</span>
+(cons <span style="color: #d75fd7;">1</span> <span style="color: #d75fd7;">2</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; '(1 . 2)</span>
+(car (cons <span style="color: #d75fd7;">1</span> <span style="color: #d75fd7;">2</span>)) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; 1</span>
+(cdr (cons <span style="color: #d75fd7;">1</span> <span style="color: #d75fd7;">2</span>)) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; 2</span>
+
+<span style="color: #008787; background-color: #262626;">;;; </span><span style="color: #008787; background-color: #262626;">Lists</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Lists are linked-list data structures, made of `cons' pairs and end</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">with a '() to mark the end of the list</span>
+(cons <span style="color: #d75fd7;">1</span> (cons <span style="color: #d75fd7;">2</span> (cons <span style="color: #d75fd7;">3</span> '()))) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; '(1 2 3)</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">`list' is a convenience variadic constructor for lists</span>
+(list <span style="color: #d75fd7;">1</span> <span style="color: #d75fd7;">2</span> <span style="color: #d75fd7;">3</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; '(1 2 3)</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">and a quote can also be used for a literal list value</span>
+'(<span style="color: #d75fd7;">1</span> <span style="color: #d75fd7;">2</span> <span style="color: #d75fd7;">3</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; '(1 2 3)</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Can still use `cons' to add an item to the beginning of a list</span>
+(cons <span style="color: #d75fd7;">4</span> '(<span style="color: #d75fd7;">1</span> <span style="color: #d75fd7;">2</span> <span style="color: #d75fd7;">3</span>)) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; '(4 1 2 3)</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Use `append' to add lists together</span>
+(append '(<span style="color: #d75fd7;">1</span> <span style="color: #d75fd7;">2</span>) '(<span style="color: #d75fd7;">3</span> <span style="color: #d75fd7;">4</span>)) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; '(1 2 3 4)</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Lists are a very basic type, so there is a *lot* of functionality for</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">them, a few examples:</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">For Racket users:</span>
+(<span style="color: #268bd2; font-weight: bold;">map</span> add1 '(<span style="color: #d75fd7;">1</span> <span style="color: #d75fd7;">2</span> <span style="color: #d75fd7;">3</span>))          <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; '(2 3 4)</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">For Guile users:</span>
+(<span style="color: #268bd2; font-weight: bold;">map</span> 1+ '(<span style="color: #d75fd7;">1</span> <span style="color: #d75fd7;">2</span> <span style="color: #d75fd7;">3</span>))      <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; '(2 3 4)</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">add1 or 1+ is not a standard primitive, so it depends on implementations.</span>
+
+(<span style="color: #268bd2; font-weight: bold;">map</span> + '(<span style="color: #d75fd7;">1</span> <span style="color: #d75fd7;">2</span> <span style="color: #d75fd7;">3</span>) '(<span style="color: #d75fd7;">10</span> <span style="color: #d75fd7;">20</span> <span style="color: #d75fd7;">30</span>)) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; '(11 22 33)</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">filter/count/take/drop are dwell in SRFI-1, so you have to load it first.</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">For Racket users:</span>
+(require srfi/1)
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">For Guile users:</span>
+(use-modules (srfi srfi-1))
+
+(filter even? '(<span style="color: #d75fd7;">1</span> <span style="color: #d75fd7;">2</span> <span style="color: #d75fd7;">3</span> <span style="color: #d75fd7;">4</span>))    <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; '(2 4)</span>
+(count even? '(<span style="color: #d75fd7;">1</span> <span style="color: #d75fd7;">2</span> <span style="color: #d75fd7;">3</span> <span style="color: #d75fd7;">4</span>))     <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; 2</span>
+(take '(<span style="color: #d75fd7;">1</span> <span style="color: #d75fd7;">2</span> <span style="color: #d75fd7;">3</span> <span style="color: #d75fd7;">4</span>) <span style="color: #d75fd7;">2</span>)          <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; '(1 2)</span>
+(drop '(<span style="color: #d75fd7;">1</span> <span style="color: #d75fd7;">2</span> <span style="color: #d75fd7;">3</span> <span style="color: #d75fd7;">4</span>) <span style="color: #d75fd7;">2</span>)          <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; '(3 4)</span>
+
+<span style="color: #008787; background-color: #262626;">;;; </span><span style="color: #008787; background-color: #262626;">Vectors</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Vectors are fixed-length arrays</span>
+#(<span style="color: #d75fd7;">1</span> <span style="color: #d75fd7;">2</span> <span style="color: #d75fd7;">3</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; '#(1 2 3)</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Use `vector-append' to add vectors together</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #875f00; background-color: #262626;">NOTE</span><span style="color: #008787; background-color: #262626;">: vector-append is in SRFI-43 which is not supported in Guile-2.0.9</span>
+<span style="color: #008787; background-color: #262626;">;;       </span><span style="color: #008787; background-color: #262626;">or earlier. And it may not be added in Guile-2.0.10.</span>
+<span style="color: #008787; background-color: #262626;">;;       </span><span style="color: #008787; background-color: #262626;">But it's proposed in R7RS, and there's a r7rs branch in Guile upstream.</span>
+<span style="color: #008787; background-color: #262626;">;;       </span><span style="color: #008787; background-color: #262626;">If your Guile doesn't support vector-append, please skip this step.</span>
+(vector-append #(<span style="color: #d75fd7;">1</span> <span style="color: #d75fd7;">2</span> <span style="color: #d75fd7;">3</span>) #(<span style="color: #d75fd7;">4</span> <span style="color: #d75fd7;">5</span> <span style="color: #d75fd7;">6</span>)) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; #(1 2 3 4 5 6)</span>
+
+<span style="color: #008787; background-color: #262626;">;;; </span><span style="color: #008787; background-color: #262626;">Hashes</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Create mutable hash table</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">For GNU Guile</span>
+(<span style="color: #268bd2; font-weight: bold;">define</span> <span style="color: #d75fd7; font-weight: bold;">m</span> (make-hash-table))
+(hash-set! m 'a <span style="color: #d75fd7;">1</span>)
+(hash-set! m 'b <span style="color: #d75fd7;">2</span>)
+(hash-set! m 'c <span style="color: #d75fd7;">3</span>)
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Retrieve a value</span>
+(hash-ref m 'a) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; 1</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Retrieving a non-present value is an exception</span>
+(hash-ref m 'd) 
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">=&gt; #f </span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">You can provide a default value for missing keys</span>
+(hash-ref m 'd <span style="color: #d75fd7;">0</span>)
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">=&gt; 0</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Use `hash-remove' to remove keys (functional too)</span>
+(hash-remove! m 'a) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; ((b . 2) (c . 3))</span>
+
+<span style="color: #008787; background-color: #262626;">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">3. Functions</span>
+<span style="color: #008787; background-color: #262626;">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Use `lambda' to create functions.</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">A function always returns the value of its last expression</span>
+(<span style="color: #268bd2; font-weight: bold;">lambda</span> () <span style="color: #2aa198;">"Hello World"</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; #&lt;procedure&gt;</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Use parens to call all functions, including a lambda expression</span>
+((<span style="color: #268bd2; font-weight: bold;">lambda</span> () <span style="color: #2aa198;">"Hello World"</span>)) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; "Hello World"</span>
+((<span style="color: #268bd2; font-weight: bold;">lambda</span> (x) (+ x x)) <span style="color: #d75fd7;">5</span>)      <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; 10</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Assign a function to a var</span>
+(<span style="color: #268bd2; font-weight: bold;">define</span> <span style="color: #d75fd7; font-weight: bold;">hello-world</span> (<span style="color: #268bd2; font-weight: bold;">lambda</span> () <span style="color: #2aa198;">"Hello World"</span>))
+(hello-world) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; "Hello World"</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">You can shorten this using the function definition syntatcic sugar:</span>
+(<span style="color: #268bd2; font-weight: bold;">define</span> (<span style="color: #d75fd7; font-weight: bold;">hello-world2</span>) <span style="color: #2aa198;">"Hello World"</span>)
+(hello-world2) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; "Hello World"</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">The () in the above is the list of arguments for the function</span>
+(<span style="color: #268bd2; font-weight: bold;">define</span> <span style="color: #d75fd7; font-weight: bold;">hello</span>
+  (<span style="color: #268bd2; font-weight: bold;">lambda</span> (name)
+    (string-append <span style="color: #2aa198;">"Hello "</span> name)))
+(hello <span style="color: #2aa198;">"Steve"</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; "Hello Steve"</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">... or equivalently, using a sugared definition:</span>
+(<span style="color: #268bd2; font-weight: bold;">define</span> (<span style="color: #d75fd7; font-weight: bold;">hello2</span> name)
+  (string-append <span style="color: #2aa198;">"Hello "</span> name))
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">You can have multi-variadic functions too, using `case-lambda'</span>
+(<span style="color: #268bd2; font-weight: bold;">define</span> <span style="color: #d75fd7; font-weight: bold;">hello3</span>
+  (<span style="color: #268bd2; font-weight: bold;">case-lambda</span>
+    (() <span style="color: #2aa198;">"Hello World"</span>)
+    ((name) (string-append <span style="color: #2aa198;">"Hello "</span> name))))
+(hello3 <span style="color: #2aa198;">"Jake"</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; "Hello Jake"</span>
+(hello3) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; "Hello World"</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">... or specify optional arguments with a default value expression</span>
+(<span style="color: #268bd2; font-weight: bold;">define*</span> (<span style="color: #d75fd7; font-weight: bold;">hello4</span> <span style="color: #268bd2;">#:key</span> (name <span style="color: #2aa198;">"World"</span>))
+  (string-append <span style="color: #2aa198;">"Hello "</span> name))
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Functions can pack extra arguments up in a list</span>
+(<span style="color: #268bd2; font-weight: bold;">define</span> (<span style="color: #d75fd7; font-weight: bold;">count-args</span> . args)
+  (format #t <span style="color: #2aa198;">"You passed ~a args: ~a"</span> (length args) args))
+(count-args <span style="color: #d75fd7;">1</span> <span style="color: #d75fd7;">2</span> <span style="color: #d75fd7;">3</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; "You passed 3 args: (1 2 3)"</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">... or with the unsugared `lambda' form:</span>
+(<span style="color: #268bd2; font-weight: bold;">define</span> <span style="color: #d75fd7; font-weight: bold;">count-args2</span>
+  (<span style="color: #268bd2; font-weight: bold;">lambda</span> args
+    (format #t <span style="color: #2aa198;">"You passed ~a args: ~a"</span> (length args) args)))
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">You can mix regular and packed arguments</span>
+(<span style="color: #268bd2; font-weight: bold;">define</span> (<span style="color: #d75fd7; font-weight: bold;">hello-count</span> name . args)
+  (format #t <span style="color: #2aa198;">"Hello ~a, you passed ~a extra args"</span> name (length args)))
+(hello-count <span style="color: #2aa198;">"Finn"</span> <span style="color: #d75fd7;">1</span> <span style="color: #d75fd7;">2</span> <span style="color: #d75fd7;">3</span>)
+<span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; "Hello Finn, you passed 3 extra args"</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">... unsugared:</span>
+(<span style="color: #268bd2; font-weight: bold;">define</span> <span style="color: #d75fd7; font-weight: bold;">hello-count2</span>
+  (<span style="color: #268bd2; font-weight: bold;">lambda</span> (name . args)
+    (format #t <span style="color: #2aa198;">"Hello ~a, you passed ~a extra args"</span> name (length args))))
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">And with keywords</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">the keywords are those like this #:its-name, sometimes you may see</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">:its-name without '#' in certain Scheme implementation.</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #875f00; background-color: #262626;">NOTE</span><span style="color: #008787; background-color: #262626;">: keywords is not in any Scheme standards like RnRs.</span>
+<span style="color: #008787; background-color: #262626;">;;       </span><span style="color: #008787; background-color: #262626;">But mainstream Scheme implementation often contains it. </span>
+<span style="color: #008787; background-color: #262626;">;;   </span><span style="color: #008787; background-color: #262626;">This truth also means that different implementation may has</span>
+<span style="color: #008787; background-color: #262626;">;;   </span><span style="color: #008787; background-color: #262626;">different result.</span>
+<span style="color: #008787; background-color: #262626;">;;       </span><span style="color: #008787; background-color: #262626;">The code below will follow Guile situation.</span>
+(<span style="color: #268bd2; font-weight: bold;">define*</span> (<span style="color: #d75fd7; font-weight: bold;">hello</span> <span style="color: #268bd2;">#:key</span> (name <span style="color: #2aa198;">"World"</span>) (greeting <span style="color: #2aa198;">"Hello"</span>) . args)
+  (format #t <span style="color: #2aa198;">"~a ~a, ~a extra args~%"</span> greeting name (length args)))
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">'define*' is similar with 'define', but you may use it for defining</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">optional args or using keyword to specify the value to specified argument.</span>
+(hello)                 <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; "Hello World, 0 extra args"</span>
+(hello <span style="color: #d75fd7;">1</span> <span style="color: #d75fd7;">2</span> <span style="color: #d75fd7;">3</span>)           <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; "Hello World, 3 extra args"</span>
+(hello <span style="color: #268bd2;">#:greeting</span> <span style="color: #2aa198;">"Hi"</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; "Hi World, 2 extra args"</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #875f00; background-color: #262626;">NOTE</span><span style="color: #008787; background-color: #262626;">: In Guile, all the keyword-value pairs are countered as the rest args.</span>
+<span style="color: #008787; background-color: #262626;">;;       </span><span style="color: #008787; background-color: #262626;">It means 'args' here will be (#:greeting "Hi"), so its length is 2.</span>
+<span style="color: #008787; background-color: #262626;">;;       </span><span style="color: #008787; background-color: #262626;">If you are in Racket, it's different, so the result will be 0.</span>
+<span style="color: #008787; background-color: #262626;">;;       </span><span style="color: #008787; background-color: #262626;">Because it's not defined in RnRs, so it's implementation specific.</span>
+(hello <span style="color: #268bd2;">#:name</span> <span style="color: #2aa198;">"Finn"</span> <span style="color: #268bd2;">#:greeting</span> <span style="color: #2aa198;">"Hey"</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; "Hey Finn, 4 extra args"</span>
+(hello <span style="color: #d75fd7;">1</span> <span style="color: #d75fd7;">2</span> <span style="color: #d75fd7;">3</span> <span style="color: #268bd2;">#:greeting</span> <span style="color: #2aa198;">"Hi"</span> <span style="color: #268bd2;">#:name</span> <span style="color: #2aa198;">"Finn"</span> <span style="color: #d75fd7;">4</span> <span style="color: #d75fd7;">5</span> <span style="color: #d75fd7;">6</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; "Hi Finn, 10 extra args"</span>
+
+<span style="color: #008787; background-color: #262626;">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">4. Equality</span>
+<span style="color: #008787; background-color: #262626;">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">for numbers use `='</span>
+(= <span style="color: #d75fd7;">3</span> <span style="color: #d75fd7;">3.0</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; #t</span>
+(= <span style="color: #d75fd7;">2</span> <span style="color: #d75fd7;">1</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; #f</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">for characters use `char=?'</span>
+(char=? #\c #\c) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; #t</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">for object identity use `eq?'</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">WARNING: don't use `eq?' on numbers and characters, the reason is very simple:</span>
+<span style="color: #008787; background-color: #262626;">;;          </span><span style="color: #008787; background-color: #262626;">because RnRs treat this rule as undefined! </span>
+<span style="color: #008787; background-color: #262626;">;;</span><span style="color: #008787; background-color: #262626;">(eq? 3 3) ; =&gt; Wrong! it's undefined! So it depends on implementation!</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">No matter if you got #t from above, it's a wrong usage!!!</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Should use (= 3 3) or (eqv? 3 3)</span>
+
+(eq? (list <span style="color: #d75fd7;">3</span>) (list <span style="color: #d75fd7;">3</span>)) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; #f</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Why it's #f? Because comparison between objects depends on their head-pointers.</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">These two lists are different objects, and they have different head-pointers.</span>
+
+(eq? 'a 'a) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; #t</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Symbols are the typical objects to compare with their head-pointers</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">eqv?</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">The difference between `eqv?' and `eq':</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">You can compare numbers and characters with `eqv?'</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">When you use `eqv?' for any objects other than numbers&amp;characters, it's the</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">same with `eq?'.</span>
+(eqv? <span style="color: #d75fd7;">3</span> <span style="color: #d75fd7;">3</span>)     <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; #t</span>
+(eqv? #\c #\c) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; #t</span>
+(eqv? 'a 'a)   <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; #t</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">for collections use `equal?'</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">`equal?' will compare all the values in a collections type like record or list.</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">You can compare any objects with `equal?' safely, but inefficiency.</span>
+(equal? (list 'a 'b) (list 'a 'b)) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; #t</span>
+(equal? (list 'a 'b) (list 'b 'a)) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; #f</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Choosing proper equal pred for you code, is one of the art in Scheme programming!</span>
+
+(eqv? <span style="color: #2aa198;">"abcd"</span> <span style="color: #2aa198;">"abcd"</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; unspecified</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Obviously, strings are collections type, so...it's your EXECISE now!</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Another EXECISE, what's the proper 'equal-pred' for functions?</span>
+(what-to-use? (<span style="color: #268bd2; font-weight: bold;">lambda</span> (x) (1+ x)) (<span style="color: #268bd2; font-weight: bold;">lambda</span> (x) (1+ x)))
+
+<span style="color: #008787; background-color: #262626;">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">5. Control Flow</span>
+<span style="color: #008787; background-color: #262626;">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+
+<span style="color: #008787; background-color: #262626;">;;; </span><span style="color: #008787; background-color: #262626;">Conditionals</span>
+
+(<span style="color: #268bd2; font-weight: bold;">if</span> #t               <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">test expression</span>
+    <span style="color: #2aa198;">"this is true"</span>   <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">then expression</span>
+    <span style="color: #2aa198;">"this is false"</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">else expression</span>
+<span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; "this is true"</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">In conditionals, all non-#f values are treated as true</span>
+(member 'Groucho '(Harpo Groucho Zeppo)) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; '(Groucho Zeppo)</span>
+(<span style="color: #268bd2; font-weight: bold;">if</span> (member 'Groucho '(Harpo Groucho Zeppo))
+    'yep
+    'nope)
+<span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; 'yep</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">`cond' chains a series of tests to select a result</span>
+(<span style="color: #268bd2; font-weight: bold;">cond</span> ((&gt; <span style="color: #d75fd7;">2</span> <span style="color: #d75fd7;">2</span>) (error <span style="color: #2aa198;">"wrong!"</span>))
+      ((&lt; <span style="color: #d75fd7;">2</span> <span style="color: #d75fd7;">2</span>) (error <span style="color: #2aa198;">"wrong again!"</span>))
+      (<span style="color: #268bd2; font-weight: bold;">else</span> 'ok)) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; 'ok</span>
+
+<span style="color: #008787; background-color: #262626;">;;; </span><span style="color: #008787; background-color: #262626;">Pattern Matching</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">For Racket users:</span>
+(require racket/match) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">use match module</span>
+(<span style="color: #268bd2; font-weight: bold;">define</span> (<span style="color: #d75fd7; font-weight: bold;">fizzbuzz?</span> n)
+  (<span style="color: #268bd2; font-weight: bold;">match</span> (list (remainder n <span style="color: #d75fd7;">3</span>) (remainder n <span style="color: #d75fd7;">5</span>))
+    ((list <span style="color: #d75fd7;">0</span> <span style="color: #d75fd7;">0</span>) 'fizzbuzz)
+    ((list <span style="color: #d75fd7;">0</span> _) 'fizz)
+    ((list _ <span style="color: #d75fd7;">0</span>) 'buzz)
+    (<span style="color: #268bd2; font-weight: bold;">else</span> #f)))
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">For Guile users:</span>
+(use-modules (ice-9 match)) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">use match module</span>
+(<span style="color: #268bd2; font-weight: bold;">define</span> (<span style="color: #d75fd7; font-weight: bold;">fizzbuzz?</span> n)
+  (<span style="color: #268bd2; font-weight: bold;">match</span> (list (remainder n <span style="color: #d75fd7;">3</span>) (remainder n <span style="color: #d75fd7;">5</span>))
+    ((<span style="color: #d75fd7;">0</span> <span style="color: #d75fd7;">0</span>) 'fizzbuzz)
+    ((<span style="color: #d75fd7;">0</span> _) 'fizz)
+    ((_ <span style="color: #d75fd7;">0</span>) 'buzz)
+    (<span style="color: #268bd2; font-weight: bold;">else</span> #f)))
+
+(fizzbuzz? <span style="color: #d75fd7;">15</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; 'fizzbuzz</span>
+(fizzbuzz? <span style="color: #d75fd7;">37</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; #f</span>
+
+<span style="color: #008787; background-color: #262626;">;;; </span><span style="color: #008787; background-color: #262626;">Loops</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Looping can be done through (tail-) recursion</span>
+(<span style="color: #268bd2; font-weight: bold;">define</span> (<span style="color: #d75fd7; font-weight: bold;">lp</span> i)
+  (<span style="color: #268bd2; font-weight: bold;">when</span> (&lt; i <span style="color: #d75fd7;">10</span>)
+    (format #t <span style="color: #2aa198;">"i=~a\n"</span> i)
+    (lp (1+ i))))
+(lp <span style="color: #d75fd7;">5</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; i=5, i=6, ...</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Similarly, with a named let</span>
+(<span style="color: #268bd2; font-weight: bold;">let</span> <span style="color: #d75fd7; font-weight: bold;">lp</span> ((i <span style="color: #d75fd7;">0</span>))
+  (<span style="color: #268bd2; font-weight: bold;">when</span> (&lt; i <span style="color: #d75fd7;">10</span>)
+    (format #t <span style="color: #2aa198;">"i=~a\n"</span> i)
+    (lp (1+ i)))) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; i=0, i=1, ...</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">how to get a range? just like range(0, 9)?</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">the original 'iota' only accept one para</span>
+(iota <span style="color: #d75fd7;">10</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">==&gt; (0 1 2 3 4 5 6 7 8 9)</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">the 'iota' in srfi-1 was extended </span>
+(use-modules (srfi srfi-1))
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">#&lt;procedure iota (count #:optional start step)&gt;</span>
+(iota <span style="color: #d75fd7;">5</span> <span style="color: #d75fd7;">10</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; (10 11 12 13 14) </span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">means from 10 count 5 times, each step +1 (plus one is default)</span>
+(iota <span style="color: #d75fd7;">5</span> <span style="color: #d75fd7;">10</span> <span style="color: #d75fd7;">2</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; (10 12 14 16 18)</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">from 10 count 5 times, each step +2</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">If you need a Python like range(5, 10) ==&gt; (5 6 7 8 9), try:</span>
+(<span style="color: #268bd2; font-weight: bold;">define</span> (<span style="color: #d75fd7; font-weight: bold;">range</span> from to) (<span style="color: #268bd2; font-weight: bold;">map</span> (<span style="color: #268bd2; font-weight: bold;">lambda</span> (x) (+ from x)) (iota (- to from))))
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">EXECISE: you may find this 'range' implementation is not so good,</span>
+<span style="color: #008787; background-color: #262626;">;;          </span><span style="color: #008787; background-color: #262626;">please optimize it if you can.</span>
+(range <span style="color: #d75fd7;">5</span> <span style="color: #d75fd7;">10</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; (5 6 7 8 9)</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">how to do iteration?</span>
+(<span style="color: #268bd2; font-weight: bold;">for-each</span> display '(<span style="color: #d75fd7;">1</span> <span style="color: #d75fd7;">2</span> <span style="color: #d75fd7;">3</span> <span style="color: #d75fd7;">4</span> <span style="color: #d75fd7;">5</span>))
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">=&gt; 12345</span>
+(<span style="color: #268bd2; font-weight: bold;">for-each</span> (<span style="color: #268bd2; font-weight: bold;">lambda</span> (i) (format #t <span style="color: #2aa198;">"i=~a\n"</span> i))
+          (iota <span style="color: #d75fd7;">10</span>)) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; i=0, i=1, ...</span>
+(<span style="color: #268bd2; font-weight: bold;">for-each</span> (<span style="color: #268bd2; font-weight: bold;">lambda</span> (i) (format #t <span style="color: #2aa198;">"i=~a\n"</span> i))
+          (range <span style="color: #d75fd7;">5</span> <span style="color: #d75fd7;">10</span>)) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; i=5, i=6, ...</span>
+
+<span style="color: #008787; background-color: #262626;">;;; </span><span style="color: #008787; background-color: #262626;">Iteration Over Other Sequences</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">`for' allows iteration over many other kinds of sequences:</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">lists, vectors, strings, sets, hash tables, etc...</span>
+(<span style="color: #268bd2; font-weight: bold;">for-each</span> display '(l i s t))
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">=&gt; list</span>
+(<span style="color: #268bd2; font-weight: bold;">define</span> <span style="color: #d75fd7; font-weight: bold;">vector-for-each</span> (@ (rnrs) vector-for-each))
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">export vector-for-each from rnrs only</span>
+(vector-for-each display #(v e c t o r))
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">=&gt; vector</span>
+(string-for-each display <span style="color: #2aa198;">"string"</span>)
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">=&gt; string</span>
+<span style="color: #008787; background-color: #262626;">;;; </span><span style="color: #008787; background-color: #262626;">More Iterations</span>
+(<span style="color: #268bd2; font-weight: bold;">do</span> ((i <span style="color: #d75fd7;">10</span> (1+ i)) (j '(x y z) (cdr j))) 
+    ((null? j)) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">if j is '(), just end the loop</span>
+  (format #t <span style="color: #2aa198;">"~a:~a "</span> i (car j)))
+<span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; 0:x 1:y 2:z</span>
+
+<span style="color: #008787; background-color: #262626;">;;; </span><span style="color: #008787; background-color: #262626;">Exceptions</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">To catch exceptions, use the 'catch' form</span>
+(catch 'my-error 
+  (<span style="color: #268bd2; font-weight: bold;">lambda</span> () (throw 'my-error))
+  (<span style="color: #268bd2; font-weight: bold;">lambda</span> e (display <span style="color: #2aa198;">"oh~my error!\n"</span>)))
+<span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; oh~my error!</span>
+
+<span style="color: #008787; background-color: #262626;">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">6. Mutation</span>
+<span style="color: #008787; background-color: #262626;">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Use `set!' to assign a new value to an existing variable</span>
+(<span style="color: #268bd2; font-weight: bold;">define</span> <span style="color: #d75fd7; font-weight: bold;">n</span> <span style="color: #d75fd7;">5</span>)
+(<span style="color: #268bd2; font-weight: bold;">set!</span> n (1+ n))
+n <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; 6</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Use fluid for explicitly mutable values</span>
+(<span style="color: #268bd2; font-weight: bold;">define</span> <span style="color: #d75fd7; font-weight: bold;">n*</span> (make-fluid <span style="color: #d75fd7;">5</span>))
+(fluid-set! n* (1+ (fluid-ref n*)))
+(fluid-ref n*) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; 6</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Many Guile datatypes are immutable (pairs, lists, etc), some come in</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">both mutable and immutable flavors (strings, vectors, hash tables,</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">etc...)</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Use `vector' or `make-vector' to create mutable vectors</span>
+(<span style="color: #268bd2; font-weight: bold;">define</span> <span style="color: #d75fd7; font-weight: bold;">vec</span> (vector <span style="color: #d75fd7;">2</span> <span style="color: #d75fd7;">2</span> <span style="color: #d75fd7;">3</span> <span style="color: #d75fd7;">4</span>))
+(<span style="color: #268bd2; font-weight: bold;">define</span> <span style="color: #d75fd7; font-weight: bold;">wall</span> (make-vector <span style="color: #d75fd7;">100</span> 'bottle-of-beer))
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Use vector-set! to update a slot</span>
+(vector-set! vec <span style="color: #d75fd7;">0</span> <span style="color: #d75fd7;">1</span>)
+(vector-set! wall <span style="color: #d75fd7;">99</span> 'down)
+vec <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; #(1 2 3 4)</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Create an empty mutable hash table and manipulate it</span>
+(<span style="color: #268bd2; font-weight: bold;">define</span> <span style="color: #d75fd7; font-weight: bold;">m3</span> (make-hash-table))
+(hash-set! m3 'a <span style="color: #d75fd7;">1</span>)
+(hash-set! m3 'b <span style="color: #d75fd7;">2</span>)
+(hash-set! m3 'c <span style="color: #d75fd7;">3</span>)
+(hash-ref m3 'a)   <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; 1</span>
+(hash-ref m3 'd <span style="color: #d75fd7;">0</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">=&gt; 0</span>
+(hash-remove! m3 'a)
+
+<span style="color: #008787; background-color: #262626;">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">7. Modules</span>
+<span style="color: #008787; background-color: #262626;">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Modules let you organize code into multiple files and reusable</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">libraries; Make sure put all the module code in one file, since </span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">the modules split as files. And the module name should be same </span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">with the filename, say, module named (my-cake) is 'my-cake.scm',</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">and module named (mods my-cake) is 'mods/my-cake.scm',</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">(mods submods my-cake) ==&gt; 'mods/submods/my-cake.scm'.</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">---begin my-cake.scm---</span>
+(<span style="color: #268bd2; font-weight: bold;">define-module</span> (<span style="color: #df005f; font-weight: bold;">my-cake</span>) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">define a `cake' module based on racket/base</span>
+  <span style="color: #268bd2;">#:use-module</span> (ice-9 format) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">the pre-requisition of current module</span>
+  <span style="color: #268bd2;">#:export</span> (print-cake)) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">function exported by the module</span>
+
+  (<span style="color: #268bd2; font-weight: bold;">define</span> (<span style="color: #d75fd7; font-weight: bold;">show</span> fmt n ch) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">internal function</span>
+    (format #t fmt (make-string n ch))
+    (newline))
+
+  (<span style="color: #268bd2; font-weight: bold;">define</span> (<span style="color: #d75fd7; font-weight: bold;">print-cake</span> n)
+    (show <span style="color: #2aa198;">"   ~a   "</span> n #\.)
+    (show <span style="color: #2aa198;">" .-~a-. "</span> n #\|)
+    (show <span style="color: #2aa198;">" | ~a | "</span> n #\space)
+    (show <span style="color: #2aa198;">"---~a---"</span> n #\-))
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">--end my-cake.scm---</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Be sure that the path of 'my-cake.scm' is in your current </span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">%load-path list. Use `use-modules' to get all `provide'd names </span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">from a module.</span>
+(use-modules (my-cake)) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">the ' is for a local submodule</span>
+(print-cake <span style="color: #d75fd7;">3</span>)
+<span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">(show "~a" 1 #\A) ; =&gt; error, `show' was not exported</span>
+
+<span style="color: #008787; background-color: #262626;">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">8. Classes and Objects</span>
+<span style="color: #008787; background-color: #262626;">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #dc752f; background-color: #262626;">TODO</span>
+<span style="color: #008787; background-color: #262626;">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">9. Macros</span>
+<span style="color: #008787; background-color: #262626;">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Macros let you extend the syntax of the language</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Let's add a while loop</span>
+(<span style="color: #268bd2; font-weight: bold;">define-syntax-rule</span> (<span style="color: #d75fd7; font-weight: bold;">while</span> condition body ...)
+  (<span style="color: #268bd2; font-weight: bold;">let</span> <span style="color: #d75fd7; font-weight: bold;">loop</span> ()
+    (<span style="color: #268bd2; font-weight: bold;">when</span> condition
+      body ...
+      (loop))))
+
+(<span style="color: #268bd2; font-weight: bold;">let</span> ((i <span style="color: #d75fd7;">0</span>))
+  (while (&lt; i  <span style="color: #d75fd7;">10</span>)
+    (display i)
+    (<span style="color: #268bd2; font-weight: bold;">set!</span> i (1+ i))))
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">Macros are hygienic, you cannot clobber existing variables!</span>
+(<span style="color: #268bd2; font-weight: bold;">define-syntax-rule</span> (<span style="color: #d75fd7; font-weight: bold;">swap!</span> x y) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">-! is idomatic for mutation</span>
+  (<span style="color: #268bd2; font-weight: bold;">let</span> ((tmp x))
+    (<span style="color: #268bd2; font-weight: bold;">set!</span> x y)
+    (<span style="color: #268bd2; font-weight: bold;">set!</span> y tmp)))
+
+(<span style="color: #268bd2; font-weight: bold;">define</span> <span style="color: #d75fd7; font-weight: bold;">tmp</span> <span style="color: #d75fd7;">1</span>)
+(<span style="color: #268bd2; font-weight: bold;">define</span> <span style="color: #d75fd7; font-weight: bold;">a</span> <span style="color: #d75fd7;">2</span>)
+(<span style="color: #268bd2; font-weight: bold;">define</span> <span style="color: #d75fd7; font-weight: bold;">b</span> <span style="color: #d75fd7;">3</span>)
+(swap! a b)
+(format #t <span style="color: #2aa198;">"tmp = ~a; a = ~a; b = ~a\n"</span> tmp a b) <span style="color: #008787; background-color: #262626;">; </span><span style="color: #008787; background-color: #262626;">tmp is unaffected</span>
+
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">But they are still code transformations, for example:</span>
+(<span style="color: #268bd2; font-weight: bold;">define-syntax-rule</span> (<span style="color: #d75fd7; font-weight: bold;">bad-while</span> condition body ...)
+  (<span style="color: #268bd2; font-weight: bold;">when</span> condition
+    body ...
+    (bad-while condition body ...)))
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">this macro is broken: it generates infinite code, if you try to use</span>
+<span style="color: #008787; background-color: #262626;">;; </span><span style="color: #008787; background-color: #262626;">it, the compiler will get in an infinite loop</span>
+</pre>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-06 03:02 Sun</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-06 Sun 03:11</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
