@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-02-06 Sun 00:06 -->
+<!-- 2022-02-06 Sun 14:22 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GO-协程间的信道</title>
@@ -40,6 +40,8 @@
 <li><a href="#org0465a8e">信号量模式</a></li>
 <li><a href="#org4645fec">实现并行的 for 循环</a></li>
 <li><a href="#org9919f6d">用带缓冲通道实现一个信号量</a></li>
+<li><a href="#org999636a">给通道使用 for 循环</a></li>
+<li><a href="#orgef0cc9f">通道的方向</a></li>
 </ul>
 </div>
 </div>
@@ -184,7 +186,7 @@ int2 = &lt;- ch 表示：变量 int2 从通道 ch（一元运算的前缀操作�
 输出：<br>
 </p>
 
-<pre class="example" id="org06757d7">
+<pre class="example" id="org545fa7b">
 Washington Tripoli London Beijing Tokio
 </pre>
 
@@ -210,7 +212,7 @@ main() 函数中启动了两个协程：sendData() 通过通道 ch 发送了 5 �
 <li>如果我们移除一个或所有 go 关键字，程序无法运行，Go 运行时会抛出 panic：<br></li>
 </ul>
 
-<pre class="example" id="org21e901f">
+<pre class="example" id="orgaad433b">
 ---- Error run E:/Go/Goboek/code examples/chapter 14/goroutine2.exe with code Crashed ---- Program exited with code -2147483645: panic: all goroutines are asleep-deadlock!
 </pre>
 
@@ -274,7 +276,7 @@ main() 函数中启动了两个协程：sendData() 通过通道 ch 发送了 5 �
 输出：<br>
 </p>
 
-<pre class="example" id="org83f03b2">
+<pre class="example" id="org22b1592">
 0
 </pre>
 
@@ -659,17 +661,17 @@ buf 是通道可以同时容纳的元素（这里是 string）个数<br>
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">acquire n resources</span>
 <span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">semaphore</span>) <span style="color: #d75fd7; font-weight: bold;">P</span>(<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
-        <span style="color: #8787d7;">e</span> := <span style="color: #268bd2;">new</span>(<span style="color: #df005f; font-weight: bold;">Empty</span>)
-        <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; n; i++ {
-                s &lt;- e
-        }
+    <span style="color: #8787d7;">e</span> := <span style="color: #268bd2;">new</span>(<span style="color: #df005f; font-weight: bold;">Empty</span>)
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; n; i++ {
+        s &lt;- e
+    }
 }
 
 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">release n resouces</span>
 <span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">semaphore</span>) <span style="color: #d75fd7; font-weight: bold;">V</span>(<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
-        <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span>:= <span style="color: #d75fd7;">0</span>; i &lt; n; i++{
-                &lt;- s
-        }
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span>:= <span style="color: #d75fd7;">0</span>; i &lt; n; i++{
+        &lt;- s
+    }
 }
 </pre>
 </div>
@@ -681,20 +683,20 @@ buf 是通道可以同时容纳的元素（这里是 string）个数<br>
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #008787; background-color: #262626;">/* </span><span style="color: #008787; background-color: #262626;">mutexes */</span>
 <span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">semaphore</span>) <span style="color: #d75fd7; font-weight: bold;">Lock</span>() {
-        s.<span style="color: #d75fd7; font-weight: bold;">P</span>(<span style="color: #d75fd7;">1</span>)
+    s.<span style="color: #d75fd7; font-weight: bold;">P</span>(<span style="color: #d75fd7;">1</span>)
 }
 
 <span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">semaphore</span>) <span style="color: #d75fd7; font-weight: bold;">Unlock</span>(){
-        s.<span style="color: #d75fd7; font-weight: bold;">V</span>(<span style="color: #d75fd7;">1</span>)
+    s.<span style="color: #d75fd7; font-weight: bold;">V</span>(<span style="color: #d75fd7;">1</span>)
 }
 
 <span style="color: #008787; background-color: #262626;">/* </span><span style="color: #008787; background-color: #262626;">signal-wait */</span>
 <span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">semaphore</span>) <span style="color: #d75fd7; font-weight: bold;">Wait</span>(<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
-        s.<span style="color: #d75fd7; font-weight: bold;">P</span>(n)
+    s.<span style="color: #d75fd7; font-weight: bold;">P</span>(n)
 }
 
 <span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">semaphore</span>) <span style="color: #d75fd7; font-weight: bold;">Signal</span>() {
-        s.<span style="color: #d75fd7; font-weight: bold;">V</span>(<span style="color: #d75fd7;">1</span>)
+    s.<span style="color: #d75fd7; font-weight: bold;">V</span>(<span style="color: #d75fd7;">1</span>)
 }
 </pre>
 </div>
@@ -715,13 +717,69 @@ buf 是通道可以同时容纳的元素（这里是 string）个数<br>
 <pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
 
 <span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"time"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">stream</span> := <span style="color: #d75fd7; font-weight: bold;">pump</span>()
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">suck</span>(stream)
+    time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(<span style="color: #d75fd7;">1e9</span>)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">pump</span>() <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span> {
+    <span style="color: #8787d7;">ch</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+        <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">0</span>; ; i++ {
+            ch &lt;- i
+        }
+    }()
+    <span style="color: #268bd2; font-weight: bold;">return</span> ch
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">suck</span>(<span style="color: #8787d7;">ch</span> <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
+    <span style="color: #268bd2; font-weight: bold;">for</span> {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(&lt;-ch)
+    }
+}
+</pre>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-org999636a" class="outline-2">
+<h2 id="org999636a">给通道使用 for 循环</h2>
+<div class="outline-text-2" id="text-org999636a">
+<p>
+for 循环的 range 语句可以用在通道 ch 上，便可以从通道中获取值，像这样：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">v</span> := <span style="color: #268bd2; font-weight: bold;">range</span> ch {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"The value is %v\n"</span>, v)
+}
+</pre>
+</div>
+
+<p>
+它从指定通道中读取数据直到通道关闭，才继续执行下边的代码。很明显，另外一个协程必须写入 ch（不然代码就阻塞在 for 循环了），而且必须在写入完成后才关闭。suck 函数可以这样写，且在协程中调用这个动作，程序变成了这样：<br>
+</p>
+
+<p>
+示例 14.6-channel_idiom2.go：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
         <span style="color: #2aa198;">"fmt"</span>
         <span style="color: #2aa198;">"time"</span>
 )
 
 <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-        <span style="color: #8787d7;">stream</span> := <span style="color: #d75fd7; font-weight: bold;">pump</span>()
-        <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">suck</span>(stream)
+        <span style="color: #d75fd7; font-weight: bold;">suck</span>(<span style="color: #d75fd7; font-weight: bold;">pump</span>())
         time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(<span style="color: #d75fd7;">1e9</span>)
 }
 
@@ -736,8 +794,255 @@ buf 是通道可以同时容纳的元素（这里是 string）个数<br>
 }
 
 <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">suck</span>(<span style="color: #8787d7;">ch</span> <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
+        <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+                <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">v</span> := <span style="color: #268bd2; font-weight: bold;">range</span> ch {
+                        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(v)
+                }
+        }()
+}
+</pre>
+</div>
+
+<p>
+习惯用法：通道迭代模式<br>
+</p>
+
+<p>
+这个模式用到了后边 14.6 章示例 producer_consumer.go 的生产者 - 消费者模式，通常，需要从包含了地址索引字段 items 的容器给通道填入元素。为容器的类型定义一个方法 Iter()，返回一个只读的通道（参见第 14.2.8 节）items，如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">container</span>) <span style="color: #df005f; font-weight: bold;">Iter</span> () &lt;- <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">items</span> {
+        <span style="color: #8787d7;">ch</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">item</span>)
+        <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span> () {
+                <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span>:= <span style="color: #d75fd7;">0</span>; i &lt; c.<span style="color: #d75fd7; font-weight: bold;">Len</span>(); i++{    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">or use a for-range loop</span>
+                        ch &lt;- c.items[i]
+                }
+        } ()
+        <span style="color: #268bd2; font-weight: bold;">return</span> ch
+}
+</pre>
+</div>
+
+<p>
+在协程里，一个 for 循环迭代容器 c 中的元素（对于树或图的算法，这种简单的 for 循环可以替换为深度优先搜索）。<br>
+</p>
+
+<p>
+调用这个方法的代码可以这样迭代容器：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">x</span> := <span style="color: #268bd2; font-weight: bold;">range</span> container.<span style="color: #d75fd7; font-weight: bold;">Iter</span>() { ... }
+</pre>
+</div>
+
+<p>
+可以运行在自己的协程中，所以上边的迭代用到了一个通道和两个协程（可能运行在两个线程上）。就有了一个特殊的生产者 - 消费者模式。如果程序在协程给通道写完值之前结束，协程不会被回收；设计如此。这种行为看起来是错误的，但是通道是一种线程安全的通信。在这种情况下，协程尝试写入一个通道，而这个通道永远不会被读取，这可能是个 bug 而并非期望它被静默的回收。<br>
+</p>
+
+<p>
+习惯用法：生产者消费者模式<br>
+</p>
+
+<p>
+假设你有 Produce() 函数来产生 Consume 函数需要的值。它们都可以运行在独立的协程中，生产者在通道中放入给消费者读取的值。整个处理过程可以替换为无限循环：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">for</span> {
+        <span style="color: #d75fd7; font-weight: bold;">Consume</span>(<span style="color: #d75fd7; font-weight: bold;">Produce</span>())
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgef0cc9f" class="outline-2">
+<h2 id="orgef0cc9f">通道的方向</h2>
+<div class="outline-text-2" id="text-orgef0cc9f">
+<p>
+通道类型可以用注解来表示它只发送或者只接收：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">send_only</span> <span style="color: #268bd2; font-weight: bold;">chan</span>&lt;- <span style="color: #8787d7;">int</span>         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">channel can only receive data</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">recv_only</span> &lt;-<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #8787d7;">int</span>        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">channel can only send data</span>
+</pre>
+</div>
+
+<p>
+只接收的通道（&lt;-chan T）无法关闭，因为关闭通道是发送者用来表示不再给通道发送值了，所以对只接收通道是没有意义的。通道创建的时候都是双向的，但也可以分配有方向的通道变量，就像以下代码：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">c</span> = <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">bidirectional</span>
+<span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">source</span>(c)
+<span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">sink</span>(c)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">source</span>(<span style="color: #8787d7;">ch</span> <span style="color: #268bd2; font-weight: bold;">chan</span>&lt;- <span style="color: #df005f; font-weight: bold;">int</span>){
+    <span style="color: #268bd2; font-weight: bold;">for</span> { ch &lt;- <span style="color: #d75fd7;">1</span> }
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">sink</span>(<span style="color: #8787d7;">ch</span> &lt;-<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
+    <span style="color: #268bd2; font-weight: bold;">for</span> { &lt;-ch }
+}
+</pre>
+</div>
+
+<p>
+习惯用法：管道和选择器模式<br>
+</p>
+
+<p>
+更具体的例子还有协程处理它从通道接收的数据并发送给输出通道：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">sendChan</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+<span style="color: #8787d7;">reciveChan</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">string</span>)
+<span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">processChannel</span>(sendChan, receiveChan)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">processChannel</span>(<span style="color: #8787d7;">in</span> &lt;-<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">out</span> <span style="color: #268bd2; font-weight: bold;">chan</span>&lt;- <span style="color: #df005f; font-weight: bold;">string</span>) {
+        <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">inValue</span> := <span style="color: #268bd2; font-weight: bold;">range</span> in {
+                <span style="color: #8787d7;">result</span> := ... <span style="color: #008787; background-color: #262626;">/// </span><span style="color: #008787; background-color: #262626;">processing inValue</span>
+            out &lt;- result
+        }
+}
+</pre>
+</div>
+
+<p>
+通过使用方向注解来限制协程对通道的操作。<br>
+</p>
+
+<p>
+这里有一个来自 Go 指导的很赞的例子，打印了输出的素数，使用选择器（‘筛’）作为它的算法。每个 prime 都有一个选择。<br>
+</p>
+
+<p>
+版本 1：示例 14.7-sieve1.go<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Copyright 2009 The Go Authors. All rights reserved.</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Use of this source code is governed by a BSD-style</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">license that can be found in the LICENSE file.package main</span>
+<span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Send the sequence 2, 3, 4, ... to channel 'ch'.</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">generate</span>(<span style="color: #8787d7;">ch</span> <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
+        <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">2</span>; ; i++ {
+                ch &lt;- i <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Send 'i' to channel 'ch'.</span>
+        }
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Copy the values from channel 'in' to channel 'out',</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">removing those divisible by 'prime'.</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">filter</span>(<span style="color: #8787d7;">in</span>, <span style="color: #8787d7;">out</span> <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">prime</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
         <span style="color: #268bd2; font-weight: bold;">for</span> {
-                fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(&lt;-ch)
+                <span style="color: #8787d7;">i</span> := &lt;-in <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Receive value of new variable 'i' from 'in'.</span>
+                <span style="color: #268bd2; font-weight: bold;">if</span> i%prime != <span style="color: #d75fd7;">0</span> {
+                        out &lt;- i <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Send 'i' to channel 'out'.</span>
+                }
+        }
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">The prime sieve: Daisy-chain filter processes together.</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+        <span style="color: #8787d7;">ch</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Create a new channel.</span>
+        <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">generate</span>(ch)      <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Start generate() as a goroutine.</span>
+        <span style="color: #268bd2; font-weight: bold;">for</span> {
+                <span style="color: #8787d7;">prime</span> := &lt;-ch
+                fmt.<span style="color: #d75fd7; font-weight: bold;">Print</span>(prime, <span style="color: #2aa198;">" "</span>)
+                <span style="color: #8787d7;">ch1</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+                <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">filter</span>(ch, ch1, prime)
+                ch = ch1
+        }
+}
+</pre>
+</div>
+
+<p>
+协程 filter(in, out chan int, prime int) 拷贝整数到输出通道，丢弃掉可以被 prime 整除的数字。然后每个 prime 又开启了一个新的协程，生成器和选择器并发请求。<br>
+</p>
+
+<p>
+输出：<br>
+</p>
+
+<pre class="example" id="orgc5c438e">
+2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97 101
+103 107 109 113 127 131 137 139 149 151 157 163 167 173 179 181 191 193 197 199 211 223
+227 229 233 239 241 251 257 263 269 271 277 281 283 293 307 311 313 317 331 337 347 349
+353 359 367 373 379 383 389 397 401 409 419 421 431 433 439 443 449 457 461 463 467 479
+487 491 499 503 509 521 523 541 547 557 563 569 571 577 587 593 599 601 607 613 617 619
+631 641 643 647 653 659 661 673 677 683 691 701 709 719 727 733 739 743 751 757 761 769
+773 787 797 809 811 821 823 827 829 839 853 857 859 863 877 881 883 887 907 911 919 929
+937 941 947 953 967 971 977 983 991 997 1009 1013...
+</pre>
+
+<p>
+第二个版本引入了上边的习惯用法：函数 sieve、generate 和 filter 都是工厂；它们创建通道并返回，而且使用了协程的 lambda 函数。main 函数现在短小清晰：它调用 sieve() 返回了包含素数的通道，然后通过 fmt.Println(&lt;-primes) 打印出来。<br>
+</p>
+
+<p>
+版本 2：示例 14.8-sieve2.go<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Copyright 2009 The Go Authors. All rights reserved.</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Use of this source code is governed by a BSD-style</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">license that can be found in the LICENSE file.</span>
+
+<span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+        <span style="color: #2aa198;">"fmt"</span>
+)
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Send the sequence 2, 3, 4, ... to returned channel</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">generate</span>() <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span> {
+        <span style="color: #8787d7;">ch</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+        <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+                <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">2</span>; ; i++ {
+                        ch &lt;- i
+                }
+        }()
+        <span style="color: #268bd2; font-weight: bold;">return</span> ch
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Filter out input values divisible by 'prime', send rest to returned channel</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">filter</span>(<span style="color: #8787d7;">in</span> <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">prime</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span> {
+        <span style="color: #8787d7;">out</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+        <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+                <span style="color: #268bd2; font-weight: bold;">for</span> {
+                        <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #8787d7;">i</span> := &lt;-in; i%prime != <span style="color: #d75fd7;">0</span> {
+                                out &lt;- i
+                        }
+                }
+        }()
+        <span style="color: #268bd2; font-weight: bold;">return</span> out
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">sieve</span>() <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span> {
+        <span style="color: #8787d7;">out</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+        <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+                <span style="color: #8787d7;">ch</span> := <span style="color: #d75fd7; font-weight: bold;">generate</span>()
+                <span style="color: #268bd2; font-weight: bold;">for</span> {
+                        <span style="color: #8787d7;">prime</span> := &lt;-ch
+                        ch = <span style="color: #d75fd7; font-weight: bold;">filter</span>(ch, prime)
+                        out &lt;- prime
+                }
+        }()
+        <span style="color: #268bd2; font-weight: bold;">return</span> out
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+        <span style="color: #8787d7;">primes</span> := <span style="color: #d75fd7; font-weight: bold;">sieve</span>()
+        <span style="color: #268bd2; font-weight: bold;">for</span> {
+                fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(&lt;-primes)
         }
 }
 </pre>
@@ -748,7 +1053,7 @@ buf 是通道可以同时容纳的元素（这里是 string）个数<br>
 <div id="postamble" class="status">
 <p class="date">Date: 2022-02-01 18:02 Tue</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-02-06 Sun 00:06</p>
+<p class="date">Created: 2022-02-06 Sun 14:22</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

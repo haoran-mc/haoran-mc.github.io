@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-06 Sun 17:47 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MATH_RAND</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">MATH_RAND</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org2750039">简介</a></li>
+<li><a href="#org7dfab2b">type Source</a>
+<ul>
+<li><a href="#org284b101">func NewSource</a></li>
+</ul>
+</li>
+<li><a href="#org9e3dd1a">type Rand</a>
+<ul>
+<li><a href="#org717d481">func New</a></li>
+<li><a href="#org70c161a">func (*Rand) Seed</a></li>
+<li><a href="#orgabb0de9">func (*Rand) Int</a></li>
+<li><a href="#org38c4b47">func (*Rand) Int31</a></li>
+<li><a href="#org16b2e0c">func (*Rand) Int63</a></li>
+<li><a href="#org6d9aa6a">func (*Rand) Uint32</a></li>
+<li><a href="#orgf572166">func (*Rand) Intn</a></li>
+<li><a href="#org2d8e516">func (*Rand) Int31n</a></li>
+<li><a href="#org5919b65">func (*Rand) Int63n</a></li>
+<li><a href="#org101e1b4">func (*Rand) Float32</a></li>
+<li><a href="#org665dc3c">func (*Rand) Float64</a></li>
+<li><a href="#org6763fdb">func (*Rand) NormFloat64</a></li>
+</ul>
+</li>
+<li><a href="#orga106eda">type Zipf</a>
+<ul>
+<li><a href="#orge242b2c">func NewZipf</a></li>
+<li><a href="#org7b534b0">func (*Zipf) Uint64</a></li>
+</ul>
+</li>
+<li><a href="#org0c8c2e9">func Seed</a></li>
+<li><a href="#orga00a176">func Int</a></li>
+<li><a href="#orgad8d17c">func Int31</a></li>
+<li><a href="#org4349167">func Int63</a></li>
+<li><a href="#org92fe614">func Uint32</a></li>
+<li><a href="#org8bbb9b3">func Intn</a></li>
+<li><a href="#org02c0307">func Int31n</a></li>
+<li><a href="#orgcb5f75f">func Int63n</a></li>
+<li><a href="#org52e4321">func Float32</a></li>
+<li><a href="#org211216c">func Float64</a></li>
+<li><a href="#orge041877">func NormFloat64</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org2750039" class="outline-2">
+<h2 id="org2750039">简介</h2>
+<div class="outline-text-2" id="text-org2750039">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"math/rand"</span>
+</pre>
+</div>
+
+<p>
+rand包实现了伪随机数生成器。<br>
+</p>
+
+<p>
+随机数从资源生成。包水平的函数都使用的默认的公共资源。该资源会在程序每次运行时都产生确定的序列。如果需要每次运行产生不同的序列，应使用Seed函数进行初始化。默认资源可以安全的用于多go程并发。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">rand.<span style="color: #d75fd7; font-weight: bold;">Seed</span>(<span style="color: #d75fd7;">42</span>) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Try changing this number!</span>
+<span style="color: #8787d7;">answers</span> := []<span style="color: #df005f; font-weight: bold;">string</span>{
+        <span style="color: #2aa198;">"It is certain"</span>,
+        <span style="color: #2aa198;">"It is decidedly so"</span>,
+        <span style="color: #2aa198;">"Without a doubt"</span>,
+        <span style="color: #2aa198;">"Yes definitely"</span>,
+        <span style="color: #2aa198;">"You may rely on it"</span>,
+        <span style="color: #2aa198;">"As I see it yes"</span>,
+        <span style="color: #2aa198;">"Most likely"</span>,
+        <span style="color: #2aa198;">"Outlook good"</span>,
+        <span style="color: #2aa198;">"Yes"</span>,
+        <span style="color: #2aa198;">"Signs point to yes"</span>,
+        <span style="color: #2aa198;">"Reply hazy try again"</span>,
+        <span style="color: #2aa198;">"Ask again later"</span>,
+        <span style="color: #2aa198;">"Better not tell you now"</span>,
+        <span style="color: #2aa198;">"Cannot predict now"</span>,
+        <span style="color: #2aa198;">"Concentrate and ask again"</span>,
+        <span style="color: #2aa198;">"Don't count on it"</span>,
+        <span style="color: #2aa198;">"My reply is no"</span>,
+        <span style="color: #2aa198;">"My sources say no"</span>,
+        <span style="color: #2aa198;">"Outlook not so good"</span>,
+        <span style="color: #2aa198;">"Very doubtful"</span>,
+}
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Magic 8-Ball says:"</span>, answers[rand.<span style="color: #d75fd7; font-weight: bold;">Intn</span>(<span style="color: #268bd2;">len</span>(answers))])
+</pre>
+</div>
+
+<p>
+Output:<br>
+</p>
+
+<pre class="example" id="org74e36a4">
+Magic 8-Ball says: As I see it yes
+</pre>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Create and seed the generator.</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Typically a non-fixed seed should be used, such as time.Now().UnixNano().</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Using a fixed seed will produce the same output on every run.</span>
+<span style="color: #8787d7;">r</span> := rand.<span style="color: #d75fd7; font-weight: bold;">New</span>(rand.<span style="color: #d75fd7; font-weight: bold;">NewSource</span>(<span style="color: #d75fd7;">99</span>))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">The tabwriter here helps us generate aligned output.</span>
+<span style="color: #8787d7;">w</span> := tabwriter.<span style="color: #d75fd7; font-weight: bold;">NewWriter</span>(os.Stdout, <span style="color: #d75fd7;">1</span>, <span style="color: #d75fd7;">1</span>, <span style="color: #d75fd7;">1</span>, <span style="color: #2aa198;">' '</span>, <span style="color: #d75fd7;">0</span>)
+<span style="color: #268bd2; font-weight: bold;">defer</span> w.<span style="color: #d75fd7; font-weight: bold;">Flush</span>()
+<span style="color: #8787d7;">show</span> := <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">name</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">v1</span>, <span style="color: #8787d7;">v2</span>, <span style="color: #8787d7;">v3</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}) {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Fprintf</span>(w, <span style="color: #2aa198;">"%s\t%v\t%v\t%v\n"</span>, name, v1, v2, v3)
+}
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Float32 and Float64 values are in [0, 1).</span>
+<span style="color: #d75fd7; font-weight: bold;">show</span>(<span style="color: #2aa198;">"Float32"</span>, r.<span style="color: #d75fd7; font-weight: bold;">Float32</span>(), r.<span style="color: #d75fd7; font-weight: bold;">Float32</span>(), r.<span style="color: #d75fd7; font-weight: bold;">Float32</span>())
+<span style="color: #d75fd7; font-weight: bold;">show</span>(<span style="color: #2aa198;">"Float64"</span>, r.<span style="color: #d75fd7; font-weight: bold;">Float64</span>(), r.<span style="color: #d75fd7; font-weight: bold;">Float64</span>(), r.<span style="color: #d75fd7; font-weight: bold;">Float64</span>())
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">ExpFloat64 values have an average of 1 but decay exponentially.</span>
+<span style="color: #d75fd7; font-weight: bold;">show</span>(<span style="color: #2aa198;">"ExpFloat64"</span>, r.<span style="color: #d75fd7; font-weight: bold;">ExpFloat64</span>(), r.<span style="color: #d75fd7; font-weight: bold;">ExpFloat64</span>(), r.<span style="color: #d75fd7; font-weight: bold;">ExpFloat64</span>())
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">NormFloat64 values have an average of 0 and a standard deviation of 1.</span>
+<span style="color: #d75fd7; font-weight: bold;">show</span>(<span style="color: #2aa198;">"NormFloat64"</span>, r.<span style="color: #d75fd7; font-weight: bold;">NormFloat64</span>(), r.<span style="color: #d75fd7; font-weight: bold;">NormFloat64</span>(), r.<span style="color: #d75fd7; font-weight: bold;">NormFloat64</span>())
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Int31, Int63, and Uint32 generate values of the given width.</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">The Int method (not shown) is like either Int31 or Int63</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">depending on the size of 'int'.</span>
+<span style="color: #d75fd7; font-weight: bold;">show</span>(<span style="color: #2aa198;">"Int31"</span>, r.<span style="color: #d75fd7; font-weight: bold;">Int31</span>(), r.<span style="color: #d75fd7; font-weight: bold;">Int31</span>(), r.<span style="color: #d75fd7; font-weight: bold;">Int31</span>())
+<span style="color: #d75fd7; font-weight: bold;">show</span>(<span style="color: #2aa198;">"Int63"</span>, r.<span style="color: #d75fd7; font-weight: bold;">Int63</span>(), r.<span style="color: #d75fd7; font-weight: bold;">Int63</span>(), r.<span style="color: #d75fd7; font-weight: bold;">Int63</span>())
+<span style="color: #d75fd7; font-weight: bold;">show</span>(<span style="color: #2aa198;">"Uint32"</span>, r.<span style="color: #d75fd7; font-weight: bold;">Int63</span>(), r.<span style="color: #d75fd7; font-weight: bold;">Int63</span>(), r.<span style="color: #d75fd7; font-weight: bold;">Int63</span>())
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Intn, Int31n, and Int63n limit their output to be &lt; n.</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">They do so more carefully than using r.Int()%n.</span>
+<span style="color: #d75fd7; font-weight: bold;">show</span>(<span style="color: #2aa198;">"Intn(10)"</span>, r.<span style="color: #d75fd7; font-weight: bold;">Intn</span>(<span style="color: #d75fd7;">10</span>), r.<span style="color: #d75fd7; font-weight: bold;">Intn</span>(<span style="color: #d75fd7;">10</span>), r.<span style="color: #d75fd7; font-weight: bold;">Intn</span>(<span style="color: #d75fd7;">10</span>))
+<span style="color: #d75fd7; font-weight: bold;">show</span>(<span style="color: #2aa198;">"Int31n(10)"</span>, r.<span style="color: #d75fd7; font-weight: bold;">Int31n</span>(<span style="color: #d75fd7;">10</span>), r.<span style="color: #d75fd7; font-weight: bold;">Int31n</span>(<span style="color: #d75fd7;">10</span>), r.<span style="color: #d75fd7; font-weight: bold;">Int31n</span>(<span style="color: #d75fd7;">10</span>))
+<span style="color: #d75fd7; font-weight: bold;">show</span>(<span style="color: #2aa198;">"Int63n(10)"</span>, r.<span style="color: #d75fd7; font-weight: bold;">Int63n</span>(<span style="color: #d75fd7;">10</span>), r.<span style="color: #d75fd7; font-weight: bold;">Int63n</span>(<span style="color: #d75fd7;">10</span>), r.<span style="color: #d75fd7; font-weight: bold;">Int63n</span>(<span style="color: #d75fd7;">10</span>))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Perm generates a random permutation of the numbers [0, n).</span>
+<span style="color: #d75fd7; font-weight: bold;">show</span>(<span style="color: #2aa198;">"Perm"</span>, r.<span style="color: #d75fd7; font-weight: bold;">Perm</span>(<span style="color: #d75fd7;">5</span>), r.<span style="color: #d75fd7; font-weight: bold;">Perm</span>(<span style="color: #d75fd7;">5</span>), r.<span style="color: #d75fd7; font-weight: bold;">Perm</span>(<span style="color: #d75fd7;">5</span>))
+</pre>
+</div>
+
+<p>
+Output:<br>
+</p>
+
+<pre class="example" id="org5577c57">
+Float32     0.2635776           0.6358173           0.6718283
+Float64     0.628605430454327   0.4504798828572669  0.9562755949377957
+ExpFloat64  0.3362240648200941  1.4256072328483647  0.24354758816173044
+NormFloat64 0.17233959114940064 1.577014951434847   0.04259129641113857
+Int31       1501292890          1486668269          182840835
+Int63       3546343826724305832 5724354148158589552 5239846799706671610
+Uint32      5927547564735367388 637072299495207830  4128311955958246186
+Intn(10)    1                   2                   5
+Int31n(10)  4                   7                   8
+Int63n(10)  7                   6                   3
+Perm        [1 4 2 3 0]         [4 2 1 3 0]         [1 2 4 0 3]
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org7dfab2b" class="outline-2">
+<h2 id="org7dfab2b">type Source</h2>
+<div class="outline-text-2" id="text-org7dfab2b">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Source</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+        <span style="color: #d75fd7; font-weight: bold;">Int63</span>() <span style="color: #df005f; font-weight: bold;">int64</span>
+        <span style="color: #d75fd7; font-weight: bold;">Seed</span>(<span style="color: #8787d7;">seed</span> <span style="color: #df005f; font-weight: bold;">int64</span>)
+}
+</pre>
+</div>
+
+<p>
+Source代表一个生成均匀分布在范围[0, 1&lt;&lt;63)的int64值的（伪随机的）资源。<br>
+</p>
+</div>
+<div id="outline-container-org284b101" class="outline-3">
+<h3 id="org284b101">func NewSource</h3>
+<div class="outline-text-3" id="text-org284b101">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">NewSource</span>(<span style="color: #8787d7;">seed</span> <span style="color: #df005f; font-weight: bold;">int64</span>) <span style="color: #df005f; font-weight: bold;">Source</span>
+</pre>
+</div>
+
+<p>
+使用给定的种子创建一个伪随机资源。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org9e3dd1a" class="outline-2">
+<h2 id="org9e3dd1a">type Rand</h2>
+<div class="outline-text-2" id="text-org9e3dd1a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Rand</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20869;&#21547;&#38544;&#34255;&#25110;&#38750;&#23548;&#20986;&#23383;&#27573;</span>
+}
+</pre>
+</div>
+
+<p>
+Rand生成服从多种分布的随机数。<br>
+</p>
+</div>
+<div id="outline-container-org717d481" class="outline-3">
+<h3 id="org717d481">func New</h3>
+<div class="outline-text-3" id="text-org717d481">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">New</span>(<span style="color: #8787d7;">src</span> <span style="color: #df005f; font-weight: bold;">Source</span>) *<span style="color: #df005f; font-weight: bold;">Rand</span>
+</pre>
+</div>
+
+<p>
+返回一个使用src生产的随机数来生成其他各种分布的随机数值的*Rand。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org70c161a" class="outline-3">
+<h3 id="org70c161a">func (*Rand) Seed</h3>
+<div class="outline-text-3" id="text-org70c161a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Rand</span>) <span style="color: #d75fd7; font-weight: bold;">Seed</span>(<span style="color: #8787d7;">seed</span> <span style="color: #df005f; font-weight: bold;">int64</span>)
+</pre>
+</div>
+
+<p>
+使用给定的seed来初始化生成器到一个确定的状态。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgabb0de9" class="outline-3">
+<h3 id="orgabb0de9">func (*Rand) Int</h3>
+<div class="outline-text-3" id="text-orgabb0de9">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Rand</span>) <span style="color: #d75fd7; font-weight: bold;">Int</span>() <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+返回一个非负的伪随机int值。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org38c4b47" class="outline-3">
+<h3 id="org38c4b47">func (*Rand) Int31</h3>
+<div class="outline-text-3" id="text-org38c4b47">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Rand</span>) <span style="color: #d75fd7; font-weight: bold;">Int31</span>() <span style="color: #df005f; font-weight: bold;">int32</span>
+</pre>
+</div>
+
+<p>
+返回一个int32类型的非负的31位伪随机数。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org16b2e0c" class="outline-3">
+<h3 id="org16b2e0c">func (*Rand) Int63</h3>
+<div class="outline-text-3" id="text-org16b2e0c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Rand</span>) <span style="color: #d75fd7; font-weight: bold;">Int63</span>() <span style="color: #df005f; font-weight: bold;">int64</span>
+</pre>
+</div>
+
+<p>
+返回一个int64类型的非负的63位伪随机数。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org6d9aa6a" class="outline-3">
+<h3 id="org6d9aa6a">func (*Rand) Uint32</h3>
+<div class="outline-text-3" id="text-org6d9aa6a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Rand</span>) <span style="color: #d75fd7; font-weight: bold;">Uint32</span>() <span style="color: #df005f; font-weight: bold;">uint32</span>
+</pre>
+</div>
+
+<p>
+返回一个uint32类型的非负的32位伪随机数。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf572166" class="outline-3">
+<h3 id="orgf572166">func (*Rand) Intn</h3>
+<div class="outline-text-3" id="text-orgf572166">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Rand</span>) <span style="color: #d75fd7; font-weight: bold;">Intn</span>(<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+返回一个取值范围在[0, n)的伪随机int值，如果n&lt;=0会panic。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2d8e516" class="outline-3">
+<h3 id="org2d8e516">func (*Rand) Int31n</h3>
+<div class="outline-text-3" id="text-org2d8e516">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Rand</span>) <span style="color: #d75fd7; font-weight: bold;">Int31n</span>(<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int32</span>) <span style="color: #df005f; font-weight: bold;">int32</span>
+</pre>
+</div>
+
+<p>
+返回一个取值范围在[0,n)的伪随机int32值，如果n&lt;=0会panic<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5919b65" class="outline-3">
+<h3 id="org5919b65">func (*Rand) Int63n</h3>
+<div class="outline-text-3" id="text-org5919b65">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Rand</span>) <span style="color: #d75fd7; font-weight: bold;">Int63n</span>(<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int64</span>) <span style="color: #df005f; font-weight: bold;">int64</span>
+</pre>
+</div>
+
+<p>
+返回一个取值范围在[0,n)的伪随机int64值，如果n&lt;=0会panic。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org101e1b4" class="outline-3">
+<h3 id="org101e1b4">func (*Rand) Float32</h3>
+<div class="outline-text-3" id="text-org101e1b4">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Rand</span>) <span style="color: #d75fd7; font-weight: bold;">Float32</span>() <span style="color: #df005f; font-weight: bold;">float32</span>
+</pre>
+</div>
+
+<p>
+返回一个取值范围在[0.0, 1.0)的伪随机float32值。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org665dc3c" class="outline-3">
+<h3 id="org665dc3c">func (*Rand) Float64</h3>
+<div class="outline-text-3" id="text-org665dc3c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Rand</span>) <span style="color: #d75fd7; font-weight: bold;">Float64</span>() <span style="color: #df005f; font-weight: bold;">float64</span>
+</pre>
+</div>
+
+<p>
+返回一个取值范围在[0.0, 1.0)的伪随机float64值。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org6763fdb" class="outline-3">
+<h3 id="org6763fdb">func (*Rand) NormFloat64</h3>
+<div class="outline-text-3" id="text-org6763fdb">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Rand</span>) <span style="color: #d75fd7; font-weight: bold;">NormFloat64</span>() <span style="color: #df005f; font-weight: bold;">float64</span>
+</pre>
+</div>
+
+<p>
+返回一个服从标准正态分布（标准差=1，期望=0）、取值范围在[-math.MaxFloat64, +math.MaxFloat64]的float64值<br>
+</p>
+
+<p>
+如果要生成不同的正态分布值，调用者可用如下代码调整输出：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">sample = <span style="color: #d75fd7; font-weight: bold;">NormFloat64</span>() * &#26631;&#20934;&#24046; + &#26399;&#26395;
+<span style="color: #268bd2; font-weight: bold;">func</span> (*<span style="color: #df005f; font-weight: bold;">Rand</span>) <span style="color: #df005f; font-weight: bold;">ExpFloat64</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Rand</span>) <span style="color: #d75fd7; font-weight: bold;">ExpFloat64</span>() <span style="color: #df005f; font-weight: bold;">float64</span>
+</pre>
+</div>
+
+<p>
+返回一个服从标准指数分布（率参数=1，率参数是期望的倒数）、取值范围在(0, +math.MaxFloat64]的float64值<br>
+</p>
+
+<p>
+如要生成不同的指数分布值，调用者可用如下代码调整输出：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">sample = <span style="color: #d75fd7; font-weight: bold;">ExpFloat64</span>() / &#29575;&#21442;&#25968;
+<span style="color: #268bd2; font-weight: bold;">func</span> (*<span style="color: #df005f; font-weight: bold;">Rand</span>) <span style="color: #df005f; font-weight: bold;">Perm</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Rand</span>) <span style="color: #d75fd7; font-weight: bold;">Perm</span>(<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>) []<span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+返回一个有n个元素的，[0,n)范围内整数的伪随机排列的切片。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orga106eda" class="outline-2">
+<h2 id="orga106eda">type Zipf</h2>
+<div class="outline-text-2" id="text-orga106eda">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Zipf</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20869;&#21547;&#38544;&#34255;&#25110;&#38750;&#23548;&#20986;&#23383;&#27573;</span>
+}
+</pre>
+</div>
+
+<p>
+Zipf生成服从齐普夫分布的随机数。<br>
+</p>
+</div>
+<div id="outline-container-orge242b2c" class="outline-3">
+<h3 id="orge242b2c">func NewZipf</h3>
+<div class="outline-text-3" id="text-orge242b2c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">NewZipf</span>(<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Rand</span>, <span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">float64</span>, <span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">float64</span>, <span style="color: #8787d7;">imax</span> <span style="color: #df005f; font-weight: bold;">uint64</span>) *<span style="color: #df005f; font-weight: bold;">Zipf</span>
+</pre>
+</div>
+
+<p>
+NewZipf返回一个[0, imax]范围内的齐普夫随机数生成器。<br>
+</p>
+
+<p>
+齐普夫分布：值k出现的几率p(k)正比于(v+k)**(-s)，其中s&gt;1且k&gt;=0且v&gt;=1。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org7b534b0" class="outline-3">
+<h3 id="org7b534b0">func (*Zipf) Uint64</h3>
+<div class="outline-text-3" id="text-org7b534b0">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Zipf</span>) <span style="color: #d75fd7; font-weight: bold;">Uint64</span>() <span style="color: #df005f; font-weight: bold;">uint64</span>
+</pre>
+</div>
+
+<p>
+Uint64返回一个服从Zipf对象描述的齐普夫分布的随机数。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org0c8c2e9" class="outline-2">
+<h2 id="org0c8c2e9">func Seed</h2>
+<div class="outline-text-2" id="text-org0c8c2e9">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Seed</span>(<span style="color: #8787d7;">seed</span> <span style="color: #df005f; font-weight: bold;">int64</span>)
+</pre>
+</div>
+
+<p>
+使用给定的seed将默认资源初始化到一个确定的状态；如未调用Seed，默认资源的行为就好像调用了Seed(1)。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga00a176" class="outline-2">
+<h2 id="orga00a176">func Int</h2>
+<div class="outline-text-2" id="text-orga00a176">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Int</span>() <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+返回一个非负的伪随机int值。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgad8d17c" class="outline-2">
+<h2 id="orgad8d17c">func Int31</h2>
+<div class="outline-text-2" id="text-orgad8d17c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Int31</span>() <span style="color: #df005f; font-weight: bold;">int32</span>
+</pre>
+</div>
+
+<p>
+返回一个int32类型的非负的31位伪随机数。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4349167" class="outline-2">
+<h2 id="org4349167">func Int63</h2>
+<div class="outline-text-2" id="text-org4349167">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Int63</span>() <span style="color: #df005f; font-weight: bold;">int64</span>
+</pre>
+</div>
+
+<p>
+返回一个int64类型的非负的63位伪随机数。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org92fe614" class="outline-2">
+<h2 id="org92fe614">func Uint32</h2>
+<div class="outline-text-2" id="text-org92fe614">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Uint32</span>() <span style="color: #df005f; font-weight: bold;">uint32</span>
+</pre>
+</div>
+
+<p>
+返回一个uint32类型的非负的32位伪随机数。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8bbb9b3" class="outline-2">
+<h2 id="org8bbb9b3">func Intn</h2>
+<div class="outline-text-2" id="text-org8bbb9b3">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Intn</span>(<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+返回一个取值范围在[0,n)的伪随机int值，如果n&lt;=0会panic。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org02c0307" class="outline-2">
+<h2 id="org02c0307">func Int31n</h2>
+<div class="outline-text-2" id="text-org02c0307">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Int31n</span>(<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int32</span>) <span style="color: #df005f; font-weight: bold;">int32</span>
+</pre>
+</div>
+
+<p>
+返回一个取值范围在[0,n)的伪随机int32值，如果n&lt;=0会panic。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgcb5f75f" class="outline-2">
+<h2 id="orgcb5f75f">func Int63n</h2>
+<div class="outline-text-2" id="text-orgcb5f75f">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Int63n</span>(<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int64</span>) <span style="color: #df005f; font-weight: bold;">int64</span>
+</pre>
+</div>
+
+<p>
+返回一个取值范围在[0, n)的伪随机int64值，如果n&lt;=0会panic。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org52e4321" class="outline-2">
+<h2 id="org52e4321">func Float32</h2>
+<div class="outline-text-2" id="text-org52e4321">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Float32</span>() <span style="color: #df005f; font-weight: bold;">float32</span>
+</pre>
+</div>
+
+<p>
+返回一个取值范围在[0.0, 1.0)的伪随机float32值。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org211216c" class="outline-2">
+<h2 id="org211216c">func Float64</h2>
+<div class="outline-text-2" id="text-org211216c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Float64</span>() <span style="color: #df005f; font-weight: bold;">float64</span>
+</pre>
+</div>
+
+<p>
+返回一个取值范围在[0.0, 1.0)的伪随机float64值。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge041877" class="outline-2">
+<h2 id="orge041877">func NormFloat64</h2>
+<div class="outline-text-2" id="text-orge041877">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">NormFloat64</span>() <span style="color: #df005f; font-weight: bold;">float64</span>
+</pre>
+</div>
+
+<p>
+返回一个服从标准正态分布（标准差=1，期望=0）、取值范围在[-math.MaxFloat64, +math.MaxFloat64]的float64值<br>
+</p>
+
+<p>
+如果要生成不同的正态分布值，调用者可用如下代码调整输出：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">sample = <span style="color: #d75fd7; font-weight: bold;">NormFloat64</span>() * &#26631;&#20934;&#24046; + &#26399;&#26395;
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ExpFloat64</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ExpFloat64</span>() <span style="color: #df005f; font-weight: bold;">float64</span>
+</pre>
+</div>
+
+<p>
+返回一个服从标准指数分布（率参数=1，率参数是期望的倒数）、取值范围在(0, +math.MaxFloat64]的float64值<br>
+</p>
+
+<p>
+如要生成不同的指数分布值，调用者可用如下代码调整输出：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">sample = <span style="color: #d75fd7; font-weight: bold;">ExpFloat64</span>() / &#29575;&#21442;&#25968;
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Perm</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Perm</span>(<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>) []<span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+返回一个有n个元素的，[0,n)范围内整数的伪随机排列的切片。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-06 17:02 Sun</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-06 Sun 17:47</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

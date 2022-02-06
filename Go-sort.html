@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-02-05 Sat 22:26 -->
+<!-- 2022-02-06 Sun 18:31 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GO SORT</title>
@@ -21,7 +21,12 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org7ed7487">简单使用</a></li>
+<li><a href="#orge953831">简单入门</a>
+<ul>
+<li><a href="#orgd039f61">解释：</a></li>
+</ul>
+</li>
+<li><a href="#orgc76fd41">进阶使用</a></li>
 <li><a href="#orga969dd5">type Interface</a></li>
 <li><a href="#orgd263ce3">type IntSlice</a>
 <ul>
@@ -68,9 +73,126 @@
 </div>
 </div>
 
-<div id="outline-container-org7ed7487" class="outline-2">
-<h2 id="org7ed7487">简单使用</h2>
-<div class="outline-text-2" id="text-org7ed7487">
+<div id="outline-container-orge953831" class="outline-2">
+<h2 id="orge953831">简单入门</h2>
+<div class="outline-text-2" id="text-orge953831">
+<p>
+上来先看例子：<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"math/rand"</span>
+    <span style="color: #2aa198;">"sort"</span>
+    <span style="color: #2aa198;">"strconv"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">lst</span> := <span style="color: #268bd2;">make</span>([]*<span style="color: #df005f; font-weight: bold;">Node</span>, <span style="color: #d75fd7;">10</span>)
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; <span style="color: #d75fd7;">10</span>; i++ {
+        lst[i] = &amp;<span style="color: #df005f; font-weight: bold;">Node</span>{
+            <span style="color: #d75fd7;">Name</span>: <span style="color: #2aa198;">"name"</span> + strconv.<span style="color: #d75fd7; font-weight: bold;">FormatInt</span>(<span style="color: #d75fd7; font-weight: bold;">int64</span>(i), <span style="color: #d75fd7;">10</span>),
+            <span style="color: #d75fd7;">Num</span>:  rand.<span style="color: #d75fd7; font-weight: bold;">Intn</span>(<span style="color: #d75fd7;">1000</span>),
+        }
+    }
+
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">_</span>, <span style="color: #8787d7;">v</span> := <span style="color: #268bd2; font-weight: bold;">range</span> lst {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Print</span>(v, <span style="color: #2aa198;">" "</span>)
+    }
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>()
+    sort.<span style="color: #d75fd7; font-weight: bold;">Sort</span>(<span style="color: #d75fd7; font-weight: bold;">NodeList</span>(lst))
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">_</span>, <span style="color: #8787d7;">v</span> := <span style="color: #268bd2; font-weight: bold;">range</span> lst {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Print</span>(v, <span style="color: #2aa198;">" "</span>)
+    }
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>()
+
+}
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Node</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    Num  <span style="color: #df005f; font-weight: bold;">int</span>
+    Name <span style="color: #df005f; font-weight: bold;">string</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">NodeList</span> []*<span style="color: #df005f; font-weight: bold;">Node</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">this</span> <span style="color: #df005f; font-weight: bold;">NodeList</span>) <span style="color: #d75fd7; font-weight: bold;">Len</span>() <span style="color: #df005f; font-weight: bold;">int</span> {
+    <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #268bd2;">len</span>(this)
+}
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">this</span> <span style="color: #df005f; font-weight: bold;">NodeList</span>) <span style="color: #d75fd7; font-weight: bold;">Less</span>(<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">j</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">bool</span> {
+    <span style="color: #268bd2; font-weight: bold;">return</span> this[i].Num &lt; this[j].Num
+}
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">this</span> <span style="color: #df005f; font-weight: bold;">NodeList</span>) <span style="color: #d75fd7; font-weight: bold;">Swap</span>(<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">j</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
+    this[i], this[j] = this[j], this[i]
+}
+</pre>
+</div>
+
+<p>
+运行结果：<br>
+</p>
+
+<pre class="example" id="orge244d96">
+&amp;{81 name0} &amp;{887 name1} &amp;{847 name2} &amp;{59 name3} &amp;{81 name4} &amp;{318 name5} &amp;{425 name6} &amp;{540 name7} &amp;{456 name8} &amp;{300 name9} 
+&amp;{59 name3} &amp;{81 name0} &amp;{81 name4} &amp;{300 name9} &amp;{318 name5} &amp;{425 name6} &amp;{456 name8} &amp;{540 name7} &amp;{847 name2} &amp;{887 name1} 
+</pre>
+</div>
+
+<div id="outline-container-orgd039f61" class="outline-3">
+<h3 id="orgd039f61">解释：</h3>
+<div class="outline-text-3" id="text-orgd039f61">
+<p>
+我们使用 <code>type</code> 定义了一个 <code>[]*Node</code> 类型的 <code>NodeList</code> 切片， <code>NodeList</code> 实现 <code>Interface</code> 这个接口，这个接口在 <code>sort</code> 中定义，原型：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">A type, typically a collection, that satisfies sort.Interface can be</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">sorted by the routines in this package. The methods require that the</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">elements of the collection be enumerated by an integer index.</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Interface</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Len is the number of elements in the collection.</span>
+    <span style="color: #d75fd7; font-weight: bold;">Len</span>() <span style="color: #df005f; font-weight: bold;">int</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Less reports whether the element with</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">index i should sort before the element with index j.</span>
+    <span style="color: #d75fd7; font-weight: bold;">Less</span>(<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">j</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Swap swaps the elements with indexes i and j.</span>
+    <span style="color: #d75fd7; font-weight: bold;">Swap</span>(<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">j</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+}
+</pre>
+</div>
+
+<ul class="org-ul">
+<li><code>Len()</code> ，返回要排序的序列长度<br></li>
+<li><code>Less()</code> ，返回排序需要的比较规则<br></li>
+<li><code>Swap()</code> ，交换两个元素<br></li>
+</ul>
+
+<p>
+正是因为任何一种排序算法都会调用上述三个函数，所以我们不得不为我们的自定义的结构体实现这个接口。<br>
+</p>
+
+<p>
+新建一个切片 <code>lst</code> ，随机填充数据，然后调用 <code>sort</code> 包中的 <code>Sort()</code> 函数，进行排序。<br>
+</p>
+
+<p>
+<code>Sort()</code> 函数需要传递一个 <code>Interface</code> 类型的参数。 使用强制类型转换把 <code>lst</code> 转换为 <code>Interface</code> 类型。<br>
+</p>
+
+<p>
+<code>sort</code> 包中 还有一个函数实现反向排序， <code>sort.sort.Reverse()</code> 可以实现倒序排序<br>
+</p>
+
+<p>
+栗子 <code>sort.Sort(sort.Reverse(NodeList(lst)))</code> 就能实现反向排序。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgc76fd41" class="outline-2">
+<h2 id="orgc76fd41">进阶使用</h2>
+<div class="outline-text-2" id="text-orgc76fd41">
 <p>
 sort 包提供了排序切片和用户自定义数据集的函数。<br>
 </p>
@@ -395,6 +517,27 @@ sort 包提供了排序切片和用户自定义数据集的函数。<br>
 </pre>
 </div>
 
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"math/rand"</span>
+    <span style="color: #2aa198;">"sort"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">lst</span> := <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #d75fd7;">10</span>)
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; <span style="color: #d75fd7;">10</span>; i++ {
+        lst[i] = <span style="color: #d75fd7; font-weight: bold;">int</span>(rand.<span style="color: #d75fd7; font-weight: bold;">Int31n</span>(<span style="color: #d75fd7;">1000</span>))
+    }
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(lst)
+    sort.<span style="color: #d75fd7; font-weight: bold;">Sort</span>(sort.<span style="color: #d75fd7; font-weight: bold;">IntSlice</span>(lst))
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(lst)
+}
+</pre>
+</div>
+
 <p>
 IntSlice给[]int添加方法以满足Interface接口，以便排序为递增序列。<br>
 </p>
@@ -651,7 +794,7 @@ fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(s)
 Output:<br>
 </p>
 
-<pre class="example" id="org3ebf6a9">
+<pre class="example" id="org3c52e36">
 [6 5 4 3 2 1]
 </pre>
 </div>
@@ -738,7 +881,7 @@ fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(s)
 Output:<br>
 </p>
 
-<pre class="example" id="orgb3f10b8">
+<pre class="example" id="orgdd22949">
 [1 2 3 4 5 6]
 </pre>
 </div>
@@ -852,7 +995,7 @@ SearchStrings在递增顺序的a中搜索x，返回x的索引。如果查找不�
 <div id="postamble" class="status">
 <p class="date">Date: 2022-02-02 15:02 Wed</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-02-05 Sat 22:26</p>
+<p class="date">Created: 2022-02-06 Sun 18:31</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
