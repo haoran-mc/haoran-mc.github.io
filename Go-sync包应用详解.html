@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-07 Mon 20:56 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SYNC包应用详解</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">SYNC包应用详解</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org571af1e">简介</a></li>
+<li><a href="#orgb15e6dd">sync.Mutex</a></li>
+<li><a href="#org453cb69">sync.RWMutex</a></li>
+<li><a href="#org8a76c3a">sync.WaitGroup</a></li>
+<li><a href="#orgcecf5d8">sync.Map</a></li>
+<li><a href="#org2139f82">sync.Poll</a></li>
+<li><a href="#org6d1dd15">sync.Once</a></li>
+<li><a href="#orgdf61913">sync.Cond</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org571af1e" class="outline-2">
+<h2 id="org571af1e">简介</h2>
+<div class="outline-text-2" id="text-org571af1e">
+<p>
+在并发编程中同步原语也就是我们通常说的锁的主要作用是保证多个线程或者 <code>goroutine</code> 在访问同一片内存时不会出现混乱的问题。Go 语言的 <code>sync</code> 包提供了常见的并发编程同步原语，<a href="https://link.segmentfault.com/?enc=64KVB0dVY%2B5H93bQIG79Ag%3D%3D.JDGOYzKbXUsZrxckZxgjNRSzxXk4fIitNGXe%2BXOXm3hQnxcaJ08%2FfkZudRO10Q34s6VET1gamJPctRGW%2F9Eygi68puz0EPoIQDT60dPMNhCwk%2FIDHfDHiqKK6FFYZqp5bbNqfnkhJmSUJ2j91tHXcxBrqOJjacRK%2BcyL%2FdQPbkYibY3jYDFVi%2B1qGYKFFvBWr4OD%2BqJo0uMGIYvo%2BvTkRkBU4uOsY4808wj8pIQTETS3kbYEW%2FSahUEfVPjhHmxfXddkLVvc7qxlyqmm3c8KJtWExl0OT1zoUwb1rwN%2FcDUUDBTFB9uB6BCFXdPL3639S0t1nMgul97tUqljYX6Pzg%3D%3D">《Golang 并发编程之同步原语》</a> 这篇文章中详述了 <code>Mutex</code> 、 <code>RWMutex</code> 、 <code>WaitGroup</code> 、 <code>Once</code> 和 <code>Cond</code> 这些同步原语的实现原理。今天的文章里我们回到应用层，聚焦 <code>sync</code> 包里这些同步原语的应用场景，同时也会介绍 <code>sync</code> 包中的 <code>Pool</code> 和 <code>Map</code> 的应用场景和使用方法。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb15e6dd" class="outline-2">
+<h2 id="orgb15e6dd">sync.Mutex</h2>
+<div class="outline-text-2" id="text-orgb15e6dd">
+<p>
+<code>sync.Mutex</code> 可能是是 <code>sync</code> 包中使用最广泛的原语，它允许在共享资源上互斥访问（不能同时访问）：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7; background-color: #262626; font-weight: bold;">mutex</span> := &amp;<span style="color: #df005f; font-weight: bold;">sync.Mutex</span>{}
+
+mutex.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Update &#20849;&#20139;&#21464;&#37327;&#65288;&#27604;&#22914;&#20999;&#29255;&#65292;&#32467;&#26500;&#20307;&#25351;&#38024;&#31561;&#65289;</span>
+mutex.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+</pre>
+</div>
+
+<p>
+必须指出的是，在第一次被使用后，不能再对 <code>sync.Mutex</code> 进行复制（ <code>sync</code> 包的所有原语都一样），如果有结构体具有同步原语字段，则必须通过指针传递它。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org453cb69" class="outline-2">
+<h2 id="org453cb69">sync.RWMutex</h2>
+<div class="outline-text-2" id="text-org453cb69">
+<p>
+<code>sync.RWMutex</code> 是一个读写互斥锁，它提供了我们上面的刚刚看到的 <code>sync.Mutex</code> 和 <code>Lock</code> 和 <code>Unlock</code> 方法（因为这两个结构都实现了 <code>sync.Locker</code> 接口）。但是，它还允许使用 <code>RLock</code> 和 <code>RUnlock</code> 方法进行并发读取：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7; background-color: #262626; font-weight: bold;">mutex</span> := &amp;<span style="color: #df005f; font-weight: bold;">sync.RWMutex</span>{}
+
+mutex.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Update &#20849;&#20139;&#21464;&#37327;</span>
+mutex.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+
+mutex.<span style="color: #d75fd7; font-weight: bold;">RLock</span>()
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Read &#20849;&#20139;&#21464;&#37327;</span>
+mutex.<span style="color: #d75fd7; font-weight: bold;">RUnlock</span>()
+</pre>
+</div>
+
+<p>
+<code>sync.RWMutex</code> 允许至少一个读锁或一个写锁存在，而 <code>sync.Mutex</code> 允许一个读锁或一个写锁存在。<br>
+</p>
+
+<pre class="example" id="org01bd7ac">
+BenchmarkMutexLock-4       83497579         17.7 ns/op
+BenchmarkRWMutexLock-4     35286374         44.3 ns/op
+BenchmarkRWMutexRLock-4    89403342         15.3 ns/op
+</pre>
+
+<p>
+可以看到 <code>sync.RWMutex</code> 读锁的速度比 <code>sync.Mutex</code> 更快，另一方面，在 <code>sync.RWMutex</code> 上调用 <code>Lock()</code> / <code>Unlock()</code> 是最慢的操作。<br>
+</p>
+
+<p>
+因此，只有在频繁读取和不频繁写入的场景里，才应该使用 <code>sync.RWMutex</code> 。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8a76c3a" class="outline-2">
+<h2 id="org8a76c3a">sync.WaitGroup</h2>
+<div class="outline-text-2" id="text-org8a76c3a">
+<p>
+<code>sync.WaitGroup</code> 也是一个经常会用到的同步原语，它的使用场景是在一个 <code>goroutine</code> 等待一组 <code>goroutine</code> 执行完成。<br>
+</p>
+
+<p>
+<code>sync.WaitGroup</code> 拥有一个内部计数器，当计数器等于 0 时，则 <code>Wait()</code> 方法会立即返回，否则它将阻塞执行 <code>Wait()</code> 方法的 <code>goroutine</code> 直到计数器等于 0 为止。<br>
+</p>
+
+<p>
+要增加计数器，我们必须使用 <code>Add(int)</code> 方法；要减少它，我们可以使用 <code>Done()</code> （将计数器减一），也可以传递负数给 <code>Add</code> 方法， <code>Done()</code> 方法底层就是通过 <code>Add(-1)</code> 实现的。<br>
+</p>
+
+<p>
+在以下示例中，我们将启动八个 <code>goroutine</code> ，并等待它们完成：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7; background-color: #262626; font-weight: bold;">wg</span> := &amp;<span style="color: #df005f; font-weight: bold;">sync.WaitGroup</span>{}
+
+<span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7; background-color: #262626; font-weight: bold;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; <span style="color: #d75fd7;">0</span>; i ++ {
+    wg.<span style="color: #d75fd7; font-weight: bold;">Add</span>(<span style="color: #d75fd7;">1</span>)
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Do something</span>
+        wg.<span style="color: #d75fd7; font-weight: bold;">Done</span>()
+    } ()
+}
+wg.<span style="color: #d75fd7; font-weight: bold;">Wait</span>()
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#32487;&#32493;&#24448;&#19979;&#25191;&#34892;...</span>
+</pre>
+</div>
+
+<p>
+每次创建 <code>goroutine</code> 时，我们都会使用 <code>wg.Add(1)</code> 来增加 <code>wg</code> 的内部计数器，也可以在 <code>for</code> 循环之前调用 <code>wg.Add(8)</code> 。<br>
+</p>
+
+<p>
+于此同时，每个 <code>goroutine</code> 完成时，都会使用 <code>wg.Done()</code> 减少 <code>wg</code> 的内部计数器。<br>
+</p>
+
+<p>
+<code>main goroutine</code> 会在八个 <code>goroutine</code> 都执行 <code>wg.Done()</code> 将计数器变为 0 后才能继续执行。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgcecf5d8" class="outline-2">
+<h2 id="orgcecf5d8">sync.Map</h2>
+<div class="outline-text-2" id="text-orgcecf5d8">
+<p>
+<code>sync.Map</code> 是一个并发版本的 <code>Go</code> 语言的 <code>map</code> ：<br>
+</p>
+
+<ul class="org-ul">
+<li>使用 <code>Store(interface {}，interface {})</code> 添加元素。<br></li>
+<li>使用 <code>Load(interface {}) interface {}</code> 检索元素。<br></li>
+<li>使用 <code>Delete(interface {})</code> 删除元素。<br></li>
+<li>使用 <code>LoadOrStore(interface {}，interface {}) (interface {}，bool)</code> 检索或添加之前不存在的元素。如果键之前在 <code>map</code> 中存在，则返回的布尔值为 <code>true</code> 。<br></li>
+<li>使用 <code>Range</code> 遍历元素。<br></li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7; background-color: #262626; font-weight: bold;">m</span> := &amp;<span style="color: #df005f; font-weight: bold;">sync.Map</span>{}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#28155;&#21152;&#20803;&#32032;</span>
+m.<span style="color: #d75fd7; font-weight: bold;">Store</span>(<span style="color: #d75fd7;">1</span>, <span style="color: #2aa198;">"one"</span>)
+m.<span style="color: #d75fd7; font-weight: bold;">Store</span>(<span style="color: #d75fd7;">2</span>, <span style="color: #2aa198;">"two"</span>)
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#33719;&#21462;&#20803;&#32032;1</span>
+<span style="color: #8787d7; background-color: #262626; font-weight: bold;">value</span>, <span style="color: #8787d7; background-color: #262626; font-weight: bold;">contains</span> := m.<span style="color: #d75fd7; font-weight: bold;">Load</span>(<span style="color: #d75fd7;">1</span>)
+<span style="color: #268bd2; font-weight: bold;">if</span> contains {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%s\n"</span>, value.(<span style="color: #df005f; font-weight: bold;">string</span>))
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;&#24050;&#23384;value&#65292;&#21542;&#21017;&#25226;&#25351;&#23450;&#30340;&#38190;&#20540;&#23384;&#20648;&#21040;map&#20013;</span>
+<span style="color: #8787d7; background-color: #262626; font-weight: bold;">value</span>, <span style="color: #8787d7; background-color: #262626; font-weight: bold;">loaded</span> := m.<span style="color: #d75fd7; font-weight: bold;">LoadOrStore</span>(<span style="color: #d75fd7;">3</span>, <span style="color: #2aa198;">"three"</span>)
+<span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #d75fd7;">!</span>loaded {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%s\n"</span>, value.(<span style="color: #df005f; font-weight: bold;">string</span>))
+}
+
+m.<span style="color: #d75fd7; font-weight: bold;">Delete</span>(<span style="color: #d75fd7;">3</span>)
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36845;&#20195;&#25152;&#26377;&#20803;&#32032;</span>
+m.<span style="color: #d75fd7; font-weight: bold;">Range</span>(<span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7; background-color: #262626; font-weight: bold;">key</span>, <span style="color: #8787d7; background-color: #262626; font-weight: bold;">value</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}) <span style="color: #df005f; font-weight: bold;">bool</span> {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%d: %s\n"</span>, key.(<span style="color: #df005f; font-weight: bold;">int</span>), value.(<span style="color: #df005f; font-weight: bold;">string</span>))
+    <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">true</span>
+})
+</pre>
+</div>
+
+<p>
+输出：<br>
+</p>
+
+<pre class="example" id="orgfa8e64d">
+one
+three
+1: one
+2: two
+</pre>
+
+<p>
+<code>Range</code> 方法接收一个类型为 <code>func(key, value interface{}) bool</code> 的函数参数，如果函数返回了 <code>false</code> ，则停止迭代。有趣的事实是，即使我们在恒定时间后返回 <code>false</code> ，最坏情况下的时间复杂度仍为 <code>O(n)</code> 。<br>
+</p>
+
+<p>
+我们应该在什么时候使用 <code>sync.Map</code> 而不是在普通的 <code>Map</code> 上使用 <code>sync.Mutex</code> ？<br>
+</p>
+
+<ul class="org-ul">
+<li>当我们对 <code>map</code> 有频繁的读取和不频繁的写入时<br></li>
+<li>当多个 <code>goroutine</code> 读取，写入和覆盖不相交的键时，具体是什么意思呢？例如：我们有一个分片实现，其中包含一组 4 个 <code>goroutine</code> ，每个 <code>goroutine</code> 负责 25% 的键（每个负责的键不冲突），在这种情况下， <code>sync.Map</code> 是首选。<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org2139f82" class="outline-2">
+<h2 id="org2139f82">sync.Poll</h2>
+<div class="outline-text-2" id="text-org2139f82">
+<p>
+<code>sync.Pool</code> 是一个并发池，负责安全地保存一组对象。它有两个导出方法：<br>
+</p>
+
+<ul class="org-ul">
+<li><code>Get() interface{}</code> 用来从并发池中取出元素。<br></li>
+<li><code>Put(interface{})</code> 将一个对象加入并发池。<br></li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7; background-color: #262626; font-weight: bold;">pool</span> := &amp;<span style="color: #df005f; font-weight: bold;">sync.Pool</span>{}
+
+pool.<span style="color: #d75fd7; font-weight: bold;">Put</span>(<span style="color: #d75fd7; font-weight: bold;">NewConnection</span>(<span style="color: #d75fd7;">1</span>))
+pool.<span style="color: #d75fd7; font-weight: bold;">Put</span>(<span style="color: #d75fd7; font-weight: bold;">NewConnection</span>(<span style="color: #d75fd7;">2</span>))
+pool.<span style="color: #d75fd7; font-weight: bold;">Put</span>(<span style="color: #d75fd7; font-weight: bold;">NewConnection</span>(<span style="color: #d75fd7;">3</span>))
+
+<span style="color: #8787d7; background-color: #262626; font-weight: bold;">connection</span> := pool.<span style="color: #d75fd7; font-weight: bold;">Get</span>().(*<span style="color: #df005f; font-weight: bold;">Connection</span>)
+fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%d\n"</span>, connection.id)
+connection = pool.<span style="color: #d75fd7; font-weight: bold;">Get</span>().(*<span style="color: #df005f; font-weight: bold;">Connection</span>)
+fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%d\n"</span>, connection.id)
+connection = pool.<span style="color: #d75fd7; font-weight: bold;">Get</span>().(*<span style="color: #df005f; font-weight: bold;">Connection</span>)
+fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%d\n"</span>, connection.id)
+</pre>
+</div>
+
+<p>
+输出：<br>
+</p>
+
+<pre class="example" id="orgd19a1fb">
+1
+3
+2
+</pre>
+
+<p>
+需要注意的是 <code>Get()</code> 方法会从并发池中随机取出对象，无法保证以固定的顺序获取并发池中存储的对象。<br>
+</p>
+
+<p>
+还可以为 <code>sync.Pool</code> 指定一个创建者方法：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7; background-color: #262626; font-weight: bold;">pool</span> := &amp;<span style="color: #df005f; font-weight: bold;">sync.Pool</span>{
+    <span style="color: #d75fd7;">New</span>: <span style="color: #268bd2; font-weight: bold;">func</span>() <span style="color: #268bd2; font-weight: bold;">interface</span>{} {
+        <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7; font-weight: bold;">NewConnection</span>()
+    },
+}
+
+<span style="color: #8787d7; background-color: #262626; font-weight: bold;">connection</span> := pool.<span style="color: #d75fd7; font-weight: bold;">Get</span>().(*<span style="color: #df005f; font-weight: bold;">Connection</span>)
+</pre>
+</div>
+
+<p>
+这样每次调用 <code>Get()</code> 时，将返回由在 <code>pool.New</code> 中指定的函数创建对象（在本例中为指针）。<br>
+</p>
+
+<p>
+那什么时候使用 <code>sync.Pool</code> ？有两个用例：<br>
+</p>
+
+<p>
+第一个是当我们必须重用共享的和长期存在的对象（例如，数据库连接）时，第二个是用于优化内存分配。<br>
+</p>
+
+<p>
+让我们考虑一个写入缓冲区并将结果持久保存到文件中的函数示例。使用 <code>sync.Pool</code> ，我们可以通过在不同的函数调用之间重用同一对象来重用为缓冲区分配的空间。<br>
+</p>
+
+<p>
+第一步是检索先前分配的缓冲区（如果是第一个调用，则创建一个缓冲区，但这是抽象的）。然后， <code>defer</code> 操作是将缓冲区放回 <code>sync.Pool</code> 中。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">writeFile</span>(<span style="color: #8787d7; background-color: #262626; font-weight: bold;">pool</span> *<span style="color: #df005f; font-weight: bold;">sync.Pool</span>, <span style="color: #8787d7; background-color: #262626; font-weight: bold;">filename</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">error</span> {
+    <span style="color: #8787d7; background-color: #262626; font-weight: bold;">buf</span> := pool.<span style="color: #d75fd7; font-weight: bold;">Get</span>().(*<span style="color: #df005f; font-weight: bold;">bytes.Buffer</span>)
+
+    <span style="color: #268bd2; font-weight: bold;">defer</span> pool.<span style="color: #d75fd7; font-weight: bold;">Put</span>(buf)
+
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Reset &#32531;&#23384;&#21306;&#65292;&#19981;&#28982;&#20250;&#36830;&#25509;&#19978;&#27425;&#35843;&#29992;&#26102;&#20445;&#23384;&#22312;&#32531;&#23384;&#21306;&#37324;&#30340;&#23383;&#31526;&#20018;foo</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#32534;&#31243;foofoo &#20197;&#27492;&#31867;&#25512;</span>
+    buf.<span style="color: #d75fd7; font-weight: bold;">Reset</span>()
+
+    buf.<span style="color: #d75fd7; font-weight: bold;">WriteString</span>(<span style="color: #2aa198;">"foo"</span>)
+
+    <span style="color: #268bd2; font-weight: bold;">return</span> ioutil.<span style="color: #d75fd7; font-weight: bold;">WriteFile</span>(filename, buf.<span style="color: #d75fd7; font-weight: bold;">Bytes</span>(), <span style="color: #d75fd7;">0644</span>)
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org6d1dd15" class="outline-2">
+<h2 id="org6d1dd15">sync.Once</h2>
+<div class="outline-text-2" id="text-org6d1dd15">
+<p>
+<code>sync.Once</code> 是一个简单而强大的原语，可确保一个函数仅执行一次。在下面的示例中，只有一个 <code>goroutine</code> 会显示输出消息：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7; background-color: #262626; font-weight: bold;">once</span> := &amp;<span style="color: #df005f; font-weight: bold;">sync.Once</span>{}
+<span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7; background-color: #262626; font-weight: bold;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; <span style="color: #d75fd7;">4</span>; i++ {
+    <span style="color: #8787d7; background-color: #262626; font-weight: bold;">i</span> := i
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+        once.<span style="color: #d75fd7; font-weight: bold;">Do</span>(<span style="color: #268bd2; font-weight: bold;">func</span>() {
+            fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"first %d\n"</span>, i)
+        })
+    }()
+}
+</pre>
+</div>
+
+<p>
+我们使用了 <code>Do(func ())</code> 方法来指定只能被调用一次的部分。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgdf61913" class="outline-2">
+<h2 id="orgdf61913">sync.Cond</h2>
+<div class="outline-text-2" id="text-orgdf61913">
+<p>
+<code>sync.Cond</code> 可能是 <code>sync</code> 包提供的同步原语中最不常用的一个，它用于发出信号（一对一）或广播信号（一对多）到 <code>goroutine</code> 。让我们考虑一个场景，我们必须向一个 <code>goroutine</code> 指示共享切片的第一个元素已更新。创建 <code>sync.Cond</code> 需要 <code>sync.Locker</code> 对象（ <code>sync.Mutex</code> 或 <code>sync.RWMutex</code> ）：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7; background-color: #262626; font-weight: bold;">cond</span> := sync.<span style="color: #d75fd7; font-weight: bold;">NewCond</span>(&amp;<span style="color: #df005f; font-weight: bold;">sync.Mutex</span>{})
+</pre>
+</div>
+
+<p>
+然后，让我们编写负责显示切片的第一个元素的函数：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">printFirstElement</span>(<span style="color: #8787d7; background-color: #262626; font-weight: bold;">s</span> []<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7; background-color: #262626; font-weight: bold;">cond</span> *<span style="color: #df005f; font-weight: bold;">sync.Cond</span>) {
+    cond.L.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+    cond.<span style="color: #d75fd7; font-weight: bold;">Wait</span>()
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%d\n"</span>, s[<span style="color: #d75fd7;">0</span>])
+    cond.L.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+}
+</pre>
+</div>
+
+<p>
+我们可以使用 <code>cond.L</code> 访问内部的互斥锁。一旦获得了锁，我们将调用 <code>cond.Wait()</code> ，这会让当前 <code>goroutine</code> 在收到信号前一直处于阻塞状态。<br>
+</p>
+
+<p>
+让我们回到 <code>main goroutine</code> 。我们将通过传递共享切片和先前创建的 <code>sync.Cond</code> 来创建 <code>printFirstElement</code> 池。然后我们调用 <code>get()</code> 函数，将结果存储在 <code>s[0]</code> 中并发出信号：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7; background-color: #262626; font-weight: bold;">s</span> := <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #d75fd7;">1</span>)
+<span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7; background-color: #262626; font-weight: bold;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; runtime.<span style="color: #d75fd7; font-weight: bold;">NumCPU</span>(); i++ {
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">printFirstElement</span>(s, cond)
+}
+
+<span style="color: #8787d7; background-color: #262626; font-weight: bold;">i</span> := <span style="color: #d75fd7; font-weight: bold;">get</span>()
+cond.L.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+s[<span style="color: #d75fd7;">0</span>] = i
+cond.<span style="color: #d75fd7; font-weight: bold;">Signal</span>()
+cond.L.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+</pre>
+</div>
+
+<p>
+这个信号会解除一个 <code>goroutine</code> 的阻塞状态，解除阻塞的 <code>goroutine</code> 将会显示 <code>s[0]</code> 中存储的值。<br>
+</p>
+
+<p>
+但是，有的人可能会争辩说我们的代码破坏了 <code>Go</code> 的最基本原则之一：<br>
+</p>
+
+<blockquote>
+<p>
+不要通过共享内存进行通信；而是通过通信共享内存。<br>
+</p>
+</blockquote>
+
+<p>
+确实，在这个示例中，最好使用 <code>channel</code> 来传递 <code>get()</code> 返回的值。但是我们也提到了 <code>sync.Cond</code> 也可以用于广播信号。我们修改一下上面的示例，把 <code>Signal()</code> 调用改为调用 <code>Broadcast()</code> 。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7; background-color: #262626; font-weight: bold;">i</span> := <span style="color: #d75fd7; font-weight: bold;">get</span>()
+cond.L.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+s[<span style="color: #d75fd7;">0</span>] = i
+cond.<span style="color: #d75fd7; font-weight: bold;">Broadcast</span>()
+cond.L.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+</pre>
+</div>
+
+<p>
+在这种情况下，所有 <code>goroutine</code> 都将被触发。<br>
+众所周知，channel里的元素只会由一个goroutine接收到。通过 <code>channel</code> 模拟广播的唯一方法是关闭 <code>channel</code> 。<br>
+</p>
+
+<blockquote>
+<p>
+当一个channel被关闭后，channel中已经发送的数据都被成功接收后，后续的接收操作将不再阻塞，它们会立即返回一个零值。<br>
+</p>
+</blockquote>
+
+<p>
+但是这种方式只能广播一次。因此，尽管存在很大争议，但这无疑是 <code>sync.Cond</code> 的一个有趣的功能。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-07 18:02 Mon</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-07 Mon 20:56</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
