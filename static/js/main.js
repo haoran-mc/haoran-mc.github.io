@@ -85,12 +85,6 @@ if (isPageHome()) {
     });
 }
 
-// About PAGE
-// ---------------------------------
-if (isCurPage('About')) {
-    // CONTENT.addClass('js-about-content');
-}
-
 // NAVIGATIONS PAGE
 // ---------------------------------
 if (isCurPage('Navigation')) {
@@ -234,4 +228,13 @@ if (isCurPage('wiki')) {
 		// $('#table-of-contents').each(function () {
 		// 		$(this).css('li > ul', 'none');
 		// })
+}
+
+
+// INTERVIEW PAGE
+// ---------------------------------
+if (isCurPage('TheInterview')) {
+    $('.outline-2').each(function () {
+        $(this).addClass('js-interview-outline');
+    });
 }
