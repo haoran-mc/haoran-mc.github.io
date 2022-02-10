@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-09 Wed 23:00 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>变量和常量</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">变量和常量</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org824bb80">变量</a>
+<ul>
+<li><a href="#orge31e679">变量的来历</a></li>
+<li><a href="#orga3b6142">变量类型</a></li>
+<li><a href="#org4c16a3d">变量声明</a></li>
+<li><a href="#orgda22dc5">标准声明</a></li>
+<li><a href="#org534ad62">批量声明</a></li>
+<li><a href="#orgf93fac3">变量的初始化</a>
+<ul>
+<li><a href="#org06cbb7b">类型推导</a></li>
+<li><a href="#org1d1771f">短变量声明</a></li>
+<li><a href="#orgc597291">匿名变量</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org9b5f09c">常量</a>
+<ul>
+<li><a href="#orgc667ad3">iota</a></li>
+<li><a href="#org8baade2">几个常见的 iota 示例</a>
+<ul>
+<li><a href="#orga7969d8">使用 <code>_</code> 跳过某些值：</a></li>
+<li><a href="#org3239219"><code>iota</code> 声明中间插队：</a></li>
+<li><a href="#org6430a91">定义数量级：</a></li>
+<li><a href="#org8258d14">多个 <code>iota</code> 定义在一行：</a></li>
+</ul>
+</li>
+<li><a href="#orgbc4b290">自定义类型</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-org824bb80" class="outline-2">
+<h2 id="org824bb80">变量</h2>
+<div class="outline-text-2" id="text-org824bb80">
+</div>
+<div id="outline-container-orge31e679" class="outline-3">
+<h3 id="orge31e679">变量的来历</h3>
+<div class="outline-text-3" id="text-orge31e679">
+<p>
+程序运行过程中的数据都是保存在内存中，我们想要在代码中操作某个数据时就需要去内存上找到这个变量，但是如果我们直接在代码中通过内存地址去操作变量的话，代码的可读性会非常差而且还容易出错，所以我们就利用变量将这个数据的内存地址保存起来，以后直接通过这个变量就能找到内存上对应的数据了。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga3b6142" class="outline-3">
+<h3 id="orga3b6142">变量类型</h3>
+<div class="outline-text-3" id="text-orga3b6142">
+<p>
+变量（Variable）的功能是存储数据。不同的变量保存的数据类型可能会不一样。经过半个多世纪的发展，编程语言已经基本形成了一套固定的类型，常见变量的数据类型有：整型、浮点型、布尔型等。<br>
+</p>
+
+<p>
+Go语言中的每一个变量都有自己的类型，并且变量必须经过声明才能开始使用。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4c16a3d" class="outline-3">
+<h3 id="org4c16a3d">变量声明</h3>
+<div class="outline-text-3" id="text-org4c16a3d">
+<p>
+Go语言中的变量需要声明后才能使用，同一作用域内不支持重复声明。并且Go语言的变量声明后必须使用。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgda22dc5" class="outline-3">
+<h3 id="orgda22dc5">标准声明</h3>
+<div class="outline-text-3" id="text-orgda22dc5">
+<p>
+Go语言的变量声明格式为：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">&#21464;&#37327;&#21517;</span> <span style="color: #df005f; font-weight: bold;">&#21464;&#37327;&#31867;&#22411;</span>
+</pre>
+</div>
+<p>
+变量声明以关键字var开头，变量类型放在变量的后面，行尾无需分号。 举个例子：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">name</span> <span style="color: #df005f; font-weight: bold;">string</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">age</span> <span style="color: #df005f; font-weight: bold;">int</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">isOk</span> <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org534ad62" class="outline-3">
+<h3 id="org534ad62">批量声明</h3>
+<div class="outline-text-3" id="text-org534ad62">
+<p>
+每声明一个变量就需要写var关键字会比较繁琐，go语言中还支持批量变量声明：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> (
+    <span style="color: #8787d7;">a</span> <span style="color: #df005f; font-weight: bold;">string</span>
+    <span style="color: #8787d7;">b</span> <span style="color: #df005f; font-weight: bold;">int</span>
+    <span style="color: #8787d7;">c</span> <span style="color: #df005f; font-weight: bold;">bool</span>
+    <span style="color: #8787d7;">d</span> <span style="color: #df005f; font-weight: bold;">float32</span>
+)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgf93fac3" class="outline-3">
+<h3 id="orgf93fac3">变量的初始化</h3>
+<div class="outline-text-3" id="text-orgf93fac3">
+<p>
+Go语言在声明变量的时候，会自动对变量对应的内存区域进行初始化操作。每个变量会被初始化成其类型的默认值，例如： 整型和浮点型变量的默认值为0。 字符串变量的默认值为空字符串。 布尔型变量默认为false。 切片、函数、指针变量的默认为nil。<br>
+</p>
+
+<p>
+当然我们也可在声明变量的时候为其指定初始值。变量初始化的标准格式如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">&#21464;&#37327;&#21517;</span> <span style="color: #df005f; font-weight: bold;">&#31867;&#22411;</span> = &#34920;&#36798;&#24335;
+</pre>
+</div>
+<p>
+举个例子：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">name</span> <span style="color: #df005f; font-weight: bold;">string</span> = <span style="color: #2aa198;">"pprof.cn"</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">sex</span> <span style="color: #df005f; font-weight: bold;">int</span> = <span style="color: #d75fd7;">1</span>
+</pre>
+</div>
+
+<p>
+或者一次初始化多个变量<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">name</span>, <span style="color: #8787d7;">sex</span> = <span style="color: #2aa198;">"pprof.cn"</span>, <span style="color: #d75fd7;">1</span>
+</pre>
+</div>
+</div>
+<div id="outline-container-org06cbb7b" class="outline-4">
+<h4 id="org06cbb7b">类型推导</h4>
+<div class="outline-text-4" id="text-org06cbb7b">
+<p>
+有时候我们会将变量的类型省略，这个时候编译器会根据等号右边的值来推导变量的类型完成初始化。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">name</span> = <span style="color: #2aa198;">"pprof.cn"</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">sex</span> = <span style="color: #d75fd7;">1</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org1d1771f" class="outline-4">
+<h4 id="org1d1771f">短变量声明</h4>
+<div class="outline-text-4" id="text-org1d1771f">
+<p>
+在函数内部，可以使用更简略的 <code>:=</code> 方式声明并初始化变量。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+)
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20840;&#23616;&#21464;&#37327;m</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">m</span> = <span style="color: #d75fd7;">100</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">n</span> := <span style="color: #d75fd7;">10</span>
+    <span style="color: #8787d7;">m</span> := <span style="color: #d75fd7;">200</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#27492;&#22788;&#22768;&#26126;&#23616;&#37096;&#21464;&#37327;m</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(m, n)
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgc597291" class="outline-4">
+<h4 id="orgc597291">匿名变量</h4>
+<div class="outline-text-4" id="text-orgc597291">
+<p>
+在使用多重赋值时，如果想要忽略某个值，可以使用匿名变量（anonymous variable）。 匿名变量用一个下划线 <code>_</code> 表示，例如：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">foo</span>() (<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #df005f; font-weight: bold;">string</span>) {
+    <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">10</span>, <span style="color: #2aa198;">"Q1mi"</span>
+}
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">x</span>, <span style="color: #8787d7;">_</span> := <span style="color: #d75fd7; font-weight: bold;">foo</span>()
+    <span style="color: #8787d7;">_</span>, <span style="color: #8787d7;">y</span> := <span style="color: #d75fd7; font-weight: bold;">foo</span>()
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"x="</span>, x)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"y="</span>, y)
+}
+</pre>
+</div>
+
+<p>
+匿名变量不占用命名空间，不会分配内存，所以匿名变量之间不存在重复声明。 (在Lua等编程语言里，匿名变量也被叫做哑元变量。)<br>
+</p>
+
+<p>
+注意事项：<br>
+</p>
+
+<ul class="org-ul">
+<li>函数外的每个语句都必须以关键字开始（var、const、func等）<br></li>
+<li><code>:=</code> 不能使用在函数外。<br></li>
+<li><code>_</code> 多用于占位，表示忽略值。<br></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org9b5f09c" class="outline-2">
+<h2 id="org9b5f09c">常量</h2>
+<div class="outline-text-2" id="text-org9b5f09c">
+<p>
+相对于变量，常量是恒定不变的值，多用于定义程序运行期间不会改变的那些值。 常量的声明和变量声明非常类似，只是把 <code>var</code> 换成了 <code>const</code> ，常量在定义的时候必须赋值。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">const</span> <span style="color: #d75fd7;">pi</span> = <span style="color: #d75fd7;">3</span>.<span style="color: #d75fd7;">1415</span>
+<span style="color: #268bd2; font-weight: bold;">const</span> <span style="color: #d75fd7;">e</span> = <span style="color: #d75fd7;">2</span>.<span style="color: #d75fd7;">7182</span>
+</pre>
+</div>
+
+<p>
+声明了 <code>pi</code> 和 <code>e</code> 这两个常量之后，在整个程序运行期间它们的值都不能再发生变化了。<br>
+</p>
+
+<p>
+多个常量也可以一起声明：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">const</span> (
+    <span style="color: #d75fd7;">pi</span> = <span style="color: #d75fd7;">3</span>.<span style="color: #d75fd7;">1415</span>
+    <span style="color: #d75fd7;">e</span> = <span style="color: #d75fd7;">2</span>.<span style="color: #d75fd7;">7182</span>
+)
+</pre>
+</div>
+
+<p>
+<code>const</code> 同时声明多个常量时，如果省略了值则表示和上面一行的值相同。 例如：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">const</span> (
+    <span style="color: #d75fd7;">n1</span> = <span style="color: #d75fd7;">100</span>
+    <span style="color: #d75fd7;">n2</span>
+    <span style="color: #d75fd7;">n3</span>
+)
+</pre>
+</div>
+
+<p>
+上面示例中，常量n1、n2、n3的值都是100。<br>
+</p>
+</div>
+<div id="outline-container-orgc667ad3" class="outline-3">
+<h3 id="orgc667ad3">iota</h3>
+<div class="outline-text-3" id="text-orgc667ad3">
+<p>
+<code>iota</code> 是 go 语言的常量计数器，只能在常量的表达式中使用。 <code>iota</code> 在 <code>const</code> 关键字出现时将被重置为0。 <code>const</code> 中每新增一行常量声明将使 <code>iota</code> 计数一次（ <code>iota</code> 可理解为 <code>const</code> 语句块中的行索引）。 使用 <code>iota</code> 能简化定义，在定义枚举时很有用。<br>
+</p>
+
+<p>
+举个例子：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">const</span> (
+    <span style="color: #d75fd7;">n1</span> = <span style="color: #d75fd7;">iota</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">0</span>
+    <span style="color: #d75fd7;">n2</span>        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">1</span>
+    <span style="color: #d75fd7;">n3</span>        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">2</span>
+    <span style="color: #d75fd7;">n4</span>        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">3</span>
+)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org8baade2" class="outline-3">
+<h3 id="org8baade2">几个常见的 iota 示例</h3>
+<div class="outline-text-3" id="text-org8baade2">
+</div>
+<div id="outline-container-orga7969d8" class="outline-4">
+<h4 id="orga7969d8">使用 <code>_</code> 跳过某些值：</h4>
+<div class="outline-text-4" id="text-orga7969d8">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">const</span> (
+    <span style="color: #d75fd7;">n1</span> = <span style="color: #d75fd7;">iota</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">0</span>
+    <span style="color: #d75fd7;">n2</span>        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">1</span>
+    <span style="color: #d75fd7;">_</span>
+    <span style="color: #d75fd7;">n4</span>        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">3</span>
+)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org3239219" class="outline-4">
+<h4 id="org3239219"><code>iota</code> 声明中间插队：</h4>
+<div class="outline-text-4" id="text-org3239219">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">const</span> (
+    <span style="color: #d75fd7;">n1</span> = <span style="color: #d75fd7;">iota</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">0</span>
+    <span style="color: #d75fd7;">n2</span> = <span style="color: #d75fd7;">100</span>  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">100</span>
+    <span style="color: #d75fd7;">n3</span> = <span style="color: #d75fd7;">iota</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">2</span>
+    <span style="color: #d75fd7;">n4</span>        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">3</span>
+)
+<span style="color: #268bd2; font-weight: bold;">const</span> <span style="color: #d75fd7;">n5</span> = <span style="color: #d75fd7;">iota</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">0</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org6430a91" class="outline-4">
+<h4 id="org6430a91">定义数量级：</h4>
+<div class="outline-text-4" id="text-org6430a91">
+<p>
+（这里的 &lt;&lt; 表示左移操作，1&lt;&lt;10表示将1的二进制表示向左移10位，也就是由1变成了10000000000，也就是十进制的1024。同理2&lt;&lt;2表示将2的二进制表示向左移2位，也就是由10变成了1000，也就是十进制的8。）<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">const</span> (
+    <span style="color: #d75fd7;">_</span>  = <span style="color: #d75fd7;">iota</span>
+    <span style="color: #d75fd7;">KB</span> = <span style="color: #d75fd7;">1</span> &lt;&lt; (<span style="color: #d75fd7;">10</span> * <span style="color: #d75fd7;">iota</span>)
+    <span style="color: #d75fd7;">MB</span> = <span style="color: #d75fd7;">1</span> &lt;&lt; (<span style="color: #d75fd7;">10</span> * <span style="color: #d75fd7;">iota</span>)
+    <span style="color: #d75fd7;">GB</span> = <span style="color: #d75fd7;">1</span> &lt;&lt; (<span style="color: #d75fd7;">10</span> * <span style="color: #d75fd7;">iota</span>)
+    <span style="color: #d75fd7;">TB</span> = <span style="color: #d75fd7;">1</span> &lt;&lt; (<span style="color: #d75fd7;">10</span> * <span style="color: #d75fd7;">iota</span>)
+    <span style="color: #d75fd7;">PB</span> = <span style="color: #d75fd7;">1</span> &lt;&lt; (<span style="color: #d75fd7;">10</span> * <span style="color: #d75fd7;">iota</span>)
+)
+</pre>
+</div>
+
+<p>
+或：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">ByteSize</span> <span style="color: #df005f; font-weight: bold;">float64</span>
+
+<span style="color: #268bd2; font-weight: bold;">const</span> (
+    <span style="color: #d75fd7;">_</span>           = <span style="color: #d75fd7;">iota</span>                   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">ignore first value by assigning to blank identifier</span>
+    <span style="color: #d75fd7;">KB</span> <span style="color: #df005f; font-weight: bold;">ByteSize</span> = <span style="color: #d75fd7;">1</span> &lt;&lt; (<span style="color: #d75fd7;">10</span> * <span style="color: #d75fd7;">iota</span>)       <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">1 &lt;&lt; (10*1)</span>
+    <span style="color: #d75fd7;">MB</span>                                   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">1 &lt;&lt; (10*2)</span>
+    <span style="color: #d75fd7;">GB</span>                                   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">1 &lt;&lt; (10*3)</span>
+    <span style="color: #d75fd7;">TB</span>                                   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">1 &lt;&lt; (10*4)</span>
+    <span style="color: #d75fd7;">PB</span>                                   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">1 &lt;&lt; (10*5)</span>
+    <span style="color: #d75fd7;">EB</span>                                   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">1 &lt;&lt; (10*6)</span>
+    <span style="color: #d75fd7;">ZB</span>                                   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">1 &lt;&lt; (10*7)</span>
+    <span style="color: #d75fd7;">YB</span>                                   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">1 &lt;&lt; (10*8)</span>
+)
+
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org8258d14" class="outline-4">
+<h4 id="org8258d14">多个 <code>iota</code> 定义在一行：</h4>
+<div class="outline-text-4" id="text-org8258d14">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">const</span> (
+    <span style="color: #d75fd7;">a</span>, <span style="color: #d75fd7;">b</span> = <span style="color: #d75fd7;">iota</span> + <span style="color: #d75fd7;">1</span>, <span style="color: #d75fd7;">iota</span> + <span style="color: #d75fd7;">2</span>   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">1, 2</span>
+    <span style="color: #d75fd7;">c</span>, <span style="color: #d75fd7;">d</span>                        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">2, 3</span>
+    <span style="color: #d75fd7;">e</span>, <span style="color: #d75fd7;">f</span>                        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">3, 4</span>
+)
+</pre>
+</div>
+
+<p>
+如果运行常量为相同的值可以这样做。<br>
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgbc4b290" class="outline-3">
+<h3 id="orgbc4b290">自定义类型</h3>
+<div class="outline-text-3" id="text-orgbc4b290">
+<p>
+自增长常量经常包含一个自定义类型，允许你依靠编译器。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Stereotype</span> <span style="color: #df005f; font-weight: bold;">int</span>
+
+<span style="color: #268bd2; font-weight: bold;">const</span> (
+        <span style="color: #d75fd7;">TypicalNoob</span> <span style="color: #df005f; font-weight: bold;">Stereotype</span> = <span style="color: #d75fd7;">iota</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">0</span>
+        <span style="color: #d75fd7;">TypicalHipster</span>                <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">1</span>
+        <span style="color: #d75fd7;">TypicalUnixWizard</span>             <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">2</span>
+        <span style="color: #d75fd7;">TypicalStartupFounder</span>         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">3</span>
+)
+</pre>
+</div>
+
+<p>
+如果一个函数以 <code>int</code> 作为它的参数而不是 <code>Stereotype</code> ，如果你给它传递一个 <code>Stereotype</code> ，它将在编译器期出现问题。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">CountAllTheThings</span>(<span style="color: #8787d7;">i</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">string</span> {
+    <span style="color: #268bd2; font-weight: bold;">return</span> fmt.<span style="color: #d75fd7; font-weight: bold;">Sprintf</span>(<span style="color: #2aa198;">"there are %d things"</span>, i)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+        <span style="color: #8787d7;">n</span> := TypicalHipster
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #d75fd7; font-weight: bold;">CountAllTheThings</span>(n))
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">cannot use TypicalHipster (type Stereotype) as type int in argument to CountAllTheThings</span>
+</pre>
+</div>
+
+<p>
+相反亦是成立的。给一个函数以 <code>Stereotype</code> 作为参数，你不能给它传递 <code>int</code> 。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">SoSayethThe</span>(<span style="color: #8787d7;">character</span> <span style="color: #df005f; font-weight: bold;">Stereotype</span>) <span style="color: #df005f; font-weight: bold;">string</span> {
+        <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>
+        <span style="color: #268bd2; font-weight: bold;">switch</span> character {
+        <span style="color: #268bd2; font-weight: bold;">case</span> TypicalNoob:
+                s = <span style="color: #2aa198;">"I'm a confused ninja rockstar."</span>
+        <span style="color: #268bd2; font-weight: bold;">case</span> TypicalHipster:
+                s = <span style="color: #2aa198;">"Everything was better we programmed uphill and barefoot in the snow on the SUTX 5918"</span>
+        <span style="color: #268bd2; font-weight: bold;">case</span> TypicalUnixWizard:
+                s = <span style="color: #2aa198;">"sudo grep awk sed %!#?!!1!"</span>
+        <span style="color: #268bd2; font-weight: bold;">case</span> TypicalStartupFounder:
+                s = <span style="color: #2aa198;">"exploit compelling convergence to syndicate geo-targeted solutions"</span>
+        }
+        <span style="color: #268bd2; font-weight: bold;">return</span> s
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+        <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">2</span>
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #d75fd7; font-weight: bold;">SoSayethThe</span>(i))
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">cannot use i (type int) as type Stereotype in argument to SoSayethThe</span>
+</pre>
+</div>
+
+<p>
+这是一个戏剧性的转折，尽管如此。你可以传递一个数值常量，然后它能工作。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #d75fd7; font-weight: bold;">SoSayethThe</span>(<span style="color: #d75fd7;">0</span>))
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">I'm a confused ninja rockstar.</span>
+</pre>
+</div>
+
+<p>
+这是因为常量在 Go 中是弱类型直到它使用在一个严格的上下文环境中。<br>
+</p>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-09 21:02 Wed</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-09 Wed 23:00</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
