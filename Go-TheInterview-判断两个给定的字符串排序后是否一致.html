@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-09 Wed 17:52 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>判断两个给定的字符串排序后是否一致</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">判断两个给定的字符串排序后是否一致</h1>
+<p>
+<b>问题描述</b><br>
+</p>
+
+<p>
+给定两个字符串，请编写程序，确定其中一个字符串的字符重新排列后，能否变成另一个字符串。<br>
+</p>
+
+<p>
+这里规定【大小写为不同字符】，且考虑字符串重点空格。给定一个string s1和一个string s2，请返回一个bool，代表两串是否重新排列后可相同。<br>
+</p>
+
+<p>
+保证两串的长度都小于等于5000。<br>
+</p>
+
+<p>
+<b>解题思路</b><br>
+</p>
+
+<p>
+首先要保证字符串长度小于5000。之后只需要一次循环遍历s1中的字符在s2是否都存在即可。<br>
+</p>
+
+<p>
+<b>代码参考</b><br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"strings"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">equalAfterSorted</span>(<span style="color: #8787d7;">str1</span>, <span style="color: #8787d7;">str2</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">bool</span> {
+    <span style="color: #8787d7;">sl1</span> := <span style="color: #268bd2;">len</span>([]<span style="color: #d75fd7; font-weight: bold;">rune</span>(str1))
+    <span style="color: #8787d7;">sl2</span> := <span style="color: #268bd2;">len</span>([]<span style="color: #d75fd7; font-weight: bold;">rune</span>(str2))
+    <span style="color: #268bd2; font-weight: bold;">if</span> sl1 &gt; <span style="color: #d75fd7;">5000</span> || sl2 &gt; <span style="color: #d75fd7;">500</span> || sl1 != sl2 {
+        <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">false</span>
+    } <span style="color: #268bd2; font-weight: bold;">else</span> {
+        <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">_</span>, <span style="color: #8787d7;">v</span> := <span style="color: #268bd2; font-weight: bold;">range</span> str1 {
+            <span style="color: #268bd2; font-weight: bold;">if</span> strings.<span style="color: #d75fd7; font-weight: bold;">Count</span>(str1, <span style="color: #d75fd7; font-weight: bold;">string</span>(v)) != strings.<span style="color: #d75fd7; font-weight: bold;">Count</span>(str2, <span style="color: #d75fd7; font-weight: bold;">string</span>(v)) {
+                <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">false</span>
+            }
+        }
+        <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">true</span>
+    }
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">str1</span> <span style="color: #df005f; font-weight: bold;">string</span> = <span style="color: #2aa198;">"hello"</span>
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">str2</span> <span style="color: #df005f; font-weight: bold;">string</span> = <span style="color: #2aa198;">"olleh"</span>
+    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #d75fd7; font-weight: bold;">equalAfterSorted</span>(str1, str2) {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Yes"</span>)
+    } <span style="color: #268bd2; font-weight: bold;">else</span> {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"No"</span>)
+    }
+}
+</pre>
+</div>
+
+<p>
+<b>代码解析</b><br>
+</p>
+
+<p>
+这里还是使用 golang 内置方法 <code>strings.Count</code> 来判断字符是否一致。<br>
+</p>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-09 17:02 Wed</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-09 Wed 17:52</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

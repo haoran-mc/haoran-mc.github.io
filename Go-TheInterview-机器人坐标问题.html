@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-10 Thu 23:13 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>机器人坐标问题</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">机器人坐标问题</h1>
+<p>
+<b>问题描述</b><br>
+</p>
+
+<p>
+有一个机器人，给一串指令，L左转 R右转，F前进一步，B后退一步，问最后机器人的坐标，最开始，机器人位于 0 0，方向为正Y。<br>
+</p>
+
+<p>
+可以输入重复指令n ： 比如 R2(LF) 这个等于指令 RLFLF。<br>
+</p>
+
+<p>
+问最后机器人的坐标是多少？<br>
+</p>
+
+<p>
+<b>解题思路</b><br>
+</p>
+
+<p>
+这里的一个难点是解析重复指令。主要指令解析成功，计算坐标就简单了。<br>
+</p>
+
+<p>
+<b>代码参考</b><br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"unicode"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">const</span> (
+    <span style="color: #d75fd7;">Up</span> = <span style="color: #d75fd7;">iota</span>
+    <span style="color: #d75fd7;">Right</span>
+    <span style="color: #d75fd7;">Down</span>
+    <span style="color: #d75fd7;">Left</span>
+)
+
+<span style="color: #008787; background-color: #262626;">/*</span>
+<span style="color: #008787; background-color: #262626;"> *         ^</span>
+<span style="color: #008787; background-color: #262626;"> *         |</span>
+<span style="color: #008787; background-color: #262626;"> *         |</span>
+<span style="color: #008787; background-color: #262626;"> *         |</span>
+<span style="color: #008787; background-color: #262626;"> * --------|---------&gt;</span>
+<span style="color: #008787; background-color: #262626;"> *         |</span>
+<span style="color: #008787; background-color: #262626;"> *         |</span>
+<span style="color: #008787; background-color: #262626;"> *         |</span>
+<span style="color: #008787; background-color: #262626;"> */</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">x</span> := <span style="color: #d75fd7;">0</span>
+    <span style="color: #8787d7;">y</span> := <span style="color: #d75fd7;">0</span>
+    <span style="color: #8787d7;">cmd</span> := <span style="color: #2aa198;">"R2(LF)"</span>
+    <span style="color: #8787d7;">z</span> := Up
+    x, y, z = <span style="color: #d75fd7; font-weight: bold;">move</span>(cmd, x, y, z)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(x, y, z)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">move</span>(<span style="color: #8787d7;">cmd</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">x0</span>, <span style="color: #8787d7;">y0</span>, <span style="color: #8787d7;">z0</span> <span style="color: #df005f; font-weight: bold;">int</span>) (<span style="color: #8787d7;">x</span>, <span style="color: #8787d7;">y</span>, <span style="color: #8787d7;">z</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
+    x, y, z = x0, y0, z0
+    <span style="color: #8787d7;">repeat</span> := <span style="color: #d75fd7;">0</span>
+    <span style="color: #8787d7;">repeatCmd</span> := <span style="color: #2aa198;">""</span>
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">_</span>, <span style="color: #8787d7;">v</span> := <span style="color: #268bd2; font-weight: bold;">range</span> cmd {
+        <span style="color: #268bd2; font-weight: bold;">switch</span> {
+        <span style="color: #268bd2; font-weight: bold;">case</span> v == <span style="color: #2aa198;">'L'</span>:
+            z = (z - <span style="color: #d75fd7;">1</span> + <span style="color: #d75fd7;">4</span>) % <span style="color: #d75fd7;">4</span>
+        <span style="color: #268bd2; font-weight: bold;">case</span> v == <span style="color: #2aa198;">'R'</span>:
+            z = (z + <span style="color: #d75fd7;">1</span>) % <span style="color: #d75fd7;">4</span>
+        <span style="color: #268bd2; font-weight: bold;">case</span> unicode.<span style="color: #d75fd7; font-weight: bold;">IsNumber</span>(v):
+            repeat = repeat*<span style="color: #d75fd7;">10</span> + (<span style="color: #d75fd7; font-weight: bold;">int</span>(v) - <span style="color: #2aa198;">'0'</span>)
+        <span style="color: #268bd2; font-weight: bold;">case</span> repeat &gt; <span style="color: #d75fd7;">0</span> &amp;&amp; v != <span style="color: #2aa198;">'('</span> &amp;&amp; v != <span style="color: #2aa198;">')'</span>:
+            repeatCmd = repeatCmd + <span style="color: #d75fd7; font-weight: bold;">string</span>(v)
+        <span style="color: #268bd2; font-weight: bold;">case</span> v == <span style="color: #2aa198;">'('</span>:
+        <span style="color: #268bd2; font-weight: bold;">case</span> v == <span style="color: #2aa198;">')'</span>:
+            <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; repeat; i++ {
+                x, y, z = <span style="color: #d75fd7; font-weight: bold;">move</span>(repeatCmd, x, y, z)
+            }
+            repeat = <span style="color: #d75fd7;">0</span>
+            repeatCmd = <span style="color: #2aa198;">""</span>
+        <span style="color: #268bd2; font-weight: bold;">case</span> v == <span style="color: #2aa198;">'F'</span>:
+            <span style="color: #268bd2; font-weight: bold;">switch</span> {
+            <span style="color: #268bd2; font-weight: bold;">case</span> z == Up:
+                y++
+            <span style="color: #268bd2; font-weight: bold;">case</span> z == Right:
+                x++
+            <span style="color: #268bd2; font-weight: bold;">case</span> z == Down:
+                y--
+            <span style="color: #268bd2; font-weight: bold;">case</span> z == Left:
+                x--
+            }
+        <span style="color: #268bd2; font-weight: bold;">case</span> v == <span style="color: #2aa198;">'B'</span>:
+            <span style="color: #268bd2; font-weight: bold;">switch</span> {
+            <span style="color: #268bd2; font-weight: bold;">case</span> z == Up:
+                y--
+            <span style="color: #268bd2; font-weight: bold;">case</span> z == Right:
+                x--
+            <span style="color: #268bd2; font-weight: bold;">case</span> z == Down:
+                y++
+            <span style="color: #268bd2; font-weight: bold;">case</span> z == Left:
+                x++
+            }
+        }
+    }
+    <span style="color: #268bd2; font-weight: bold;">return</span>
+}
+</pre>
+</div>
+
+<p>
+<b>代码解析</b><br>
+</p>
+
+<p>
+这里使用三个值表示机器人当前的状况，分别是：x表示x坐标，y表示y坐标，z表示当前方向。<br>
+L、R 命令会改变值z，F、B命令会改变值x、y。<br>
+值x、y的改变还受当前的z值影响。<br>
+</p>
+
+<p>
+如果是重复指令，那么将重复次数和重复的指令存起来递归调用即可。<br>
+</p>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-09 18:02 Wed</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-10 Thu 23:13</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
