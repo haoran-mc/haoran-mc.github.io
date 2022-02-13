@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-12 Sat 15:54 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CONTEXT</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">CONTEXT</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orga9509ef">Introduction</a></li>
+<li><a href="#orge800e55">Variables</a></li>
+<li><a href="#orge57bd33">type CancelFunc</a></li>
+<li><a href="#org7054397">type Context</a>
+<ul>
+<li><a href="#org111ff42">func Background</a></li>
+<li><a href="#org02f8aeb">func TODO</a></li>
+<li><a href="#org216cb81">func WithCancel</a></li>
+<li><a href="#org18b4380">func WithDeadline</a></li>
+<li><a href="#org14c5488">func WithTimeout</a></li>
+<li><a href="#org022e570">func WithValue</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orga9509ef" class="outline-2">
+<h2 id="orga9509ef">Introduction</h2>
+<div class="outline-text-2" id="text-orga9509ef">
+<p>
+Package context defines the Context type, which carries deadlines, cancelation signals, and other request-scoped values across API boundaries and between processes.<br>
+</p>
+
+<p>
+Incoming requests to a server should create a Context, and outgoing calls to servers should accept a Context. The chain of function calls between them must propagate the Context, optionally replacing it with a derived Context created using WithCancel, WithDeadline, WithTimeout, or WithValue. When a Context is canceled, all Contexts derived from it are also canceled.<br>
+</p>
+
+<p>
+The WithCancel, WithDeadline, and WithTimeout functions take a Context (the parent) and return a derived Context (the child) and a CancelFunc. Calling the CancelFunc cancels the child and its children, removes the parent's reference to the child, and stops any associated timers. Failing to call the CancelFunc leaks the child and its children until the parent is canceled or the timer fires. The go vet tool checks that CancelFuncs are used on all control-flow paths.<br>
+</p>
+
+<p>
+Programs that use Contexts should follow these rules to keep interfaces consistent across packages and enable static analysis tools to check context propagation:<br>
+</p>
+
+<p>
+Do not store Contexts inside a struct type; instead, pass a Context explicitly to each function that needs it. The Context should be the first parameter, typically named ctx:<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">DoSomething</span>(<span style="color: #8787d7;">ctx</span> <span style="color: #df005f; font-weight: bold;">context.Context</span>, <span style="color: #8787d7;">arg</span> <span style="color: #df005f; font-weight: bold;">Arg</span>) <span style="color: #df005f; font-weight: bold;">error</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">... use ctx ...</span>
+}
+</pre>
+</div>
+
+<p>
+Do not pass a nil Context, even if a function permits it. Pass context.TODO if you are unsure about which Context to use.<br>
+</p>
+
+<p>
+Use context Values only for request-scoped data that transits processes and APIs, not for passing optional parameters to functions.<br>
+</p>
+
+<p>
+The same Context may be passed to functions running in different goroutines; Contexts are safe for simultaneous use by multiple goroutines.<br>
+</p>
+
+<p>
+See <a href="https://blog.golang.org/context">https://blog.golang.org/context</a> for example code for a server that uses Contexts.<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge800e55" class="outline-2">
+<h2 id="orge800e55">Variables</h2>
+<div class="outline-text-2" id="text-orge800e55">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">Canceled</span> = errors.<span style="color: #d75fd7; font-weight: bold;">New</span>(<span style="color: #2aa198;">"context canceled"</span>)
+</pre>
+</div>
+
+<p>
+Canceled is the error returned by Context.Err when the context is canceled.<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">DeadlineExceeded</span> <span style="color: #df005f; font-weight: bold;">error</span> = <span style="color: #df005f; font-weight: bold;">deadlineExceededError</span>{}
+</pre>
+</div>
+
+<p>
+DeadlineExceeded is the error returned by Context.Err when the context's deadline passes.<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge57bd33" class="outline-2">
+<h2 id="orge57bd33">type CancelFunc</h2>
+<div class="outline-text-2" id="text-orge57bd33">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">CancelFunc</span> <span style="color: #268bd2; font-weight: bold;">func</span>()
+</pre>
+</div>
+
+<p>
+A CancelFunc tells an operation to abandon its work. A CancelFunc does not wait for the work to stop. After the first call, subsequent calls to a CancelFunc do nothing.<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org7054397" class="outline-2">
+<h2 id="org7054397">type Context</h2>
+<div class="outline-text-2" id="text-org7054397">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Context</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Deadline returns the time when work done on behalf of this context</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">should be canceled. Deadline returns ok==false when no deadline is</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">set. Successive calls to Deadline return the same results.</span>
+    <span style="color: #d75fd7; font-weight: bold;">Deadline</span>() (<span style="color: #8787d7;">deadline</span> <span style="color: #df005f; font-weight: bold;">time.Time</span>, <span style="color: #8787d7;">ok</span> <span style="color: #df005f; font-weight: bold;">bool</span>)
+
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Done returns a channel that's closed when work done on behalf of this</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">context should be canceled. Done may return nil if this context can</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">never be canceled. Successive calls to Done return the same value.</span>
+    <span style="color: #008787; background-color: #262626;">//</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">WithCancel arranges for Done to be closed when cancel is called;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">WithDeadline arranges for Done to be closed when the deadline</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">expires; WithTimeout arranges for Done to be closed when the timeout</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">elapses.</span>
+    <span style="color: #008787; background-color: #262626;">//</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Done is provided for use in select statements:</span>
+    <span style="color: #008787; background-color: #262626;">//</span>
+    <span style="color: #008787; background-color: #262626;">//  </span><span style="color: #008787; background-color: #262626;">// Stream generates values with DoSomething and sends them to out</span>
+    <span style="color: #008787; background-color: #262626;">//  </span><span style="color: #008787; background-color: #262626;">// until DoSomething returns an error or ctx.Done is closed.</span>
+    <span style="color: #008787; background-color: #262626;">//  </span><span style="color: #008787; background-color: #262626;">func Stream(ctx context.Context, out chan&lt;- Value) error {</span>
+    <span style="color: #008787; background-color: #262626;">//      </span><span style="color: #008787; background-color: #262626;">for {</span>
+    <span style="color: #008787; background-color: #262626;">//          </span><span style="color: #008787; background-color: #262626;">v, err := DoSomething(ctx)</span>
+    <span style="color: #008787; background-color: #262626;">//          </span><span style="color: #008787; background-color: #262626;">if err != nil {</span>
+    <span style="color: #008787; background-color: #262626;">//              </span><span style="color: #008787; background-color: #262626;">return err</span>
+    <span style="color: #008787; background-color: #262626;">//          </span><span style="color: #008787; background-color: #262626;">}</span>
+    <span style="color: #008787; background-color: #262626;">//          </span><span style="color: #008787; background-color: #262626;">select {</span>
+    <span style="color: #008787; background-color: #262626;">//          </span><span style="color: #008787; background-color: #262626;">case &lt;-ctx.Done():</span>
+    <span style="color: #008787; background-color: #262626;">//              </span><span style="color: #008787; background-color: #262626;">return ctx.Err()</span>
+    <span style="color: #008787; background-color: #262626;">//          </span><span style="color: #008787; background-color: #262626;">case out &lt;- v:</span>
+    <span style="color: #008787; background-color: #262626;">//          </span><span style="color: #008787; background-color: #262626;">}</span>
+    <span style="color: #008787; background-color: #262626;">//      </span><span style="color: #008787; background-color: #262626;">}</span>
+    <span style="color: #008787; background-color: #262626;">//  </span><span style="color: #008787; background-color: #262626;">}</span>
+    <span style="color: #008787; background-color: #262626;">//</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">See https://blog.golang.org/pipelines for more examples of how to use</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">a Done channel for cancelation.</span>
+    <span style="color: #d75fd7; font-weight: bold;">Done</span>() &lt;-<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #268bd2; font-weight: bold;">struct</span>{}
+
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Err returns a non-nil error value after Done is closed. Err returns</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Canceled if the context was canceled or DeadlineExceeded if the</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">context's deadline passed. No other values for Err are defined.</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">After Done is closed, successive calls to Err return the same value.</span>
+    <span style="color: #d75fd7; font-weight: bold;">Err</span>() <span style="color: #df005f; font-weight: bold;">error</span>
+
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Value returns the value associated with this context for key, or nil</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">if no value is associated with key. Successive calls to Value with</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">the same key returns the same result.</span>
+    <span style="color: #008787; background-color: #262626;">//</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Use context values only for request-scoped data that transits</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">processes and API boundaries, not for passing optional parameters to</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">functions.</span>
+    <span style="color: #008787; background-color: #262626;">//</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">A key identifies a specific value in a Context. Functions that wish</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">to store values in Context typically allocate a key in a global</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">variable then use that key as the argument to context.WithValue and</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Context.Value. A key can be any type that supports equality;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">packages should define keys as an unexported type to avoid</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">collisions.</span>
+    <span style="color: #008787; background-color: #262626;">//</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Packages that define a Context key should provide type-safe accessors</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">for the values stored using that key:</span>
+    <span style="color: #008787; background-color: #262626;">//</span>
+    <span style="color: #008787; background-color: #262626;">//  </span><span style="color: #008787; background-color: #262626;">// Package user defines a User type that's stored in Contexts.</span>
+    <span style="color: #008787; background-color: #262626;">//  </span><span style="color: #008787; background-color: #262626;">package user</span>
+    <span style="color: #008787; background-color: #262626;">//</span>
+    <span style="color: #008787; background-color: #262626;">//  </span><span style="color: #008787; background-color: #262626;">import "context"</span>
+    <span style="color: #008787; background-color: #262626;">//</span>
+    <span style="color: #008787; background-color: #262626;">//  </span><span style="color: #008787; background-color: #262626;">// User is the type of value stored in the Contexts.</span>
+    <span style="color: #008787; background-color: #262626;">//  </span><span style="color: #008787; background-color: #262626;">type User struct {...}</span>
+    <span style="color: #008787; background-color: #262626;">//</span>
+    <span style="color: #008787; background-color: #262626;">//  </span><span style="color: #008787; background-color: #262626;">// key is an unexported type for keys defined in this package.</span>
+    <span style="color: #008787; background-color: #262626;">//  </span><span style="color: #008787; background-color: #262626;">// This prevents collisions with keys defined in other packages.</span>
+    <span style="color: #008787; background-color: #262626;">//  </span><span style="color: #008787; background-color: #262626;">type key int</span>
+    <span style="color: #008787; background-color: #262626;">//</span>
+    <span style="color: #008787; background-color: #262626;">//  </span><span style="color: #008787; background-color: #262626;">// userKey is the key for user.User values in Contexts. It is</span>
+    <span style="color: #008787; background-color: #262626;">//  </span><span style="color: #008787; background-color: #262626;">// unexported; clients use user.NewContext and user.FromContext</span>
+    <span style="color: #008787; background-color: #262626;">//  </span><span style="color: #008787; background-color: #262626;">// instead of using this key directly.</span>
+    <span style="color: #008787; background-color: #262626;">//  </span><span style="color: #008787; background-color: #262626;">var userKey key = 0</span>
+    <span style="color: #008787; background-color: #262626;">//</span>
+    <span style="color: #008787; background-color: #262626;">//  </span><span style="color: #008787; background-color: #262626;">// NewContext returns a new Context that carries value u.</span>
+    <span style="color: #008787; background-color: #262626;">//  </span><span style="color: #008787; background-color: #262626;">func NewContext(ctx context.Context, u *User) context.Context {</span>
+    <span style="color: #008787; background-color: #262626;">//      </span><span style="color: #008787; background-color: #262626;">return context.WithValue(ctx, userKey, u)</span>
+    <span style="color: #008787; background-color: #262626;">//  </span><span style="color: #008787; background-color: #262626;">}</span>
+    <span style="color: #008787; background-color: #262626;">//</span>
+    <span style="color: #008787; background-color: #262626;">//  </span><span style="color: #008787; background-color: #262626;">// FromContext returns the User value stored in ctx, if any.</span>
+    <span style="color: #008787; background-color: #262626;">//  </span><span style="color: #008787; background-color: #262626;">func FromContext(ctx context.Context) (*User, bool) {</span>
+    <span style="color: #008787; background-color: #262626;">//      </span><span style="color: #008787; background-color: #262626;">u, ok := ctx.Value(userKey).(*User)</span>
+    <span style="color: #008787; background-color: #262626;">//      </span><span style="color: #008787; background-color: #262626;">return u, ok</span>
+    <span style="color: #008787; background-color: #262626;">//  </span><span style="color: #008787; background-color: #262626;">}</span>
+    <span style="color: #d75fd7; font-weight: bold;">Value</span>(<span style="color: #8787d7;">key</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}) <span style="color: #268bd2; font-weight: bold;">interface</span>{}
+}
+</pre>
+</div>
+
+<p>
+A Context carries a deadline, a cancelation signal, and other values across API boundaries.<br>
+</p>
+
+<p>
+Context's methods may be called by multiple goroutines simultaneously.<br>
+</p>
+</div>
+<div id="outline-container-org111ff42" class="outline-3">
+<h3 id="org111ff42">func Background</h3>
+<div class="outline-text-3" id="text-org111ff42">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Background</span>() <span style="color: #df005f; font-weight: bold;">Context</span>
+</pre>
+</div>
+
+<p>
+Background returns a non-nil, empty Context. It is never canceled, has no values, and has no deadline. It is typically used by the main function, initialization, and tests, and as the top-level Context for incoming requests.<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org02f8aeb" class="outline-3">
+<h3 id="org02f8aeb">func TODO</h3>
+<div class="outline-text-3" id="text-org02f8aeb">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">TODO</span>() <span style="color: #df005f; font-weight: bold;">Context</span>
+</pre>
+</div>
+
+<p>
+TODO returns a non-nil, empty Context. Code should use context.TODO when it's unclear which Context to use or it is not yet available (because the surrounding function has not yet been extended to accept a Context parameter). TODO is recognized by static analysis tools that determine whether Contexts are propagated correctly in a program.<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org216cb81" class="outline-3">
+<h3 id="org216cb81">func WithCancel</h3>
+<div class="outline-text-3" id="text-org216cb81">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">WithCancel</span>(<span style="color: #8787d7;">parent</span> <span style="color: #df005f; font-weight: bold;">Context</span>) (<span style="color: #8787d7;">ctx</span> <span style="color: #df005f; font-weight: bold;">Context</span>, <span style="color: #8787d7;">cancel</span> <span style="color: #df005f; font-weight: bold;">CancelFunc</span>)
+</pre>
+</div>
+
+<p>
+WithCancel returns a copy of parent with a new Done channel. The returned context's Done channel is closed when the returned cancel function is called or when the parent context's Done channel is closed, whichever happens first.<br>
+</p>
+
+<p>
+Canceling this context releases resources associated with it, so code should call cancel as soon as the operations running in this Context complete.<br>
+</p>
+
+<p>
+This example demonstrates the use of a cancelable context to prevent a goroutine leak. By the end of the example function, the goroutine started by gen will return without leaking.<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">gen generates integers in a separate goroutine and</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">sends them to the returned channel.</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">The callers of gen need to cancel the context once</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">they are done consuming generated integers not to leak</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">the internal goroutine started by gen.</span>
+<span style="color: #8787d7;">gen</span> := <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">ctx</span> <span style="color: #df005f; font-weight: bold;">context.Context</span>) &lt;-<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span> {
+    <span style="color: #8787d7;">dst</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+    <span style="color: #8787d7;">n</span> := <span style="color: #d75fd7;">1</span>
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+        <span style="color: #268bd2; font-weight: bold;">for</span> {
+            <span style="color: #268bd2; font-weight: bold;">select</span> {
+            <span style="color: #268bd2; font-weight: bold;">case</span> &lt;-ctx.<span style="color: #d75fd7; font-weight: bold;">Done</span>():
+                <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">returning not to leak the goroutine</span>
+            <span style="color: #268bd2; font-weight: bold;">case</span> dst &lt;- n:
+                n++
+            }
+        }
+    }()
+    <span style="color: #268bd2; font-weight: bold;">return</span> dst
+}
+
+<span style="color: #8787d7;">ctx</span>, <span style="color: #8787d7;">cancel</span> := context.<span style="color: #d75fd7; font-weight: bold;">WithCancel</span>(context.<span style="color: #d75fd7; font-weight: bold;">Background</span>())
+<span style="color: #268bd2; font-weight: bold;">defer</span> <span style="color: #d75fd7; font-weight: bold;">cancel</span>() <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">cancel when we are finished consuming integers</span>
+
+<span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">n</span> := <span style="color: #268bd2; font-weight: bold;">range</span> <span style="color: #d75fd7; font-weight: bold;">gen</span>(ctx) {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(n)
+    <span style="color: #268bd2; font-weight: bold;">if</span> n == <span style="color: #d75fd7;">5</span> {
+        <span style="color: #268bd2; font-weight: bold;">break</span>
+    }
+}
+</pre>
+</div>
+
+<p>
+Output:<br>
+</p>
+
+<pre class="example" id="org6270b2f">
+1
+2
+3
+4
+5
+</pre>
+</div>
+</div>
+<div id="outline-container-org18b4380" class="outline-3">
+<h3 id="org18b4380">func WithDeadline</h3>
+<div class="outline-text-3" id="text-org18b4380">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">WithDeadline</span>(<span style="color: #8787d7;">parent</span> <span style="color: #df005f; font-weight: bold;">Context</span>, <span style="color: #8787d7;">deadline</span> <span style="color: #df005f; font-weight: bold;">time.Time</span>) (<span style="color: #df005f; font-weight: bold;">Context</span>, <span style="color: #df005f; font-weight: bold;">CancelFunc</span>)
+</pre>
+</div>
+
+<p>
+WithDeadline returns a copy of the parent context with the deadline adjusted to be no later than d. If the parent's deadline is already earlier than d, WithDeadline(parent, d) is semantically equivalent to parent. The returned context's Done channel is closed when the deadline expires, when the returned cancel function is called, or when the parent context's Done channel is closed, whichever happens first.<br>
+</p>
+
+<p>
+Canceling this context releases resources associated with it, so code should call cancel as soon as the operations running in this Context complete.<br>
+</p>
+
+<p>
+This example passes a context with a arbitrary deadline to tell a blocking function that it should abandon its work as soon as it gets to it.<br>
+</p>
+
+<p>
+Code:<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">d</span> := time.<span style="color: #d75fd7; font-weight: bold;">Now</span>().<span style="color: #d75fd7; font-weight: bold;">Add</span>(<span style="color: #d75fd7;">50</span> * time.Millisecond)
+<span style="color: #8787d7;">ctx</span>, <span style="color: #8787d7;">cancel</span> := context.<span style="color: #d75fd7; font-weight: bold;">WithDeadline</span>(context.<span style="color: #d75fd7; font-weight: bold;">Background</span>(), d)
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Even though ctx will be expired, it is good practice to call its</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">cancelation function in any case. Failure to do so may keep the</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">context and its parent alive longer than necessary.</span>
+<span style="color: #268bd2; font-weight: bold;">defer</span> <span style="color: #d75fd7; font-weight: bold;">cancel</span>()
+
+<span style="color: #268bd2; font-weight: bold;">select</span> {
+<span style="color: #268bd2; font-weight: bold;">case</span> &lt;-time.<span style="color: #d75fd7; font-weight: bold;">After</span>(<span style="color: #d75fd7;">1</span> * time.Second):
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"overslept"</span>)
+<span style="color: #268bd2; font-weight: bold;">case</span> &lt;-ctx.<span style="color: #d75fd7; font-weight: bold;">Done</span>():
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(ctx.<span style="color: #d75fd7; font-weight: bold;">Err</span>())
+}
+</pre>
+</div>
+
+<p>
+Output:<br>
+</p>
+
+<pre class="example" id="orga6683b8">
+context deadline exceeded
+</pre>
+</div>
+</div>
+<div id="outline-container-org14c5488" class="outline-3">
+<h3 id="org14c5488">func WithTimeout</h3>
+<div class="outline-text-3" id="text-org14c5488">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">WithTimeout</span>(<span style="color: #8787d7;">parent</span> <span style="color: #df005f; font-weight: bold;">Context</span>, <span style="color: #8787d7;">timeout</span> <span style="color: #df005f; font-weight: bold;">time.Duration</span>) (<span style="color: #df005f; font-weight: bold;">Context</span>, <span style="color: #df005f; font-weight: bold;">CancelFunc</span>)
+</pre>
+</div>
+
+<p>
+WithTimeout returns WithDeadline(parent, time.Now().Add(timeout)).<br>
+</p>
+
+<p>
+Canceling this context releases resources associated with it, so code should call cancel as soon as the operations running in this Context complete:<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">slowOperationWithTimeout</span>(<span style="color: #8787d7;">ctx</span> <span style="color: #df005f; font-weight: bold;">context.Context</span>) (<span style="color: #df005f; font-weight: bold;">Result</span>, <span style="color: #df005f; font-weight: bold;">error</span>) {
+    <span style="color: #8787d7;">ctx</span>, <span style="color: #8787d7;">cancel</span> := context.<span style="color: #d75fd7; font-weight: bold;">WithTimeout</span>(ctx, <span style="color: #d75fd7;">100</span>*time.Millisecond)
+    <span style="color: #268bd2; font-weight: bold;">defer</span> <span style="color: #d75fd7; font-weight: bold;">cancel</span>()  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">releases resources if slowOperation completes before timeout elapses</span>
+    <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7; font-weight: bold;">slowOperation</span>(ctx)
+}
+</pre>
+</div>
+
+<p>
+Code:<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Pass a context with a timeout to tell a blocking function that it</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">should abandon its work after the timeout elapses.</span>
+<span style="color: #8787d7;">ctx</span>, <span style="color: #8787d7;">cancel</span> := context.<span style="color: #d75fd7; font-weight: bold;">WithTimeout</span>(context.<span style="color: #d75fd7; font-weight: bold;">Background</span>(), <span style="color: #d75fd7;">50</span>*time.Millisecond)
+<span style="color: #268bd2; font-weight: bold;">defer</span> <span style="color: #d75fd7; font-weight: bold;">cancel</span>()
+
+<span style="color: #268bd2; font-weight: bold;">select</span> {
+<span style="color: #268bd2; font-weight: bold;">case</span> &lt;-time.<span style="color: #d75fd7; font-weight: bold;">After</span>(<span style="color: #d75fd7;">1</span> * time.Second):
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"overslept"</span>)
+<span style="color: #268bd2; font-weight: bold;">case</span> &lt;-ctx.<span style="color: #d75fd7; font-weight: bold;">Done</span>():
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(ctx.<span style="color: #d75fd7; font-weight: bold;">Err</span>()) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">prints "context deadline exceeded"</span>
+}
+</pre>
+</div>
+
+<p>
+Output:<br>
+</p>
+
+<pre class="example" id="orge3bbd8b">
+context deadline exceeded
+</pre>
+</div>
+</div>
+<div id="outline-container-org022e570" class="outline-3">
+<h3 id="org022e570">func WithValue</h3>
+<div class="outline-text-3" id="text-org022e570">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">WithValue</span>(<span style="color: #8787d7;">parent</span> <span style="color: #df005f; font-weight: bold;">Context</span>, <span style="color: #8787d7;">key</span>, <span style="color: #8787d7;">val</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}) <span style="color: #df005f; font-weight: bold;">Context</span>
+</pre>
+</div>
+
+<p>
+WithValue returns a copy of parent in which the value associated with key is val.<br>
+</p>
+
+<p>
+Use context Values only for request-scoped data that transits processes and APIs, not for passing optional parameters to functions.<br>
+</p>
+
+<p>
+The provided key must be comparable and should not be of type string or any other built-in type to avoid collisions between packages using context. Users of WithValue should define their own types for keys. To avoid allocating when assigning to an interface{}, context keys often have concrete type struct{}. Alternatively, exported context key variables' static type should be a pointer or interface.<br>
+</p>
+
+<p>
+Code:<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">favContextKey</span> <span style="color: #df005f; font-weight: bold;">string</span>
+
+<span style="color: #8787d7;">f</span> := <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">ctx</span> <span style="color: #df005f; font-weight: bold;">context.Context</span>, <span style="color: #8787d7;">k</span> <span style="color: #df005f; font-weight: bold;">favContextKey</span>) {
+    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #8787d7;">v</span> := ctx.<span style="color: #d75fd7; font-weight: bold;">Value</span>(k); v != <span style="color: #d75fd7;">nil</span> {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"found value:"</span>, v)
+        <span style="color: #268bd2; font-weight: bold;">return</span>
+    }
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"key not found:"</span>, k)
+}
+
+<span style="color: #8787d7;">k</span> := <span style="color: #d75fd7; font-weight: bold;">favContextKey</span>(<span style="color: #2aa198;">"language"</span>)
+<span style="color: #8787d7;">ctx</span> := context.<span style="color: #d75fd7; font-weight: bold;">WithValue</span>(context.<span style="color: #d75fd7; font-weight: bold;">Background</span>(), k, <span style="color: #2aa198;">"Go"</span>)
+
+<span style="color: #d75fd7; font-weight: bold;">f</span>(ctx, k)
+<span style="color: #d75fd7; font-weight: bold;">f</span>(ctx, <span style="color: #d75fd7; font-weight: bold;">favContextKey</span>(<span style="color: #2aa198;">"color"</span>))
+</pre>
+</div>
+
+<p>
+Output:<br>
+</p>
+
+<pre class="example" id="orgb5c705e">
+found value: Go
+key not found: color
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-12 15:02 Sat</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-12 Sat 15:54</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
