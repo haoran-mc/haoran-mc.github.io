@@ -71,14 +71,6 @@ if (isPageHome()) {
     if (TOC) TOC.css('display', 'none');  // Hide table of contents.
     $('.top-btn').css('display', 'none'); // Hide top button.
     $('.nav-btn').css('display', 'none'); // Hide nav button.
-    // Customize posts list showwing
-    // $('thead').each(function () {
-    //     if (isPC) {
-    //         $(this).parent().click(function () {$(this).find('tbody').fadeToggle("fast", "linear");});
-    //     } else {
-    //         $(this).parent().click(function () {$(this).find('tbody').fadeToggle("fast", "linear");});
-    //     }
-    // });
     // Open link in a new tab
     $('a').each(function () {
         $(this).attr('target', '_blank');
@@ -95,12 +87,10 @@ if (isCurPage('Navigation')) {
     if (isMB) {
         $('table').hide();
         $('<div class="js-nav-link-container"></div>').insertAfter(TITLE);
-
         $('td a').each(function (idx, item) {
             $(this).attr('target', '_blank');
             $('.js-nav-link-container').append(item);
         });
-
         $('.org-ul a').each(function () {
             $(this).attr('target', '_blank');
         });
@@ -110,7 +100,6 @@ if (isCurPage('Navigation')) {
             _remainder = 0;
 
         _remainder = _len % 5;
-
         if (_remainder == 0) _remainder = 5;
 
         for (let i = 0; i < 5 - _remainder; i++) {
@@ -137,7 +126,7 @@ if (isCurPage('Ideas')) {
     // outline-2 *
     // outline-3 **
     $('.outline-3').each(function () {
-        $(this).css('font-family', 'kaiti, 华文细黑, 宋体, Consolas')
+        $(this).css('font-family', 'kaiti, 华文细黑, 宋体, Consolas');
         $(this).addClass('js-outline');
     });
 		$('p').each(function () {
@@ -151,22 +140,16 @@ if (isCurPage('Ideas')) {
 // Math PAGE
 // ---------------------------------
 if (isCurPage('Math')) {
-    // outline-1 TITLE
-    // outline-2 *
-    // outline-3 **
     $('.outline-2').each(function () {
-        $(this).css('font-family', '微软雅黑, 宋体, Consolas')
+        $(this).css('font-family', '微软雅黑, 宋体, Consolas');
         $(this).addClass('js-math-outline');
     });
-		// $('#content').each(function () {
-		// 		$(this).css('background-color', '#E6E6E6');
-		// })
 		$('p').each(function () {
 				$(this).css('margin-bottom', '0');
 		});
 		$('p+ul').each(function () {
 				$(this).css('margin-top', '0');
-		})
+		});
 }
 
 
@@ -177,7 +160,7 @@ if (isCurPage('Editor-Vim-notes')) {
     // outline-2 *
     // outline-3 **
     $('.outline-2').each(function () {
-        $(this).css('font-family', '微软雅黑, 宋体, Consolas')
+        $(this).css('font-family', '微软雅黑, 宋体, Consolas');
         $(this).addClass('js-math-outline');
     });
 		$('p').each(function () {
@@ -185,18 +168,15 @@ if (isCurPage('Editor-Vim-notes')) {
 		});
 		$('p+ul').each(function () {
 				$(this).css('margin-top', '0');
-		})
+		});
 }
 
 
 // POEM PAGE
 // ---------------------------------
 if (isCurPage('Poem')) {
-    // outline-1 TITLE
-    // outline-2 *
-    // outline-3 **
     $('.outline-2').each(function () {
-        $(this).css('font-family', '微软雅黑, 宋体, Consolas')
+        $(this).css('font-family', '微软雅黑, 宋体, Consolas');
         $(this).addClass('js-math-outline');
     });
 		$('p').each(function () {
@@ -205,17 +185,14 @@ if (isCurPage('Poem')) {
 		});
 		$('p+ul').each(function () {
 				$(this).css('margin-top', '0');
-		})
+		});
 }
 
 // WIKI PAGE
 // ---------------------------------
 if (isCurPage('wiki')) {
-    // outline-1 TITLE
-    // outline-2 *
-    // outline-3 **
     $('.outline-2').each(function () {
-        $(this).css('font-family', 'Consolas, 微软雅黑, 宋体')
+        $(this).css('font-family', 'Consolas, 微软雅黑, 宋体');
         $(this).addClass('js-wiki-outline');
     });
 		$('p').each(function () {
@@ -224,17 +201,4 @@ if (isCurPage('wiki')) {
 		$('p+ul').each(function () {
 				$(this).css('margin-top', '0');
 		});
-		// table-of-contents -> ul -> li -> ul
-		// $('#table-of-contents').each(function () {
-		// 		$(this).css('li > ul', 'none');
-		// })
-}
-
-
-// INTERVIEW PAGE
-// ---------------------------------
-if (isCurPage('TheInterview')) {
-    $('.outline-2').each(function () {
-        $(this).addClass('js-interview-outline');
-    });
 }
