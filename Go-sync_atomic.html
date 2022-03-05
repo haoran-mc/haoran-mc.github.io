@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-12 Sat 15:59 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SYNC_ATOMIC</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">SYNC_ATOMIC</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org923f5f4">Introduction</a></li>
+<li><a href="#org9979720">func LoadInt32</a></li>
+<li><a href="#orgf445d40">func LoadInt64</a></li>
+<li><a href="#org87ccaa0">func LoadUint32</a></li>
+<li><a href="#orgc22722c">func LoadUint64</a></li>
+<li><a href="#orgc22b1fd">func LoadUintptr</a></li>
+<li><a href="#org2bce311">func LoadPointer</a></li>
+<li><a href="#org3678f37">func StoreInt32</a></li>
+<li><a href="#orgcd71f62">func StoreInt64</a></li>
+<li><a href="#org2efc3c2">func StoreUint32</a></li>
+<li><a href="#orgd8caefd">func StoreUint64</a></li>
+<li><a href="#org2d6a81d">func StoreUintptr</a></li>
+<li><a href="#org2301134">func StorePointer</a></li>
+<li><a href="#orgd9dc442">func AddInt32</a></li>
+<li><a href="#orgeb3542c">func AddInt64</a></li>
+<li><a href="#orgea17d5a">func AddUint32</a></li>
+<li><a href="#org8037c00">func AddUint64</a></li>
+<li><a href="#org3e9e31a">func AddUintptr</a></li>
+<li><a href="#org6ca9478">func SwapInt32</a></li>
+<li><a href="#orgfbeab75">func SwapInt64</a></li>
+<li><a href="#orgd55824d">func SwapUint32</a></li>
+<li><a href="#org1ec38cb">func SwapUint64</a></li>
+<li><a href="#orge646ba8">func SwapUintptr</a></li>
+<li><a href="#orgc47872f">func SwapPointer</a></li>
+<li><a href="#orgc46b1f9">func CompareAndSwapInt32</a></li>
+<li><a href="#orgc5a901d">func CompareAndSwapInt64</a></li>
+<li><a href="#org683ad0b">func CompareAndSwapUint32</a></li>
+<li><a href="#org8f3eac5">func CompareAndSwapUint64</a></li>
+<li><a href="#orgf67fd9d">func CompareAndSwapUintptr</a></li>
+<li><a href="#org84fa5fa">func CompareAndSwapPointer</a></li>
+<li><a href="#org11aff86">Bugs</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org923f5f4" class="outline-2">
+<h2 id="org923f5f4">Introduction</h2>
+<div class="outline-text-2" id="text-org923f5f4">
+<p>
+atomic 包提供了底层的原子级内存操作，对于同步算法的实现很有用。<br>
+</p>
+
+<p>
+这些函数必须谨慎地保证正确使用。除了某些特殊的底层应用，使用通道或者sync包的函数/类型实现同步更好。<br>
+</p>
+
+<p>
+应通过通信来共享内存，而不通过共享内存实现通信。<br>
+</p>
+
+<p>
+被SwapT系列函数实现的交换操作，在原子性上等价于：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">old = *addr
+*addr = new
+<span style="color: #268bd2; font-weight: bold;">return</span> old
+</pre>
+</div>
+
+<p>
+CompareAndSwapT系列函数实现的比较-交换操作，在原子性上等价于：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">if</span> *addr == old {
+    *addr = new
+    <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">true</span>
+}
+<span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">false</span>
+</pre>
+</div>
+
+<p>
+AddT 系列函数实现加法操作，在原子性上等价于：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">*addr += delta
+<span style="color: #268bd2; font-weight: bold;">return</span> *addr
+</pre>
+</div>
+
+<p>
+LoadT和StoreT系列函数实现的加载和保持操作，在原子性上等价于："return *addr"和"*addr = val"。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9979720" class="outline-2">
+<h2 id="org9979720">func LoadInt32</h2>
+<div class="outline-text-2" id="text-org9979720">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">LoadInt32</span>(<span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">int32</span>) (<span style="color: #8787d7;">val</span> <span style="color: #df005f; font-weight: bold;">int32</span>)
+</pre>
+</div>
+
+<p>
+LoadInt32原子性的获取*addr的值。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf445d40" class="outline-2">
+<h2 id="orgf445d40">func LoadInt64</h2>
+<div class="outline-text-2" id="text-orgf445d40">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">LoadInt64</span>(<span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">int64</span>) (<span style="color: #8787d7;">val</span> <span style="color: #df005f; font-weight: bold;">int64</span>)
+</pre>
+</div>
+
+<p>
+LoadInt64原子性的获取*addr的值。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org87ccaa0" class="outline-2">
+<h2 id="org87ccaa0">func LoadUint32</h2>
+<div class="outline-text-2" id="text-org87ccaa0">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">LoadUint32</span>(<span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">uint32</span>) (<span style="color: #8787d7;">val</span> <span style="color: #df005f; font-weight: bold;">uint32</span>)
+</pre>
+</div>
+
+<p>
+LoadUint32原子性的获取*addr的值。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc22722c" class="outline-2">
+<h2 id="orgc22722c">func LoadUint64</h2>
+<div class="outline-text-2" id="text-orgc22722c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">LoadUint64</span>(<span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">uint64</span>) (<span style="color: #8787d7;">val</span> <span style="color: #df005f; font-weight: bold;">uint64</span>)
+</pre>
+</div>
+
+<p>
+LoadUint64原子性的获取*addr的值。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc22b1fd" class="outline-2">
+<h2 id="orgc22b1fd">func LoadUintptr</h2>
+<div class="outline-text-2" id="text-orgc22b1fd">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">LoadUintptr</span>(<span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">uintptr</span>) (<span style="color: #8787d7;">val</span> <span style="color: #df005f; font-weight: bold;">uintptr</span>)
+</pre>
+</div>
+
+<p>
+LoadUintptr原子性的获取*addr的值。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2bce311" class="outline-2">
+<h2 id="org2bce311">func LoadPointer</h2>
+<div class="outline-text-2" id="text-org2bce311">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">LoadPointer</span>(<span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">unsafe.Pointer</span>) (<span style="color: #8787d7;">val</span> <span style="color: #df005f; font-weight: bold;">unsafe.Pointer</span>)
+</pre>
+</div>
+
+<p>
+LoadPointer原子性的获取*addr的值。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org3678f37" class="outline-2">
+<h2 id="org3678f37">func StoreInt32</h2>
+<div class="outline-text-2" id="text-org3678f37">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">StoreInt32</span>(<span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">int32</span>, <span style="color: #8787d7;">val</span> <span style="color: #df005f; font-weight: bold;">int32</span>)
+</pre>
+</div>
+
+<p>
+StoreInt32原子性的将val的值保存到*addr。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgcd71f62" class="outline-2">
+<h2 id="orgcd71f62">func StoreInt64</h2>
+<div class="outline-text-2" id="text-orgcd71f62">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">StoreInt64</span>(<span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">int64</span>, <span style="color: #8787d7;">val</span> <span style="color: #df005f; font-weight: bold;">int64</span>)
+</pre>
+</div>
+
+<p>
+StoreInt64原子性的将val的值保存到*addr。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2efc3c2" class="outline-2">
+<h2 id="org2efc3c2">func StoreUint32</h2>
+<div class="outline-text-2" id="text-org2efc3c2">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">StoreUint32</span>(<span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">uint32</span>, <span style="color: #8787d7;">val</span> <span style="color: #df005f; font-weight: bold;">uint32</span>)
+</pre>
+</div>
+
+<p>
+StoreUint32原子性的将val的值保存到*addr。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd8caefd" class="outline-2">
+<h2 id="orgd8caefd">func StoreUint64</h2>
+<div class="outline-text-2" id="text-orgd8caefd">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">StoreUint64</span>(<span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">uint64</span>, <span style="color: #8787d7;">val</span> <span style="color: #df005f; font-weight: bold;">uint64</span>)
+</pre>
+</div>
+
+<p>
+StoreUint64原子性的将val的值保存到*addr。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2d6a81d" class="outline-2">
+<h2 id="org2d6a81d">func StoreUintptr</h2>
+<div class="outline-text-2" id="text-org2d6a81d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">StoreUintptr</span>(<span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">uintptr</span>, <span style="color: #8787d7;">val</span> <span style="color: #df005f; font-weight: bold;">uintptr</span>)
+</pre>
+</div>
+
+<p>
+StoreUintptr原子性的将val的值保存到*addr。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2301134" class="outline-2">
+<h2 id="org2301134">func StorePointer</h2>
+<div class="outline-text-2" id="text-org2301134">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">StorePointer</span>(<span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">unsafe.Pointer</span>, <span style="color: #8787d7;">val</span> <span style="color: #df005f; font-weight: bold;">unsafe.Pointer</span>)
+</pre>
+</div>
+
+<p>
+StorePointer原子性的将val的值保存到*addr。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd9dc442" class="outline-2">
+<h2 id="orgd9dc442">func AddInt32</h2>
+<div class="outline-text-2" id="text-orgd9dc442">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">AddInt32</span>(<span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">int32</span>, <span style="color: #8787d7;">delta</span> <span style="color: #df005f; font-weight: bold;">int32</span>) (<span style="color: #8787d7;">new</span> <span style="color: #df005f; font-weight: bold;">int32</span>)
+</pre>
+</div>
+
+<p>
+AddInt32原子性的将val的值添加到*addr并返回新值。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgeb3542c" class="outline-2">
+<h2 id="orgeb3542c">func AddInt64</h2>
+<div class="outline-text-2" id="text-orgeb3542c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">AddInt64</span>(<span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">int64</span>, <span style="color: #8787d7;">delta</span> <span style="color: #df005f; font-weight: bold;">int64</span>) (<span style="color: #8787d7;">new</span> <span style="color: #df005f; font-weight: bold;">int64</span>)
+</pre>
+</div>
+
+<p>
+AddInt64原子性的将val的值添加到*addr并返回新值。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgea17d5a" class="outline-2">
+<h2 id="orgea17d5a">func AddUint32</h2>
+<div class="outline-text-2" id="text-orgea17d5a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">AddUint32</span>(<span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">uint32</span>, <span style="color: #8787d7;">delta</span> <span style="color: #df005f; font-weight: bold;">uint32</span>) (<span style="color: #8787d7;">new</span> <span style="color: #df005f; font-weight: bold;">uint32</span>)
+</pre>
+</div>
+
+<p>
+AddUint32原子性的将val的值添加到*addr并返回新值。<br>
+</p>
+
+<p>
+如要减去一个值c，调用AddUint32(&amp;x, ^uint32(c-1))；特别的，让x减1，调用AddUint32(&amp;x, ^uint32(0))。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8037c00" class="outline-2">
+<h2 id="org8037c00">func AddUint64</h2>
+<div class="outline-text-2" id="text-org8037c00">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">AddUint64</span>(<span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">uint64</span>, <span style="color: #8787d7;">delta</span> <span style="color: #df005f; font-weight: bold;">uint64</span>) (<span style="color: #8787d7;">new</span> <span style="color: #df005f; font-weight: bold;">uint64</span>)
+</pre>
+</div>
+
+<p>
+AddUint64原子性的将val的值添加到*addr并返回新值。<br>
+</p>
+
+<p>
+如要减去一个值c，调用AddUint64(&amp;x, ^uint64(c-1))；特别的，让x减1，调用AddUint64(&amp;x, ^uint64(0))。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org3e9e31a" class="outline-2">
+<h2 id="org3e9e31a">func AddUintptr</h2>
+<div class="outline-text-2" id="text-org3e9e31a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">AddUintptr</span>(<span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">uintptr</span>, <span style="color: #8787d7;">delta</span> <span style="color: #df005f; font-weight: bold;">uintptr</span>) (<span style="color: #8787d7;">new</span> <span style="color: #df005f; font-weight: bold;">uintptr</span>)
+</pre>
+</div>
+
+<p>
+AddUintptr原子性的将val的值添加到*addr并返回新值。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org6ca9478" class="outline-2">
+<h2 id="org6ca9478">func SwapInt32</h2>
+<div class="outline-text-2" id="text-org6ca9478">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">SwapInt32</span>(<span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">int32</span>, <span style="color: #8787d7;">new</span> <span style="color: #df005f; font-weight: bold;">int32</span>) (<span style="color: #8787d7;">old</span> <span style="color: #df005f; font-weight: bold;">int32</span>)
+</pre>
+</div>
+
+<p>
+SwapInt32原子性的将新值保存到*addr并返回旧值。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgfbeab75" class="outline-2">
+<h2 id="orgfbeab75">func SwapInt64</h2>
+<div class="outline-text-2" id="text-orgfbeab75">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">SwapInt64</span>(<span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">int64</span>, <span style="color: #8787d7;">new</span> <span style="color: #df005f; font-weight: bold;">int64</span>) (<span style="color: #8787d7;">old</span> <span style="color: #df005f; font-weight: bold;">int64</span>)
+</pre>
+</div>
+
+<p>
+SwapInt64原子性的将新值保存到*addr并返回旧值。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd55824d" class="outline-2">
+<h2 id="orgd55824d">func SwapUint32</h2>
+<div class="outline-text-2" id="text-orgd55824d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">SwapUint32</span>(<span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">uint32</span>, <span style="color: #8787d7;">new</span> <span style="color: #df005f; font-weight: bold;">uint32</span>) (<span style="color: #8787d7;">old</span> <span style="color: #df005f; font-weight: bold;">uint32</span>)
+</pre>
+</div>
+
+<p>
+SwapUint32原子性的将新值保存到*addr并返回旧值。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org1ec38cb" class="outline-2">
+<h2 id="org1ec38cb">func SwapUint64</h2>
+<div class="outline-text-2" id="text-org1ec38cb">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">SwapUint64</span>(<span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">uint64</span>, <span style="color: #8787d7;">new</span> <span style="color: #df005f; font-weight: bold;">uint64</span>) (<span style="color: #8787d7;">old</span> <span style="color: #df005f; font-weight: bold;">uint64</span>)
+</pre>
+</div>
+
+<p>
+SwapUint64原子性的将新值保存到*addr并返回旧值。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge646ba8" class="outline-2">
+<h2 id="orge646ba8">func SwapUintptr</h2>
+<div class="outline-text-2" id="text-orge646ba8">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">SwapUintptr</span>(<span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">uintptr</span>, <span style="color: #8787d7;">new</span> <span style="color: #df005f; font-weight: bold;">uintptr</span>) (<span style="color: #8787d7;">old</span> <span style="color: #df005f; font-weight: bold;">uintptr</span>)
+</pre>
+</div>
+
+<p>
+SwapUintptr原子性的将新值保存到*addr并返回旧值。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc47872f" class="outline-2">
+<h2 id="orgc47872f">func SwapPointer</h2>
+<div class="outline-text-2" id="text-orgc47872f">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">SwapPointer</span>(<span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">unsafe.Pointer</span>, <span style="color: #8787d7;">new</span> <span style="color: #df005f; font-weight: bold;">unsafe.Pointer</span>) (<span style="color: #8787d7;">old</span> <span style="color: #df005f; font-weight: bold;">unsafe.Pointer</span>)
+</pre>
+</div>
+
+<p>
+SwapPointer原子性的将新值保存到*addr并返回旧值。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc46b1f9" class="outline-2">
+<h2 id="orgc46b1f9">func CompareAndSwapInt32</h2>
+<div class="outline-text-2" id="text-orgc46b1f9">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">CompareAndSwapInt32</span>(<span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">int32</span>, <span style="color: #8787d7;">old</span>, <span style="color: #8787d7;">new</span> <span style="color: #df005f; font-weight: bold;">int32</span>) (<span style="color: #8787d7;">swapped</span> <span style="color: #df005f; font-weight: bold;">bool</span>)
+</pre>
+</div>
+
+<p>
+CompareAndSwapInt32原子性的比较*addr和old，如果相同则将new赋值给*addr并返回真。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc5a901d" class="outline-2">
+<h2 id="orgc5a901d">func CompareAndSwapInt64</h2>
+<div class="outline-text-2" id="text-orgc5a901d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">CompareAndSwapInt64</span>(<span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">int64</span>, <span style="color: #8787d7;">old</span>, <span style="color: #8787d7;">new</span> <span style="color: #df005f; font-weight: bold;">int64</span>) (<span style="color: #8787d7;">swapped</span> <span style="color: #df005f; font-weight: bold;">bool</span>)
+</pre>
+</div>
+
+<p>
+CompareAndSwapInt64原子性的比较*addr和old，如果相同则将new赋值给*addr并返回真。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org683ad0b" class="outline-2">
+<h2 id="org683ad0b">func CompareAndSwapUint32</h2>
+<div class="outline-text-2" id="text-org683ad0b">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">CompareAndSwapUint32</span>(<span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">uint32</span>, <span style="color: #8787d7;">old</span>, <span style="color: #8787d7;">new</span> <span style="color: #df005f; font-weight: bold;">uint32</span>) (<span style="color: #8787d7;">swapped</span> <span style="color: #df005f; font-weight: bold;">bool</span>)
+</pre>
+</div>
+
+<p>
+CompareAndSwapUint32原子性的比较*addr和old，如果相同则将new赋值给*addr并返回真。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8f3eac5" class="outline-2">
+<h2 id="org8f3eac5">func CompareAndSwapUint64</h2>
+<div class="outline-text-2" id="text-org8f3eac5">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">CompareAndSwapUint64</span>(<span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">uint64</span>, <span style="color: #8787d7;">old</span>, <span style="color: #8787d7;">new</span> <span style="color: #df005f; font-weight: bold;">uint64</span>) (<span style="color: #8787d7;">swapped</span> <span style="color: #df005f; font-weight: bold;">bool</span>)
+</pre>
+</div>
+
+<p>
+CompareAndSwapUint64原子性的比较*addr和old，如果相同则将new赋值给*addr并返回真。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf67fd9d" class="outline-2">
+<h2 id="orgf67fd9d">func CompareAndSwapUintptr</h2>
+<div class="outline-text-2" id="text-orgf67fd9d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">CompareAndSwapUintptr</span>(<span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">uintptr</span>, <span style="color: #8787d7;">old</span>, <span style="color: #8787d7;">new</span> <span style="color: #df005f; font-weight: bold;">uintptr</span>) (<span style="color: #8787d7;">swapped</span> <span style="color: #df005f; font-weight: bold;">bool</span>)
+</pre>
+</div>
+
+<p>
+CompareAndSwapUintptr原子性的比较*addr和old，如果相同则将new赋值给*addr并返回真。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org84fa5fa" class="outline-2">
+<h2 id="org84fa5fa">func CompareAndSwapPointer</h2>
+<div class="outline-text-2" id="text-org84fa5fa">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">CompareAndSwapPointer</span>(<span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">unsafe.Pointer</span>, <span style="color: #8787d7;">old</span>, <span style="color: #8787d7;">new</span> <span style="color: #df005f; font-weight: bold;">unsafe.Pointer</span>) (<span style="color: #8787d7;">swapped</span> <span style="color: #df005f; font-weight: bold;">bool</span>)
+</pre>
+</div>
+
+<p>
+CompareAndSwapPointer原子性的比较*addr和old，如果相同则将new赋值给*addr并返回真。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org11aff86" class="outline-2">
+<h2 id="org11aff86">Bugs</h2>
+<div class="outline-text-2" id="text-org11aff86">
+<p>
+☞ 在x86-32构架芯片上，64位函数使用的指令在Pentium MMX之前是不可用的；在非Linux的ARM芯片上，64位函数使用的指令在ARMv6k core之前是不可用的。不管是ARM又或x86-32芯片，安排原子性访问的64位word的64位对齐都是调用者的责任。可以依靠全局变量或申请的切片/结构体的第一个word来实现64位对齐。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-11 18:02 Fri</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-12 Sat 15:59</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

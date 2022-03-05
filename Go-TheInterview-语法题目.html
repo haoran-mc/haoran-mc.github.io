@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-02-11 Fri 23:21 -->
+<!-- 2022-02-12 Sat 18:12 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>语法题目</title>
@@ -36,6 +36,20 @@
 <li><a href="#orga2683b8">以下代码有什么问题，说明原因</a></li>
 <li><a href="#org7a15083">下面的代码会输出什么，并说明原因</a></li>
 <li><a href="#orgab02cd1">下面代码会输出什么？</a></li>
+<li><a href="#org6d4075a">下面代码会触发异常吗？请详细说明</a></li>
+<li><a href="#org620c2fd">下面代码输出什么？</a></li>
+<li><a href="#org36b92c5">请写出以下输入内容</a></li>
+<li><a href="#org3e4d65d">下面的代码有什么问题?</a></li>
+<li><a href="#orgc7f7e81">下面的迭代会有什么问题？</a></li>
+<li><a href="#org49dc63e">以下代码能编译过去吗？为什么？</a></li>
+<li><a href="#org453b236">以下代码打印出来什么内容，说出为什么。。。</a></li>
+<li><a href="#org83ad947">写出以下代码出现的问题</a></li>
+<li><a href="#orgf4d87ab">写出以下打印内容</a></li>
+<li><a href="#orgf1222a9">找出下面代码的问题</a></li>
+<li><a href="#orgf080257">写出以下打印结果，并解释下为什么这么打印的。</a></li>
+<li><a href="#org829a948">写出以下打印结果</a></li>
+<li><a href="#org8708efc">写出以下代码的问题</a></li>
+<li><a href="#org3ec8767">下面代码写法有什么问题？</a></li>
 </ul>
 </div>
 </div>
@@ -599,7 +613,7 @@ golang 的 <code>for ... range</code> 语法中， <code>stu</code> 变量会被
 </pre>
 </div>
 
-<pre class="example" id="org54b6fde">
+<pre class="example" id="org44485bc">
 {zhou 24}
 0xc000086018
 {li 23}
@@ -678,52 +692,502 @@ golang 的 <code>for ... range</code> 语法中， <code>stu</code> 变量会被
 <div id="outline-container-orgab02cd1" class="outline-2">
 <h2 id="orgab02cd1">下面代码会输出什么？</h2>
 <div class="outline-text-2" id="text-orgab02cd1">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">People</span> <span style="color: #268bd2; font-weight: bold;">struct</span>{}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">p</span> *<span style="color: #df005f; font-weight: bold;">People</span>) <span style="color: #d75fd7; font-weight: bold;">ShowA</span>() {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"showA"</span>)
+    p.<span style="color: #d75fd7; font-weight: bold;">ShowB</span>()
+}
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">p</span> *<span style="color: #df005f; font-weight: bold;">People</span>) <span style="color: #d75fd7; font-weight: bold;">ShowB</span>() {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"showB"</span>)
+}
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Teacher</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    People
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">Teacher</span>) <span style="color: #d75fd7; font-weight: bold;">ShowB</span>() {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"teacher showB"</span>)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">t</span> := <span style="color: #df005f; font-weight: bold;">Teacher</span>{}
+    t.<span style="color: #d75fd7; font-weight: bold;">ShowA</span>()
+}
+</pre>
+</div>
+
+<pre class="example" id="org87b282d">
+showA
+showB
+</pre>
+
 <p>
-```go<br>
-type People struct{}<br>
+golang 语言中没有继承概念，只有组合，也没有虚方法，更没有重载。因此， <code>*Teacher</code> 的 <code>ShowB</code> 不会覆写被组合的 <code>People</code> 的方法。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org6d4075a" class="outline-2">
+<h2 id="org6d4075a">下面代码会触发异常吗？请详细说明</h2>
+<div class="outline-text-2" id="text-org6d4075a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    runtime.<span style="color: #d75fd7; font-weight: bold;">GOMAXPROCS</span>(<span style="color: #d75fd7;">1</span>)
+    <span style="color: #8787d7;">int_chan</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #d75fd7;">1</span>)
+    <span style="color: #8787d7;">string_chan</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #d75fd7;">1</span>)
+    int_chan &lt;- <span style="color: #d75fd7;">1</span>
+    string_chan &lt;- <span style="color: #2aa198;">"hello"</span>
+    <span style="color: #268bd2; font-weight: bold;">select</span> {
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #8787d7;">value</span> := &lt;- int_chan:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(value)
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #8787d7;">value</span> := &lt;- string_chan:
+        <span style="color: #268bd2;">panic</span>(value)
+    }
+}
+</pre>
+</div>
+
+<p>
+结果是随机执行。golang 在多个 <code>case</code> 可读的时候会公平的选中一个执行。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org620c2fd" class="outline-2">
+<h2 id="org620c2fd">下面代码输出什么？</h2>
+<div class="outline-text-2" id="text-org620c2fd">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">calc</span>(<span style="color: #8787d7;">index</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">a</span>, <span style="color: #8787d7;">b</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">int</span> {
+    <span style="color: #8787d7;">ret</span> := a + b
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(index, a, b, ret)
+    <span style="color: #268bd2; font-weight: bold;">return</span> ret
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">a</span> := <span style="color: #d75fd7;">1</span>
+    <span style="color: #8787d7;">b</span> := <span style="color: #d75fd7;">2</span>
+    <span style="color: #268bd2; font-weight: bold;">defer</span> <span style="color: #d75fd7; font-weight: bold;">calc</span>(<span style="color: #2aa198;">"1"</span>, a, <span style="color: #d75fd7; font-weight: bold;">calc</span>(<span style="color: #2aa198;">"10"</span>, a, b))
+    a = <span style="color: #d75fd7;">0</span>
+    <span style="color: #268bd2; font-weight: bold;">defer</span> <span style="color: #d75fd7; font-weight: bold;">calc</span>(<span style="color: #2aa198;">"2"</span>, a, <span style="color: #d75fd7; font-weight: bold;">calc</span>(<span style="color: #2aa198;">"20"</span>, a, b))
+    b = <span style="color: #d75fd7;">1</span>
+}
+</pre>
+</div>
+
+<p>
+输出结果为：<br>
+</p>
+
+<pre class="example" id="org3896882">
+10 1 2 3
+20 0 2 2
+2 0 2 2
+1 1 3 4
+</pre>
+
+<p>
+<code>defer</code> 在定义的时候会计算好调用函数的参数，所以会优先输出 10、20 两个参数。然后根据定义的顺序倒序执行。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org36b92c5" class="outline-2">
+<h2 id="org36b92c5">请写出以下输入内容</h2>
+<div class="outline-text-2" id="text-org36b92c5">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">s</span> := <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #d75fd7;">5</span>)
+    s = <span style="color: #268bd2;">append</span>(s, <span style="color: #d75fd7;">1</span>, <span style="color: #d75fd7;">2</span>, <span style="color: #d75fd7;">3</span>)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(s)
+}
+</pre>
+</div>
+
+<p>
+输出为<br>
+</p>
+
+<pre class="example" id="orgeee68ff">
+0 0 0 0 0 1 2 3
+</pre>
+
+<p>
+<code>make</code> 在初始化切片时指定了长度，所以追加数据时会从 <code>len(s)</code> 位置开始填充数据。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org3e4d65d" class="outline-2">
+<h2 id="org3e4d65d">下面的代码有什么问题?</h2>
+<div class="outline-text-2" id="text-org3e4d65d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">UserAges</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    ages <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">int</span>
+    sync.Mutex
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">ua</span> *<span style="color: #df005f; font-weight: bold;">UserAges</span>) <span style="color: #d75fd7; font-weight: bold;">Add</span>(<span style="color: #8787d7;">name</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">age</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
+    ua.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+    <span style="color: #268bd2; font-weight: bold;">defer</span> ua.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+    ua.ages[name] = age
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">ua</span> *<span style="color: #df005f; font-weight: bold;">UserAges</span>) <span style="color: #d75fd7; font-weight: bold;">Get</span>(<span style="color: #8787d7;">name</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">int</span> {
+    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #8787d7;">age</span>, <span style="color: #8787d7;">ok</span> := ua.ages[name]; ok {
+        <span style="color: #268bd2; font-weight: bold;">return</span> age
+    }
+    <span style="color: #268bd2; font-weight: bold;">return</span> -<span style="color: #d75fd7;">1</span>
+}
+</pre>
+</div>
+
+<p>
+在执行 Get 方法时可能被 thorw。<br>
 </p>
 
 <p>
-func (p *People) ShowA() {<br>
-	fmt.Println("showA")<br>
-	p.ShowB()<br>
-}<br>
-func (p *People) ShowB() {<br>
-	fmt.Println("showB")<br>
-}<br>
+虽然有使用 <code>sync.Mutex</code> 做写锁，但是 <code>map</code> 是并发读写不安全的。 <code>map</code> 属于引用类型，并发读写时多个协程见是通过指针访问同一个地址，即访问共享变量，此时同时读写资源存在竞争关系。会报错误信息:“fatal error: concurrent map read and map write”。<br>
 </p>
 
 <p>
-type Teacher struct {<br>
-	People<br>
-}<br>
+因此，在 <code>Get</code> 中也需要加锁，因为这里只是读，建议使用读写锁 <code>sync.RWMutex</code> 。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc7f7e81" class="outline-2">
+<h2 id="orgc7f7e81">下面的迭代会有什么问题？</h2>
+<div class="outline-text-2" id="text-orgc7f7e81">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">set</span> *<span style="color: #df005f; font-weight: bold;">threadSafeSet</span>) <span style="color: #d75fd7; font-weight: bold;">Iter</span>() &lt;- <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{} {
+    <span style="color: #8787d7;">ch</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{})
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+        set.<span style="color: #d75fd7; font-weight: bold;">RLock</span>()
+        <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">elem</span> := <span style="color: #268bd2; font-weight: bold;">range</span> set.s {
+            ch &lt;- elem
+        }
+        <span style="color: #268bd2;">close</span>(ch)
+        set.<span style="color: #d75fd7; font-weight: bold;">RUnlock</span>()
+    }()
+    <span style="color: #268bd2; font-weight: bold;">return</span> ch
+}
+</pre>
+</div>
+
+<p>
+默认情况下 <code>make</code> 初始化的 <code>channel</code> 是无缓冲的，也就是在迭代写时会阻塞。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org49dc63e" class="outline-2">
+<h2 id="org49dc63e">以下代码能编译过去吗？为什么？</h2>
+<div class="outline-text-2" id="text-org49dc63e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">People</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+    <span style="color: #d75fd7; font-weight: bold;">Speak</span>(<span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">string</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Student</span> <span style="color: #268bd2; font-weight: bold;">struct</span>{}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">stu</span> *<span style="color: #df005f; font-weight: bold;">Student</span>) <span style="color: #d75fd7; font-weight: bold;">Speak</span>(<span style="color: #8787d7;">think</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #8787d7;">talk</span> <span style="color: #df005f; font-weight: bold;">string</span>) {
+    <span style="color: #268bd2; font-weight: bold;">if</span> think == <span style="color: #2aa198;">"bitch"</span> {
+        talk = <span style="color: #2aa198;">"You are a good boy"</span>
+    } <span style="color: #268bd2; font-weight: bold;">else</span> {
+        talk = <span style="color: #2aa198;">"hi"</span>
+    }
+    <span style="color: #268bd2; font-weight: bold;">return</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">peo</span> <span style="color: #df005f; font-weight: bold;">People</span> = <span style="color: #df005f; font-weight: bold;">Student</span>{}
+    <span style="color: #8787d7;">think</span> := <span style="color: #2aa198;">"bitch"</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(peo.<span style="color: #d75fd7; font-weight: bold;">Speak</span>(think))
+}
+</pre>
+</div>
+
+<p>
+编译失败，值类型 <code>Student{}</code> 未实现接口 <code>People</code> 的方法，不能定义为 <code>People</code> 类型。<br>
 </p>
 
 <p>
-func (t *Teacher) ShowB() {<br>
-	fmt.Println("teacher showB")<br>
-}<br>
+在 golang 语言中， <code>Student</code> 和 <code>*Student</code> 是两种类型，第一个是表示 <code>Student</code> 本身，第二个是指向 <code>Student</code> 的指针。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org453b236" class="outline-2">
+<h2 id="org453b236">以下代码打印出来什么内容，说出为什么。。。</h2>
+<div class="outline-text-2" id="text-org453b236">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">People</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+    <span style="color: #d75fd7; font-weight: bold;">Show</span>()
+}
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Student</span> <span style="color: #268bd2; font-weight: bold;">struct</span>{}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">stu</span> *<span style="color: #df005f; font-weight: bold;">Student</span>) <span style="color: #d75fd7; font-weight: bold;">Show</span>() {
+
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">live</span>() <span style="color: #df005f; font-weight: bold;">People</span> {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">stu</span> *<span style="color: #df005f; font-weight: bold;">Student</span>
+    <span style="color: #268bd2; font-weight: bold;">return</span> stu
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #d75fd7; font-weight: bold;">live</span>() == <span style="color: #d75fd7;">nil</span> {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"AAAAAAA"</span>)
+    } <span style="color: #268bd2; font-weight: bold;">else</span> {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"BBBBBBB"</span>)
+    }
+}
+</pre>
+</div>
+
+<p>
+跟上一题一样，不同的是 <code>*Student</code> 的定义后本身没有初始化值，所以 <code>*Student</code> 是 <code>nil</code> 的，但是 <code>*Student</code> 实现了 <code>People</code> 接口，接口不为 <code>nil</code> 。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">People</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+    <span style="color: #d75fd7; font-weight: bold;">Show</span>()
+}
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Student</span> <span style="color: #268bd2; font-weight: bold;">struct</span>{}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">stu</span> *<span style="color: #df005f; font-weight: bold;">Student</span>) <span style="color: #d75fd7; font-weight: bold;">Show</span>() {
+
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">live</span>() *<span style="color: #df005f; font-weight: bold;">Student</span> {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">stu</span> *<span style="color: #df005f; font-weight: bold;">Student</span>
+    <span style="color: #268bd2; font-weight: bold;">return</span> stu
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #d75fd7; font-weight: bold;">live</span>() == <span style="color: #d75fd7;">nil</span> {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"AAAAAAA"</span>)
+    } <span style="color: #268bd2; font-weight: bold;">else</span> {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"BBBBBBB"</span>)
+    }
+}
+</pre>
+</div>
+
+<p>
+这样就会输出 "AAAAAAA" 了。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org83ad947" class="outline-2">
+<h2 id="org83ad947">写出以下代码出现的问题</h2>
+<div class="outline-text-2" id="text-org83ad947">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+)
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">x</span> <span style="color: #df005f; font-weight: bold;">string</span> = <span style="color: #d75fd7;">nil</span>
+    <span style="color: #268bd2; font-weight: bold;">if</span> x == <span style="color: #d75fd7;">nil</span> {
+        x = <span style="color: #2aa198;">"default"</span>
+    }
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(x)
+}
+</pre>
+</div>
+
+<p>
+golang 中字符串是不能赋值 <code>nil</code> 的，也不能跟 <code>nil</code> 比较。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf4d87ab" class="outline-2">
+<h2 id="orgf4d87ab">写出以下打印内容</h2>
+<div class="outline-text-2" id="text-orgf4d87ab">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+<span style="color: #268bd2; font-weight: bold;">const</span> (
+    <span style="color: #d75fd7;">a</span> = <span style="color: #d75fd7;">iota</span>
+    <span style="color: #d75fd7;">b</span> = <span style="color: #d75fd7;">iota</span>
+)
+<span style="color: #268bd2; font-weight: bold;">const</span> (
+    <span style="color: #d75fd7;">name</span> = <span style="color: #2aa198;">"menglu"</span>
+    <span style="color: #d75fd7;">c</span>    = <span style="color: #d75fd7;">iota</span>
+    <span style="color: #d75fd7;">d</span>    = <span style="color: #d75fd7;">iota</span>
+)
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(a)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(b)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(c)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(d)
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgf1222a9" class="outline-2">
+<h2 id="orgf1222a9">找出下面代码的问题</h2>
+<div class="outline-text-2" id="text-orgf1222a9">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">query</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">string</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">exec</span>(<span style="color: #8787d7;">name</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">vs</span> ...<span style="color: #df005f; font-weight: bold;">query</span>) <span style="color: #df005f; font-weight: bold;">string</span> {
+    <span style="color: #8787d7;">ch</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">string</span>)
+    <span style="color: #8787d7;">fn</span> := <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">i</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
+        ch &lt;- vs[i](name)
+    }
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">_</span> := <span style="color: #268bd2; font-weight: bold;">range</span> vs {
+        <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">fn</span>(i)
+    }
+    <span style="color: #268bd2; font-weight: bold;">return</span> &lt;-ch
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">ret</span> := <span style="color: #d75fd7; font-weight: bold;">exec</span>(<span style="color: #2aa198;">"111"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">string</span> {
+        <span style="color: #268bd2; font-weight: bold;">return</span> n + <span style="color: #2aa198;">"func1"</span>
+    }, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">string</span> {
+        <span style="color: #268bd2; font-weight: bold;">return</span> n + <span style="color: #2aa198;">"func2"</span>
+    }, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">string</span> {
+        <span style="color: #268bd2; font-weight: bold;">return</span> n + <span style="color: #2aa198;">"func3"</span>
+    }, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">string</span> {
+        <span style="color: #268bd2; font-weight: bold;">return</span> n + <span style="color: #2aa198;">"func4"</span>
+    })
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(ret)
+}
+</pre>
+</div>
+
+<p>
+上面的代码有严重的内存泄漏问题，出错的位置是 `go fn(i)`，实际上代码执行后会启动 4 个协程，但是因为 `ch` 是非缓冲的，只可能有一个协程写入成功。而其他三个协程会一直在后台等待写入。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf080257" class="outline-2">
+<h2 id="orgf080257">写出以下打印结果，并解释下为什么这么打印的。</h2>
+<div class="outline-text-2" id="text-orgf080257">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+)
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">str1</span> := []<span style="color: #df005f; font-weight: bold;">string</span>{<span style="color: #2aa198;">"a"</span>, <span style="color: #2aa198;">"b"</span>, <span style="color: #2aa198;">"c"</span>}
+    <span style="color: #8787d7;">str2</span> := str1[<span style="color: #d75fd7;">1</span>:]
+    str2[<span style="color: #d75fd7;">1</span>] = <span style="color: #2aa198;">"new"</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(str1)
+    str2 = <span style="color: #268bd2;">append</span>(str2, <span style="color: #2aa198;">"z"</span>, <span style="color: #2aa198;">"x"</span>, <span style="color: #2aa198;">"y"</span>)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(str1)
+}
+</pre>
+</div>
+
+<p>
+golang 中的切片底层其实使用的是数组。当使用 <code>str1[1:]</code> 使， <code>str2</code> 和 <code>str1</code> 底层共享一个数组，这回导致 <code>str2[1] = "new"</code> 语句影响 <code>str1</code> 。<br>
 </p>
 
 <p>
-func main() {<br>
-	t := Teacher{}<br>
-	t.ShowA()<br>
-}<br>
-</p>
-
-
-<p>
-```<br>
-</p>
-
-
-<p>
-<b><b>解析：</b></b><br>
+而 <code>append</code> 会导致底层数组扩容，生成新的数组，因此追加数据后的 <code>str2</code> 不会影响 <code>str1</code> 。<br>
 </p>
 
 <p>
-输出结果为`showA`、`showB`。golang 语言中没有继承概念，只有组合，也没有虚方法，更没有重载。因此，`*Teacher` 的 `ShowB` 不会覆写被组合的 `People` 的方法。<br>
+但是为什么对 <code>str2</code> 复制后影响的确实 <code>str1</code> 的第三个元素呢？这是因为切片 <code>str2</code> 是从数组的第二个元素开始， <code>str2</code> 索引为 1 的元素对应的是 <code>str1</code> 索引为 2 的元素。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org829a948" class="outline-2">
+<h2 id="org829a948">写出以下打印结果</h2>
+<div class="outline-text-2" id="text-org829a948">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Student</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    Name <span style="color: #df005f; font-weight: bold;">string</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(&amp;<span style="color: #df005f; font-weight: bold;">Student</span>{<span style="color: #d75fd7;">Name</span>: <span style="color: #2aa198;">"menglu"</span>} == &amp;<span style="color: #df005f; font-weight: bold;">Student</span>{<span style="color: #d75fd7;">Name</span>: <span style="color: #2aa198;">"menglu"</span>})
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #df005f; font-weight: bold;">Student</span>{<span style="color: #d75fd7;">Name</span>: <span style="color: #2aa198;">"menglu"</span>} == <span style="color: #df005f; font-weight: bold;">Student</span>{<span style="color: #d75fd7;">Name</span>: <span style="color: #2aa198;">"menglu"</span>})
+}
+</pre>
+</div>
+
+<p>
+个人理解：指针类型比较的是指针地址，非指针类型比较的是每个属性的值。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org8708efc" class="outline-2">
+<h2 id="org8708efc">写出以下代码的问题</h2>
+<div class="outline-text-2" id="text-org8708efc">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>([...]<span style="color: #df005f; font-weight: bold;">string</span>{<span style="color: #2aa198;">"1"</span>} == [...]<span style="color: #df005f; font-weight: bold;">string</span>{<span style="color: #2aa198;">"1"</span>})
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>([]<span style="color: #df005f; font-weight: bold;">string</span>{<span style="color: #2aa198;">"1"</span>} == []<span style="color: #df005f; font-weight: bold;">string</span>{<span style="color: #2aa198;">"1"</span>})
+}
+</pre>
+</div>
+
+<p>
+数组只能与相同纬度长度以及类型的其他数组比较，切片之间不能直接比较。。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org3ec8767" class="outline-2">
+<h2 id="org3ec8767">下面代码写法有什么问题？</h2>
+<div class="outline-text-2" id="text-org3ec8767">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+)
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Student</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    Age <span style="color: #df005f; font-weight: bold;">int</span>
+}
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">kv</span> := <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">Student</span>{<span style="color: #2aa198;">"menglu"</span>: {<span style="color: #d75fd7;">Age</span>: <span style="color: #d75fd7;">21</span>}}
+    kv[<span style="color: #2aa198;">"menglu"</span>].Age = <span style="color: #d75fd7;">22</span>
+    <span style="color: #8787d7;">s</span> := []<span style="color: #df005f; font-weight: bold;">Student</span>{{<span style="color: #d75fd7;">Age</span>: <span style="color: #d75fd7;">21</span>}}
+    s[<span style="color: #d75fd7;">0</span>].Age = <span style="color: #d75fd7;">22</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(kv, s)
+}
+</pre>
+</div>
+
+<p>
+golang 中的 <code>map</code> 通过 <code>key</code> 获取到的实际上是两个值，第一个是获取到的值，第二个是是否存在该 <code>key</code> 。因此不能直接通过 <code>key</code> 来赋值对象。<br>
 </p>
 </div>
 </div>
@@ -731,7 +1195,7 @@ func main() {<br>
 <div id="postamble" class="status">
 <p class="date">Date: 2022-02-11 00:02 Fri</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-02-11 Fri 23:21</p>
+<p class="date">Created: 2022-02-12 Sat 18:12</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

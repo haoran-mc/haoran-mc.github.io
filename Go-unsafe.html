@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-16 Wed 21:34 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GO UNSAFE</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">GO UNSAFE</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org0935658">Introduction</a></li>
+<li><a href="#org8329253">type ArbitraryType</a></li>
+<li><a href="#org8f47d08">type Pointer</a></li>
+<li><a href="#org995f630">func Sizeof</a></li>
+<li><a href="#orgf1b608f">func Alignof</a></li>
+<li><a href="#orgeecd805">func Offsetof</a></li>
+<li><a href="#org4af1818">unsafe 包的使用</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org0935658" class="outline-2">
+<h2 id="org0935658">Introduction</h2>
+<div class="outline-text-2" id="text-org0935658">
+<p>
+unsafe 包提供了一些跳过 go 语言类型安全限制的操作。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8329253" class="outline-2">
+<h2 id="org8329253">type ArbitraryType</h2>
+<div class="outline-text-2" id="text-org8329253">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">ArbitraryType</span> <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+ArbitraryType在本文档里表示任意一种类型，但并非一个实际存在与unsafe包的类型。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8f47d08" class="outline-2">
+<h2 id="org8f47d08">type Pointer</h2>
+<div class="outline-text-2" id="text-org8f47d08">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Pointer</span> *<span style="color: #df005f; font-weight: bold;">ArbitraryType</span>
+</pre>
+</div>
+
+<p>
+Pointer 类型用于表示任意类型的指针。有4个特殊的只能用于 Pointer 类型的操作：<br>
+</p>
+
+<pre class="example" id="orgcba5c02">
+1) 任意类型的指针可以转换为一个 Pointer 类型值
+2) 一个 Pointer 类型值可以转换为任意类型的指针
+3) 一个 uintptr 类型值可以转换为一个 Pointer 类型值
+4) 一个 Pointer 类型值可以转换为一个 uintptr 类型值
+</pre>
+
+<p>
+因此，Pointer 类型允许程序绕过类型系统读写任意内存。使用它时必须谨慎。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org995f630" class="outline-2">
+<h2 id="org995f630">func Sizeof</h2>
+<div class="outline-text-2" id="text-org995f630">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Sizeof</span>(<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">ArbitraryType</span>) <span style="color: #df005f; font-weight: bold;">uintptr</span>
+</pre>
+</div>
+
+<p>
+Sizeof返回类型v本身数据所占用的字节数。返回值是“顶层”的数据占有的字节数。例如，若v是一个切片，它会返回该切片描述符的大小，而非该切片底层引用的内存的大小。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf1b608f" class="outline-2">
+<h2 id="orgf1b608f">func Alignof</h2>
+<div class="outline-text-2" id="text-orgf1b608f">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Alignof</span>(<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">ArbitraryType</span>) <span style="color: #df005f; font-weight: bold;">uintptr</span>
+</pre>
+</div>
+
+<p>
+Alignof返回类型v的对齐方式（即类型v在内存中占用的字节数）；若是结构体类型的字段的形式，它会返回字段f在该结构体中的对齐方式。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgeecd805" class="outline-2">
+<h2 id="orgeecd805">func Offsetof</h2>
+<div class="outline-text-2" id="text-orgeecd805">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Offsetof</span>(<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">ArbitraryType</span>) <span style="color: #df005f; font-weight: bold;">uintptr</span>
+</pre>
+</div>
+
+<p>
+Offsetof返回类型v所代表的结构体字段在结构体中的偏移量，它必须为结构体类型的字段的形式。换句话说，它返回该结构起始处与该字段起始处之间的字节数。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org4af1818" class="outline-2">
+<h2 id="org4af1818">unsafe 包的使用</h2>
+<div class="outline-text-2" id="text-org4af1818">
+<p>
+包 unsafe 提供了下面两条重要的指针相关的功能：<br>
+</p>
+
+<ul class="org-ul">
+<li>任何类型的指针都可以被转换为 unsafe.Pointer 类型，反之亦然<br></li>
+<li>一个 uintptr 值可以被转换为 unsafe.Pointer 类型，反之亦然<br></li>
+</ul>
+
+<p>
+由于 go 语言对指针使用的限制，这两条扩展就是针对指针使用的限制而定制扩展的。<br>
+</p>
+
+<p>
+通过第一条，使得指针类型之间的转换成为可能，先把原指针类型转换成 unsafe.Pointer，然后再把 unsafe.Pointer 转化成目标指针类型。<br>
+</p>
+
+<p>
+再通过第二条，使得指针的运算成为可能，先把原指针转换 unsafe.Pointer，再把 unsafe.Pointer 转化成 uintptr，然后进行数值的运算，接着在把运算后的值转换回 unsafe.Pointer，最后把 unsafe.Pointer 转换回对应的原始数据指针。<br>
+</p>
+
+
+<p>
+在这里补充对 unsafe.Pointer 和 uintptr 两种类型单独解释两句：<br>
+</p>
+
+<ul class="org-ul">
+<li>unsafe.Pointer 是一个指针类型，指向的值不能被解析，类似于 C/C++ 里面的(void *)，只说明这是一个指针，但是指向什么的不知道。<br></li>
+<li>uintptr 是一个整数类型，这个整数的宽度足以用来存储一个指针类型数据；那既然是整数类类型，当然就可以对其进行运算了。<br></li>
+</ul>
+<p>
+举一个使用例子<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"unsafe"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">a</span> [<span style="color: #d75fd7;">4</span>]<span style="color: #df005f; font-weight: bold;">int</span> = [<span style="color: #d75fd7;">4</span>]<span style="color: #df005f; font-weight: bold;">int</span>{<span style="color: #d75fd7;">11</span>, <span style="color: #d75fd7;">22</span>, <span style="color: #d75fd7;">33</span>, <span style="color: #d75fd7;">44</span>}
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">a := [4]int{11, 22, 33, 44}</span>
+
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">p0</span> *<span style="color: #df005f; font-weight: bold;">int</span> = &amp;a[<span style="color: #d75fd7;">0</span>]                        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">p0 point to first element</span>
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">p1</span> <span style="color: #df005f; font-weight: bold;">unsafe.Pointer</span> = unsafe.<span style="color: #d75fd7; font-weight: bold;">Pointer</span>(p0) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">convert (* int) to unsafe.Pointer</span>
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">p2</span> <span style="color: #df005f; font-weight: bold;">uintptr</span> = <span style="color: #d75fd7; font-weight: bold;">uintptr</span>(p1)               <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">convert unsafe.Pointer to uintptr</span>
+    p2 += <span style="color: #d75fd7;">8</span>                                    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">computing uintptr with plus 8, i.e, the next element address</span>
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">p3</span> <span style="color: #df005f; font-weight: bold;">unsafe.Pointer</span> = unsafe.<span style="color: #d75fd7; font-weight: bold;">Pointer</span>(p2) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">convert uintptr back to unsafe.Pointer</span>
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">p4</span> *<span style="color: #df005f; font-weight: bold;">int64</span> = (*int64)(p3)               <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">convert unsafe.Pointer to another type pointer, (* int64)</span>
+
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"*p0 = %d, *p4 = %d\n"</span>, *p0, *p4)
+}
+</pre>
+</div>
+
+<p>
+这个例子，定义了一个 int 数组，然后定义一个指向第一个元素的指针，接着运算这个指针，让它指向下一个元素，最后以 int64 的格式打印出下一个元素的值。<br>
+</p>
+
+<pre class="example" id="orgcc701b3">
+*p0 = 11, *p4 = 22
+</pre>
+
+<p>
+关于 unsafe.Pointer 的详细说明，请参考官方文档：<a href="https://link.jianshu.com/?t=https://golang.org/pkg/unsafe/#Pointer">https://golang.org/pkg/unsafe/#Pointer</a><br>
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-08 16:02 Tue</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-16 Wed 21:34</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

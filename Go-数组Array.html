@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-11 Fri 00:59 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>数组ARRAY</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">数组ARRAY</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org7a27600">Golang 中的数组</a></li>
+<li><a href="#org592b6af">数组初始化</a>
+<ul>
+<li><a href="#org13f7667">一维数组</a></li>
+<li><a href="#org19273bd">多维数组</a></li>
+<li><a href="#org0cdcc1c">多维数组遍历</a></li>
+</ul>
+</li>
+<li><a href="#org4dc0974">数组拷贝和传参</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org7a27600" class="outline-2">
+<h2 id="org7a27600">Golang 中的数组</h2>
+<div class="outline-text-2" id="text-org7a27600">
+<ol class="org-ol">
+<li>数组：是同一种数据类型的固定长度的序列。<br></li>
+<li>数组定义： <code>var a [len]int</code> ，比如： <code>var a [5]int</code> ，数组长度必须是常量，且是类型的组成部分。一旦定义，长度不能变。<br></li>
+<li>长度是数组类型的一部分，因此， <code>var a [5]int</code> 和 <code>var a [10]int</code> 是不同的类型。<br></li>
+<li><p>
+数组可以通过下标进行访问，下标是从 0 开始，最后一个元素下标是：len - 1<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; <span style="color: #268bd2;">len</span>(a); i ++ {
+}
+
+<span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">idx</span>, <span style="color: #8787d7;">val</span> := <span style="color: #268bd2; font-weight: bold;">range</span> a {
+}
+</pre>
+</div></li>
+
+<li>访问越界，如果下标在数组合法范围之外，则触发访问越界，会 <code>panic</code><br></li>
+<li>数组是值类型，赋值和传参会复制整个数组，而不是指针。因此改变副本的值，不会改变本身的值。<br></li>
+<li>支持 <code>==</code> 、 <code>!=</code> 操作符，因为内存总是被初始化过的。<br></li>
+<li>指针数组 <code>[n]*T</code> ，数组指针 <code>*[n]T</code> 。<br></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-org592b6af" class="outline-2">
+<h2 id="org592b6af">数组初始化</h2>
+<div class="outline-text-2" id="text-org592b6af">
+</div>
+<div id="outline-container-org13f7667" class="outline-3">
+<h3 id="org13f7667">一维数组</h3>
+<div class="outline-text-3" id="text-org13f7667">
+<p>
+全局：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr0</span> [<span style="color: #d75fd7;">5</span>]<span style="color: #df005f; font-weight: bold;">int</span> = [<span style="color: #d75fd7;">5</span>]<span style="color: #df005f; font-weight: bold;">int</span>{<span style="color: #d75fd7;">1</span>, <span style="color: #d75fd7;">2</span>, <span style="color: #d75fd7;">3</span>}
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr1</span> = [<span style="color: #d75fd7;">5</span>]<span style="color: #df005f; font-weight: bold;">int</span>{<span style="color: #d75fd7;">1</span>, <span style="color: #d75fd7;">2</span>, <span style="color: #d75fd7;">3</span>, <span style="color: #d75fd7;">4</span>, <span style="color: #d75fd7;">5</span>}
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr2</span> = [...]<span style="color: #df005f; font-weight: bold;">int</span>{<span style="color: #d75fd7;">1</span>, <span style="color: #d75fd7;">2</span>, <span style="color: #d75fd7;">3</span>, <span style="color: #d75fd7;">4</span>, <span style="color: #d75fd7;">5</span>, <span style="color: #d75fd7;">6</span>}
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">str</span> = [<span style="color: #d75fd7;">5</span>]<span style="color: #df005f; font-weight: bold;">string</span>{<span style="color: #d75fd7;">3</span>: <span style="color: #2aa198;">"hello world"</span>, <span style="color: #d75fd7;">4</span>: <span style="color: #2aa198;">"tom"</span>}
+</pre>
+</div>
+
+<p>
+局部：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">a</span> := [<span style="color: #d75fd7;">3</span>]<span style="color: #df005f; font-weight: bold;">int</span>{<span style="color: #d75fd7;">1</span>, <span style="color: #d75fd7;">2</span>}           <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26410;&#21021;&#22987;&#21270;&#20803;&#32032;&#20540;&#20026; 0&#12290;</span>
+<span style="color: #8787d7;">b</span> := [...]<span style="color: #df005f; font-weight: bold;">int</span>{<span style="color: #d75fd7;">1</span>, <span style="color: #d75fd7;">2</span>, <span style="color: #d75fd7;">3</span>, <span style="color: #d75fd7;">4</span>}   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36890;&#36807;&#21021;&#22987;&#21270;&#20540;&#30830;&#23450;&#25968;&#32452;&#38271;&#24230;&#12290;</span>
+<span style="color: #8787d7;">c</span> := [<span style="color: #d75fd7;">5</span>]<span style="color: #df005f; font-weight: bold;">int</span>{<span style="color: #d75fd7;">2</span>: <span style="color: #d75fd7;">100</span>, <span style="color: #d75fd7;">4</span>: <span style="color: #d75fd7;">200</span>} <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20351;&#29992;&#32034;&#24341;&#21495;&#21021;&#22987;&#21270;&#20803;&#32032;&#12290;</span>
+<span style="color: #8787d7;">d</span> := [...]<span style="color: #268bd2; font-weight: bold;">struct</span> {
+    name <span style="color: #df005f; font-weight: bold;">string</span>
+    age  <span style="color: #df005f; font-weight: bold;">uint8</span>
+}{
+    {<span style="color: #2aa198;">"user1"</span>, <span style="color: #d75fd7;">10</span>}, <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21487;&#30465;&#30053;&#20803;&#32032;&#31867;&#22411;&#12290;</span>
+    {<span style="color: #2aa198;">"user2"</span>, <span style="color: #d75fd7;">20</span>}, <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21035;&#24536;&#20102;&#26368;&#21518;&#19968;&#34892;&#30340;&#36887;&#21495;&#12290;</span>
+}
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr0</span> [<span style="color: #d75fd7;">5</span>]<span style="color: #df005f; font-weight: bold;">int</span> = [<span style="color: #d75fd7;">5</span>]<span style="color: #df005f; font-weight: bold;">int</span>{<span style="color: #d75fd7;">1</span>, <span style="color: #d75fd7;">2</span>, <span style="color: #d75fd7;">3</span>}
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr1</span> = [<span style="color: #d75fd7;">5</span>]<span style="color: #df005f; font-weight: bold;">int</span>{<span style="color: #d75fd7;">1</span>, <span style="color: #d75fd7;">2</span>, <span style="color: #d75fd7;">3</span>, <span style="color: #d75fd7;">4</span>, <span style="color: #d75fd7;">5</span>}
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr2</span> = [...]<span style="color: #df005f; font-weight: bold;">int</span>{<span style="color: #d75fd7;">1</span>, <span style="color: #d75fd7;">2</span>, <span style="color: #d75fd7;">3</span>, <span style="color: #d75fd7;">4</span>, <span style="color: #d75fd7;">5</span>, <span style="color: #d75fd7;">6</span>}
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">str</span> = [<span style="color: #d75fd7;">5</span>]<span style="color: #df005f; font-weight: bold;">string</span>{<span style="color: #d75fd7;">3</span>: <span style="color: #2aa198;">"hello world"</span>, <span style="color: #d75fd7;">4</span>: <span style="color: #2aa198;">"tom"</span>}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">a</span> := [<span style="color: #d75fd7;">3</span>]<span style="color: #df005f; font-weight: bold;">int</span>{<span style="color: #d75fd7;">1</span>, <span style="color: #d75fd7;">2</span>}           <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26410;&#21021;&#22987;&#21270;&#20803;&#32032;&#20540;&#20026; 0&#12290;</span>
+    <span style="color: #8787d7;">b</span> := [...]<span style="color: #df005f; font-weight: bold;">int</span>{<span style="color: #d75fd7;">1</span>, <span style="color: #d75fd7;">2</span>, <span style="color: #d75fd7;">3</span>, <span style="color: #d75fd7;">4</span>}   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36890;&#36807;&#21021;&#22987;&#21270;&#20540;&#30830;&#23450;&#25968;&#32452;&#38271;&#24230;&#12290;</span>
+    <span style="color: #8787d7;">c</span> := [<span style="color: #d75fd7;">5</span>]<span style="color: #df005f; font-weight: bold;">int</span>{<span style="color: #d75fd7;">2</span>: <span style="color: #d75fd7;">100</span>, <span style="color: #d75fd7;">4</span>: <span style="color: #d75fd7;">200</span>} <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20351;&#29992;&#24341;&#21495;&#21021;&#22987;&#21270;&#20803;&#32032;&#12290;</span>
+    <span style="color: #8787d7;">d</span> := [...]<span style="color: #268bd2; font-weight: bold;">struct</span> {
+        name <span style="color: #df005f; font-weight: bold;">string</span>
+        age  <span style="color: #df005f; font-weight: bold;">uint8</span>
+    }{
+        {<span style="color: #2aa198;">"user1"</span>, <span style="color: #d75fd7;">10</span>}, <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21487;&#30465;&#30053;&#20803;&#32032;&#31867;&#22411;&#12290;</span>
+        {<span style="color: #2aa198;">"user2"</span>, <span style="color: #d75fd7;">20</span>}, <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21035;&#24536;&#20102;&#26368;&#21518;&#19968;&#34892;&#30340;&#36887;&#21495;&#12290;</span>
+    }
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(arr0, arr1, arr2, str)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(a, b, c, d)
+}
+</pre>
+</div>
+
+<p>
+输出结果:<br>
+</p>
+
+<pre class="example" id="orge93381f">
+[1 2 3 0 0] [1 2 3 4 5] [1 2 3 4 5 6] [   hello world tom]
+[1 2 0] [1 2 3 4] [0 0 100 0 200] [{user1 10} {user2 20}]
+</pre>
+
+<p>
+内置函数 <code>len</code> 和 <code>cap</code> 都返回数组长度 (元素数量)。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">a</span> := [<span style="color: #d75fd7;">2</span>]<span style="color: #df005f; font-weight: bold;">int</span>{}
+    <span style="color: #268bd2;">println</span>(<span style="color: #268bd2;">len</span>(a), <span style="color: #268bd2;">cap</span>(a)) 
+}
+</pre>
+</div>
+
+<p>
+输出结果：<br>
+</p>
+
+<pre class="example" id="orgd6c14c8">
+2 2
+</pre>
+</div>
+</div>
+<div id="outline-container-org19273bd" class="outline-3">
+<h3 id="org19273bd">多维数组</h3>
+<div class="outline-text-3" id="text-org19273bd">
+<p>
+全局<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr0</span> [<span style="color: #d75fd7;">5</span>][<span style="color: #d75fd7;">3</span>]<span style="color: #df005f; font-weight: bold;">int</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr1</span> [<span style="color: #d75fd7;">2</span>][<span style="color: #d75fd7;">3</span>]<span style="color: #df005f; font-weight: bold;">int</span> = [...][<span style="color: #d75fd7;">3</span>]<span style="color: #df005f; font-weight: bold;">int</span>{{<span style="color: #d75fd7;">1</span>, <span style="color: #d75fd7;">2</span>, <span style="color: #d75fd7;">3</span>}, {<span style="color: #d75fd7;">7</span>, <span style="color: #d75fd7;">8</span>, <span style="color: #d75fd7;">9</span>}}
+</pre>
+</div>
+
+<p>
+局部：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">a</span> := [<span style="color: #d75fd7;">2</span>][<span style="color: #d75fd7;">3</span>]<span style="color: #df005f; font-weight: bold;">int</span>{{<span style="color: #d75fd7;">1</span>, <span style="color: #d75fd7;">2</span>, <span style="color: #d75fd7;">3</span>}, {<span style="color: #d75fd7;">4</span>, <span style="color: #d75fd7;">5</span>, <span style="color: #d75fd7;">6</span>}}
+<span style="color: #8787d7;">b</span> := [...][<span style="color: #d75fd7;">2</span>]<span style="color: #df005f; font-weight: bold;">int</span>{{<span style="color: #d75fd7;">1</span>, <span style="color: #d75fd7;">1</span>}, {<span style="color: #d75fd7;">2</span>, <span style="color: #d75fd7;">2</span>}, {<span style="color: #d75fd7;">3</span>, <span style="color: #d75fd7;">3</span>}} <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#31532; 2 &#32428;&#24230;&#19981;&#33021;&#29992; "..."&#12290;</span>
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr0</span> [<span style="color: #d75fd7;">5</span>][<span style="color: #d75fd7;">3</span>]<span style="color: #df005f; font-weight: bold;">int</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr1</span> [<span style="color: #d75fd7;">2</span>][<span style="color: #d75fd7;">3</span>]<span style="color: #df005f; font-weight: bold;">int</span> = [...][<span style="color: #d75fd7;">3</span>]<span style="color: #df005f; font-weight: bold;">int</span>{{<span style="color: #d75fd7;">1</span>, <span style="color: #d75fd7;">2</span>, <span style="color: #d75fd7;">3</span>}, {<span style="color: #d75fd7;">7</span>, <span style="color: #d75fd7;">8</span>, <span style="color: #d75fd7;">9</span>}}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">a</span> := [<span style="color: #d75fd7;">2</span>][<span style="color: #d75fd7;">3</span>]<span style="color: #df005f; font-weight: bold;">int</span>{{<span style="color: #d75fd7;">1</span>, <span style="color: #d75fd7;">2</span>, <span style="color: #d75fd7;">3</span>}, {<span style="color: #d75fd7;">4</span>, <span style="color: #d75fd7;">5</span>, <span style="color: #d75fd7;">6</span>}}
+    <span style="color: #8787d7;">b</span> := [...][<span style="color: #d75fd7;">2</span>]<span style="color: #df005f; font-weight: bold;">int</span>{{<span style="color: #d75fd7;">1</span>, <span style="color: #d75fd7;">1</span>}, {<span style="color: #d75fd7;">2</span>, <span style="color: #d75fd7;">2</span>}, {<span style="color: #d75fd7;">3</span>, <span style="color: #d75fd7;">3</span>}} <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#31532; 2 &#32428;&#24230;&#19981;&#33021;&#29992; "..."&#12290;</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(arr0, arr1)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(a, b)
+}
+</pre>
+</div>
+
+<p>
+输出结果：<br>
+</p>
+
+<pre class="example" id="org76a7955">
+[[0 0 0] [0 0 0] [0 0 0] [0 0 0] [0 0 0]] [[1 2 3] [7 8 9]]
+[[1 2 3] [4 5 6]] [[1 1] [2 2] [3 3]]
+</pre>
+</div>
+</div>
+<div id="outline-container-org0cdcc1c" class="outline-3">
+<h3 id="org0cdcc1c">多维数组遍历</h3>
+<div class="outline-text-3" id="text-org0cdcc1c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">f</span> [<span style="color: #d75fd7;">2</span>][<span style="color: #d75fd7;">3</span>]<span style="color: #df005f; font-weight: bold;">int</span> = [...][<span style="color: #d75fd7;">3</span>]<span style="color: #df005f; font-weight: bold;">int</span>{{<span style="color: #d75fd7;">1</span>, <span style="color: #d75fd7;">2</span>, <span style="color: #d75fd7;">3</span>}, {<span style="color: #d75fd7;">7</span>, <span style="color: #d75fd7;">8</span>, <span style="color: #d75fd7;">9</span>}}
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">k1</span>, <span style="color: #8787d7;">v1</span> := <span style="color: #268bd2; font-weight: bold;">range</span> f {
+        <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">k2</span>, <span style="color: #8787d7;">v2</span> := <span style="color: #268bd2; font-weight: bold;">range</span> v1 {
+            fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"(%d, %d) = %d "</span>, k1, k2, v2)
+        }
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>()
+    }
+}
+</pre>
+</div>
+
+<p>
+输出结果：<br>
+</p>
+
+<pre class="example" id="org4f5b24b">
+(0, 0) = 1 (0, 1) = 2 (0, 2) = 3 
+(1, 0) = 7 (1, 1) = 8 (1, 2) = 9
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org4dc0974" class="outline-2">
+<h2 id="org4dc0974">数组拷贝和传参</h2>
+<div class="outline-text-2" id="text-org4dc0974">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">printArr</span>(<span style="color: #8787d7;">arr</span> *[<span style="color: #d75fd7;">5</span>]<span style="color: #df005f; font-weight: bold;">int</span>) {
+    arr[<span style="color: #d75fd7;">0</span>] = <span style="color: #d75fd7;">10</span>
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">v</span> := <span style="color: #268bd2; font-weight: bold;">range</span> arr {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(i, v)
+    }
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr1</span> [<span style="color: #d75fd7;">5</span>]<span style="color: #df005f; font-weight: bold;">int</span>
+    <span style="color: #d75fd7; font-weight: bold;">printArr</span>(&amp;arr1)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(arr1)
+    <span style="color: #8787d7;">arr2</span> := [...]<span style="color: #df005f; font-weight: bold;">int</span>{<span style="color: #d75fd7;">2</span>, <span style="color: #d75fd7;">4</span>, <span style="color: #d75fd7;">6</span>, <span style="color: #d75fd7;">8</span>, <span style="color: #d75fd7;">10</span>}
+    <span style="color: #d75fd7; font-weight: bold;">printArr</span>(&amp;arr2)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(arr2)
+}
+</pre>
+</div>
+
+<p>
+值拷贝行为会造成性能问题，通常会建议使用 slice，或数组指针。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">test</span>(<span style="color: #8787d7;">x</span> [<span style="color: #d75fd7;">2</span>]<span style="color: #df005f; font-weight: bold;">int</span>) {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"x: %p\n"</span>, &amp;x)
+    x[<span style="color: #d75fd7;">1</span>] = <span style="color: #d75fd7;">1000</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">a</span> := [<span style="color: #d75fd7;">2</span>]<span style="color: #df005f; font-weight: bold;">int</span>{}
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"a: %p\n"</span>, &amp;a)
+
+    <span style="color: #d75fd7; font-weight: bold;">test</span>(a)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(a)
+}
+</pre>
+</div>
+
+<p>
+输出结果:<br>
+</p>
+
+<pre class="example" id="org5b86865">
+a: 0xc42007c010
+x: 0xc42007c030
+[0 0]
+</pre>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-11 00:02 Fri</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-11 Fri 00:59</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

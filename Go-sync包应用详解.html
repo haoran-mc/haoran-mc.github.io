@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-02-07 Mon 20:56 -->
+<!-- 2022-02-14 Mon 04:31 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SYNC包应用详解</title>
@@ -22,8 +22,24 @@
 <div id="text-table-of-contents">
 <ul>
 <li><a href="#org571af1e">简介</a></li>
-<li><a href="#orgb15e6dd">sync.Mutex</a></li>
-<li><a href="#org453cb69">sync.RWMutex</a></li>
+<li><a href="#orgb15e6dd">sync.Mutex</a>
+<ul>
+<li><a href="#orgf6ad9a3">方法</a>
+<ul>
+<li><a href="#orgb7f2374">func (*Mutex) Lock</a></li>
+<li><a href="#org793a7b3">func (*Mutex) Unlock</a></li>
+</ul>
+</li>
+<li><a href="#org530fcd3">注意</a></li>
+<li><a href="#org84ba749">实例</a></li>
+</ul>
+</li>
+<li><a href="#org453cb69">sync.RWMutex</a>
+<ul>
+<li><a href="#orgf926639">用例</a></li>
+<li><a href="#orgd2341a2">禁止嵌套</a></li>
+</ul>
+</li>
 <li><a href="#org8a76c3a">sync.WaitGroup</a></li>
 <li><a href="#orgcecf5d8">sync.Map</a></li>
 <li><a href="#org2139f82">sync.Poll</a></li>
@@ -47,19 +63,116 @@
 <p>
 <code>sync.Mutex</code> 可能是是 <code>sync</code> 包中使用最广泛的原语，它允许在共享资源上互斥访问（不能同时访问）：<br>
 </p>
-
+</div>
+<div id="outline-container-orgf6ad9a3" class="outline-3">
+<h3 id="orgf6ad9a3">方法</h3>
+<div class="outline-text-3" id="text-orgf6ad9a3">
+</div>
+<div id="outline-container-orgb7f2374" class="outline-4">
+<h4 id="orgb7f2374">func (*Mutex) Lock</h4>
+<div class="outline-text-4" id="text-orgb7f2374">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #8787d7; background-color: #262626; font-weight: bold;">mutex</span> := &amp;<span style="color: #df005f; font-weight: bold;">sync.Mutex</span>{}
-
-mutex.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
-<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Update &#20849;&#20139;&#21464;&#37327;&#65288;&#27604;&#22914;&#20999;&#29255;&#65292;&#32467;&#26500;&#20307;&#25351;&#38024;&#31561;&#65289;</span>
-mutex.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">m</span> *<span style="color: #df005f; font-weight: bold;">Mutex</span>) <span style="color: #d75fd7; font-weight: bold;">Lock</span>()
 </pre>
 </div>
 
 <p>
-必须指出的是，在第一次被使用后，不能再对 <code>sync.Mutex</code> 进行复制（ <code>sync</code> 包的所有原语都一样），如果有结构体具有同步原语字段，则必须通过指针传递它。<br>
+Lock 方法锁住 m，如果 m 已经加锁，则阻塞直到 m 解锁。<br>
 </p>
+</div>
+</div>
+<div id="outline-container-org793a7b3" class="outline-4">
+<h4 id="org793a7b3">func (*Mutex) Unlock</h4>
+<div class="outline-text-4" id="text-org793a7b3">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">m</span> *<span style="color: #df005f; font-weight: bold;">Mutex</span>) <span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+</pre>
+</div>
+
+<p>
+Unlock 方法解锁 m，如果 m 未加锁会导致运行时错误。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org530fcd3" class="outline-3">
+<h3 id="org530fcd3">注意</h3>
+<div class="outline-text-3" id="text-org530fcd3">
+<ul class="org-ul">
+<li>在一个 goroutine 获得 Mutex 后，其他 goroutine 只能等到这个 goroutine 释放该 Mutex<br></li>
+<li>使用 Lock() 加锁后，不能再继续对其加锁，直到利用 Unlock() 解锁后才能再加锁<br></li>
+<li>在 Lock() 之前使用 Unlock() 会导致 panic 异常<br></li>
+<li>已经锁定的 Mutex 并不与特定的 goroutine 相关联，这样可以利用一个 goroutine 对其加锁，再利用其他 goroutine 对其解锁<br></li>
+<li>在同一个 goroutine 中的 Mutex 解锁之前再次进行加锁，会导致死锁<br></li>
+<li>适用于读写不确定，并且只有一个读或者写的场景<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org84ba749" class="outline-3">
+<h3 id="org84ba749">实例</h3>
+<div class="outline-text-3" id="text-org84ba749">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"sync"</span>
+    <span style="color: #2aa198;">"time"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">mutex</span> <span style="color: #df005f; font-weight: bold;">sync.Mutex</span>
+    <span style="color: #8787d7;">wait</span> := <span style="color: #df005f; font-weight: bold;">sync.WaitGroup</span>{}
+
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Locked"</span>)
+    mutex.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">1</span>; i &lt;= <span style="color: #d75fd7;">3</span>; i++ {
+        wait.<span style="color: #d75fd7; font-weight: bold;">Add</span>(<span style="color: #d75fd7;">1</span>)
+
+        <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">i</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
+            fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Not lock:"</span>, i)
+
+            mutex.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+            fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Lock:"</span>, i)
+
+            time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(time.Second)
+
+            fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Unlock:"</span>, i)
+            mutex.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+
+            <span style="color: #268bd2; font-weight: bold;">defer</span> wait.<span style="color: #d75fd7; font-weight: bold;">Done</span>()
+        }(i)
+    }
+
+    time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(time.Second)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Unlocked"</span>)
+    mutex.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+
+    wait.<span style="color: #d75fd7; font-weight: bold;">Wait</span>()
+}
+</pre>
+</div>
+
+<p>
+运行结果：<br>
+</p>
+
+<pre class="example" id="orga5baf5b">
+Locked
+Not lock: 1
+Not lock: 2
+Not lock: 3
+Unlocked
+Lock: 1
+Unlock: 1
+Lock: 2
+Unlock: 2
+Lock: 3
+Unlock: 3
+</pre>
+</div>
 </div>
 </div>
 <div id="outline-container-org453cb69" class="outline-2">
@@ -70,7 +183,7 @@ mutex.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #8787d7; background-color: #262626; font-weight: bold;">mutex</span> := &amp;<span style="color: #df005f; font-weight: bold;">sync.RWMutex</span>{}
+<pre class="src src-go"><span style="color: #8787d7;">mutex</span> := &amp;<span style="color: #df005f; font-weight: bold;">sync.RWMutex</span>{}
 
 mutex.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Update &#20849;&#20139;&#21464;&#37327;</span>
@@ -83,10 +196,14 @@ mutex.<span style="color: #d75fd7; font-weight: bold;">RUnlock</span>()
 </div>
 
 <p>
-<code>sync.RWMutex</code> 允许至少一个读锁或一个写锁存在，而 <code>sync.Mutex</code> 允许一个读锁或一个写锁存在。<br>
+<code>sync.Mutex</code> 允许一个读锁或一个写锁存在，而 <code>sync.RWMutex</code> 允许至少一个读锁或一个写锁存在。简单来说就是 <code>RWMutex</code> 可以由任意数量的读者同时使用，或者只由一个写者使用的锁。<br>
 </p>
 
-<pre class="example" id="org01bd7ac">
+<p>
+在并发编程的很多场景下，数据的读取可能比写入更加频繁，这时就要允许多个线程同时读取一块内容。<br>
+</p>
+
+<pre class="example" id="orge2911cd">
 BenchmarkMutexLock-4       83497579         17.7 ns/op
 BenchmarkRWMutexLock-4     35286374         44.3 ns/op
 BenchmarkRWMutexRLock-4    89403342         15.3 ns/op
@@ -99,6 +216,133 @@ BenchmarkRWMutexRLock-4    89403342         15.3 ns/op
 <p>
 因此，只有在频繁读取和不频繁写入的场景里，才应该使用 <code>sync.RWMutex</code> 。<br>
 </p>
+</div>
+<div id="outline-container-orgf926639" class="outline-3">
+<h3 id="orgf926639">用例</h3>
+<div class="outline-text-3" id="text-orgf926639">
+<p>
+Go 中，RWMutex 的零值是一个未加锁的互斥量。<br>
+</p>
+
+<p>
+RWMutex 使用起来相对比较简单，这里举一个简单的例子：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"sync"</span>
+    <span style="color: #2aa198;">"time"</span>
+)
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">rw</span> := <span style="color: #268bd2;">new</span>(<span style="color: #df005f; font-weight: bold;">sync.RWMutex</span>)
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; <span style="color: #d75fd7;">2</span>; i++ {   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#24314;&#31435;&#20004;&#20010;&#20889;&#32773;</span>
+        <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+            <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">j</span> := <span style="color: #d75fd7;">0</span>; j &lt; <span style="color: #d75fd7;">3</span>; j++ {
+                rw.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+                <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20889;</span>
+                rw.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+            }
+        }()
+    }
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; <span style="color: #d75fd7;">5</span>; i++ {    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#24314;&#31435;&#20004;&#20010;&#35835;&#32773;</span>
+        <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+            <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">j</span> := <span style="color: #d75fd7;">0</span>; j &lt; <span style="color: #d75fd7;">3</span>; j++ {
+                rw.<span style="color: #d75fd7; font-weight: bold;">RLock</span>()
+                <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35835;</span>
+                rw.<span style="color: #d75fd7; font-weight: bold;">RUnlock</span>()
+            }
+        }()
+    }
+    time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(time.Second)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Done"</span>)
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgd2341a2" class="outline-3">
+<h3 id="orgd2341a2">禁止嵌套</h3>
+<div class="outline-text-3" id="text-orgd2341a2">
+<blockquote>
+<p>
+读者在读的时候，不能够假定别的读者也能够获得锁。因此，禁止读锁嵌套。<br>
+</p>
+</blockquote>
+
+<p>
+是不是有点儿绕？下面举个“七秒例”<br>
+</p>
+
+<ul class="org-ul">
+<li>第一秒：读者1在第1秒成功申请了读锁<br></li>
+<li>第二秒：写者1在第2秒申请写锁，申请失败，阻塞，但它会防止新的读者获锁<br></li>
+<li>第三秒：读者2在第3秒申请读锁，申请失败<br></li>
+<li>第四秒：读者1释放读锁，写者1获得写锁<br></li>
+<li>第五秒：写者1释放写锁，读者2获得读锁<br></li>
+<li>第六秒：读者1再次申请读锁，申请成功，与读者2共享<br></li>
+<li>第七秒：读者1、读者2释放读锁，结束<br></li>
+</ul>
+
+<p>
+当写锁阻塞时，新的读锁是无法申请的，这可以有效防止写者饥饿。如果一个线程因为某种原因，导致得不到CPU运行时间，这种状态被称之为 <b>饥饿</b> 。<br>
+</p>
+
+<p>
+然而，这种机制也禁止了读锁嵌套。读锁嵌套可能造成死锁：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"sync"</span>
+    <span style="color: #2aa198;">"time"</span>
+)
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">rw</span> := <span style="color: #268bd2;">new</span>(<span style="color: #df005f; font-weight: bold;">sync.RWMutex</span>)
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">deadLockCase</span> <span style="color: #df005f; font-weight: bold;">time.Duration</span> = <span style="color: #d75fd7;">1</span>
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+        time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(time.Second * deadLockCase)
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Writer Try"</span>)
+        rw.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Writer Fetch"</span>)
+        time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(time.Second * <span style="color: #d75fd7;">1</span>)
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Writer Release"</span>)
+        rw.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+    }()
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Reader 1 Try"</span>)
+    rw.<span style="color: #d75fd7; font-weight: bold;">RLock</span>()
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Reader 1 Fetch"</span>)
+    time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(time.Second * <span style="color: #d75fd7;">2</span>)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Reader 2 Try"</span>)
+    rw.<span style="color: #d75fd7; font-weight: bold;">RLock</span>()
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Reader 2 Fetch"</span>)
+    time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(time.Second * <span style="color: #d75fd7;">2</span>)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Reader 1 Release"</span>)
+    rw.<span style="color: #d75fd7; font-weight: bold;">RUnlock</span>()
+    time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(time.Second * <span style="color: #d75fd7;">1</span>)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Reader 2 Release"</span>)
+    rw.<span style="color: #d75fd7; font-weight: bold;">RUnlock</span>()
+    time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(time.Second * <span style="color: #d75fd7;">2</span>)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Done"</span>)
+}
+</pre>
+</div>
+
+<p>
+读者1和读者2是嵌套关系，按照这种时间安排，上述程序会导致死锁。<br>
+</p>
+
+<p>
+而有些死锁的可怕之处就在于，它不一定会发生。假设上面程序中的time.Sleep都是随机的时间，那么这一段代码每次的结果有可能不一致，这会给Debug带来极大的困难。<br>
+</p>
+
+<p>
+读锁嵌套了还有概率成功，写锁嵌套了就一定会死锁！<br>
+</p>
+</div>
 </div>
 </div>
 <div id="outline-container-org8a76c3a" class="outline-2">
@@ -121,9 +365,9 @@ BenchmarkRWMutexRLock-4    89403342         15.3 ns/op
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #8787d7; background-color: #262626; font-weight: bold;">wg</span> := &amp;<span style="color: #df005f; font-weight: bold;">sync.WaitGroup</span>{}
+<pre class="src src-go"><span style="color: #8787d7;">wg</span> := &amp;<span style="color: #df005f; font-weight: bold;">sync.WaitGroup</span>{}
 
-<span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7; background-color: #262626; font-weight: bold;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; <span style="color: #d75fd7;">0</span>; i ++ {
+<span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; <span style="color: #d75fd7;">0</span>; i ++ {
     wg.<span style="color: #d75fd7; font-weight: bold;">Add</span>(<span style="color: #d75fd7;">1</span>)
     <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Do something</span>
@@ -164,20 +408,20 @@ wg.<span style="color: #d75fd7; font-weight: bold;">Wait</span>()
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #8787d7; background-color: #262626; font-weight: bold;">m</span> := &amp;<span style="color: #df005f; font-weight: bold;">sync.Map</span>{}
+<pre class="src src-go"><span style="color: #8787d7;">m</span> := &amp;<span style="color: #df005f; font-weight: bold;">sync.Map</span>{}
 
 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#28155;&#21152;&#20803;&#32032;</span>
 m.<span style="color: #d75fd7; font-weight: bold;">Store</span>(<span style="color: #d75fd7;">1</span>, <span style="color: #2aa198;">"one"</span>)
 m.<span style="color: #d75fd7; font-weight: bold;">Store</span>(<span style="color: #d75fd7;">2</span>, <span style="color: #2aa198;">"two"</span>)
 
 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#33719;&#21462;&#20803;&#32032;1</span>
-<span style="color: #8787d7; background-color: #262626; font-weight: bold;">value</span>, <span style="color: #8787d7; background-color: #262626; font-weight: bold;">contains</span> := m.<span style="color: #d75fd7; font-weight: bold;">Load</span>(<span style="color: #d75fd7;">1</span>)
+<span style="color: #8787d7;">value</span>, <span style="color: #8787d7;">contains</span> := m.<span style="color: #d75fd7; font-weight: bold;">Load</span>(<span style="color: #d75fd7;">1</span>)
 <span style="color: #268bd2; font-weight: bold;">if</span> contains {
     fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%s\n"</span>, value.(<span style="color: #df005f; font-weight: bold;">string</span>))
 }
 
 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;&#24050;&#23384;value&#65292;&#21542;&#21017;&#25226;&#25351;&#23450;&#30340;&#38190;&#20540;&#23384;&#20648;&#21040;map&#20013;</span>
-<span style="color: #8787d7; background-color: #262626; font-weight: bold;">value</span>, <span style="color: #8787d7; background-color: #262626; font-weight: bold;">loaded</span> := m.<span style="color: #d75fd7; font-weight: bold;">LoadOrStore</span>(<span style="color: #d75fd7;">3</span>, <span style="color: #2aa198;">"three"</span>)
+<span style="color: #8787d7;">value</span>, <span style="color: #8787d7;">loaded</span> := m.<span style="color: #d75fd7; font-weight: bold;">LoadOrStore</span>(<span style="color: #d75fd7;">3</span>, <span style="color: #2aa198;">"three"</span>)
 <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #d75fd7;">!</span>loaded {
     fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%s\n"</span>, value.(<span style="color: #df005f; font-weight: bold;">string</span>))
 }
@@ -185,7 +429,7 @@ m.<span style="color: #d75fd7; font-weight: bold;">Store</span>(<span style="col
 m.<span style="color: #d75fd7; font-weight: bold;">Delete</span>(<span style="color: #d75fd7;">3</span>)
 
 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36845;&#20195;&#25152;&#26377;&#20803;&#32032;</span>
-m.<span style="color: #d75fd7; font-weight: bold;">Range</span>(<span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7; background-color: #262626; font-weight: bold;">key</span>, <span style="color: #8787d7; background-color: #262626; font-weight: bold;">value</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}) <span style="color: #df005f; font-weight: bold;">bool</span> {
+m.<span style="color: #d75fd7; font-weight: bold;">Range</span>(<span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">key</span>, <span style="color: #8787d7;">value</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}) <span style="color: #df005f; font-weight: bold;">bool</span> {
     fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%d: %s\n"</span>, key.(<span style="color: #df005f; font-weight: bold;">int</span>), value.(<span style="color: #df005f; font-weight: bold;">string</span>))
     <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">true</span>
 })
@@ -196,7 +440,7 @@ m.<span style="color: #d75fd7; font-weight: bold;">Range</span>(<span style="col
 输出：<br>
 </p>
 
-<pre class="example" id="orgfa8e64d">
+<pre class="example" id="org5eae77f">
 one
 three
 1: one
@@ -230,13 +474,13 @@ three
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #8787d7; background-color: #262626; font-weight: bold;">pool</span> := &amp;<span style="color: #df005f; font-weight: bold;">sync.Pool</span>{}
+<pre class="src src-go"><span style="color: #8787d7;">pool</span> := &amp;<span style="color: #df005f; font-weight: bold;">sync.Pool</span>{}
 
 pool.<span style="color: #d75fd7; font-weight: bold;">Put</span>(<span style="color: #d75fd7; font-weight: bold;">NewConnection</span>(<span style="color: #d75fd7;">1</span>))
 pool.<span style="color: #d75fd7; font-weight: bold;">Put</span>(<span style="color: #d75fd7; font-weight: bold;">NewConnection</span>(<span style="color: #d75fd7;">2</span>))
 pool.<span style="color: #d75fd7; font-weight: bold;">Put</span>(<span style="color: #d75fd7; font-weight: bold;">NewConnection</span>(<span style="color: #d75fd7;">3</span>))
 
-<span style="color: #8787d7; background-color: #262626; font-weight: bold;">connection</span> := pool.<span style="color: #d75fd7; font-weight: bold;">Get</span>().(*<span style="color: #df005f; font-weight: bold;">Connection</span>)
+<span style="color: #8787d7;">connection</span> := pool.<span style="color: #d75fd7; font-weight: bold;">Get</span>().(*<span style="color: #df005f; font-weight: bold;">Connection</span>)
 fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%d\n"</span>, connection.id)
 connection = pool.<span style="color: #d75fd7; font-weight: bold;">Get</span>().(*<span style="color: #df005f; font-weight: bold;">Connection</span>)
 fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%d\n"</span>, connection.id)
@@ -249,7 +493,7 @@ fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="
 输出：<br>
 </p>
 
-<pre class="example" id="orgd19a1fb">
+<pre class="example" id="org132cdd1">
 1
 3
 2
@@ -264,13 +508,13 @@ fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #8787d7; background-color: #262626; font-weight: bold;">pool</span> := &amp;<span style="color: #df005f; font-weight: bold;">sync.Pool</span>{
+<pre class="src src-go"><span style="color: #8787d7;">pool</span> := &amp;<span style="color: #df005f; font-weight: bold;">sync.Pool</span>{
     <span style="color: #d75fd7;">New</span>: <span style="color: #268bd2; font-weight: bold;">func</span>() <span style="color: #268bd2; font-weight: bold;">interface</span>{} {
         <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7; font-weight: bold;">NewConnection</span>()
     },
 }
 
-<span style="color: #8787d7; background-color: #262626; font-weight: bold;">connection</span> := pool.<span style="color: #d75fd7; font-weight: bold;">Get</span>().(*<span style="color: #df005f; font-weight: bold;">Connection</span>)
+<span style="color: #8787d7;">connection</span> := pool.<span style="color: #d75fd7; font-weight: bold;">Get</span>().(*<span style="color: #df005f; font-weight: bold;">Connection</span>)
 </pre>
 </div>
 
@@ -295,8 +539,8 @@ fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">writeFile</span>(<span style="color: #8787d7; background-color: #262626; font-weight: bold;">pool</span> *<span style="color: #df005f; font-weight: bold;">sync.Pool</span>, <span style="color: #8787d7; background-color: #262626; font-weight: bold;">filename</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">error</span> {
-    <span style="color: #8787d7; background-color: #262626; font-weight: bold;">buf</span> := pool.<span style="color: #d75fd7; font-weight: bold;">Get</span>().(*<span style="color: #df005f; font-weight: bold;">bytes.Buffer</span>)
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">writeFile</span>(<span style="color: #8787d7;">pool</span> *<span style="color: #df005f; font-weight: bold;">sync.Pool</span>, <span style="color: #8787d7;">filename</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">error</span> {
+    <span style="color: #8787d7;">buf</span> := pool.<span style="color: #d75fd7; font-weight: bold;">Get</span>().(*<span style="color: #df005f; font-weight: bold;">bytes.Buffer</span>)
 
     <span style="color: #268bd2; font-weight: bold;">defer</span> pool.<span style="color: #d75fd7; font-weight: bold;">Put</span>(buf)
 
@@ -320,9 +564,9 @@ fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #8787d7; background-color: #262626; font-weight: bold;">once</span> := &amp;<span style="color: #df005f; font-weight: bold;">sync.Once</span>{}
-<span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7; background-color: #262626; font-weight: bold;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; <span style="color: #d75fd7;">4</span>; i++ {
-    <span style="color: #8787d7; background-color: #262626; font-weight: bold;">i</span> := i
+<pre class="src src-go"><span style="color: #8787d7;">once</span> := &amp;<span style="color: #df005f; font-weight: bold;">sync.Once</span>{}
+<span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; <span style="color: #d75fd7;">4</span>; i++ {
+    <span style="color: #8787d7;">i</span> := i
     <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
         once.<span style="color: #d75fd7; font-weight: bold;">Do</span>(<span style="color: #268bd2; font-weight: bold;">func</span>() {
             fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"first %d\n"</span>, i)
@@ -345,7 +589,7 @@ fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #8787d7; background-color: #262626; font-weight: bold;">cond</span> := sync.<span style="color: #d75fd7; font-weight: bold;">NewCond</span>(&amp;<span style="color: #df005f; font-weight: bold;">sync.Mutex</span>{})
+<pre class="src src-go"><span style="color: #8787d7;">cond</span> := sync.<span style="color: #d75fd7; font-weight: bold;">NewCond</span>(&amp;<span style="color: #df005f; font-weight: bold;">sync.Mutex</span>{})
 </pre>
 </div>
 
@@ -354,7 +598,7 @@ fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">printFirstElement</span>(<span style="color: #8787d7; background-color: #262626; font-weight: bold;">s</span> []<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7; background-color: #262626; font-weight: bold;">cond</span> *<span style="color: #df005f; font-weight: bold;">sync.Cond</span>) {
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">printFirstElement</span>(<span style="color: #8787d7;">s</span> []<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">cond</span> *<span style="color: #df005f; font-weight: bold;">sync.Cond</span>) {
     cond.L.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
     cond.<span style="color: #d75fd7; font-weight: bold;">Wait</span>()
     fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%d\n"</span>, s[<span style="color: #d75fd7;">0</span>])
@@ -372,12 +616,12 @@ fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #8787d7; background-color: #262626; font-weight: bold;">s</span> := <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #d75fd7;">1</span>)
-<span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7; background-color: #262626; font-weight: bold;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; runtime.<span style="color: #d75fd7; font-weight: bold;">NumCPU</span>(); i++ {
+<pre class="src src-go"><span style="color: #8787d7;">s</span> := <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #d75fd7;">1</span>)
+<span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; runtime.<span style="color: #d75fd7; font-weight: bold;">NumCPU</span>(); i++ {
     <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">printFirstElement</span>(s, cond)
 }
 
-<span style="color: #8787d7; background-color: #262626; font-weight: bold;">i</span> := <span style="color: #d75fd7; font-weight: bold;">get</span>()
+<span style="color: #8787d7;">i</span> := <span style="color: #d75fd7; font-weight: bold;">get</span>()
 cond.L.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
 s[<span style="color: #d75fd7;">0</span>] = i
 cond.<span style="color: #d75fd7; font-weight: bold;">Signal</span>()
@@ -404,7 +648,7 @@ cond.L.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #8787d7; background-color: #262626; font-weight: bold;">i</span> := <span style="color: #d75fd7; font-weight: bold;">get</span>()
+<pre class="src src-go"><span style="color: #8787d7;">i</span> := <span style="color: #d75fd7; font-weight: bold;">get</span>()
 cond.L.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
 s[<span style="color: #d75fd7;">0</span>] = i
 cond.<span style="color: #d75fd7; font-weight: bold;">Broadcast</span>()
@@ -432,7 +676,7 @@ cond.L.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
 <div id="postamble" class="status">
 <p class="date">Date: 2022-02-07 18:02 Mon</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-02-07 Mon 20:56</p>
+<p class="date">Created: 2022-02-14 Mon 04:31</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-12 Sat 16:58 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>定时调用PANIC语句</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">定时调用PANIC语句</h1>
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">1 &#22312;&#36825;&#37324;&#38656;&#35201;&#20320;&#20889;&#31639;&#27861;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">2 &#35201;&#27714;&#27599;&#31186;&#38047;&#35843;&#29992;&#19968;&#27425;proc&#20989;&#25968;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">3 &#35201;&#27714;&#31243;&#24207;&#19981;&#33021;&#36864;&#20986;</span>
+    }()
+
+    <span style="color: #268bd2; font-weight: bold;">select</span> {}
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">proc</span>() {
+    <span style="color: #268bd2;">panic</span>(<span style="color: #2aa198;">"ok"</span>)
+}
+</pre>
+</div>
+
+<p>
+题目主要考察了两个知识点：<br>
+</p>
+
+<ol class="org-ol">
+<li>定时执行执行任务<br></li>
+<li>捕获 panic 错误<br></li>
+</ol>
+
+<p>
+题目中要求每秒钟执行一次，首先想到的就是 <code>time.Ticker</code> 对象，该函数可每秒钟往 <code>chan</code> 中放一个 <code>Time</code> ，正好符合我们的要求。<br>
+</p>
+
+<p>
+在 <code>golang</code> 中捕获 <code>panic</code> 一般会用到 <code>recover()</code> 函数。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"time"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">1 &#22312;&#36825;&#37324;&#38656;&#35201;&#20320;&#20889;&#31639;&#27861;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">2 &#35201;&#27714;&#27599;&#31186;&#38047;&#35843;&#29992;&#19968;&#27425;proc&#20989;&#25968;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">3 &#35201;&#27714;&#31243;&#24207;&#19981;&#33021;&#36864;&#20986;</span>
+
+        <span style="color: #8787d7;">t</span> := time.<span style="color: #d75fd7; font-weight: bold;">NewTicker</span>(time.Second * <span style="color: #d75fd7;">1</span>)
+        <span style="color: #268bd2; font-weight: bold;">for</span> {
+            <span style="color: #268bd2; font-weight: bold;">select</span> {
+            <span style="color: #268bd2; font-weight: bold;">case</span> &lt;-t.C:
+                <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+                    <span style="color: #268bd2; font-weight: bold;">defer</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+                        <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #8787d7;">err</span> := <span style="color: #268bd2;">recover</span>(); err != <span style="color: #d75fd7;">nil</span> {
+                            fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(err)
+                        }
+                    }()
+                    <span style="color: #d75fd7; font-weight: bold;">proc</span>()
+                }()
+            }
+        }
+    }()
+    <span style="color: #268bd2; font-weight: bold;">select</span> {}
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">proc</span>() {
+    <span style="color: #268bd2;">panic</span>(<span style="color: #2aa198;">"ok"</span>)
+}
+</pre>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-12 16:02 Sat</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-12 Sat 16:58</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

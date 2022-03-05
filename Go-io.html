@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-10 Thu 15:44 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IO</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">IO</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgaf267d5">Introduction</a></li>
+<li><a href="#orga6eed50">Variables</a></li>
+<li><a href="#orgf056faa">type Reader</a></li>
+<li><a href="#org272daea">type Writer</a></li>
+<li><a href="#orgd8b1667">type Closer</a></li>
+<li><a href="#org9fae8c7">type Seeker</a></li>
+<li><a href="#org748cb2c">type ReadCloser</a></li>
+<li><a href="#org66174a3">type ReadSeeker</a></li>
+<li><a href="#orge626d31">type WriteCloser</a></li>
+<li><a href="#orgbca1b1a">type WriteSeeker</a></li>
+<li><a href="#orgc47aca4">type ReadWriter</a></li>
+<li><a href="#org6c84146">type ReadWriteCloser</a></li>
+<li><a href="#org456e6ba">type ReadWriteSeeker</a></li>
+<li><a href="#orgde88787">type ReaderAt</a></li>
+<li><a href="#org0450105">type WriterAt</a></li>
+<li><a href="#org901ed39">type ByteReader</a></li>
+<li><a href="#org92b4e89">type ByteScanner</a></li>
+<li><a href="#org5241bc5">type RuneReader</a></li>
+<li><a href="#orge5104cb">type RuneScanner</a></li>
+<li><a href="#orgd2b3642">type ByteWriter</a></li>
+<li><a href="#orga156c93">type ReaderFrom</a></li>
+<li><a href="#orgb6b7007">type WriterTo</a></li>
+<li><a href="#org16107a7">type LimitedReader</a>
+<ul>
+<li><a href="#orgb9b8a4a">func LimitReader</a></li>
+<li><a href="#org2275a6e">func (*LimitedReader) Read</a></li>
+</ul>
+</li>
+<li><a href="#orgaaeb0bf">type SectionReader</a>
+<ul>
+<li><a href="#org2105c22">func NewSectionReader</a></li>
+<li><a href="#orga5bfc56">func (*SectionReader) Size</a></li>
+<li><a href="#org8cd4b5a">func (*SectionReader) Read</a></li>
+<li><a href="#org50e9216">func (*SectionReader) ReadAt</a></li>
+<li><a href="#org9014f26">func (*SectionReader) Seek</a></li>
+</ul>
+</li>
+<li><a href="#orga411951">type PipeReader</a>
+<ul>
+<li><a href="#org9c3d582">func Pipe</a></li>
+<li><a href="#orgf436064">func (*PipeReader) Read</a></li>
+<li><a href="#orgdeaa462">func (*PipeReader) Close</a></li>
+<li><a href="#org37d8292">func (*PipeReader) CloseWithError</a></li>
+</ul>
+</li>
+<li><a href="#org7c37264">type PipeWriter</a>
+<ul>
+<li><a href="#orgcc0fd40">func (*PipeWriter) Write</a></li>
+<li><a href="#orgcaa935f">func (*PipeWriter) Close</a></li>
+<li><a href="#orgae9de81">func (*PipeWriter) CloseWithError</a></li>
+</ul>
+</li>
+<li><a href="#orgde70b50">func TeeReader</a></li>
+<li><a href="#orgbeca33d">func MultiReader</a></li>
+<li><a href="#org2152d09">func MultiWriter</a></li>
+<li><a href="#org6d1cb4b">func Copy</a></li>
+<li><a href="#org006bfd5">func CopyN</a></li>
+<li><a href="#org1b33221">func ReadAtLeast</a></li>
+<li><a href="#orgc10a71e">func ReadFull</a></li>
+<li><a href="#org5a5ecd8">func WriteString</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgaf267d5" class="outline-2">
+<h2 id="orgaf267d5">Introduction</h2>
+<div class="outline-text-2" id="text-orgaf267d5">
+<p>
+io包提供了对I/O原语的基本接口。本包的基本任务是包装这些原语已有的实现（如os包里的原语），使之成为共享的公共接口，这些公共接口抽象出了泛用的函数并附加了一些相关的原语的操作。<br>
+</p>
+
+<p>
+因为这些接口和原语是对底层实现完全不同的低水平操作的包装，除非得到其它方面的通知，客户端不应假设它们是并发执行安全的。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga6eed50" class="outline-2">
+<h2 id="orga6eed50">Variables</h2>
+<div class="outline-text-2" id="text-orga6eed50">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">EOF</span> = errors.<span style="color: #d75fd7; font-weight: bold;">New</span>(<span style="color: #2aa198;">"EOF"</span>)
+</pre>
+</div>
+
+<p>
+EOF当无法得到更多输入时，Read方法返回EOF。当函数一切正常的到达输入的结束时，就应返回EOF。如果在一个结构化数据流中EOF在不期望的位置出现了，则应返回错误ErrUnexpectedEOF或者其它给出更多细节的错误。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">ErrClosedPipe</span> = errors.<span style="color: #d75fd7; font-weight: bold;">New</span>(<span style="color: #2aa198;">"io: read/write on closed pipe"</span>)
+</pre>
+</div>
+
+<p>
+当从一个已关闭的Pipe读取或者写入时，会返回ErrClosedPipe。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">ErrNoProgress</span> = errors.<span style="color: #d75fd7; font-weight: bold;">New</span>(<span style="color: #2aa198;">"multiple Read calls return no data or error"</span>)
+</pre>
+</div>
+
+<p>
+某些使用io.Reader接口的客户端如果多次调用Read都不返回数据也不返回错误时，就会返回本错误，一般来说是io.Reader的实现有问题的标志。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">ErrShortBuffer</span> = errors.<span style="color: #d75fd7; font-weight: bold;">New</span>(<span style="color: #2aa198;">"short buffer"</span>)
+</pre>
+</div>
+
+<p>
+ErrShortBuffer表示读取操作需要大缓冲，但提供的缓冲不够大。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">ErrShortWrite</span> = errors.<span style="color: #d75fd7; font-weight: bold;">New</span>(<span style="color: #2aa198;">"short write"</span>)
+</pre>
+</div>
+
+<p>
+ErrShortWrite表示写入操作写入的数据比提供的少，却没有显式的返回错误。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">ErrUnexpectedEOF</span> = errors.<span style="color: #d75fd7; font-weight: bold;">New</span>(<span style="color: #2aa198;">"unexpected EOF"</span>)
+</pre>
+</div>
+
+<p>
+ErrUnexpectedEOF表示在读取一个固定尺寸的块或者数据结构时，在读取未完全时遇到了EOF。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf056faa" class="outline-2">
+<h2 id="orgf056faa">type Reader</h2>
+<div class="outline-text-2" id="text-orgf056faa">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Reader</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+        <span style="color: #d75fd7; font-weight: bold;">Read</span>(<span style="color: #8787d7;">p</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+}
+</pre>
+</div>
+
+<p>
+Reader接口用于包装基本的读取方法。<br>
+</p>
+
+<p>
+Read方法读取len(p)字节数据写入p。它返回写入的字节数和遇到的任何错误。即使Read方法返回值n &lt; len(p)，本方法在被调用时仍可能使用p的全部长度作为暂存空间。如果有部分可用数据，但不够len(p)字节，Read按惯例会返回可以读取到的数据，而不是等待更多数据。<br>
+</p>
+
+<p>
+当Read在读取n &gt; 0个字节后遭遇错误或者到达文件结尾时，会返回读取的字节数。它可能会在该次调用返回一个非nil的错误，或者在下一次调用时返回0和该错误。一个常见的例子，Reader接口会在输入流的结尾返回非0的字节数，返回值err <code>= EOF或err =</code> nil。但不管怎样，下一次Read调用必然返回(0, EOF)。调用者应该总是先处理读取的n &gt; 0字节再处理错误值。这么做可以正确的处理发生在读取部分数据后的I/O错误，也能正确处理EOF事件。<br>
+</p>
+
+<p>
+如果Read的某个实现返回0字节数和nil错误值，表示被阻碍；调用者应该将这种情况视为未进行操作。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org272daea" class="outline-2">
+<h2 id="org272daea">type Writer</h2>
+<div class="outline-text-2" id="text-org272daea">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Writer</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+        <span style="color: #d75fd7; font-weight: bold;">Write</span>(<span style="color: #8787d7;">p</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+}
+</pre>
+</div>
+
+<p>
+Writer接口用于包装基本的写入方法。<br>
+</p>
+
+<p>
+Write方法len(p) 字节数据从p写入底层的数据流。它会返回写入的字节数(0 &lt;= n &lt;= len(p))和遇到的任何导致写入提取结束的错误。Write必须返回非nil的错误，如果它返回的 n &lt; len(p)。Write不能修改切片p中的数据，即使临时修改也不行。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgd8b1667" class="outline-2">
+<h2 id="orgd8b1667">type Closer</h2>
+<div class="outline-text-2" id="text-orgd8b1667">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Closer</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+        <span style="color: #d75fd7; font-weight: bold;">Close</span>() <span style="color: #df005f; font-weight: bold;">error</span>
+}
+</pre>
+</div>
+
+<p>
+Closer接口用于包装基本的关闭方法。<br>
+</p>
+
+<p>
+在第一次调用之后再次被调用时，Close方法的的行为是未定义的。某些实现可能会说明他们自己的行为。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9fae8c7" class="outline-2">
+<h2 id="org9fae8c7">type Seeker</h2>
+<div class="outline-text-2" id="text-org9fae8c7">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Seeker</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+        <span style="color: #d75fd7; font-weight: bold;">Seek</span>(<span style="color: #8787d7;">offset</span> <span style="color: #df005f; font-weight: bold;">int64</span>, <span style="color: #8787d7;">whence</span> <span style="color: #df005f; font-weight: bold;">int</span>) (<span style="color: #df005f; font-weight: bold;">int64</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+}
+</pre>
+</div>
+
+<p>
+Seeker接口用于包装基本的移位方法。<br>
+</p>
+
+<p>
+Seek方法设定下一次读写的位置：偏移量为offset，校准点由whence确定：0表示相对于文件起始；1表示相对于当前位置；2表示相对于文件结尾。Seek方法返回新的位置以及可能遇到的错误。<br>
+</p>
+
+<p>
+移动到一个绝对偏移量为负数的位置会导致错误。移动到任何偏移量为正数的位置都是合法的，但其下一次I/O操作的具体行为则要看底层的实现。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org748cb2c" class="outline-2">
+<h2 id="org748cb2c">type ReadCloser</h2>
+<div class="outline-text-2" id="text-org748cb2c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">ReadCloser</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+        Reader
+        Closer
+}
+</pre>
+</div>
+
+<p>
+ReadCloser接口聚合了基本的读取和关闭操作。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org66174a3" class="outline-2">
+<h2 id="org66174a3">type ReadSeeker</h2>
+<div class="outline-text-2" id="text-org66174a3">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">ReadSeeker</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+        Reader
+        Seeker
+}
+</pre>
+</div>
+
+<p>
+ReadSeeker接口聚合了基本的读取和移位操作。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge626d31" class="outline-2">
+<h2 id="orge626d31">type WriteCloser</h2>
+<div class="outline-text-2" id="text-orge626d31">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">WriteCloser</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+        Writer
+        Closer
+}
+</pre>
+</div>
+
+<p>
+WriteCloser接口聚合了基本的写入和关闭操作。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgbca1b1a" class="outline-2">
+<h2 id="orgbca1b1a">type WriteSeeker</h2>
+<div class="outline-text-2" id="text-orgbca1b1a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">WriteSeeker</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+        Writer
+        Seeker
+}
+</pre>
+</div>
+
+<p>
+WriteSeeker接口聚合了基本的写入和移位操作。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc47aca4" class="outline-2">
+<h2 id="orgc47aca4">type ReadWriter</h2>
+<div class="outline-text-2" id="text-orgc47aca4">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">ReadWriter</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+        Reader
+        Writer
+}
+</pre>
+</div>
+
+<p>
+ReadWriter接口聚合了基本的读写操作。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org6c84146" class="outline-2">
+<h2 id="org6c84146">type ReadWriteCloser</h2>
+<div class="outline-text-2" id="text-org6c84146">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">ReadWriteCloser</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+        Reader
+        Writer
+        Closer
+}
+</pre>
+</div>
+
+<p>
+ReadWriteCloser接口聚合了基本的读写和关闭操作。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org456e6ba" class="outline-2">
+<h2 id="org456e6ba">type ReadWriteSeeker</h2>
+<div class="outline-text-2" id="text-org456e6ba">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">ReadWriteSeeker</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+        Reader
+        Writer
+        Seeker
+}
+</pre>
+</div>
+
+<p>
+ReadWriteSeeker接口聚合了基本的读写和移位操作。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgde88787" class="outline-2">
+<h2 id="orgde88787">type ReaderAt</h2>
+<div class="outline-text-2" id="text-orgde88787">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">ReaderAt</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+        <span style="color: #d75fd7; font-weight: bold;">ReadAt</span>(<span style="color: #8787d7;">p</span> []<span style="color: #df005f; font-weight: bold;">byte</span>, <span style="color: #8787d7;">off</span> <span style="color: #df005f; font-weight: bold;">int64</span>) (<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+}
+</pre>
+</div>
+
+<p>
+ReaderAt接口包装了基本的ReadAt方法。<br>
+</p>
+
+<p>
+ReadAt从底层输入流的偏移量off位置读取len(p)字节数据写入p， 它返回读取的字节数(0 &lt;= n &lt;= len(p))和遇到的任何错误。当ReadAt方法返回值n &lt; len(p)时，它会返回一个非nil的错误来说明为啥没有读取更多的字节。在这方面，ReadAt是比Read要严格的。即使ReadAt方法返回值 n &lt; len(p)，它在被调用时仍可能使用p的全部长度作为暂存空间。如果有部分可用数据，但不够len(p)字节，ReadAt会阻塞直到获取len(p)个字节数据或者遇到错误。在这方面，ReadAt和Read是不同的。如果ReadAt返回时到达输入流的结尾，而返回值n == len(p)，其返回值err既可以是EOF也可以是nil。<br>
+</p>
+
+<p>
+如果ReadAt是从某个有偏移量的底层输入流（的Reader包装）读取，ReadAt方法既不应影响底层的偏移量，也不应被底层的偏移量影响。<br>
+</p>
+
+<p>
+ReadAt方法的调用者可以对同一输入流执行并行的ReadAt调用。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org0450105" class="outline-2">
+<h2 id="org0450105">type WriterAt</h2>
+<div class="outline-text-2" id="text-org0450105">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">WriterAt</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+        <span style="color: #d75fd7; font-weight: bold;">WriteAt</span>(<span style="color: #8787d7;">p</span> []<span style="color: #df005f; font-weight: bold;">byte</span>, <span style="color: #8787d7;">off</span> <span style="color: #df005f; font-weight: bold;">int64</span>) (<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+}
+</pre>
+</div>
+
+<p>
+WriterAt接口包装了基本的WriteAt方法。<br>
+</p>
+
+<p>
+WriteAt将p全部len(p)字节数据写入底层数据流的偏移量off位置。它返回写入的字节数(0 &lt;= n &lt;= len(p))和遇到的任何导致写入提前中止的错误。当其返回值n &lt; len(p)时，WriteAt必须放哪会一个非nil的错误。<br>
+</p>
+
+<p>
+如果WriteAt写入的对象是某个有偏移量的底层输出流（的Writer包装），WriteAt方法既不应影响底层的偏移量，也不应被底层的偏移量影响。<br>
+</p>
+
+<p>
+ReadAt方法的调用者可以对同一输入流执行并行的WriteAt调用。（前提是写入范围不重叠）<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org901ed39" class="outline-2">
+<h2 id="org901ed39">type ByteReader</h2>
+<div class="outline-text-2" id="text-org901ed39">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">ByteReader</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+        <span style="color: #d75fd7; font-weight: bold;">ReadByte</span>() (<span style="color: #8787d7;">c</span> <span style="color: #df005f; font-weight: bold;">byte</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+}
+</pre>
+</div>
+
+<p>
+ByteReader是基本的ReadByte方法的包装。<br>
+</p>
+
+<p>
+ReadByte读取输入中的单个字节并返回。如果没有字节可读取，会返回错误。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org92b4e89" class="outline-2">
+<h2 id="org92b4e89">type ByteScanner</h2>
+<div class="outline-text-2" id="text-org92b4e89">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">ByteScanner</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+        ByteReader
+        <span style="color: #d75fd7; font-weight: bold;">UnreadByte</span>() <span style="color: #df005f; font-weight: bold;">error</span>
+}
+</pre>
+</div>
+
+<p>
+ByteScanner接口在基本的ReadByte方法之外还添加了UnreadByte方法。<br>
+</p>
+
+<p>
+UnreadByte方法让下一次调用ReadByte时返回之前调用ReadByte时返回的同一个字节。连续调用两次UnreadByte方法而中间没有调用ReadByte时，可能会导致错误。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5241bc5" class="outline-2">
+<h2 id="org5241bc5">type RuneReader</h2>
+<div class="outline-text-2" id="text-org5241bc5">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">RuneReader</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+        <span style="color: #d75fd7; font-weight: bold;">ReadRune</span>() (<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>, <span style="color: #8787d7;">size</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+}
+</pre>
+</div>
+
+<p>
+RuneReader是基本的ReadRune方法的包装。<br>
+</p>
+
+<p>
+ReadRune读取单个utf-8编码的字符，返回该字符和它的字节长度。如果没有有效的字符，会返回错误。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge5104cb" class="outline-2">
+<h2 id="orge5104cb">type RuneScanner</h2>
+<div class="outline-text-2" id="text-orge5104cb">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">RuneScanner</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+        RuneReader
+        <span style="color: #d75fd7; font-weight: bold;">UnreadRune</span>() <span style="color: #df005f; font-weight: bold;">error</span>
+}
+</pre>
+</div>
+
+<p>
+RuneScanner接口在基本的ReadRune方法之外还添加了UnreadRune方法。<br>
+</p>
+
+<p>
+UnreadRune方法让下一次调用ReadRune时返回之前调用ReadRune时返回的同一个utf-8字符。连续调用两次UnreadRune方法而中间没有调用ReadRune时，可能会导致错误。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd2b3642" class="outline-2">
+<h2 id="orgd2b3642">type ByteWriter</h2>
+<div class="outline-text-2" id="text-orgd2b3642">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">ByteWriter</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+        <span style="color: #d75fd7; font-weight: bold;">WriteByte</span>(<span style="color: #8787d7;">c</span> <span style="color: #df005f; font-weight: bold;">byte</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+}
+</pre>
+</div>
+
+<p>
+ByteWriter是基本的WriteByte方法的包装。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga156c93" class="outline-2">
+<h2 id="orga156c93">type ReaderFrom</h2>
+<div class="outline-text-2" id="text-orga156c93">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">ReaderFrom</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+        <span style="color: #d75fd7; font-weight: bold;">ReadFrom</span>(<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">Reader</span>) (<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int64</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+}
+</pre>
+</div>
+
+<p>
+ReaderFrom接口包装了基本的ReadFrom方法。<br>
+</p>
+
+<p>
+ReadFrom方法从r读取数据直到EOF或者遇到错误。返回值n是读取的字节数，执行时遇到的错误（EOF除外）也会被返回。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb6b7007" class="outline-2">
+<h2 id="orgb6b7007">type WriterTo</h2>
+<div class="outline-text-2" id="text-orgb6b7007">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">WriterTo</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+        <span style="color: #d75fd7; font-weight: bold;">WriteTo</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">Writer</span>) (<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int64</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+}
+</pre>
+</div>
+
+<p>
+WriterTo接口包装了基本的WriteTo方法。<br>
+</p>
+
+<p>
+WriteTo方法将数据写入w直到没有数据可以写入或者遇到错误。返回值n是写入的字节数，执行时遇到的任何错误也会被返回。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org16107a7" class="outline-2">
+<h2 id="org16107a7">type LimitedReader</h2>
+<div class="outline-text-2" id="text-org16107a7">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">LimitedReader</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        R   <span style="color: #df005f; font-weight: bold;">Reader</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#24213;&#23618;Reader&#25509;&#21475;</span>
+        N   <span style="color: #df005f; font-weight: bold;">int64</span>  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21097;&#20313;&#21487;&#35835;&#21462;&#23383;&#33410;&#25968;</span>
+}
+</pre>
+</div>
+
+<p>
+LimitedReader从R中读取数据，但限制可以读取的数据的量为最多N字节，每次调用Read方法都会更新N以标记剩余可以读取的字节数。<br>
+</p>
+</div>
+<div id="outline-container-orgb9b8a4a" class="outline-3">
+<h3 id="orgb9b8a4a">func LimitReader</h3>
+<div class="outline-text-3" id="text-orgb9b8a4a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">LimitReader</span>(<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">Reader</span>, <span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int64</span>) <span style="color: #df005f; font-weight: bold;">Reader</span>
+</pre>
+</div>
+
+<p>
+返回一个Reader，它从r中读取n个字节后以EOF停止。返回值接口的底层为*LimitedReader类型。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2275a6e" class="outline-3">
+<h3 id="org2275a6e">func (*LimitedReader) Read</h3>
+<div class="outline-text-3" id="text-org2275a6e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">l</span> *<span style="color: #df005f; font-weight: bold;">LimitedReader</span>) <span style="color: #d75fd7; font-weight: bold;">Read</span>(<span style="color: #8787d7;">p</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgaaeb0bf" class="outline-2">
+<h2 id="orgaaeb0bf">type SectionReader</h2>
+<div class="outline-text-2" id="text-orgaaeb0bf">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">SectionReader</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20869;&#21547;&#38544;&#34255;&#25110;&#38750;&#23548;&#20986;&#23383;&#27573;</span>
+}
+</pre>
+</div>
+
+<p>
+SectionReader实现了对底层满足ReadAt接口的输入流某个片段的Read、ReadAt、Seek方法。<br>
+</p>
+</div>
+<div id="outline-container-org2105c22" class="outline-3">
+<h3 id="org2105c22">func NewSectionReader</h3>
+<div class="outline-text-3" id="text-org2105c22">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">NewSectionReader</span>(<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">ReaderAt</span>, <span style="color: #8787d7;">off</span> <span style="color: #df005f; font-weight: bold;">int64</span>, <span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int64</span>) *<span style="color: #df005f; font-weight: bold;">SectionReader</span>
+</pre>
+</div>
+
+<p>
+返回一个从r中的偏移量off处为起始，读取n个字节后以EOF停止的SectionReader。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga5bfc56" class="outline-3">
+<h3 id="orga5bfc56">func (*SectionReader) Size</h3>
+<div class="outline-text-3" id="text-orga5bfc56">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">s</span> *<span style="color: #df005f; font-weight: bold;">SectionReader</span>) <span style="color: #d75fd7; font-weight: bold;">Size</span>() <span style="color: #df005f; font-weight: bold;">int64</span>
+</pre>
+</div>
+
+<p>
+Size返回该片段的字节数。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8cd4b5a" class="outline-3">
+<h3 id="org8cd4b5a">func (*SectionReader) Read</h3>
+<div class="outline-text-3" id="text-org8cd4b5a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">s</span> *<span style="color: #df005f; font-weight: bold;">SectionReader</span>) <span style="color: #d75fd7; font-weight: bold;">Read</span>(<span style="color: #8787d7;">p</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org50e9216" class="outline-3">
+<h3 id="org50e9216">func (*SectionReader) ReadAt</h3>
+<div class="outline-text-3" id="text-org50e9216">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">s</span> *<span style="color: #df005f; font-weight: bold;">SectionReader</span>) <span style="color: #d75fd7; font-weight: bold;">ReadAt</span>(<span style="color: #8787d7;">p</span> []<span style="color: #df005f; font-weight: bold;">byte</span>, <span style="color: #8787d7;">off</span> <span style="color: #df005f; font-weight: bold;">int64</span>) (<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org9014f26" class="outline-3">
+<h3 id="org9014f26">func (*SectionReader) Seek</h3>
+<div class="outline-text-3" id="text-org9014f26">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">s</span> *<span style="color: #df005f; font-weight: bold;">SectionReader</span>) <span style="color: #d75fd7; font-weight: bold;">Seek</span>(<span style="color: #8787d7;">offset</span> <span style="color: #df005f; font-weight: bold;">int64</span>, <span style="color: #8787d7;">whence</span> <span style="color: #df005f; font-weight: bold;">int</span>) (<span style="color: #df005f; font-weight: bold;">int64</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orga411951" class="outline-2">
+<h2 id="orga411951">type PipeReader</h2>
+<div class="outline-text-2" id="text-orga411951">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">PipeReader</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20869;&#21547;&#38544;&#34255;&#25110;&#38750;&#23548;&#20986;&#23383;&#27573;</span>
+}
+</pre>
+</div>
+
+<p>
+PipeReader是一个管道的读取端。<br>
+</p>
+</div>
+<div id="outline-container-org9c3d582" class="outline-3">
+<h3 id="org9c3d582">func Pipe</h3>
+<div class="outline-text-3" id="text-org9c3d582">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Pipe</span>() (*<span style="color: #df005f; font-weight: bold;">PipeReader</span>, *<span style="color: #df005f; font-weight: bold;">PipeWriter</span>)
+</pre>
+</div>
+
+<p>
+Pipe创建一个同步的内存中的管道。它可以用于连接期望io.Reader的代码和期望io.Writer的代码。一端的读取对应另一端的写入，直接在两端拷贝数据，没有内部缓冲。可以安全的并行调用Read和Write或者Read/Write与Close方法。Close方法会在最后一次阻塞中的I/O操作结束后完成。并行调用Read或并行调用Write也是安全的：每一个独立的调用会依次进行。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf436064" class="outline-3">
+<h3 id="orgf436064">func (*PipeReader) Read</h3>
+<div class="outline-text-3" id="text-orgf436064">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">PipeReader</span>) <span style="color: #d75fd7; font-weight: bold;">Read</span>(<span style="color: #8787d7;">data</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+Read实现了标准Reader接口：它从管道中读取数据，会阻塞直到写入端开始写入或写入端被关闭。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgdeaa462" class="outline-3">
+<h3 id="orgdeaa462">func (*PipeReader) Close</h3>
+<div class="outline-text-3" id="text-orgdeaa462">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">PipeReader</span>) <span style="color: #d75fd7; font-weight: bold;">Close</span>() <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+
+<p>
+Close关闭读取器；关闭后如果对管道的写入端进行写入操作，就会返回(0, ErrClosedPip)。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org37d8292" class="outline-3">
+<h3 id="org37d8292">func (*PipeReader) CloseWithError</h3>
+<div class="outline-text-3" id="text-org37d8292">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">PipeReader</span>) <span style="color: #d75fd7; font-weight: bold;">CloseWithError</span>(<span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+
+<p>
+CloseWithError类似Close方法，但将调用Write时返回的错误改为err。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org7c37264" class="outline-2">
+<h2 id="org7c37264">type PipeWriter</h2>
+<div class="outline-text-2" id="text-org7c37264">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">PipeWriter</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20869;&#21547;&#38544;&#34255;&#25110;&#38750;&#23548;&#20986;&#23383;&#27573;</span>
+}
+</pre>
+</div>
+
+<p>
+PipeWriter是一个管道的写入端。<br>
+</p>
+</div>
+<div id="outline-container-orgcc0fd40" class="outline-3">
+<h3 id="orgcc0fd40">func (*PipeWriter) Write</h3>
+<div class="outline-text-3" id="text-orgcc0fd40">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">w</span> *<span style="color: #df005f; font-weight: bold;">PipeWriter</span>) <span style="color: #d75fd7; font-weight: bold;">Write</span>(<span style="color: #8787d7;">data</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+Write实现了标准Writer接口：它将数据写入到管道中，会阻塞直到读取器读完所有的数据或读取端被关闭。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgcaa935f" class="outline-3">
+<h3 id="orgcaa935f">func (*PipeWriter) Close</h3>
+<div class="outline-text-3" id="text-orgcaa935f">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">w</span> *<span style="color: #df005f; font-weight: bold;">PipeWriter</span>) <span style="color: #d75fd7; font-weight: bold;">Close</span>() <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+
+<p>
+Close关闭写入器；关闭后如果对管道的读取端进行读取操作，就会返回(0, EOF)。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgae9de81" class="outline-3">
+<h3 id="orgae9de81">func (*PipeWriter) CloseWithError</h3>
+<div class="outline-text-3" id="text-orgae9de81">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">w</span> *<span style="color: #df005f; font-weight: bold;">PipeWriter</span>) <span style="color: #d75fd7; font-weight: bold;">CloseWithError</span>(<span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+
+<p>
+CloseWithError类似Close方法，但将调用Read时返回的错误改为err。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgde70b50" class="outline-2">
+<h2 id="orgde70b50">func TeeReader</h2>
+<div class="outline-text-2" id="text-orgde70b50">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">TeeReader</span>(<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">Reader</span>, <span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">Writer</span>) <span style="color: #df005f; font-weight: bold;">Reader</span>
+</pre>
+</div>
+
+<p>
+TeeReader返回一个将其从r读取的数据写入w的Reader接口。所有通过该接口对r的读取都会执行对应的对w的写入。没有内部的缓冲：写入必须在读取完成前完成。写入时遇到的任何错误都会作为读取错误返回。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgbeca33d" class="outline-2">
+<h2 id="orgbeca33d">func MultiReader</h2>
+<div class="outline-text-2" id="text-orgbeca33d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">MultiReader</span>(<span style="color: #8787d7;">readers</span> ...<span style="color: #df005f; font-weight: bold;">Reader</span>) <span style="color: #df005f; font-weight: bold;">Reader</span>
+</pre>
+</div>
+
+<p>
+MultiReader返回一个将提供的Reader在逻辑上串联起来的Reader接口。他们依次被读取。当所有的输入流都读取完毕，Read才会返回EOF。如果readers中任一个返回了非nil非EOF的错误，Read方法会返回该错误。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2152d09" class="outline-2">
+<h2 id="org2152d09">func MultiWriter</h2>
+<div class="outline-text-2" id="text-org2152d09">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">MultiWriter</span>(<span style="color: #8787d7;">writers</span> ...<span style="color: #df005f; font-weight: bold;">Writer</span>) <span style="color: #df005f; font-weight: bold;">Writer</span>
+</pre>
+</div>
+
+<p>
+MultiWriter创建一个Writer接口，会将提供给其的数据写入所有创建时提供的Writer接口。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org6d1cb4b" class="outline-2">
+<h2 id="org6d1cb4b">func Copy</h2>
+<div class="outline-text-2" id="text-org6d1cb4b">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Copy</span>(<span style="color: #8787d7;">dst</span> <span style="color: #df005f; font-weight: bold;">Writer</span>, <span style="color: #8787d7;">src</span> <span style="color: #df005f; font-weight: bold;">Reader</span>) (<span style="color: #8787d7;">written</span> <span style="color: #df005f; font-weight: bold;">int64</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+将src的数据拷贝到dst，直到在src上到达EOF或发生错误。返回拷贝的字节数和遇到的第一个错误。<br>
+</p>
+
+<p>
+对成功的调用，返回值err为nil而非EOF，因为Copy定义为从src读取直到EOF，它不会将读取到EOF视为应报告的错误。如果src实现了WriterTo接口，本函数会调用src.WriteTo(dst)进行拷贝；否则如果dst实现了ReaderFrom接口，本函数会调用dst.ReadFrom(src)进行拷贝。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org006bfd5" class="outline-2">
+<h2 id="org006bfd5">func CopyN</h2>
+<div class="outline-text-2" id="text-org006bfd5">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">CopyN</span>(<span style="color: #8787d7;">dst</span> <span style="color: #df005f; font-weight: bold;">Writer</span>, <span style="color: #8787d7;">src</span> <span style="color: #df005f; font-weight: bold;">Reader</span>, <span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int64</span>) (<span style="color: #8787d7;">written</span> <span style="color: #df005f; font-weight: bold;">int64</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+从src拷贝n个字节数据到dst，直到在src上到达EOF或发生错误。返回复制的字节数和遇到的第一个错误。<br>
+</p>
+
+<p>
+只有err为nil时，written才会等于n。如果dst实现了ReaderFrom接口，本函数很调用它实现拷贝。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org1b33221" class="outline-2">
+<h2 id="org1b33221">func ReadAtLeast</h2>
+<div class="outline-text-2" id="text-org1b33221">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ReadAtLeast</span>(<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">Reader</span>, <span style="color: #8787d7;">buf</span> []<span style="color: #df005f; font-weight: bold;">byte</span>, <span style="color: #8787d7;">min</span> <span style="color: #df005f; font-weight: bold;">int</span>) (<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+ReadAtLeast从r至少读取min字节数据填充进buf。函数返回写入的字节数和错误（如果没有读取足够的字节）。只有没有读取到字节时才可能返回EOF；如果读取了有但不够的字节时遇到了EOF，函数会返回ErrUnexpectedEOF。 如果min比buf的长度还大，函数会返回ErrShortBuffer。只有返回值err为nil时，返回值n才会不小于min。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc10a71e" class="outline-2">
+<h2 id="orgc10a71e">func ReadFull</h2>
+<div class="outline-text-2" id="text-orgc10a71e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ReadFull</span>(<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">Reader</span>, <span style="color: #8787d7;">buf</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+ReadFull从r精确地读取len(buf)字节数据填充进buf。函数返回写入的字节数和错误（如果没有读取足够的字节）。只有没有读取到字节时才可能返回EOF；如果读取了有但不够的字节时遇到了EOF，函数会返回ErrUnexpectedEOF。 只有返回值err为nil时，返回值n才会等于len(buf)。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5a5ecd8" class="outline-2">
+<h2 id="org5a5ecd8">func WriteString</h2>
+<div class="outline-text-2" id="text-org5a5ecd8">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">WriteString</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">Writer</span>, <span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+WriteString函数将字符串s的内容写入w中。如果w已经实现了WriteString方法，函数会直接调用该方法。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-10 03:02 Thu</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-10 Thu 15:44</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

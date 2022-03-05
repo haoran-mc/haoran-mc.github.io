@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-22 Tue 17:51 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>REDIS 主从复制</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">REDIS 主从复制</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org1479204">简单配置主从复制</a>
+<ul>
+<li><a href="#orge6a1f06">一、修改配置文件</a></li>
+<li><a href="#org333e36c">二、运行三个 redis 服务</a></li>
+<li><a href="#org39343d5">三、配置从机</a></li>
+<li><a href="#org2847ba1">四、读写测试</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org1479204" class="outline-2">
+<h2 id="org1479204">简单配置主从复制</h2>
+<div class="outline-text-2" id="text-org1479204">
+<p>
+搭建一个伪集群，配置一主二从，需要三个配置文件，分别运行在 6379、6380、6381 这三个端口。<br>
+</p>
+</div>
+<div id="outline-container-orge6a1f06" class="outline-3">
+<h3 id="orge6a1f06">一、修改配置文件</h3>
+<div class="outline-text-3" id="text-orge6a1f06">
+<p>
+首先复制原始的配置文件并加以修改：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">$ cd /usr/local/bin        <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#36827;&#20837; redis &#30340;&#30446;&#24405;</span>
+$ sudo mkdir redis-conf    <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#21019;&#24314;&#19968;&#20010;&#38450;&#27490;&#37197;&#32622;&#25991;&#20214;&#30340;&#30446;&#24405;</span>
+$ sudo cp ./redis.conf ./redis-conf/redis-6379.conf
+$ sudo cp ./redis.conf ./redis-conf/redis-6380.conf
+$ sudo cp ./redis.conf ./redis-conf/redis-6381.conf
+</pre>
+</div>
+
+<p>
+<b>原始配置：</b><br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-conf">port 6379
+pidfile /var/run/redis_6379.pid
+logfile <span style="color: #2aa198;">""</span>
+dbfilename dump.rdb
+</pre>
+</div>
+
+<p>
+<b>机器一：</b><br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-conf">port 6379
+pidfile /var/run/redis_6379.pid
+logfile <span style="color: #2aa198;">"6379.log"</span>
+dbfilename dump_6379.rdb
+</pre>
+</div>
+
+<p>
+<b>机器二：</b><br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-conf">port 6380
+pidfile /var/run/redis_6380.pid
+logfile <span style="color: #2aa198;">"6380.log"</span>
+dbfilename dump_6380.rdb
+</pre>
+</div>
+
+<p>
+<b>机器三：</b><br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-conf">port 6381
+pidfile /var/run/redis_6381.pid
+logfile <span style="color: #2aa198;">"6381.log"</span>
+dbfilename dump_6381.rdb
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org333e36c" class="outline-3">
+<h3 id="org333e36c">二、运行三个 redis 服务</h3>
+<div class="outline-text-3" id="text-org333e36c">
+<p>
+分别在三个窗口开启一个 redis 服务并连接：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">$ sudo redis ./redis-conf/redis-6379.conf
+$ redis-cli -p <span style="color: #d75fd7;">6379</span>
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-bash">$ sudo redis ./redis-conf/redis-6380.conf
+$ redis-cli -p <span style="color: #d75fd7;">6380</span>
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-bash">$ sudo redis ./redis-conf/redis-6381.conf
+$ redis-cli -p <span style="color: #d75fd7;">6381</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org39343d5" class="outline-3">
+<h3 id="org39343d5">三、配置从机</h3>
+<div class="outline-text-3" id="text-org39343d5">
+<p>
+<b>默认情况下，每台 redis 服务器都是主节点</b> 。这里我们让端口处于 6379 的机器作为主机，让端口处于 6380、6381 的机器作为从机，只配置从机就可以了。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#21487;&#20197;&#20351;&#29992;&#36825;&#20010;&#21629;&#20196;&#26597;&#30475;&#20027;&#20174;&#22797;&#21046;&#30340;&#20449;&#24687;</span>
+info replication
+</pre>
+</div>
+
+<p>
+Redis Slaveof 命令可以将当前服务器转变为指定服务器的从属服务器（slave server）。<br>
+</p>
+
+<p>
+分别在 6380、6381 端口的 redis 服务器输入以下命令：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">SLAVEOF <span style="color: #d75fd7;">127.0.0.1</span> <span style="color: #d75fd7;">6379</span>
+</pre>
+</div>
+
+<p>
+此时处于 6380、6381 的 redis 服务器就变成了从机，这里是在命令行配置，也可在配置文件中永久配置。<br>
+</p>
+
+<p>
+主机负责写，从机负责读。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org2847ba1" class="outline-3">
+<h3 id="org2847ba1">四、读写测试</h3>
+<div class="outline-text-3" id="text-org2847ba1">
+<p>
+在主机写数据：<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #268bd2;">set</span> k1 v1
+</pre>
+</div>
+
+<p>
+在从机可以得到主机的数据：<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-bash">get k1
+<span style="color: #2aa198;">"v1"</span> 
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>从机不可以写入数据<br></li>
+<li>如果主机断开，那么从机的主机还是断开的主机，没有推举新的主机<br></li>
+<li>如果从机断开再连接，由于是在命令行配置的主机，所以只有在命令行重新配置主机才能继续拿到主机的所有数据<br></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-22 16:02 Tue</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-22 Tue 17:51</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

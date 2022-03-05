@@ -1,0 +1,1657 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-18 Fri 16:26 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>REFLECT</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">REFLECT</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orge2bfb86">Introduction</a></li>
+<li><a href="#orga6f495d">Constants</a></li>
+<li><a href="#org8d8701b">type ValueError</a>
+<ul>
+<li><a href="#org10d68f4">func (*ValueError) Error</a></li>
+</ul>
+</li>
+<li><a href="#org9121ac0">type Kind</a>
+<ul>
+<li><a href="#org7bf3ea5">func (Kind) String</a></li>
+</ul>
+</li>
+<li><a href="#org3d63d7d">type StringHeader</a></li>
+<li><a href="#org759e763">type SliceHeader</a></li>
+<li><a href="#org83bcaed">type StructField</a></li>
+<li><a href="#orgcc93a3d">type StructTag</a>
+<ul>
+<li><a href="#org1ed9baf">func (StructTag) Get</a></li>
+</ul>
+</li>
+<li><a href="#orgeb1aee4">type ChanDir</a>
+<ul>
+<li><a href="#orge92d453">func (ChanDir) String</a></li>
+</ul>
+</li>
+<li><a href="#org6892f68">type SelectDir</a></li>
+<li><a href="#org09a268f">type SelectCase</a></li>
+<li><a href="#orgb946371">func Select</a></li>
+<li><a href="#org6e862c7">type Method</a></li>
+<li><a href="#org693eca5">type Type</a>
+<ul>
+<li><a href="#org0b6c519">func TypeOf</a></li>
+<li><a href="#orgd754e47">func PtrTo</a></li>
+<li><a href="#org4ac72a3">func SliceOf</a></li>
+<li><a href="#org4b5b4dd">func MapOf</a></li>
+<li><a href="#org7e0e222">func ChanOf</a></li>
+</ul>
+</li>
+<li><a href="#org69ffaba">type Value</a>
+<ul>
+<li><a href="#org77a2a5a">func ValueOf</a></li>
+<li><a href="#orgb94f7c6">func Zero</a></li>
+<li><a href="#org44b9cc9">func New</a></li>
+<li><a href="#org24a1744">func NewAt</a></li>
+<li><a href="#org443f78c">func Indirect</a></li>
+<li><a href="#orgdf8f4ca">func MakeSlice</a></li>
+<li><a href="#org03054fc">func MakeMap</a></li>
+<li><a href="#orga0a1f87">func MakeChan</a></li>
+<li><a href="#org14caadd">func MakeFunc</a></li>
+<li><a href="#orgad9c47f">func Append</a></li>
+<li><a href="#org06a3015">func AppendSlice</a></li>
+<li><a href="#orgbffb764">func (Value) IsValid</a></li>
+<li><a href="#orgf21537f">func (Value) IsNil</a></li>
+<li><a href="#org6fdfd4c">func (Value) Kind</a></li>
+<li><a href="#org3993daf">func (Value) Type</a></li>
+<li><a href="#orgd12727c">func (Value) Convert</a></li>
+<li><a href="#orgdc3a909">func (Value) Elem</a></li>
+<li><a href="#org4be1267">func (Value) Bool</a></li>
+<li><a href="#org8c19c52">func (Value) Int</a></li>
+<li><a href="#org64e6566">func (Value) OverflowInt</a></li>
+<li><a href="#orga1ca140">func (Value) Uint</a></li>
+<li><a href="#orgad086f4">func (Value) OverflowUint</a></li>
+<li><a href="#orgc80bbd2">func (Value) Float</a></li>
+<li><a href="#org22eeae9">func (Value) OverflowFloat</a></li>
+<li><a href="#orgd5e88ef">func (Value) Complex</a></li>
+<li><a href="#orgaede62e">func (Value) OverflowComplex</a></li>
+<li><a href="#org440da39">func (Value) Pointer</a></li>
+<li><a href="#orga095386">func (Value) Bytes</a></li>
+<li><a href="#org6c19eac">func (Value) String</a></li>
+<li><a href="#org32d1282">func (Value) InterfaceData</a></li>
+<li><a href="#orgc07991e">func (Value) Slice</a></li>
+<li><a href="#org45f671d">func (Value) Slice3</a></li>
+<li><a href="#org5d08b66">func (Value) Cap</a></li>
+<li><a href="#org2d788db">func (Value) Len</a></li>
+<li><a href="#orgf8f2593">func (Value) Index</a></li>
+<li><a href="#org4a1a61e">func (Value) MapIndex</a></li>
+<li><a href="#org7469029">func (Value) MapKeys</a></li>
+<li><a href="#org36121cc">func (Value) NumField</a></li>
+<li><a href="#org2b8c56f">func (Value) Field</a></li>
+<li><a href="#orgb4b71ef">func (Value) FieldByIndex</a></li>
+<li><a href="#orgaa36e32">func (Value) FieldByName</a></li>
+<li><a href="#org9067cd9">func (Value) FieldByNameFunc</a></li>
+<li><a href="#orgf105a0d">func (Value) Recv</a></li>
+<li><a href="#orged988e7">func (Value) TryRecv</a></li>
+<li><a href="#org0eeb647">func (Value) Send</a></li>
+<li><a href="#orgd59d02e">func (Value) TrySend</a></li>
+<li><a href="#org6414e93">func (Value) Close</a></li>
+<li><a href="#orge7a2c4b">func (Value) Call</a></li>
+<li><a href="#org857c7ec">func (Value) CallSlice</a></li>
+<li><a href="#orgff728b7">func (Value) NumMethod</a></li>
+<li><a href="#orgaa0716f">func (Value) Method</a></li>
+<li><a href="#org783435a">func (Value) MethodByName</a></li>
+<li><a href="#org12cc069">func (Value) CanAddr</a></li>
+<li><a href="#org3032ca1">func (Value) Addr</a></li>
+<li><a href="#org9cb5f9c">func (Value) UnsafeAddr</a></li>
+<li><a href="#orgb479cf1">func (Value) CanInterface</a></li>
+<li><a href="#org9dc17d3">func (Value) Interface</a></li>
+<li><a href="#org4244637">func (Value) CanSet</a></li>
+<li><a href="#orga910a9d">func (Value) SetBool</a></li>
+<li><a href="#orgc2b8507">func (Value) SetInt</a></li>
+<li><a href="#org0c568ec">func (Value) SetUint</a></li>
+<li><a href="#org4901ca0">func (Value) SetFloat</a></li>
+<li><a href="#org1ab33a3">func (Value) SetComplex</a></li>
+<li><a href="#org22f9fd3">func (Value) SetBytes</a></li>
+<li><a href="#org09a1349">func (Value) SetString</a></li>
+<li><a href="#org8989abc">func (Value) SetPointer</a></li>
+<li><a href="#org584560f">func (Value) SetCap</a></li>
+<li><a href="#org5710391">func (Value) SetLen</a></li>
+<li><a href="#orgd02675f">func (Value) SetMapIndex</a></li>
+<li><a href="#org9a66ded">func (Value) Set</a></li>
+<li><a href="#org97e1d1c">func Copy</a></li>
+<li><a href="#orgfeb9228">func DeepEqual</a></li>
+</ul>
+</li>
+<li><a href="#org94936dd">Bugs</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orge2bfb86" class="outline-2">
+<h2 id="orge2bfb86">Introduction</h2>
+<div class="outline-text-2" id="text-orge2bfb86">
+<p>
+reflect包实现了运行时反射，允许程序操作任意类型的对象。典型用法是用静态类型interface{}保存一个值，通过调用TypeOf获取其动态类型信息，该函数返回一个Type类型值。调用ValueOf函数返回一个Value类型值，该值代表运行时的数据。Zero接受一个Type类型参数并返回一个代表该类型零值的Value类型值。<br>
+</p>
+
+<p>
+参见"The Laws of Reflection"获取go反射的介绍：<a href="http://golang.org/doc/articles/laws_of_reflection.html">http://golang.org/doc/articles/laws_of_reflection.html</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga6f495d" class="outline-2">
+<h2 id="orga6f495d">Constants</h2>
+<div class="outline-text-2" id="text-orga6f495d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">const</span> (
+        <span style="color: #d75fd7;">SelectSend</span>    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">case Chan &lt;- Send</span>
+        <span style="color: #d75fd7;">SelectRecv</span>    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">case &lt;-Chan:</span>
+        <span style="color: #d75fd7;">SelectDefault</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">default</span>
+)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org8d8701b" class="outline-2">
+<h2 id="org8d8701b">type ValueError</h2>
+<div class="outline-text-2" id="text-org8d8701b">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">ValueError</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        Method <span style="color: #df005f; font-weight: bold;">string</span>
+        Kind   <span style="color: #df005f; font-weight: bold;">Kind</span>
+}
+</pre>
+</div>
+
+<p>
+当一个Value类型值调用它不支持的方法时，将导致ValueError。具体情况参见各个方法。<br>
+</p>
+</div>
+<div id="outline-container-org10d68f4" class="outline-3">
+<h3 id="org10d68f4">func (*ValueError) Error</h3>
+<div class="outline-text-3" id="text-org10d68f4">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">e</span> *<span style="color: #df005f; font-weight: bold;">ValueError</span>) <span style="color: #d75fd7; font-weight: bold;">Error</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org9121ac0" class="outline-2">
+<h2 id="org9121ac0">type Kind</h2>
+<div class="outline-text-2" id="text-org9121ac0">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Kind</span> <span style="color: #df005f; font-weight: bold;">uint</span>
+</pre>
+</div>
+<p>
+Kind代表Type类型值表示的具体分类。零值表示非法分类。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">const</span> (
+        <span style="color: #d75fd7;">Invalid</span> <span style="color: #df005f; font-weight: bold;">Kind</span> = <span style="color: #d75fd7;">iota</span>
+        <span style="color: #d75fd7;">Bool</span>
+        <span style="color: #d75fd7;">Int</span>
+        <span style="color: #d75fd7;">Int8</span>
+        <span style="color: #d75fd7;">Int16</span>
+        <span style="color: #d75fd7;">Int32</span>
+        <span style="color: #d75fd7;">Int64</span>
+        <span style="color: #d75fd7;">Uint</span>
+        <span style="color: #d75fd7;">Uint8</span>
+        <span style="color: #d75fd7;">Uint16</span>
+        <span style="color: #d75fd7;">Uint32</span>
+        <span style="color: #d75fd7;">Uint64</span>
+        <span style="color: #d75fd7;">Uintptr</span>
+        <span style="color: #d75fd7;">Float32</span>
+        <span style="color: #d75fd7;">Float64</span>
+        <span style="color: #d75fd7;">Complex64</span>
+        <span style="color: #d75fd7;">Complex128</span>
+        <span style="color: #d75fd7;">Array</span>
+        <span style="color: #d75fd7;">Chan</span>
+        <span style="color: #d75fd7;">Func</span>
+        <span style="color: #d75fd7;">Interface</span>
+        <span style="color: #d75fd7;">Map</span>
+        <span style="color: #d75fd7;">Ptr</span>
+        <span style="color: #d75fd7;">Slice</span>
+        <span style="color: #d75fd7;">String</span>
+        <span style="color: #d75fd7;">Struct</span>
+        <span style="color: #d75fd7;">UnsafePointer</span>
+)
+</pre>
+</div>
+</div>
+<div id="outline-container-org7bf3ea5" class="outline-3">
+<h3 id="org7bf3ea5">func (Kind) String</h3>
+<div class="outline-text-3" id="text-org7bf3ea5">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">k</span> <span style="color: #df005f; font-weight: bold;">Kind</span>) <span style="color: #d75fd7; font-weight: bold;">String</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org3d63d7d" class="outline-2">
+<h2 id="org3d63d7d">type StringHeader</h2>
+<div class="outline-text-2" id="text-org3d63d7d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">StringHeader</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        Data <span style="color: #df005f; font-weight: bold;">uintptr</span>
+        Len  <span style="color: #df005f; font-weight: bold;">int</span>
+}
+</pre>
+</div>
+
+<p>
+StringHeader 代表一个运行时的字符串。它不保证使用的可移植性、安全性；它的实现在未来的版本里也可能会改变。而且，Data 字段也不能保证它指向的数据不会被当成垃圾收集，因此程序必须维护一个独立的、类型正确的指向底层数据的指针。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org759e763" class="outline-2">
+<h2 id="org759e763">type SliceHeader</h2>
+<div class="outline-text-2" id="text-org759e763">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">SliceHeader</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        Data <span style="color: #df005f; font-weight: bold;">uintptr</span>
+        Len  <span style="color: #df005f; font-weight: bold;">int</span>
+        Cap  <span style="color: #df005f; font-weight: bold;">int</span>
+}
+</pre>
+</div>
+
+<p>
+SliceHeader 代表一个运行时的切片。它不保证使用的可移植性、安全性；它的实现在未来的版本里也可能会改变。而且，Data 字段也不能保证它指向的数据不会被当成垃圾收集，因此程序必须维护一个独立的、类型正确的指向底层数据的指针。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org83bcaed" class="outline-2">
+<h2 id="org83bcaed">type StructField</h2>
+<div class="outline-text-2" id="text-org83bcaed">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">StructField</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Name&#26159;&#23383;&#27573;&#30340;&#21517;&#23383;&#12290;PkgPath&#26159;&#38750;&#23548;&#20986;&#23383;&#27573;&#30340;&#21253;&#36335;&#24452;&#65292;&#23545;&#23548;&#20986;&#23383;&#27573;&#35813;&#23383;&#27573;&#20026;""&#12290;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21442;&#35265;http://golang.org/ref/spec#Uniqueness_of_identifiers</span>
+        Name    <span style="color: #df005f; font-weight: bold;">string</span>
+        PkgPath <span style="color: #df005f; font-weight: bold;">string</span>
+        Type      <span style="color: #df005f; font-weight: bold;">Type</span>      <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23383;&#27573;&#30340;&#31867;&#22411;</span>
+        Tag       <span style="color: #df005f; font-weight: bold;">StructTag</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23383;&#27573;&#30340;&#26631;&#31614;</span>
+        Offset    <span style="color: #df005f; font-weight: bold;">uintptr</span>   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23383;&#27573;&#22312;&#32467;&#26500;&#20307;&#20013;&#30340;&#23383;&#33410;&#20559;&#31227;&#37327;</span>
+        Index     []<span style="color: #df005f; font-weight: bold;">int</span>     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#29992;&#20110;Type.FieldByIndex&#26102;&#30340;&#32034;&#24341;&#20999;&#29255;</span>
+        Anonymous <span style="color: #df005f; font-weight: bold;">bool</span>      <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26159;&#21542;&#21311;&#21517;&#23383;&#27573;</span>
+}
+</pre>
+</div>
+
+<p>
+StructField类型描述结构体中的一个字段的信息。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgcc93a3d" class="outline-2">
+<h2 id="orgcc93a3d">type StructTag</h2>
+<div class="outline-text-2" id="text-orgcc93a3d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">StructTag</span> <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+StructTag是结构体字段的标签。<br>
+</p>
+
+<p>
+一般来说，标签字符串是（可选的）空格分隔的一连串`key:"value"`对。每个键都是不包含控制字符、空格、双引号、冒号的非空字符串。每个值都应被双引号括起来，使用go字符串字面语法。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">S</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        F <span style="color: #df005f; font-weight: bold;">string</span> <span style="color: #2aa198;">`species:"gopher" color:"blue"`</span>
+}
+<span style="color: #8787d7;">s</span> := <span style="color: #df005f; font-weight: bold;">S</span>{}
+<span style="color: #8787d7;">st</span> := reflect.<span style="color: #d75fd7; font-weight: bold;">TypeOf</span>(s)
+<span style="color: #8787d7;">field</span> := st.<span style="color: #d75fd7; font-weight: bold;">Field</span>(<span style="color: #d75fd7;">0</span>)
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(field.Tag.<span style="color: #d75fd7; font-weight: bold;">Get</span>(<span style="color: #2aa198;">"color"</span>), field.Tag.<span style="color: #d75fd7; font-weight: bold;">Get</span>(<span style="color: #2aa198;">"species"</span>))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">blue gopher</span>
+</pre>
+</div>
+</div>
+<div id="outline-container-org1ed9baf" class="outline-3">
+<h3 id="org1ed9baf">func (StructTag) Get</h3>
+<div class="outline-text-3" id="text-org1ed9baf">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">tag</span> <span style="color: #df005f; font-weight: bold;">StructTag</span>) <span style="color: #d75fd7; font-weight: bold;">Get</span>(<span style="color: #8787d7;">key</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+Get方法返回标签字符串中键key对应的值。如果标签中没有该键，会返回""。如果标签不符合标准格式，Get的返回值是不确定的。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgeb1aee4" class="outline-2">
+<h2 id="orgeb1aee4">type ChanDir</h2>
+<div class="outline-text-2" id="text-orgeb1aee4">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">ChanDir</span> <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+ChanDir表示通道类型的方向。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">const</span> (
+        <span style="color: #d75fd7;">RecvDir</span> <span style="color: #df005f; font-weight: bold;">ChanDir</span>             = <span style="color: #d75fd7;">1</span> &lt;&lt; <span style="color: #d75fd7;">iota</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&lt;-chan</span>
+        <span style="color: #d75fd7;">SendDir</span>                                 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">chan&lt;-</span>
+        <span style="color: #d75fd7;">BothDir</span> = RecvDir | SendDir             <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">chan</span>
+)
+</pre>
+</div>
+</div>
+<div id="outline-container-orge92d453" class="outline-3">
+<h3 id="orge92d453">func (ChanDir) String</h3>
+<div class="outline-text-3" id="text-orge92d453">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">d</span> <span style="color: #df005f; font-weight: bold;">ChanDir</span>) <span style="color: #d75fd7; font-weight: bold;">String</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org6892f68" class="outline-2">
+<h2 id="org6892f68">type SelectDir</h2>
+<div class="outline-text-2" id="text-org6892f68">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">SelectDir</span> <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+SelectDir描述一个SelectCase的通信方向。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org09a268f" class="outline-2">
+<h2 id="org09a268f">type SelectCase</h2>
+<div class="outline-text-2" id="text-org09a268f">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">SelectCase</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        Dir  <span style="color: #df005f; font-weight: bold;">SelectDir</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">case&#30340;&#26041;&#21521;</span>
+        Chan <span style="color: #df005f; font-weight: bold;">Value</span>     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20351;&#29992;&#30340;&#36890;&#36947;&#65288;&#25910;/&#21457;&#65289;</span>
+        Send <span style="color: #df005f; font-weight: bold;">Value</span>     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#29992;&#20110;&#21457;&#36865;&#30340;&#20540;</span>
+}
+</pre>
+</div>
+
+<p>
+SelectCase描述select操作中的单条case。Case的类型由通信方向Dir决定。<br>
+</p>
+
+<p>
+如果Dir是SelectDefault，该条case代表default case。Chan和Send字段必须是Value零值。<br>
+</p>
+
+<p>
+如果Dir是SelectSend，该条case代表一个发送操作。Chan字段底层必须是一个chan类型，Send的底层必须是可以直接赋值给该chan类型成员类型的类型。如果Chan是Value零值，则不管Send字段是不是零值，该条case都会被忽略。<br>
+</p>
+
+<p>
+如果Dir是SelectRecv，该条case代表一个接收操作。Chan字段底层必须是一个chan类型，而Send必须是一个Value零值。如果Chan是Value零值，该条case会被忽略，但Send字段仍需是Value零值。当该条case被执行时，接收到的值会被Select返回。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb946371" class="outline-2">
+<h2 id="orgb946371">func Select</h2>
+<div class="outline-text-2" id="text-orgb946371">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Select</span>(<span style="color: #8787d7;">cases</span> []<span style="color: #df005f; font-weight: bold;">SelectCase</span>) (<span style="color: #8787d7;">chosen</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">recv</span> <span style="color: #df005f; font-weight: bold;">Value</span>, <span style="color: #8787d7;">recvOK</span> <span style="color: #df005f; font-weight: bold;">bool</span>)
+</pre>
+</div>
+
+<p>
+Select函数执行cases切片描述的select操作。 类似go的select语句，它会阻塞直到至少一条case可以执行，从可执行的case中（伪）随机的选择一条，并执行该条case。它会返回选择执行的case的索引，以及如果执行的是接收case时，会返回接收到的值，以及一个布尔值说明该值是否对应于通道中某次发送的值（用以区分通道关闭时接收到的零值，此时recvOK会设为false）。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org6e862c7" class="outline-2">
+<h2 id="org6e862c7">type Method</h2>
+<div class="outline-text-2" id="text-org6e862c7">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Method</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Name&#26159;&#26041;&#27861;&#21517;&#12290;PkgPath&#26159;&#38750;&#23548;&#20986;&#23383;&#27573;&#30340;&#21253;&#36335;&#24452;&#65292;&#23545;&#23548;&#20986;&#23383;&#27573;&#35813;&#23383;&#27573;&#20026;""&#12290;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#32467;&#21512;PkgPath&#21644;Name&#21487;&#20197;&#20174;&#26041;&#27861;&#38598;&#20013;&#25351;&#23450;&#19968;&#20010;&#26041;&#27861;&#12290;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21442;&#35265;http://golang.org/ref/spec#Uniqueness_of_identifiers</span>
+        Name    <span style="color: #df005f; font-weight: bold;">string</span>
+        PkgPath <span style="color: #df005f; font-weight: bold;">string</span>
+        Type  <span style="color: #df005f; font-weight: bold;">Type</span>  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26041;&#27861;&#31867;&#22411;</span>
+        Func  <span style="color: #df005f; font-weight: bold;">Value</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26041;&#27861;&#30340;&#20540;</span>
+        Index <span style="color: #df005f; font-weight: bold;">int</span>   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#29992;&#20110;Type.Method&#30340;&#32034;&#24341;</span>
+}
+</pre>
+</div>
+
+<p>
+Method代表一个方法。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org693eca5" class="outline-2">
+<h2 id="org693eca5">type Type</h2>
+<div class="outline-text-2" id="text-org693eca5">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Type</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Kind&#36820;&#22238;&#35813;&#25509;&#21475;&#30340;&#20855;&#20307;&#20998;&#31867;</span>
+        <span style="color: #d75fd7; font-weight: bold;">Kind</span>() <span style="color: #df005f; font-weight: bold;">Kind</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Name&#36820;&#22238;&#35813;&#31867;&#22411;&#22312;&#33258;&#36523;&#21253;&#20869;&#30340;&#31867;&#22411;&#21517;&#65292;&#22914;&#26524;&#26159;&#26410;&#21629;&#21517;&#31867;&#22411;&#20250;&#36820;&#22238;""</span>
+        <span style="color: #d75fd7; font-weight: bold;">Name</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">PkgPath&#36820;&#22238;&#31867;&#22411;&#30340;&#21253;&#36335;&#24452;&#65292;&#21363;&#26126;&#30830;&#25351;&#23450;&#21253;&#30340;import&#36335;&#24452;&#65292;&#22914;"encoding/base64"</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#31867;&#22411;&#20026;&#20869;&#24314;&#31867;&#22411;(string, error)&#25110;&#26410;&#21629;&#21517;&#31867;&#22411;(*T, struct{}, []int)&#65292;&#20250;&#36820;&#22238;""</span>
+        <span style="color: #d75fd7; font-weight: bold;">PkgPath</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;&#31867;&#22411;&#30340;&#23383;&#31526;&#20018;&#34920;&#31034;&#12290;&#35813;&#23383;&#31526;&#20018;&#21487;&#33021;&#20250;&#20351;&#29992;&#30701;&#21253;&#21517;&#65288;&#22914;&#29992;base64&#20195;&#26367;"encoding/base64"&#65289;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20063;&#19981;&#20445;&#35777;&#27599;&#20010;&#31867;&#22411;&#30340;&#23383;&#31526;&#20018;&#34920;&#31034;&#19981;&#21516;&#12290;&#22914;&#26524;&#35201;&#27604;&#36739;&#20004;&#20010;&#31867;&#22411;&#26159;&#21542;&#30456;&#31561;&#65292;&#35831;&#30452;&#25509;&#29992;Type&#31867;&#22411;&#27604;&#36739;&#12290;</span>
+        <span style="color: #d75fd7; font-weight: bold;">String</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;&#35201;&#20445;&#23384;&#19968;&#20010;&#35813;&#31867;&#22411;&#30340;&#20540;&#38656;&#35201;&#22810;&#23569;&#23383;&#33410;&#65307;&#31867;&#20284;unsafe.Sizeof</span>
+        <span style="color: #d75fd7; font-weight: bold;">Size</span>() <span style="color: #df005f; font-weight: bold;">uintptr</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;&#24403;&#20174;&#20869;&#23384;&#20013;&#30003;&#35831;&#19968;&#20010;&#35813;&#31867;&#22411;&#20540;&#26102;&#65292;&#20250;&#23545;&#40784;&#30340;&#23383;&#33410;&#25968;</span>
+        <span style="color: #d75fd7; font-weight: bold;">Align</span>() <span style="color: #df005f; font-weight: bold;">int</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;&#24403;&#35813;&#31867;&#22411;&#20316;&#20026;&#32467;&#26500;&#20307;&#30340;&#23383;&#27573;&#26102;&#65292;&#20250;&#23545;&#40784;&#30340;&#23383;&#33410;&#25968;</span>
+        <span style="color: #d75fd7; font-weight: bold;">FieldAlign</span>() <span style="color: #df005f; font-weight: bold;">int</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#35813;&#31867;&#22411;&#23454;&#29616;&#20102;u&#20195;&#34920;&#30340;&#25509;&#21475;&#65292;&#20250;&#36820;&#22238;&#30495;</span>
+        <span style="color: #d75fd7; font-weight: bold;">Implements</span>(<span style="color: #8787d7;">u</span> <span style="color: #df005f; font-weight: bold;">Type</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#35813;&#31867;&#22411;&#30340;&#20540;&#21487;&#20197;&#30452;&#25509;&#36171;&#20540;&#32473;u&#20195;&#34920;&#30340;&#31867;&#22411;&#65292;&#36820;&#22238;&#30495;</span>
+        <span style="color: #d75fd7; font-weight: bold;">AssignableTo</span>(<span style="color: #8787d7;">u</span> <span style="color: #df005f; font-weight: bold;">Type</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#35813;&#31867;&#22411;&#30340;&#20540;&#21487;&#20197;&#36716;&#25442;&#20026;u&#20195;&#34920;&#30340;&#31867;&#22411;&#65292;&#36820;&#22238;&#30495;</span>
+        <span style="color: #d75fd7; font-weight: bold;">ConvertibleTo</span>(<span style="color: #8787d7;">u</span> <span style="color: #df005f; font-weight: bold;">Type</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;&#35813;&#31867;&#22411;&#30340;&#23383;&#20301;&#25968;&#12290;&#22914;&#26524;&#35813;&#31867;&#22411;&#30340;Kind&#19981;&#26159;Int&#12289;Uint&#12289;Float&#25110;Complex&#65292;&#20250;panic</span>
+        <span style="color: #d75fd7; font-weight: bold;">Bits</span>() <span style="color: #df005f; font-weight: bold;">int</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;array&#31867;&#22411;&#30340;&#38271;&#24230;&#65292;&#22914;&#38750;&#25968;&#32452;&#31867;&#22411;&#23558;panic</span>
+        <span style="color: #d75fd7; font-weight: bold;">Len</span>() <span style="color: #df005f; font-weight: bold;">int</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;&#35813;&#31867;&#22411;&#30340;&#20803;&#32032;&#31867;&#22411;&#65292;&#22914;&#26524;&#35813;&#31867;&#22411;&#30340;Kind&#19981;&#26159;Array&#12289;Chan&#12289;Map&#12289;Ptr&#25110;Slice&#65292;&#20250;panic</span>
+        <span style="color: #d75fd7; font-weight: bold;">Elem</span>() <span style="color: #df005f; font-weight: bold;">Type</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;map&#31867;&#22411;&#30340;&#38190;&#30340;&#31867;&#22411;&#12290;&#22914;&#38750;&#26144;&#23556;&#31867;&#22411;&#23558;panic</span>
+        <span style="color: #d75fd7; font-weight: bold;">Key</span>() <span style="color: #df005f; font-weight: bold;">Type</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;&#19968;&#20010;channel&#31867;&#22411;&#30340;&#26041;&#21521;&#65292;&#22914;&#38750;&#36890;&#36947;&#31867;&#22411;&#23558;&#20250;panic</span>
+        <span style="color: #d75fd7; font-weight: bold;">ChanDir</span>() <span style="color: #df005f; font-weight: bold;">ChanDir</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;struct&#31867;&#22411;&#30340;&#23383;&#27573;&#25968;&#65288;&#21311;&#21517;&#23383;&#27573;&#31639;&#20316;&#19968;&#20010;&#23383;&#27573;&#65289;&#65292;&#22914;&#38750;&#32467;&#26500;&#20307;&#31867;&#22411;&#23558;panic</span>
+        <span style="color: #d75fd7; font-weight: bold;">NumField</span>() <span style="color: #df005f; font-weight: bold;">int</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;struct&#31867;&#22411;&#30340;&#31532;i&#20010;&#23383;&#27573;&#30340;&#31867;&#22411;&#65292;&#22914;&#38750;&#32467;&#26500;&#20307;&#25110;&#32773;i&#19981;&#22312;[0, NumField())&#20869;&#23558;&#20250;panic</span>
+        <span style="color: #d75fd7; font-weight: bold;">Field</span>(<span style="color: #8787d7;">i</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">StructField</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;&#32034;&#24341;&#24207;&#21015;&#25351;&#23450;&#30340;&#23884;&#22871;&#23383;&#27573;&#30340;&#31867;&#22411;&#65292;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#31561;&#20215;&#20110;&#29992;&#32034;&#24341;&#20013;&#27599;&#20010;&#20540;&#38142;&#24335;&#35843;&#29992;&#26412;&#26041;&#27861;&#65292;&#22914;&#38750;&#32467;&#26500;&#20307;&#23558;&#20250;panic</span>
+        <span style="color: #d75fd7; font-weight: bold;">FieldByIndex</span>(<span style="color: #8787d7;">index</span> []<span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">StructField</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;&#35813;&#31867;&#22411;&#21517;&#20026;name&#30340;&#23383;&#27573;&#65288;&#20250;&#26597;&#25214;&#21311;&#21517;&#23383;&#27573;&#21450;&#20854;&#23376;&#23383;&#27573;&#65289;&#65292;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#24067;&#23572;&#20540;&#35828;&#26126;&#26159;&#21542;&#25214;&#21040;&#65292;&#22914;&#38750;&#32467;&#26500;&#20307;&#23558;panic</span>
+        <span style="color: #d75fd7; font-weight: bold;">FieldByName</span>(<span style="color: #8787d7;">name</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #df005f; font-weight: bold;">StructField</span>, <span style="color: #df005f; font-weight: bold;">bool</span>)
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;&#35813;&#31867;&#22411;&#31532;&#19968;&#20010;&#23383;&#27573;&#21517;&#28385;&#36275;&#20989;&#25968;match&#30340;&#23383;&#27573;&#65292;&#24067;&#23572;&#20540;&#35828;&#26126;&#26159;&#21542;&#25214;&#21040;&#65292;&#22914;&#38750;&#32467;&#26500;&#20307;&#23558;&#20250;panic</span>
+        <span style="color: #d75fd7; font-weight: bold;">FieldByNameFunc</span>(<span style="color: #8787d7;">match</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">bool</span>) (<span style="color: #df005f; font-weight: bold;">StructField</span>, <span style="color: #df005f; font-weight: bold;">bool</span>)
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#20989;&#25968;&#31867;&#22411;&#30340;&#26368;&#21518;&#19968;&#20010;&#36755;&#20837;&#21442;&#25968;&#26159;"..."&#24418;&#24335;&#30340;&#21442;&#25968;&#65292;IsVariadic&#36820;&#22238;&#30495;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#36825;&#26679;&#65292;t.In(t.NumIn() - 1)&#36820;&#22238;&#21442;&#25968;&#30340;&#38544;&#24335;&#30340;&#23454;&#38469;&#31867;&#22411;&#65288;&#22768;&#26126;&#31867;&#22411;&#30340;&#20999;&#29255;&#65289;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#38750;&#20989;&#25968;&#31867;&#22411;&#23558;panic</span>
+        <span style="color: #d75fd7; font-weight: bold;">IsVariadic</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;func&#31867;&#22411;&#30340;&#21442;&#25968;&#20010;&#25968;&#65292;&#22914;&#26524;&#19981;&#26159;&#20989;&#25968;&#65292;&#23558;&#20250;panic</span>
+        <span style="color: #d75fd7; font-weight: bold;">NumIn</span>() <span style="color: #df005f; font-weight: bold;">int</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;func&#31867;&#22411;&#30340;&#31532;i&#20010;&#21442;&#25968;&#30340;&#31867;&#22411;&#65292;&#22914;&#38750;&#20989;&#25968;&#25110;&#32773;i&#19981;&#22312;[0, NumIn())&#20869;&#23558;&#20250;panic</span>
+        <span style="color: #d75fd7; font-weight: bold;">In</span>(<span style="color: #8787d7;">i</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">Type</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;func&#31867;&#22411;&#30340;&#36820;&#22238;&#20540;&#20010;&#25968;&#65292;&#22914;&#26524;&#19981;&#26159;&#20989;&#25968;&#65292;&#23558;&#20250;panic</span>
+        <span style="color: #d75fd7; font-weight: bold;">NumOut</span>() <span style="color: #df005f; font-weight: bold;">int</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;func&#31867;&#22411;&#30340;&#31532;i&#20010;&#36820;&#22238;&#20540;&#30340;&#31867;&#22411;&#65292;&#22914;&#38750;&#20989;&#25968;&#25110;&#32773;i&#19981;&#22312;[0, NumOut())&#20869;&#23558;&#20250;panic</span>
+        <span style="color: #d75fd7; font-weight: bold;">Out</span>(<span style="color: #8787d7;">i</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">Type</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;&#35813;&#31867;&#22411;&#30340;&#26041;&#27861;&#38598;&#20013;&#26041;&#27861;&#30340;&#25968;&#30446;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21311;&#21517;&#23383;&#27573;&#30340;&#26041;&#27861;&#20250;&#34987;&#35745;&#31639;&#65307;&#20027;&#20307;&#31867;&#22411;&#30340;&#26041;&#27861;&#20250;&#23631;&#34109;&#21311;&#21517;&#23383;&#27573;&#30340;&#21516;&#21517;&#26041;&#27861;&#65307;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21311;&#21517;&#23383;&#27573;&#23548;&#33268;&#30340;&#27495;&#20041;&#26041;&#27861;&#20250;&#28388;&#38500;</span>
+        <span style="color: #d75fd7; font-weight: bold;">NumMethod</span>() <span style="color: #df005f; font-weight: bold;">int</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;&#35813;&#31867;&#22411;&#26041;&#27861;&#38598;&#20013;&#30340;&#31532;i&#20010;&#26041;&#27861;&#65292;i&#19981;&#22312;[0, NumMethod())&#33539;&#22260;&#20869;&#26102;&#65292;&#23558;&#23548;&#33268;panic</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23545;&#38750;&#25509;&#21475;&#31867;&#22411;T&#25110;*T&#65292;&#36820;&#22238;&#20540;&#30340;Type&#23383;&#27573;&#21644;Func&#23383;&#27573;&#25551;&#36848;&#26041;&#27861;&#30340;&#26410;&#32465;&#23450;&#20989;&#25968;&#29366;&#24577;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23545;&#25509;&#21475;&#31867;&#22411;&#65292;&#36820;&#22238;&#20540;&#30340;Type&#23383;&#27573;&#25551;&#36848;&#26041;&#27861;&#30340;&#31614;&#21517;&#65292;Func&#23383;&#27573;&#20026;nil</span>
+        <span style="color: #d75fd7; font-weight: bold;">Method</span>(<span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">Method</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26681;&#25454;&#26041;&#27861;&#21517;&#36820;&#22238;&#35813;&#31867;&#22411;&#26041;&#27861;&#38598;&#20013;&#30340;&#26041;&#27861;&#65292;&#20351;&#29992;&#19968;&#20010;&#24067;&#23572;&#20540;&#35828;&#26126;&#26159;&#21542;&#21457;&#29616;&#35813;&#26041;&#27861;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23545;&#38750;&#25509;&#21475;&#31867;&#22411;T&#25110;*T&#65292;&#36820;&#22238;&#20540;&#30340;Type&#23383;&#27573;&#21644;Func&#23383;&#27573;&#25551;&#36848;&#26041;&#27861;&#30340;&#26410;&#32465;&#23450;&#20989;&#25968;&#29366;&#24577;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23545;&#25509;&#21475;&#31867;&#22411;&#65292;&#36820;&#22238;&#20540;&#30340;Type&#23383;&#27573;&#25551;&#36848;&#26041;&#27861;&#30340;&#31614;&#21517;&#65292;Func&#23383;&#27573;&#20026;nil</span>
+        <span style="color: #d75fd7; font-weight: bold;">MethodByName</span>(<span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #df005f; font-weight: bold;">Method</span>, <span style="color: #df005f; font-weight: bold;">bool</span>)
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20869;&#21547;&#38544;&#34255;&#25110;&#38750;&#23548;&#20986;&#26041;&#27861;</span>
+}
+</pre>
+</div>
+
+<p>
+Type类型用来表示一个go类型。<br>
+</p>
+
+<p>
+不是所有go类型的Type值都能使用所有方法。请参见每个方法的文档获取使用限制。在调用有分类限定的方法时，应先使用Kind方法获知类型的分类。调用该分类不支持的方法会导致运行时的panic。<br>
+</p>
+</div>
+<div id="outline-container-org0b6c519" class="outline-3">
+<h3 id="org0b6c519">func TypeOf</h3>
+<div class="outline-text-3" id="text-org0b6c519">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">TypeOf</span>(<span style="color: #8787d7;">i</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}) <span style="color: #df005f; font-weight: bold;">Type</span>
+</pre>
+</div>
+
+<p>
+TypeOf返回接口中保存的值的类型，TypeOf(nil)会返回nil。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd754e47" class="outline-3">
+<h3 id="orgd754e47">func PtrTo</h3>
+<div class="outline-text-3" id="text-orgd754e47">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">PtrTo</span>(<span style="color: #8787d7;">t</span> <span style="color: #df005f; font-weight: bold;">Type</span>) <span style="color: #df005f; font-weight: bold;">Type</span>
+</pre>
+</div>
+
+<p>
+PtrTo返回类型t的指针的类型。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4ac72a3" class="outline-3">
+<h3 id="org4ac72a3">func SliceOf</h3>
+<div class="outline-text-3" id="text-org4ac72a3">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">SliceOf</span>(<span style="color: #8787d7;">t</span> <span style="color: #df005f; font-weight: bold;">Type</span>) <span style="color: #df005f; font-weight: bold;">Type</span>
+</pre>
+</div>
+
+<p>
+SliceOf返回类型t的切片的类型。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4b5b4dd" class="outline-3">
+<h3 id="org4b5b4dd">func MapOf</h3>
+<div class="outline-text-3" id="text-org4b5b4dd">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">MapOf</span>(<span style="color: #8787d7;">key</span>, <span style="color: #8787d7;">elem</span> <span style="color: #df005f; font-weight: bold;">Type</span>) <span style="color: #df005f; font-weight: bold;">Type</span>
+</pre>
+</div>
+
+<p>
+MapOf返回一个键类型为key，值类型为elem的映射类型。如果key代表的类型不是合法的映射键类型（即它未实现go的==操作符），本函数会panic。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org7e0e222" class="outline-3">
+<h3 id="org7e0e222">func ChanOf</h3>
+<div class="outline-text-3" id="text-org7e0e222">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ChanOf</span>(<span style="color: #8787d7;">dir</span> <span style="color: #df005f; font-weight: bold;">ChanDir</span>, <span style="color: #8787d7;">t</span> <span style="color: #df005f; font-weight: bold;">Type</span>) <span style="color: #df005f; font-weight: bold;">Type</span>
+</pre>
+</div>
+
+<p>
+ChanOf返回元素类型为t、方向为dir的通道类型。运行时GC强制将通道的元素类型的大小限定为64kb。如果t的尺寸大于或等于该限制，本函数将会panic。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org69ffaba" class="outline-2">
+<h2 id="org69ffaba">type Value</h2>
+<div class="outline-text-2" id="text-org69ffaba">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Value</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20869;&#21547;&#38544;&#34255;&#25110;&#38750;&#23548;&#20986;&#23383;&#27573;</span>
+}
+</pre>
+</div>
+
+<p>
+Value为go值提供了反射接口。<br>
+</p>
+
+<p>
+不是所有go类型值的Value表示都能使用所有方法。请参见每个方法的文档获取使用限制。在调用有分类限定的方法时，应先使用Kind方法获知该值的分类。调用该分类不支持的方法会导致运行时的panic。<br>
+</p>
+
+<p>
+Value类型的零值表示不持有某个值。零值的IsValid方法返回false，其Kind方法返回Invalid，而String方法返回"&lt;invalid Value&gt;"，所有其它方法都会panic。绝大多数函数和方法都永远不返回Value零值。如果某个函数/方法返回了非法的Value，它的文档必须显式的说明具体情况。<br>
+</p>
+
+<p>
+如果某个go类型值可以安全的用于多线程并发操作，它的Value表示也可以安全的用于并发。<br>
+</p>
+</div>
+<div id="outline-container-org77a2a5a" class="outline-3">
+<h3 id="org77a2a5a">func ValueOf</h3>
+<div class="outline-text-3" id="text-org77a2a5a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ValueOf</span>(<span style="color: #8787d7;">i</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}) <span style="color: #df005f; font-weight: bold;">Value</span>
+</pre>
+</div>
+
+<p>
+ValueOf返回一个初始化为i接口保管的具体值的Value，ValueOf(nil)返回Value零值。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb94f7c6" class="outline-3">
+<h3 id="orgb94f7c6">func Zero</h3>
+<div class="outline-text-3" id="text-orgb94f7c6">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Zero</span>(<span style="color: #8787d7;">typ</span> <span style="color: #df005f; font-weight: bold;">Type</span>) <span style="color: #df005f; font-weight: bold;">Value</span>
+</pre>
+</div>
+
+<p>
+Zero返回一个持有类型typ的零值的Value。注意持有零值的Value和Value零值是两回事。Value零值表示不持有任何值。例如Zero(TypeOf(42))返回一个Kind为Int、值为0的Value。Zero的返回值不能设置也不会寻址。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org44b9cc9" class="outline-3">
+<h3 id="org44b9cc9">func New</h3>
+<div class="outline-text-3" id="text-org44b9cc9">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">New</span>(<span style="color: #8787d7;">typ</span> <span style="color: #df005f; font-weight: bold;">Type</span>) <span style="color: #df005f; font-weight: bold;">Value</span>
+</pre>
+</div>
+
+<p>
+New返回一个Value类型值，该值持有一个指向类型为typ的新申请的零值的指针，返回值的Type为PtrTo(typ)。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org24a1744" class="outline-3">
+<h3 id="org24a1744">func NewAt</h3>
+<div class="outline-text-3" id="text-org24a1744">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">NewAt</span>(<span style="color: #8787d7;">typ</span> <span style="color: #df005f; font-weight: bold;">Type</span>, <span style="color: #8787d7;">p</span> <span style="color: #df005f; font-weight: bold;">unsafe.Pointer</span>) <span style="color: #df005f; font-weight: bold;">Value</span>
+</pre>
+</div>
+
+<p>
+NewAt返回一个Value类型值，该值持有一个指向类型为typ、地址为p的值的指针。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org443f78c" class="outline-3">
+<h3 id="org443f78c">func Indirect</h3>
+<div class="outline-text-3" id="text-org443f78c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Indirect</span>(<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #df005f; font-weight: bold;">Value</span>
+</pre>
+</div>
+
+<p>
+返回持有v持有的指针指向的值的Value。如果v持有nil指针，会返回Value零值；如果v不持有指针，会返回v。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgdf8f4ca" class="outline-3">
+<h3 id="orgdf8f4ca">func MakeSlice</h3>
+<div class="outline-text-3" id="text-orgdf8f4ca">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">MakeSlice</span>(<span style="color: #8787d7;">typ</span> <span style="color: #df005f; font-weight: bold;">Type</span>, <span style="color: #8787d7;">len</span>, <span style="color: #8787d7;">cap</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">Value</span>
+</pre>
+</div>
+
+<p>
+MakeSlice创建一个新申请的元素类型为typ，长度len容量cap的切片类型的Value值。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org03054fc" class="outline-3">
+<h3 id="org03054fc">func MakeMap</h3>
+<div class="outline-text-3" id="text-org03054fc">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">MakeMap</span>(<span style="color: #8787d7;">typ</span> <span style="color: #df005f; font-weight: bold;">Type</span>) <span style="color: #df005f; font-weight: bold;">Value</span>
+</pre>
+</div>
+
+<p>
+MakeMap创建一个特定映射类型的Value值。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga0a1f87" class="outline-3">
+<h3 id="orga0a1f87">func MakeChan</h3>
+<div class="outline-text-3" id="text-orga0a1f87">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">MakeChan</span>(<span style="color: #8787d7;">typ</span> <span style="color: #df005f; font-weight: bold;">Type</span>, <span style="color: #8787d7;">buffer</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">Value</span>
+</pre>
+</div>
+
+<p>
+MakeChan创建一个元素类型为typ、有buffer个缓存的通道类型的Value值。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org14caadd" class="outline-3">
+<h3 id="org14caadd">func MakeFunc</h3>
+<div class="outline-text-3" id="text-org14caadd">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">MakeFunc</span>(<span style="color: #8787d7;">typ</span> <span style="color: #df005f; font-weight: bold;">Type</span>, <span style="color: #8787d7;">fn</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">args</span> []<span style="color: #df005f; font-weight: bold;">Value</span>) (<span style="color: #8787d7;">results</span> []<span style="color: #df005f; font-weight: bold;">Value</span>)) <span style="color: #df005f; font-weight: bold;">Value</span>
+</pre>
+</div>
+
+<p>
+MakeFunc返回一个具有给定类型、包装函数fn的函数的Value封装。当被调用时，该函数会：<br>
+</p>
+
+<ul class="org-ul">
+<li>将提供给它的参数转化为Value切片<br></li>
+<li>执行results := fn(args)<br></li>
+<li>将results中每一个result依次排列作为返回值<br></li>
+</ul>
+
+<p>
+函数fn的实现可以假设参数Value切片匹配typ类型指定的参数数目和类型。如果typ表示一个可变参数函数类型，参数切片中最后一个Value本身必须是一个包含所有可变参数的切片。fn返回的结果Value切片也必须匹配typ类型指定的结果数目和类型。<br>
+</p>
+
+<p>
+Value.Call方法允许程序员使用Value调用一个有类型约束的函数；反过来，MakeFunc方法允许程序员使用Value实现一个有类型约束的函数。<br>
+</p>
+
+<p>
+下例是一个用MakeFunc创建一个生成不同参数类型的swap函数的代码及其说明。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">swap is the implementation passed to MakeFunc.</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">It must work in terms of reflect.Values so that it is possible</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">to write code without knowing beforehand what the types</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">will be.</span>
+<span style="color: #8787d7;">swap</span> := <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">in</span> []<span style="color: #df005f; font-weight: bold;">reflect.Value</span>) []<span style="color: #df005f; font-weight: bold;">reflect.Value</span> {
+        <span style="color: #268bd2; font-weight: bold;">return</span> []<span style="color: #df005f; font-weight: bold;">reflect.Value</span>{in[<span style="color: #d75fd7;">1</span>], in[<span style="color: #d75fd7;">0</span>]}
+}
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">makeSwap expects fptr to be a pointer to a nil function.</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">It sets that pointer to a new function created with MakeFunc.</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">When the function is invoked, reflect turns the arguments</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">into Values, calls swap, and then turns swap's result slice</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">into the values returned by the new function.</span>
+<span style="color: #8787d7;">makeSwap</span> := <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">fptr</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}) {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">fptr is a pointer to a function.</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Obtain the function value itself (likely nil) as a reflect.Value</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">so that we can query its type and then set the value.</span>
+        <span style="color: #8787d7;">fn</span> := reflect.<span style="color: #d75fd7; font-weight: bold;">ValueOf</span>(fptr).<span style="color: #d75fd7; font-weight: bold;">Elem</span>()
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Make a function of the right type.</span>
+        <span style="color: #8787d7;">v</span> := reflect.<span style="color: #d75fd7; font-weight: bold;">MakeFunc</span>(fn.<span style="color: #d75fd7; font-weight: bold;">Type</span>(), swap)
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Assign it to the value fn represents.</span>
+        fn.<span style="color: #d75fd7; font-weight: bold;">Set</span>(v)
+}
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Make and call a swap function for ints.</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">intSwap</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #df005f; font-weight: bold;">int</span>) (<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #df005f; font-weight: bold;">int</span>)
+<span style="color: #d75fd7; font-weight: bold;">makeSwap</span>(&amp;intSwap)
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #d75fd7; font-weight: bold;">intSwap</span>(<span style="color: #d75fd7;">0</span>, <span style="color: #d75fd7;">1</span>))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Make and call a swap function for float64s.</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">floatSwap</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #df005f; font-weight: bold;">float64</span>, <span style="color: #df005f; font-weight: bold;">float64</span>) (<span style="color: #df005f; font-weight: bold;">float64</span>, <span style="color: #df005f; font-weight: bold;">float64</span>)
+<span style="color: #d75fd7; font-weight: bold;">makeSwap</span>(&amp;floatSwap)
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #d75fd7; font-weight: bold;">floatSwap</span>(<span style="color: #d75fd7;">2</span>.<span style="color: #d75fd7;">72</span>, <span style="color: #d75fd7;">3</span>.<span style="color: #d75fd7;">14</span>))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">1 0</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">3.14 2.72</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgad9c47f" class="outline-3">
+<h3 id="orgad9c47f">func Append</h3>
+<div class="outline-text-3" id="text-orgad9c47f">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Append</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">Value</span>, <span style="color: #8787d7;">x</span> ...<span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #df005f; font-weight: bold;">Value</span>
+</pre>
+</div>
+
+<p>
+向切片类型的Value值s中添加一系列值，x等Value值持有的值必须能直接赋值给s持有的切片的元素类型。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org06a3015" class="outline-3">
+<h3 id="org06a3015">func AppendSlice</h3>
+<div class="outline-text-3" id="text-org06a3015">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">AppendSlice</span>(<span style="color: #8787d7;">s</span>, <span style="color: #8787d7;">t</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #df005f; font-weight: bold;">Value</span>
+</pre>
+</div>
+
+<p>
+类似Append函数，但接受一个切片类型的Value值。将切片t的每一个值添加到s。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgbffb764" class="outline-3">
+<h3 id="orgbffb764">func (Value) IsValid</h3>
+<div class="outline-text-3" id="text-orgbffb764">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">IsValid</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+IsValid返回v是否持有一个值。如果v是Value零值会返回假，此时v除了IsValid、String、Kind之外的方法都会导致panic。绝大多数函数和方法都永远不返回Value零值。如果某个函数/方法返回了非法的Value，它的文档必须显式的说明具体情况。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf21537f" class="outline-3">
+<h3 id="orgf21537f">func (Value) IsNil</h3>
+<div class="outline-text-3" id="text-orgf21537f">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">IsNil</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+IsNil报告v持有的值是否为nil。v持有的值的分类必须是通道、函数、接口、映射、指针、切片之一；否则IsNil函数会导致panic。注意IsNil并不总是等价于go语言中值与nil的常规比较。例如：如果v是通过使用某个值为nil的接口调用ValueOf函数创建的，v.IsNil()返回真，但是如果v是Value零值，会panic。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org6fdfd4c" class="outline-3">
+<h3 id="org6fdfd4c">func (Value) Kind</h3>
+<div class="outline-text-3" id="text-org6fdfd4c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">Kind</span>() <span style="color: #df005f; font-weight: bold;">Kind</span>
+</pre>
+</div>
+
+<p>
+Kind返回v持有的值的分类，如果v是Value零值，返回值为Invalid<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org3993daf" class="outline-3">
+<h3 id="org3993daf">func (Value) Type</h3>
+<div class="outline-text-3" id="text-org3993daf">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">Type</span>() <span style="color: #df005f; font-weight: bold;">Type</span>
+</pre>
+</div>
+
+<p>
+返回v持有的值的类型的Type表示。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd12727c" class="outline-3">
+<h3 id="orgd12727c">func (Value) Convert</h3>
+<div class="outline-text-3" id="text-orgd12727c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">Convert</span>(<span style="color: #8787d7;">t</span> <span style="color: #df005f; font-weight: bold;">Type</span>) <span style="color: #df005f; font-weight: bold;">Value</span>
+</pre>
+</div>
+
+<p>
+Convert将v持有的值转换为类型为t的值，并返回该值的Value封装。如果go转换规则不支持这种转换，会panic。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgdc3a909" class="outline-3">
+<h3 id="orgdc3a909">func (Value) Elem</h3>
+<div class="outline-text-3" id="text-orgdc3a909">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">Elem</span>() <span style="color: #df005f; font-weight: bold;">Value</span>
+</pre>
+</div>
+
+<p>
+Elem返回v持有的接口保管的值的Value封装，或者v持有的指针指向的值的Value封装。如果v的Kind不是Interface或Ptr会panic；如果v持有的值为nil，会返回Value零值。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4be1267" class="outline-3">
+<h3 id="org4be1267">func (Value) Bool</h3>
+<div class="outline-text-3" id="text-org4be1267">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">Bool</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+返回v持有的布尔值，如果v的Kind不是Bool会panic<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8c19c52" class="outline-3">
+<h3 id="org8c19c52">func (Value) Int</h3>
+<div class="outline-text-3" id="text-org8c19c52">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">Int</span>() <span style="color: #df005f; font-weight: bold;">int64</span>
+</pre>
+</div>
+
+<p>
+返回v持有的有符号整数（表示为int64），如果v的Kind不是Int、Int8、Int16、Int32、Int64会panic<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org64e6566" class="outline-3">
+<h3 id="org64e6566">func (Value) OverflowInt</h3>
+<div class="outline-text-3" id="text-org64e6566">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">OverflowInt</span>(<span style="color: #8787d7;">x</span> <span style="color: #df005f; font-weight: bold;">int64</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+如果v持有值的类型不能无溢出的表示x，会返回真。如果v的Kind不是Int、Int8、Int16、Int32、Int64会panic<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga1ca140" class="outline-3">
+<h3 id="orga1ca140">func (Value) Uint</h3>
+<div class="outline-text-3" id="text-orga1ca140">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">Uint</span>() <span style="color: #df005f; font-weight: bold;">uint64</span>
+</pre>
+</div>
+
+<p>
+返回v持有的无符号整数（表示为uint64），如v的Kind不是Uint、Uintptr、Uint8、Uint16、Uint32、Uint64会panic<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgad086f4" class="outline-3">
+<h3 id="orgad086f4">func (Value) OverflowUint</h3>
+<div class="outline-text-3" id="text-orgad086f4">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">OverflowUint</span>(<span style="color: #8787d7;">x</span> <span style="color: #df005f; font-weight: bold;">uint64</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+如果v持有值的类型不能无溢出的表示x，会返回真。如果v的Kind不是Uint、Uintptr、Uint8、Uint16、Uint32、Uint64会panic<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc80bbd2" class="outline-3">
+<h3 id="orgc80bbd2">func (Value) Float</h3>
+<div class="outline-text-3" id="text-orgc80bbd2">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">Float</span>() <span style="color: #df005f; font-weight: bold;">float64</span>
+</pre>
+</div>
+
+<p>
+返回v持有的浮点数（表示为float64），如果v的Kind不是Float32、Float64会panic<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org22eeae9" class="outline-3">
+<h3 id="org22eeae9">func (Value) OverflowFloat</h3>
+<div class="outline-text-3" id="text-org22eeae9">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">OverflowFloat</span>(<span style="color: #8787d7;">x</span> <span style="color: #df005f; font-weight: bold;">float64</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+如果v持有值的类型不能无溢出的表示x，会返回真。如果v的Kind不是Float32、Float64会panic<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd5e88ef" class="outline-3">
+<h3 id="orgd5e88ef">func (Value) Complex</h3>
+<div class="outline-text-3" id="text-orgd5e88ef">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">Complex</span>() <span style="color: #df005f; font-weight: bold;">complex128</span>
+</pre>
+</div>
+
+<p>
+返回v持有的复数（表示为complex64），如果v的Kind不是Complex64、Complex128会panic<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgaede62e" class="outline-3">
+<h3 id="orgaede62e">func (Value) OverflowComplex</h3>
+<div class="outline-text-3" id="text-orgaede62e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">OverflowComplex</span>(<span style="color: #8787d7;">x</span> <span style="color: #df005f; font-weight: bold;">complex128</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+如果v持有值的类型不能无溢出的表示x，会返回真。如果v的Kind不是Complex64、Complex128会panic<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org440da39" class="outline-3">
+<h3 id="org440da39">func (Value) Pointer</h3>
+<div class="outline-text-3" id="text-org440da39">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">Pointer</span>() <span style="color: #df005f; font-weight: bold;">uintptr</span>
+</pre>
+</div>
+
+<p>
+将v持有的值作为一个指针返回。本方法返回值不是unsafe.Pointer类型，以避免程序员不显式导入unsafe包却得到unsafe.Pointer类型表示的指针。如果v的Kind不是Chan、Func、Map、Ptr、Slice或UnsafePointer会panic。<br>
+</p>
+
+<p>
+如果v的Kind是Func，返回值是底层代码的指针，但并不足以用于区分不同的函数；只能保证当且仅当v持有函数类型零值nil时，返回值为0。<br>
+</p>
+
+<p>
+如果v的Kind是Slice，返回值是指向切片第一个元素的指针。如果持有的切片为nil，返回值为0；如果持有的切片没有元素但不是nil，返回值不会是0。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga095386" class="outline-3">
+<h3 id="orga095386">func (Value) Bytes</h3>
+<div class="outline-text-3" id="text-orga095386">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">Bytes</span>() []<span style="color: #df005f; font-weight: bold;">byte</span>
+</pre>
+</div>
+
+<p>
+返回v持有的[]byte类型值。如果v持有的值的类型不是[]byte会panic。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org6c19eac" class="outline-3">
+<h3 id="org6c19eac">func (Value) String</h3>
+<div class="outline-text-3" id="text-org6c19eac">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">String</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+返回v持有的值的字符串表示。因为go的String方法的惯例，Value的String方法比较特别。和其他获取v持有值的方法不同：v的Kind是String时，返回该字符串；v的Kind不是String时也不会panic而是返回格式为"&lt;T value&gt;"的字符串，其中T是v持有值的类型。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org32d1282" class="outline-3">
+<h3 id="org32d1282">func (Value) InterfaceData</h3>
+<div class="outline-text-3" id="text-org32d1282">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">InterfaceData</span>() [<span style="color: #d75fd7;">2</span>]<span style="color: #df005f; font-weight: bold;">uintptr</span>
+</pre>
+</div>
+
+<p>
+返回v持有的接口类型值的数据。如果v的Kind不是Interface会panic<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc07991e" class="outline-3">
+<h3 id="orgc07991e">func (Value) Slice</h3>
+<div class="outline-text-3" id="text-orgc07991e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">Slice</span>(<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">j</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">Value</span>
+</pre>
+</div>
+
+<p>
+返回v[i:j]（v持有的切片的子切片的Value封装）；如果v的Kind不是Array、Slice或String会panic。如果v是一个不可寻址的数组，或者索引出界，也会panic<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org45f671d" class="outline-3">
+<h3 id="org45f671d">func (Value) Slice3</h3>
+<div class="outline-text-3" id="text-org45f671d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">Slice3</span>(<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">j</span>, <span style="color: #8787d7;">k</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">Value</span>
+</pre>
+</div>
+
+<p>
+是Slice的3参数版本，返回v[i:j:k] ；如果v的Kind不是Array、Slice或String会panic。如果v是一个不可寻址的数组，或者索引出界，也会panic。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5d08b66" class="outline-3">
+<h3 id="org5d08b66">func (Value) Cap</h3>
+<div class="outline-text-3" id="text-org5d08b66">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">Cap</span>() <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+返回v持有值的容量，如果v的Kind不是Array、Chan、Slice会panic<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2d788db" class="outline-3">
+<h3 id="org2d788db">func (Value) Len</h3>
+<div class="outline-text-3" id="text-org2d788db">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">Len</span>() <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+返回v持有值的长度，如果v的Kind不是Array、Chan、Slice、Map、String会panic<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf8f2593" class="outline-3">
+<h3 id="orgf8f2593">func (Value) Index</h3>
+<div class="outline-text-3" id="text-orgf8f2593">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">Index</span>(<span style="color: #8787d7;">i</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">Value</span>
+</pre>
+</div>
+
+<p>
+返回v持有值的第i个元素。如果v的Kind不是Array、Chan、Slice、String，或者i出界，会panic<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4a1a61e" class="outline-3">
+<h3 id="org4a1a61e">func (Value) MapIndex</h3>
+<div class="outline-text-3" id="text-org4a1a61e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">MapIndex</span>(<span style="color: #8787d7;">key</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #df005f; font-weight: bold;">Value</span>
+</pre>
+</div>
+
+<p>
+返回v持有值里key持有值为键对应的值的Value封装。如果v的Kind不是Map会panic。如果未找到对应值或者v持有值是nil映射，会返回Value零值。key的持有值必须可以直接赋值给v持有值类型的键类型。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org7469029" class="outline-3">
+<h3 id="org7469029">func (Value) MapKeys</h3>
+<div class="outline-text-3" id="text-org7469029">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">MapKeys</span>() []<span style="color: #df005f; font-weight: bold;">Value</span>
+</pre>
+</div>
+
+<p>
+返回一个包含v持有值中所有键的Value封装的切片，该切片未排序。如果v的Kind不是Map会panic。如果v持有值是nil，返回空切片（非nil）。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org36121cc" class="outline-3">
+<h3 id="org36121cc">func (Value) NumField</h3>
+<div class="outline-text-3" id="text-org36121cc">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">NumField</span>() <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+返回v持有的结构体类型值的字段数，如果v的Kind不是Struct会panic<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2b8c56f" class="outline-3">
+<h3 id="org2b8c56f">func (Value) Field</h3>
+<div class="outline-text-3" id="text-org2b8c56f">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">Field</span>(<span style="color: #8787d7;">i</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">Value</span>
+</pre>
+</div>
+
+<p>
+返回结构体的第i个字段（的Value封装）。如果v的Kind不是Struct或i出界会panic<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb4b71ef" class="outline-3">
+<h3 id="orgb4b71ef">func (Value) FieldByIndex</h3>
+<div class="outline-text-3" id="text-orgb4b71ef">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">FieldByIndex</span>(<span style="color: #8787d7;">index</span> []<span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">Value</span>
+</pre>
+</div>
+
+<p>
+返回索引序列指定的嵌套字段的Value表示，等价于用索引中的值链式调用本方法，如v的Kind非Struct将会panic<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgaa36e32" class="outline-3">
+<h3 id="orgaa36e32">func (Value) FieldByName</h3>
+<div class="outline-text-3" id="text-orgaa36e32">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">FieldByName</span>(<span style="color: #8787d7;">name</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">Value</span>
+</pre>
+</div>
+
+<p>
+返回该类型名为name的字段（的Value封装）（会查找匿名字段及其子字段），如果v的Kind不是Struct会panic；如果未找到会返回Value零值。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9067cd9" class="outline-3">
+<h3 id="org9067cd9">func (Value) FieldByNameFunc</h3>
+<div class="outline-text-3" id="text-org9067cd9">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">FieldByNameFunc</span>(<span style="color: #8787d7;">match</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">bool</span>) <span style="color: #df005f; font-weight: bold;">Value</span>
+</pre>
+</div>
+
+<p>
+返回该类型第一个字段名满足match的字段（的Value封装）（会查找匿名字段及其子字段），如果v的Kind不是Struct会panic；如果未找到会返回Value零值。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf105a0d" class="outline-3">
+<h3 id="orgf105a0d">func (Value) Recv</h3>
+<div class="outline-text-3" id="text-orgf105a0d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">Recv</span>() (<span style="color: #8787d7;">x</span> <span style="color: #df005f; font-weight: bold;">Value</span>, <span style="color: #8787d7;">ok</span> <span style="color: #df005f; font-weight: bold;">bool</span>)
+</pre>
+</div>
+
+<p>
+方法从v持有的通道接收并返回一个值（的Value封装）。如果v的Kind不是Chan会panic。方法会阻塞直到获取到值。如果返回值x对应于某个发送到v持有的通道的值，ok为真；如果因为通道关闭而返回，x为Value零值而ok为假。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orged988e7" class="outline-3">
+<h3 id="orged988e7">func (Value) TryRecv</h3>
+<div class="outline-text-3" id="text-orged988e7">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">TryRecv</span>() (<span style="color: #8787d7;">x</span> <span style="color: #df005f; font-weight: bold;">Value</span>, <span style="color: #8787d7;">ok</span> <span style="color: #df005f; font-weight: bold;">bool</span>)
+</pre>
+</div>
+
+<p>
+TryRecv尝试从v持有的通道接收一个值，但不会阻塞。如果v的Kind不是Chan会panic。如果方法成功接收到一个值，会返回该值（的Value封装）和true；如果不能无阻塞的接收到值，返回Value零值和false；如果因为通道关闭而返回，返回值x是持有通道元素类型的零值的Value和false。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org0eeb647" class="outline-3">
+<h3 id="org0eeb647">func (Value) Send</h3>
+<div class="outline-text-3" id="text-org0eeb647">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">Send</span>(<span style="color: #8787d7;">x</span> <span style="color: #df005f; font-weight: bold;">Value</span>)
+</pre>
+</div>
+
+<p>
+方法向v持有的通道发送x持有的值。如果v的Kind不是Chan，或者x的持有值不能直接赋值给v持有通道的元素类型，会panic。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd59d02e" class="outline-3">
+<h3 id="orgd59d02e">func (Value) TrySend</h3>
+<div class="outline-text-3" id="text-orgd59d02e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">TrySend</span>(<span style="color: #8787d7;">x</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+TrySend尝试向v持有的通道发送x持有的值，但不会阻塞。如果v的Kind不是Chan会panic。如果成功发送会返回真，否则返回假。x的持有值必须可以直接赋值给v持有通道的元素类型。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org6414e93" class="outline-3">
+<h3 id="org6414e93">func (Value) Close</h3>
+<div class="outline-text-3" id="text-org6414e93">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">Close</span>()
+</pre>
+</div>
+
+<p>
+关闭v持有的通道，如果v的Kind不是Chan会panic<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge7a2c4b" class="outline-3">
+<h3 id="orge7a2c4b">func (Value) Call</h3>
+<div class="outline-text-3" id="text-orge7a2c4b">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">Call</span>(<span style="color: #8787d7;">in</span> []<span style="color: #df005f; font-weight: bold;">Value</span>) []<span style="color: #df005f; font-weight: bold;">Value</span>
+</pre>
+</div>
+
+<p>
+Call方法使用输入的参数in调用v持有的函数。例如，如果len(in) == 3，v.Call(in)代表调用v(in[0], in[1], in[2])（其中Value值表示其持有值）。如果v的Kind不是Func会panic。它返回函数所有输出结果的Value封装的切片。和go代码一样，每一个输入实参的持有值都必须可以直接赋值给函数对应输入参数的类型。如果v持有值是可变参数函数，Call方法会自行创建一个代表可变参数的切片，将对应可变参数的值都拷贝到里面。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org857c7ec" class="outline-3">
+<h3 id="org857c7ec">func (Value) CallSlice</h3>
+<div class="outline-text-3" id="text-org857c7ec">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">CallSlice</span>(<span style="color: #8787d7;">in</span> []<span style="color: #df005f; font-weight: bold;">Value</span>) []<span style="color: #df005f; font-weight: bold;">Value</span>
+</pre>
+</div>
+
+<p>
+CallSlice调用v持有的可变参数函数，会将切片类型的in[len(in)-1]（的成员）分配给v的最后的可变参数。例如，如果len(in) == 3，v.Call(in)代表调用v(in[0], in[1], in[2])（其中Value值表示其持有值，可变参数函数的可变参数位置提供一个切片并跟三个点号代表"解切片"）。如果v的Kind不是Func或者v的持有值不是可变参数函数，会panic。它返回函数所有输出结果的Value封装的切片。和go代码一样，每一个输入实参的持有值都必须可以直接赋值给函数对应输入参数的类型。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgff728b7" class="outline-3">
+<h3 id="orgff728b7">func (Value) NumMethod</h3>
+<div class="outline-text-3" id="text-orgff728b7">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">NumMethod</span>() <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+返回v持有值的方法集的方法数目。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgaa0716f" class="outline-3">
+<h3 id="orgaa0716f">func (Value) Method</h3>
+<div class="outline-text-3" id="text-orgaa0716f">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">Method</span>(<span style="color: #8787d7;">i</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">Value</span>
+</pre>
+</div>
+
+<p>
+返回v持有值类型的第i个方法的已绑定（到v的持有值的）状态的函数形式的Value封装。返回值调用Call方法时不应包含接收者；返回值持有的函数总是使用v的持有者作为接收者（即第一个参数）。如果i出界，或者v的持有值是接口类型的零值（nil），会panic。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org783435a" class="outline-3">
+<h3 id="org783435a">func (Value) MethodByName</h3>
+<div class="outline-text-3" id="text-org783435a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">MethodByName</span>(<span style="color: #8787d7;">name</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">Value</span>
+</pre>
+</div>
+
+<p>
+返回v的名为name的方法的已绑定（到v的持有值的）状态的函数形式的Value封装。返回值调用Call方法时不应包含接收者；返回值持有的函数总是使用v的持有者作为接收者（即第一个参数）。如果未找到该方法，会返回一个Value零值。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org12cc069" class="outline-3">
+<h3 id="org12cc069">func (Value) CanAddr</h3>
+<div class="outline-text-3" id="text-org12cc069">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">CanAddr</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+返回是否可以获取v持有值的指针。可以获取指针的值被称为可寻址的。如果一个值是切片或可寻址数组的元素、可寻址结构体的字段、或从指针解引用得到的，该值即为可寻址的。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org3032ca1" class="outline-3">
+<h3 id="org3032ca1">func (Value) Addr</h3>
+<div class="outline-text-3" id="text-org3032ca1">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">Addr</span>() <span style="color: #df005f; font-weight: bold;">Value</span>
+</pre>
+</div>
+
+<p>
+函数返回一个持有指向v持有者的指针的Value封装。如果v.CanAddr()返回假，调用本方法会panic。Addr一般用于获取结构体字段的指针或者切片的元素（的Value封装）以便调用需要指针类型接收者的方法。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9cb5f9c" class="outline-3">
+<h3 id="org9cb5f9c">func (Value) UnsafeAddr</h3>
+<div class="outline-text-3" id="text-org9cb5f9c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">UnsafeAddr</span>() <span style="color: #df005f; font-weight: bold;">uintptr</span>
+</pre>
+</div>
+
+<p>
+返回指向v持有数据的地址的指针（表示为uintptr）以用作高级用途，如果v不可寻址会panic。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb479cf1" class="outline-3">
+<h3 id="orgb479cf1">func (Value) CanInterface</h3>
+<div class="outline-text-3" id="text-orgb479cf1">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">CanInterface</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+如果CanInterface返回真，v可以不导致panic的调用Interface方法。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9dc17d3" class="outline-3">
+<h3 id="org9dc17d3">func (Value) Interface</h3>
+<div class="outline-text-3" id="text-org9dc17d3">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">Interface</span>() (<span style="color: #8787d7;">i</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{})
+</pre>
+</div>
+
+<p>
+本方法返回v当前持有的值（表示为/保管在interface{}类型），等价于：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">i</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{} = (v<span style="color: #2aa198;">'s underlying value)</span>
+</pre>
+</div>
+
+<p>
+如果v是通过访问非导出结构体字段获取的，会导致panic。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4244637" class="outline-3">
+<h3 id="org4244637">func (Value) CanSet</h3>
+<div class="outline-text-3" id="text-org4244637">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">CanSet</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+如果v持有的值可以被修改，CanSet就会返回真。只有一个Value持有值可以被寻址同时又不是来自非导出字段时，它才可以被修改。如果CanSet返回假，调用Set或任何限定类型的设置函数（如SetBool、SetInt64）都会panic。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga910a9d" class="outline-3">
+<h3 id="orga910a9d">func (Value) SetBool</h3>
+<div class="outline-text-3" id="text-orga910a9d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">SetBool</span>(<span style="color: #8787d7;">x</span> <span style="color: #df005f; font-weight: bold;">bool</span>)
+</pre>
+</div>
+
+<p>
+设置v的持有值。如果v的Kind不是Bool或者v.CanSet()返回假，会panic。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc2b8507" class="outline-3">
+<h3 id="orgc2b8507">func (Value) SetInt</h3>
+<div class="outline-text-3" id="text-orgc2b8507">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">SetInt</span>(<span style="color: #8787d7;">x</span> <span style="color: #df005f; font-weight: bold;">int64</span>)
+</pre>
+</div>
+
+<p>
+设置v的持有值。如果v的Kind不是Int、Int8、Int16、Int32、Int64之一或者v.CanSet()返回假，会panic。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org0c568ec" class="outline-3">
+<h3 id="org0c568ec">func (Value) SetUint</h3>
+<div class="outline-text-3" id="text-org0c568ec">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">SetUint</span>(<span style="color: #8787d7;">x</span> <span style="color: #df005f; font-weight: bold;">uint64</span>)
+</pre>
+</div>
+
+<p>
+设置v的持有值。如果v的Kind不是Uint、Uintptr、Uint8、Uint16、Uint32、Uint64或者v.CanSet()返回假，会panic。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4901ca0" class="outline-3">
+<h3 id="org4901ca0">func (Value) SetFloat</h3>
+<div class="outline-text-3" id="text-org4901ca0">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">SetFloat</span>(<span style="color: #8787d7;">x</span> <span style="color: #df005f; font-weight: bold;">float64</span>)
+</pre>
+</div>
+
+<p>
+设置v的持有值。如果v的Kind不是Float32、Float64或者v.CanSet()返回假，会panic。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org1ab33a3" class="outline-3">
+<h3 id="org1ab33a3">func (Value) SetComplex</h3>
+<div class="outline-text-3" id="text-org1ab33a3">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">SetComplex</span>(<span style="color: #8787d7;">x</span> <span style="color: #df005f; font-weight: bold;">complex128</span>)
+</pre>
+</div>
+
+<p>
+设置v的持有值。如果v的Kind不是Complex64、Complex128或者v.CanSet()返回假，会panic。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org22f9fd3" class="outline-3">
+<h3 id="org22f9fd3">func (Value) SetBytes</h3>
+<div class="outline-text-3" id="text-org22f9fd3">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">SetBytes</span>(<span style="color: #8787d7;">x</span> []<span style="color: #df005f; font-weight: bold;">byte</span>)
+</pre>
+</div>
+
+<p>
+设置v的持有值。如果v持有值不是[]byte类型或者v.CanSet()返回假，会panic。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org09a1349" class="outline-3">
+<h3 id="org09a1349">func (Value) SetString</h3>
+<div class="outline-text-3" id="text-org09a1349">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">SetString</span>(<span style="color: #8787d7;">x</span> <span style="color: #df005f; font-weight: bold;">string</span>)
+</pre>
+</div>
+
+<p>
+设置v的持有值。如果v的Kind不是String或者v.CanSet()返回假，会panic。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8989abc" class="outline-3">
+<h3 id="org8989abc">func (Value) SetPointer</h3>
+<div class="outline-text-3" id="text-org8989abc">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">SetPointer</span>(<span style="color: #8787d7;">x</span> <span style="color: #df005f; font-weight: bold;">unsafe.Pointer</span>)
+</pre>
+</div>
+
+<p>
+设置v的持有值。如果v的Kind不是UnsafePointer或者v.CanSet()返回假，会panic。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org584560f" class="outline-3">
+<h3 id="org584560f">func (Value) SetCap</h3>
+<div class="outline-text-3" id="text-org584560f">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">SetCap</span>(<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+</pre>
+</div>
+
+<p>
+设定v持有值的容量。如果v的Kind不是Slice或者n出界（小于长度或超出容量），将导致panic<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5710391" class="outline-3">
+<h3 id="org5710391">func (Value) SetLen</h3>
+<div class="outline-text-3" id="text-org5710391">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">SetLen</span>(<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+</pre>
+</div>
+
+<p>
+设定v持有值的长度。如果v的Kind不是Slice或者n出界（小于零或超出容量），将导致panic<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd02675f" class="outline-3">
+<h3 id="orgd02675f">func (Value) SetMapIndex</h3>
+<div class="outline-text-3" id="text-orgd02675f">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">SetMapIndex</span>(<span style="color: #8787d7;">key</span>, <span style="color: #8787d7;">val</span> <span style="color: #df005f; font-weight: bold;">Value</span>)
+</pre>
+</div>
+
+<p>
+用来给v的映射类型持有值添加/修改键值对，如果val是Value零值，则是删除键值对。如果v的Kind不是Map，或者v的持有值是nil，将会panic。key的持有值必须可以直接赋值给v持有值类型的键类型。val的持有值必须可以直接赋值给v持有值类型的值类型。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9a66ded" class="outline-3">
+<h3 id="org9a66ded">func (Value) Set</h3>
+<div class="outline-text-3" id="text-org9a66ded">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">Set</span>(<span style="color: #8787d7;">x</span> <span style="color: #df005f; font-weight: bold;">Value</span>)
+</pre>
+</div>
+
+<p>
+将v的持有值修改为x的持有值。如果v.CanSet()返回假，会panic。x的持有值必须能直接赋给v持有值的类型。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org97e1d1c" class="outline-3">
+<h3 id="org97e1d1c">func Copy</h3>
+<div class="outline-text-3" id="text-org97e1d1c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Copy</span>(<span style="color: #8787d7;">dst</span>, <span style="color: #8787d7;">src</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+将src中的值拷贝到dst，直到src被耗尽或者dst被装满，要求这二者都是slice或array，且元素类型相同。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgfeb9228" class="outline-3">
+<h3 id="orgfeb9228">func DeepEqual</h3>
+<div class="outline-text-3" id="text-orgfeb9228">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">DeepEqual</span>(<span style="color: #8787d7;">a1</span>, <span style="color: #8787d7;">a2</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+用来判断两个值是否深度一致：除了类型相同；在可以时（主要是基本类型）会使用==；但还会比较array、slice的成员，map的键值对，结构体字段进行深入比对。map的键值对，对键只使用==，但值会继续往深层比对。DeepEqual函数可以正确处理循环的类型。函数类型只有都会nil时才相等；空切片不等于nil切片；还会考虑array、slice的长度、map键值对数。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org94936dd" class="outline-2">
+<h2 id="org94936dd">Bugs</h2>
+<div class="outline-text-2" id="text-org94936dd">
+<p>
+☞FieldByName及相关的函数会将名称相同的结构体字段视为相同的字段，即使它们是来自不同包的非导出字段。这导致如果结构体类型t包含多个名为x的字段的话（被不同的包嵌入）t.FieldByName("x")的行为没有良好的定义。FieldByName可能会返回其中一个名为x的字段，也可能报告说没有这个字段。细节参见golang.org/issue/4876。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-18 15:02 Fri</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-18 Fri 16:26</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

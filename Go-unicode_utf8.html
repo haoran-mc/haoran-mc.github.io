@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-08 Tue 23:45 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UNICODE_UTF8</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">UNICODE_UTF8</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgb072723">Introduction</a></li>
+<li><a href="#org374be8e">Constants</a></li>
+<li><a href="#org849a2b1">func ValidRune</a></li>
+<li><a href="#org4b9c9d6">func RuneLen</a></li>
+<li><a href="#org61e57b9">func RuneStart</a></li>
+<li><a href="#org1c5e604">func FullRune</a></li>
+<li><a href="#org625bf63">func FullRuneInString</a></li>
+<li><a href="#org6edc035">func RuneCount</a></li>
+<li><a href="#org1ac5d1f">func RuneCountInString</a></li>
+<li><a href="#org94c21d8">func Valid</a></li>
+<li><a href="#orgfc1b920">func ValidString</a></li>
+<li><a href="#org9ff3719">func EncodeRune</a></li>
+<li><a href="#org93490a0">func DecodeRune</a></li>
+<li><a href="#org401e4d2">func DecodeRuneInString</a></li>
+<li><a href="#org659137a">func DecodeLastRune</a></li>
+<li><a href="#org5169d29">func DecodeLastRuneInString</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgb072723" class="outline-2">
+<h2 id="orgb072723">Introduction</h2>
+<div class="outline-text-2" id="text-orgb072723">
+<p>
+utf8包实现了对utf-8文本的常用函数和常数的支持，包括rune和utf-8编码byte序列之间互相翻译的函数。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org374be8e" class="outline-2">
+<h2 id="org374be8e">Constants</h2>
+<div class="outline-text-2" id="text-org374be8e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">const</span> (
+    <span style="color: #d75fd7;">RuneError</span> = <span style="color: #2aa198;">'\uFFFD'</span>     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#38169;&#35823;&#30340;Rune&#25110;"Unicode replacement character"</span>
+    <span style="color: #d75fd7;">RuneSelf</span>  = <span style="color: #d75fd7;">0x80</span>         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20302;&#20110;RunSelf&#30340;&#23383;&#31526;&#29992;&#20195;&#34920;&#21333;&#23383;&#33410;&#30340;&#21516;&#19968;&#20540;&#34920;&#31034;</span>
+    <span style="color: #d75fd7;">MaxRune</span>   = <span style="color: #2aa198;">'\U0010FFFF'</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26368;&#22823;&#30340;&#21512;&#27861;unicode&#30721;&#20540;</span>
+    <span style="color: #d75fd7;">UTFMax</span>    = <span style="color: #d75fd7;">4</span>            <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26368;&#22823;&#30340;utf-8&#32534;&#30721;&#30340;unicode&#23383;&#31526;&#30340;&#38271;&#24230;</span>
+)
+</pre>
+</div>
+
+<p>
+编码的基础常数。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org849a2b1" class="outline-2">
+<h2 id="org849a2b1">func ValidRune</h2>
+<div class="outline-text-2" id="text-org849a2b1">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ValidRune</span>(<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+判断r是否可以编码为合法的utf-8序列。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">valid</span> := <span style="color: #2aa198;">'a'</span>
+<span style="color: #8787d7;">invalid</span> := <span style="color: #d75fd7; font-weight: bold;">rune</span>(<span style="color: #d75fd7;">0xfffffff</span>)
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(utf8.<span style="color: #d75fd7; font-weight: bold;">ValidRune</span>(valid))
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(utf8.<span style="color: #d75fd7; font-weight: bold;">ValidRune</span>(invalid))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">true</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">false</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org4b9c9d6" class="outline-2">
+<h2 id="org4b9c9d6">func RuneLen</h2>
+<div class="outline-text-2" id="text-org4b9c9d6">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">RuneLen</span>(<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+返回r编码后的字节数。如果r不是一个合法的可编码为utf-8序列的值，会返回-1。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(utf8.<span style="color: #d75fd7; font-weight: bold;">RuneLen</span>(<span style="color: #2aa198;">'a'</span>))
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(utf8.<span style="color: #d75fd7; font-weight: bold;">RuneLen</span>(<span style="color: #2aa198;">'&#30028;'</span>))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">1</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">3</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org61e57b9" class="outline-2">
+<h2 id="org61e57b9">func RuneStart</h2>
+<div class="outline-text-2" id="text-org61e57b9">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">RuneStart</span>(<span style="color: #8787d7;">b</span> <span style="color: #df005f; font-weight: bold;">byte</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+报告字节b是否可以作为某个rune编码后的第一个字节。第二个即之后的字节总是将左端两个字位设为10。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">buf</span> := []<span style="color: #d75fd7; font-weight: bold;">byte</span>(<span style="color: #2aa198;">"a&#30028;"</span>)
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(utf8.<span style="color: #d75fd7; font-weight: bold;">RuneStart</span>(buf[<span style="color: #d75fd7;">0</span>]))
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(utf8.<span style="color: #d75fd7; font-weight: bold;">RuneStart</span>(buf[<span style="color: #d75fd7;">1</span>]))
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(utf8.<span style="color: #d75fd7; font-weight: bold;">RuneStart</span>(buf[<span style="color: #d75fd7;">2</span>]))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">true</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">true</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">false</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org1c5e604" class="outline-2">
+<h2 id="org1c5e604">func FullRune</h2>
+<div class="outline-text-2" id="text-org1c5e604">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">FullRune</span>(<span style="color: #8787d7;">p</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+报告切片p是否以一个码值的完整utf-8编码开始。不合法的编码因为会被转换为宽度1的错误码值而被视为完整的。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">buf</span> := []<span style="color: #df005f; font-weight: bold;">byte</span>{<span style="color: #d75fd7;">228</span>, <span style="color: #d75fd7;">184</span>, <span style="color: #d75fd7;">150</span>} <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#19990;</span>
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(utf8.<span style="color: #d75fd7; font-weight: bold;">FullRune</span>(buf))
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(utf8.<span style="color: #d75fd7; font-weight: bold;">FullRune</span>(buf[:<span style="color: #d75fd7;">2</span>]))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">true</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">false</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org625bf63" class="outline-2">
+<h2 id="org625bf63">func FullRuneInString</h2>
+<div class="outline-text-2" id="text-org625bf63">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">FullRuneInString</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+函数类似FullRune但输入参数是字符串。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">str</span> := <span style="color: #2aa198;">"&#19990;"</span>
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(utf8.<span style="color: #d75fd7; font-weight: bold;">FullRuneInString</span>(str))
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(utf8.<span style="color: #d75fd7; font-weight: bold;">FullRuneInString</span>(str[:<span style="color: #d75fd7;">2</span>]))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">true</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">false</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org6edc035" class="outline-2">
+<h2 id="org6edc035">func RuneCount</h2>
+<div class="outline-text-2" id="text-org6edc035">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">RuneCount</span>(<span style="color: #8787d7;">p</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+返回p中的utf-8编码的码值的个数。错误或者不完整的编码会被视为宽度1字节的单个码值。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">buf</span> := []<span style="color: #d75fd7; font-weight: bold;">byte</span>(<span style="color: #2aa198;">"Hello, &#19990;&#30028;"</span>)
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"bytes ="</span>, <span style="color: #268bd2;">len</span>(buf))
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"runes ="</span>, utf8.<span style="color: #d75fd7; font-weight: bold;">RuneCount</span>(buf))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">bytes = 13</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">runes = 9</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org1ac5d1f" class="outline-2">
+<h2 id="org1ac5d1f">func RuneCountInString</h2>
+<div class="outline-text-2" id="text-org1ac5d1f">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">RuneCountInString</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+</pre>
+</div>
+
+<p>
+函数类似RuneCount但输入参数是一个字符串。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">str</span> := <span style="color: #2aa198;">"Hello, &#19990;&#30028;"</span>
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"bytes ="</span>, <span style="color: #268bd2;">len</span>(str))
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"runes ="</span>, utf8.<span style="color: #d75fd7; font-weight: bold;">RuneCountInString</span>(str))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">bytes = 13</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">runes = 9</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org94c21d8" class="outline-2">
+<h2 id="org94c21d8">func Valid</h2>
+<div class="outline-text-2" id="text-org94c21d8">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Valid</span>(<span style="color: #8787d7;">p</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+返回切片p是否包含完整且合法的utf-8编码序列。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">valid</span> := []<span style="color: #d75fd7; font-weight: bold;">byte</span>(<span style="color: #2aa198;">"Hello, &#19990;&#30028;"</span>)
+<span style="color: #8787d7;">invalid</span> := []<span style="color: #df005f; font-weight: bold;">byte</span>{<span style="color: #d75fd7;">0xff</span>, <span style="color: #d75fd7;">0xfe</span>, <span style="color: #d75fd7;">0xfd</span>}
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(utf8.<span style="color: #d75fd7; font-weight: bold;">Valid</span>(valid))
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(utf8.<span style="color: #d75fd7; font-weight: bold;">Valid</span>(invalid))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">true</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">false</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgfc1b920" class="outline-2">
+<h2 id="orgfc1b920">func ValidString</h2>
+<div class="outline-text-2" id="text-orgfc1b920">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ValidString</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+报告s是否包含完整且合法的utf-8编码序列。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">valid</span> := <span style="color: #2aa198;">"Hello, &#19990;&#30028;"</span>
+<span style="color: #8787d7;">invalid</span> := <span style="color: #d75fd7; font-weight: bold;">string</span>([]<span style="color: #df005f; font-weight: bold;">byte</span>{<span style="color: #d75fd7;">0xff</span>, <span style="color: #d75fd7;">0xfe</span>, <span style="color: #d75fd7;">0xfd</span>})
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(utf8.<span style="color: #d75fd7; font-weight: bold;">ValidString</span>(valid))
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(utf8.<span style="color: #d75fd7; font-weight: bold;">ValidString</span>(invalid))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">true</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">false</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org9ff3719" class="outline-2">
+<h2 id="org9ff3719">func EncodeRune</h2>
+<div class="outline-text-2" id="text-org9ff3719">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">EncodeRune</span>(<span style="color: #8787d7;">p</span> []<span style="color: #df005f; font-weight: bold;">byte</span>, <span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+EncodeRune将r的utf-8编码序列写入p（p必须有足够的长度），并返回写入的字节数。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">r</span> := <span style="color: #2aa198;">'&#19990;'</span>
+<span style="color: #8787d7;">buf</span> := <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">byte</span>, <span style="color: #d75fd7;">3</span>)
+<span style="color: #8787d7;">n</span> := utf8.<span style="color: #d75fd7; font-weight: bold;">EncodeRune</span>(buf, r)
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(buf)
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(n)
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">[228 184 150]</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">3</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org93490a0" class="outline-2">
+<h2 id="org93490a0">func DecodeRune</h2>
+<div class="outline-text-2" id="text-org93490a0">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">DecodeRune</span>(<span style="color: #8787d7;">p</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>, <span style="color: #8787d7;">size</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+</pre>
+</div>
+
+<p>
+函数解码p开始位置的第一个utf-8编码的码值，返回该码值和编码的字节数。如果编码不合法，会返回(RuneError, 1)。该返回值在正确的utf-8编码情况下是不可能返回的。<br>
+</p>
+
+<p>
+如果一个utf-8编码序列格式不正确，或者编码的码值超出utf-8合法码值的范围，或者不是该码值的最短编码，该编码序列即是不合法的。函数不会执行其他的验证。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">b</span> := []<span style="color: #d75fd7; font-weight: bold;">byte</span>(<span style="color: #2aa198;">"Hello, &#19990;&#30028;"</span>)
+<span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #268bd2;">len</span>(b) &gt; <span style="color: #d75fd7;">0</span> {
+    <span style="color: #8787d7;">r</span>, <span style="color: #8787d7;">size</span> := utf8.<span style="color: #d75fd7; font-weight: bold;">DecodeRune</span>(b)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%c %v\n"</span>, r, size)
+    b = b[size:]
+}
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">H 1</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">e 1</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">l 1</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">l 1</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">o 1</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">, 1</span>
+<span style="color: #008787; background-color: #262626;">//  </span><span style="color: #008787; background-color: #262626;">1</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#19990; 3</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#30028; 3</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org401e4d2" class="outline-2">
+<h2 id="org401e4d2">func DecodeRuneInString</h2>
+<div class="outline-text-2" id="text-org401e4d2">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">DecodeRuneInString</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>, <span style="color: #8787d7;">size</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+</pre>
+</div>
+
+<p>
+函数类似DecodeRune但输入参数是字符串。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">str</span> := <span style="color: #2aa198;">"Hello, &#19990;&#30028;"</span>
+<span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #268bd2;">len</span>(str) &gt; <span style="color: #d75fd7;">0</span> {
+    <span style="color: #8787d7;">r</span>, <span style="color: #8787d7;">size</span> := utf8.<span style="color: #d75fd7; font-weight: bold;">DecodeRuneInString</span>(str)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%c %v\n"</span>, r, size)
+    str = str[size:]
+}
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">H 1</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">e 1</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">l 1</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">l 1</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">o 1</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">, 1</span>
+<span style="color: #008787; background-color: #262626;">//  </span><span style="color: #008787; background-color: #262626;">1</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#19990; 3</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#30028; 3</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org659137a" class="outline-2">
+<h2 id="org659137a">func DecodeLastRune</h2>
+<div class="outline-text-2" id="text-org659137a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">DecodeLastRune</span>(<span style="color: #8787d7;">p</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>, <span style="color: #8787d7;">size</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+</pre>
+</div>
+
+<p>
+函数解码p中最后一个utf-8编码序列，返回该码值和编码序列的长度。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">b</span> := []<span style="color: #d75fd7; font-weight: bold;">byte</span>(<span style="color: #2aa198;">"Hello, &#19990;&#30028;"</span>)
+<span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #268bd2;">len</span>(b) &gt; <span style="color: #d75fd7;">0</span> {
+    <span style="color: #8787d7;">r</span>, <span style="color: #8787d7;">size</span> := utf8.<span style="color: #d75fd7; font-weight: bold;">DecodeLastRune</span>(b)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%c %v\n"</span>, r, size)
+    b = b[:<span style="color: #268bd2;">len</span>(b)-size]
+}
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#30028; 3</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#19990; 3</span>
+<span style="color: #008787; background-color: #262626;">//  </span><span style="color: #008787; background-color: #262626;">1</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">, 1</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">o 1</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">l 1</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">l 1</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">e 1</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">H 1</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org5169d29" class="outline-2">
+<h2 id="org5169d29">func DecodeLastRuneInString</h2>
+<div class="outline-text-2" id="text-org5169d29">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">DecodeLastRuneInString</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>, <span style="color: #8787d7;">size</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+</pre>
+</div>
+
+<p>
+函数类似DecodeLastRune但输入参数是字符串。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">str</span> := <span style="color: #2aa198;">"Hello, &#19990;&#30028;"</span>
+<span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #268bd2;">len</span>(str) &gt; <span style="color: #d75fd7;">0</span> {
+    <span style="color: #8787d7;">r</span>, <span style="color: #8787d7;">size</span> := utf8.<span style="color: #d75fd7; font-weight: bold;">DecodeLastRuneInString</span>(str)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%c %v\n"</span>, r, size)
+    str = str[:<span style="color: #268bd2;">len</span>(str)-size]
+}
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#30028; 3</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#19990; 3</span>
+<span style="color: #008787; background-color: #262626;">//  </span><span style="color: #008787; background-color: #262626;">1</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">, 1</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">o 1</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">l 1</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">l 1</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">e 1</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">H 1</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-08 23:02 Tue</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-08 Tue 23:45</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

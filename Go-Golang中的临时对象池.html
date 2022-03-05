@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-02-14 Mon 23:08 -->
+<!-- 2022-02-15 Tue 16:24 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GOLANG 中的临时对象池</title>
@@ -68,12 +68,12 @@ Go 并发相关库 <code>sync</code> 里面有一个 <code>sync.Pool</code> ，�
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"> <span style="color: #8787d7;">bufferPool</span> := &amp;sync.Pool {
-     <span style="color: #d75fd7;">New</span>: <span style="color: #268bd2; font-weight: bold;">func</span>() <span style="color: #268bd2; font-weight: bold;">interface</span> {} {
-         <span style="color: #268bd2;">println</span>(<span style="color: #2aa198;">"Create new instance"</span>)
-         <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #268bd2; font-weight: bold;">struct</span>{}{}
-     },
-}
+<pre class="src src-go"><span style="color: #8787d7;">bufferPool</span> := &amp;sync.Pool {
+    <span style="color: #d75fd7;">New</span>: <span style="color: #268bd2; font-weight: bold;">func</span>() <span style="color: #268bd2; font-weight: bold;">interface</span> {} {
+        <span style="color: #268bd2;">println</span>(<span style="color: #2aa198;">"Create new instance"</span>)
+        <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #268bd2; font-weight: bold;">struct</span>{}{}
+    },
+    }
 </pre>
 </div>
 </div>
@@ -167,7 +167,7 @@ Go 并发相关库 <code>sync</code> 里面有一个 <code>sync.Pool</code> ，�
 输出结果：<br>
 </p>
 
-<pre class="example" id="orge04246a">
+<pre class="example" id="orgd476cf9">
 8 buffer objects were created.
 </pre>
 
@@ -189,7 +189,7 @@ Go 并发相关库 <code>sync</code> 里面有一个 <code>sync.Pool</code> ，�
 这时候再执行程序：<br>
 </p>
 
-<pre class="example" id="org135cef7">
+<pre class="example" id="org03c8233">
 1048576 buffer objects were created.
 </pre>
 
@@ -262,7 +262,7 @@ A Pool is safe for use by multiple goroutines simultaneously.<br>
 小伙伴们可以尝试下，把 <code>atomic.AddInt32(&amp;numCalcsCreated, 1)</code> 这样代码改成 <code>numCalcsCreated ++</code> ，然后用 <code>go run -race test_pool.go</code> 命令检查一下，肯定会报告告警的，类似如下：<br>
 </p>
 
-<pre class="example" id="org70b9e88">
+<pre class="example" id="org7d75851">
 WARNING: DATA RACE
 Read at 0x000001287538 by goroutine 10:
 
@@ -310,14 +310,14 @@ Read at 0x000001287538 by goroutine 9:
 <li>当用完一个从 Pool 取出的实例时候，一定要记得调用 Put，否则 Pool 无法复用这个实例，通常这个用 defer 完成；<br></li>
 </ol>
 
-<p style="font-size: smaller; text-align: right;">本文分享自微信公众号 - 网管叨bi叨（kevin_tech）</p>
+<p class="reference">本文分享自微信公众号 - 网管叨bi叨（kevin_tech）</p>
 </div>
 </div>
 </div>
 <div id="postamble" class="status">
 <p class="date">Date: 2022-02-14 20:02 Mon</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-02-14 Mon 23:08</p>
+<p class="date">Created: 2022-02-15 Tue 16:24</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

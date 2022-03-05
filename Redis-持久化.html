@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-22 Tue 17:52 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>REDIS 持久化</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">REDIS 持久化</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org1b7acfc">RDB（Redis DataBase）</a>
+<ul>
+<li><a href="#org448cff6">什么是 RDB</a></li>
+<li><a href="#org8969aa3">触发机制</a></li>
+</ul>
+</li>
+<li><a href="#orgfd162c2">AOF（Append Only File）</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org1b7acfc" class="outline-2">
+<h2 id="org1b7acfc">RDB（Redis DataBase）</h2>
+<div class="outline-text-2" id="text-org1b7acfc">
+</div>
+<div id="outline-container-org448cff6" class="outline-3">
+<h3 id="org448cff6">什么是 RDB</h3>
+<div class="outline-text-3" id="text-org448cff6">
+<p>
+在指定的时间间隔内将内存中的数据集快照写入磁盘，也就是 Snapshot 快照，恢复是将快照文件读回内存。<br>
+</p>
+
+<p>
+Redis 会单独创建（fork）一个子进程来进行持久化，会先将数据写入到一个临时文件中，待持久化过程都结束了，再用这个临时文件替换上次持久化的文件。整个过程中，主进程是不进行任何 IO 操作的，这就确保了高性能。如果需要进行大规模数据的恢复，且对与数据恢复的完整性不是非常敏感，那 RDB 的方式要比 AOF 方式更加的高效。RBD 的缺点是最后一次持久化后的数据可能丢失。<br>
+</p>
+
+<p>
+rbd 保存的文件是 dump.rdb，可以在配置文件中修改。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8969aa3" class="outline-3">
+<h3 id="org8969aa3">触发机制</h3>
+<div class="outline-text-3" id="text-org8969aa3">
+<ol class="org-ol">
+<li>save 的规则满足的情况下，会自动触发 rdb 规则<br></li>
+<li>执行 flushall 命令也会触发 rdb 规则<br></li>
+<li>退出 redis 也会产生 rdb 文件<br></li>
+</ol>
+
+<p>
+只要将 rbd 文件放在 redis 启动目录，redis 启动时就会检查 dump.rdb 文件恢复其中数据。<br>
+</p>
+
+<p>
+可以使用下面命令查看 rdb 文件存放的位置：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">config get dir
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgfd162c2" class="outline-2">
+<h2 id="orgfd162c2">AOF（Append Only File）</h2>
+<div class="outline-text-2" id="text-orgfd162c2">
+<p>
+将所有命令都记录下来，恢复的过程就是将这个文件全部执行一遍。<br>
+</p>
+
+<p>
+使用 AOF 之前需要在配置文件中启动 AOF：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-conf">appendonly yes
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-20 16:02 Sun</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-22 Tue 17:52</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

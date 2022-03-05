@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-16 Wed 21:57 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>对已经关闭的CHAN进行读写</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">对已经关闭的CHAN进行读写</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org9b3da04">对已经关闭的的 chan 进行读写，会怎么样？为什么？</a></li>
+<li><a href="#org3a72b37">示例</a>
+<ul>
+<li><a href="#org3423f77">1. 写已经关闭的 chan</a></li>
+<li><a href="#org0d4e6f7">2. 读已经关闭的 chan</a></li>
+</ul>
+</li>
+<li><a href="#orgd8f5436">1. 为什么写已经关闭的 chan 就会 panic 呢？</a></li>
+<li><a href="#org60fccc6">2. 为什么读已关闭的 chan 会一直能读到值？</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org9b3da04" class="outline-2">
+<h2 id="org9b3da04">对已经关闭的的 chan 进行读写，会怎么样？为什么？</h2>
+<div class="outline-text-2" id="text-org9b3da04">
+<ul class="org-ul">
+<li>读已经关闭的 chan 能一直读到东西，但是读到的内容根据通道内关闭前是否有元素而不同。<br>
+<ul class="org-ul">
+<li>如果 chan 关闭前，buffer 内有元素还未读 , 会正确读到 chan 内的值，且返回的第二个 bool 值（是否读成功）为 true。<br></li>
+<li>如果 chan 关闭前，buffer 内有元素已经被读完，chan 内无值，接下来所有接收的值都会非阻塞直接成功，返回 channel 元素的零值，但是第二个 bool 值一直为 false。<br></li>
+</ul></li>
+<li>写已经关闭的 chan 会 panic。<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org3a72b37" class="outline-2">
+<h2 id="org3a72b37">示例</h2>
+<div class="outline-text-2" id="text-org3a72b37">
+</div>
+<div id="outline-container-org3423f77" class="outline-3">
+<h3 id="org3423f77">1. 写已经关闭的 chan</h3>
+<div class="outline-text-3" id="text-org3423f77">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>(){
+    <span style="color: #8787d7;">c</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #d75fd7;">3</span>)
+    <span style="color: #268bd2;">close</span>(c)
+    c &lt;- <span style="color: #d75fd7;">1</span>
+}
+</pre>
+</div>
+
+<p>
+输出结果：<br>
+</p>
+
+<pre class="example" id="org4e55421">
+panic: send on closed channel
+
+goroutine 1 [running]
+main.main()
+...
+</pre>
+
+<p>
+注意这个 send on closed channel，待会会提到。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org0d4e6f7" class="outline-3">
+<h3 id="org0d4e6f7">2. 读已经关闭的 chan</h3>
+<div class="outline-text-3" id="text-org0d4e6f7">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"&#20197;&#19979;&#26159;&#25968;&#20540;&#30340;chan"</span>)
+    <span style="color: #8787d7;">ci</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #d75fd7;">3</span>)
+    ci &lt;- <span style="color: #d75fd7;">1</span>
+    <span style="color: #268bd2;">close</span>(ci)
+    <span style="color: #8787d7;">num</span>, <span style="color: #8787d7;">ok</span> := &lt;-ci
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"&#35835;chan&#30340;&#21327;&#31243;&#32467;&#26463;&#65292;num=%v&#65292; ok=%v\n"</span>, num, ok)
+    <span style="color: #8787d7;">num1</span>, <span style="color: #8787d7;">ok1</span> := &lt;-ci
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"&#20877;&#35835;chan&#30340;&#21327;&#31243;&#32467;&#26463;&#65292;num=%v&#65292; ok=%v\n"</span>, num1, ok1)
+    <span style="color: #8787d7;">num2</span>, <span style="color: #8787d7;">ok2</span> := &lt;-ci
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"&#20877;&#20877;&#35835;chan&#30340;&#21327;&#31243;&#32467;&#26463;&#65292;num=%v&#65292; ok=%v\n"</span>, num2, ok2)
+
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"&#20197;&#19979;&#26159;&#23383;&#31526;&#20018;chan"</span>)
+    <span style="color: #8787d7;">cs</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #d75fd7;">3</span>)
+    cs &lt;- <span style="color: #2aa198;">"aaa"</span>
+    <span style="color: #268bd2;">close</span>(cs)
+    <span style="color: #8787d7;">str</span>, <span style="color: #8787d7;">ok</span> := &lt;-cs
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"&#35835;chan&#30340;&#21327;&#31243;&#32467;&#26463;&#65292;str=%v&#65292; ok=%v\n"</span>, str, ok)
+    <span style="color: #8787d7;">str1</span>, <span style="color: #8787d7;">ok1</span> := &lt;-cs
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"&#20877;&#35835;chan&#30340;&#21327;&#31243;&#32467;&#26463;&#65292;str=%v&#65292; ok=%v\n"</span>, str1, ok1)
+    <span style="color: #8787d7;">str2</span>, <span style="color: #8787d7;">ok2</span> := &lt;-cs
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"&#20877;&#20877;&#35835;chan&#30340;&#21327;&#31243;&#32467;&#26463;&#65292;str=%v&#65292; ok=%v\n"</span>, str2, ok2)
+
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"&#20197;&#19979;&#26159;&#32467;&#26500;&#20307;chan"</span>)
+    <span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">MyStruct</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        Name <span style="color: #df005f; font-weight: bold;">string</span>
+    }
+    <span style="color: #8787d7;">cstruct</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">MyStruct</span>, <span style="color: #d75fd7;">3</span>)
+    cstruct &lt;- <span style="color: #df005f; font-weight: bold;">MyStruct</span>{<span style="color: #d75fd7;">Name</span>: <span style="color: #2aa198;">"haha"</span>}
+    <span style="color: #268bd2;">close</span>(cstruct)
+    <span style="color: #8787d7;">stru</span>, <span style="color: #8787d7;">ok</span> := &lt;-cstruct
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"&#35835;chan&#30340;&#21327;&#31243;&#32467;&#26463;&#65292;stru=%v&#65292; ok=%v\n"</span>, stru, ok)
+    <span style="color: #8787d7;">stru1</span>, <span style="color: #8787d7;">ok1</span> := &lt;-cs
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"&#20877;&#35835;chan&#30340;&#21327;&#31243;&#32467;&#26463;&#65292;stru=%v&#65292; ok=%v\n"</span>, stru1, ok1)
+    <span style="color: #8787d7;">stru2</span>, <span style="color: #8787d7;">ok2</span> := &lt;-cs
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"&#20877;&#20877;&#35835;chan&#30340;&#21327;&#31243;&#32467;&#26463;&#65292;stru=%v&#65292; ok=%v\n"</span>, stru2, ok2)
+}
+</pre>
+</div>
+
+<p>
+输出结果<br>
+</p>
+
+<pre class="example" id="org5ba9a18">
+以下是数值的chan
+读chan的协程结束，num=1， ok=true
+再读chan的协程结束，num=0， ok=false
+再再读chan的协程结束，num=0， ok=false
+以下是字符串chan
+读chan的协程结束，str=aaa， ok=true
+再读chan的协程结束，str=， ok=false
+再再读chan的协程结束，str=， ok=false
+以下是结构体chan
+读chan的协程结束，stru={haha}， ok=true
+再读chan的协程结束，stru=， ok=false
+再再读chan的协程结束，stru=， ok=false
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgd8f5436" class="outline-2">
+<h2 id="orgd8f5436">1. 为什么写已经关闭的 chan 就会 panic 呢？</h2>
+<div class="outline-text-2" id="text-orgd8f5436">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#22312; src/runtime/chan.go</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">chansend</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">hchan</span>,<span style="color: #8787d7;">ep</span> <span style="color: #df005f; font-weight: bold;">unsafe.Pointer</span>,<span style="color: #8787d7;">block</span> <span style="color: #df005f; font-weight: bold;">bool</span>,<span style="color: #8787d7;">callerpc</span> <span style="color: #df005f; font-weight: bold;">uintptr</span>) <span style="color: #df005f; font-weight: bold;">bool</span> {
+    <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#30465;&#30053;&#20854;&#20182;</span>
+    <span style="color: #268bd2; font-weight: bold;">if</span> c.closed != <span style="color: #d75fd7;">0</span> {
+        <span style="color: #d75fd7; font-weight: bold;">unlock</span>(&amp;c.lock)
+        <span style="color: #268bd2;">panic</span>(<span style="color: #d75fd7; font-weight: bold;">plainError</span>(<span style="color: #2aa198;">"send on closed channel"</span>))
+    }   
+    <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#30465;&#30053;&#20854;&#20182;</span>
+}
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>当 <code>c.closed != 0</code> 则为通道关闭，此时执行写，源码提示直接 panic，输出的内容就是上面提到的 "send on closed channel"。<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org60fccc6" class="outline-2">
+<h2 id="org60fccc6">2. 为什么读已关闭的 chan 会一直能读到值？</h2>
+<div class="outline-text-2" id="text-org60fccc6">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">chanrecv</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">hchan</span>, <span style="color: #8787d7;">ep</span> <span style="color: #df005f; font-weight: bold;">unsafe.Pointer</span>, <span style="color: #8787d7;">block</span> <span style="color: #df005f; font-weight: bold;">bool</span>) (<span style="color: #8787d7;">selected</span>, <span style="color: #8787d7;">received</span> <span style="color: #df005f; font-weight: bold;">bool</span>) {
+    <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#30465;&#30053;&#37096;&#20998;&#36923;&#36753;</span>
+    <span style="color: #d75fd7; font-weight: bold;">lock</span>(&amp;c.lock)
+    <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#24403;chan&#34987;&#20851;&#38381;&#20102;&#65292;&#32780;&#19988;&#32531;&#23384;&#20026;&#31354;&#26102;</span>
+    <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">ep &#26159;&#25351; val,ok := &lt;-c &#37324;&#30340;val&#22320;&#22336;</span>
+    <span style="color: #268bd2; font-weight: bold;">if</span> c.closed != <span style="color: #d75fd7;">0</span> &amp;&amp; c.qcount == <span style="color: #d75fd7;">0</span> {
+        <span style="color: #268bd2; font-weight: bold;">if</span> receenabled {
+            <span style="color: #d75fd7; font-weight: bold;">raceacquire</span>(c.<span style="color: #d75fd7; font-weight: bold;">raceaddr</span>())
+        }
+        <span style="color: #d75fd7; font-weight: bold;">unlock</span>(&amp;c.lock)
+        <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#25509;&#21463;&#20043;&#30340;&#22320;&#22336;&#19981;&#31354;&#65292;&#37027;&#25509;&#25910;&#20540;&#23558;&#33719;&#24471;&#19968;&#20010;&#35813;&#20540;&#31867;&#22411;&#30340;&#38646;&#20540;</span>
+        <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">typedmemclr &#20250;&#26681;&#25454;&#31867;&#22411;&#28165;&#29702;&#21709;&#24212;&#30340;&#20869;&#23384;</span>
+        <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#36825;&#23601;&#35299;&#37322;&#20102;&#19978;&#38754;&#20195;&#30721;&#20026;&#20160;&#20040;&#20851;&#38381;&#30340;chan &#20250;&#36820;&#22238;&#23545;&#24212;&#31867;&#22411;&#30340;&#38646;&#20540;</span>
+        <span style="color: #268bd2; font-weight: bold;">if</span> ep != null {
+            <span style="color: #d75fd7; font-weight: bold;">typedmemclr</span>(c.elemtype, ep)
+        }   
+        <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;&#20004;&#20010;&#21442;&#25968; selected,received</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#31532;&#20108;&#20010;&#37319;&#32435;&#25968;&#23601;&#26159; val,ok := &lt;- c &#37324;&#30340; ok</span>
+        <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#20063;&#23601;&#35299;&#37322;&#20102;&#20026;&#20160;&#20040;&#35835;&#20851;&#38381;&#30340;chan&#20250;&#19968;&#30452;&#36820;&#22238;false</span>
+        <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">true</span>,<span style="color: #d75fd7;">false</span>
+    }   
+}
+</pre>
+</div>
+
+<ul class="org-ul">
+<li><code>c.closed != 0 &amp;&amp; c.qcount == 0</code> 指通道已经关闭，且缓存为空的情况下（已经读完了之前写到通道里的值）<br></li>
+<li>如果接收值的地址 <code>ep</code> 不为空<br>
+<ul class="org-ul">
+<li>那接收值将获得是一个该类型的零值<br></li>
+<li><code>typedmemclr</code> 会根据类型清理相应地址的内存<br></li>
+<li>这就解释了上面代码为什么关闭的 chan 会返回对应类型的零值<br></li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-15 02:02 Tue</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-16 Wed 21:57</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

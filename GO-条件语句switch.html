@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-10 Thu 20:21 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>条件语句SWITCH</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">条件语句SWITCH</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org9790702">switch 语法</a></li>
+<li><a href="#org1e44506">Type Switch</a></li>
+<li><a href="#org502ad77">fallthrough</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org9790702" class="outline-2">
+<h2 id="org9790702">switch 语法</h2>
+<div class="outline-text-2" id="text-org9790702">
+<p>
+switch 语句用于基于不同条件执行不同动作，每一个 case 分支都是唯一的，从上直下逐一测试，直到匹配为止。 Golang switch 分支表达式可以是任意类型，不限于常量。Go 里面 switch 默认相当于每个 case 最后带有 break，匹配成功后不会自动向下执行其他 case，而是跳出整个 switch。<br>
+</p>
+
+<p>
+直接上实例：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #008787; background-color: #262626;">/* </span><span style="color: #008787; background-color: #262626;">&#23450;&#20041;&#23616;&#37096;&#21464;&#37327; */</span>
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">grade</span> <span style="color: #df005f; font-weight: bold;">string</span>
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">marks</span> <span style="color: #df005f; font-weight: bold;">int</span> = <span style="color: #d75fd7;">90</span>
+
+    <span style="color: #268bd2; font-weight: bold;">switch</span> marks {
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #d75fd7;">90</span>:
+        grade = <span style="color: #2aa198;">"A"</span>
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #d75fd7;">80</span>:
+        grade = <span style="color: #2aa198;">"B"</span>
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #d75fd7;">50</span>, <span style="color: #d75fd7;">60</span>, <span style="color: #d75fd7;">70</span>:
+        grade = <span style="color: #2aa198;">"C"</span>
+    <span style="color: #268bd2; font-weight: bold;">default</span>:
+        grade = <span style="color: #2aa198;">"D"</span>
+    }
+
+    <span style="color: #268bd2; font-weight: bold;">switch</span> {
+    <span style="color: #268bd2; font-weight: bold;">case</span> grade == <span style="color: #2aa198;">"A"</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"&#20248;&#31168;!\n"</span>)
+    <span style="color: #268bd2; font-weight: bold;">case</span> grade == <span style="color: #2aa198;">"B"</span>, grade == <span style="color: #2aa198;">"C"</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"&#33391;&#22909;\n"</span>)
+    <span style="color: #268bd2; font-weight: bold;">case</span> grade == <span style="color: #2aa198;">"D"</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"&#21450;&#26684;\n"</span>)
+    <span style="color: #268bd2; font-weight: bold;">case</span> grade == <span style="color: #2aa198;">"F"</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"&#19981;&#21450;&#26684;\n"</span>)
+    <span style="color: #268bd2; font-weight: bold;">default</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"&#24046;\n"</span>)
+    }
+
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"&#20320;&#30340;&#31561;&#32423;&#26159; %s\n"</span>, grade)
+}
+</pre>
+</div>
+
+<p>
+以上代码执行结果为：<br>
+</p>
+
+<pre class="example" id="orgdad70e3">
+优秀!
+你的等级是 A
+</pre>
+</div>
+</div>
+<div id="outline-container-org1e44506" class="outline-2">
+<h2 id="org1e44506">Type Switch</h2>
+<div class="outline-text-2" id="text-org1e44506">
+<p>
+switch 语句还可以被用于 type-switch 来判断某个 interface 变量中实际存储的变量类型<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">switch</span> x.(<span style="color: #268bd2; font-weight: bold;">type</span>){
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #df005f; font-weight: bold;">type</span>:
+    <span style="color: #d75fd7; font-weight: bold;">statement</span>(s)      
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #df005f; font-weight: bold;">type</span>:
+    <span style="color: #d75fd7; font-weight: bold;">statement</span>(s)
+    <span style="color: #008787; background-color: #262626;">/* </span><span style="color: #008787; background-color: #262626;">&#20320;&#21487;&#20197;&#23450;&#20041;&#20219;&#24847;&#20010;&#25968;&#30340;case */</span>
+    <span style="color: #268bd2; font-weight: bold;">default</span>: <span style="color: #008787; background-color: #262626;">/* </span><span style="color: #008787; background-color: #262626;">&#21487;&#36873; */</span>
+    <span style="color: #d75fd7; font-weight: bold;">statement</span>(s)
+}
+</pre>
+</div>
+
+<p>
+实例：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">x</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}
+
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20889;&#27861;&#19968;&#65306;</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"&#20889;&#27861;&#19968;&#65306;"</span>)
+    <span style="color: #268bd2; font-weight: bold;">switch</span> <span style="color: #8787d7;">i</span> := x.(<span style="color: #268bd2; font-weight: bold;">type</span>) { <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#24102;&#21021;&#22987;&#21270;&#35821;&#21477;</span>
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #d75fd7;">nil</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"x &#30340;&#31867;&#22411;: %T\r\n"</span>, i)
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #df005f; font-weight: bold;">int</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"x &#26159; int &#22411;\n"</span>)
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #df005f; font-weight: bold;">float64</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"x &#26159; float64 &#22411;\n"</span>)
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #df005f; font-weight: bold;">int</span>) float64:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"x &#26159; func(int) &#22411;\n"</span>)
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #df005f; font-weight: bold;">bool</span>, <span style="color: #df005f; font-weight: bold;">string</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"x &#26159; bool &#25110; string &#22411;\n"</span>)
+    <span style="color: #268bd2; font-weight: bold;">default</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"&#26410;&#30693;&#22411;\n"</span>)
+    }
+
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20889;&#27861;&#20108;</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"&#20889;&#27861;&#20108;&#65306;"</span>)
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">j</span> = <span style="color: #d75fd7;">0</span>
+    <span style="color: #268bd2; font-weight: bold;">switch</span> j { <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#19981;&#24102;&#21021;&#22987;&#21270;&#35821;&#21477;</span>
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #d75fd7;">0</span>:
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #d75fd7;">1</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"j = 1"</span>)
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #d75fd7;">2</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"j = 2"</span>)
+    <span style="color: #268bd2; font-weight: bold;">default</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"default"</span>)
+    }
+
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20889;&#27861;&#19977;</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"&#20889;&#27861;&#19977;&#65306;"</span>)
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">k</span> = <span style="color: #d75fd7;">0</span>
+    <span style="color: #268bd2; font-weight: bold;">switch</span> k {
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #d75fd7;">0</span>:
+        <span style="color: #268bd2;">println</span>(<span style="color: #2aa198;">"fallthrough"</span>)
+        <span style="color: #268bd2; font-weight: bold;">fallthrough</span>
+        <span style="color: #008787; background-color: #262626;">/*</span>
+<span style="color: #008787; background-color: #262626;">         * Go &#30340; switch &#38750;&#24120;&#28789;&#27963;&#65292;&#34920;&#36798;&#24335;&#19981;&#24517;&#26159;&#24120;&#37327;&#25110;&#25972;&#25968;&#65292;&#25191;&#34892;&#30340;&#36807;&#31243;&#20174;&#19978;&#33267;&#19979;&#65292;&#30452;&#21040;&#25214;&#21040;&#21305;&#37197;&#39033;&#65307;</span>
+<span style="color: #008787; background-color: #262626;">         * &#32780;&#22914;&#26524; switch &#27809;&#26377;&#34920;&#36798;&#24335;&#65292;&#23427;&#20250;&#21305;&#37197; true&#12290;</span>
+<span style="color: #008787; background-color: #262626;">         * Go &#37324;&#38754; switch &#40664;&#35748;&#30456;&#24403;&#20110;&#27599;&#20010; case &#26368;&#21518;&#24102;&#26377; break&#65292;</span>
+<span style="color: #008787; background-color: #262626;">         * &#21305;&#37197;&#25104;&#21151;&#21518;&#19981;&#20250;&#33258;&#21160;&#21521;&#19979;&#25191;&#34892;&#20854;&#20182; case&#65292;&#32780;&#26159;&#36339;&#20986;&#25972;&#20010; switch,</span>
+<span style="color: #008787; background-color: #262626;">         * &#20294;&#26159;&#21487;&#20197;&#20351;&#29992; fallthrough &#24378;&#21046;&#25191;&#34892;&#21518;&#38754;&#30340; case &#20195;&#30721;&#12290;</span>
+<span style="color: #008787; background-color: #262626;">         */</span>
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #d75fd7;">1</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"k = 1"</span>)
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #d75fd7;">2</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"k = 2"</span>)
+    <span style="color: #268bd2; font-weight: bold;">default</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"default"</span>)
+    }
+
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20889;&#27861;&#22235;</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"&#20889;&#27861;&#22235;&#65306;"</span>)
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">m</span> = <span style="color: #d75fd7;">0</span>
+    <span style="color: #268bd2; font-weight: bold;">switch</span> m {
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #d75fd7;">0</span>, <span style="color: #d75fd7;">1</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"m = 0 or 1"</span>)
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #d75fd7;">2</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"m = 2"</span>)
+    <span style="color: #268bd2; font-weight: bold;">default</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"default"</span>)
+    }
+
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20889;&#27861;&#20116;</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"&#20889;&#27861;&#20116;&#65306;"</span>)
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">n</span> = <span style="color: #d75fd7;">0</span>
+    <span style="color: #268bd2; font-weight: bold;">switch</span> { <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#30465;&#30053;&#26465;&#20214;&#34920;&#36798;&#24335;&#65292;&#21487;&#24403; if...else if...else</span>
+    <span style="color: #268bd2; font-weight: bold;">case</span> n &gt; <span style="color: #d75fd7;">0</span> &amp;&amp; n &lt; <span style="color: #d75fd7;">10</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"n &gt; 0 and n &lt; 10"</span>)
+    <span style="color: #268bd2; font-weight: bold;">case</span> n &gt; <span style="color: #d75fd7;">10</span> &amp;&amp; n &lt; <span style="color: #d75fd7;">20</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"n &gt; 10 and n &lt; 20"</span>)
+    <span style="color: #268bd2; font-weight: bold;">default</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"default"</span>)
+    }
+}
+</pre>
+</div>
+
+<p>
+以上代码执行结果为：<br>
+</p>
+
+<pre class="example" id="org837370b">
+写法一：
+x 的类型: &lt;nil&gt;
+写法二：
+写法三：
+fallthrough
+k = 1
+写法四：
+m = 0 or 1
+写法五：
+default
+</pre>
+</div>
+</div>
+<div id="outline-container-org502ad77" class="outline-2">
+<h2 id="org502ad77">fallthrough</h2>
+<div class="outline-text-2" id="text-org502ad77">
+<p>
+使用 fallthrough 可以在不在 case 结束后跳出整个 switch，而是强制执行后面的代码。<br>
+</p>
+
+<p>
+示例程序1：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">switch</span> {
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #d75fd7;">false</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"1. false"</span>)
+        <span style="color: #268bd2; font-weight: bold;">fallthrough</span>
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #d75fd7;">true</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"2. true"</span>)
+        <span style="color: #268bd2; font-weight: bold;">fallthrough</span>
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #d75fd7;">false</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"3. false"</span>)
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #d75fd7;">true</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"4. true"</span>)
+        <span style="color: #268bd2; font-weight: bold;">fallthrough</span>
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #d75fd7;">false</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"5. false"</span>)
+    <span style="color: #268bd2; font-weight: bold;">default</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"default case"</span>)
+    }
+}
+</pre>
+</div>
+
+<pre class="example" id="org189bcf0">
+2. true
+3. false
+</pre>
+
+<p>
+<b>不可以在最后一个位置使用 <code>fallthrough</code> ：</b><br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">switch</span> {
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #d75fd7;">false</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"1. false"</span>)
+        <span style="color: #268bd2; font-weight: bold;">fallthrough</span>
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #d75fd7;">true</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"2. true"</span>)
+        <span style="color: #268bd2; font-weight: bold;">fallthrough</span>
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #d75fd7;">false</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"3. false"</span>)
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #d75fd7;">true</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"4. true"</span>)
+        <span style="color: #268bd2; font-weight: bold;">fallthrough</span>
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #d75fd7;">false</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"5. false"</span>)
+    <span style="color: #268bd2; font-weight: bold;">default</span>:
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"default case"</span>)
+        <span style="color: #268bd2; font-weight: bold;">fallthrough</span>
+    }
+}
+</pre>
+</div>
+
+<pre class="example" id="orgeee29f6">
+./使用fallthrough.go:22:9: 错误：cannot fallthrough final case in switch
+   22 |         fallthrough
+      |         ^
+
+Shell 已返回2
+</pre>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-10 18:02 Thu</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-10 Thu 20:21</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

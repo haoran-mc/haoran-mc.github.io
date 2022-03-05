@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-08 Tue 23:34 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UNICODE_UTF16</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">UNICODE_UTF16</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgdb13290">Introduction</a></li>
+<li><a href="#orgdebef10">func IsSurrogate</a></li>
+<li><a href="#org4311d89">func DecodeRune</a></li>
+<li><a href="#orgbd3e221">func Decode</a></li>
+<li><a href="#org4dacafa">func EncodeRune</a></li>
+<li><a href="#orgf91c414">func Encode</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgdb13290" class="outline-2">
+<h2 id="orgdb13290">Introduction</h2>
+<div class="outline-text-2" id="text-orgdb13290">
+<p>
+utf16包实现了UTF-16序列的编解码。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgdebef10" class="outline-2">
+<h2 id="orgdebef10">func IsSurrogate</h2>
+<div class="outline-text-2" id="text-orgdebef10">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">IsSurrogate</span>(<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+返回r是否可以编码为一个utf-16的代理对。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4311d89" class="outline-2">
+<h2 id="org4311d89">func DecodeRune</h2>
+<div class="outline-text-2" id="text-org4311d89">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">DecodeRune</span>(<span style="color: #8787d7;">r1</span>, <span style="color: #8787d7;">r2</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">rune</span>
+</pre>
+</div>
+
+<p>
+将utf-16代理对(r1, r2)解码为unicode码值。如果代理对不合法，会返回U+FFFD。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgbd3e221" class="outline-2">
+<h2 id="orgbd3e221">func Decode</h2>
+<div class="outline-text-2" id="text-orgbd3e221">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Decode</span>(<span style="color: #8787d7;">s</span> []<span style="color: #df005f; font-weight: bold;">uint16</span>) []<span style="color: #df005f; font-weight: bold;">rune</span>
+</pre>
+</div>
+
+<p>
+将utf-16序列解码为unicode码值序列。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4dacafa" class="outline-2">
+<h2 id="org4dacafa">func EncodeRune</h2>
+<div class="outline-text-2" id="text-org4dacafa">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">EncodeRune</span>(<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>) (<span style="color: #8787d7;">r1</span>, <span style="color: #8787d7;">r2</span> <span style="color: #df005f; font-weight: bold;">rune</span>)
+</pre>
+</div>
+
+<p>
+将unicode码值r编码为一个utf-16的代理对。如果不能编码，会返回(U+FFFD, U+FFFD)。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf91c414" class="outline-2">
+<h2 id="orgf91c414">func Encode</h2>
+<div class="outline-text-2" id="text-orgf91c414">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Encode</span>(<span style="color: #8787d7;">s</span> []<span style="color: #df005f; font-weight: bold;">rune</span>) []<span style="color: #df005f; font-weight: bold;">uint16</span>
+</pre>
+</div>
+
+<p>
+将unicode码值序列编码为utf-16序列。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-08 23:02 Tue</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-08 Tue 23:34</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

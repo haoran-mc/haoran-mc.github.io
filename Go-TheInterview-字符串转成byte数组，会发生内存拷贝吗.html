@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-18 Fri 16:25 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>字符串转成BYTE数组，会发生内存拷贝吗？</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">字符串转成BYTE数组，会发生内存拷贝吗？</h1>
+<p>
+字符串转成切片，会产生拷贝。严格来说，只要是发生类型强转都会发生内存拷贝。那么问题来了。<br>
+</p>
+
+<p>
+频繁的内存拷贝操作听起来对性能不大友好，有没有什么办法可以在字符串转成切片的时候不用发生拷贝呢？<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"reflect"</span>
+    <span style="color: #2aa198;">"unsafe"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">a</span> := <span style="color: #2aa198;">"aaa"</span>
+    <span style="color: #8787d7;">ssh</span> := *(*reflect.StringHeader)(unsafe.<span style="color: #d75fd7; font-weight: bold;">Pointer</span>(&amp;a))
+    <span style="color: #8787d7;">b</span> := *(*[]<span style="color: #df005f; font-weight: bold;">byte</span>)(unsafe.<span style="color: #d75fd7; font-weight: bold;">Pointer</span>(&amp;ssh))
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%v"</span>, b)
+}
+</pre>
+</div>
+
+<p>
+<code>StringHeader</code> 是字符串在 go 的底层结构。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">StringHeader</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    Data <span style="color: #df005f; font-weight: bold;">uintptr</span>
+    Len  <span style="color: #df005f; font-weight: bold;">int</span>
+}
+</pre>
+</div>
+
+<p>
+<code>SliceHeader</code> 是切片在 go 的底层结构。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">SliceHeader</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    Data <span style="color: #df005f; font-weight: bold;">uintptr</span>
+    Len  <span style="color: #df005f; font-weight: bold;">int</span>
+    Cap  <span style="color: #df005f; font-weight: bold;">int</span>
+}
+</pre>
+</div>
+
+<p>
+那么如果想要在底层转换二者，只需要把 StringHeader 的地址强转成 SliceHeader 就行。那么 go 有个很强的包叫 unsafe 。<br>
+</p>
+
+<ol class="org-ol">
+<li><code>unsafe.Pointer(&amp;a)</code> 方法可以得到变量 a 的地址。<br></li>
+<li><code>(*reflect.StringHeader)(unsafe.Pointer(&amp;a))</code> 可以把字符串a转成底层结构的形式。<br></li>
+<li><code>(*[]byte)(unsafe.Pointer(&amp;ssh))</code> 可以把ssh底层结构体转成byte的切片的指针。<br></li>
+<li>再通过 <code>*</code> 转为指针指向的实际内容。<br></li>
+</ol>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-16 20:02 Wed</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-18 Fri 16:25</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

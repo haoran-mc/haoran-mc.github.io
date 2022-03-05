@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-12 Sat 01:34 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>实现阻塞读且并发安全的MAP</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">实现阻塞读且并发安全的MAP</h1>
+<p>
+GO里面MAP如何实现key不存在 get操作等待 直到key存在或者超时，保证并发安全，且需要实现以下接口：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">sp</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+        <span style="color: #d75fd7; font-weight: bold;">Out</span>(<span style="color: #8787d7;">key</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">val</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{})  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23384;&#20837;key val&#65292;&#22914;&#26524;&#35813; key &#35835;&#21462;&#30340; goroutine &#25346;&#36215;&#65292;&#21017;&#21796;&#37266;&#12290;&#27492;&#26041;&#27861;&#19981;&#20250;&#38459;&#22622;&#65292;&#26102;&#21051;&#37117;&#21487;&#20197;&#31435;&#21363;&#25191;&#34892;&#24182;&#36820;&#22238;</span>
+        <span style="color: #d75fd7; font-weight: bold;">Rd</span>(<span style="color: #8787d7;">key</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">timeout</span> <span style="color: #df005f; font-weight: bold;">time.Duration</span>) <span style="color: #268bd2; font-weight: bold;">interface</span>{}  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35835;&#21462;&#19968;&#20010; key&#65292;&#22914;&#26524; key &#19981;&#23384;&#22312;&#38459;&#22622;&#65292;&#31561;&#24453; key &#23384;&#22312;&#25110;&#32773;&#36229;&#26102;</span>
+}
+</pre>
+</div>
+
+<p>
+<b>解析：</b><br>
+</p>
+
+<p>
+看到阻塞协程第一个想到的就是 <code>channel</code> ，题目中要求并发安全，那么必须用锁，还要实现多个 <code>goroutine</code> 读的时候如果值不存在则阻塞，直到写入值，那么每个键值需要有一个阻塞 <code>goroutine</code> 的 <code>channel</code> 。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Map</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    c   <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]*<span style="color: #df005f; font-weight: bold;">entry</span>
+    rmx *<span style="color: #df005f; font-weight: bold;">sync.RWMutex</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">entry</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    ch      <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #268bd2; font-weight: bold;">struct</span>{}
+    value   <span style="color: #268bd2; font-weight: bold;">interface</span>{}
+    isExist <span style="color: #df005f; font-weight: bold;">bool</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">m</span> *<span style="color: #df005f; font-weight: bold;">Map</span>) <span style="color: #d75fd7; font-weight: bold;">Out</span>(<span style="color: #8787d7;">key</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">val</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}) {
+    m.rmx.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+    <span style="color: #268bd2; font-weight: bold;">defer</span> m.rmx.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+    <span style="color: #8787d7;">item</span>, <span style="color: #8787d7;">ok</span> := m.c[key]
+    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #d75fd7;">!</span>ok {
+        m.c[key] = &amp;<span style="color: #df005f; font-weight: bold;">entry</span>{
+            <span style="color: #d75fd7;">value</span>: val,
+            <span style="color: #d75fd7;">isExist</span>: <span style="color: #d75fd7;">true</span>,
+        }
+        <span style="color: #268bd2; font-weight: bold;">return</span>
+    }
+    item.value = val
+    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #d75fd7;">!</span>item.isExist {
+        <span style="color: #268bd2; font-weight: bold;">if</span> item.ch != <span style="color: #d75fd7;">nil</span> {
+            <span style="color: #268bd2;">close</span>(item.ch)
+            item.ch = <span style="color: #d75fd7;">nil</span>
+        }
+    }
+    <span style="color: #268bd2; font-weight: bold;">return</span>
+}
+</pre>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-12 01:02 Sat</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-12 Sat 01:34</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

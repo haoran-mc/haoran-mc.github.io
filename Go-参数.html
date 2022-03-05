@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-09 Wed 23:32 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>参数</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">参数</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org9364736">值传递与引用传递</a></li>
+<li><a href="#org34dd173">不定参数传值</a>
+<ul>
+<li><a href="#org375b96b">使用 slice 对象做实参</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org9364736" class="outline-2">
+<h2 id="org9364736">值传递与引用传递</h2>
+<div class="outline-text-2" id="text-org9364736">
+<p>
+函数定义时指出，函数定义时有参数，该变量可称为函数的形参。形参就像定义在函数体内的局部变量。<br>
+</p>
+
+<p>
+但当调用函数，传递过来的变量就是函数的实参，函数可以通过两种方式来传递参数：<br>
+</p>
+
+<p>
+<b>值传递：</b> 指在调用函数时将实际参数复制一份传递到函数中，这样在函数中如果对参数进行修改，将不会影响到实际参数。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">swap</span>(<span style="color: #8787d7;">x</span>, <span style="color: #8787d7;">y</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">int</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">...</span>
+}
+</pre>
+</div>
+
+<p>
+<b>引用传递：</b> 是指在调用函数时将实际参数的地址传递到函数中，那么在函数中对参数所进行的修改，将影响到实际参数。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+)
+
+<span style="color: #008787; background-color: #262626;">/* </span><span style="color: #008787; background-color: #262626;">&#23450;&#20041;&#30456;&#20114;&#20132;&#25442;&#20540;&#30340;&#20989;&#25968; */</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">swap</span>(<span style="color: #8787d7;">x</span>, <span style="color: #8787d7;">y</span> *<span style="color: #df005f; font-weight: bold;">int</span>) {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">temp</span> <span style="color: #df005f; font-weight: bold;">int</span>
+
+    temp = *x <span style="color: #008787; background-color: #262626;">/* </span><span style="color: #008787; background-color: #262626;">&#20445;&#23384; x &#30340;&#20540; */</span>
+    *x = *y   <span style="color: #008787; background-color: #262626;">/* </span><span style="color: #008787; background-color: #262626;">&#23558; y &#20540;&#36171;&#32473; x */</span>
+    *y = temp <span style="color: #008787; background-color: #262626;">/* </span><span style="color: #008787; background-color: #262626;">&#23558; temp &#20540;&#36171;&#32473; y*/</span>
+
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">a</span>, <span style="color: #8787d7;">b</span> <span style="color: #df005f; font-weight: bold;">int</span> = <span style="color: #d75fd7;">1</span>, <span style="color: #d75fd7;">2</span>
+    <span style="color: #008787; background-color: #262626;">/*</span>
+<span style="color: #008787; background-color: #262626;">                &#35843;&#29992; swap() &#20989;&#25968;</span>
+<span style="color: #008787; background-color: #262626;">                &amp;a &#25351;&#21521; a &#25351;&#38024;&#65292;a &#21464;&#37327;&#30340;&#22320;&#22336;</span>
+<span style="color: #008787; background-color: #262626;">                &amp;b &#25351;&#21521; b &#25351;&#38024;&#65292;b &#21464;&#37327;&#30340;&#22320;&#22336;</span>
+<span style="color: #008787; background-color: #262626;">    */</span>
+    <span style="color: #d75fd7; font-weight: bold;">swap</span>(&amp;a, &amp;b)
+
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(a, b)
+}
+</pre>
+</div>
+
+<p>
+输出结果：<br>
+</p>
+
+<pre class="example" id="org9b9d3d6">
+2 1
+</pre>
+
+<p>
+在默认情况下，Go 语言使用的是值传递，即在调用过程中不会影响到实际参数。<br>
+</p>
+
+<p>
+<b>注意1：</b> 无论是值传递，还是引用传递，传递给函数的都是变量的副本，不过，值传递是值的拷贝。引用传递是地址的拷贝，一般来说，地址拷贝更为高效。而值拷贝取决于拷贝的对象大小，对象越大，则性能越低。<br>
+</p>
+
+<p>
+<b>注意2：</b> map、slice、chan、指针、interface 默认以引用的方式传递。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org34dd173" class="outline-2">
+<h2 id="org34dd173">不定参数传值</h2>
+<div class="outline-text-2" id="text-org34dd173">
+<p>
+不定参数传值 就是函数的参数不是固定的，后面的类型是固定的。（可变参数）<br>
+</p>
+
+<p>
+Golang 可变参数本质上就是 slice。只能有一个，且必须是最后一个。<br>
+</p>
+
+<p>
+在参数赋值时可以不用用一个一个的赋值，可以直接传递一个数组或者切片，特别注意的是在参数后加上“…”即可。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">myfunc</span>(<span style="color: #8787d7;">args</span> ...<span style="color: #df005f; font-weight: bold;">int</span>) {    <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">0&#20010;&#25110;&#22810;&#20010;&#21442;&#25968;</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">add</span>(<span style="color: #8787d7;">a</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">args</span> ...<span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">int</span> {    <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">1&#20010;&#25110;&#22810;&#20010;&#21442;&#25968;</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">add</span>(<span style="color: #8787d7;">a</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">b</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">args</span> ...<span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">int</span> {    <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">2&#20010;&#25110;&#22810;&#20010;&#21442;&#25968;</span>
+}
+</pre>
+</div>
+
+<p>
+注意：其中args是一个slice，我们可以通过arg[index]依次访问所有参数，通过len(arg)来判断传递参数的个数.<br>
+</p>
+
+<p>
+任意类型的不定参数： 就是函数的参数和每个参数的类型都不是固定的。<br>
+</p>
+
+<p>
+用interface{}传递任意类型数据是Go语言的惯例用法，而且interface{}是类型安全的。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">myfunc</span>(<span style="color: #8787d7;">args</span> ...<span style="color: #268bd2; font-weight: bold;">interface</span>{}) {
+}
+</pre>
+</div>
+
+<p>
+代码：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">test</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">n</span> ...<span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">string</span> {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">x</span> <span style="color: #df005f; font-weight: bold;">int</span>
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">_</span>, <span style="color: #8787d7;">i</span> := <span style="color: #268bd2; font-weight: bold;">range</span> n {
+        x += i
+    }
+    <span style="color: #268bd2; font-weight: bold;">return</span> fmt.<span style="color: #d75fd7; font-weight: bold;">Sprintf</span>(s, x)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2;">println</span>(<span style="color: #d75fd7; font-weight: bold;">test</span>(<span style="color: #2aa198;">"sum: %d"</span>, <span style="color: #d75fd7;">1</span>, <span style="color: #d75fd7;">2</span>, <span style="color: #d75fd7;">3</span>))
+}
+</pre>
+</div>
+
+<p>
+输出结果：<br>
+</p>
+
+<pre class="example" id="orga321c82">
+sum: 6
+</pre>
+</div>
+<div id="outline-container-org375b96b" class="outline-3">
+<h3 id="org375b96b">使用 slice 对象做实参</h3>
+<div class="outline-text-3" id="text-org375b96b">
+<p>
+使用 slice 对象做变参时，必须展开。（slice&#x2026;）<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">test</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">n</span> ...<span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">string</span> {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">x</span> <span style="color: #df005f; font-weight: bold;">int</span>
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">_</span>, <span style="color: #8787d7;">i</span> := <span style="color: #268bd2; font-weight: bold;">range</span> n {
+        x += i
+    }
+    <span style="color: #268bd2; font-weight: bold;">return</span> fmt.<span style="color: #d75fd7; font-weight: bold;">Sprintf</span>(s, x)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">s</span> := []<span style="color: #df005f; font-weight: bold;">int</span>{<span style="color: #d75fd7;">1</span>, <span style="color: #d75fd7;">2</span>, <span style="color: #d75fd7;">3</span>}
+    <span style="color: #8787d7;">res</span> := <span style="color: #d75fd7; font-weight: bold;">test</span>(<span style="color: #2aa198;">"sum: %d"</span>, s...)    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">slice... &#23637;&#24320;slice</span>
+    <span style="color: #268bd2;">println</span>(res)
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-09 23:02 Wed</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-09 Wed 23:32</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

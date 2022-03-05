@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-02-03 Thu 11:36 -->
+<!-- 2022-02-19 Sat 03:00 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GO-数组</title>
@@ -313,7 +313,7 @@ arr = statictmp_0
 数组和字符串的一些简单越界错误都会在编译期间发现，例如：直接使用整数或者常量访问数组；但是如果使用变量去访问数组或者字符串时，编译器就无法提前发现错误，我们需要 Go 语言运行时阻止不合法的访问：<br>
 </p>
 
-<pre class="example" id="org57afb0b">
+<pre class="example" id="org0c95223">
 arr[4]: invalid array index 4 (out of bounds for 3-element array)
 arr[i]: panic: runtime error: index out of range [4] with length 3
 </pre>
@@ -358,7 +358,7 @@ dumped <span style="color: #df005f; font-weight: bold;">SSA</span> to ./ssa.html
 start 阶段生成的 SSA 代码就是优化之前的第一版中间代码，下面展示的部分是 <code>elem := arr[i]</code> 对应的中间代码，在这段中间代码中我们发现 Go 语言为数组的访问操作生成了判断数组上限的指令 <code>IsInBounds</code> 以及当条件不满足时触发程序崩溃的 <code>PanicBounds</code> 指令：<br>
 </p>
 
-<pre class="example" id="org58f2294">
+<pre class="example" id="org9edbec6">
 b1:
 		...
 		v22 (6) = LocalAddr &lt;*[3]int&gt; {arr} v2 v20
@@ -386,7 +386,7 @@ Exit v25 (6)
 当然只有当编译器无法对数组下标是否越界无法做出判断时才会加入 <code>PanicBounds</code> 指令交给运行时进行判断，在使用字面量整数访问数组下标时会生成非常简单的中间代码，当我们将上述代码中的 <code>arr[i]</code> 改成 <code>arr[2]</code> 时，就会得到如下所示的代码：<br>
 </p>
 
-<pre class="example" id="org44923c8">
+<pre class="example" id="org2d5aa01">
 b1:
 		...
 		v21 (5) = LocalAddr &lt;*[3]int&gt; {arr} v2 v20
@@ -403,7 +403,7 @@ Go 语言对于数组的访问还是有着比较多的检查的，它不仅会�
 数组的赋值和更新操作 <code>a[i] = 2</code> 也会生成 SSA 生成期间计算出数组当前元素的内存地址，然后修改当前内存地址的内容，这些赋值语句会被转换成如下所示的 SSA 代码：<br>
 </p>
 
-<pre class="example" id="orgdd177a3">
+<pre class="example" id="orge134945">
 b1:
 		...
 		v21 (5) = LocalAddr &lt;*[3]int&gt; {arr} v2 v19
@@ -429,7 +429,7 @@ b1:
 <div id="postamble" class="status">
 <p class="date">Date: 2022-02-02 20:02 Wed</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-02-03 Thu 11:36</p>
+<p class="date">Created: 2022-02-19 Sat 03:00</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

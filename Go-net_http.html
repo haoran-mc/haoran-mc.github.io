@@ -1,0 +1,2420 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-18 Fri 18:03 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NET_HTTP</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">NET_HTTP</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org9981c96">Introduction</a></li>
+<li><a href="#org2876c3d">Constants</a></li>
+<li><a href="#org1229663">Variables</a></li>
+<li><a href="#org5dd4637">type ProtocolError</a>
+<ul>
+<li><a href="#org7f93a45">func (*ProtocolError) Error</a></li>
+</ul>
+</li>
+<li><a href="#orgbd5b9d4">func CanonicalHeaderKey</a></li>
+<li><a href="#org52bac45">func DetectContentType</a></li>
+<li><a href="#org26852a5">func ParseHTTPVersion</a></li>
+<li><a href="#org27c38c4">func ParseTime</a></li>
+<li><a href="#org42dc2e2">func StatusText</a></li>
+<li><a href="#org99d9117">type ConnState</a>
+<ul>
+<li><a href="#orgf2450e6">func (ConnState) String</a></li>
+</ul>
+</li>
+<li><a href="#org2010d4c">type Header</a>
+<ul>
+<li><a href="#org965c2b1">func (Header) Get</a></li>
+<li><a href="#org8c85703">func (Header) Set</a></li>
+<li><a href="#orgf93668f">func (Header) Add</a></li>
+<li><a href="#orgb2139ab">func (Header) Del</a></li>
+<li><a href="#orgecdd96f">func (Header) Write</a></li>
+<li><a href="#org4e6bd36">func (Header) WriteSubset</a></li>
+</ul>
+</li>
+<li><a href="#org88ac7c8">type Cookie</a>
+<ul>
+<li><a href="#org6a1d0c4">func (*Cookie) String</a></li>
+</ul>
+</li>
+<li><a href="#orgddadf6d">type CookieJar</a></li>
+<li><a href="#orga8e4fc7">type Request</a>
+<ul>
+<li><a href="#orge9d6ca7">func NewRequest</a></li>
+<li><a href="#org3ff3aab">func ReadRequest</a></li>
+<li><a href="#orga744f88">func (*Request) ProtoAtLeast</a></li>
+<li><a href="#org795efcd">func (*Request) UserAgent</a></li>
+<li><a href="#org5d91f9e">func (*Request) Referer</a></li>
+<li><a href="#org5804982">func (*Request) AddCookie</a></li>
+<li><a href="#org4593a52">func (*Request) SetBasicAuth</a></li>
+<li><a href="#org9efcc9e">func (*Request) Write</a></li>
+<li><a href="#orga15c881">func (*Request) WriteProxy</a></li>
+<li><a href="#org56d93bd">func (*Request) Cookies</a></li>
+<li><a href="#org6f4ec9a">func (*Request) Cookie</a></li>
+<li><a href="#org61a4078">func (*Request) ParseForm</a></li>
+<li><a href="#org92aad1a">func (*Request) ParseMultipartForm</a></li>
+<li><a href="#org6897c0b">func (*Request) FormValue</a></li>
+<li><a href="#org30bf76d">func (*Request) PostFormValue</a></li>
+<li><a href="#orgbb9d79c">func (*Request) FormFile</a></li>
+<li><a href="#orgb60de01">func (*Request) MultipartReader</a></li>
+</ul>
+</li>
+<li><a href="#orgfd2f3e2">type Response</a>
+<ul>
+<li><a href="#orgebac700">func ReadResponse</a></li>
+<li><a href="#org3201dd7">func (*Response) ProtoAtLeast</a></li>
+<li><a href="#orgbee94de">func (*Response) Cookies</a></li>
+<li><a href="#orgd07dd5c">func (*Response) Location</a></li>
+<li><a href="#org84372ae">func (*Response) Write</a></li>
+</ul>
+</li>
+<li><a href="#org844a9fb">type ResponseWriter</a></li>
+<li><a href="#org8ac7ce1">type Flusher</a></li>
+<li><a href="#org67a224e">type CloseNotifier</a></li>
+<li><a href="#orgb053edd">type Hijacker</a></li>
+<li><a href="#orgb7aed56">type RoundTripper</a></li>
+<li><a href="#org728dde1">type Transport</a>
+<ul>
+<li><a href="#org0c88d2b">func (*Transport) RegisterProtocol</a></li>
+<li><a href="#org04a8477">func (*Transport) RoundTrip</a></li>
+<li><a href="#org4794d6b">func (*Transport) CloseIdleConnections</a></li>
+<li><a href="#orgc733178">func (*Transport) CancelRequest</a></li>
+</ul>
+</li>
+<li><a href="#org32b1bec">type Client</a>
+<ul>
+<li><a href="#orgcda2c26">func (*Client) Do</a></li>
+<li><a href="#orgd26d926">func (*Client) Head</a></li>
+<li><a href="#orgeb5ed7a">func (*Client) Get</a></li>
+<li><a href="#org74c2332">func (*Client) Post</a></li>
+<li><a href="#orgd14b976">func (*Client) PostForm</a></li>
+</ul>
+</li>
+<li><a href="#org5f4c1ed">type Handler</a>
+<ul>
+<li><a href="#orge1cca92">func NotFoundHandler</a></li>
+<li><a href="#org7e2c01c">func RedirectHandler</a></li>
+<li><a href="#orga390470">func TimeoutHandler</a></li>
+<li><a href="#org8501566">func StripPrefix</a></li>
+</ul>
+</li>
+<li><a href="#orgb7ce565">type HandlerFunc</a>
+<ul>
+<li><a href="#org4dcacc5">func (HandlerFunc) ServeHTTP</a></li>
+</ul>
+</li>
+<li><a href="#orgf66650d">type ServeMux</a>
+<ul>
+<li><a href="#orgae63680">func NewServeMux</a></li>
+<li><a href="#orgd4d04f2">func (*ServeMux) Handle</a></li>
+<li><a href="#orgceda789">func (*ServeMux) HandleFunc</a></li>
+<li><a href="#org9ed9ec3">func (*ServeMux) Handler</a></li>
+<li><a href="#org6390588">func (*ServeMux) ServeHTTP</a></li>
+</ul>
+</li>
+<li><a href="#org7becb6d">type Server</a>
+<ul>
+<li><a href="#orga3591a2">func (*Server) SetKeepAlivesEnabled</a></li>
+<li><a href="#org2d1533c">func (*Server) Serve</a></li>
+<li><a href="#orgb5298a0">func (*Server) ListenAndServe</a></li>
+<li><a href="#orga3cb30e">func (*Server) ListenAndServeTLS</a></li>
+</ul>
+</li>
+<li><a href="#orgf09d496">type File</a></li>
+<li><a href="#org67b55f5">type FileSystem</a></li>
+<li><a href="#org16c2efa">type Dir</a>
+<ul>
+<li><a href="#org7ac047e">func (Dir) Open</a></li>
+</ul>
+</li>
+<li><a href="#orga1a148f">func NewFileTransport</a></li>
+<li><a href="#org789e9ed">func FileServer</a></li>
+<li><a href="#org504b0f2">func ProxyURL</a></li>
+<li><a href="#org5a98a74">func ProxyFromEnvironment</a></li>
+<li><a href="#orgea131cb">func SetCookie</a></li>
+<li><a href="#orgaf5d860">func Redirect</a></li>
+<li><a href="#org92a9896">func NotFound</a></li>
+<li><a href="#org11d7ed8">func Error</a></li>
+<li><a href="#org8b20896">func ServeContent</a></li>
+<li><a href="#orga8c79f7">func ServeFile</a></li>
+<li><a href="#org020e38f">func MaxBytesReader</a></li>
+<li><a href="#org8f39bb3">func Head</a></li>
+<li><a href="#org23b7052">func Get</a></li>
+<li><a href="#org3d9adc4">func Post</a></li>
+<li><a href="#org6afef87">func PostForm</a></li>
+<li><a href="#orgd2a2f79">func Handle</a></li>
+<li><a href="#orgf9ba566">func HandleFunc</a></li>
+<li><a href="#orgf2c75a8">func Serve</a></li>
+<li><a href="#orga5fbc28">func ListenAndServe</a></li>
+<li><a href="#org895aa21">func ListenAndServeTLS</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org9981c96" class="outline-2">
+<h2 id="org9981c96">Introduction</h2>
+<div class="outline-text-2" id="text-org9981c96">
+<p>
+http包提供了HTTP客户端和服务端的实现。<br>
+</p>
+
+<p>
+Get、Head、Post和PostForm函数发出HTTP/ HTTPS请求。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">resp</span>, <span style="color: #8787d7;">err</span> := http.<span style="color: #d75fd7; font-weight: bold;">Get</span>(<span style="color: #2aa198;">"http://example.com/"</span>)
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">...</span>
+<span style="color: #8787d7;">resp</span>, <span style="color: #8787d7;">err</span> := http.<span style="color: #d75fd7; font-weight: bold;">Post</span>(<span style="color: #2aa198;">"http://example.com/upload"</span>, <span style="color: #2aa198;">"image/jpeg"</span>, &amp;buf)
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">...</span>
+<span style="color: #8787d7;">resp</span>, <span style="color: #8787d7;">err</span> := http.<span style="color: #d75fd7; font-weight: bold;">PostForm</span>(<span style="color: #2aa198;">"http://example.com/form"</span>,
+    <span style="color: #df005f; font-weight: bold;">url.Values</span>{<span style="color: #2aa198;">"key"</span>: {<span style="color: #2aa198;">"Value"</span>}, <span style="color: #2aa198;">"id"</span>: {<span style="color: #2aa198;">"123"</span>}})
+</pre>
+</div>
+
+<p>
+程序在使用完回复后必须关闭回复的主体。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">resp</span>, <span style="color: #8787d7;">err</span> := http.<span style="color: #d75fd7; font-weight: bold;">Get</span>(<span style="color: #2aa198;">"http://example.com/"</span>)
+<span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">handle error</span>
+}
+<span style="color: #268bd2; font-weight: bold;">defer</span> resp.Body.<span style="color: #d75fd7; font-weight: bold;">Close</span>()
+<span style="color: #8787d7;">body</span>, <span style="color: #8787d7;">err</span> := ioutil.<span style="color: #d75fd7; font-weight: bold;">ReadAll</span>(resp.Body)
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">...</span>
+</pre>
+</div>
+
+<p>
+要管理HTTP客户端的头域、重定向策略和其他设置，创建一个Client：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">client</span> := &amp;<span style="color: #df005f; font-weight: bold;">http.Client</span>{
+    <span style="color: #d75fd7;">CheckRedirect</span>: redirectPolicyFunc,
+}
+<span style="color: #8787d7;">resp</span>, <span style="color: #8787d7;">err</span> := client.<span style="color: #d75fd7; font-weight: bold;">Get</span>(<span style="color: #2aa198;">"http://example.com"</span>)
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">...</span>
+<span style="color: #8787d7;">req</span>, <span style="color: #8787d7;">err</span> := http.<span style="color: #d75fd7; font-weight: bold;">NewRequest</span>(<span style="color: #2aa198;">"GET"</span>, <span style="color: #2aa198;">"http://example.com"</span>, <span style="color: #d75fd7;">nil</span>)
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">...</span>
+req.Header.<span style="color: #d75fd7; font-weight: bold;">Add</span>(<span style="color: #2aa198;">"If-None-Match"</span>, <span style="color: #2aa198;">`W/"wyzzy"`</span>)
+<span style="color: #8787d7;">resp</span>, <span style="color: #8787d7;">err</span> := client.<span style="color: #d75fd7; font-weight: bold;">Do</span>(req)
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">...</span>
+</pre>
+</div>
+
+<p>
+要管理代理、TLS配置、keep-alive、压缩和其他设置，创建一个Transport：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">tr</span> := &amp;<span style="color: #df005f; font-weight: bold;">http.Transport</span>{
+    <span style="color: #d75fd7;">TLSClientConfig</span>:    &amp;<span style="color: #df005f; font-weight: bold;">tls.Config</span>{<span style="color: #d75fd7;">RootCAs</span>: pool},
+    <span style="color: #d75fd7;">DisableCompression</span>: <span style="color: #d75fd7;">true</span>,
+}
+<span style="color: #8787d7;">client</span> := &amp;<span style="color: #df005f; font-weight: bold;">http.Client</span>{<span style="color: #d75fd7;">Transport</span>: tr}
+<span style="color: #8787d7;">resp</span>, <span style="color: #8787d7;">err</span> := client.<span style="color: #d75fd7; font-weight: bold;">Get</span>(<span style="color: #2aa198;">"https://example.com"</span>)
+</pre>
+</div>
+
+<p>
+Client和Transport类型都可以安全的被多个go程同时使用。出于效率考虑，应该一次建立、尽量重用。<br>
+</p>
+
+<p>
+ListenAndServe使用指定的监听地址和处理器启动一个HTTP服务端。处理器参数通常是nil，这表示采用包变量DefaultServeMux作为处理器。Handle和HandleFunc函数可以向DefaultServeMux添加处理器。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">http.<span style="color: #d75fd7; font-weight: bold;">Handle</span>(<span style="color: #2aa198;">"/foo"</span>, fooHandler)
+http.<span style="color: #d75fd7; font-weight: bold;">HandleFunc</span>(<span style="color: #2aa198;">"/bar"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">http.Request</span>) {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Fprintf</span>(w, <span style="color: #2aa198;">"Hello, %q"</span>, html.<span style="color: #d75fd7; font-weight: bold;">EscapeString</span>(r.URL.Path))
+})
+log.<span style="color: #d75fd7; font-weight: bold;">Fatal</span>(http.<span style="color: #d75fd7; font-weight: bold;">ListenAndServe</span>(<span style="color: #2aa198;">":8080"</span>, <span style="color: #d75fd7;">nil</span>))
+</pre>
+</div>
+
+<p>
+要管理服务端的行为，可以创建一个自定义的Server：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">s</span> := &amp;<span style="color: #df005f; font-weight: bold;">http.Server</span>{
+    <span style="color: #d75fd7;">Addr</span>:           <span style="color: #2aa198;">":8080"</span>,
+    <span style="color: #d75fd7;">Handler</span>:        myHandler,
+    <span style="color: #d75fd7;">ReadTimeout</span>:    <span style="color: #d75fd7;">10</span> * time.Second,
+    <span style="color: #d75fd7;">WriteTimeout</span>:   <span style="color: #d75fd7;">10</span> * time.Second,
+    <span style="color: #d75fd7;">MaxHeaderBytes</span>: <span style="color: #d75fd7;">1</span> &lt;&lt; <span style="color: #d75fd7;">20</span>,
+}
+log.<span style="color: #d75fd7; font-weight: bold;">Fatal</span>(s.<span style="color: #d75fd7; font-weight: bold;">ListenAndServe</span>())
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org2876c3d" class="outline-2">
+<h2 id="org2876c3d">Constants</h2>
+<div class="outline-text-2" id="text-org2876c3d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">const</span> (
+    <span style="color: #d75fd7;">StatusContinue</span>           = <span style="color: #d75fd7;">100</span>
+    <span style="color: #d75fd7;">StatusSwitchingProtocols</span> = <span style="color: #d75fd7;">101</span>
+    <span style="color: #d75fd7;">StatusOK</span>                   = <span style="color: #d75fd7;">200</span>
+    <span style="color: #d75fd7;">StatusCreated</span>              = <span style="color: #d75fd7;">201</span>
+    <span style="color: #d75fd7;">StatusAccepted</span>             = <span style="color: #d75fd7;">202</span>
+    <span style="color: #d75fd7;">StatusNonAuthoritativeInfo</span> = <span style="color: #d75fd7;">203</span>
+    <span style="color: #d75fd7;">StatusNoContent</span>            = <span style="color: #d75fd7;">204</span>
+    <span style="color: #d75fd7;">StatusResetContent</span>         = <span style="color: #d75fd7;">205</span>
+    <span style="color: #d75fd7;">StatusPartialContent</span>       = <span style="color: #d75fd7;">206</span>
+    <span style="color: #d75fd7;">StatusMultipleChoices</span>   = <span style="color: #d75fd7;">300</span>
+    <span style="color: #d75fd7;">StatusMovedPermanently</span>  = <span style="color: #d75fd7;">301</span>
+    <span style="color: #d75fd7;">StatusFound</span>             = <span style="color: #d75fd7;">302</span>
+    <span style="color: #d75fd7;">StatusSeeOther</span>          = <span style="color: #d75fd7;">303</span>
+    <span style="color: #d75fd7;">StatusNotModified</span>       = <span style="color: #d75fd7;">304</span>
+    <span style="color: #d75fd7;">StatusUseProxy</span>          = <span style="color: #d75fd7;">305</span>
+    <span style="color: #d75fd7;">StatusTemporaryRedirect</span> = <span style="color: #d75fd7;">307</span>
+    <span style="color: #d75fd7;">StatusBadRequest</span>                   = <span style="color: #d75fd7;">400</span>
+    <span style="color: #d75fd7;">StatusUnauthorized</span>                 = <span style="color: #d75fd7;">401</span>
+    <span style="color: #d75fd7;">StatusPaymentRequired</span>              = <span style="color: #d75fd7;">402</span>
+    <span style="color: #d75fd7;">StatusForbidden</span>                    = <span style="color: #d75fd7;">403</span>
+    <span style="color: #d75fd7;">StatusNotFound</span>                     = <span style="color: #d75fd7;">404</span>
+    <span style="color: #d75fd7;">StatusMethodNotAllowed</span>             = <span style="color: #d75fd7;">405</span>
+    <span style="color: #d75fd7;">StatusNotAcceptable</span>                = <span style="color: #d75fd7;">406</span>
+    <span style="color: #d75fd7;">StatusProxyAuthRequired</span>            = <span style="color: #d75fd7;">407</span>
+    <span style="color: #d75fd7;">StatusRequestTimeout</span>               = <span style="color: #d75fd7;">408</span>
+    <span style="color: #d75fd7;">StatusConflict</span>                     = <span style="color: #d75fd7;">409</span>
+    <span style="color: #d75fd7;">StatusGone</span>                         = <span style="color: #d75fd7;">410</span>
+    <span style="color: #d75fd7;">StatusLengthRequired</span>               = <span style="color: #d75fd7;">411</span>
+    <span style="color: #d75fd7;">StatusPreconditionFailed</span>           = <span style="color: #d75fd7;">412</span>
+    <span style="color: #d75fd7;">StatusRequestEntityTooLarge</span>        = <span style="color: #d75fd7;">413</span>
+    <span style="color: #d75fd7;">StatusRequestURITooLong</span>            = <span style="color: #d75fd7;">414</span>
+    <span style="color: #d75fd7;">StatusUnsupportedMediaType</span>         = <span style="color: #d75fd7;">415</span>
+    <span style="color: #d75fd7;">StatusRequestedRangeNotSatisfiable</span> = <span style="color: #d75fd7;">416</span>
+    <span style="color: #d75fd7;">StatusExpectationFailed</span>            = <span style="color: #d75fd7;">417</span>
+    <span style="color: #d75fd7;">StatusTeapot</span>                       = <span style="color: #d75fd7;">418</span>
+    <span style="color: #d75fd7;">StatusInternalServerError</span>     = <span style="color: #d75fd7;">500</span>
+    <span style="color: #d75fd7;">StatusNotImplemented</span>          = <span style="color: #d75fd7;">501</span>
+    <span style="color: #d75fd7;">StatusBadGateway</span>              = <span style="color: #d75fd7;">502</span>
+    <span style="color: #d75fd7;">StatusServiceUnavailable</span>      = <span style="color: #d75fd7;">503</span>
+    <span style="color: #d75fd7;">StatusGatewayTimeout</span>          = <span style="color: #d75fd7;">504</span>
+    <span style="color: #d75fd7;">StatusHTTPVersionNotSupported</span> = <span style="color: #d75fd7;">505</span>
+)
+</pre>
+</div>
+
+<p>
+HTTP状态码，参见RFC 2616<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">const</span> <span style="color: #d75fd7;">DefaultMaxHeaderBytes</span> = <span style="color: #d75fd7;">1</span> &lt;&lt; <span style="color: #d75fd7;">20</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">1 MB</span>
+</pre>
+</div>
+
+<p>
+DefaultMaxHeaderBytes是HTTP请求的头域最大允许长度。可以通过设置Server.MaxHeaderBytes字段来覆盖。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">const</span> <span style="color: #d75fd7;">DefaultMaxIdleConnsPerHost</span> = <span style="color: #d75fd7;">2</span>
+</pre>
+</div>
+
+<p>
+DefaultMaxIdleConnsPerHost是Transport的MaxIdleConnsPerHost的默认值。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">const</span> <span style="color: #d75fd7;">TimeFormat</span> = <span style="color: #2aa198;">"Mon, 02 Jan 2006 15:04:05 GMT"</span>
+</pre>
+</div>
+
+<p>
+TimeFormat是当解析或生产HTTP头域中的时间时，用与time.Parse或time.Format函数的时间格式。这种格式类似time.RFC1123但强制采用GMT时区。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org1229663" class="outline-2">
+<h2 id="org1229663">Variables</h2>
+<div class="outline-text-2" id="text-org1229663">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> (
+    <span style="color: #8787d7;">ErrHeaderTooLong</span>        = &amp;<span style="color: #df005f; font-weight: bold;">ProtocolError</span>{<span style="color: #2aa198;">"header too long"</span>}
+    <span style="color: #8787d7;">ErrShortBody</span>            = &amp;<span style="color: #df005f; font-weight: bold;">ProtocolError</span>{<span style="color: #2aa198;">"entity body too short"</span>}
+    <span style="color: #8787d7;">ErrNotSupported</span>         = &amp;<span style="color: #df005f; font-weight: bold;">ProtocolError</span>{<span style="color: #2aa198;">"feature not supported"</span>}
+    <span style="color: #8787d7;">ErrUnexpectedTrailer</span>    = &amp;<span style="color: #df005f; font-weight: bold;">ProtocolError</span>{<span style="color: #2aa198;">"trailer header without chunked transfer encoding"</span>}
+    <span style="color: #8787d7;">ErrMissingContentLength</span> = &amp;<span style="color: #df005f; font-weight: bold;">ProtocolError</span>{<span style="color: #2aa198;">"missing ContentLength in HEAD response"</span>}
+    <span style="color: #8787d7;">ErrNotMultipart</span>         = &amp;<span style="color: #df005f; font-weight: bold;">ProtocolError</span>{<span style="color: #2aa198;">"request Content-Type isn't multipart/form-data"</span>}
+    <span style="color: #8787d7;">ErrMissingBoundary</span>      = &amp;<span style="color: #df005f; font-weight: bold;">ProtocolError</span>{<span style="color: #2aa198;">"no multipart boundary param in Content-Type"</span>}
+)
+</pre>
+</div>
+
+<p>
+HTTP请求的解析错误。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> (
+    <span style="color: #8787d7;">ErrWriteAfterFlush</span> = errors.<span style="color: #d75fd7; font-weight: bold;">New</span>(<span style="color: #2aa198;">"Conn.Write called after Flush"</span>)
+    <span style="color: #8787d7;">ErrBodyNotAllowed</span>  = errors.<span style="color: #d75fd7; font-weight: bold;">New</span>(<span style="color: #2aa198;">"http: request method or response status code does not allow body"</span>)
+    <span style="color: #8787d7;">ErrHijacked</span>        = errors.<span style="color: #d75fd7; font-weight: bold;">New</span>(<span style="color: #2aa198;">"Conn has been hijacked"</span>)
+    <span style="color: #8787d7;">ErrContentLength</span>   = errors.<span style="color: #d75fd7; font-weight: bold;">New</span>(<span style="color: #2aa198;">"Conn.Write wrote more than the declared Content-Length"</span>)
+)
+</pre>
+</div>
+
+<p>
+会被HTTP服务端返回的错误。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">DefaultClient</span> = &amp;<span style="color: #df005f; font-weight: bold;">Client</span>{}
+</pre>
+</div>
+
+<p>
+DefaultClient是用于包函数Get、Head和Post的默认Client。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">DefaultServeMux</span> = <span style="color: #d75fd7; font-weight: bold;">NewServeMux</span>()
+</pre>
+</div>
+
+<p>
+DefaultServeMux是用于Serve的默认ServeMux。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">ErrBodyReadAfterClose</span> = errors.<span style="color: #d75fd7; font-weight: bold;">New</span>(<span style="color: #2aa198;">"http: invalid Read on closed Body"</span>)
+</pre>
+</div>
+
+<p>
+在Resquest或Response的Body字段已经关闭后，试图从中读取时，就会返回ErrBodyReadAfterClose。这个错误一般发生在：HTTP处理器中调用完ResponseWriter 接口的WriteHeader或Write后从请求中读取数据的时候。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">ErrHandlerTimeout</span> = errors.<span style="color: #d75fd7; font-weight: bold;">New</span>(<span style="color: #2aa198;">"http: Handler timeout"</span>)
+</pre>
+</div>
+
+<p>
+在处理器超时以后调用ResponseWriter接口的Write方法，就会返回ErrHandlerTimeout。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">ErrLineTooLong</span> = errors.<span style="color: #d75fd7; font-weight: bold;">New</span>(<span style="color: #2aa198;">"header line too long"</span>)
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">ErrMissingFile</span> = errors.<span style="color: #d75fd7; font-weight: bold;">New</span>(<span style="color: #2aa198;">"http: no such file"</span>)
+</pre>
+</div>
+
+<p>
+当请求中没有提供给FormFile函数的文件字段名，或者该字段名不是文件字段时，该函数就会返回ErrMissingFile。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">ErrNoCookie</span> = errors.<span style="color: #d75fd7; font-weight: bold;">New</span>(<span style="color: #2aa198;">"http: named cookie not present"</span>)
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">ErrNoLocation</span> = errors.<span style="color: #d75fd7; font-weight: bold;">New</span>(<span style="color: #2aa198;">"http: no Location header in response"</span>)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org5dd4637" class="outline-2">
+<h2 id="org5dd4637">type ProtocolError</h2>
+<div class="outline-text-2" id="text-org5dd4637">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">ProtocolError</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    ErrorString <span style="color: #df005f; font-weight: bold;">string</span>
+}
+</pre>
+</div>
+
+<p>
+HTTP请求解析错误。<br>
+</p>
+</div>
+<div id="outline-container-org7f93a45" class="outline-3">
+<h3 id="org7f93a45">func (*ProtocolError) Error</h3>
+<div class="outline-text-3" id="text-org7f93a45">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">err</span> *<span style="color: #df005f; font-weight: bold;">ProtocolError</span>) <span style="color: #d75fd7; font-weight: bold;">Error</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgbd5b9d4" class="outline-2">
+<h2 id="orgbd5b9d4">func CanonicalHeaderKey</h2>
+<div class="outline-text-2" id="text-orgbd5b9d4">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">CanonicalHeaderKey</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+CanonicalHeaderKey函数返回头域（表示为Header类型）的键s的规范化格式。规范化过程中让单词首字母和'-'后的第一个字母大写，其余字母小写。例如，"accept-encoding"规范化为"Accept-Encoding"。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org52bac45" class="outline-2">
+<h2 id="org52bac45">func DetectContentType</h2>
+<div class="outline-text-2" id="text-org52bac45">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">DetectContentType</span>(<span style="color: #8787d7;">data</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+DetectContentType函数实现了<a href="http://mimesniff.spec.whatwg.org/%E6%8F%8F%E8%BF%B0%E7%9A%84%E7%AE%97%E6%B3%95%EF%BC%8C%E7%94%A8%E4%BA%8E%E7%A1%AE%E5%AE%9A%E6%95%B0%E6%8D%AE%E7%9A%84Content-Type%E3%80%82%E5%87%BD%E6%95%B0%E6%80%BB%E6%98%AF%E8%BF%94%E5%9B%9E%E4%B8%80%E4%B8%AA%E5%90%88%E6%B3%95%E7%9A%84MIME%E7%B1%BB%E5%9E%8B%EF%BC%9B%E5%A6%82%E6%9E%9C%E5%AE%83%E4%B8%8D%E8%83%BD%E7%A1%AE%E5%AE%9A%E6%95%B0%E6%8D%AE%E7%9A%84%E7%B1%BB%E5%9E%8B%EF%BC%8C%E5%B0%86%E8%BF%94%E5%9B%9E%22application/octet-stream%22%E3%80%82%E5%AE%83%E6%9C%80%E5%A4%9A%E6%A3%80%E6%9F%A5%E6%95%B0%E6%8D%AE%E7%9A%84%E5%89%8D512%E5%AD%97%E8%8A%82">http://mimesniff.spec.whatwg.org/%E6%8F%8F%E8%BF%B0%E7%9A%84%E7%AE%97%E6%B3%95%EF%BC%8C%E7%94%A8%E4%BA%8E%E7%A1%AE%E5%AE%9A%E6%95%B0%E6%8D%AE%E7%9A%84Content-Type%E3%80%82%E5%87%BD%E6%95%B0%E6%80%BB%E6%98%AF%E8%BF%94%E5%9B%9E%E4%B8%80%E4%B8%AA%E5%90%88%E6%B3%95%E7%9A%84MIME%E7%B1%BB%E5%9E%8B%EF%BC%9B%E5%A6%82%E6%9E%9C%E5%AE%83%E4%B8%8D%E8%83%BD%E7%A1%AE%E5%AE%9A%E6%95%B0%E6%8D%AE%E7%9A%84%E7%B1%BB%E5%9E%8B%EF%BC%8C%E5%B0%86%E8%BF%94%E5%9B%9E%22application/octet-stream%22%E3%80%82%E5%AE%83%E6%9C%80%E5%A4%9A%E6%A3%80%E6%9F%A5%E6%95%B0%E6%8D%AE%E7%9A%84%E5%89%8D512%E5%AD%97%E8%8A%82</a>。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org26852a5" class="outline-2">
+<h2 id="org26852a5">func ParseHTTPVersion</h2>
+<div class="outline-text-2" id="text-org26852a5">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ParseHTTPVersion</span>(<span style="color: #8787d7;">vers</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #8787d7;">major</span>, <span style="color: #8787d7;">minor</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">ok</span> <span style="color: #df005f; font-weight: bold;">bool</span>)
+</pre>
+</div>
+
+<p>
+ParseHTTPVersion解析HTTP版本字符串。如"HTTP/1.0"返回(1, 0, true)。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org27c38c4" class="outline-2">
+<h2 id="org27c38c4">func ParseTime</h2>
+<div class="outline-text-2" id="text-org27c38c4">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ParseTime</span>(<span style="color: #8787d7;">text</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #8787d7;">t</span> <span style="color: #df005f; font-weight: bold;">time.Time</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+ParseTime用3种格式TimeFormat, time.RFC850和time.ANSIC尝试解析一个时间头的值（如Date: header）。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org42dc2e2" class="outline-2">
+<h2 id="org42dc2e2">func StatusText</h2>
+<div class="outline-text-2" id="text-org42dc2e2">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">StatusText</span>(<span style="color: #8787d7;">code</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+StatusText返回HTTP状态码code对应的文本，如220对应"OK"。如果code是未知的状态码，会返回""。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org99d9117" class="outline-2">
+<h2 id="org99d9117">type ConnState</h2>
+<div class="outline-text-2" id="text-org99d9117">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">ConnState</span> <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+ConnState代表一个客户端到服务端的连接的状态。本类型用于可选的Server.ConnState回调函数。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">const</span> (
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">StateNew&#20195;&#34920;&#19968;&#20010;&#26032;&#30340;&#36830;&#25509;&#65292;&#23558;&#35201;&#31435;&#21051;&#21457;&#36865;&#35831;&#27714;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36830;&#25509;&#20174;&#36825;&#20010;&#29366;&#24577;&#24320;&#22987;&#65292;&#28982;&#21518;&#36716;&#21464;&#20026;StateAlive&#25110;StateClosed&#12290;</span>
+    <span style="color: #d75fd7;">StateNew</span> <span style="color: #df005f; font-weight: bold;">ConnState</span> = <span style="color: #d75fd7;">iota</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">StateActive&#20195;&#34920;&#19968;&#20010;&#24050;&#32463;&#35835;&#21462;&#20102;&#35831;&#27714;&#25968;&#25454;1&#21040;&#22810;&#20010;&#23383;&#33410;&#30340;&#36830;&#25509;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#29992;&#20110;StateAlive&#30340;Server.ConnState&#22238;&#35843;&#20989;&#25968;&#22312;&#23558;&#36830;&#25509;&#20132;&#20184;&#32473;&#22788;&#29702;&#22120;&#20043;&#21069;&#34987;&#35302;&#21457;&#65292;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#31561;&#21040;&#35831;&#27714;&#34987;&#22788;&#29702;&#23436;&#21518;&#65292;Server.ConnState&#22238;&#35843;&#20989;&#25968;&#20877;&#27425;&#34987;&#35302;&#21457;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22312;&#35831;&#27714;&#34987;&#22788;&#29702;&#21518;&#65292;&#36830;&#25509;&#29366;&#24577;&#25913;&#21464;&#20026;StateClosed&#12289;StateHijacked&#25110;StateIdle&#12290;</span>
+    <span style="color: #d75fd7;">StateActive</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">StateIdle&#20195;&#34920;&#19968;&#20010;&#24050;&#32463;&#22788;&#29702;&#23436;&#20102;&#35831;&#27714;&#12289;&#22788;&#22312;&#38386;&#32622;&#29366;&#24577;&#12289;&#31561;&#24453;&#26032;&#35831;&#27714;&#30340;&#36830;&#25509;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36830;&#25509;&#29366;&#24577;&#21487;&#20197;&#20174;StateIdle&#25913;&#21464;&#20026;StateActive&#25110;StateClosed&#12290;</span>
+    <span style="color: #d75fd7;">StateIdle</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20195;&#34920;&#19968;&#20010;&#34987;&#21163;&#25345;&#30340;&#36830;&#25509;&#12290;&#36825;&#26159;&#19968;&#20010;&#32456;&#27490;&#29366;&#24577;&#65292;&#19981;&#20250;&#36716;&#21464;&#20026;StateClosed&#12290;</span>
+    <span style="color: #d75fd7;">StateHijacked</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">StateClosed&#20195;&#34920;&#19968;&#20010;&#20851;&#38381;&#30340;&#36830;&#25509;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36825;&#26159;&#19968;&#20010;&#32456;&#27490;&#29366;&#24577;&#12290;&#34987;&#21163;&#25345;&#30340;&#36830;&#25509;&#19981;&#20250;&#36716;&#21464;&#20026;StateClosed&#12290;</span>
+    <span style="color: #d75fd7;">StateClosed</span>
+)
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgf2450e6" class="outline-3">
+<h3 id="orgf2450e6">func (ConnState) String</h3>
+<div class="outline-text-3" id="text-orgf2450e6">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> <span style="color: #df005f; font-weight: bold;">ConnState</span>) <span style="color: #d75fd7; font-weight: bold;">String</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org2010d4c" class="outline-2">
+<h2 id="org2010d4c">type Header</h2>
+<div class="outline-text-2" id="text-org2010d4c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Header</span> <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>][]<span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+Header代表HTTP头域的键值对。<br>
+</p>
+</div>
+<div id="outline-container-org965c2b1" class="outline-3">
+<h3 id="org965c2b1">func (Header) Get</h3>
+<div class="outline-text-3" id="text-org965c2b1">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">h</span> <span style="color: #df005f; font-weight: bold;">Header</span>) <span style="color: #d75fd7; font-weight: bold;">Get</span>(<span style="color: #8787d7;">key</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+Get返回键对应的第一个值，如果键不存在会返回""。如要获取该键对应的值切片，请直接用规范格式的键访问map。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8c85703" class="outline-3">
+<h3 id="org8c85703">func (Header) Set</h3>
+<div class="outline-text-3" id="text-org8c85703">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">h</span> <span style="color: #df005f; font-weight: bold;">Header</span>) <span style="color: #d75fd7; font-weight: bold;">Set</span>(<span style="color: #8787d7;">key</span>, <span style="color: #8787d7;">value</span> <span style="color: #df005f; font-weight: bold;">string</span>)
+</pre>
+</div>
+
+<p>
+Set添加键值对到h，如键已存在则会用只有新值一个元素的切片取代旧值切片。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf93668f" class="outline-3">
+<h3 id="orgf93668f">func (Header) Add</h3>
+<div class="outline-text-3" id="text-orgf93668f">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">h</span> <span style="color: #df005f; font-weight: bold;">Header</span>) <span style="color: #d75fd7; font-weight: bold;">Add</span>(<span style="color: #8787d7;">key</span>, <span style="color: #8787d7;">value</span> <span style="color: #df005f; font-weight: bold;">string</span>)
+</pre>
+</div>
+
+<p>
+Add添加键值对到h，如键已存在则会将新的值附加到旧值切片后面。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb2139ab" class="outline-3">
+<h3 id="orgb2139ab">func (Header) Del</h3>
+<div class="outline-text-3" id="text-orgb2139ab">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">h</span> <span style="color: #df005f; font-weight: bold;">Header</span>) <span style="color: #d75fd7; font-weight: bold;">Del</span>(<span style="color: #8787d7;">key</span> <span style="color: #df005f; font-weight: bold;">string</span>)
+</pre>
+</div>
+
+<p>
+Del删除键值对。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgecdd96f" class="outline-3">
+<h3 id="orgecdd96f">func (Header) Write</h3>
+<div class="outline-text-3" id="text-orgecdd96f">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">h</span> <span style="color: #df005f; font-weight: bold;">Header</span>) <span style="color: #d75fd7; font-weight: bold;">Write</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">io.Writer</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+
+<p>
+Write以有线格式将头域写入w。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4e6bd36" class="outline-3">
+<h3 id="org4e6bd36">func (Header) WriteSubset</h3>
+<div class="outline-text-3" id="text-org4e6bd36">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">h</span> <span style="color: #df005f; font-weight: bold;">Header</span>) <span style="color: #d75fd7; font-weight: bold;">WriteSubset</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">io.Writer</span>, <span style="color: #8787d7;">exclude</span> <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">bool</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+
+<p>
+WriteSubset以有线格式将头域写入w。当exclude不为nil时，如果h的键值对的键在exclude中存在且其对应值为真，该键值对就不会被写入w。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org88ac7c8" class="outline-2">
+<h2 id="org88ac7c8">type Cookie</h2>
+<div class="outline-text-2" id="text-org88ac7c8">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Cookie</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    Name       <span style="color: #df005f; font-weight: bold;">string</span>
+    Value      <span style="color: #df005f; font-weight: bold;">string</span>
+    Path       <span style="color: #df005f; font-weight: bold;">string</span>
+    Domain     <span style="color: #df005f; font-weight: bold;">string</span>
+    Expires    <span style="color: #df005f; font-weight: bold;">time.Time</span>
+    RawExpires <span style="color: #df005f; font-weight: bold;">string</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">MaxAge=0&#34920;&#31034;&#26410;&#35774;&#32622;Max-Age&#23646;&#24615;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">MaxAge&lt;0&#34920;&#31034;&#31435;&#21051;&#21024;&#38500;&#35813;cookie&#65292;&#31561;&#20215;&#20110;"Max-Age: 0"</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">MaxAge&gt;0&#34920;&#31034;&#23384;&#22312;Max-Age&#23646;&#24615;&#65292;&#21333;&#20301;&#26159;&#31186;</span>
+    MaxAge   <span style="color: #df005f; font-weight: bold;">int</span>
+    Secure   <span style="color: #df005f; font-weight: bold;">bool</span>
+    HttpOnly <span style="color: #df005f; font-weight: bold;">bool</span>
+    Raw      <span style="color: #df005f; font-weight: bold;">string</span>
+    Unparsed []<span style="color: #df005f; font-weight: bold;">string</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26410;&#35299;&#26512;&#30340;&#8220;&#23646;&#24615;-&#20540;&#8221;&#23545;&#30340;&#21407;&#22987;&#25991;&#26412;</span>
+}
+</pre>
+</div>
+
+<p>
+Cookie代表一个出现在HTTP回复的头域中Set-Cookie头的值里或者HTTP请求的头域中Cookie头的值里的HTTP cookie。<br>
+</p>
+</div>
+<div id="outline-container-org6a1d0c4" class="outline-3">
+<h3 id="org6a1d0c4">func (*Cookie) String</h3>
+<div class="outline-text-3" id="text-org6a1d0c4">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">Cookie</span>) <span style="color: #d75fd7; font-weight: bold;">String</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+String返回该cookie的序列化结果。如果只设置了Name和Value字段，序列化结果可用于HTTP请求的Cookie头或者HTTP回复的Set-Cookie头；如果设置了其他字段，序列化结果只能用于HTTP回复的Set-Cookie头。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgddadf6d" class="outline-2">
+<h2 id="orgddadf6d">type CookieJar</h2>
+<div class="outline-text-2" id="text-orgddadf6d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">CookieJar</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">SetCookies&#31649;&#29702;&#20174;u&#30340;&#22238;&#22797;&#20013;&#25910;&#21040;&#30340;cookie</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26681;&#25454;&#20854;&#31574;&#30053;&#21644;&#23454;&#29616;&#65292;&#23427;&#21487;&#20197;&#36873;&#25321;&#26159;&#21542;&#23384;&#20648;cookie</span>
+    <span style="color: #d75fd7; font-weight: bold;">SetCookies</span>(<span style="color: #8787d7;">u</span> *<span style="color: #df005f; font-weight: bold;">url.URL</span>, <span style="color: #8787d7;">cookies</span> []*<span style="color: #df005f; font-weight: bold;">Cookie</span>)
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Cookies&#36820;&#22238;&#21457;&#36865;&#35831;&#27714;&#21040;u&#26102;&#24212;&#20351;&#29992;&#30340;cookie</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26412;&#26041;&#27861;&#26377;&#36131;&#20219;&#36981;&#23432;RFC 6265&#35268;&#23450;&#30340;&#26631;&#20934;cookie&#38480;&#21046;</span>
+    <span style="color: #d75fd7; font-weight: bold;">Cookies</span>(<span style="color: #8787d7;">u</span> *<span style="color: #df005f; font-weight: bold;">url.URL</span>) []*<span style="color: #df005f; font-weight: bold;">Cookie</span>
+}
+</pre>
+</div>
+
+<p>
+CookieJar管理cookie的存储和在HTTP请求中的使用。CookieJar的实现必须能安全的被多个go程同时使用。<br>
+</p>
+
+<p>
+net/http/cookiejar包提供了一个CookieJar的实现。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga8e4fc7" class="outline-2">
+<h2 id="orga8e4fc7">type Request</h2>
+<div class="outline-text-2" id="text-orga8e4fc7">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Request</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Method&#25351;&#23450;HTTP&#26041;&#27861;&#65288;GET&#12289;POST&#12289;PUT&#31561;&#65289;&#12290;&#23545;&#23458;&#25143;&#31471;&#65292;""&#20195;&#34920;GET&#12290;</span>
+    Method <span style="color: #df005f; font-weight: bold;">string</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">URL&#22312;&#26381;&#21153;&#31471;&#34920;&#31034;&#34987;&#35831;&#27714;&#30340;URI&#65292;&#22312;&#23458;&#25143;&#31471;&#34920;&#31034;&#35201;&#35775;&#38382;&#30340;URL&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">//</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22312;&#26381;&#21153;&#31471;&#65292;URL&#23383;&#27573;&#26159;&#35299;&#26512;&#35831;&#27714;&#34892;&#30340;URI&#65288;&#20445;&#23384;&#22312;RequestURI&#23383;&#27573;&#65289;&#24471;&#21040;&#30340;&#65292;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23545;&#22823;&#22810;&#25968;&#35831;&#27714;&#26469;&#35828;&#65292;&#38500;&#20102;Path&#21644;RawQuery&#20043;&#22806;&#30340;&#23383;&#27573;&#37117;&#26159;&#31354;&#23383;&#31526;&#20018;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#65288;&#21442;&#35265;RFC 2616, Section 5.1.2&#65289;</span>
+    <span style="color: #008787; background-color: #262626;">//</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22312;&#23458;&#25143;&#31471;&#65292;URL&#30340;Host&#23383;&#27573;&#25351;&#23450;&#20102;&#35201;&#36830;&#25509;&#30340;&#26381;&#21153;&#22120;&#65292;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#32780;Request&#30340;Host&#23383;&#27573;&#65288;&#21487;&#36873;&#22320;&#65289;&#25351;&#23450;&#35201;&#21457;&#36865;&#30340;HTTP&#35831;&#27714;&#30340;Host&#22836;&#30340;&#20540;&#12290;</span>
+    URL *<span style="color: #df005f; font-weight: bold;">url.URL</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25509;&#25910;&#21040;&#30340;&#35831;&#27714;&#30340;&#21327;&#35758;&#29256;&#26412;&#12290;&#26412;&#21253;&#29983;&#20135;&#30340;Request&#24635;&#26159;&#20351;&#29992;HTTP/1.1</span>
+    Proto      <span style="color: #df005f; font-weight: bold;">string</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">"HTTP/1.0"</span>
+    ProtoMajor <span style="color: #df005f; font-weight: bold;">int</span>    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">1</span>
+    ProtoMinor <span style="color: #df005f; font-weight: bold;">int</span>    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">0</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Header&#23383;&#27573;&#29992;&#26469;&#34920;&#31034;HTTP&#35831;&#27714;&#30340;&#22836;&#22495;&#12290;&#22914;&#26524;&#22836;&#22495;&#65288;&#22810;&#34892;&#38190;&#20540;&#23545;&#26684;&#24335;&#65289;&#20026;&#65306;</span>
+    <span style="color: #008787; background-color: #262626;">//  </span><span style="color: #008787; background-color: #262626;">accept-encoding: gzip, deflate</span>
+    <span style="color: #008787; background-color: #262626;">//  </span><span style="color: #008787; background-color: #262626;">Accept-Language: en-us</span>
+    <span style="color: #008787; background-color: #262626;">//  </span><span style="color: #008787; background-color: #262626;">Connection: keep-alive</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21017;&#65306;</span>
+    <span style="color: #008787; background-color: #262626;">//  </span><span style="color: #008787; background-color: #262626;">Header = map[string][]string{</span>
+    <span style="color: #008787; background-color: #262626;">//      </span><span style="color: #008787; background-color: #262626;">"Accept-Encoding": {"gzip, deflate"},</span>
+    <span style="color: #008787; background-color: #262626;">//      </span><span style="color: #008787; background-color: #262626;">"Accept-Language": {"en-us"},</span>
+    <span style="color: #008787; background-color: #262626;">//      </span><span style="color: #008787; background-color: #262626;">"Connection": {"keep-alive"},</span>
+    <span style="color: #008787; background-color: #262626;">//  </span><span style="color: #008787; background-color: #262626;">}</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">HTTP&#35268;&#23450;&#22836;&#22495;&#30340;&#38190;&#21517;&#65288;&#22836;&#21517;&#65289;&#26159;&#22823;&#23567;&#20889;&#25935;&#24863;&#30340;&#65292;&#35831;&#27714;&#30340;&#35299;&#26512;&#22120;&#36890;&#36807;&#35268;&#33539;&#21270;&#22836;&#22495;&#30340;&#38190;&#21517;&#26469;&#23454;&#29616;&#36825;&#28857;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22312;&#23458;&#25143;&#31471;&#30340;&#35831;&#27714;&#65292;&#21487;&#33021;&#20250;&#34987;&#33258;&#21160;&#28155;&#21152;&#25110;&#37325;&#20889;Header&#20013;&#30340;&#29305;&#23450;&#30340;&#22836;&#65292;&#21442;&#35265;Request.Write&#26041;&#27861;&#12290;</span>
+    Header <span style="color: #df005f; font-weight: bold;">Header</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Body&#26159;&#35831;&#27714;&#30340;&#20027;&#20307;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">//</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22312;&#23458;&#25143;&#31471;&#65292;&#22914;&#26524;Body&#26159;nil&#34920;&#31034;&#35813;&#35831;&#27714;&#27809;&#26377;&#20027;&#20307;&#20080;&#20837;GET&#35831;&#27714;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Client&#30340;Transport&#23383;&#27573;&#20250;&#36127;&#36131;&#35843;&#29992;Body&#30340;Close&#26041;&#27861;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">//</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22312;&#26381;&#21153;&#31471;&#65292;Body&#23383;&#27573;&#24635;&#26159;&#38750;nil&#30340;&#65307;&#20294;&#22312;&#27809;&#26377;&#20027;&#20307;&#26102;&#65292;&#35835;&#21462;Body&#20250;&#31435;&#21051;&#36820;&#22238;EOF&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Server&#20250;&#20851;&#38381;&#35831;&#27714;&#30340;&#20027;&#20307;&#65292;ServeHTTP&#22788;&#29702;&#22120;&#19981;&#38656;&#35201;&#20851;&#38381;Body&#23383;&#27573;&#12290;</span>
+    Body <span style="color: #df005f; font-weight: bold;">io.ReadCloser</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">ContentLength&#35760;&#24405;&#30456;&#20851;&#20869;&#23481;&#30340;&#38271;&#24230;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#20026;-1&#65292;&#34920;&#31034;&#38271;&#24230;&#26410;&#30693;&#65292;&#22914;&#26524;&gt;=0&#65292;&#34920;&#31034;&#21487;&#20197;&#20174;Body&#23383;&#27573;&#35835;&#21462;ContentLength&#23383;&#33410;&#25968;&#25454;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22312;&#23458;&#25143;&#31471;&#65292;&#22914;&#26524;Body&#38750;nil&#32780;&#35813;&#23383;&#27573;&#20026;0&#65292;&#34920;&#31034;&#19981;&#30693;&#36947;Body&#30340;&#38271;&#24230;&#12290;</span>
+    ContentLength <span style="color: #df005f; font-weight: bold;">int64</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">TransferEncoding&#25353;&#20174;&#26368;&#22806;&#21040;&#26368;&#37324;&#30340;&#39034;&#24207;&#21015;&#20986;&#20256;&#36755;&#32534;&#30721;&#65292;&#31354;&#20999;&#29255;&#34920;&#31034;"identity"&#32534;&#30721;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26412;&#23383;&#27573;&#19968;&#33324;&#20250;&#34987;&#24573;&#30053;&#12290;&#24403;&#21457;&#36865;&#25110;&#25509;&#21463;&#35831;&#27714;&#26102;&#65292;&#20250;&#33258;&#21160;&#28155;&#21152;&#25110;&#31227;&#38500;"chunked"&#20256;&#36755;&#32534;&#30721;&#12290;</span>
+    TransferEncoding []<span style="color: #df005f; font-weight: bold;">string</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Close&#22312;&#26381;&#21153;&#31471;&#25351;&#23450;&#26159;&#21542;&#22312;&#22238;&#22797;&#35831;&#27714;&#21518;&#20851;&#38381;&#36830;&#25509;&#65292;&#22312;&#23458;&#25143;&#31471;&#25351;&#23450;&#26159;&#21542;&#22312;&#21457;&#36865;&#35831;&#27714;&#21518;&#20851;&#38381;&#36830;&#25509;&#12290;</span>
+    Close <span style="color: #df005f; font-weight: bold;">bool</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22312;&#26381;&#21153;&#31471;&#65292;Host&#25351;&#23450;URL&#20250;&#22312;&#20854;&#19978;&#23547;&#25214;&#36164;&#28304;&#30340;&#20027;&#26426;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26681;&#25454;RFC 2616&#65292;&#35813;&#20540;&#21487;&#20197;&#26159;Host&#22836;&#30340;&#20540;&#65292;&#25110;&#32773;URL&#33258;&#36523;&#25552;&#20379;&#30340;&#20027;&#26426;&#21517;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Host&#30340;&#26684;&#24335;&#21487;&#20197;&#26159;"host:port"&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">//</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22312;&#23458;&#25143;&#31471;&#65292;&#35831;&#27714;&#30340;Host&#23383;&#27573;&#65288;&#21487;&#36873;&#22320;&#65289;&#29992;&#26469;&#37325;&#20889;&#35831;&#27714;&#30340;Host&#22836;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#36807;&#35813;&#23383;&#27573;&#20026;""&#65292;Request.Write&#26041;&#27861;&#20250;&#20351;&#29992;URL&#23383;&#27573;&#30340;Host&#12290;</span>
+    Host <span style="color: #df005f; font-weight: bold;">string</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Form&#26159;&#35299;&#26512;&#22909;&#30340;&#34920;&#21333;&#25968;&#25454;&#65292;&#21253;&#25324;URL&#23383;&#27573;&#30340;query&#21442;&#25968;&#21644;POST&#25110;PUT&#30340;&#34920;&#21333;&#25968;&#25454;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26412;&#23383;&#27573;&#21482;&#26377;&#22312;&#35843;&#29992;ParseForm&#21518;&#25165;&#26377;&#25928;&#12290;&#22312;&#23458;&#25143;&#31471;&#65292;&#20250;&#24573;&#30053;&#35831;&#27714;&#20013;&#30340;&#26412;&#23383;&#27573;&#32780;&#20351;&#29992;Body&#26367;&#20195;&#12290;</span>
+    Form <span style="color: #df005f; font-weight: bold;">url.Values</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">PostForm&#26159;&#35299;&#26512;&#22909;&#30340;POST&#25110;PUT&#30340;&#34920;&#21333;&#25968;&#25454;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26412;&#23383;&#27573;&#21482;&#26377;&#22312;&#35843;&#29992;ParseForm&#21518;&#25165;&#26377;&#25928;&#12290;&#22312;&#23458;&#25143;&#31471;&#65292;&#20250;&#24573;&#30053;&#35831;&#27714;&#20013;&#30340;&#26412;&#23383;&#27573;&#32780;&#20351;&#29992;Body&#26367;&#20195;&#12290;</span>
+    PostForm <span style="color: #df005f; font-weight: bold;">url.Values</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">MultipartForm&#26159;&#35299;&#26512;&#22909;&#30340;&#22810;&#37096;&#20214;&#34920;&#21333;&#65292;&#21253;&#25324;&#19978;&#20256;&#30340;&#25991;&#20214;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26412;&#23383;&#27573;&#21482;&#26377;&#22312;&#35843;&#29992;ParseMultipartForm&#21518;&#25165;&#26377;&#25928;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22312;&#23458;&#25143;&#31471;&#65292;&#20250;&#24573;&#30053;&#35831;&#27714;&#20013;&#30340;&#26412;&#23383;&#27573;&#32780;&#20351;&#29992;Body&#26367;&#20195;&#12290;</span>
+    MultipartForm *<span style="color: #df005f; font-weight: bold;">multipart.Form</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Trailer&#25351;&#23450;&#20102;&#20250;&#22312;&#35831;&#27714;&#20027;&#20307;&#20043;&#21518;&#21457;&#36865;&#30340;&#39069;&#22806;&#30340;&#22836;&#22495;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">//</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22312;&#26381;&#21153;&#31471;&#65292;Trailer&#23383;&#27573;&#24517;&#39035;&#21021;&#22987;&#21270;&#20026;&#21482;&#26377;trailer&#38190;&#65292;&#25152;&#26377;&#38190;&#37117;&#23545;&#24212;nil&#20540;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#65288;&#23458;&#25143;&#31471;&#20250;&#22768;&#26126;&#21738;&#20123;trailer&#20250;&#21457;&#36865;&#65289;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22312;&#22788;&#29702;&#22120;&#20174;Body&#35835;&#21462;&#26102;&#65292;&#19981;&#33021;&#20351;&#29992;&#26412;&#23383;&#27573;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22312;&#20174;Body&#30340;&#35835;&#21462;&#36820;&#22238;EOF&#21518;&#65292;Trailer&#23383;&#27573;&#20250;&#34987;&#26356;&#26032;&#23436;&#27605;&#24182;&#21253;&#21547;&#38750;nil&#30340;&#20540;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#65288;&#22914;&#26524;&#23458;&#25143;&#31471;&#21457;&#36865;&#20102;&#36825;&#20123;&#38190;&#20540;&#23545;&#65289;&#65292;&#27492;&#26102;&#25165;&#21487;&#20197;&#35775;&#38382;&#26412;&#23383;&#27573;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">//</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22312;&#23458;&#25143;&#31471;&#65292;Trail&#24517;&#39035;&#21021;&#22987;&#21270;&#20026;&#19968;&#20010;&#21253;&#21547;&#23558;&#35201;&#21457;&#36865;&#30340;&#38190;&#20540;&#23545;&#30340;&#26144;&#23556;&#12290;&#65288;&#20540;&#21487;&#20197;&#26159;nil&#25110;&#20854;&#32456;&#20540;&#65289;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">ContentLength&#23383;&#27573;&#24517;&#39035;&#26159;0&#25110;-1&#65292;&#20197;&#21551;&#29992;"chunked"&#20256;&#36755;&#32534;&#30721;&#21457;&#36865;&#35831;&#27714;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22312;&#24320;&#22987;&#21457;&#36865;&#35831;&#27714;&#21518;&#65292;Trailer&#21487;&#20197;&#22312;&#35835;&#21462;&#35831;&#27714;&#20027;&#20307;&#26399;&#38388;&#34987;&#20462;&#25913;&#65292;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#19968;&#26086;&#35831;&#27714;&#20027;&#20307;&#36820;&#22238;EOF&#65292;&#35843;&#29992;&#32773;&#23601;&#19981;&#21487;&#20877;&#20462;&#25913;Trailer&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">//</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#24456;&#23569;&#26377;HTTP&#23458;&#25143;&#31471;&#12289;&#26381;&#21153;&#31471;&#25110;&#20195;&#29702;&#25903;&#25345;HTTP trailer&#12290;</span>
+    Trailer <span style="color: #df005f; font-weight: bold;">Header</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">RemoteAddr&#20801;&#35768;HTTP&#26381;&#21153;&#22120;&#21644;&#20854;&#20182;&#36719;&#20214;&#35760;&#24405;&#35813;&#35831;&#27714;&#30340;&#26469;&#28304;&#22320;&#22336;&#65292;&#19968;&#33324;&#29992;&#20110;&#26085;&#24535;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26412;&#23383;&#27573;&#19981;&#26159;ReadRequest&#20989;&#25968;&#22635;&#20889;&#30340;&#65292;&#20063;&#27809;&#26377;&#23450;&#20041;&#26684;&#24335;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26412;&#21253;&#30340;HTTP&#26381;&#21153;&#22120;&#20250;&#22312;&#35843;&#29992;&#22788;&#29702;&#22120;&#20043;&#21069;&#35774;&#32622;RemoteAddr&#20026;"IP:port"&#26684;&#24335;&#30340;&#22320;&#22336;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23458;&#25143;&#31471;&#20250;&#24573;&#30053;&#35831;&#27714;&#20013;&#30340;RemoteAddr&#23383;&#27573;&#12290;</span>
+    RemoteAddr <span style="color: #df005f; font-weight: bold;">string</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">RequestURI&#26159;&#34987;&#23458;&#25143;&#31471;&#21457;&#36865;&#21040;&#26381;&#21153;&#31471;&#30340;&#35831;&#27714;&#30340;&#35831;&#27714;&#34892;&#20013;&#26410;&#20462;&#25913;&#30340;&#35831;&#27714;URI</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#65288;&#21442;&#35265;RFC 2616, Section 5.1&#65289;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#19968;&#33324;&#24212;&#20351;&#29992;URI&#23383;&#27573;&#65292;&#22312;&#23458;&#25143;&#31471;&#35774;&#32622;&#35831;&#27714;&#30340;&#26412;&#23383;&#27573;&#20250;&#23548;&#33268;&#38169;&#35823;&#12290;</span>
+    RequestURI <span style="color: #df005f; font-weight: bold;">string</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">TLS&#23383;&#27573;&#20801;&#35768;HTTP&#26381;&#21153;&#22120;&#21644;&#20854;&#20182;&#36719;&#20214;&#35760;&#24405;&#25509;&#25910;&#21040;&#35813;&#35831;&#27714;&#30340;TLS&#36830;&#25509;&#30340;&#20449;&#24687;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26412;&#23383;&#27573;&#19981;&#26159;ReadRequest&#20989;&#25968;&#22635;&#20889;&#30340;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23545;&#21551;&#29992;&#20102;TLS&#30340;&#36830;&#25509;&#65292;&#26412;&#21253;&#30340;HTTP&#26381;&#21153;&#22120;&#20250;&#22312;&#35843;&#29992;&#22788;&#29702;&#22120;&#20043;&#21069;&#35774;&#32622;TLS&#23383;&#27573;&#65292;&#21542;&#21017;&#23558;&#35774;TLS&#20026;nil&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23458;&#25143;&#31471;&#20250;&#24573;&#30053;&#35831;&#27714;&#20013;&#30340;TLS&#23383;&#27573;&#12290;</span>
+    TLS *<span style="color: #df005f; font-weight: bold;">tls.ConnectionState</span>
+}
+</pre>
+</div>
+
+<p>
+Request类型代表一个服务端接受到的或者客户端发送出去的HTTP请求。<br>
+</p>
+
+<p>
+Request各字段的意义和用途在服务端和客户端是不同的。除了字段本身上方文档，还可参见Request.Write方法和RoundTripper接口的文档。<br>
+</p>
+</div>
+<div id="outline-container-orge9d6ca7" class="outline-3">
+<h3 id="orge9d6ca7">func NewRequest</h3>
+<div class="outline-text-3" id="text-orge9d6ca7">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">NewRequest</span>(<span style="color: #8787d7;">method</span>, <span style="color: #8787d7;">urlStr</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">body</span> <span style="color: #df005f; font-weight: bold;">io.Reader</span>) (*<span style="color: #df005f; font-weight: bold;">Request</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+NewRequest使用指定的方法、网址和可选的主题创建并返回一个新的*Request。<br>
+</p>
+
+<p>
+如果body参数实现了io.Closer接口，Request返回值的Body 字段会被设置为body，并会被Client类型的Do、Post和PostFOrm方法以及Transport.RoundTrip方法关闭。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org3ff3aab" class="outline-3">
+<h3 id="org3ff3aab">func ReadRequest</h3>
+<div class="outline-text-3" id="text-org3ff3aab">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ReadRequest</span>(<span style="color: #8787d7;">b</span> *<span style="color: #df005f; font-weight: bold;">bufio.Reader</span>) (<span style="color: #8787d7;">req</span> *<span style="color: #df005f; font-weight: bold;">Request</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+ReadRequest从b读取并解析出一个HTTP请求。（本函数主要用在服务端从下层获取请求）<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga744f88" class="outline-3">
+<h3 id="orga744f88">func (*Request) ProtoAtLeast</h3>
+<div class="outline-text-3" id="text-orga744f88">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Request</span>) <span style="color: #d75fd7; font-weight: bold;">ProtoAtLeast</span>(<span style="color: #8787d7;">major</span>, <span style="color: #8787d7;">minor</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+ProtoAtLeast报告该请求使用的HTTP协议版本至少是major.minor。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org795efcd" class="outline-3">
+<h3 id="org795efcd">func (*Request) UserAgent</h3>
+<div class="outline-text-3" id="text-org795efcd">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Request</span>) <span style="color: #d75fd7; font-weight: bold;">UserAgent</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+UserAgent返回请求中的客户端用户代理信息（请求的User-Agent头）。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5d91f9e" class="outline-3">
+<h3 id="org5d91f9e">func (*Request) Referer</h3>
+<div class="outline-text-3" id="text-org5d91f9e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Request</span>) <span style="color: #d75fd7; font-weight: bold;">Referer</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+Referer返回请求中的访问来路信息。（请求的Referer头）<br>
+</p>
+
+<p>
+Referer在请求中就是拼错了的，这是HTTP早期就有的错误。该值也可以从用Header["Referer"]获取； 让获取Referer字段变成方法的好处是，编译器可以诊断使用正确单词拼法的req.Referrer()的程序，但却不能诊断使用Header["Referrer"]的程序。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5804982" class="outline-3">
+<h3 id="org5804982">func (*Request) AddCookie</h3>
+<div class="outline-text-3" id="text-org5804982">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Request</span>) <span style="color: #d75fd7; font-weight: bold;">AddCookie</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">Cookie</span>)
+</pre>
+</div>
+
+<p>
+AddCookie向请求中添加一个cookie。按照RFC 6265 section 5.4的跪地，AddCookie不会添加超过一个Cookie头字段。这表示所有的cookie都写在同一行，用分号分隔（cookie内部用逗号分隔属性）。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4593a52" class="outline-3">
+<h3 id="org4593a52">func (*Request) SetBasicAuth</h3>
+<div class="outline-text-3" id="text-org4593a52">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Request</span>) <span style="color: #d75fd7; font-weight: bold;">SetBasicAuth</span>(<span style="color: #8787d7;">username</span>, <span style="color: #8787d7;">password</span> <span style="color: #df005f; font-weight: bold;">string</span>)
+</pre>
+</div>
+
+<p>
+SetBasicAuth使用提供的用户名和密码，采用HTTP基本认证，设置请求的Authorization头。HTTP基本认证会明码传送用户名和密码。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9efcc9e" class="outline-3">
+<h3 id="org9efcc9e">func (*Request) Write</h3>
+<div class="outline-text-3" id="text-org9efcc9e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Request</span>) <span style="color: #d75fd7; font-weight: bold;">Write</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">io.Writer</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+
+<p>
+Write方法以有线格式将HTTP/1.1请求写入w（用于将请求写入下层TCPConn等）。本方法会考虑请求的如下字段：<br>
+</p>
+
+<pre class="example" id="org6b94a0d">
+Host
+URL
+Method (defaults to "GET")
+Header
+ContentLength
+TransferEncoding
+Body
+</pre>
+
+<p>
+如果存在Body，ContentLength字段&lt;= 0且TransferEncoding字段未显式设置为["identity"]，Write方法会显式添加"Transfer-Encoding: chunked"到请求的头域。Body字段会在发送完请求后关闭。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga15c881" class="outline-3">
+<h3 id="orga15c881">func (*Request) WriteProxy</h3>
+<div class="outline-text-3" id="text-orga15c881">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Request</span>) <span style="color: #d75fd7; font-weight: bold;">WriteProxy</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">io.Writer</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+
+<p>
+WriteProxy类似Write但会将请求以HTTP代理期望的格式发送。<br>
+</p>
+
+<p>
+尤其是，按照RFC 2616 Section 5.1.2，WriteProxy会使用绝对URI（包括协议和主机名）来初始化请求的第1行（Request-URI行）。无论何种情况，WriteProxy都会使用r.Host或r.URL.Host设置Host头。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org56d93bd" class="outline-3">
+<h3 id="org56d93bd">func (*Request) Cookies</h3>
+<div class="outline-text-3" id="text-org56d93bd">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Request</span>) <span style="color: #d75fd7; font-weight: bold;">Cookies</span>() []*<span style="color: #df005f; font-weight: bold;">Cookie</span>
+</pre>
+</div>
+
+<p>
+Cookies解析并返回该请求的Cookie头设置的cookie。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org6f4ec9a" class="outline-3">
+<h3 id="org6f4ec9a">func (*Request) Cookie</h3>
+<div class="outline-text-3" id="text-org6f4ec9a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Request</span>) <span style="color: #d75fd7; font-weight: bold;">Cookie</span>(<span style="color: #8787d7;">name</span> <span style="color: #df005f; font-weight: bold;">string</span>) (*<span style="color: #df005f; font-weight: bold;">Cookie</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+Cookie返回请求中名为name的cookie，如果未找到该cookie会返回nil, ErrNoCookie。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org61a4078" class="outline-3">
+<h3 id="org61a4078">func (*Request) ParseForm</h3>
+<div class="outline-text-3" id="text-org61a4078">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Request</span>) <span style="color: #d75fd7; font-weight: bold;">ParseForm</span>() <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+
+<p>
+ParseForm解析URL中的查询字符串，并将解析结果更新到r.Form字段。<br>
+</p>
+
+<p>
+对于POST或PUT请求，ParseForm还会将body当作表单解析，并将结果既更新到r.PostForm也更新到r.Form。解析结果中，POST或PUT请求主体要优先于URL查询字符串（同名变量，主体的值在查询字符串的值前面）。<br>
+</p>
+
+<p>
+如果请求的主体的大小没有被MaxBytesReader函数设定限制，其大小默认限制为开头10MB。<br>
+</p>
+
+<p>
+ParseMultipartForm会自动调用ParseForm。重复调用本方法是无意义的。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org92aad1a" class="outline-3">
+<h3 id="org92aad1a">func (*Request) ParseMultipartForm</h3>
+<div class="outline-text-3" id="text-org92aad1a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Request</span>) <span style="color: #d75fd7; font-weight: bold;">ParseMultipartForm</span>(<span style="color: #8787d7;">maxMemory</span> <span style="color: #df005f; font-weight: bold;">int64</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+
+<p>
+ParseMultipartForm将请求的主体作为multipart/form-data解析。请求的整个主体都会被解析，得到的文件记录最多maxMemery字节保存在内存，其余部分保存在硬盘的temp文件里。如果必要，ParseMultipartForm会自行调用ParseForm。重复调用本方法是无意义的。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org6897c0b" class="outline-3">
+<h3 id="org6897c0b">func (*Request) FormValue</h3>
+<div class="outline-text-3" id="text-org6897c0b">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Request</span>) <span style="color: #d75fd7; font-weight: bold;">FormValue</span>(<span style="color: #8787d7;">key</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+FormValue返回key为键查询r.Form字段得到结果[]string切片的第一个值。POST和PUT主体中的同名参数优先于URL查询字符串。如果必要，本函数会隐式调用ParseMultipartForm和ParseForm。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org30bf76d" class="outline-3">
+<h3 id="org30bf76d">func (*Request) PostFormValue</h3>
+<div class="outline-text-3" id="text-org30bf76d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Request</span>) <span style="color: #d75fd7; font-weight: bold;">PostFormValue</span>(<span style="color: #8787d7;">key</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+PostFormValue返回key为键查询r.PostForm字段得到结果[]string切片的第一个值。如果必要，本函数会隐式调用ParseMultipartForm和ParseForm。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgbb9d79c" class="outline-3">
+<h3 id="orgbb9d79c">func (*Request) FormFile</h3>
+<div class="outline-text-3" id="text-orgbb9d79c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Request</span>) <span style="color: #d75fd7; font-weight: bold;">FormFile</span>(<span style="color: #8787d7;">key</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #df005f; font-weight: bold;">multipart.File</span>, *<span style="color: #df005f; font-weight: bold;">multipart.FileHeader</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+FormFile返回以key为键查询r.MultipartForm字段得到结果中的第一个文件和它的信息。如果必要，本函数会隐式调用ParseMultipartForm和ParseForm。查询失败会返回ErrMissingFile错误。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb60de01" class="outline-3">
+<h3 id="orgb60de01">func (*Request) MultipartReader</h3>
+<div class="outline-text-3" id="text-orgb60de01">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Request</span>) <span style="color: #d75fd7; font-weight: bold;">MultipartReader</span>() (*<span style="color: #df005f; font-weight: bold;">multipart.Reader</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+如果请求是multipart/form-data POST请求，MultipartReader返回一个multipart.Reader接口，否则返回nil和一个错误。使用本函数代替ParseMultipartForm，可以将r.Body作为流处理。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgfd2f3e2" class="outline-2">
+<h2 id="orgfd2f3e2">type Response</h2>
+<div class="outline-text-2" id="text-orgfd2f3e2">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Response</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    Status     <span style="color: #df005f; font-weight: bold;">string</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20363;&#22914;"200 OK"</span>
+    StatusCode <span style="color: #df005f; font-weight: bold;">int</span>    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20363;&#22914;200</span>
+    Proto      <span style="color: #df005f; font-weight: bold;">string</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20363;&#22914;"HTTP/1.0"</span>
+    ProtoMajor <span style="color: #df005f; font-weight: bold;">int</span>    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20363;&#22914;1</span>
+    ProtoMinor <span style="color: #df005f; font-weight: bold;">int</span>    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20363;&#22914;0</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Header&#20445;&#31649;&#22836;&#22495;&#30340;&#38190;&#20540;&#23545;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#22238;&#22797;&#20013;&#26377;&#22810;&#20010;&#22836;&#30340;&#38190;&#30456;&#21516;&#65292;Header&#20013;&#20445;&#23384;&#20026;&#35813;&#38190;&#23545;&#24212;&#29992;&#36887;&#21495;&#20998;&#38548;&#20018;&#32852;&#36215;&#26469;&#30340;&#36825;&#20123;&#22836;&#30340;&#20540;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#65288;&#21442;&#35265;RFC 2616 Section 4.2&#65289;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#34987;&#26412;&#32467;&#26500;&#20307;&#20013;&#30340;&#20854;&#20182;&#23383;&#27573;&#22797;&#21046;&#20445;&#31649;&#30340;&#22836;&#65288;&#22914;ContentLength&#65289;&#20250;&#20174;Header&#20013;&#21024;&#25481;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">//</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Header&#20013;&#30340;&#38190;&#37117;&#26159;&#35268;&#33539;&#21270;&#30340;&#65292;&#21442;&#35265;CanonicalHeaderKey&#20989;&#25968;</span>
+    Header <span style="color: #df005f; font-weight: bold;">Header</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Body&#20195;&#34920;&#22238;&#22797;&#30340;&#20027;&#20307;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Client&#31867;&#22411;&#21644;Transport&#31867;&#22411;&#20250;&#20445;&#35777;Body&#23383;&#27573;&#24635;&#26159;&#38750;nil&#30340;&#65292;&#21363;&#20351;&#22238;&#22797;&#27809;&#26377;&#20027;&#20307;&#25110;&#20027;&#20307;&#38271;&#24230;&#20026;0&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20851;&#38381;&#20027;&#20307;&#26159;&#35843;&#29992;&#32773;&#30340;&#36131;&#20219;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#26381;&#21153;&#31471;&#37319;&#29992;"chunked"&#20256;&#36755;&#32534;&#30721;&#21457;&#36865;&#30340;&#22238;&#22797;&#65292;Body&#23383;&#27573;&#20250;&#33258;&#21160;&#36827;&#34892;&#35299;&#30721;&#12290;</span>
+    Body <span style="color: #df005f; font-weight: bold;">io.ReadCloser</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">ContentLength&#35760;&#24405;&#30456;&#20851;&#20869;&#23481;&#30340;&#38271;&#24230;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20854;&#20540;&#20026;-1&#34920;&#31034;&#38271;&#24230;&#26410;&#30693;&#65288;&#37319;&#29992;chunked&#20256;&#36755;&#32534;&#30721;&#65289;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#38500;&#38750;&#23545;&#24212;&#30340;Request.Method&#26159;"HEAD"&#65292;&#20854;&#20540;&gt;=0&#34920;&#31034;&#21487;&#20197;&#20174;Body&#35835;&#21462;&#30340;&#23383;&#33410;&#25968;</span>
+    ContentLength <span style="color: #df005f; font-weight: bold;">int64</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">TransferEncoding&#25353;&#20174;&#26368;&#22806;&#21040;&#26368;&#37324;&#30340;&#39034;&#24207;&#21015;&#20986;&#20256;&#36755;&#32534;&#30721;&#65292;&#31354;&#20999;&#29255;&#34920;&#31034;"identity"&#32534;&#30721;&#12290;</span>
+    TransferEncoding []<span style="color: #df005f; font-weight: bold;">string</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Close&#35760;&#24405;&#22836;&#22495;&#26159;&#21542;&#25351;&#23450;&#24212;&#22312;&#35835;&#21462;&#23436;&#20027;&#20307;&#21518;&#20851;&#38381;&#36830;&#25509;&#12290;&#65288;&#21363;Connection&#22836;&#65289;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35813;&#20540;&#26159;&#32473;&#23458;&#25143;&#31471;&#30340;&#24314;&#35758;&#65292;Response.Write&#26041;&#27861;&#30340;ReadResponse&#20989;&#25968;&#37117;&#19981;&#20250;&#20851;&#38381;&#36830;&#25509;&#12290;</span>
+    Close <span style="color: #df005f; font-weight: bold;">bool</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Trailer&#23383;&#27573;&#20445;&#23384;&#21644;&#22836;&#22495;&#30456;&#21516;&#26684;&#24335;&#30340;trailer&#38190;&#20540;&#23545;&#65292;&#21644;Header&#23383;&#27573;&#30456;&#21516;&#31867;&#22411;</span>
+    Trailer <span style="color: #df005f; font-weight: bold;">Header</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Request&#26159;&#29992;&#26469;&#33719;&#21462;&#27492;&#22238;&#22797;&#30340;&#35831;&#27714;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Request&#30340;Body&#23383;&#27573;&#26159;nil&#65288;&#22240;&#20026;&#24050;&#32463;&#34987;&#29992;&#25481;&#20102;&#65289;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36825;&#20010;&#23383;&#27573;&#26159;&#34987;Client&#31867;&#22411;&#21457;&#20986;&#35831;&#27714;&#24182;&#33719;&#24471;&#22238;&#22797;&#21518;&#22635;&#20805;&#30340;</span>
+    Request *<span style="color: #df005f; font-weight: bold;">Request</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">TLS&#21253;&#21547;&#25509;&#25910;&#21040;&#35813;&#22238;&#22797;&#30340;TLS&#36830;&#25509;&#30340;&#20449;&#24687;&#12290; &#23545;&#26410;&#21152;&#23494;&#30340;&#22238;&#22797;&#65292;&#26412;&#23383;&#27573;&#20026;nil&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;&#30340;&#25351;&#38024;&#26159;&#34987;&#65288;&#21516;&#19968;TLS&#36830;&#25509;&#25509;&#25910;&#21040;&#30340;&#65289;&#22238;&#22797;&#20849;&#20139;&#30340;&#65292;&#19981;&#24212;&#34987;&#20462;&#25913;&#12290;</span>
+    TLS *<span style="color: #df005f; font-weight: bold;">tls.ConnectionState</span>
+}
+</pre>
+</div>
+
+<p>
+Response代表一个HTTP请求的回复。<br>
+</p>
+</div>
+<div id="outline-container-orgebac700" class="outline-3">
+<h3 id="orgebac700">func ReadResponse</h3>
+<div class="outline-text-3" id="text-orgebac700">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ReadResponse</span>(<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">bufio.Reader</span>, <span style="color: #8787d7;">req</span> *<span style="color: #df005f; font-weight: bold;">Request</span>) (*<span style="color: #df005f; font-weight: bold;">Response</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+ReadResponse从r读取并返回一个HTTP 回复。req参数是可选的，指定该回复对应的请求（即是对该请求的回复）。如果是nil，将假设请求是GET请求。客户端必须在结束resp.Body的读取后关闭它。读取完毕并关闭后，客户端可以检查resp.Trailer字段获取回复的trailer的键值对。（本函数主要用在客户端从下层获取回复）<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org3201dd7" class="outline-3">
+<h3 id="org3201dd7">func (*Response) ProtoAtLeast</h3>
+<div class="outline-text-3" id="text-org3201dd7">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Response</span>) <span style="color: #d75fd7; font-weight: bold;">ProtoAtLeast</span>(<span style="color: #8787d7;">major</span>, <span style="color: #8787d7;">minor</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+ProtoAtLeast报告该回复使用的HTTP协议版本至少是major.minor。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgbee94de" class="outline-3">
+<h3 id="orgbee94de">func (*Response) Cookies</h3>
+<div class="outline-text-3" id="text-orgbee94de">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Response</span>) <span style="color: #d75fd7; font-weight: bold;">Cookies</span>() []*<span style="color: #df005f; font-weight: bold;">Cookie</span>
+</pre>
+</div>
+
+<p>
+Cookies解析并返回该回复中的Set-Cookie头设置的cookie。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd07dd5c" class="outline-3">
+<h3 id="orgd07dd5c">func (*Response) Location</h3>
+<div class="outline-text-3" id="text-orgd07dd5c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Response</span>) <span style="color: #d75fd7; font-weight: bold;">Location</span>() (*<span style="color: #df005f; font-weight: bold;">url.URL</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+Location返回该回复的Location头设置的URL。相对地址的重定向会相对于该回复对应的请求来确定绝对地址。如果回复中没有Location头，会返回nil, ErrNoLocation。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org84372ae" class="outline-3">
+<h3 id="org84372ae">func (*Response) Write</h3>
+<div class="outline-text-3" id="text-org84372ae">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Response</span>) <span style="color: #d75fd7; font-weight: bold;">Write</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">io.Writer</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+
+<p>
+Write以有线格式将回复写入w（用于将回复写入下层TCPConn等）。本方法会考虑如下字段：<br>
+</p>
+
+<pre class="example" id="orgf7f1bdb">
+StatusCode
+ProtoMajor
+ProtoMinor
+Request.Method
+TransferEncoding
+Trailer
+Body
+ContentLength
+Header（不规范的键名和它对应的值会导致不可预知的行为）
+Body字段在发送完回复后会被关闭。
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org844a9fb" class="outline-2">
+<h2 id="org844a9fb">type ResponseWriter</h2>
+<div class="outline-text-2" id="text-org844a9fb">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">ResponseWriter</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Header&#36820;&#22238;&#19968;&#20010;Header&#31867;&#22411;&#20540;&#65292;&#35813;&#20540;&#20250;&#34987;WriteHeader&#26041;&#27861;&#21457;&#36865;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22312;&#35843;&#29992;WriteHeader&#25110;Write&#26041;&#27861;&#21518;&#20877;&#25913;&#21464;&#35813;&#23545;&#35937;&#26159;&#27809;&#26377;&#24847;&#20041;&#30340;&#12290;</span>
+    <span style="color: #d75fd7; font-weight: bold;">Header</span>() <span style="color: #df005f; font-weight: bold;">Header</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">WriteHeader&#35813;&#26041;&#27861;&#21457;&#36865;HTTP&#22238;&#22797;&#30340;&#22836;&#22495;&#21644;&#29366;&#24577;&#30721;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#27809;&#26377;&#34987;&#26174;&#24335;&#35843;&#29992;&#65292;&#31532;&#19968;&#27425;&#35843;&#29992;Write&#26102;&#20250;&#35302;&#21457;&#38544;&#24335;&#35843;&#29992;WriteHeader(http.StatusOK)</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">WriterHeader&#30340;&#26174;&#24335;&#35843;&#29992;&#20027;&#35201;&#29992;&#20110;&#21457;&#36865;&#38169;&#35823;&#30721;&#12290;</span>
+    <span style="color: #d75fd7; font-weight: bold;">WriteHeader</span>(<span style="color: #df005f; font-weight: bold;">int</span>)
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Write&#21521;&#36830;&#25509;&#20013;&#20889;&#20837;&#20316;&#20026;HTTP&#30340;&#19968;&#37096;&#20998;&#22238;&#22797;&#30340;&#25968;&#25454;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#34987;&#35843;&#29992;&#26102;&#36824;&#26410;&#35843;&#29992;WriteHeader&#65292;&#26412;&#26041;&#27861;&#20250;&#20808;&#35843;&#29992;WriteHeader(http.StatusOK)</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;Header&#20013;&#27809;&#26377;"Content-Type"&#38190;&#65292;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26412;&#26041;&#27861;&#20250;&#20351;&#29992;&#21253;&#20989;&#25968;DetectContentType&#26816;&#26597;&#25968;&#25454;&#30340;&#21069;512&#23383;&#33410;&#65292;&#23558;&#36820;&#22238;&#20540;&#20316;&#20026;&#35813;&#38190;&#30340;&#20540;&#12290;</span>
+    <span style="color: #d75fd7; font-weight: bold;">Write</span>([]<span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+}
+</pre>
+</div>
+
+<p>
+ResponseWriter接口被HTTP处理器用于构造HTTP回复。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8ac7ce1" class="outline-2">
+<h2 id="org8ac7ce1">type Flusher</h2>
+<div class="outline-text-2" id="text-org8ac7ce1">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Flusher</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Flush&#23558;&#32531;&#20914;&#20013;&#30340;&#25152;&#26377;&#25968;&#25454;&#21457;&#36865;&#21040;&#23458;&#25143;&#31471;</span>
+    <span style="color: #d75fd7; font-weight: bold;">Flush</span>()
+}
+</pre>
+</div>
+
+<p>
+HTTP处理器ResponseWriter接口参数的下层如果实现了Flusher接口，可以让HTTP处理器将缓冲中的数据发送到客户端。<br>
+</p>
+
+<p>
+注意：即使ResponseWriter接口的下层支持Flush方法，如果客户端是通过HTTP代理连接的，缓冲中的数据也可能直到回复完毕才被传输到客户端。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org67a224e" class="outline-2">
+<h2 id="org67a224e">type CloseNotifier</h2>
+<div class="outline-text-2" id="text-org67a224e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">CloseNotifier</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">CloseNotify&#36820;&#22238;&#19968;&#20010;&#36890;&#36947;&#65292;&#35813;&#36890;&#36947;&#20250;&#22312;&#23458;&#25143;&#31471;&#36830;&#25509;&#20002;&#22833;&#26102;&#25509;&#25910;&#21040;&#21807;&#19968;&#30340;&#20540;</span>
+    <span style="color: #d75fd7; font-weight: bold;">CloseNotify</span>() &lt;-<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">bool</span>
+}
+</pre>
+</div>
+
+<p>
+HTTP处理器ResponseWriter接口参数的下层如果实现了CloseNotifier接口，可以让用户检测下层的连接是否停止。如果客户端在回复准备好之前关闭了连接，该机制可以用于取消服务端耗时较长的操作。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb053edd" class="outline-2">
+<h2 id="orgb053edd">type Hijacker</h2>
+<div class="outline-text-2" id="text-orgb053edd">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Hijacker</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Hijack&#35753;&#35843;&#29992;&#32773;&#25509;&#31649;&#36830;&#25509;&#65292;&#36820;&#22238;&#36830;&#25509;&#21644;&#20851;&#32852;&#21040;&#35813;&#36830;&#25509;&#30340;&#19968;&#20010;&#32531;&#20914;&#35835;&#20889;&#22120;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35843;&#29992;&#26412;&#26041;&#27861;&#21518;&#65292;HTTP&#26381;&#21153;&#31471;&#23558;&#19981;&#20877;&#23545;&#36830;&#25509;&#36827;&#34892;&#20219;&#20309;&#25805;&#20316;&#65292;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35843;&#29992;&#32773;&#26377;&#36131;&#20219;&#31649;&#29702;&#12289;&#20851;&#38381;&#36820;&#22238;&#30340;&#36830;&#25509;&#12290;</span>
+    <span style="color: #d75fd7; font-weight: bold;">Hijack</span>() (<span style="color: #df005f; font-weight: bold;">net.Conn</span>, *<span style="color: #df005f; font-weight: bold;">bufio.ReadWriter</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+}
+</pre>
+</div>
+
+<p>
+HTTP处理器ResponseWriter接口参数的下层如果实现了Hijacker接口，可以让HTTP处理器接管该连接。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">http.<span style="color: #d75fd7; font-weight: bold;">HandleFunc</span>(<span style="color: #2aa198;">"/hijack"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">http.Request</span>) {
+    <span style="color: #8787d7;">hj</span>, <span style="color: #8787d7;">ok</span> := w.(<span style="color: #df005f; font-weight: bold;">http.Hijacker</span>)
+    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #d75fd7;">!</span>ok {
+        http.<span style="color: #d75fd7; font-weight: bold;">Error</span>(w, <span style="color: #2aa198;">"webserver doesn't support hijacking"</span>, http.StatusInternalServerError)
+        <span style="color: #268bd2; font-weight: bold;">return</span>
+    }
+    <span style="color: #8787d7;">conn</span>, <span style="color: #8787d7;">bufrw</span>, <span style="color: #8787d7;">err</span> := hj.<span style="color: #d75fd7; font-weight: bold;">Hijack</span>()
+    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
+        http.<span style="color: #d75fd7; font-weight: bold;">Error</span>(w, err.<span style="color: #d75fd7; font-weight: bold;">Error</span>(), http.StatusInternalServerError)
+        <span style="color: #268bd2; font-weight: bold;">return</span>
+    }
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Don't forget to close the connection:</span>
+    <span style="color: #268bd2; font-weight: bold;">defer</span> conn.<span style="color: #d75fd7; font-weight: bold;">Close</span>()
+    bufrw.<span style="color: #d75fd7; font-weight: bold;">WriteString</span>(<span style="color: #2aa198;">"Now we're speaking raw TCP. Say hi: "</span>)
+    bufrw.<span style="color: #d75fd7; font-weight: bold;">Flush</span>()
+    <span style="color: #8787d7;">s</span>, <span style="color: #8787d7;">err</span> := bufrw.<span style="color: #d75fd7; font-weight: bold;">ReadString</span>(<span style="color: #2aa198;">'\n'</span>)
+    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
+        log.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"error reading string: %v"</span>, err)
+        <span style="color: #268bd2; font-weight: bold;">return</span>
+    }
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Fprintf</span>(bufrw, <span style="color: #2aa198;">"You said: %q\nBye.\n"</span>, s)
+    bufrw.<span style="color: #d75fd7; font-weight: bold;">Flush</span>()
+})
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb7aed56" class="outline-2">
+<h2 id="orgb7aed56">type RoundTripper</h2>
+<div class="outline-text-2" id="text-orgb7aed56">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">RoundTripper</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">RoundTrip&#25191;&#34892;&#21333;&#27425;HTTP&#20107;&#21153;&#65292;&#25509;&#25910;&#24182;&#21457;&#25381;&#35831;&#27714;req&#30340;&#22238;&#22797;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">RoundTrip&#19981;&#24212;&#35797;&#22270;&#35299;&#26512;/&#20462;&#25913;&#24471;&#21040;&#30340;&#22238;&#22797;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23588;&#20854;&#35201;&#27880;&#24847;&#65292;&#21482;&#35201;RoundTrip&#33719;&#24471;&#20102;&#19968;&#20010;&#22238;&#22797;&#65292;&#19981;&#31649;&#35813;&#22238;&#22797;&#30340;HTTP&#29366;&#24577;&#30721;&#22914;&#20309;&#65292;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23427;&#24517;&#39035;&#23558;&#36820;&#22238;&#20540;err&#35774;&#32622;&#20026;nil&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#38750;nil&#30340;&#36820;&#22238;&#20540;err&#24212;&#35813;&#30041;&#32473;&#33719;&#21462;&#22238;&#22797;&#22833;&#36133;&#30340;&#24773;&#20917;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#31867;&#20284;&#30340;&#65292;RoundTrip&#19981;&#33021;&#35797;&#22270;&#31649;&#29702;&#39640;&#23618;&#27425;&#30340;&#32454;&#33410;&#65292;&#22914;&#37325;&#23450;&#21521;&#12289;&#35748;&#35777;&#12289;cookie&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">//</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#38500;&#20102;&#20174;&#35831;&#27714;&#30340;&#20027;&#20307;&#35835;&#21462;&#24182;&#20851;&#38381;&#20027;&#20307;&#20043;&#22806;&#65292;RoundTrip&#19981;&#24212;&#20462;&#25913;&#35831;&#27714;&#65292;&#21253;&#25324;&#65288;&#35831;&#27714;&#30340;&#65289;&#38169;&#35823;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">RoundTrip&#20989;&#25968;&#25509;&#25910;&#30340;&#35831;&#27714;&#30340;URL&#21644;Header&#23383;&#27573;&#21487;&#20197;&#20445;&#35777;&#26159;&#65288;&#34987;&#65289;&#21021;&#22987;&#21270;&#20102;&#30340;&#12290;</span>
+    <span style="color: #d75fd7; font-weight: bold;">RoundTrip</span>(*<span style="color: #df005f; font-weight: bold;">Request</span>) (*<span style="color: #df005f; font-weight: bold;">Response</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+}
+</pre>
+</div>
+
+<p>
+RoundTripper接口是具有执行单次HTTP事务的能力（接收指定请求的回复）的接口。<br>
+</p>
+
+<p>
+RoundTripper接口的类型必须可以安全的被多线程同时使用。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org728dde1" class="outline-2">
+<h2 id="org728dde1">type Transport</h2>
+<div class="outline-text-2" id="text-org728dde1">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Transport</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Proxy&#25351;&#23450;&#19968;&#20010;&#23545;&#32473;&#23450;&#35831;&#27714;&#36820;&#22238;&#20195;&#29702;&#30340;&#20989;&#25968;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#35813;&#20989;&#25968;&#36820;&#22238;&#20102;&#38750;nil&#30340;&#38169;&#35823;&#20540;&#65292;&#35831;&#27714;&#30340;&#25191;&#34892;&#23601;&#20250;&#20013;&#26029;&#24182;&#36820;&#22238;&#35813;&#38169;&#35823;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;Proxy&#20026;nil&#25110;&#36820;&#22238;nil&#30340;*URL&#32622;&#65292;&#23558;&#19981;&#20351;&#29992;&#20195;&#29702;&#12290;</span>
+    Proxy <span style="color: #268bd2; font-weight: bold;">func</span>(*<span style="color: #df005f; font-weight: bold;">Request</span>) (*<span style="color: #df005f; font-weight: bold;">url.URL</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Dial&#25351;&#23450;&#21019;&#24314;TCP&#36830;&#25509;&#30340;&#25320;&#21495;&#20989;&#25968;&#12290;&#22914;&#26524;Dial&#20026;nil&#65292;&#20250;&#20351;&#29992;net.Dial&#12290;</span>
+    Dial <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">network</span>, <span style="color: #8787d7;">addr</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #df005f; font-weight: bold;">net.Conn</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">TLSClientConfig&#25351;&#23450;&#29992;&#20110;tls.Client&#30340;TLS&#37197;&#32622;&#20449;&#24687;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#35813;&#23383;&#27573;&#20026;nil&#65292;&#20250;&#20351;&#29992;&#40664;&#35748;&#30340;&#37197;&#32622;&#20449;&#24687;&#12290;</span>
+    TLSClientConfig *<span style="color: #df005f; font-weight: bold;">tls.Config</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">TLSHandshakeTimeout&#25351;&#23450;&#31561;&#24453;TLS&#25569;&#25163;&#23436;&#25104;&#30340;&#26368;&#38271;&#26102;&#38388;&#12290;&#38646;&#20540;&#34920;&#31034;&#19981;&#35774;&#32622;&#36229;&#26102;&#12290;</span>
+    TLSHandshakeTimeout <span style="color: #df005f; font-weight: bold;">time.Duration</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;DisableKeepAlives&#20026;&#30495;&#65292;&#20250;&#31105;&#27490;&#19981;&#21516;HTTP&#35831;&#27714;&#20043;&#38388;TCP&#36830;&#25509;&#30340;&#37325;&#29992;&#12290;</span>
+    DisableKeepAlives <span style="color: #df005f; font-weight: bold;">bool</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;DisableCompression&#20026;&#30495;&#65292;&#20250;&#31105;&#27490;Transport&#22312;&#35831;&#27714;&#20013;&#27809;&#26377;Accept-Encoding&#22836;&#26102;&#65292;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20027;&#21160;&#28155;&#21152;"Accept-Encoding: gzip"&#22836;&#65292;&#20197;&#33719;&#21462;&#21387;&#32553;&#25968;&#25454;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;Transport&#33258;&#24049;&#35831;&#27714;gzip&#24182;&#24471;&#21040;&#20102;&#21387;&#32553;&#21518;&#30340;&#22238;&#22797;&#65292;&#23427;&#20250;&#20027;&#21160;&#35299;&#21387;&#32553;&#22238;&#22797;&#30340;&#20027;&#20307;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20294;&#22914;&#26524;&#29992;&#25143;&#26174;&#24335;&#30340;&#35831;&#27714;gzip&#21387;&#32553;&#25968;&#25454;&#65292;Transport&#26159;&#19981;&#20250;&#20027;&#21160;&#35299;&#21387;&#32553;&#30340;&#12290;</span>
+    DisableCompression <span style="color: #df005f; font-weight: bold;">bool</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;MaxIdleConnsPerHost!=0&#65292;&#20250;&#25511;&#21046;&#27599;&#20010;&#20027;&#26426;&#19979;&#30340;&#26368;&#22823;&#38386;&#32622;&#36830;&#25509;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;MaxIdleConnsPerHost==0&#65292;&#20250;&#20351;&#29992;DefaultMaxIdleConnsPerHost&#12290;</span>
+    MaxIdleConnsPerHost <span style="color: #df005f; font-weight: bold;">int</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">ResponseHeaderTimeout&#25351;&#23450;&#22312;&#21457;&#36865;&#23436;&#35831;&#27714;&#65288;&#21253;&#25324;&#20854;&#21487;&#33021;&#30340;&#20027;&#20307;&#65289;&#20043;&#21518;&#65292;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#31561;&#24453;&#25509;&#25910;&#26381;&#21153;&#31471;&#30340;&#22238;&#22797;&#30340;&#22836;&#22495;&#30340;&#26368;&#22823;&#26102;&#38388;&#12290;&#38646;&#20540;&#34920;&#31034;&#19981;&#35774;&#32622;&#36229;&#26102;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35813;&#26102;&#38388;&#19981;&#21253;&#25324;&#33719;&#21462;&#22238;&#22797;&#20027;&#20307;&#30340;&#26102;&#38388;&#12290;</span>
+    ResponseHeaderTimeout <span style="color: #df005f; font-weight: bold;">time.Duration</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20869;&#21547;&#38544;&#34255;&#25110;&#38750;&#23548;&#20986;&#23383;&#27573;</span>
+}
+</pre>
+</div>
+
+<p>
+Transport类型实现了RoundTripper接口，支持http、https和http/https代理。Transport类型可以缓存连接以在未来重用。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">DefaultTransport</span> <span style="color: #df005f; font-weight: bold;">RoundTripper</span> = &amp;<span style="color: #df005f; font-weight: bold;">Transport</span>{
+    <span style="color: #d75fd7;">Proxy</span>: ProxyFromEnvironment,
+    <span style="color: #d75fd7;">Dial</span>: (&amp;<span style="color: #df005f; font-weight: bold;">net.Dialer</span>{
+        <span style="color: #d75fd7;">Timeout</span>:   <span style="color: #d75fd7;">30</span> * time.Second,
+        <span style="color: #d75fd7;">KeepAlive</span>: <span style="color: #d75fd7;">30</span> * time.Second,
+    }).Dial,
+    <span style="color: #d75fd7;">TLSHandshakeTimeout</span>: <span style="color: #d75fd7;">10</span> * time.Second,
+}
+</pre>
+</div>
+
+<p>
+DefaultTransport是被包变量DefaultClient使用的默认RoundTripper接口。它会根据需要创建网络连接，并缓存以便在之后的请求中重用这些连接。它使用环境变量$HTTP_PROXY和$NO_PROXY（或$http_proxy和$no_proxy）指定的HTTP代理。<br>
+</p>
+</div>
+<div id="outline-container-org0c88d2b" class="outline-3">
+<h3 id="org0c88d2b">func (*Transport) RegisterProtocol</h3>
+<div class="outline-text-3" id="text-org0c88d2b">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">Transport</span>) <span style="color: #d75fd7; font-weight: bold;">RegisterProtocol</span>(<span style="color: #8787d7;">scheme</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">rt</span> <span style="color: #df005f; font-weight: bold;">RoundTripper</span>)
+</pre>
+</div>
+
+<p>
+RegisterProtocol注册一个新的名为scheme的协议。t会将使用scheme协议的请求转交给rt。rt有责任模拟HTTP请求的语义。<br>
+</p>
+
+<p>
+RegisterProtocol可以被其他包用于提供"ftp"或"file"等协议的实现。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org04a8477" class="outline-3">
+<h3 id="org04a8477">func (*Transport) RoundTrip</h3>
+<div class="outline-text-3" id="text-org04a8477">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">Transport</span>) <span style="color: #d75fd7; font-weight: bold;">RoundTrip</span>(<span style="color: #8787d7;">req</span> *<span style="color: #df005f; font-weight: bold;">Request</span>) (<span style="color: #8787d7;">resp</span> *<span style="color: #df005f; font-weight: bold;">Response</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+RoundTrip方法实现了RoundTripper接口。<br>
+</p>
+
+<p>
+高层次的HTTP客户端支持（如管理cookie和重定向）请参见Get、Post等函数和Client类型。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4794d6b" class="outline-3">
+<h3 id="org4794d6b">func (*Transport) CloseIdleConnections</h3>
+<div class="outline-text-3" id="text-org4794d6b">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">Transport</span>) <span style="color: #d75fd7; font-weight: bold;">CloseIdleConnections</span>()
+</pre>
+</div>
+
+<p>
+CloseIdleConnections关闭所有之前的请求建立但目前处于闲置状态的连接。本方法不会中断正在使用的连接。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc733178" class="outline-3">
+<h3 id="orgc733178">func (*Transport) CancelRequest</h3>
+<div class="outline-text-3" id="text-orgc733178">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">Transport</span>) <span style="color: #d75fd7; font-weight: bold;">CancelRequest</span>(<span style="color: #8787d7;">req</span> *<span style="color: #df005f; font-weight: bold;">Request</span>)
+</pre>
+</div>
+
+<p>
+CancelRequest通过关闭请求所在的连接取消一个执行中的请求。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org32b1bec" class="outline-2">
+<h2 id="org32b1bec">type Client</h2>
+<div class="outline-text-2" id="text-org32b1bec">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Client</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Transport&#25351;&#23450;&#25191;&#34892;&#29420;&#31435;&#12289;&#21333;&#27425;HTTP&#35831;&#27714;&#30340;&#26426;&#21046;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;Transport&#20026;nil&#65292;&#21017;&#20351;&#29992;DefaultTransport&#12290;</span>
+    Transport <span style="color: #df005f; font-weight: bold;">RoundTripper</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">CheckRedirect&#25351;&#23450;&#22788;&#29702;&#37325;&#23450;&#21521;&#30340;&#31574;&#30053;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;CheckRedirect&#19981;&#20026;nil&#65292;&#23458;&#25143;&#31471;&#20250;&#22312;&#25191;&#34892;&#37325;&#23450;&#21521;&#20043;&#21069;&#35843;&#29992;&#26412;&#20989;&#25968;&#23383;&#27573;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21442;&#25968;req&#21644;via&#26159;&#23558;&#35201;&#25191;&#34892;&#30340;&#35831;&#27714;&#21644;&#24050;&#32463;&#25191;&#34892;&#30340;&#35831;&#27714;&#65288;&#20999;&#29255;&#65292;&#36234;&#26032;&#30340;&#35831;&#27714;&#36234;&#38752;&#21518;&#65289;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;CheckRedirect&#36820;&#22238;&#19968;&#20010;&#38169;&#35823;&#65292;&#26412;&#31867;&#22411;&#30340;Get&#26041;&#27861;&#19981;&#20250;&#21457;&#36865;&#35831;&#27714;req&#65292;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#32780;&#26159;&#36820;&#22238;&#20043;&#21069;&#24471;&#21040;&#30340;&#26368;&#21518;&#19968;&#20010;&#22238;&#22797;&#21644;&#35813;&#38169;&#35823;&#12290;&#65288;&#21253;&#35013;&#36827;url.Error&#31867;&#22411;&#37324;&#65289;</span>
+    <span style="color: #008787; background-color: #262626;">//</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;CheckRedirect&#20026;nil&#65292;&#20250;&#37319;&#29992;&#40664;&#35748;&#31574;&#30053;&#65306;&#36830;&#32493;10&#27492;&#35831;&#27714;&#21518;&#20572;&#27490;&#12290;</span>
+    CheckRedirect <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">req</span> *<span style="color: #df005f; font-weight: bold;">Request</span>, <span style="color: #8787d7;">via</span> []*<span style="color: #df005f; font-weight: bold;">Request</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Jar&#25351;&#23450;cookie&#31649;&#29702;&#22120;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;Jar&#20026;nil&#65292;&#35831;&#27714;&#20013;&#19981;&#20250;&#21457;&#36865;cookie&#65292;&#22238;&#22797;&#20013;&#30340;cookie&#20250;&#34987;&#24573;&#30053;&#12290;</span>
+    Jar <span style="color: #df005f; font-weight: bold;">CookieJar</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Timeout&#25351;&#23450;&#26412;&#31867;&#22411;&#30340;&#20540;&#25191;&#34892;&#35831;&#27714;&#30340;&#26102;&#38388;&#38480;&#21046;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35813;&#36229;&#26102;&#38480;&#21046;&#21253;&#25324;&#36830;&#25509;&#26102;&#38388;&#12289;&#37325;&#23450;&#21521;&#21644;&#35835;&#21462;&#22238;&#22797;&#20027;&#20307;&#30340;&#26102;&#38388;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35745;&#26102;&#22120;&#20250;&#22312;Head&#12289;Get&#12289;Post&#25110;Do&#26041;&#27861;&#36820;&#22238;&#21518;&#32487;&#32493;&#36816;&#20316;&#24182;&#22312;&#36229;&#26102;&#21518;&#20013;&#26029;&#22238;&#22797;&#20027;&#20307;&#30340;&#35835;&#21462;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">//</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Timeout&#20026;&#38646;&#20540;&#34920;&#31034;&#19981;&#35774;&#32622;&#36229;&#26102;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">//</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Client&#23454;&#20363;&#30340;Transport&#23383;&#27573;&#24517;&#39035;&#25903;&#25345;CancelRequest&#26041;&#27861;&#65292;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21542;&#21017;Client&#20250;&#22312;&#35797;&#22270;&#29992;Head&#12289;Get&#12289;Post&#25110;Do&#26041;&#27861;&#25191;&#34892;&#35831;&#27714;&#26102;&#36820;&#22238;&#38169;&#35823;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26412;&#31867;&#22411;&#30340;Transport&#23383;&#27573;&#40664;&#35748;&#20540;&#65288;DefaultTransport&#65289;&#25903;&#25345;CancelRequest&#26041;&#27861;&#12290;</span>
+    Timeout <span style="color: #df005f; font-weight: bold;">time.Duration</span>
+}
+</pre>
+</div>
+
+<p>
+Client类型代表HTTP客户端。它的零值（DefaultClient）是一个可用的使用DefaultTransport的客户端。<br>
+</p>
+
+<p>
+Client的Transport字段一般会含有内部状态（缓存TCP连接），因此Client类型值应尽量被重用而不是每次需要都创建新的。Client类型值可以安全的被多个go程同时使用。<br>
+</p>
+
+<p>
+Client类型的层次比RoundTripper接口（如Transport）高，还会管理HTTP的cookie和重定向等细节。<br>
+</p>
+</div>
+<div id="outline-container-orgcda2c26" class="outline-3">
+<h3 id="orgcda2c26">func (*Client) Do</h3>
+<div class="outline-text-3" id="text-orgcda2c26">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">Client</span>) <span style="color: #d75fd7; font-weight: bold;">Do</span>(<span style="color: #8787d7;">req</span> *<span style="color: #df005f; font-weight: bold;">Request</span>) (<span style="color: #8787d7;">resp</span> *<span style="color: #df005f; font-weight: bold;">Response</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+Do方法发送请求，返回HTTP回复。它会遵守客户端c设置的策略（如重定向、cookie、认证）。<br>
+</p>
+
+<p>
+如果客户端的策略（如重定向）返回错误或存在HTTP协议错误时，本方法将返回该错误；如果回应的状态码不是2xx，本方法并不会返回错误。<br>
+</p>
+
+<p>
+如果返回值err为nil，resp.Body总是非nil的，调用者应该在读取完resp.Body后关闭它。如果返回值resp的主体未关闭，c下层的RoundTripper接口（一般为Transport类型）可能无法重用resp主体下层保持的TCP连接去执行之后的请求。<br>
+</p>
+
+<p>
+请求的主体，如果非nil，会在执行后被c.Transport关闭，即使出现错误。<br>
+</p>
+
+<p>
+一般应使用Get、Post或PostForm方法代替Do方法。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd26d926" class="outline-3">
+<h3 id="orgd26d926">func (*Client) Head</h3>
+<div class="outline-text-3" id="text-orgd26d926">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">Client</span>) <span style="color: #d75fd7; font-weight: bold;">Head</span>(<span style="color: #8787d7;">url</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #8787d7;">resp</span> *<span style="color: #df005f; font-weight: bold;">Response</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+Head向指定的URL发出一个HEAD请求，如果回应的状态码如下，Head会在调用c.CheckRedirect后执行重定向：<br>
+</p>
+
+<pre class="example" id="orgae5f315">
+301 (Moved Permanently)
+302 (Found)
+303 (See Other)
+307 (Temporary Redirect)
+</pre>
+</div>
+</div>
+<div id="outline-container-orgeb5ed7a" class="outline-3">
+<h3 id="orgeb5ed7a">func (*Client) Get</h3>
+<div class="outline-text-3" id="text-orgeb5ed7a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">Client</span>) <span style="color: #d75fd7; font-weight: bold;">Get</span>(<span style="color: #8787d7;">url</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #8787d7;">resp</span> *<span style="color: #df005f; font-weight: bold;">Response</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+Get向指定的URL发出一个GET请求，如果回应的状态码如下，Get会在调用c.CheckRedirect后执行重定向：<br>
+</p>
+
+<pre class="example" id="orgb3a8878">
+301 (Moved Permanently)
+302 (Found)
+303 (See Other)
+307 (Temporary Redirect)
+</pre>
+
+<p>
+如果c.CheckRedirect执行失败或存在HTTP协议错误时，本方法将返回该错误；如果回应的状态码不是2xx，本方法并不会返回错误。如果返回值err为nil，resp.Body总是非nil的，调用者应该在读取完resp.Body后关闭它。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org74c2332" class="outline-3">
+<h3 id="org74c2332">func (*Client) Post</h3>
+<div class="outline-text-3" id="text-org74c2332">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">Client</span>) <span style="color: #d75fd7; font-weight: bold;">Post</span>(<span style="color: #8787d7;">url</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">bodyType</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">body</span> <span style="color: #df005f; font-weight: bold;">io.Reader</span>) (<span style="color: #8787d7;">resp</span> *<span style="color: #df005f; font-weight: bold;">Response</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+Post向指定的URL发出一个POST请求。bodyType为POST数据的类型， body为POST数据，作为请求的主体。如果参数body实现了io.Closer接口，它会在发送请求后被关闭。调用者有责任在读取完返回值resp的主体后关闭它。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd14b976" class="outline-3">
+<h3 id="orgd14b976">func (*Client) PostForm</h3>
+<div class="outline-text-3" id="text-orgd14b976">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">Client</span>) <span style="color: #d75fd7; font-weight: bold;">PostForm</span>(<span style="color: #8787d7;">url</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">data</span> <span style="color: #df005f; font-weight: bold;">url.Values</span>) (<span style="color: #8787d7;">resp</span> *<span style="color: #df005f; font-weight: bold;">Response</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+PostForm向指定的URL发出一个POST请求，url.Values类型的data会被编码为请求的主体。POST数据的类型一般会设为"application/x-www-form-urlencoded"。如果返回值err为nil，resp.Body总是非nil的，调用者应该在读取完resp.Body后关闭它。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org5f4c1ed" class="outline-2">
+<h2 id="org5f4c1ed">type Handler</h2>
+<div class="outline-text-2" id="text-org5f4c1ed">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Handler</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+    <span style="color: #d75fd7; font-weight: bold;">ServeHTTP</span>(<span style="color: #df005f; font-weight: bold;">ResponseWriter</span>, *<span style="color: #df005f; font-weight: bold;">Request</span>)
+}
+</pre>
+</div>
+
+<p>
+实现了Handler接口的对象可以注册到HTTP服务端，为特定的路径及其子树提供服务。<br>
+</p>
+
+<p>
+ServeHTTP应该将回复的头域和数据写入ResponseWriter接口然后返回。返回标志着该请求已经结束，HTTP服务端可以转移向该连接上的下一个请求。<br>
+</p>
+</div>
+<div id="outline-container-orge1cca92" class="outline-3">
+<h3 id="orge1cca92">func NotFoundHandler</h3>
+<div class="outline-text-3" id="text-orge1cca92">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">NotFoundHandler</span>() <span style="color: #df005f; font-weight: bold;">Handler</span>
+</pre>
+</div>
+
+<p>
+NotFoundHandler返回一个简单的请求处理器，该处理器会对每个请求都回复"404 page not found"。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org7e2c01c" class="outline-3">
+<h3 id="org7e2c01c">func RedirectHandler</h3>
+<div class="outline-text-3" id="text-org7e2c01c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">RedirectHandler</span>(<span style="color: #8787d7;">url</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">code</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">Handler</span>
+</pre>
+</div>
+
+<p>
+RedirectHandler返回一个请求处理器，该处理器会对每个请求都使用状态码code重定向到网址url。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga390470" class="outline-3">
+<h3 id="orga390470">func TimeoutHandler</h3>
+<div class="outline-text-3" id="text-orga390470">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">TimeoutHandler</span>(<span style="color: #8787d7;">h</span> <span style="color: #df005f; font-weight: bold;">Handler</span>, <span style="color: #8787d7;">dt</span> <span style="color: #df005f; font-weight: bold;">time.Duration</span>, <span style="color: #8787d7;">msg</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">Handler</span>
+</pre>
+</div>
+
+<p>
+TimeoutHandler返回一个采用指定时间限制的请求处理器。<br>
+</p>
+
+<p>
+返回的Handler会调用h.ServeHTTP去处理每个请求，但如果某一次调用耗时超过了时间限制，该处理器会回复请求状态码503 Service Unavailable，并将msg作为回复的主体（如果msg为空字符串，将发送一个合理的默认信息）。在超时后，h对它的ResponseWriter接口参数的写入操作会返回ErrHandlerTimeout。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8501566" class="outline-3">
+<h3 id="org8501566">func StripPrefix</h3>
+<div class="outline-text-3" id="text-org8501566">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">StripPrefix</span>(<span style="color: #8787d7;">prefix</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">h</span> <span style="color: #df005f; font-weight: bold;">Handler</span>) <span style="color: #df005f; font-weight: bold;">Handler</span>
+</pre>
+</div>
+
+<p>
+StripPrefix返回一个处理器，该处理器会将请求的URL.Path字段中给定前缀prefix去除后再交由h处理。StripPrefix会向URL.Path字段中没有给定前缀的请求回复404 page not found。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">To serve a directory on disk (/tmp) under an alternate URL</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">path (/tmpfiles/), use StripPrefix to modify the request</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">URL's path before the FileServer sees it:</span>
+http.<span style="color: #d75fd7; font-weight: bold;">Handle</span>(<span style="color: #2aa198;">"/tmpfiles/"</span>, http.<span style="color: #d75fd7; font-weight: bold;">StripPrefix</span>(<span style="color: #2aa198;">"/tmpfiles/"</span>, http.<span style="color: #d75fd7; font-weight: bold;">FileServer</span>(http.<span style="color: #d75fd7; font-weight: bold;">Dir</span>(<span style="color: #2aa198;">"/tmp"</span>))))
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb7ce565" class="outline-2">
+<h2 id="orgb7ce565">type HandlerFunc</h2>
+<div class="outline-text-2" id="text-orgb7ce565">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">HandlerFunc</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #df005f; font-weight: bold;">ResponseWriter</span>, *<span style="color: #df005f; font-weight: bold;">Request</span>)
+</pre>
+</div>
+
+<p>
+HandlerFunc type是一个适配器，通过类型转换让我们可以将普通的函数作为HTTP处理器使用。如果f是一个具有适当签名的函数，HandlerFunc(f)通过调用f实现了Handler接口。<br>
+</p>
+</div>
+<div id="outline-container-org4dcacc5" class="outline-3">
+<h3 id="org4dcacc5">func (HandlerFunc) ServeHTTP</h3>
+<div class="outline-text-3" id="text-org4dcacc5">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">f</span> <span style="color: #df005f; font-weight: bold;">HandlerFunc</span>) <span style="color: #d75fd7; font-weight: bold;">ServeHTTP</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">ResponseWriter</span>, <span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Request</span>)
+</pre>
+</div>
+
+<p>
+ServeHTTP方法会调用f(w, r)<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgf66650d" class="outline-2">
+<h2 id="orgf66650d">type ServeMux</h2>
+<div class="outline-text-2" id="text-orgf66650d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">ServeMux</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20869;&#21547;&#38544;&#34255;&#25110;&#38750;&#23548;&#20986;&#23383;&#27573;</span>
+}
+</pre>
+</div>
+
+<p>
+ServeMux类型是HTTP请求的多路转接器。它会将每一个接收的请求的URL与一个注册模式的列表进行匹配，并调用和URL最匹配的模式的处理器。<br>
+</p>
+
+<p>
+模式是固定的、由根开始的路径，如"<i>favicon.ico"，或由根开始的子树，如"/images</i>"（注意结尾的斜杠）。较长的模式优先于较短的模式，因此如果模式"<i>images</i>"和"<i>images/thumbnails</i>"都注册了处理器，后一个处理器会用于路径以"<i>images/thumbnails</i>"开始的请求，前一个处理器会接收到其余的路径在"<i>images</i>"子树下的请求。<br>
+</p>
+
+<p>
+注意，因为以斜杠结尾的模式代表一个由根开始的子树，模式"<i>"会匹配所有的未被其他注册的模式匹配的路径，而不仅仅是路径"</i>"。<br>
+</p>
+
+<p>
+模式也能（可选地）以主机名开始，表示只匹配该主机上的路径。指定主机的模式优先于一般的模式，因此一个注册了两个模式"<i>codesearch"和"codesearch.google.com</i>"的处理器不会接管目标为"<a href="http://www.google.com/%22%E7%9A%84%E8%AF%B7%E6%B1%82">http://www.google.com/%22%E7%9A%84%E8%AF%B7%E6%B1%82</a>。<br>
+</p>
+
+<p>
+ServeMux还会注意到请求的URL路径的无害化，将任何路径中包含"."或".."元素的请求重定向到等价的没有这两种元素的URL。（参见path.Clean函数）<br>
+</p>
+</div>
+<div id="outline-container-orgae63680" class="outline-3">
+<h3 id="orgae63680">func NewServeMux</h3>
+<div class="outline-text-3" id="text-orgae63680">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">NewServeMux</span>() *<span style="color: #df005f; font-weight: bold;">ServeMux</span>
+</pre>
+</div>
+
+<p>
+NewServeMux创建并返回一个新的*ServeMux<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd4d04f2" class="outline-3">
+<h3 id="orgd4d04f2">func (*ServeMux) Handle</h3>
+<div class="outline-text-3" id="text-orgd4d04f2">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">mux</span> *<span style="color: #df005f; font-weight: bold;">ServeMux</span>) <span style="color: #d75fd7; font-weight: bold;">Handle</span>(<span style="color: #8787d7;">pattern</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">handler</span> <span style="color: #df005f; font-weight: bold;">Handler</span>)
+</pre>
+</div>
+
+<p>
+Handle注册HTTP处理器handler和对应的模式pattern。如果该模式已经注册有一个处理器，Handle会panic。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">mux</span> := http.<span style="color: #d75fd7; font-weight: bold;">NewServeMux</span>()
+mux.<span style="color: #d75fd7; font-weight: bold;">Handle</span>(<span style="color: #2aa198;">"/api/"</span>, <span style="color: #df005f; font-weight: bold;">apiHandler</span>{})
+mux.<span style="color: #d75fd7; font-weight: bold;">HandleFunc</span>(<span style="color: #2aa198;">"/"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #8787d7;">req</span> *<span style="color: #df005f; font-weight: bold;">http.Request</span>) {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">The "/" pattern matches everything, so we need to check</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">that we're at the root here.</span>
+    <span style="color: #268bd2; font-weight: bold;">if</span> req.URL.Path != <span style="color: #2aa198;">"/"</span> {
+        http.<span style="color: #d75fd7; font-weight: bold;">NotFound</span>(w, req)
+        <span style="color: #268bd2; font-weight: bold;">return</span>
+    }
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Fprintf</span>(w, <span style="color: #2aa198;">"Welcome to the home page!"</span>)
+})
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgceda789" class="outline-3">
+<h3 id="orgceda789">func (*ServeMux) HandleFunc</h3>
+<div class="outline-text-3" id="text-orgceda789">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">mux</span> *<span style="color: #df005f; font-weight: bold;">ServeMux</span>) <span style="color: #d75fd7; font-weight: bold;">HandleFunc</span>(<span style="color: #8787d7;">pattern</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">handler</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #df005f; font-weight: bold;">ResponseWriter</span>, *<span style="color: #df005f; font-weight: bold;">Request</span>))
+</pre>
+</div>
+
+<p>
+HandleFunc注册一个处理器函数handler和对应的模式pattern。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9ed9ec3" class="outline-3">
+<h3 id="org9ed9ec3">func (*ServeMux) Handler</h3>
+<div class="outline-text-3" id="text-org9ed9ec3">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">mux</span> *<span style="color: #df005f; font-weight: bold;">ServeMux</span>) <span style="color: #d75fd7; font-weight: bold;">Handler</span>(<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Request</span>) (<span style="color: #8787d7;">h</span> <span style="color: #df005f; font-weight: bold;">Handler</span>, <span style="color: #8787d7;">pattern</span> <span style="color: #df005f; font-weight: bold;">string</span>)
+</pre>
+</div>
+
+<p>
+Handler根据r.Method、r.Host和r.URL.Path等数据，返回将用于处理该请求的HTTP处理器。它总是返回一个非nil的处理器。如果路径不是它的规范格式，将返回内建的用于重定向到等价的规范路径的处理器。<br>
+</p>
+
+<p>
+Handler也会返回匹配该请求的的已注册模式；在内建重定向处理器的情况下，pattern会在重定向后进行匹配。如果没有已注册模式可以应用于该请求，本方法将返回一个内建的"404 page not found"处理器和一个空字符串模式。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org6390588" class="outline-3">
+<h3 id="org6390588">func (*ServeMux) ServeHTTP</h3>
+<div class="outline-text-3" id="text-org6390588">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">mux</span> *<span style="color: #df005f; font-weight: bold;">ServeMux</span>) <span style="color: #d75fd7; font-weight: bold;">ServeHTTP</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">ResponseWriter</span>, <span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Request</span>)
+</pre>
+</div>
+
+<p>
+ServeHTTP将请求派遣到与请求的URL最匹配的模式对应的处理器。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org7becb6d" class="outline-2">
+<h2 id="org7becb6d">type Server</h2>
+<div class="outline-text-2" id="text-org7becb6d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Server</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    Addr           <span style="color: #df005f; font-weight: bold;">string</span>        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#30417;&#21548;&#30340;TCP&#22320;&#22336;&#65292;&#22914;&#26524;&#20026;&#31354;&#23383;&#31526;&#20018;&#20250;&#20351;&#29992;":http"</span>
+    Handler        <span style="color: #df005f; font-weight: bold;">Handler</span>       <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35843;&#29992;&#30340;&#22788;&#29702;&#22120;&#65292;&#22914;&#20026;nil&#20250;&#35843;&#29992;http.DefaultServeMux</span>
+    ReadTimeout    <span style="color: #df005f; font-weight: bold;">time.Duration</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35831;&#27714;&#30340;&#35835;&#21462;&#25805;&#20316;&#22312;&#36229;&#26102;&#21069;&#30340;&#26368;&#22823;&#25345;&#32493;&#26102;&#38388;</span>
+    WriteTimeout   <span style="color: #df005f; font-weight: bold;">time.Duration</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22238;&#22797;&#30340;&#20889;&#20837;&#25805;&#20316;&#22312;&#36229;&#26102;&#21069;&#30340;&#26368;&#22823;&#25345;&#32493;&#26102;&#38388;</span>
+    MaxHeaderBytes <span style="color: #df005f; font-weight: bold;">int</span>           <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35831;&#27714;&#30340;&#22836;&#22495;&#26368;&#22823;&#38271;&#24230;&#65292;&#22914;&#20026;0&#21017;&#29992;DefaultMaxHeaderBytes</span>
+    TLSConfig      *<span style="color: #df005f; font-weight: bold;">tls.Config</span>   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21487;&#36873;&#30340;TLS&#37197;&#32622;&#65292;&#29992;&#20110;ListenAndServeTLS&#26041;&#27861;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">TLSNextProto&#65288;&#21487;&#36873;&#22320;&#65289;&#25351;&#23450;&#19968;&#20010;&#20989;&#25968;&#26469;&#22312;&#19968;&#20010;NPN&#22411;&#21327;&#35758;&#21319;&#32423;&#20986;&#29616;&#26102;&#25509;&#31649;TLS&#36830;&#25509;&#30340;&#25152;&#26377;&#26435;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26144;&#23556;&#30340;&#38190;&#20026;&#21830;&#35848;&#30340;&#21327;&#35758;&#21517;&#65307;&#26144;&#23556;&#30340;&#20540;&#20026;&#20989;&#25968;&#65292;&#35813;&#20989;&#25968;&#30340;Handler&#21442;&#25968;&#24212;&#22788;&#29702;HTTP&#35831;&#27714;&#65292;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#24182;&#19988;&#21021;&#22987;&#21270;Handler.ServeHTTP&#30340;*Request&#21442;&#25968;&#30340;TLS&#21644;RemoteAddr&#23383;&#27573;&#65288;&#22914;&#26524;&#26410;&#35774;&#32622;&#65289;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36830;&#25509;&#22312;&#20989;&#25968;&#36820;&#22238;&#26102;&#20250;&#33258;&#21160;&#20851;&#38381;&#12290;</span>
+    TLSNextProto <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #268bd2; font-weight: bold;">func</span>(*<span style="color: #df005f; font-weight: bold;">Server</span>, *<span style="color: #df005f; font-weight: bold;">tls.Conn</span>, <span style="color: #df005f; font-weight: bold;">Handler</span>)
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">ConnState&#23383;&#27573;&#25351;&#23450;&#19968;&#20010;&#21487;&#36873;&#30340;&#22238;&#35843;&#20989;&#25968;&#65292;&#35813;&#20989;&#25968;&#20250;&#22312;&#19968;&#20010;&#19982;&#23458;&#25143;&#31471;&#30340;&#36830;&#25509;&#25913;&#21464;&#29366;&#24577;&#26102;&#34987;&#35843;&#29992;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21442;&#35265;ConnState&#31867;&#22411;&#21644;&#30456;&#20851;&#24120;&#25968;&#33719;&#21462;&#32454;&#33410;&#12290;</span>
+    ConnState <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #df005f; font-weight: bold;">net.Conn</span>, <span style="color: #df005f; font-weight: bold;">ConnState</span>)
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">ErrorLog&#25351;&#23450;&#19968;&#20010;&#21487;&#36873;&#30340;&#26085;&#24535;&#35760;&#24405;&#22120;&#65292;&#29992;&#20110;&#35760;&#24405;&#25509;&#25910;&#36830;&#25509;&#26102;&#30340;&#38169;&#35823;&#21644;&#22788;&#29702;&#22120;&#19981;&#27491;&#24120;&#30340;&#34892;&#20026;&#12290;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#26412;&#23383;&#27573;&#20026;nil&#65292;&#26085;&#24535;&#20250;&#36890;&#36807;log&#21253;&#30340;&#26631;&#20934;&#26085;&#24535;&#35760;&#24405;&#22120;&#20889;&#20837;os.Stderr&#12290;</span>
+    ErrorLog *<span style="color: #df005f; font-weight: bold;">log.Logger</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20869;&#21547;&#38544;&#34255;&#25110;&#38750;&#23548;&#20986;&#23383;&#27573;</span>
+}
+</pre>
+</div>
+
+<p>
+Server类型定义了运行HTTP服务端的参数。Server的零值是合法的配置。<br>
+</p>
+</div>
+<div id="outline-container-orga3591a2" class="outline-3">
+<h3 id="orga3591a2">func (*Server) SetKeepAlivesEnabled</h3>
+<div class="outline-text-3" id="text-orga3591a2">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">s</span> *<span style="color: #df005f; font-weight: bold;">Server</span>) <span style="color: #d75fd7; font-weight: bold;">SetKeepAlivesEnabled</span>(<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">bool</span>)
+</pre>
+</div>
+
+<p>
+SetKeepAlivesEnabled控制是否允许HTTP闲置连接重用（keep-alive）功能。默认该功能总是被启用的。只有资源非常紧张的环境或者服务端在关闭进程中时，才应该关闭该功能。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2d1533c" class="outline-3">
+<h3 id="org2d1533c">func (*Server) Serve</h3>
+<div class="outline-text-3" id="text-org2d1533c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">srv</span> *<span style="color: #df005f; font-weight: bold;">Server</span>) <span style="color: #d75fd7; font-weight: bold;">Serve</span>(<span style="color: #8787d7;">l</span> <span style="color: #df005f; font-weight: bold;">net.Listener</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+
+<p>
+Serve会接手监听器l收到的每一个连接，并为每一个连接创建一个新的服务go程。该go程会读取请求，然后调用srv.Handler回复请求。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb5298a0" class="outline-3">
+<h3 id="orgb5298a0">func (*Server) ListenAndServe</h3>
+<div class="outline-text-3" id="text-orgb5298a0">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">srv</span> *<span style="color: #df005f; font-weight: bold;">Server</span>) <span style="color: #d75fd7; font-weight: bold;">ListenAndServe</span>() <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+
+<p>
+ListenAndServe监听srv.Addr指定的TCP地址，并且会调用Serve方法接收到的连接。如果srv.Addr为空字符串，会使用":http"。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga3cb30e" class="outline-3">
+<h3 id="orga3cb30e">func (*Server) ListenAndServeTLS</h3>
+<div class="outline-text-3" id="text-orga3cb30e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">srv</span> *<span style="color: #df005f; font-weight: bold;">Server</span>) <span style="color: #d75fd7; font-weight: bold;">ListenAndServeTLS</span>(<span style="color: #8787d7;">certFile</span>, <span style="color: #8787d7;">keyFile</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+
+<p>
+ListenAndServeTLS监听srv.Addr确定的TCP地址，并且会调用Serve方法处理接收到的连接。必须提供证书文件和对应的私钥文件。如果证书是由权威机构签发的，certFile参数必须是顺序串联的服务端证书和CA证书。如果srv.Addr为空字符串，会使用":https"。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgf09d496" class="outline-2">
+<h2 id="orgf09d496">type File</h2>
+<div class="outline-text-2" id="text-orgf09d496">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">File</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+    io.Closer
+    io.Reader
+    <span style="color: #d75fd7; font-weight: bold;">Readdir</span>(<span style="color: #8787d7;">count</span> <span style="color: #df005f; font-weight: bold;">int</span>) ([]<span style="color: #df005f; font-weight: bold;">os.FileInfo</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+    <span style="color: #d75fd7; font-weight: bold;">Seek</span>(<span style="color: #8787d7;">offset</span> <span style="color: #df005f; font-weight: bold;">int64</span>, <span style="color: #8787d7;">whence</span> <span style="color: #df005f; font-weight: bold;">int</span>) (<span style="color: #df005f; font-weight: bold;">int64</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+    <span style="color: #d75fd7; font-weight: bold;">Stat</span>() (<span style="color: #df005f; font-weight: bold;">os.FileInfo</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+}
+</pre>
+</div>
+
+<p>
+File是被FileSystem接口的Open方法返回的接口类型，可以被FileServer等函数用于文件访问服务。<br>
+</p>
+
+<p>
+该接口的方法的行为应该和*os.File类型的同名方法相同。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org67b55f5" class="outline-2">
+<h2 id="org67b55f5">type FileSystem</h2>
+<div class="outline-text-2" id="text-org67b55f5">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">FileSystem</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+    <span style="color: #d75fd7; font-weight: bold;">Open</span>(<span style="color: #8787d7;">name</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #df005f; font-weight: bold;">File</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+}
+</pre>
+</div>
+
+<p>
+FileSystem接口实现了对一系列命名文件的访问。文件路径的分隔符为'/'，不管主机操作系统的惯例如何。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org16c2efa" class="outline-2">
+<h2 id="org16c2efa">type Dir</h2>
+<div class="outline-text-2" id="text-org16c2efa">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Dir</span> <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+Dir使用限制到指定目录树的本地文件系统实现了http.FileSystem接口。空Dir被视为"."，即代表当前目录。<br>
+</p>
+</div>
+<div id="outline-container-org7ac047e" class="outline-3">
+<h3 id="org7ac047e">func (Dir) Open</h3>
+<div class="outline-text-3" id="text-org7ac047e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">d</span> <span style="color: #df005f; font-weight: bold;">Dir</span>) <span style="color: #d75fd7; font-weight: bold;">Open</span>(<span style="color: #8787d7;">name</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #df005f; font-weight: bold;">File</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orga1a148f" class="outline-2">
+<h2 id="orga1a148f">func NewFileTransport</h2>
+<div class="outline-text-2" id="text-orga1a148f">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">NewFileTransport</span>(<span style="color: #8787d7;">fs</span> <span style="color: #df005f; font-weight: bold;">FileSystem</span>) <span style="color: #df005f; font-weight: bold;">RoundTripper</span>
+</pre>
+</div>
+
+<p>
+NewFileTransport返回一个RoundTripper接口，使用FileSystem接口fs提供文件访问服务。 返回的RoundTripper接口会忽略接收的请求的URL主机及其他绝大多数属性。<br>
+</p>
+
+<p>
+NewFileTransport函数的典型使用情况是给Transport类型的值注册"file"协议，如下所示：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">t</span> := &amp;<span style="color: #df005f; font-weight: bold;">http.Transport</span>{}
+t.<span style="color: #d75fd7; font-weight: bold;">RegisterProtocol</span>(<span style="color: #2aa198;">"file"</span>, http.<span style="color: #d75fd7; font-weight: bold;">NewFileTransport</span>(http.<span style="color: #d75fd7; font-weight: bold;">Dir</span>(<span style="color: #2aa198;">"/"</span>)))
+<span style="color: #8787d7;">c</span> := &amp;<span style="color: #df005f; font-weight: bold;">http.Client</span>{<span style="color: #d75fd7;">Transport</span>: t}
+<span style="color: #8787d7;">res</span>, <span style="color: #8787d7;">err</span> := c.<span style="color: #d75fd7; font-weight: bold;">Get</span>(<span style="color: #2aa198;">"file:///etc/passwd"</span>)
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">...</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org789e9ed" class="outline-2">
+<h2 id="org789e9ed">func FileServer</h2>
+<div class="outline-text-2" id="text-org789e9ed">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">FileServer</span>(<span style="color: #8787d7;">root</span> <span style="color: #df005f; font-weight: bold;">FileSystem</span>) <span style="color: #df005f; font-weight: bold;">Handler</span>
+</pre>
+</div>
+
+<p>
+FileServer返回一个使用FileSystem接口root提供文件访问服务的HTTP处理器。要使用操作系统的FileSystem接口实现，可使用http.Dir：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">http.<span style="color: #d75fd7; font-weight: bold;">Handle</span>(<span style="color: #2aa198;">"/"</span>, http.<span style="color: #d75fd7; font-weight: bold;">FileServer</span>(http.<span style="color: #d75fd7; font-weight: bold;">Dir</span>(<span style="color: #2aa198;">"/tmp"</span>)))
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Simple static webserver:</span>
+log.<span style="color: #d75fd7; font-weight: bold;">Fatal</span>(http.<span style="color: #d75fd7; font-weight: bold;">ListenAndServe</span>(<span style="color: #2aa198;">":8080"</span>, http.<span style="color: #d75fd7; font-weight: bold;">FileServer</span>(http.<span style="color: #d75fd7; font-weight: bold;">Dir</span>(<span style="color: #2aa198;">"/usr/share/doc"</span>))))
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">To serve a directory on disk (/tmp) under an alternate URL</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">path (/tmpfiles/), use StripPrefix to modify the request</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">URL's path before the FileServer sees it:</span>
+http.<span style="color: #d75fd7; font-weight: bold;">Handle</span>(<span style="color: #2aa198;">"/tmpfiles/"</span>, http.<span style="color: #d75fd7; font-weight: bold;">StripPrefix</span>(<span style="color: #2aa198;">"/tmpfiles/"</span>, http.<span style="color: #d75fd7; font-weight: bold;">FileServer</span>(http.<span style="color: #d75fd7; font-weight: bold;">Dir</span>(<span style="color: #2aa198;">"/tmp"</span>))))
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org504b0f2" class="outline-2">
+<h2 id="org504b0f2">func ProxyURL</h2>
+<div class="outline-text-2" id="text-org504b0f2">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ProxyURL</span>(<span style="color: #8787d7;">fixedURL</span> *<span style="color: #df005f; font-weight: bold;">url.URL</span>) <span style="color: #268bd2; font-weight: bold;">func</span>(*<span style="color: #df005f; font-weight: bold;">Request</span>) (*<span style="color: #df005f; font-weight: bold;">url.URL</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+ProxyURL返回一个代理函数（用于Transport类型），该函数总是返回同一个URL。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5a98a74" class="outline-2">
+<h2 id="org5a98a74">func ProxyFromEnvironment</h2>
+<div class="outline-text-2" id="text-org5a98a74">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ProxyFromEnvironment</span>(<span style="color: #8787d7;">req</span> *<span style="color: #df005f; font-weight: bold;">Request</span>) (*<span style="color: #df005f; font-weight: bold;">url.URL</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+ProxyFromEnvironment使用环境变量$HTTP_PROXY和$NO_PROXY(或$http_proxy和$no_proxy)的配置返回用于req的代理。如果代理环境不合法将返回错误；如果环境未设定代理或者给定的request不应使用代理时，将返回(nil, nil)；如果req.URL.Host字段是"localhost"（可以有端口号，也可以没有），也会返回(nil, nil)。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgea131cb" class="outline-2">
+<h2 id="orgea131cb">func SetCookie</h2>
+<div class="outline-text-2" id="text-orgea131cb">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">SetCookie</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">ResponseWriter</span>, <span style="color: #8787d7;">cookie</span> *<span style="color: #df005f; font-weight: bold;">Cookie</span>)
+</pre>
+</div>
+
+<p>
+SetCookie在w的头域中添加Set-Cookie头，该HTTP头的值为cookie。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgaf5d860" class="outline-2">
+<h2 id="orgaf5d860">func Redirect</h2>
+<div class="outline-text-2" id="text-orgaf5d860">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Redirect</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">ResponseWriter</span>, <span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Request</span>, <span style="color: #8787d7;">urlStr</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">code</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+</pre>
+</div>
+
+<p>
+Redirect回复请求一个重定向地址urlStr和状态码code。该重定向地址可以是相对于请求r的相对地址。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org92a9896" class="outline-2">
+<h2 id="org92a9896">func NotFound</h2>
+<div class="outline-text-2" id="text-org92a9896">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">NotFound</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">ResponseWriter</span>, <span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Request</span>)
+</pre>
+</div>
+
+<p>
+NotFound回复请求404状态码（not found：目标未发现）。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org11d7ed8" class="outline-2">
+<h2 id="org11d7ed8">func Error</h2>
+<div class="outline-text-2" id="text-org11d7ed8">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Error</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">ResponseWriter</span>, <span style="color: #8787d7;">error</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">code</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+</pre>
+</div>
+
+<p>
+Error使用指定的错误信息和状态码回复请求，将数据写入w。错误信息必须是明文。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8b20896" class="outline-2">
+<h2 id="org8b20896">func ServeContent</h2>
+<div class="outline-text-2" id="text-org8b20896">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ServeContent</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">ResponseWriter</span>, <span style="color: #8787d7;">req</span> *<span style="color: #df005f; font-weight: bold;">Request</span>, <span style="color: #8787d7;">name</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">modtime</span> <span style="color: #df005f; font-weight: bold;">time.Time</span>, <span style="color: #8787d7;">content</span> <span style="color: #df005f; font-weight: bold;">io.ReadSeeker</span>)
+</pre>
+</div>
+
+<p>
+ServeContent使用提供的ReadSeeker的内容回复请求。ServeContent比起io.Copy函数的主要优点，是可以处理范围类请求（只要一部分内容）、设置MIME类型，处理If-Modified-Since请求。<br>
+</p>
+
+<p>
+如果未设定回复的Content-Type头，本函数首先会尝试从name的文件扩展名推断数据类型；如果失败，会用读取content的第1块数据并提供给DetectContentType推断类型；之后会设置Content-Type头。参数name不会用于别的地方，甚至于它可以是空字符串，也永远不会发送到回复里。<br>
+</p>
+
+<p>
+如果modtime不是Time零值，函数会在回复的头域里设置Last-Modified头。如果请求的头域包含If-Modified-Since头，本函数会使用modtime参数来确定是否应该发送内容。如果调用者设置了w的ETag头，ServeContent会使用它处理包含If-Range头和If-None-Match头的请求。<br>
+</p>
+
+<p>
+参数content的Seek方法必须有效：函数使用Seek来确定它的大小。<br>
+</p>
+
+<p>
+注意：本包File接口和*os.File类型都实现了io.ReadSeeker接口。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga8c79f7" class="outline-2">
+<h2 id="orga8c79f7">func ServeFile</h2>
+<div class="outline-text-2" id="text-orga8c79f7">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ServeFile</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">ResponseWriter</span>, <span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Request</span>, <span style="color: #8787d7;">name</span> <span style="color: #df005f; font-weight: bold;">string</span>)
+</pre>
+</div>
+
+<p>
+ServeFile回复请求name指定的文件或者目录的内容。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org020e38f" class="outline-2">
+<h2 id="org020e38f">func MaxBytesReader</h2>
+<div class="outline-text-2" id="text-org020e38f">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">MaxBytesReader</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">ResponseWriter</span>, <span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">io.ReadCloser</span>, <span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int64</span>) <span style="color: #df005f; font-weight: bold;">io.ReadCloser</span>
+</pre>
+</div>
+
+<p>
+MaxBytesReader类似io.LimitReader，但它是用来限制接收到的请求的Body的大小的。不同于io.LimitReader，本函数返回一个ReadCloser，返回值的Read方法在读取的数据超过大小限制时会返回非EOF错误，其Close方法会关闭下层的io.ReadCloser接口r。<br>
+</p>
+
+<p>
+MaxBytesReader预防客户端因为意外或者蓄意发送的“大”请求，以避免尺寸过大的请求浪费服务端资源。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8f39bb3" class="outline-2">
+<h2 id="org8f39bb3">func Head</h2>
+<div class="outline-text-2" id="text-org8f39bb3">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Head</span>(<span style="color: #8787d7;">url</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #8787d7;">resp</span> *<span style="color: #df005f; font-weight: bold;">Response</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+Head向指定的URL发出一个HEAD请求，如果回应的状态码如下，Head会在调用c.CheckRedirect后执行重定向：<br>
+</p>
+
+<pre class="example" id="orga55cb04">
+301 (Moved Permanently)
+302 (Found)
+303 (See Other)
+307 (Temporary Redirect)
+</pre>
+
+<p>
+Head是对包变量DefaultClient的Head方法的包装。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org23b7052" class="outline-2">
+<h2 id="org23b7052">func Get</h2>
+<div class="outline-text-2" id="text-org23b7052">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Get</span>(<span style="color: #8787d7;">url</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #8787d7;">resp</span> *<span style="color: #df005f; font-weight: bold;">Response</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+Get 向指定的 URL 发出一个 GET 请求，如果回应的状态码如下，Get 会在调用 c.CheckRedirect 后执行重定向：<br>
+</p>
+
+<pre class="example" id="orgc27e652">
+301 (Moved Permanently)
+302 (Found)
+303 (See Other)
+307 (Temporary Redirect)
+</pre>
+
+<p>
+如果 c.CheckRedirect 执行失败或存在 HTTP 协议错误时，本方法将返回该错误；如果回应的状态码不是 2xx，本方法并不会返回错误。如果返回值 err 为 nil，resp.Body 总是非 nil 的，调用者应该在读取完 resp.Body 后关闭它。<br>
+</p>
+
+<p>
+Get 是对包变量 DefaultClient 的 Get 方法的包装。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">res</span>, <span style="color: #8787d7;">err</span> := http.<span style="color: #d75fd7; font-weight: bold;">Get</span>(<span style="color: #2aa198;">"http://www.google.com/robots.txt"</span>)
+<span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
+    log.<span style="color: #d75fd7; font-weight: bold;">Fatal</span>(err)
+}
+<span style="color: #8787d7;">robots</span>, <span style="color: #8787d7;">err</span> := ioutil.<span style="color: #d75fd7; font-weight: bold;">ReadAll</span>(res.Body)
+res.Body.<span style="color: #d75fd7; font-weight: bold;">Close</span>()
+<span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
+    log.<span style="color: #d75fd7; font-weight: bold;">Fatal</span>(err)
+}
+fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%s"</span>, robots)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org3d9adc4" class="outline-2">
+<h2 id="org3d9adc4">func Post</h2>
+<div class="outline-text-2" id="text-org3d9adc4">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Post</span>(<span style="color: #8787d7;">url</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">bodyType</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">body</span> <span style="color: #df005f; font-weight: bold;">io.Reader</span>) (<span style="color: #8787d7;">resp</span> *<span style="color: #df005f; font-weight: bold;">Response</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+Post向指定的URL发出一个POST请求。bodyType为POST数据的类型， body为POST数据，作为请求的主体。如果参数body实现了io.Closer接口，它会在发送请求后被关闭。调用者有责任在读取完返回值resp的主体后关闭它。<br>
+</p>
+
+<p>
+Post是对包变量DefaultClient的Post方法的包装。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org6afef87" class="outline-2">
+<h2 id="org6afef87">func PostForm</h2>
+<div class="outline-text-2" id="text-org6afef87">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">PostForm</span>(<span style="color: #8787d7;">url</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">data</span> <span style="color: #df005f; font-weight: bold;">url.Values</span>) (<span style="color: #8787d7;">resp</span> *<span style="color: #df005f; font-weight: bold;">Response</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+PostForm向指定的URL发出一个POST请求，url.Values类型的data会被编码为请求的主体。如果返回值err为nil，resp.Body总是非nil的，调用者应该在读取完resp.Body后关闭它。<br>
+</p>
+
+<p>
+PostForm是对包变量DefaultClient的PostForm方法的包装。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd2a2f79" class="outline-2">
+<h2 id="orgd2a2f79">func Handle</h2>
+<div class="outline-text-2" id="text-orgd2a2f79">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Handle</span>(<span style="color: #8787d7;">pattern</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">handler</span> <span style="color: #df005f; font-weight: bold;">Handler</span>)
+</pre>
+</div>
+
+<p>
+Handle注册HTTP处理器handler和对应的模式pattern（注册到DefaultServeMux）。如果该模式已经注册有一个处理器，Handle会panic。ServeMux的文档解释了模式的匹配机制。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf9ba566" class="outline-2">
+<h2 id="orgf9ba566">func HandleFunc</h2>
+<div class="outline-text-2" id="text-orgf9ba566">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">HandleFunc</span>(<span style="color: #8787d7;">pattern</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">handler</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #df005f; font-weight: bold;">ResponseWriter</span>, *<span style="color: #df005f; font-weight: bold;">Request</span>))
+</pre>
+</div>
+
+<p>
+HandleFunc注册一个处理器函数handler和对应的模式pattern（注册到DefaultServeMux）。ServeMux的文档解释了模式的匹配机制。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf2c75a8" class="outline-2">
+<h2 id="orgf2c75a8">func Serve</h2>
+<div class="outline-text-2" id="text-orgf2c75a8">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Serve</span>(<span style="color: #8787d7;">l</span> <span style="color: #df005f; font-weight: bold;">net.Listener</span>, <span style="color: #8787d7;">handler</span> <span style="color: #df005f; font-weight: bold;">Handler</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+
+<p>
+Serve会接手监听器l收到的每一个连接，并为每一个连接创建一个新的服务go程。该go程会读取请求，然后调用handler回复请求。handler参数一般会设为nil，此时会使用DefaultServeMux。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga5fbc28" class="outline-2">
+<h2 id="orga5fbc28">func ListenAndServe</h2>
+<div class="outline-text-2" id="text-orga5fbc28">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ListenAndServe</span>(<span style="color: #8787d7;">addr</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">handler</span> <span style="color: #df005f; font-weight: bold;">Handler</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+
+<p>
+ListenAndServe监听TCP地址addr，并且会使用handler参数调用Serve函数处理接收到的连接。handler参数一般会设为nil，此时会使用DefaultServeMux。<br>
+</p>
+
+<p>
+一个简单的服务端例子：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"io"</span>
+    <span style="color: #2aa198;">"net/http"</span>
+    <span style="color: #2aa198;">"log"</span>
+)
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">hello world, the web server</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">HelloServer</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #8787d7;">req</span> *<span style="color: #df005f; font-weight: bold;">http.Request</span>) {
+    io.<span style="color: #d75fd7; font-weight: bold;">WriteString</span>(w, <span style="color: #2aa198;">"hello, world!\n"</span>)
+}
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    http.<span style="color: #d75fd7; font-weight: bold;">HandleFunc</span>(<span style="color: #2aa198;">"/hello"</span>, HelloServer)
+    <span style="color: #8787d7;">err</span> := http.<span style="color: #d75fd7; font-weight: bold;">ListenAndServe</span>(<span style="color: #2aa198;">":12345"</span>, <span style="color: #d75fd7;">nil</span>)
+    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
+        log.<span style="color: #d75fd7; font-weight: bold;">Fatal</span>(<span style="color: #2aa198;">"ListenAndServe: "</span>, err)
+    }
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org895aa21" class="outline-2">
+<h2 id="org895aa21">func ListenAndServeTLS</h2>
+<div class="outline-text-2" id="text-org895aa21">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ListenAndServeTLS</span>(<span style="color: #8787d7;">addr</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">certFile</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">keyFile</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">handler</span> <span style="color: #df005f; font-weight: bold;">Handler</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+
+<p>
+ListenAndServeTLS函数和ListenAndServe函数的行为基本一致，除了它期望HTTPS连接之外。此外，必须提供证书文件和对应的私钥文件。如果证书是由权威机构签发的，certFile参数必须是顺序串联的服务端证书和CA证书。如果srv.Addr为空字符串，会使用":https"。<br>
+</p>
+
+<p>
+一个简单的服务端例子：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"log"</span>
+    <span style="color: #2aa198;">"net/http"</span>
+)
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">handler</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #8787d7;">req</span> *<span style="color: #df005f; font-weight: bold;">http.Request</span>) {
+    w.<span style="color: #d75fd7; font-weight: bold;">Header</span>().<span style="color: #d75fd7; font-weight: bold;">Set</span>(<span style="color: #2aa198;">"Content-Type"</span>, <span style="color: #2aa198;">"text/plain"</span>)
+    w.<span style="color: #d75fd7; font-weight: bold;">Write</span>([]<span style="color: #d75fd7; font-weight: bold;">byte</span>(<span style="color: #2aa198;">"This is an example server.\n"</span>))
+}
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    http.<span style="color: #d75fd7; font-weight: bold;">HandleFunc</span>(<span style="color: #2aa198;">"/"</span>, handler)
+    log.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"About to listen on 10443. Go to https://127.0.0.1:10443/"</span>)
+    <span style="color: #8787d7;">err</span> := http.<span style="color: #d75fd7; font-weight: bold;">ListenAndServeTLS</span>(<span style="color: #2aa198;">":10443"</span>, <span style="color: #2aa198;">"cert.pem"</span>, <span style="color: #2aa198;">"key.pem"</span>, <span style="color: #d75fd7;">nil</span>)
+    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
+        log.<span style="color: #d75fd7; font-weight: bold;">Fatal</span>(err)
+    }
+}
+</pre>
+</div>
+
+<p>
+程序员可以使用crypto/tls包的generate_cert.go文件来生成cert.pem和key.pem两个文件。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-10 15:02 Thu</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-18 Fri 18:03</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

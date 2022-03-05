@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-03-05 Sat 18:00 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HTTP 和 HTTPS</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">HTTP 和 HTTPS</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgbca159a">HTTP 和 HTTPS 有什么区别？</a></li>
+<li><a href="#orgaed7dbb">HTTPS 的连接过程</a></li>
+<li><a href="#org2097804">baidu.com 样例</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgbca159a" class="outline-2">
+<h2 id="orgbca159a">HTTP 和 HTTPS 有什么区别？</h2>
+<div class="outline-text-2" id="text-orgbca159a">
+<ol class="org-ol">
+<li>端口不同：HTTP使用的是80端口，HTTPS使用443端口；<br></li>
+<li>HTTP（超文本传输协议）信息是明文传输，HTTPS运行在SSL（Secure Socket Layer）之上，添加了加密和认证机制，更加安全；<br></li>
+<li>HTTPS由于加密解密会带来更大的CPU和内存开销；<br></li>
+<li>HTTPS通信需要证书，一般需要向证书颁发机构（CA）购买<br></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgaed7dbb" class="outline-2">
+<h2 id="orgaed7dbb">HTTPS 的连接过程</h2>
+<div class="outline-text-2" id="text-orgaed7dbb">
+<ol class="org-ol">
+<li>客户端向服务器发送请求，同时发送客户端支持的一套加密规则（包括对称加密、非对称加密、摘要算法）；<br></li>
+<li>服务器从中选出一组加密算法与 HASH 算法，并将自己的身份信息以证书的形式发回给浏览器。证书里面包含了网站地址，加密公钥（用于非对称加密），以及证书的颁发机构等信息（证书中的私钥只能用于服务器端进行解密）；<br></li>
+<li>客户端验证服务器的合法性，包括：证书是否过期，CA 是否可靠，发行者证书的公钥能否正确解开服务器证书的"发行者的数字签名"，服务器证书上的域名是否和服务器的实际域名相匹配；<br></li>
+<li>如果证书受信任，或者用户接收了不受信任的证书，浏览器会生成一个随机密钥（用于对称算法），并用服务器提供的公钥加密（采用非对称算法对密钥加密）；使用 HASH 算法对握手消息进行摘要计算，并对摘要使用之前产生的密钥加密（对称算法）；将加密后的随机密钥和摘要一起发送给服务器；<br></li>
+<li>服务器使用自己的私钥解密，得到对称加密的密钥，用这个密钥解密出 HASH 摘要值，并验证握手消息是否一致；如果一致，服务器使用对称加密的密钥加密握手消息发给浏览器；<br></li>
+<li>浏览器解密并验证摘要，若一致，则握手结束。之后的数据传送都使用对称加密的密钥进行加密；<br></li>
+</ol>
+
+<p>
+总结：非对称加密算法用于在握手过程中加密生成的密码；对称加密算法用于对真正传输的数据进行加密；HASH 算法用于验证数据的完整性。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2097804" class="outline-2">
+<h2 id="org2097804">baidu.com 样例</h2>
+<div class="outline-text-2" id="text-org2097804">
+<p>
+一种是原始的 302 跳转，服务器把所有的 HTTP 流量跳转到 HTTPS。但这样有一个漏洞，就是中间人可能在第一次访问站点的时候就劫持。 解决方法是引入 HSTS 机制，用户浏览器在访问站点的时候强制使用 HTTPS。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-03-05 17:03 Sat</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-03-05 Sat 18:00</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

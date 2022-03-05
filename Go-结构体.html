@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-14 Mon 17:55 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>结构体</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">结构体</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org4c4c0fa">类型别名和自定义类型</a>
+<ul>
+<li><a href="#orgf6f22aa">自定义类型</a></li>
+<li><a href="#orge0b7078">类型别名</a></li>
+<li><a href="#org3d35fe6">类型定义和类型别名的区别</a></li>
+</ul>
+</li>
+<li><a href="#org123b46d">结构体</a>
+<ul>
+<li><a href="#orge999e05">结构体的定义</a></li>
+<li><a href="#orgf60e064">结构体实例化</a></li>
+<li><a href="#org21b5d7c">基本实例化</a></li>
+</ul>
+</li>
+<li><a href="#org9540fdd">匿名结构体</a>
+<ul>
+<li><a href="#org97f2587">创建指针类型结构体</a></li>
+<li><a href="#org098ae90">取结构体的地址实例化</a></li>
+<li><a href="#org91af7cc">结构体默认值</a></li>
+<li><a href="#org61e2dec">使用键值对初始化</a></li>
+<li><a href="#orgb0fdae5">使用值的列表初始化</a></li>
+<li><a href="#orgdf4a0d2">结构体内存布局</a></li>
+<li><a href="#org1de3479">构造函数</a></li>
+<li><a href="#orgda5a48e">方法和接收者</a></li>
+<li><a href="#orgf844a44">指针类型的接收者</a></li>
+<li><a href="#org7fa76f0">值类型的接收者</a></li>
+<li><a href="#org3d619ee">什么时候应该使用指针类型接收者</a></li>
+<li><a href="#orgdc24242">任意类型添加方法</a></li>
+<li><a href="#org7665365">结构体的匿名字段</a></li>
+<li><a href="#orgcde5516">嵌套结构体</a></li>
+<li><a href="#org7093be2">嵌套匿名结构体</a>
+<ul>
+<li><a href="#orgd6dc80c">根据已有的结构体嵌套</a></li>
+<li><a href="#org5e3a89c">结构体中定义一个匿名结构体</a></li>
+<li><a href="#org760d58d">结构体嵌套匿名结构体的初始化</a></li>
+</ul>
+</li>
+<li><a href="#org5dbf349">嵌套结构体的字段名冲突</a></li>
+<li><a href="#orgaed2a98">结构体的 "继承"</a></li>
+<li><a href="#org7b052b7">结构体字段的可见性</a></li>
+<li><a href="#orga665021">结构体与 JSON 序列化</a></li>
+<li><a href="#org912432b">结构体标签（Tag）</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org4c4c0fa" class="outline-2">
+<h2 id="org4c4c0fa">类型别名和自定义类型</h2>
+<div class="outline-text-2" id="text-org4c4c0fa">
+</div>
+<div id="outline-container-orgf6f22aa" class="outline-3">
+<h3 id="orgf6f22aa">自定义类型</h3>
+<div class="outline-text-3" id="text-orgf6f22aa">
+<p>
+Go 语言使用 <code>type</code> 关键字来定义自定义类型。<br>
+</p>
+
+<p>
+自定义类型是定义了一个全新的类型。我们可以基于内置的基本类型定义，也可以通过struct定义。例如：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23558; MyInt &#23450;&#20041;&#20026; int &#31867;&#22411;</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">MyInt</span> <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+通过 <code>type</code> 关键字的定义， <code>MyInt</code> 就是一种新的类型，它具有 <code>int</code> 的特性。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge0b7078" class="outline-3">
+<h3 id="orge0b7078">类型别名</h3>
+<div class="outline-text-3" id="text-orge0b7078">
+<p>
+类型别名是 Go1.9 版本添加的新功能。<br>
+</p>
+
+<p>
+类型别名规定：TypeAlias 只是 Type 的别名，本质上 TypeAlias 与 Type 是同一个类型。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">TypeAlias</span> = <span style="color: #df005f; font-weight: bold;">Type</span>
+</pre>
+</div>
+
+<p>
+<code>rune</code> 和 <code>byte</code> 就是类型别名，他们的定义如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">byte</span> = <span style="color: #df005f; font-weight: bold;">uint8</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">rune</span> = <span style="color: #df005f; font-weight: bold;">int32</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org3d35fe6" class="outline-3">
+<h3 id="org3d35fe6">类型定义和类型别名的区别</h3>
+<div class="outline-text-3" id="text-org3d35fe6">
+<p>
+类型别名与类型定义表面上看只有一个等号的差异，我们通过下面的这段代码来理解它们之间的区别。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#31867;&#22411;&#23450;&#20041;</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">NewInt</span> <span style="color: #df005f; font-weight: bold;">int</span>
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#31867;&#22411;&#21035;&#21517;</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">MyInt</span> = <span style="color: #df005f; font-weight: bold;">int</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">a</span> <span style="color: #df005f; font-weight: bold;">NewInt</span>
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">b</span> <span style="color: #df005f; font-weight: bold;">MyInt</span>
+
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"type of a:%T\n"</span>, a) <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">type of a:main.NewInt</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"type of b:%T\n"</span>, b) <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">type of b:int</span>
+}
+</pre>
+</div>
+
+<p>
+结果显示 a 的类型是 main.NewInt，表示 main 包下定义的 NewInt 类型。b的类型是 int。MyInt 类型只会在代码中存在，编译完成时并不会有 MyInt 类型。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org123b46d" class="outline-2">
+<h2 id="org123b46d">结构体</h2>
+<div class="outline-text-2" id="text-org123b46d">
+<p>
+Go 语言中通过 struct 来实现面向对象。<br>
+</p>
+</div>
+<div id="outline-container-orge999e05" class="outline-3">
+<h3 id="orge999e05">结构体的定义</h3>
+<div class="outline-text-3" id="text-orge999e05">
+<p>
+使用 <code>type</code> 和 <code>struct</code> 关键字来定义结构体，具体代码格式如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">&#31867;&#22411;&#21517;</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    &#23383;&#27573;&#21517; <span style="color: #df005f; font-weight: bold;">&#23383;&#27573;&#31867;&#22411;</span>
+    &#23383;&#27573;&#21517; <span style="color: #df005f; font-weight: bold;">&#23383;&#27573;&#31867;&#22411;</span>
+    &#8230;
+}
+</pre>
+</div>
+
+<p>
+其中：<br>
+</p>
+
+<ol class="org-ol">
+<li>类型名：标识自定义结构体的名称，在同一个包内不能重复。<br></li>
+<li>字段名：表示结构体字段名。结构体中的字段名必须唯一。<br></li>
+<li>字段类型：表示结构体字段的具体类型。<br></li>
+</ol>
+
+<p>
+举个例子，我们定义一个 Person（人）结构体，代码如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">person</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    name <span style="color: #df005f; font-weight: bold;">string</span>
+    city <span style="color: #df005f; font-weight: bold;">string</span>
+    age  <span style="color: #df005f; font-weight: bold;">int8</span>
+}
+</pre>
+</div>
+
+<p>
+同样类型的字段也可以写在一行，<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">person1</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    name, city <span style="color: #df005f; font-weight: bold;">string</span>
+    age        <span style="color: #df005f; font-weight: bold;">int8</span>
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgf60e064" class="outline-3">
+<h3 id="orgf60e064">结构体实例化</h3>
+<div class="outline-text-3" id="text-orgf60e064">
+<p>
+只有当结构体实例化时，才会真正地分配内存。也就是必须实例化后才能使用结构体的字段。<br>
+</p>
+
+<p>
+结构体本身也是一种类型，我们可以像声明内置类型一样使用var关键字声明结构体类型。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">&#32467;&#26500;&#20307;&#23454;&#20363;</span> <span style="color: #df005f; font-weight: bold;">&#32467;&#26500;&#20307;&#31867;&#22411;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org21b5d7c" class="outline-3">
+<h3 id="org21b5d7c">基本实例化</h3>
+<div class="outline-text-3" id="text-org21b5d7c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">person</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    name <span style="color: #df005f; font-weight: bold;">string</span>
+    city <span style="color: #df005f; font-weight: bold;">string</span>
+    age  <span style="color: #df005f; font-weight: bold;">int8</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">p1</span> <span style="color: #df005f; font-weight: bold;">person</span>
+    p1.name = <span style="color: #2aa198;">"pprof.cn"</span>
+    p1.city = <span style="color: #2aa198;">"&#21271;&#20140;"</span>
+    p1.age = <span style="color: #d75fd7;">18</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"p1 = %v\n"</span>, p1)  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">p1 = {pprof.cn &#21271;&#20140; 18}</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"p1 = %#v\n"</span>, p1) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">p1 = main.person{name:"pprof.cn", city:"&#21271;&#20140;", age:18}</span>
+}
+</pre>
+</div>
+
+<p>
+我们通过 <code>.</code> 来访问结构体的字段（成员变量），例如 <code>p1.name</code> 和 <code>p1.age</code> 等。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org9540fdd" class="outline-2">
+<h2 id="org9540fdd">匿名结构体</h2>
+<div class="outline-text-2" id="text-org9540fdd">
+<p>
+在定义一些临时数据结构等场景下还可以使用匿名结构体。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">user</span> <span style="color: #268bd2; font-weight: bold;">struct</span>{Name <span style="color: #df005f; font-weight: bold;">string</span>; Age <span style="color: #df005f; font-weight: bold;">int</span>}
+    user.Name = <span style="color: #2aa198;">"pprof.cn"</span>
+    user.Age = <span style="color: #d75fd7;">18</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%#v\n"</span>, user)
+}
+</pre>
+</div>
+</div>
+<div id="outline-container-org97f2587" class="outline-3">
+<h3 id="org97f2587">创建指针类型结构体</h3>
+<div class="outline-text-3" id="text-org97f2587">
+<p>
+我们还可以通过使用 <code>new</code> 关键字对结构体进行实例化，得到的是结构体的地址。 格式如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">p2</span> = <span style="color: #268bd2;">new</span>(<span style="color: #df005f; font-weight: bold;">person</span>)
+fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%T\n"</span>, p2)     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">*main.person</span>
+fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"p2 = %#v\n"</span>, p2) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">p2 = &amp;main.person{name:"", city:"", age:0}</span>
+</pre>
+</div>
+
+<p>
+从打印的结果中我们可以看出 <code>p2</code> 是一个结构体指针。<br>
+</p>
+
+<p>
+需要注意的是在 Go 语言中支持对结构体指针直接使用 <code>.</code> 来访问结构体的成员。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">p2</span> = <span style="color: #268bd2;">new</span>(<span style="color: #df005f; font-weight: bold;">person</span>)
+p2.name = <span style="color: #2aa198;">"&#27979;&#35797;"</span>
+p2.age = <span style="color: #d75fd7;">18</span>
+p2.city = <span style="color: #2aa198;">"&#21271;&#20140;"</span>
+fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"p2 = %#v\n"</span>, p2) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">p2 = &amp;main.person{name:"&#27979;&#35797;", city:"&#21271;&#20140;", age:18}</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org098ae90" class="outline-3">
+<h3 id="org098ae90">取结构体的地址实例化</h3>
+<div class="outline-text-3" id="text-org098ae90">
+<p>
+使用 <code>&amp;</code> 对结构体进行取地址操作相当于对该结构体类型进行了一次 <code>new</code> 实例化操作。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">p3</span> := &amp;<span style="color: #df005f; font-weight: bold;">person</span>{}
+fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%T\n"</span>, p3)     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">*main.person</span>
+fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"p3 = %#v\n"</span>, p3) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">p3 = &amp;main.person{name:"", city:"", age:0}</span>
+p3.name = <span style="color: #2aa198;">"&#21338;&#23458;"</span>
+p3.age = <span style="color: #d75fd7;">30</span>
+p3.city = <span style="color: #2aa198;">"&#25104;&#37117;"</span>
+fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"p3 = %#v\n"</span>, p3) <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">p3 = &amp;main.person{name:"&#21338;&#23458;", city:"&#25104;&#37117;", age:30}</span>
+</pre>
+</div>
+
+<p>
+<code>p3.name = "博客"</code> 其实在底层是 <code>(* p3).name = "博客"</code> ，这是 Go 语言帮我们实现的语法糖。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org91af7cc" class="outline-3">
+<h3 id="org91af7cc">结构体默认值</h3>
+<div class="outline-text-3" id="text-org91af7cc">
+<p>
+是结构体中每种类型的零值。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">person</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    name <span style="color: #df005f; font-weight: bold;">string</span>
+    city <span style="color: #df005f; font-weight: bold;">string</span>
+    age  <span style="color: #df005f; font-weight: bold;">int8</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">p4</span> <span style="color: #df005f; font-weight: bold;">person</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"p4 = %#v\n"</span>, p4) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">p4 = main.person{name:"", city:"", age:0}</span>
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org61e2dec" class="outline-3">
+<h3 id="org61e2dec">使用键值对初始化</h3>
+<div class="outline-text-3" id="text-org61e2dec">
+<p>
+使用键值对对结构体进行初始化时，键对应结构体的字段，值对应该字段的初始值。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">p5</span> := person {
+    <span style="color: #d75fd7;">name</span>: <span style="color: #2aa198;">"pprof.cn"</span>,
+        <span style="color: #d75fd7;">city</span>: <span style="color: #2aa198;">"&#21271;&#20140;"</span>,
+        <span style="color: #d75fd7;">age</span>:  <span style="color: #d75fd7;">18</span>,
+    }
+fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"p5 = %#v\n"</span>, p5) <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">p5 = main.person{name:"pprof.cn", city:"&#21271;&#20140;", age:18}</span>
+</pre>
+</div>
+
+<p>
+也可以对结构体指针进行键值对初始化，例如：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">p6</span> := &amp;person {
+    <span style="color: #d75fd7;">name</span>: <span style="color: #2aa198;">"pprof.cn"</span>,
+        <span style="color: #d75fd7;">city</span>: <span style="color: #2aa198;">"&#21271;&#20140;"</span>,
+        <span style="color: #d75fd7;">age</span>:  <span style="color: #d75fd7;">18</span>,
+    }
+fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"p6 = %#v\n"</span>, p6) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">p6 = &amp;main.person{name:"pprof.cn", city:"&#21271;&#20140;", age:18}</span>
+</pre>
+</div>
+
+<p>
+当某些字段没有初始值的时候，该字段可以不写。此时，没有指定初始值的字段的值就是该字段类型的零值。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">p7</span> := &amp;person {
+    <span style="color: #d75fd7;">city</span>: <span style="color: #2aa198;">"&#21271;&#20140;"</span>,
+    }
+fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"p7 = %#v\n"</span>, p7) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">p7 = &amp;main.person{name:"", city:"&#21271;&#20140;", age:0}</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb0fdae5" class="outline-3">
+<h3 id="orgb0fdae5">使用值的列表初始化</h3>
+<div class="outline-text-3" id="text-orgb0fdae5">
+<p>
+初始化结构体的时候可以简写，也就是初始化的时候不写键，直接写值：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">p8</span> := &amp;<span style="color: #df005f; font-weight: bold;">person</span>{
+    <span style="color: #2aa198;">"pprof.cn"</span>,
+    <span style="color: #2aa198;">"&#21271;&#20140;"</span>,
+    <span style="color: #d75fd7;">18</span>,
+}
+fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"p8 = %#v\n"</span>, p8) <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">p8 = &amp;main.person{name:"pprof.cn", city:"&#21271;&#20140;", age:18}</span>
+</pre>
+</div>
+
+<p>
+使用这种格式初始化时，需要注意：<br>
+</p>
+
+<ol class="org-ol">
+<li>必须初始化结构体的所有字段。<br></li>
+<li>初始值的填充顺序必须与字段在结构体中的声明顺序一致。<br></li>
+<li>该方式不能和键值初始化方式混用。<br></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgdf4a0d2" class="outline-3">
+<h3 id="orgdf4a0d2">结构体内存布局</h3>
+<div class="outline-text-3" id="text-orgdf4a0d2">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">test</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    a <span style="color: #df005f; font-weight: bold;">int8</span>
+    b <span style="color: #df005f; font-weight: bold;">int8</span>
+    c <span style="color: #df005f; font-weight: bold;">int8</span>
+    d <span style="color: #df005f; font-weight: bold;">int8</span>
+}
+<span style="color: #8787d7;">n</span> := <span style="color: #df005f; font-weight: bold;">test</span>{
+    <span style="color: #d75fd7;">1</span>, <span style="color: #d75fd7;">2</span>, <span style="color: #d75fd7;">3</span>, <span style="color: #d75fd7;">4</span>,
+}
+fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"n.a %p\n"</span>, &amp;n.a)
+fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"n.b %p\n"</span>, &amp;n.b)
+fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"n.c %p\n"</span>, &amp;n.c)
+fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"n.d %p\n"</span>, &amp;n.d)
+</pre>
+</div>
+
+<p>
+输出：<br>
+</p>
+
+<pre class="example" id="org7b3f856">
+n.a 0xc0000a0060
+n.b 0xc0000a0061
+n.c 0xc0000a0062
+n.d 0xc0000a0063
+</pre>
+</div>
+</div>
+<div id="outline-container-org1de3479" class="outline-3">
+<h3 id="org1de3479">构造函数</h3>
+<div class="outline-text-3" id="text-org1de3479">
+<p>
+Go 语言的结构体没有构造函数，我们可以自己实现。 例如，下方的代码就实现了一个 <code>person</code> 的构造函数。 因为 <code>struct</code> 是值类型，如果结构体比较复杂的话，值拷贝性能开销会比较大，所以该构造函数返回的是结构体指针类型。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">newPerson</span>(<span style="color: #8787d7;">name</span>, <span style="color: #8787d7;">city</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">age</span> <span style="color: #df005f; font-weight: bold;">int8</span>) *<span style="color: #df005f; font-weight: bold;">person</span> {
+    <span style="color: #268bd2; font-weight: bold;">return</span> &amp;person {
+        <span style="color: #d75fd7;">name</span>: name,
+            <span style="color: #d75fd7;">city</span>: city,
+            <span style="color: #d75fd7;">age</span>:  age,
+        }
+}
+</pre>
+</div>
+
+<p>
+调用构造函数<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">p9</span> := <span style="color: #d75fd7; font-weight: bold;">newPerson</span>(<span style="color: #2aa198;">"pprof.cn"</span>, <span style="color: #2aa198;">"&#27979;&#35797;"</span>, <span style="color: #d75fd7;">90</span>)
+fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%#v\n"</span>, p9)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgda5a48e" class="outline-3">
+<h3 id="orgda5a48e">方法和接收者</h3>
+<div class="outline-text-3" id="text-orgda5a48e">
+<p>
+Go语言中的方法（Method）是一种作用于特定类型变量的函数。这种特定类型变量叫做接收者（Receiver）。接收者的概念就类似于其他语言中的 this 或者 self。<br>
+</p>
+
+<p>
+方法的定义格式如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">&#25509;&#25910;&#32773;&#21464;&#37327;</span> <span style="color: #df005f; font-weight: bold;">&#25509;&#25910;&#32773;&#31867;&#22411;</span>) <span style="color: #d75fd7; font-weight: bold;">&#26041;&#27861;&#21517;</span>(<span style="color: #df005f; font-weight: bold;">&#21442;&#25968;&#21015;&#34920;</span>) (<span style="color: #df005f; font-weight: bold;">&#36820;&#22238;&#21442;&#25968;</span>) {
+    &#20989;&#25968;&#20307;
+}
+</pre>
+</div>
+
+<p>
+其中，<br>
+</p>
+
+<ol class="org-ol">
+<li>接收者变量：接收者中的参数变量名在命名时，官方建议使用接收者类型名的第一个小写字母，而不是 self、this 之类的命名。例如，Person 类型的接收者变量应该命名为 p，Connector 类型的接收者变量应该命名为 c 等。<br></li>
+<li>接收者类型：接收者类型和参数类似，可以是指针类型和非指针类型。<br></li>
+<li>方法名、参数列表、返回参数：具体格式与函数定义相同。<br></li>
+</ol>
+
+<p>
+举个例子：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Person &#32467;&#26500;&#20307;</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Person</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    name <span style="color: #df005f; font-weight: bold;">string</span>
+    age  <span style="color: #df005f; font-weight: bold;">int8</span>
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">NewPerson &#26500;&#36896;&#20989;&#25968;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">NewPerson</span>(<span style="color: #8787d7;">name</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">age</span> <span style="color: #df005f; font-weight: bold;">int8</span>) *<span style="color: #df005f; font-weight: bold;">Person</span> {
+    <span style="color: #268bd2; font-weight: bold;">return</span> &amp;<span style="color: #df005f; font-weight: bold;">Person</span>{
+        <span style="color: #d75fd7;">name</span>: name,
+        <span style="color: #d75fd7;">age</span>:  age,
+    }
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Dream Person&#20570;&#26790;&#30340;&#26041;&#27861;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">p</span> <span style="color: #df005f; font-weight: bold;">Person</span>) <span style="color: #d75fd7; font-weight: bold;">Dream</span>() {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%s&#30340;&#26790;&#24819;&#26159;&#23398;&#22909;Go&#35821;&#35328;&#65281;\n"</span>, p.name)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">p1</span> := <span style="color: #d75fd7; font-weight: bold;">NewPerson</span>(<span style="color: #2aa198;">"&#27979;&#35797;"</span>, <span style="color: #d75fd7;">25</span>)
+    p1.<span style="color: #d75fd7; font-weight: bold;">Dream</span>()
+}
+</pre>
+</div>
+
+<p>
+方法与函数的区别是，函数不属于任何类型，方法属于特定的类型。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf844a44" class="outline-3">
+<h3 id="orgf844a44">指针类型的接收者</h3>
+<div class="outline-text-3" id="text-orgf844a44">
+<p>
+指针类型的接收者由一个结构体的指针组成，由于指针的特性，调用方法时修改接收者指针的任意成员变量，在方法结束后，修改都是有效的。这种方式就十分接近于其他语言中面向对象中的this或者self。 例如我们为Person添加一个SetAge方法，来修改实例变量的年龄。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">SetAge &#35774;&#32622;p&#30340;&#24180;&#40836;</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20351;&#29992;&#25351;&#38024;&#25509;&#25910;&#32773;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">p</span> *<span style="color: #df005f; font-weight: bold;">Person</span>) <span style="color: #d75fd7; font-weight: bold;">SetAge</span>(<span style="color: #8787d7;">newAge</span> <span style="color: #df005f; font-weight: bold;">int8</span>) {
+    p.age = newAge
+}
+</pre>
+</div>
+
+<p>
+调用该方法：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">p1</span> := <span style="color: #d75fd7; font-weight: bold;">NewPerson</span>(<span style="color: #2aa198;">"&#27979;&#35797;"</span>, <span style="color: #d75fd7;">25</span>)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(p1.age) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">25</span>
+    p1.<span style="color: #d75fd7; font-weight: bold;">SetAge</span>(<span style="color: #d75fd7;">30</span>)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(p1.age) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">30</span>
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org7fa76f0" class="outline-3">
+<h3 id="org7fa76f0">值类型的接收者</h3>
+<div class="outline-text-3" id="text-org7fa76f0">
+<p>
+当方法作用于值类型接收者时，Go 语言会在代码运行时将接收者的值复制一份。在值类型接收者的方法中可以获取接收者的成员值，但修改操作只是针对副本，无法修改接收者变量本身。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">SetAge2 &#35774;&#32622;p&#30340;&#24180;&#40836;</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20351;&#29992;&#20540;&#25509;&#25910;&#32773;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">p</span> <span style="color: #df005f; font-weight: bold;">Person</span>) <span style="color: #d75fd7; font-weight: bold;">SetAge2</span>(<span style="color: #8787d7;">newAge</span> <span style="color: #df005f; font-weight: bold;">int8</span>) {
+    p.age = newAge
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">p1</span> := <span style="color: #d75fd7; font-weight: bold;">NewPerson</span>(<span style="color: #2aa198;">"&#27979;&#35797;"</span>, <span style="color: #d75fd7;">25</span>)
+    p1.<span style="color: #d75fd7; font-weight: bold;">Dream</span>()
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(p1.age) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">25</span>
+    p1.<span style="color: #d75fd7; font-weight: bold;">SetAge2</span>(<span style="color: #d75fd7;">30</span>) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">(*p1).SetAge2(30)</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(p1.age) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">25</span>
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org3d619ee" class="outline-3">
+<h3 id="org3d619ee">什么时候应该使用指针类型接收者</h3>
+<div class="outline-text-3" id="text-org3d619ee">
+<ol class="org-ol">
+<li>需要修改接收者中的值<br></li>
+<li>接收者是拷贝代价比较大的大对象<br></li>
+<li>保证一致性，如果有某个方法使用了指针接收者，那么其他的方法也应该使用指针接收者。<br></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgdc24242" class="outline-3">
+<h3 id="orgdc24242">任意类型添加方法</h3>
+<div class="outline-text-3" id="text-orgdc24242">
+<p>
+在 Go 语言中，接收者的类型可以是任何类型，不仅仅是结构体，任何类型都可以拥有方法。 举个例子，我们基于内置的 <code>int</code> 类型使用 <code>type</code> 关键字可以定义新的自定义类型，然后为我们的自定义类型添加方法。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">MyInt &#23558; int &#23450;&#20041;&#20026;&#33258;&#23450;&#20041; MyInt &#31867;&#22411;</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">MyInt</span> <span style="color: #df005f; font-weight: bold;">int</span>
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">SayHello &#20026; MyInt &#28155;&#21152;&#19968;&#20010; SayHello &#30340;&#26041;&#27861;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">m</span> <span style="color: #df005f; font-weight: bold;">MyInt</span>) <span style="color: #d75fd7; font-weight: bold;">SayHello</span>() {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Hello, &#25105;&#26159;&#19968;&#20010;int&#12290;"</span>)
+}
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">m1</span> <span style="color: #df005f; font-weight: bold;">MyInt</span>
+    m1.<span style="color: #d75fd7; font-weight: bold;">SayHello</span>() <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Hello, &#25105;&#26159;&#19968;&#20010;int&#12290;</span>
+    m1 = <span style="color: #d75fd7;">100</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%#v  %T\n"</span>, m1, m1) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">100  main.MyInt</span>
+}
+</pre>
+</div>
+
+<p>
+注意事项： 非本地类型不能定义方法，也就是说我们不能给别的包的类型定义方法。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org7665365" class="outline-3">
+<h3 id="org7665365">结构体的匿名字段</h3>
+<div class="outline-text-3" id="text-org7665365">
+<p>
+结构体允许其成员字段在声明时没有字段名而只有类型，这种没有名字的字段就称为匿名字段。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Person &#32467;&#26500;&#20307; Person &#31867;&#22411;</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Person</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    string
+    int
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">p1</span> := <span style="color: #df005f; font-weight: bold;">Person</span>{
+        <span style="color: #2aa198;">"pprof.cn"</span>,
+        <span style="color: #d75fd7;">18</span>,
+    }
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%#v\n"</span>, p1)        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">main.Person{string:"pprof.cn", int:18}</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(p1.string, p1.int) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">pprof.cn 18</span>
+}
+</pre>
+</div>
+
+<p>
+匿名字段默认采用类型名作为字段名，结构体要求字段名称必须唯一，因此一个结构体中同种类型的匿名字段只能有一个。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgcde5516" class="outline-3">
+<h3 id="orgcde5516">嵌套结构体</h3>
+<div class="outline-text-3" id="text-orgcde5516">
+<p>
+一个结构体中可以嵌套包含另一个结构体或结构体指针。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Address &#22320;&#22336;&#32467;&#26500;&#20307;</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Address</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    Province <span style="color: #df005f; font-weight: bold;">string</span>
+    City     <span style="color: #df005f; font-weight: bold;">string</span>
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">User &#29992;&#25143;&#32467;&#26500;&#20307;</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">User</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    Name    <span style="color: #df005f; font-weight: bold;">string</span>
+    Gender  <span style="color: #df005f; font-weight: bold;">string</span>
+    Address <span style="color: #df005f; font-weight: bold;">Address</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">user1</span> := <span style="color: #df005f; font-weight: bold;">User</span>{
+        <span style="color: #d75fd7;">Name</span>:   <span style="color: #2aa198;">"pprof"</span>,
+        <span style="color: #d75fd7;">Gender</span>: <span style="color: #2aa198;">"&#22899;"</span>,
+        <span style="color: #d75fd7;">Address</span>: <span style="color: #df005f; font-weight: bold;">Address</span>{
+            <span style="color: #d75fd7;">Province</span>: <span style="color: #2aa198;">"&#40657;&#40857;&#27743;"</span>,
+            <span style="color: #d75fd7;">City</span>:     <span style="color: #2aa198;">"&#21704;&#23572;&#28392;"</span>,
+        },
+    }
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"user1 = %#v\n"</span>, user1)
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">user1 = main.User{Name:"pprof", Gender:"&#22899;", Address:main.Address{Province:"&#40657;&#40857;&#27743;", City:"&#21704;&#23572;&#28392;"}}</span>
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org7093be2" class="outline-3">
+<h3 id="org7093be2">嵌套匿名结构体</h3>
+<div class="outline-text-3" id="text-org7093be2">
+</div>
+<div id="outline-container-orgd6dc80c" class="outline-4">
+<h4 id="orgd6dc80c">根据已有的结构体嵌套</h4>
+<div class="outline-text-4" id="text-orgd6dc80c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Address &#22320;&#22336;&#32467;&#26500;&#20307;</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Address</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    Province <span style="color: #df005f; font-weight: bold;">string</span>
+    City     <span style="color: #df005f; font-weight: bold;">string</span>
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">User &#29992;&#25143;&#32467;&#26500;&#20307;</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">User</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    Name    <span style="color: #df005f; font-weight: bold;">string</span>
+    Gender  <span style="color: #df005f; font-weight: bold;">string</span>
+    Address   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21311;&#21517;&#32467;&#26500;&#20307;</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">user2</span> <span style="color: #df005f; font-weight: bold;">User</span>
+    user2.Name = <span style="color: #2aa198;">"pprof"</span>
+    user2.Gender = <span style="color: #2aa198;">"&#22899;"</span>
+    user2.Address.Province = <span style="color: #2aa198;">"&#40657;&#40857;&#27743;"</span>    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36890;&#36807;&#21311;&#21517;&#32467;&#26500;&#20307;.&#23383;&#27573;&#21517;&#35775;&#38382;</span>
+    user2.City = <span style="color: #2aa198;">"&#21704;&#23572;&#28392;"</span>                <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#30452;&#25509;&#35775;&#38382;&#21311;&#21517;&#32467;&#26500;&#20307;&#30340;&#23383;&#27573;&#21517;</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"user2 = %#v\n"</span>, user2)
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">user2 = main.User{Name:"pprof", Gender:"&#22899;", Address:main.Address{Province:"&#40657;&#40857;&#27743;", City:"&#21704;&#23572;&#28392;"}}</span>
+}
+</pre>
+</div>
+
+<p>
+当访问结构体成员时会先在结构体中查找该字段，找不到再去匿名结构体中查找。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5e3a89c" class="outline-4">
+<h4 id="org5e3a89c">结构体中定义一个匿名结构体</h4>
+<div class="outline-text-4" id="text-org5e3a89c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Stu</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    Name <span style="color: #df005f; font-weight: bold;">string</span>
+    Age  <span style="color: #df005f; font-weight: bold;">int</span>
+    Dog  <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        Name <span style="color: #df005f; font-weight: bold;">string</span>
+        Age  <span style="color: #df005f; font-weight: bold;">int</span>
+    }
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org760d58d" class="outline-4">
+<h4 id="org760d58d">结构体嵌套匿名结构体的初始化</h4>
+<div class="outline-text-4" id="text-org760d58d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21021;&#22987;&#21270;&#26041;&#24335;&#19968;</span>
+<span style="color: #8787d7;">stu1</span> := &amp;<span style="color: #df005f; font-weight: bold;">Stu</span>{
+    <span style="color: #d75fd7;">Name</span>: <span style="color: #2aa198;">"stu1"</span>,
+    <span style="color: #d75fd7;">Age</span>:  <span style="color: #d75fd7;">1</span>,
+    <span style="color: #d75fd7;">Dog</span>: <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        Name <span style="color: #df005f; font-weight: bold;">string</span>
+        Age  <span style="color: #df005f; font-weight: bold;">int</span>
+    }{
+        <span style="color: #d75fd7;">Name</span>: <span style="color: #2aa198;">"dog1"</span>,
+        <span style="color: #d75fd7;">Age</span>:  <span style="color: #d75fd7;">1</span>,
+    },
+}
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(stu1)
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21021;&#22987;&#21270;&#26041;&#24335;&#20108;</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">stu2</span> <span style="color: #df005f; font-weight: bold;">Stu</span>
+stu2.Name = <span style="color: #2aa198;">"stu2"</span>
+stu2.Age = <span style="color: #d75fd7;">2</span>
+stu2.Dog.Name = <span style="color: #2aa198;">"dog2"</span>
+stu2.Dog.Age = <span style="color: #d75fd7;">2</span>
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(stu2)
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org5dbf349" class="outline-3">
+<h3 id="org5dbf349">嵌套结构体的字段名冲突</h3>
+<div class="outline-text-3" id="text-org5dbf349">
+<p>
+嵌套结构体内部可能存在相同的字段名。这个时候为了避免歧义需要指定具体的内嵌结构体的字段。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Address &#22320;&#22336;&#32467;&#26500;&#20307;</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Address</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    Province   <span style="color: #df005f; font-weight: bold;">string</span>
+    City       <span style="color: #df005f; font-weight: bold;">string</span>
+    CreateTime <span style="color: #df005f; font-weight: bold;">string</span>
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Email &#37038;&#31665;&#32467;&#26500;&#20307;</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Email</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    Account    <span style="color: #df005f; font-weight: bold;">string</span>
+    CreateTime <span style="color: #df005f; font-weight: bold;">string</span>
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">User &#29992;&#25143;&#32467;&#26500;&#20307;</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">User</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    Name   <span style="color: #df005f; font-weight: bold;">string</span>
+    Gender <span style="color: #df005f; font-weight: bold;">string</span>
+    Address
+    Email
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">user3</span> <span style="color: #df005f; font-weight: bold;">User</span>
+    user3.Name = <span style="color: #2aa198;">"pprof"</span>
+    user3.Gender = <span style="color: #2aa198;">"&#22899;"</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">user3.CreateTime = "2019"      // ambiguous selector user3.CreateTime</span>
+    user3.Address.CreateTime = <span style="color: #2aa198;">"2000"</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25351;&#23450;Address&#32467;&#26500;&#20307;&#20013;&#30340;CreateTime</span>
+    user3.Email.CreateTime = <span style="color: #2aa198;">"2000"</span>   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25351;&#23450;Email&#32467;&#26500;&#20307;&#20013;&#30340;CreateTime</span>
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgaed2a98" class="outline-3">
+<h3 id="orgaed2a98">结构体的 "继承"</h3>
+<div class="outline-text-3" id="text-orgaed2a98">
+<p>
+Go 语言中使用结构体也可以实现其他编程语言中面向对象的继承。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Animal &#21160;&#29289;</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Animal</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    name <span style="color: #df005f; font-weight: bold;">string</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">a</span> *<span style="color: #df005f; font-weight: bold;">Animal</span>) <span style="color: #d75fd7; font-weight: bold;">move</span>() {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%s&#20250;&#21160;&#65281;\n"</span>, a.name)
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Dog &#29399;</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Dog</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    Feet    <span style="color: #df005f; font-weight: bold;">int8</span>
+    *Animal <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36890;&#36807;&#23884;&#22871;&#21311;&#21517;&#32467;&#26500;&#20307;&#23454;&#29616;&#32487;&#25215;</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">d</span> *<span style="color: #df005f; font-weight: bold;">Dog</span>) <span style="color: #d75fd7; font-weight: bold;">wang</span>() {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%s&#20250;&#27754;&#27754;&#27754;~\n"</span>, d.name)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">d1</span> := &amp;<span style="color: #df005f; font-weight: bold;">Dog</span>{
+        <span style="color: #d75fd7;">Feet</span>: <span style="color: #d75fd7;">4</span>,
+        <span style="color: #d75fd7;">Animal</span>: &amp;<span style="color: #df005f; font-weight: bold;">Animal</span>{ <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#27880;&#24847;&#23884;&#22871;&#30340;&#26159;&#32467;&#26500;&#20307;&#25351;&#38024;</span>
+            <span style="color: #d75fd7;">name</span>: <span style="color: #2aa198;">"&#20048;&#20048;"</span>,
+        },
+    }
+    d1.<span style="color: #d75fd7; font-weight: bold;">wang</span>() <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20048;&#20048;&#20250;&#27754;&#27754;&#27754;~</span>
+    d1.<span style="color: #d75fd7; font-weight: bold;">move</span>() <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20048;&#20048;&#20250;&#21160;&#65281;</span>
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org7b052b7" class="outline-3">
+<h3 id="org7b052b7">结构体字段的可见性</h3>
+<div class="outline-text-3" id="text-org7b052b7">
+<p>
+结构体中字段大写开头表示可公开访问，小写表示私有（仅在定义当前结构体的包中可访问）。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga665021" class="outline-3">
+<h3 id="orga665021">结构体与 JSON 序列化</h3>
+<div class="outline-text-3" id="text-orga665021">
+<p>
+JSON(JavaScript Object Notation) 是一种轻量级的数据交换格式。易于人阅读和编写。同时也易于机器解析和生成。JSON键值对是用来保存JS对象的一种方式，键/值对组合中的键名写在前面并用双引号""包裹，使用冒号:分隔，然后紧接着值；多个键值之间使用英文,分隔。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Student &#23398;&#29983;</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Student</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    ID     <span style="color: #df005f; font-weight: bold;">int</span>
+    Gender <span style="color: #df005f; font-weight: bold;">string</span>
+    Name   <span style="color: #df005f; font-weight: bold;">string</span>
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Class &#29677;&#32423;</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Class</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    Title    <span style="color: #df005f; font-weight: bold;">string</span>
+    Students []*<span style="color: #df005f; font-weight: bold;">Student</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">c</span> := &amp;<span style="color: #df005f; font-weight: bold;">Class</span>{
+        <span style="color: #d75fd7;">Title</span>:    <span style="color: #2aa198;">"101"</span>,
+        <span style="color: #d75fd7;">Students</span>: <span style="color: #268bd2;">make</span>([]*<span style="color: #df005f; font-weight: bold;">Student</span>, <span style="color: #d75fd7;">0</span>, <span style="color: #d75fd7;">200</span>),
+    }
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; <span style="color: #d75fd7;">10</span>; i++ {
+        <span style="color: #8787d7;">stu</span> := &amp;<span style="color: #df005f; font-weight: bold;">Student</span>{
+            <span style="color: #d75fd7;">Name</span>:   fmt.<span style="color: #d75fd7; font-weight: bold;">Sprintf</span>(<span style="color: #2aa198;">"stu%02d"</span>, i),
+            <span style="color: #d75fd7;">Gender</span>: <span style="color: #2aa198;">"&#30007;"</span>,
+            <span style="color: #d75fd7;">ID</span>:     i,
+        }
+        c.Students = <span style="color: #268bd2;">append</span>(c.Students, stu)
+    }
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">JSON&#24207;&#21015;&#21270;&#65306;&#32467;&#26500;&#20307;--&gt;JSON&#26684;&#24335;&#30340;&#23383;&#31526;&#20018;</span>
+    <span style="color: #8787d7;">data</span>, <span style="color: #8787d7;">err</span> := json.<span style="color: #d75fd7; font-weight: bold;">Marshal</span>(c)
+    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"json marshal failed"</span>)
+        <span style="color: #268bd2; font-weight: bold;">return</span>
+    }
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"json:%s\n"</span>, data)
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">JSON&#21453;&#24207;&#21015;&#21270;&#65306;JSON&#26684;&#24335;&#30340;&#23383;&#31526;&#20018;--&gt;&#32467;&#26500;&#20307;</span>
+    <span style="color: #8787d7;">str</span> := <span style="color: #2aa198;">`{"Title":"101","Students":[{"ID":0,"Gender":"&#30007;","Name":"stu00"},{"ID":1,"Gender":"&#30007;","Name":"stu01"},{"ID":2,"Gender":"&#30007;","Name":"stu02"},{"ID":3,"Gender":"&#30007;","Name":"stu03"},{"ID":4,"Gender":"&#30007;","Name":"stu04"},{"ID":5,"Gender":"&#30007;","Name":"stu05"},{"ID":6,"Gender":"&#30007;","Name":"stu06"},{"ID":7,"Gender":"&#30007;","Name":"stu07"},{"ID":8,"Gender":"&#30007;","Name":"stu08"},{"ID":9,"Gender":"&#30007;","Name":"stu09"}]}`</span>
+    <span style="color: #8787d7;">c1</span> := &amp;<span style="color: #df005f; font-weight: bold;">Class</span>{}
+    err = json.<span style="color: #d75fd7; font-weight: bold;">Unmarshal</span>([]<span style="color: #d75fd7; font-weight: bold;">byte</span>(str), c1)
+    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"json unmarshal failed!"</span>)
+        <span style="color: #268bd2; font-weight: bold;">return</span>
+    }
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%#v\n"</span>, c1)
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org912432b" class="outline-3">
+<h3 id="org912432b">结构体标签（Tag）</h3>
+<div class="outline-text-3" id="text-org912432b">
+<p>
+Tag是结构体的元信息，可以在运行的时候通过反射的机制读取出来。<br>
+</p>
+
+<p>
+Tag在结构体字段的后方定义，由一对反引号包裹起来，具体的格式如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #2aa198;">`key1:"value1" key2:"value2"`</span>
+</pre>
+</div>
+
+<p>
+结构体标签由一个或多个键值对组成。键与值使用冒号分隔，值用双引号括起来。键值对之间使用一个空格分隔。 注意事项： 为结构体编写 Tag 时，必须严格遵守键值对的规则。结构体标签的解析代码的容错能力很差，一旦格式写错，编译和运行时都不会提示任何错误，通过反射也无法正确取值。例如不要在 key 和 value 之间添加空格。<br>
+</p>
+
+<p>
+例如我们为 <code>Student</code> 结构体的每个字段定义 <code>json</code> 序列化时使用的 Tag：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Student &#23398;&#29983;</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Student</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    ID     <span style="color: #df005f; font-weight: bold;">int</span>    <span style="color: #2aa198;">`json:"id"`</span> <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#36890;&#36807;&#25351;&#23450;tag&#23454;&#29616;json&#24207;&#21015;&#21270;&#35813;&#23383;&#27573;&#26102;&#30340;key</span>
+    Gender <span style="color: #df005f; font-weight: bold;">string</span> <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">json&#24207;&#21015;&#21270;&#26159;&#40664;&#35748;&#20351;&#29992;&#23383;&#27573;&#21517;&#20316;&#20026;key</span>
+    name   <span style="color: #df005f; font-weight: bold;">string</span> <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#31169;&#26377;&#19981;&#33021;&#34987;json&#21253;&#35775;&#38382;</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">s1</span> := <span style="color: #df005f; font-weight: bold;">Student</span>{
+        <span style="color: #d75fd7;">ID</span>:     <span style="color: #d75fd7;">1</span>,
+        <span style="color: #d75fd7;">Gender</span>: <span style="color: #2aa198;">"&#22899;"</span>,
+        <span style="color: #d75fd7;">name</span>:   <span style="color: #2aa198;">"pprof"</span>,
+    }
+    <span style="color: #8787d7;">data</span>, <span style="color: #8787d7;">err</span> := json.<span style="color: #d75fd7; font-weight: bold;">Marshal</span>(s1)
+    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"json marshal failed!"</span>)
+        <span style="color: #268bd2; font-weight: bold;">return</span>
+    }
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"json str:%s\n"</span>, data) <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">json str:{"id":1,"Gender":"&#22899;"}</span>
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-11 00:02 Fri</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-14 Mon 17:55</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

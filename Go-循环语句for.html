@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-07 Mon 22:50 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GO 循环语句FOR</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">GO 循环语句FOR</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgf93c6c8">for 的三种循环方式</a></li>
+<li><a href="#org16c085a">常见的 for 循环，支持初始化语句</a></li>
+<li><a href="#org860f8d6">替代 while (n &gt; 0) {}</a></li>
+<li><a href="#org73fc3cc">替代 while (true) {}</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgf93c6c8" class="outline-2">
+<h2 id="orgf93c6c8">for 的三种循环方式</h2>
+<div class="outline-text-2" id="text-orgf93c6c8">
+<p>
+与多数语言不同的是，Go 语言中的循环语句只支持 <code>for</code> 关键字，而不支持 <code>while</code> 和 <code>do-while</code> 结构，关键字 <code>for</code> 的基本使用方法与 C 语言和 C++ 中非常接近：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">for</span> init; condition; post {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">...</span>
+}
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">for</span> condition {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">...</span>
+}
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">for</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">...</span>
+}
+</pre>
+</div>
+
+<dl class="org-dl">
+<dt>init</dt><dd>一般为赋值表达式，给控制变量赋初值；<br></dd>
+<dt>condition</dt><dd>关系表达式或逻辑表达式，循环控制条件；<br></dd>
+<dt>post</dt><dd>一般为赋值表达式，给控制变量增量或减量。<br></dd>
+</dl>
+
+<p>
+for语句执行过程如下：<br>
+</p>
+
+<ol class="org-ol">
+<li>先对表达式 init 赋初值；<br></li>
+<li>判别赋值表达式 init 是否满足给定 condition 条件，若其值为真，满足循环条件，则执行循环体内语句，然后执行 post，进入第二次循环，再判别 condition；否则判断 condition 的值为假，不满足条件，就终止for循环，执行循环体外语句。<br></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-org16c085a" class="outline-2">
+<h2 id="org16c085a">常见的 for 循环，支持初始化语句</h2>
+<div class="outline-text-2" id="text-org16c085a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">s</span> := <span style="color: #2aa198;">"abc"</span>
+<span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">n</span> := <span style="color: #d75fd7;">0</span>, <span style="color: #268bd2;">len</span>(s); i &lt; n; i ++ {
+    <span style="color: #268bd2;">println</span>(s[i])
+}
+</pre>
+</div>
+
+<p>
+使用循环语句时，需要注意：<br>
+</p>
+
+<ul class="org-ul">
+<li>左花括号 <code>{}</code> 必须与 <code>for</code> 处于同一行<br></li>
+<li>Go 语言中的 <code>for</code> 循环与 C 语言一样，都允许在循环条件中定义和初始化变量，惟一的区别是，Go 语言不支持以逗号为间隔的多个赋值语句，必须使用平行赋值的方式来初始化多个变量<br></li>
+<li>Go 语言的 <code>for</code> 循环同样支持 <code>continue</code> 和 <code>break</code> 控制循环，但是它提供了更高级的用法： <a href="Go-循环控制Goto、Break、Continue.html">循环控制Goto、Break、Continue</a><br></li>
+</ul>
+
+<p>
+初始化语句可以被忽略，但是初始化语句之后的分号必须要写：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">s</span> := <span style="color: #2aa198;">"abc"</span>
+<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">n</span> := <span style="color: #d75fd7;">0</span>, <span style="color: #268bd2;">len</span>(s)
+<span style="color: #268bd2; font-weight: bold;">for</span> ; i &lt; n; i ++ {
+    <span style="color: #268bd2;">println</span>(s[i])
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org860f8d6" class="outline-2">
+<h2 id="org860f8d6">替代 while (n &gt; 0) {}</h2>
+<div class="outline-text-2" id="text-org860f8d6">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">s</span> := <span style="color: #2aa198;">"abc"</span>
+<span style="color: #8787d7;">n</span> := <span style="color: #268bd2;">len</span>(s)
+<span style="color: #268bd2; font-weight: bold;">for</span> n &gt; <span style="color: #d75fd7;">0</span> {
+    <span style="color: #268bd2;">println</span>(s[n])
+    n -- 
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org73fc3cc" class="outline-2">
+<h2 id="org73fc3cc">替代 while (true) {}</h2>
+<div class="outline-text-2" id="text-org73fc3cc">
+<p>
+考虑到无限循环的场景，为了让开发者不用写无聊的 <code>for ( ; ; ) {}</code> 和 <code>do {} while(1)</code> ，直接将 <code>for</code> 简化为：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">0</span>
+<span style="color: #268bd2; font-weight: bold;">for</span> {
+    i ++ 
+    <span style="color: #268bd2;">println</span>(i)
+
+    <span style="color: #268bd2; font-weight: bold;">if</span> i &gt; <span style="color: #d75fd7;">10</span> {
+        <span style="color: #268bd2; font-weight: bold;">break</span>
+    }
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-07 22:02 Mon</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-07 Mon 22:50</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

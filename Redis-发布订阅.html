@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-22 Tue 16:17 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>REDIS 发布订阅</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">REDIS 发布订阅</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org0d53446">Redis 发布订阅命令</a></li>
+<li><a href="#org035f96a">简单使用</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org0d53446" class="outline-2">
+<h2 id="org0d53446">Redis 发布订阅命令</h2>
+<div class="outline-text-2" id="text-org0d53446">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">命令</th>
+<th scope="col" class="org-left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>PSUBSCRIBE pattern [pattern ...]</code></td>
+<td class="org-left">订阅一个或多个符合给定模式的频道</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>PUBSUB subcommand [argument [argument ...]]</code></td>
+<td class="org-left">查看订阅与发布系统状态</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>PUBLISH channel message</code></td>
+<td class="org-left">将信息发送到指定的频道</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>PUNSUBSCRIBE [pattern [pattern ...]]</code></td>
+<td class="org-left">退订所有给定模式的频道</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>SUBSCRIBE channel [channel ...]</code></td>
+<td class="org-left">订阅给定的一个或多个频道的信息</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>UNSUBSCRIBE [channel [channle ...]]</code></td>
+<td class="org-left">退订给定的频道</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-org035f96a" class="outline-2">
+<h2 id="org035f96a">简单使用</h2>
+<div class="outline-text-2" id="text-org035f96a">
+<p>
+开启 redis 服务：<br>
+</p>
+<pre class="example" id="org71a5f45">
+$ ./redis-server redis.conf
+</pre>
+
+<p>
+订阅者：<br>
+</p>
+<pre class="example" id="org500aa34">
+$ ./redis-cli -p 6379
+127.0.0.1:6379&gt; SUBSCRIBE test01
+Reading messages... (press Ctrl-C to quit)
+1) "subscribe"
+2) "test01"
+3) (integer) 1
+</pre>
+
+<p>
+另开一个窗口做发布者：<br>
+</p>
+<pre class="example" id="orgd3b8e7c">
+$ redis-cli -p 6379
+127.0.0.1:6379&gt; PUBLISH test01 "hello test01"
+(integer) 1
+</pre>
+
+<p>
+此时订阅者这边接收到信息：<br>
+</p>
+<pre class="example" id="orgc55cfa2">
+127.0.0.1:6379&gt; SUBSCRIBE test01
+Reading messages... (press Ctrl-C to quit)
+1) "subscribe"
+2) "test01"
+3) (integer) 1
+1) "message"
+2) "test01"
+3) "hello test01"
+</pre>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-22 15:02 Tue</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-22 Tue 16:17</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

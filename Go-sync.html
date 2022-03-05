@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-02-07 Mon 17:52 -->
+<!-- 2022-02-14 Mon 23:48 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GO SYNC</title>
@@ -21,7 +21,7 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org7bef8f7">简介</a></li>
+<li><a href="#orga2a9b6c">Introduction</a></li>
 <li><a href="#orgb7c3fd7">type Locker</a></li>
 <li><a href="#org32085bd">type Once</a>
 <ul>
@@ -68,9 +68,9 @@
 </div>
 </div>
 
-<div id="outline-container-org7bef8f7" class="outline-2">
-<h2 id="org7bef8f7">简介</h2>
-<div class="outline-text-2" id="text-org7bef8f7">
+<div id="outline-container-orga2a9b6c" class="outline-2">
+<h2 id="orga2a9b6c">Introduction</h2>
+<div class="outline-text-2" id="text-orga2a9b6c">
 <p>
 sync包提供了基本的同步基元，如互斥锁。除了Once和WaitGroup类型，大部分都是适用于低水平程序线程，高水平的同步使用channel通信更好一些。<br>
 </p>
@@ -111,18 +111,18 @@ Once是只执行一次动作的对象。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7; background-color: #262626; font-weight: bold;">once</span> <span style="color: #df005f; font-weight: bold;">sync.Once</span>
-<span style="color: #8787d7; background-color: #262626; font-weight: bold;">onceBody</span> := <span style="color: #268bd2; font-weight: bold;">func</span>() {
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">once</span> <span style="color: #df005f; font-weight: bold;">sync.Once</span>
+<span style="color: #8787d7;">onceBody</span> := <span style="color: #268bd2; font-weight: bold;">func</span>() {
     fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Only once"</span>)
 }
-<span style="color: #8787d7; background-color: #262626; font-weight: bold;">done</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">bool</span>)
-<span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7; background-color: #262626; font-weight: bold;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; <span style="color: #d75fd7;">10</span>; i++ {
+<span style="color: #8787d7;">done</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">bool</span>)
+<span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; <span style="color: #d75fd7;">10</span>; i++ {
     <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
         once.<span style="color: #d75fd7; font-weight: bold;">Do</span>(onceBody)
         done &lt;- <span style="color: #d75fd7;">true</span>
     }()
 }
-<span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7; background-color: #262626; font-weight: bold;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; <span style="color: #d75fd7;">10</span>; i++ {
+<span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; <span style="color: #d75fd7;">10</span>; i++ {
     &lt;-done
 }
 </pre>
@@ -141,7 +141,7 @@ Output:<br>
 <h3 id="org8625c23">func (*Once) Do</h3>
 <div class="outline-text-3" id="text-org8625c23">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7; background-color: #262626; font-weight: bold;">o</span> *<span style="color: #df005f; font-weight: bold;">Once</span>) <span style="color: #d75fd7; font-weight: bold;">Do</span>(<span style="color: #8787d7; background-color: #262626; font-weight: bold;">f</span> <span style="color: #268bd2; font-weight: bold;">func</span>())
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">o</span> *<span style="color: #df005f; font-weight: bold;">Once</span>) <span style="color: #d75fd7; font-weight: bold;">Do</span>(<span style="color: #8787d7;">f</span> <span style="color: #268bd2; font-weight: bold;">func</span>())
 </pre>
 </div>
 
@@ -150,7 +150,7 @@ Do方法当且仅当第一次被调用时才执行函数f。换句话说，给�
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7; background-color: #262626; font-weight: bold;">once</span> <span style="color: #df005f; font-weight: bold;">Once</span>
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">once</span> <span style="color: #df005f; font-weight: bold;">Once</span>
 </pre>
 </div>
 
@@ -184,19 +184,19 @@ Do用于必须刚好运行一次的初始化。因为f是没有参数的，因�
 </div>
 
 <p>
-Mutex是一个互斥锁，可以创建为其他结构体的字段；零值为解锁状态。Mutex类型的锁和线程无关，可以由不同的线程加锁和解锁。<br>
+Mutex 是一个互斥锁，可以创建为其他结构体的字段；零值为解锁状态。Mutex 类型的锁和线程无关，可以由不同的线程加锁和解锁。<br>
 </p>
 </div>
 <div id="outline-container-org4226db9" class="outline-3">
 <h3 id="org4226db9">func (*Mutex) Lock</h3>
 <div class="outline-text-3" id="text-org4226db9">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7; background-color: #262626; font-weight: bold;">m</span> *<span style="color: #df005f; font-weight: bold;">Mutex</span>) <span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">m</span> *<span style="color: #df005f; font-weight: bold;">Mutex</span>) <span style="color: #d75fd7; font-weight: bold;">Lock</span>()
 </pre>
 </div>
 
 <p>
-Lock方法锁住m，如果m已经加锁，则阻塞直到m解锁。<br>
+Lock 方法锁住 m，如果 m 已经加锁，则阻塞直到 m 解锁。<br>
 </p>
 </div>
 </div>
@@ -204,12 +204,12 @@ Lock方法锁住m，如果m已经加锁，则阻塞直到m解锁。<br>
 <h3 id="orgccac89d">func (*Mutex) Unlock</h3>
 <div class="outline-text-3" id="text-orgccac89d">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7; background-color: #262626; font-weight: bold;">m</span> *<span style="color: #df005f; font-weight: bold;">Mutex</span>) <span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">m</span> *<span style="color: #df005f; font-weight: bold;">Mutex</span>) <span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
 </pre>
 </div>
 
 <p>
-Unlock方法解锁m，如果m未加锁会导致运行时错误。锁和线程无关，可以由不同的线程加锁和解锁。<br>
+Unlock 方法解锁 m，如果 m 未加锁会导致运行时错误。锁和线程无关，可以由不同的线程加锁和解锁。<br>
 </p>
 </div>
 </div>
@@ -232,7 +232,7 @@ RWMutex是读写互斥锁。该锁可以被同时多个读取者持有或唯一�
 <h3 id="orge6af112">func (*RWMutex) Lock</h3>
 <div class="outline-text-3" id="text-orge6af112">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7; background-color: #262626; font-weight: bold;">rw</span> *<span style="color: #df005f; font-weight: bold;">RWMutex</span>) <span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">rw</span> *<span style="color: #df005f; font-weight: bold;">RWMutex</span>) <span style="color: #d75fd7; font-weight: bold;">Lock</span>()
 </pre>
 </div>
 
@@ -245,7 +245,7 @@ Lock方法将rw锁定为写入状态，禁止其他线程读取或者写入。<b
 <h3 id="org73ecc25">func (*RWMutex) Unlock</h3>
 <div class="outline-text-3" id="text-org73ecc25">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7; background-color: #262626; font-weight: bold;">rw</span> *<span style="color: #df005f; font-weight: bold;">RWMutex</span>) <span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">rw</span> *<span style="color: #df005f; font-weight: bold;">RWMutex</span>) <span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
 </pre>
 </div>
 
@@ -258,7 +258,7 @@ Unlock方法解除rw的写入锁状态，如果m未加写入锁会导致运行�
 <h3 id="org535d48c">func (*RWMutex) RLock</h3>
 <div class="outline-text-3" id="text-org535d48c">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7; background-color: #262626; font-weight: bold;">rw</span> *<span style="color: #df005f; font-weight: bold;">RWMutex</span>) <span style="color: #d75fd7; font-weight: bold;">RLock</span>()
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">rw</span> *<span style="color: #df005f; font-weight: bold;">RWMutex</span>) <span style="color: #d75fd7; font-weight: bold;">RLock</span>()
 </pre>
 </div>
 
@@ -271,7 +271,7 @@ RLock方法将rw锁定为读取状态，禁止其他线程写入，但不禁止�
 <h3 id="org4e47710">func (*RWMutex) RUnlock</h3>
 <div class="outline-text-3" id="text-org4e47710">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7; background-color: #262626; font-weight: bold;">rw</span> *<span style="color: #df005f; font-weight: bold;">RWMutex</span>) <span style="color: #d75fd7; font-weight: bold;">RUnlock</span>()
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">rw</span> *<span style="color: #df005f; font-weight: bold;">RWMutex</span>) <span style="color: #d75fd7; font-weight: bold;">RUnlock</span>()
 </pre>
 </div>
 
@@ -284,7 +284,7 @@ Runlock方法解除rw的读取锁状态，如果m未加读取锁会导致运行�
 <h3 id="orgac36573">func (*RWMutex) RLocker</h3>
 <div class="outline-text-3" id="text-orgac36573">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7; background-color: #262626; font-weight: bold;">rw</span> *<span style="color: #df005f; font-weight: bold;">RWMutex</span>) <span style="color: #d75fd7; font-weight: bold;">RLocker</span>() <span style="color: #df005f; font-weight: bold;">Locker</span>
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">rw</span> *<span style="color: #df005f; font-weight: bold;">RWMutex</span>) <span style="color: #d75fd7; font-weight: bold;">RLocker</span>() <span style="color: #df005f; font-weight: bold;">Locker</span>
 </pre>
 </div>
 
@@ -318,7 +318,7 @@ Cond实现了一个条件变量，一个线程集合地，供线程等待或者�
 <h3 id="org7eadafa">func NewCond</h3>
 <div class="outline-text-3" id="text-org7eadafa">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">NewCond</span>(<span style="color: #8787d7; background-color: #262626; font-weight: bold;">l</span> <span style="color: #df005f; font-weight: bold;">Locker</span>) *<span style="color: #df005f; font-weight: bold;">Cond</span>
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">NewCond</span>(<span style="color: #8787d7;">l</span> <span style="color: #df005f; font-weight: bold;">Locker</span>) *<span style="color: #df005f; font-weight: bold;">Cond</span>
 </pre>
 </div>
 
@@ -331,7 +331,7 @@ Cond实现了一个条件变量，一个线程集合地，供线程等待或者�
 <h3 id="org2b4635b">func (*Cond) Broadcast</h3>
 <div class="outline-text-3" id="text-org2b4635b">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7; background-color: #262626; font-weight: bold;">c</span> *<span style="color: #df005f; font-weight: bold;">Cond</span>) <span style="color: #d75fd7; font-weight: bold;">Broadcast</span>()
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">Cond</span>) <span style="color: #d75fd7; font-weight: bold;">Broadcast</span>()
 </pre>
 </div>
 
@@ -344,7 +344,7 @@ Broadcast唤醒所有等待c的线程。调用者在调用本方法时，建议�
 <h3 id="org16a4380">func (*Cond) Signal</h3>
 <div class="outline-text-3" id="text-org16a4380">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7; background-color: #262626; font-weight: bold;">c</span> *<span style="color: #df005f; font-weight: bold;">Cond</span>) <span style="color: #d75fd7; font-weight: bold;">Signal</span>()
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">Cond</span>) <span style="color: #d75fd7; font-weight: bold;">Signal</span>()
 </pre>
 </div>
 
@@ -357,7 +357,7 @@ Signal唤醒等待c的一个线程（如果存在）。调用者在调用本方�
 <h3 id="orgfb44cb5">func (*Cond) Wait</h3>
 <div class="outline-text-3" id="text-orgfb44cb5">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7; background-color: #262626; font-weight: bold;">c</span> *<span style="color: #df005f; font-weight: bold;">Cond</span>) <span style="color: #d75fd7; font-weight: bold;">Wait</span>()
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">Cond</span>) <span style="color: #d75fd7; font-weight: bold;">Wait</span>()
 </pre>
 </div>
 
@@ -396,17 +396,17 @@ WaitGroup用于等待一组线程的结束。父线程调用Add方法来设定�
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7; background-color: #262626; font-weight: bold;">wg</span> <span style="color: #df005f; font-weight: bold;">sync.WaitGroup</span>
-<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7; background-color: #262626; font-weight: bold;">urls</span> = []<span style="color: #df005f; font-weight: bold;">string</span>{
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">wg</span> <span style="color: #df005f; font-weight: bold;">sync.WaitGroup</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">urls</span> = []<span style="color: #df005f; font-weight: bold;">string</span>{
     <span style="color: #2aa198;">"http://www.golang.org/"</span>,
     <span style="color: #2aa198;">"http://www.google.com/"</span>,
     <span style="color: #2aa198;">"http://www.somestupidname.com/"</span>,
 }
-<span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7; background-color: #262626; font-weight: bold;">_</span>, <span style="color: #8787d7; background-color: #262626; font-weight: bold;">url</span> := <span style="color: #268bd2; font-weight: bold;">range</span> urls {
+<span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">_</span>, <span style="color: #8787d7;">url</span> := <span style="color: #268bd2; font-weight: bold;">range</span> urls {
     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Increment the WaitGroup counter.</span>
     wg.<span style="color: #d75fd7; font-weight: bold;">Add</span>(<span style="color: #d75fd7;">1</span>)
     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Launch a goroutine to fetch the URL.</span>
-    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7; background-color: #262626; font-weight: bold;">url</span> <span style="color: #df005f; font-weight: bold;">string</span>) {
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">url</span> <span style="color: #df005f; font-weight: bold;">string</span>) {
         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Decrement the counter when the goroutine completes.</span>
         <span style="color: #268bd2; font-weight: bold;">defer</span> wg.<span style="color: #d75fd7; font-weight: bold;">Done</span>()
         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Fetch the URL.</span>
@@ -422,7 +422,7 @@ wg.<span style="color: #d75fd7; font-weight: bold;">Wait</span>()
 <h3 id="org25a8bbd">func (*WaitGroup) Add</h3>
 <div class="outline-text-3" id="text-org25a8bbd">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7; background-color: #262626; font-weight: bold;">wg</span> *<span style="color: #df005f; font-weight: bold;">WaitGroup</span>) <span style="color: #d75fd7; font-weight: bold;">Add</span>(<span style="color: #8787d7; background-color: #262626; font-weight: bold;">delta</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">wg</span> *<span style="color: #df005f; font-weight: bold;">WaitGroup</span>) <span style="color: #d75fd7; font-weight: bold;">Add</span>(<span style="color: #8787d7;">delta</span> <span style="color: #df005f; font-weight: bold;">int</span>)
 </pre>
 </div>
 
@@ -435,7 +435,7 @@ Add方法向内部计数加上delta，delta可以是负数；如果内部计数�
 <h3 id="org677dd75">func (*WaitGroup) Done</h3>
 <div class="outline-text-3" id="text-org677dd75">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7; background-color: #262626; font-weight: bold;">wg</span> *<span style="color: #df005f; font-weight: bold;">WaitGroup</span>) <span style="color: #d75fd7; font-weight: bold;">Done</span>()
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">wg</span> *<span style="color: #df005f; font-weight: bold;">WaitGroup</span>) <span style="color: #d75fd7; font-weight: bold;">Done</span>()
 </pre>
 </div>
 
@@ -448,7 +448,7 @@ Done方法减少WaitGroup计数器的值，应在线程的最后执行。<br>
 <h3 id="org430ed85">func (*WaitGroup) Wait</h3>
 <div class="outline-text-3" id="text-org430ed85">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7; background-color: #262626; font-weight: bold;">wg</span> *<span style="color: #df005f; font-weight: bold;">WaitGroup</span>) <span style="color: #d75fd7; font-weight: bold;">Wait</span>()
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">wg</span> *<span style="color: #df005f; font-weight: bold;">WaitGroup</span>) <span style="color: #d75fd7; font-weight: bold;">Wait</span>()
 </pre>
 </div>
 
@@ -503,7 +503,7 @@ Pool的一个好例子在fmt包里。该Pool维护一个动态大小的临时输
 <h3 id="org712935d">func (*Pool) Get</h3>
 <div class="outline-text-3" id="text-org712935d">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7; background-color: #262626; font-weight: bold;">p</span> *<span style="color: #df005f; font-weight: bold;">Pool</span>) <span style="color: #d75fd7; font-weight: bold;">Get</span>() <span style="color: #268bd2; font-weight: bold;">interface</span>{}
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">p</span> *<span style="color: #df005f; font-weight: bold;">Pool</span>) <span style="color: #d75fd7; font-weight: bold;">Get</span>() <span style="color: #268bd2; font-weight: bold;">interface</span>{}
 </pre>
 </div>
 
@@ -520,7 +520,7 @@ Get方法从池中选择任意一个item，删除其在池中的引用计数，�
 <h3 id="org5423074">func (*Pool) Put</h3>
 <div class="outline-text-3" id="text-org5423074">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7; background-color: #262626; font-weight: bold;">p</span> *<span style="color: #df005f; font-weight: bold;">Pool</span>) <span style="color: #d75fd7; font-weight: bold;">Put</span>(<span style="color: #8787d7; background-color: #262626; font-weight: bold;">x</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{})
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">p</span> *<span style="color: #df005f; font-weight: bold;">Pool</span>) <span style="color: #d75fd7; font-weight: bold;">Put</span>(<span style="color: #8787d7;">x</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{})
 </pre>
 </div>
 
@@ -534,7 +534,7 @@ Put方法将x放入池中。<br>
 <div id="postamble" class="status">
 <p class="date">Date: 2022-02-07 14:02 Mon</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-02-07 Mon 17:52</p>
+<p class="date">Created: 2022-02-14 Mon 23:48</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

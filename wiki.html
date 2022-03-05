@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-12-29 Wed 11:28 -->
+<!-- 2022-02-27 Sun 20:49 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>WIKI</title>
@@ -96,9 +96,41 @@
 </ul>
 </li>
 <li><a href="#orgf896c83">把 rm 命令更改为 mv 命令</a></li>
+<li><a href="#org766e674">TCP 标志字段的含义</a></li>
 </ul>
 </div>
 </div>
+<style>
+.js-wiki-outline {
+    position: relative;
+    margin: 0.2rem 0;
+    padding: 0.24rem 0.32rem 0.24rem 0.1rem;
+    border-radius: 0.06rem;
+    box-shadow: 1px 1px 5px #ccc;
+    transition: all 0.3s ease-in-out;
+}
+
+.js-wiki-outline:nth-child(odd) .js-code-src {
+    z-index: 0;
+}
+
+.js-wiki-outline h2 {
+    position: absolute;
+    top: -0.08rem;
+    right: 0.1rem;
+    color: #8b8e86 !important;
+    font-size: 0.12rem;
+		font-weight: normal;
+}
+
+.js-wiki-outline h2:before {
+    content: '';
+}
+
+.js-wiki-outline:hover {
+    box-shadow: 5px 5px 9px #ccc;
+}
+</style>
 
 <div id="outline-container-org7ae7b4f" class="outline-2">
 <h2 id="org7ae7b4f">C++在线编译器</h2>
@@ -396,7 +428,7 @@ time-daylight-time.jpg<br>
 <div id="outline-container-org5674bcf" class="outline-4">
 <h4 id="org5674bcf">1、RFC-2822标准格式</h4>
 <div class="outline-text-4" id="text-org5674bcf">
-<pre class="example" id="org6769fdf">
+<pre class="example" id="org71fe6e3">
 // GMT+0800(CST)代表东八区
 // CST(china standard time)表示中国标准时间
 
@@ -410,7 +442,7 @@ Sun Apr 08 2018 11:38:39 GMT+0800(CST)
 <p>
 其中一种常见的格式形如：<br>
 </p>
-<pre class="example" id="orgf905ac5">
+<pre class="example" id="orgfb90c22">
 2018-04-08T11:38:39+08:00  // 日期用'-'相隔，与时间用'T'连接
 2018-04-08T11:38:39Z  // Z代表UTC时间，Z也可写成00:00
 </pre>
@@ -419,7 +451,7 @@ Sun Apr 08 2018 11:38:39 GMT+0800(CST)
 ISO 8601的标准格式是：YYYY-MM-DDTHH:mm:ss.sssZ，分别表示：<br>
 </p>
 
-<pre class="example" id="org28eb3de">
+<pre class="example" id="org569c32f">
 YYYY：年份，0000 ~ 9999
 MM：月份，01 ~ 12
 DD：日，01 ~ 31
@@ -515,14 +547,14 @@ cURL是一个利用URL语法在命令行下工作的文件传输工具，1997年
 <p>
 （1）URL 路径传参<br>
 </p>
-<pre class="example" id="org60f72fb">
+<pre class="example" id="orgc380c68">
 http://127.0.0.1:8080/user?name=Tom&amp;age=16
 </pre>
 
 <p>
 （2）URL 路径参数<br>
 </p>
-<pre class="example" id="org253fe1d">
+<pre class="example" id="org5248146">
 http://127.0.0.1:8080/user/Tom/16
 </pre>
 </div>
@@ -561,23 +593,40 @@ http://127.0.0.1:8080/user/Tom/16
 </p>
 
 <div class="org-src-container">
-<pre class="src src-shell"><span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&#23558;&#19979;&#38754;&#20960;&#34892;&#25918;&#22312; ~/.bashrc &#25991;&#20214;&#22841;&#30340;&#26368;&#21518;</span>
+<pre class="src src-shell"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#23558;&#19979;&#38754;&#20960;&#34892;&#25918;&#22312; ~/.bashrc &#25991;&#20214;&#22841;&#30340;&#26368;&#21518;</span>
 
-mkdir -p ~/.trash   <span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&#22312;&#23478;&#30446;&#24405;&#19979;&#21019;&#24314;&#19968;&#20010;.trash&#25991;&#20214;&#22841;(&#38544;&#34255;&#25991;&#20214;&#65292;ls -a &#26597;&#30475;)</span>
-<span style="color: #AFAFAF;">alias</span> <span style="color: #AFAFAF;">rm</span>=del        <span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&#20351;&#29992;&#21035;&#21517;del&#20195;&#26367;rm   </span>
-<span style="color: #AFAFAF;">del</span>()               <span style="color: #7c7c7c; font-style: italic;"># </span><span style="color: #7c7c7c; font-style: italic;">&#20989;&#25968;del&#65292;&#20316;&#29992;&#65306;&#23558;rm&#21629;&#20196;&#20462;&#25913;&#20026;mv&#21629;&#20196;</span>
+mkdir -p ~/.trash   <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#22312;&#23478;&#30446;&#24405;&#19979;&#21019;&#24314;&#19968;&#20010;.trash&#25991;&#20214;&#22841;(&#38544;&#34255;&#25991;&#20214;&#65292;ls -a &#26597;&#30475;)</span>
+<span style="color: #268bd2;">alias</span> <span style="color: #8787d7;">rm</span>=del        <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#20351;&#29992;&#21035;&#21517;del&#20195;&#26367;rm   </span>
+<span style="color: #d75fd7; font-weight: bold;">del</span>()               <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#20989;&#25968;del&#65292;&#20316;&#29992;&#65306;&#23558;rm&#21629;&#20196;&#20462;&#25913;&#20026;mv&#21629;&#20196;</span>
 {  
-    mv $<span style="color: #AFAFAF;">@</span> ~/.trash/  
+    mv $<span style="color: #8787d7;">@</span> ~/.trash/  
 }  
 </pre>
 </div>
+</div>
+</div>
+
+<div id="outline-container-org766e674" class="outline-2">
+<h2 id="org766e674">TCP 标志字段的含义</h2>
+<div class="outline-text-2" id="text-org766e674">
+<ul class="org-ul">
+<li>FIN: "finished"简写。表示发送者以及发送完数据。通常用在发送者发送完数据的最后一个包中。<br></li>
+<li>SYN: "Synchronisation"简写。表示三次握手建立连接的第一步，在建立连接时发送者发送的第一个包中设置flag值为SYN。<br></li>
+<li>RST: "reset"简写。重置连接标志，用于重置由于主机崩溃或其他原因而出现错误的连接。或者发送包发送到一个不是期望的                  目的主机时，接收端发送reset 重置连接标志的包。<br></li>
+<li>PSH: "push"简写。通知接收端处理接收的报文，而不是将报文缓存到buffer中。<br></li>
+<li>ACK: "Acknowledgment"简写。表示包已经被成功接收。<br></li>
+<li>URG: "urgent"简写。通知接收端处理在处理其他包前优先处理接收到的紧急报文（urgent packets）。详见RFC6093。<br></li>
+<li>ECE: "ECN-Echo"简写。ECN表示Explicit Congestion Notification。表示TCP peer有ECN能力。详见RFC3168。<br></li>
+<li>CWR: "Congestion Window Reduced"简写。发送者在接收到一个带有ECE flag包时，将会使用CWR flag。 详见RFC3168。<br></li>
+<li>NS: "nonce sum"简写。该标签用来保护不受发送者发送的突发的恶意隐藏报文的侵害。详见 RFC 3540。<br></li>
+</ul>
 </div>
 </div>
 </div>
 <div id="postamble" class="status">
 <p class="date">Date: 2021-10-13 22:10 Wed</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2021-12-29 Wed 11:28</p>
+<p class="date">Created: 2022-02-27 Sun 20:49</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

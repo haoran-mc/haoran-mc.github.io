@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-02-03 Thu 21:14 -->
+<!-- 2022-02-11 Fri 17:55 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GO-内建函数</title>
@@ -17,28 +17,276 @@
 <body>
 <div id="content">
 <h1 class="title">GO-内建函数</h1>
-<ul class="org-ul">
-<li>append<br></li>
-<li>cap<br></li>
-<li>close<br></li>
-<li>complex<br></li>
-<li>copy<br></li>
-<li>delete<br></li>
-<li>imag<br></li>
-<li>len<br></li>
-<li>make<br></li>
-<li>new<br></li>
-<li>panic<br></li>
-<li>print<br></li>
-<li>println<br></li>
-<li>real<br></li>
-<li>recover<br></li>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org5ad888f">func real</a></li>
+<li><a href="#org5f008b2">func imag</a></li>
+<li><a href="#orge01c31c">func complex</a></li>
+<li><a href="#orge67f62e">func new</a></li>
+<li><a href="#orgf36256d">func make</a></li>
+<li><a href="#org25bc5c4">func cap</a></li>
+<li><a href="#org8449911">func len</a></li>
+<li><a href="#orgf0ad667">func append</a></li>
+<li><a href="#org5f92eb1">func copy</a></li>
+<li><a href="#org0326747">func delete</a></li>
+<li><a href="#orgc206be4">func close</a></li>
+<li><a href="#org3199365">func panic</a></li>
+<li><a href="#orge461eb8">func recover</a></li>
+<li><a href="#orgd79a483">func print</a></li>
+<li><a href="#orga00a992">func println</a></li>
 </ul>
+</div>
+</div>
+
+<div id="outline-container-org5ad888f" class="outline-2">
+<h2 id="org5ad888f">func real</h2>
+<div class="outline-text-2" id="text-org5ad888f">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #268bd2;">real</span>(<span style="color: #8787d7;">c</span> <span style="color: #df005f; font-weight: bold;">ComplexType</span>) <span style="color: #df005f; font-weight: bold;">FloatType</span>
+</pre>
+</div>
+
+<p>
+返回复数c的实部。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5f008b2" class="outline-2">
+<h2 id="org5f008b2">func imag</h2>
+<div class="outline-text-2" id="text-org5f008b2">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #268bd2;">imag</span>(<span style="color: #8787d7;">c</span> <span style="color: #df005f; font-weight: bold;">ComplexType</span>) <span style="color: #df005f; font-weight: bold;">FloatType</span>
+</pre>
+</div>
+
+<p>
+返回复数c的虚部。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge01c31c" class="outline-2">
+<h2 id="orge01c31c">func complex</h2>
+<div class="outline-text-2" id="text-orge01c31c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #268bd2;">complex</span>(<span style="color: #8787d7;">r</span>, <span style="color: #8787d7;">i</span> <span style="color: #df005f; font-weight: bold;">FloatType</span>) <span style="color: #df005f; font-weight: bold;">ComplexType</span>
+</pre>
+</div>
+
+<p>
+使用实部r和虚部i生成一个复数。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge67f62e" class="outline-2">
+<h2 id="orge67f62e">func new</h2>
+<div class="outline-text-2" id="text-orge67f62e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #268bd2;">new</span>(<span style="color: #df005f; font-weight: bold;">Type</span>) *<span style="color: #df005f; font-weight: bold;">Type</span>
+</pre>
+</div>
+
+<p>
+内建函数new分配内存。其第一个实参为类型，而非值。其返回值为指向该类型的新分配的零值的指针。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf36256d" class="outline-2">
+<h2 id="orgf36256d">func make</h2>
+<div class="outline-text-2" id="text-orgf36256d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #268bd2;">make</span>(<span style="color: #8787d7;">Type</span>, <span style="color: #8787d7;">size</span> <span style="color: #df005f; font-weight: bold;">IntegerType</span>) <span style="color: #df005f; font-weight: bold;">Type</span>
+</pre>
+</div>
+
+<p>
+内建函数make分配并初始化一个类型为切片、映射、或通道的对象。其第一个实参为类型，而非值。make的返回类型与其参数相同，而非指向它的指针。其具体结果取决于具体的类型：<br>
+</p>
+
+<pre class="example" id="orgecc469e">
+切片：size指定了其长度。该切片的容量等于其长度。切片支持第二个整数实参可用来指定不同的容量；
+		 它必须不小于其长度，因此 make([]int, 0, 10) 会分配一个长度为0，容量为10的切片。
+映射：初始分配的创建取决于size，但产生的映射长度为0。size可以省略，这种情况下就会分配一个
+		 小的起始大小。
+通道：通道的缓存根据指定的缓存容量初始化。若 size为零或被省略，该信道即为无缓存的。
+</pre>
+</div>
+</div>
+<div id="outline-container-org25bc5c4" class="outline-2">
+<h2 id="org25bc5c4">func cap</h2>
+<div class="outline-text-2" id="text-org25bc5c4">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #268bd2;">cap</span>(<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Type</span>) <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+内建函数cap返回 v 的容量，这取决于具体类型：<br>
+</p>
+
+<pre class="example" id="orgf503f70">
+数组：v中元素的数量，与 len(v) 相同
+数组指针：*v中元素的数量，与len(v) 相同
+切片：切片的容量（底层数组的长度）；若 v为nil，cap(v) 即为零
+信道：按照元素的单元，相应信道缓存的容量；若v为nil，cap(v)即为零
+</pre>
+</div>
+</div>
+<div id="outline-container-org8449911" class="outline-2">
+<h2 id="org8449911">func len</h2>
+<div class="outline-text-2" id="text-org8449911">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #268bd2;">len</span>(<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Type</span>) <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+内建函数len返回 v 的长度，这取决于具体类型：<br>
+</p>
+
+<pre class="example" id="org0cce409">
+数组：v中元素的数量
+数组指针：*v中元素的数量（v为nil时panic）
+切片、映射：v中元素的数量；若v为nil，len(v)即为零
+字符串：v中字节的数量
+通道：通道缓存中队列（未读取）元素的数量；若v为 nil，len(v)即为零
+</pre>
+</div>
+</div>
+<div id="outline-container-orgf0ad667" class="outline-2">
+<h2 id="orgf0ad667">func append</h2>
+<div class="outline-text-2" id="text-orgf0ad667">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #268bd2;">append</span>(<span style="color: #8787d7;">slice</span> []<span style="color: #df005f; font-weight: bold;">Type</span>, <span style="color: #8787d7;">elems</span> ...<span style="color: #df005f; font-weight: bold;">Type</span>) []<span style="color: #df005f; font-weight: bold;">Type</span>
+</pre>
+</div>
+
+<p>
+内建函数 append 将元素追加到切片的末尾。若它有足够的容量，其目标就会重新切片以容纳新的元素。否则，就会分配一个新的基本数组。append 返回更新后的切片，因此必须存储追加后的结果。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">slice = <span style="color: #268bd2;">append</span>(slice, elem1, elem2)
+slice = <span style="color: #268bd2;">append</span>(slice, anotherSlice...)
+</pre>
+</div>
+
+<p>
+作为特例，可以向一个字节切片 append 字符串，如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">slice = <span style="color: #268bd2;">append</span>([]<span style="color: #d75fd7; font-weight: bold;">byte</span>(<span style="color: #2aa198;">"hello "</span>), <span style="color: #2aa198;">"world"</span>...)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org5f92eb1" class="outline-2">
+<h2 id="org5f92eb1">func copy</h2>
+<div class="outline-text-2" id="text-org5f92eb1">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #268bd2;">copy</span>(<span style="color: #8787d7;">dst</span>, <span style="color: #8787d7;">src</span> []<span style="color: #df005f; font-weight: bold;">Type</span>) <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+内建函数copy将元素从来源切片复制到目标切片中，也能将字节从字符串复制到字节切片中。copy返回被复制的元素数量，它会是 len(src) 和 len(dst) 中较小的那个。来源和目标的底层内存可以重叠。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org0326747" class="outline-2">
+<h2 id="org0326747">func delete</h2>
+<div class="outline-text-2" id="text-org0326747">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #268bd2;">delete</span>(<span style="color: #8787d7;">m</span> <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">Type</span>]<span style="color: #df005f; font-weight: bold;">Type1</span>, <span style="color: #8787d7;">key</span> <span style="color: #df005f; font-weight: bold;">Type</span>)
+</pre>
+</div>
+
+<p>
+内建函数delete按照指定的键将元素从映射中删除。若m为nil或无此元素，delete不进行操作。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc206be4" class="outline-2">
+<h2 id="orgc206be4">func close</h2>
+<div class="outline-text-2" id="text-orgc206be4">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #268bd2;">close</span>(<span style="color: #8787d7;">c</span> <span style="color: #268bd2; font-weight: bold;">chan</span> &lt;- <span style="color: #df005f; font-weight: bold;">Type</span>)
+</pre>
+</div>
+
+<p>
+内建函数 <code>close</code> 关闭信道，该通道必须为双向的或只发送的。它应当只由发送者执行，而不应由接收者执行，其效果是在最后发送的值被接收后停止该通道。在最后的值从已关闭的信道中被接收后，任何对其的接收操作都会无阻塞的成功。对于已关闭的信道，语句：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">x</span>, <span style="color: #8787d7;">ok</span> := &lt;- c
+</pre>
+</div>
+
+<p>
+还会将 <code>ok</code> 置为 <code>false</code> 。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org3199365" class="outline-2">
+<h2 id="org3199365">func panic</h2>
+<div class="outline-text-2" id="text-org3199365">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #268bd2;">panic</span>(<span style="color: #8787d7;">v</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{})
+</pre>
+</div>
+
+<p>
+内建函数panic停止当前Go程的正常执行。当函数F调用panic时，F的正常执行就会立刻停止。F中defer的所有函数先入后出执行后，F返回给其调用者G。G如同F一样行动，层层返回，直到该Go程中所有函数都按相反的顺序停止执行。之后，程序被终止，而错误情况会被报告，包括引发该恐慌的实参值，此终止序列称为恐慌过程。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge461eb8" class="outline-2">
+<h2 id="orge461eb8">func recover</h2>
+<div class="outline-text-2" id="text-orge461eb8">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #268bd2;">recover</span>() <span style="color: #268bd2; font-weight: bold;">interface</span>{}
+</pre>
+</div>
+
+<p>
+内建函数 recover 允许程序管理恐慌过程中的 Go 程。在 defer 的函数中，执行 recover 调用会取回传至 panic 调用的错误值，恢复正常执行，停止恐慌过程。若 recover 在 defer 的函数之外被调用，它将不会停止恐慌过程序列。在此情况下，或当该 Go 程不在恐慌过程中时，或提供给 panic 的实参为 nil 时，recover 就会返回 nil。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd79a483" class="outline-2">
+<h2 id="orgd79a483">func print</h2>
+<div class="outline-text-2" id="text-orgd79a483">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #268bd2;">print</span>(<span style="color: #8787d7;">args</span> ...<span style="color: #df005f; font-weight: bold;">Type</span>)
+</pre>
+</div>
+
+<p>
+内建函数print以特有的方法格式化参数并将结果写入标准错误，用于自举和调试。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga00a992" class="outline-2">
+<h2 id="orga00a992">func println</h2>
+<div class="outline-text-2" id="text-orga00a992">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #268bd2;">println</span>(<span style="color: #8787d7;">args</span> ...<span style="color: #df005f; font-weight: bold;">Type</span>)
+</pre>
+</div>
+
+<p>
+println类似print，但会在参数输出之间添加空格，输出结束后换行。<br>
+</p>
+</div>
+</div>
 </div>
 <div id="postamble" class="status">
 <p class="date">Date: 2022-02-03 18:02 Thu</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-02-03 Thu 21:14</p>
+<p class="date">Created: 2022-02-11 Fri 17:55</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

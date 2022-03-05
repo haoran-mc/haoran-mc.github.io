@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-08 Tue 13:54 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>STRINGS</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">STRINGS</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orga01d9f2">func EqualFold</a></li>
+<li><a href="#org4d3e2e1">func HasPrefix</a></li>
+<li><a href="#org24ff443">func HasSuffix</a></li>
+<li><a href="#orga03dff6">func Contains</a></li>
+<li><a href="#orgcd1e553">func ContainsRune</a></li>
+<li><a href="#org2845b3a">func ContainsAny</a></li>
+<li><a href="#orge9e8f09">func Count</a></li>
+<li><a href="#org87dd473">func Index</a></li>
+<li><a href="#orgcdbaa0a">func IndexByte</a></li>
+<li><a href="#org82a08ef">func IndexRune</a></li>
+<li><a href="#org2b5214d">func IndexAny</a></li>
+<li><a href="#orgaea18fe">func IndexFunc</a></li>
+<li><a href="#org25364d4">func LastIndex</a></li>
+<li><a href="#orgf163bb1">func LastIndexAny</a></li>
+<li><a href="#orgb26c370">func LastIndexFunc</a></li>
+<li><a href="#org5020faa">func Title</a></li>
+<li><a href="#org7a5a88d">func ToLower</a></li>
+<li><a href="#org9a97e68">func ToLowerSpecial</a></li>
+<li><a href="#orge7d29e6">func ToUpper</a></li>
+<li><a href="#orgf3b6bfe">func ToUpperSpecial</a></li>
+<li><a href="#orge2c3270">func ToTitle</a></li>
+<li><a href="#orga995406">func ToTitleSpecial</a></li>
+<li><a href="#orgf4df95a">func Repeat</a></li>
+<li><a href="#org68f7659">func Replace</a></li>
+<li><a href="#org4d6fdd4">func Map</a></li>
+<li><a href="#org5144085">func Trim</a></li>
+<li><a href="#org96e5fdc">func TrimSpace</a></li>
+<li><a href="#org3841fc4">func TrimFunc</a></li>
+<li><a href="#org0bbe97b">func TrimLeft</a></li>
+<li><a href="#org99368dc">func TrimLeftFunc</a></li>
+<li><a href="#org2912c84">func TrimPrefix</a></li>
+<li><a href="#orgf0c78b6">func TrimRight</a></li>
+<li><a href="#org4535369">func TrimRightFunc</a></li>
+<li><a href="#org8bd8037">func TrimSuffix</a></li>
+<li><a href="#org5db2cdf">func Fields</a></li>
+<li><a href="#org5e21fd6">func FieldsFunc</a></li>
+<li><a href="#orgc66735f">func Split</a></li>
+<li><a href="#org927e0c1">func SplitN</a></li>
+<li><a href="#orge39ccf0">func SplitAfter</a></li>
+<li><a href="#orga6f33f0">func SplitAfterN</a></li>
+<li><a href="#org238e88c">func Join</a></li>
+<li><a href="#org7ed337b">type Reader</a>
+<ul>
+<li><a href="#org5f5b216">func NewReader</a></li>
+<li><a href="#org0e91ec6">func (*Reader) Len</a></li>
+<li><a href="#orgf5b94ea">func (*Reader) Read</a></li>
+<li><a href="#org3c81e4c">func (*Reader) ReadByte</a></li>
+<li><a href="#org686c27c">func (*Reader) UnreadByte</a></li>
+<li><a href="#org26c82f8">func (*Reader) ReadRune</a></li>
+<li><a href="#org9163f46">func (*Reader) UnreadRune</a></li>
+<li><a href="#org171e0b0">func (*Reader) Seek</a></li>
+<li><a href="#orgafe8d4c">func (*Reader) ReadAt</a></li>
+<li><a href="#org02a80d3">func (*Reader) WriteTo</a></li>
+</ul>
+</li>
+<li><a href="#orgb15a0f2">type Replacer</a>
+<ul>
+<li><a href="#orge15e20e">func NewReplacer</a></li>
+<li><a href="#org052ca93">func (*Replacer) Replace</a></li>
+<li><a href="#org9b99d38">func (*Replacer) WriteString</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orga01d9f2" class="outline-2">
+<h2 id="orga01d9f2">func EqualFold</h2>
+<div class="outline-text-2" id="text-orga01d9f2">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">EqualFold</span>(<span style="color: #8787d7;">s</span>, <span style="color: #8787d7;">t</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+判断两个utf-8编码字符串（将unicode大写、小写、标题三种格式字符视为相同）是否相同。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(strings.<span style="color: #d75fd7; font-weight: bold;">EqualFold</span>(<span style="color: #2aa198;">"Go"</span>, <span style="color: #2aa198;">"go"</span>))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">true</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org4d3e2e1" class="outline-2">
+<h2 id="org4d3e2e1">func HasPrefix</h2>
+<div class="outline-text-2" id="text-org4d3e2e1">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">HasPrefix</span>(<span style="color: #8787d7;">s</span>, <span style="color: #8787d7;">prefix</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+判断s是否有前缀字符串prefix。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org24ff443" class="outline-2">
+<h2 id="org24ff443">func HasSuffix</h2>
+<div class="outline-text-2" id="text-org24ff443">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">HasSuffix</span>(<span style="color: #8787d7;">s</span>, <span style="color: #8787d7;">suffix</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+判断s是否有后缀字符串suffix。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga03dff6" class="outline-2">
+<h2 id="orga03dff6">func Contains</h2>
+<div class="outline-text-2" id="text-orga03dff6">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Contains</span>(<span style="color: #8787d7;">s</span>, <span style="color: #8787d7;">substr</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+判断字符串s是否包含子串substr。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(strings.<span style="color: #d75fd7; font-weight: bold;">Contains</span>(<span style="color: #2aa198;">"seafood"</span>, <span style="color: #2aa198;">"foo"</span>))
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(strings.<span style="color: #d75fd7; font-weight: bold;">Contains</span>(<span style="color: #2aa198;">"seafood"</span>, <span style="color: #2aa198;">"bar"</span>))
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(strings.<span style="color: #d75fd7; font-weight: bold;">Contains</span>(<span style="color: #2aa198;">"seafood"</span>, <span style="color: #2aa198;">""</span>))
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(strings.<span style="color: #d75fd7; font-weight: bold;">Contains</span>(<span style="color: #2aa198;">""</span>, <span style="color: #2aa198;">""</span>))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">true</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">false</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">true</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">true</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgcd1e553" class="outline-2">
+<h2 id="orgcd1e553">func ContainsRune</h2>
+<div class="outline-text-2" id="text-orgcd1e553">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ContainsRune</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+判断字符串s是否包含utf-8码值r。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2845b3a" class="outline-2">
+<h2 id="org2845b3a">func ContainsAny</h2>
+<div class="outline-text-2" id="text-org2845b3a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ContainsAny</span>(<span style="color: #8787d7;">s</span>, <span style="color: #8787d7;">chars</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+判断字符串s是否包含字符串chars中的任一字符。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(strings.<span style="color: #d75fd7; font-weight: bold;">ContainsAny</span>(<span style="color: #2aa198;">"team"</span>, <span style="color: #2aa198;">"i"</span>))
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(strings.<span style="color: #d75fd7; font-weight: bold;">ContainsAny</span>(<span style="color: #2aa198;">"failure"</span>, <span style="color: #2aa198;">"u &amp; i"</span>))
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(strings.<span style="color: #d75fd7; font-weight: bold;">ContainsAny</span>(<span style="color: #2aa198;">"foo"</span>, <span style="color: #2aa198;">""</span>))
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(strings.<span style="color: #d75fd7; font-weight: bold;">ContainsAny</span>(<span style="color: #2aa198;">""</span>, <span style="color: #2aa198;">""</span>))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">false</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">true</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">false</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">false</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orge9e8f09" class="outline-2">
+<h2 id="orge9e8f09">func Count</h2>
+<div class="outline-text-2" id="text-orge9e8f09">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Count</span>(<span style="color: #8787d7;">s</span>, <span style="color: #8787d7;">sep</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+返回字符串s中有几个不重复的sep子串。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(strings.<span style="color: #d75fd7; font-weight: bold;">Count</span>(<span style="color: #2aa198;">"cheese"</span>, <span style="color: #2aa198;">"e"</span>))
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(strings.<span style="color: #d75fd7; font-weight: bold;">Count</span>(<span style="color: #2aa198;">"five"</span>, <span style="color: #2aa198;">""</span>)) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">before &amp; after each rune</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">3</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">5</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org87dd473" class="outline-2">
+<h2 id="org87dd473">func Index</h2>
+<div class="outline-text-2" id="text-org87dd473">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Index</span>(<span style="color: #8787d7;">s</span>, <span style="color: #8787d7;">sep</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+子串sep在字符串s中第一次出现的位置，不存在则返回-1。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(strings.<span style="color: #d75fd7; font-weight: bold;">Index</span>(<span style="color: #2aa198;">"chicken"</span>, <span style="color: #2aa198;">"ken"</span>))
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(strings.<span style="color: #d75fd7; font-weight: bold;">Index</span>(<span style="color: #2aa198;">"chicken"</span>, <span style="color: #2aa198;">"dmr"</span>))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">4</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">-1</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgcdbaa0a" class="outline-2">
+<h2 id="orgcdbaa0a">func IndexByte</h2>
+<div class="outline-text-2" id="text-orgcdbaa0a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">IndexByte</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">c</span> <span style="color: #df005f; font-weight: bold;">byte</span>) <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+字符c在s中第一次出现的位置，不存在则返回-1。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org82a08ef" class="outline-2">
+<h2 id="org82a08ef">func IndexRune</h2>
+<div class="outline-text-2" id="text-org82a08ef">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">IndexRune</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+unicode码值r在s中第一次出现的位置，不存在则返回-1。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(strings.<span style="color: #d75fd7; font-weight: bold;">IndexRune</span>(<span style="color: #2aa198;">"chicken"</span>, <span style="color: #2aa198;">'k'</span>))
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(strings.<span style="color: #d75fd7; font-weight: bold;">IndexRune</span>(<span style="color: #2aa198;">"chicken"</span>, <span style="color: #2aa198;">'d'</span>))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">4</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">-1</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org2b5214d" class="outline-2">
+<h2 id="org2b5214d">func IndexAny</h2>
+<div class="outline-text-2" id="text-org2b5214d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">IndexAny</span>(<span style="color: #8787d7;">s</span>, <span style="color: #8787d7;">chars</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+字符串chars中的任一utf-8码值在s中第一次出现的位置，如果不存在或者chars为空字符串则返回-1。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(strings.<span style="color: #d75fd7; font-weight: bold;">IndexAny</span>(<span style="color: #2aa198;">"chicken"</span>, <span style="color: #2aa198;">"aeiouy"</span>))
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(strings.<span style="color: #d75fd7; font-weight: bold;">IndexAny</span>(<span style="color: #2aa198;">"crwth"</span>, <span style="color: #2aa198;">"aeiouy"</span>))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">2</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">-1</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgaea18fe" class="outline-2">
+<h2 id="orgaea18fe">func IndexFunc</h2>
+<div class="outline-text-2" id="text-orgaea18fe">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">IndexFunc</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">f</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">bool</span>) <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+s中第一个满足函数f的位置i（该处的utf-8码值r满足f(r)==true），不存在则返回-1。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">f</span> := <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">bool</span> {
+        <span style="color: #268bd2; font-weight: bold;">return</span> unicode.<span style="color: #d75fd7; font-weight: bold;">Is</span>(unicode.Han, c)
+}
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(strings.<span style="color: #d75fd7; font-weight: bold;">IndexFunc</span>(<span style="color: #2aa198;">"Hello, &#19990;&#30028;"</span>, f))
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(strings.<span style="color: #d75fd7; font-weight: bold;">IndexFunc</span>(<span style="color: #2aa198;">"Hello, world"</span>, f))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">7</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">-1</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org25364d4" class="outline-2">
+<h2 id="org25364d4">func LastIndex</h2>
+<div class="outline-text-2" id="text-org25364d4">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">LastIndex</span>(<span style="color: #8787d7;">s</span>, <span style="color: #8787d7;">sep</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+子串sep在字符串s中最后一次出现的位置，不存在则返回-1。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(strings.<span style="color: #d75fd7; font-weight: bold;">Index</span>(<span style="color: #2aa198;">"go gopher"</span>, <span style="color: #2aa198;">"go"</span>))
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(strings.<span style="color: #d75fd7; font-weight: bold;">LastIndex</span>(<span style="color: #2aa198;">"go gopher"</span>, <span style="color: #2aa198;">"go"</span>))
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(strings.<span style="color: #d75fd7; font-weight: bold;">LastIndex</span>(<span style="color: #2aa198;">"go gopher"</span>, <span style="color: #2aa198;">"rodent"</span>))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">0</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">3</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">-1</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgf163bb1" class="outline-2">
+<h2 id="orgf163bb1">func LastIndexAny</h2>
+<div class="outline-text-2" id="text-orgf163bb1">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">LastIndexAny</span>(<span style="color: #8787d7;">s</span>, <span style="color: #8787d7;">chars</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+字符串chars中的任一utf-8码值在s中最后一次出现的位置，如不存在或者chars为空字符串则返回-1。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb26c370" class="outline-2">
+<h2 id="orgb26c370">func LastIndexFunc</h2>
+<div class="outline-text-2" id="text-orgb26c370">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">LastIndexFunc</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">f</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">bool</span>) <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+s中最后一个满足函数f的unicode码值的位置i，不存在则返回-1。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5020faa" class="outline-2">
+<h2 id="org5020faa">func Title</h2>
+<div class="outline-text-2" id="text-org5020faa">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Title</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+返回s中每个单词的首字母都改为标题格式的字符串拷贝。<br>
+</p>
+
+<p>
+BUG: Title用于划分单词的规则不能很好的处理Unicode标点符号。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(strings.<span style="color: #d75fd7; font-weight: bold;">Title</span>(<span style="color: #2aa198;">"her royal highness"</span>))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Her Royal Highness</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org7a5a88d" class="outline-2">
+<h2 id="org7a5a88d">func ToLower</h2>
+<div class="outline-text-2" id="text-org7a5a88d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ToLower</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+返回将所有字母都转为对应的小写版本的拷贝。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(strings.<span style="color: #d75fd7; font-weight: bold;">ToLower</span>(<span style="color: #2aa198;">"Gopher"</span>))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">gopher</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org9a97e68" class="outline-2">
+<h2 id="org9a97e68">func ToLowerSpecial</h2>
+<div class="outline-text-2" id="text-org9a97e68">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ToLowerSpecial</span>(<span style="color: #8787d7;">_case</span> <span style="color: #df005f; font-weight: bold;">unicode.SpecialCase</span>, <span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+使用_case规定的字符映射，返回将所有字母都转为对应的小写版本的拷贝。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge7d29e6" class="outline-2">
+<h2 id="orge7d29e6">func ToUpper</h2>
+<div class="outline-text-2" id="text-orge7d29e6">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ToUpper</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+返回将所有字母都转为对应的大写版本的拷贝。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(strings.<span style="color: #d75fd7; font-weight: bold;">ToUpper</span>(<span style="color: #2aa198;">"Gopher"</span>))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">GOPHER</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgf3b6bfe" class="outline-2">
+<h2 id="orgf3b6bfe">func ToUpperSpecial</h2>
+<div class="outline-text-2" id="text-orgf3b6bfe">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ToUpperSpecial</span>(<span style="color: #8787d7;">_case</span> <span style="color: #df005f; font-weight: bold;">unicode.SpecialCase</span>, <span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+使用_case规定的字符映射，返回将所有字母都转为对应的大写版本的拷贝。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge2c3270" class="outline-2">
+<h2 id="orge2c3270">func ToTitle</h2>
+<div class="outline-text-2" id="text-orge2c3270">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ToTitle</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+返回将所有字母都转为对应的标题版本的拷贝。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(strings.<span style="color: #d75fd7; font-weight: bold;">ToTitle</span>(<span style="color: #2aa198;">"loud noises"</span>))
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(strings.<span style="color: #d75fd7; font-weight: bold;">ToTitle</span>(<span style="color: #2aa198;">"&#1093;&#1083;&#1077;&#1073;"</span>))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">LOUD NOISES</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#1061;&#1051;&#1045;&#1041;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orga995406" class="outline-2">
+<h2 id="orga995406">func ToTitleSpecial</h2>
+<div class="outline-text-2" id="text-orga995406">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ToTitleSpecial</span>(<span style="color: #8787d7;">_case</span> <span style="color: #df005f; font-weight: bold;">unicode.SpecialCase</span>, <span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+使用_case规定的字符映射，返回将所有字母都转为对应的标题版本的拷贝。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf4df95a" class="outline-2">
+<h2 id="orgf4df95a">func Repeat</h2>
+<div class="outline-text-2" id="text-orgf4df95a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Repeat</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">count</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+返回count个s串联的字符串。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"ba"</span> + strings.<span style="color: #d75fd7; font-weight: bold;">Repeat</span>(<span style="color: #2aa198;">"na"</span>, <span style="color: #d75fd7;">2</span>))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">banana</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org68f7659" class="outline-2">
+<h2 id="org68f7659">func Replace</h2>
+<div class="outline-text-2" id="text-org68f7659">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Replace</span>(<span style="color: #8787d7;">s</span>, <span style="color: #8787d7;">old</span>, <span style="color: #8787d7;">new</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+返回将s中前n个不重叠old子串都替换为new的新字符串，如果n&lt;0会替换所有old子串。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(strings.<span style="color: #d75fd7; font-weight: bold;">Replace</span>(<span style="color: #2aa198;">"oink oink oink"</span>, <span style="color: #2aa198;">"k"</span>, <span style="color: #2aa198;">"ky"</span>, <span style="color: #d75fd7;">2</span>))
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(strings.<span style="color: #d75fd7; font-weight: bold;">Replace</span>(<span style="color: #2aa198;">"oink oink oink"</span>, <span style="color: #2aa198;">"oink"</span>, <span style="color: #2aa198;">"moo"</span>, -<span style="color: #d75fd7;">1</span>))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">oinky oinky oink</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">moo moo moo</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org4d6fdd4" class="outline-2">
+<h2 id="org4d6fdd4">func Map</h2>
+<div class="outline-text-2" id="text-org4d6fdd4">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Map</span>(<span style="color: #8787d7;">mapping</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">rune</span>, <span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+将s的每一个unicode码值r都替换为mapping(r)，返回这些新码值组成的字符串拷贝。如果mapping返回一个负值，将会丢弃该码值而不会被替换。（返回值中对应位置将没有码值）<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">rot13</span> := <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">rune</span> {
+        <span style="color: #268bd2; font-weight: bold;">switch</span> {
+        <span style="color: #268bd2; font-weight: bold;">case</span> r &gt;= <span style="color: #2aa198;">'A'</span> &amp;&amp; r &lt;= <span style="color: #2aa198;">'Z'</span>:
+                <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #2aa198;">'A'</span> + (r-<span style="color: #2aa198;">'A'</span>+<span style="color: #d75fd7;">13</span>)%<span style="color: #d75fd7;">26</span>
+        <span style="color: #268bd2; font-weight: bold;">case</span> r &gt;= <span style="color: #2aa198;">'a'</span> &amp;&amp; r &lt;= <span style="color: #2aa198;">'z'</span>:
+                <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #2aa198;">'a'</span> + (r-<span style="color: #2aa198;">'a'</span>+<span style="color: #d75fd7;">13</span>)%<span style="color: #d75fd7;">26</span>
+        }
+        <span style="color: #268bd2; font-weight: bold;">return</span> r
+}
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(strings.<span style="color: #d75fd7; font-weight: bold;">Map</span>(rot13, <span style="color: #2aa198;">"'Twas brillig and the slithy gopher..."</span>))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">'Gjnf oevyyvt naq gur fyvgul tbcure...</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org5144085" class="outline-2">
+<h2 id="org5144085">func Trim</h2>
+<div class="outline-text-2" id="text-org5144085">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Trim</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">cutset</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+返回将s前后端所有cutset包含的utf-8码值都去掉的字符串。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"[%q]"</span>, strings.<span style="color: #d75fd7; font-weight: bold;">Trim</span>(<span style="color: #2aa198;">" !!! Achtung! Achtung! !!! "</span>, <span style="color: #2aa198;">"! "</span>))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">["Achtung! Achtung"]</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org96e5fdc" class="outline-2">
+<h2 id="org96e5fdc">func TrimSpace</h2>
+<div class="outline-text-2" id="text-org96e5fdc">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">TrimSpace</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+返回将s前后端所有空白（unicode.IsSpace指定）都去掉的字符串。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(strings.<span style="color: #d75fd7; font-weight: bold;">TrimSpace</span>(<span style="color: #2aa198;">" \t\n a lone gopher \n\t\r\n"</span>))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">a lone gopher</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org3841fc4" class="outline-2">
+<h2 id="org3841fc4">func TrimFunc</h2>
+<div class="outline-text-2" id="text-org3841fc4">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">TrimFunc</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">f</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">bool</span>) <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+返回将s前后端所有满足f的unicode码值都去掉的字符串。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org0bbe97b" class="outline-2">
+<h2 id="org0bbe97b">func TrimLeft</h2>
+<div class="outline-text-2" id="text-org0bbe97b">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">TrimLeft</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">cutset</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+返回将s前端所有cutset包含的utf-8码值都去掉的字符串。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org99368dc" class="outline-2">
+<h2 id="org99368dc">func TrimLeftFunc</h2>
+<div class="outline-text-2" id="text-org99368dc">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">TrimLeftFunc</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">f</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">bool</span>) <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+返回将s前端所有满足f的unicode码值都去掉的字符串。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2912c84" class="outline-2">
+<h2 id="org2912c84">func TrimPrefix</h2>
+<div class="outline-text-2" id="text-org2912c84">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">TrimPrefix</span>(<span style="color: #8787d7;">s</span>, <span style="color: #8787d7;">prefix</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+返回去除s可能的前缀prefix的字符串。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">s</span> = <span style="color: #2aa198;">"Goodbye,, world!"</span>
+s = strings.<span style="color: #d75fd7; font-weight: bold;">TrimPrefix</span>(s, <span style="color: #2aa198;">"Goodbye,"</span>)
+s = strings.<span style="color: #d75fd7; font-weight: bold;">TrimPrefix</span>(s, <span style="color: #2aa198;">"Howdy,"</span>)
+fmt.<span style="color: #d75fd7; font-weight: bold;">Print</span>(<span style="color: #2aa198;">"Hello"</span> + s)
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Hello, world!</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgf0c78b6" class="outline-2">
+<h2 id="orgf0c78b6">func TrimRight</h2>
+<div class="outline-text-2" id="text-orgf0c78b6">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">TrimRight</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">cutset</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+返回将s后端所有cutset包含的utf-8码值都去掉的字符串。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4535369" class="outline-2">
+<h2 id="org4535369">func TrimRightFunc</h2>
+<div class="outline-text-2" id="text-org4535369">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">TrimRightFunc</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">f</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">bool</span>) <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+返回将s后端所有满足f的unicode码值都去掉的字符串。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8bd8037" class="outline-2">
+<h2 id="org8bd8037">func TrimSuffix</h2>
+<div class="outline-text-2" id="text-org8bd8037">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">TrimSuffix</span>(<span style="color: #8787d7;">s</span>, <span style="color: #8787d7;">suffix</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+返回去除s可能的后缀suffix的字符串。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">s</span> = <span style="color: #2aa198;">"Hello, goodbye, etc!"</span>
+s = strings.<span style="color: #d75fd7; font-weight: bold;">TrimSuffix</span>(s, <span style="color: #2aa198;">"goodbye, etc!"</span>)
+s = strings.<span style="color: #d75fd7; font-weight: bold;">TrimSuffix</span>(s, <span style="color: #2aa198;">"planet"</span>)
+fmt.<span style="color: #d75fd7; font-weight: bold;">Print</span>(s, <span style="color: #2aa198;">"world!"</span>)
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Hello, world!</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org5db2cdf" class="outline-2">
+<h2 id="org5db2cdf">func Fields</h2>
+<div class="outline-text-2" id="text-org5db2cdf">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Fields</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>) []<span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+返回将字符串按照空白（unicode.IsSpace确定，可以是一到多个连续的空白字符）分割的多个字符串。如果字符串全部是空白或者是空字符串的话，会返回空切片。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"Fields are: %q"</span>, strings.<span style="color: #d75fd7; font-weight: bold;">Fields</span>(<span style="color: #2aa198;">"  foo bar  baz   "</span>))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Fields are: ["foo" "bar" "baz"]</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org5e21fd6" class="outline-2">
+<h2 id="org5e21fd6">func FieldsFunc</h2>
+<div class="outline-text-2" id="text-org5e21fd6">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">FieldsFunc</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">f</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">bool</span>) []<span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+类似Fields，但使用函数f来确定分割符（满足f的unicode码值）。如果字符串全部是分隔符或者是空字符串的话，会返回空切片。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">f</span> := <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">bool</span> {
+        <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">!</span>unicode.<span style="color: #d75fd7; font-weight: bold;">IsLetter</span>(c) &amp;&amp; <span style="color: #d75fd7;">!</span>unicode.<span style="color: #d75fd7; font-weight: bold;">IsNumber</span>(c)
+}
+fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"Fields are: %q"</span>, strings.<span style="color: #d75fd7; font-weight: bold;">FieldsFunc</span>(<span style="color: #2aa198;">"  foo1;bar2,baz3..."</span>, f))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Fields are: ["foo1" "bar2" "baz3"]</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgc66735f" class="outline-2">
+<h2 id="orgc66735f">func Split</h2>
+<div class="outline-text-2" id="text-orgc66735f">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Split</span>(<span style="color: #8787d7;">s</span>, <span style="color: #8787d7;">sep</span> <span style="color: #df005f; font-weight: bold;">string</span>) []<span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+用去掉s中出现的sep的方式进行分割，会分割到结尾，并返回生成的所有片段组成的切片（每一个sep都会进行一次切割，即使两个sep相邻，也会进行两次切割）。如果sep为空字符，Split会将s切分成每一个unicode码值一个字符串。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%q\n"</span>, strings.<span style="color: #d75fd7; font-weight: bold;">Split</span>(<span style="color: #2aa198;">"a,b,c"</span>, <span style="color: #2aa198;">","</span>))
+fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%q\n"</span>, strings.<span style="color: #d75fd7; font-weight: bold;">Split</span>(<span style="color: #2aa198;">"a man a plan a canal panama"</span>, <span style="color: #2aa198;">"a "</span>))
+fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%q\n"</span>, strings.<span style="color: #d75fd7; font-weight: bold;">Split</span>(<span style="color: #2aa198;">" xyz "</span>, <span style="color: #2aa198;">""</span>))
+fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%q\n"</span>, strings.<span style="color: #d75fd7; font-weight: bold;">Split</span>(<span style="color: #2aa198;">""</span>, <span style="color: #2aa198;">"Bernardo O'Higgins"</span>))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">["a" "b" "c"]</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">["" "man " "plan " "canal panama"]</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">[" " "x" "y" "z" " "]</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">[""]</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org927e0c1" class="outline-2">
+<h2 id="org927e0c1">func SplitN</h2>
+<div class="outline-text-2" id="text-org927e0c1">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">SplitN</span>(<span style="color: #8787d7;">s</span>, <span style="color: #8787d7;">sep</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>) []<span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+用去掉s中出现的sep的方式进行分割，会分割到结尾，并返回生成的所有片段组成的切片（每一个sep都会进行一次切割，即使两个sep相邻，也会进行两次切割）。如果sep为空字符，Split会将s切分成每一个unicode码值一个字符串。参数n决定返回的切片的数目：<br>
+</p>
+
+<pre class="example" id="org1dd75cd">
+n &gt; 0 : 返回的切片最多n个子字符串；最后一个子字符串包含未进行切割的部分。
+n == 0: 返回nil
+n &lt; 0 : 返回所有的子字符串组成的切片
+</pre>
+
+<div class="org-src-container">
+<pre class="src src-go">fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%q\n"</span>, strings.<span style="color: #d75fd7; font-weight: bold;">SplitN</span>(<span style="color: #2aa198;">"a,b,c"</span>, <span style="color: #2aa198;">","</span>, <span style="color: #d75fd7;">2</span>))
+<span style="color: #8787d7;">z</span> := strings.<span style="color: #d75fd7; font-weight: bold;">SplitN</span>(<span style="color: #2aa198;">"a,b,c"</span>, <span style="color: #2aa198;">","</span>, <span style="color: #d75fd7;">0</span>)
+fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%q (nil = %v)\n"</span>, z, z == <span style="color: #d75fd7;">nil</span>)
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">["a" "b,c"]</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">[] (nil = true)</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orge39ccf0" class="outline-2">
+<h2 id="orge39ccf0">func SplitAfter</h2>
+<div class="outline-text-2" id="text-orge39ccf0">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">SplitAfter</span>(<span style="color: #8787d7;">s</span>, <span style="color: #8787d7;">sep</span> <span style="color: #df005f; font-weight: bold;">string</span>) []<span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+用从s中出现的sep后面切断的方式进行分割，会分割到结尾，并返回生成的所有片段组成的切片（每一个sep都会进行一次切割，即使两个sep相邻，也会进行两次切割）。如果sep为空字符，Split会将s切分成每一个unicode码值一个字符串。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%q\n"</span>, strings.<span style="color: #d75fd7; font-weight: bold;">SplitAfter</span>(<span style="color: #2aa198;">"a,b,c"</span>, <span style="color: #2aa198;">","</span>))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">["a," "b," "c"]</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orga6f33f0" class="outline-2">
+<h2 id="orga6f33f0">func SplitAfterN</h2>
+<div class="outline-text-2" id="text-orga6f33f0">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">SplitAfterN</span>(<span style="color: #8787d7;">s</span>, <span style="color: #8787d7;">sep</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>) []<span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+用从s中出现的sep后面切断的方式进行分割，会分割到结尾，并返回生成的所有片段组成的切片（每一个sep都会进行一次切割，即使两个sep相邻，也会进行两次切割）。如果sep为空字符，Split会将s切分成每一个unicode码值一个字符串。参数n决定返回的切片的数目：<br>
+</p>
+
+<pre class="example" id="orgd3e0e45">
+n &gt; 0 : 返回的切片最多n个子字符串；最后一个子字符串包含未进行切割的部分。
+n == 0: 返回nil
+n &lt; 0 : 返回所有的子字符串组成的切
+</pre>
+
+<div class="org-src-container">
+<pre class="src src-go">fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%q\n"</span>, strings.<span style="color: #d75fd7; font-weight: bold;">SplitAfterN</span>(<span style="color: #2aa198;">"a,b,c"</span>, <span style="color: #2aa198;">","</span>, <span style="color: #d75fd7;">2</span>))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">["a," "b,c"]</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org238e88c" class="outline-2">
+<h2 id="org238e88c">func Join</h2>
+<div class="outline-text-2" id="text-org238e88c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Join</span>(<span style="color: #8787d7;">a</span> []<span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">sep</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+将一系列字符串连接为一个字符串，之间用sep来分隔。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">s</span> := []<span style="color: #df005f; font-weight: bold;">string</span>{<span style="color: #2aa198;">"foo"</span>, <span style="color: #2aa198;">"bar"</span>, <span style="color: #2aa198;">"baz"</span>}
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(strings.<span style="color: #d75fd7; font-weight: bold;">Join</span>(s, <span style="color: #2aa198;">", "</span>))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">foo, bar, baz</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org7ed337b" class="outline-2">
+<h2 id="org7ed337b">type Reader</h2>
+<div class="outline-text-2" id="text-org7ed337b">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Reader</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20869;&#21547;&#38544;&#34255;&#25110;&#38750;&#23548;&#20986;&#23383;&#27573;</span>
+}
+</pre>
+</div>
+
+<p>
+Reader类型通过从一个字符串读取数据，实现了io.Reader、io.Seeker、io.ReaderAt、io.WriterTo、io.ByteScanner、io.RuneScanner接口。<br>
+</p>
+</div>
+
+<div id="outline-container-org5f5b216" class="outline-3">
+<h3 id="org5f5b216">func NewReader</h3>
+<div class="outline-text-3" id="text-org5f5b216">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">NewReader</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>) *<span style="color: #df005f; font-weight: bold;">Reader</span>
+</pre>
+</div>
+
+<p>
+NewReader创建一个从s读取数据的Reader。本函数类似bytes.NewBufferString，但是更有效率，且为只读的。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org0e91ec6" class="outline-3">
+<h3 id="org0e91ec6">func (*Reader) Len</h3>
+<div class="outline-text-3" id="text-org0e91ec6">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Reader</span>) <span style="color: #d75fd7; font-weight: bold;">Len</span>() <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+Len返回r包含的字符串还没有被读取的部分。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf5b94ea" class="outline-3">
+<h3 id="orgf5b94ea">func (*Reader) Read</h3>
+<div class="outline-text-3" id="text-orgf5b94ea">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Reader</span>) <span style="color: #d75fd7; font-weight: bold;">Read</span>(<span style="color: #8787d7;">b</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org3c81e4c" class="outline-3">
+<h3 id="org3c81e4c">func (*Reader) ReadByte</h3>
+<div class="outline-text-3" id="text-org3c81e4c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Reader</span>) <span style="color: #d75fd7; font-weight: bold;">ReadByte</span>() (<span style="color: #8787d7;">b</span> <span style="color: #df005f; font-weight: bold;">byte</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org686c27c" class="outline-3">
+<h3 id="org686c27c">func (*Reader) UnreadByte</h3>
+<div class="outline-text-3" id="text-org686c27c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Reader</span>) <span style="color: #d75fd7; font-weight: bold;">UnreadByte</span>() <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org26c82f8" class="outline-3">
+<h3 id="org26c82f8">func (*Reader) ReadRune</h3>
+<div class="outline-text-3" id="text-org26c82f8">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Reader</span>) <span style="color: #d75fd7; font-weight: bold;">ReadRune</span>() (<span style="color: #8787d7;">ch</span> <span style="color: #df005f; font-weight: bold;">rune</span>, <span style="color: #8787d7;">size</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org9163f46" class="outline-3">
+<h3 id="org9163f46">func (*Reader) UnreadRune</h3>
+<div class="outline-text-3" id="text-org9163f46">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Reader</span>) <span style="color: #d75fd7; font-weight: bold;">UnreadRune</span>() <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org171e0b0" class="outline-3">
+<h3 id="org171e0b0">func (*Reader) Seek</h3>
+<div class="outline-text-3" id="text-org171e0b0">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Reader</span>) <span style="color: #d75fd7; font-weight: bold;">Seek</span>(<span style="color: #8787d7;">offset</span> <span style="color: #df005f; font-weight: bold;">int64</span>, <span style="color: #8787d7;">whence</span> <span style="color: #df005f; font-weight: bold;">int</span>) (<span style="color: #df005f; font-weight: bold;">int64</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+Seek实现了io.Seeker接口。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgafe8d4c" class="outline-3">
+<h3 id="orgafe8d4c">func (*Reader) ReadAt</h3>
+<div class="outline-text-3" id="text-orgafe8d4c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Reader</span>) <span style="color: #d75fd7; font-weight: bold;">ReadAt</span>(<span style="color: #8787d7;">b</span> []<span style="color: #df005f; font-weight: bold;">byte</span>, <span style="color: #8787d7;">off</span> <span style="color: #df005f; font-weight: bold;">int64</span>) (<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org02a80d3" class="outline-3">
+<h3 id="org02a80d3">func (*Reader) WriteTo</h3>
+<div class="outline-text-3" id="text-org02a80d3">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Reader</span>) <span style="color: #d75fd7; font-weight: bold;">WriteTo</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">io.Writer</span>) (<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int64</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+WriteTo实现了io.WriterTo接口。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb15a0f2" class="outline-2">
+<h2 id="orgb15a0f2">type Replacer</h2>
+<div class="outline-text-2" id="text-orgb15a0f2">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Replacer</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20869;&#21547;&#38544;&#34255;&#25110;&#38750;&#23548;&#20986;&#23383;&#27573;</span>
+}
+</pre>
+</div>
+
+<p>
+Replacer类型进行一系列字符串的替换。<br>
+</p>
+</div>
+<div id="outline-container-orge15e20e" class="outline-3">
+<h3 id="orge15e20e">func NewReplacer</h3>
+<div class="outline-text-3" id="text-orge15e20e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">NewReplacer</span>(<span style="color: #8787d7;">oldnew</span> ...<span style="color: #df005f; font-weight: bold;">string</span>) *<span style="color: #df005f; font-weight: bold;">Replacer</span>
+</pre>
+</div>
+
+<p>
+使用提供的多组old、new字符串对创建并返回一个*Replacer。替换是依次进行的，匹配时不会重叠。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">r</span> := strings.<span style="color: #d75fd7; font-weight: bold;">NewReplacer</span>(<span style="color: #2aa198;">"&lt;"</span>, <span style="color: #2aa198;">"&amp;lt;"</span>, <span style="color: #2aa198;">"&gt;"</span>, <span style="color: #2aa198;">"&amp;gt;"</span>)
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(r.<span style="color: #d75fd7; font-weight: bold;">Replace</span>(<span style="color: #2aa198;">"This is &lt;b&gt;HTML&lt;/b&gt;!"</span>))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">This is &amp;lt;b&amp;gt;HTML&amp;lt;/b&amp;gt;!</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org052ca93" class="outline-3">
+<h3 id="org052ca93">func (*Replacer) Replace</h3>
+<div class="outline-text-3" id="text-org052ca93">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Replacer</span>) <span style="color: #d75fd7; font-weight: bold;">Replace</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+Replace返回s的所有替换进行完后的拷贝。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9b99d38" class="outline-3">
+<h3 id="org9b99d38">func (*Replacer) WriteString</h3>
+<div class="outline-text-3" id="text-org9b99d38">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Replacer</span>) <span style="color: #d75fd7; font-weight: bold;">WriteString</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">io.Writer</span>, <span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+WriteString向w中写入s的所有替换进行完后的拷贝。<br>
+</p>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-08 03:02 Tue</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-08 Tue 13:54</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

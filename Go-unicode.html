@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-08 Tue 14:17 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UNICODE</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">UNICODE</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org433869a">introduction</a></li>
+<li><a href="#orgd2aa041">Constants</a></li>
+<li><a href="#org6b870db">Variables</a></li>
+<li><a href="#org6676010">type CaseRange</a></li>
+<li><a href="#orgb5b10b6">type Range16</a></li>
+<li><a href="#org2b03eee">type Range32</a></li>
+<li><a href="#org37c4d7e">type RangeTable</a></li>
+<li><a href="#org2b97fe3">type SpecialCase</a>
+<ul>
+<li><a href="#org8ad4c4d">func (SpecialCase) ToLower</a></li>
+<li><a href="#org213858e">func (SpecialCase) ToUpper</a></li>
+<li><a href="#orgd9bfabe">func (SpecialCase) ToTitle</a></li>
+</ul>
+</li>
+<li><a href="#org407030e">func Is</a></li>
+<li><a href="#org44f2613">func In</a></li>
+<li><a href="#orgaeb82cb">func IsOneOf</a></li>
+<li><a href="#org0d003ea">func IsSpace</a></li>
+<li><a href="#org0d72b92">func IsDigit</a></li>
+<li><a href="#org7540e99">func IsNumber</a></li>
+<li><a href="#org9f36d8d">func IsLetter</a></li>
+<li><a href="#org39b3c8f">func IsGraphic</a></li>
+<li><a href="#orge262ae1">func IsMark</a></li>
+<li><a href="#orgb4afc24">func IsPrint</a></li>
+<li><a href="#org5af8697">func IsControl</a></li>
+<li><a href="#orgdc42537">func IsPunct</a></li>
+<li><a href="#org067533b">func IsSymbol</a></li>
+<li><a href="#org2f525bf">func IsLower</a></li>
+<li><a href="#orga89408e">func IsUpper</a></li>
+<li><a href="#org95dcb73">func IsTitle</a></li>
+<li><a href="#org7954faf">func To</a></li>
+<li><a href="#orgfdd1dc3">func ToLower</a></li>
+<li><a href="#org373cbdf">func ToUpper</a></li>
+<li><a href="#org30c473e">func ToTitle</a></li>
+<li><a href="#orgf68dc0b">func SimpleFold</a></li>
+<li><a href="#org491bf43">Bugs</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org433869a" class="outline-2">
+<h2 id="org433869a">introduction</h2>
+<div class="outline-text-2" id="text-org433869a">
+<p>
+Package unicode provides data and functions to test some properties of Unicode code points.<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd2aa041" class="outline-2">
+<h2 id="orgd2aa041">Constants</h2>
+<div class="outline-text-2" id="text-orgd2aa041">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">const</span> (
+        <span style="color: #d75fd7;">MaxRune</span>         = <span style="color: #2aa198;">'\U0010FFFF'</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26368;&#22823;&#30340;&#21512;&#27861;unicode&#30721;&#20540;</span>
+        <span style="color: #d75fd7;">ReplacementChar</span> = <span style="color: #2aa198;">'\uFFFD'</span>     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#34920;&#31034;&#19981;&#21512;&#27861;&#30340;unicode&#30721;&#20540;</span>
+        <span style="color: #d75fd7;">MaxASCII</span>        = <span style="color: #2aa198;">'\u007F'</span>     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26368;&#22823;&#30340;ASCII&#20540;</span>
+        <span style="color: #d75fd7;">MaxLatin1</span>       = <span style="color: #2aa198;">'\u00FF'</span>     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26368;&#22823;&#30340;Latin-1&#20540;</span>
+)
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">const</span> (
+        <span style="color: #d75fd7;">UpperCase</span> = <span style="color: #d75fd7;">iota</span>
+        <span style="color: #d75fd7;">LowerCase</span>
+        <span style="color: #d75fd7;">TitleCase</span>
+        <span style="color: #d75fd7;">MaxCase</span>
+)
+</pre>
+</div>
+
+<p>
+下值可用于CaseRange类型里的数组类型Delta字段，用于码值映射。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">const</span> (
+        <span style="color: #d75fd7;">UpperLower</span> = MaxRune + <span style="color: #d75fd7;">1</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#19981;&#33021;&#26159;&#21512;&#27861;&#30340;delta&#20540;</span>
+)
+</pre>
+</div>
+
+<p>
+如果一个CaseRange类型的的Delta字段使用了UpperLower，就表示该CaseRange表示的序列格式为：Upper Lower Upper Lower<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">const</span> <span style="color: #d75fd7;">Version</span> = <span style="color: #2aa198;">"6.3.0"</span>
+</pre>
+</div>
+
+<p>
+Version是本包采用的unicode版本（以及Variables栏里那些乱七八糟的字符集的来源）。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org6b870db" class="outline-2">
+<h2 id="org6b870db">Variables</h2>
+<div class="outline-text-2" id="text-org6b870db">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> (
+        <span style="color: #8787d7;">Cc</span>     = _Cc <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Cc is the set of Unicode characters in category Cc.</span>
+        <span style="color: #8787d7;">Cf</span>     = _Cf <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Cf is the set of Unicode characters in category Cf.</span>
+        <span style="color: #8787d7;">Co</span>     = _Co <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Co is the set of Unicode characters in category Co.</span>
+        <span style="color: #8787d7;">Cs</span>     = _Cs <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Cs is the set of Unicode characters in category Cs.</span>
+        <span style="color: #8787d7;">Digit</span>  = _Nd <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Digit is the set of Unicode characters with the "decimal digit" property.</span>
+        <span style="color: #8787d7;">Nd</span>     = _Nd <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Nd is the set of Unicode characters in category Nd.</span>
+        <span style="color: #8787d7;">Letter</span> = _L  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Letter/L is the set of Unicode letters, category L.</span>
+        <span style="color: #8787d7;">L</span>      = _L
+        <span style="color: #8787d7;">Lm</span>     = _Lm <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Lm is the set of Unicode characters in category Lm.</span>
+        <span style="color: #8787d7;">Lo</span>     = _Lo <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Lo is the set of Unicode characters in category Lo.</span>
+        <span style="color: #8787d7;">Lower</span>  = _Ll <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Lower is the set of Unicode lower case letters.</span>
+        <span style="color: #8787d7;">Ll</span>     = _Ll <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Ll is the set of Unicode characters in category Ll.</span>
+        <span style="color: #8787d7;">Mark</span>   = _M  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Mark/M is the set of Unicode mark characters, category M.</span>
+        <span style="color: #8787d7;">M</span>      = _M
+        <span style="color: #8787d7;">Mc</span>     = _Mc <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Mc is the set of Unicode characters in category Mc.</span>
+        <span style="color: #8787d7;">Me</span>     = _Me <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Me is the set of Unicode characters in category Me.</span>
+        <span style="color: #8787d7;">Mn</span>     = _Mn <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Mn is the set of Unicode characters in category Mn.</span>
+        <span style="color: #8787d7;">Nl</span>     = _Nl <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Nl is the set of Unicode characters in category Nl.</span>
+        <span style="color: #8787d7;">No</span>     = _No <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">No is the set of Unicode characters in category No.</span>
+        <span style="color: #8787d7;">Number</span> = _N  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Number/N is the set of Unicode number characters, category N.</span>
+        <span style="color: #8787d7;">N</span>      = _N
+        <span style="color: #8787d7;">Other</span>  = _C <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Other/C is the set of Unicode control and special characters, category C.</span>
+        <span style="color: #8787d7;">C</span>      = _C
+        <span style="color: #8787d7;">Pc</span>     = _Pc <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Pc is the set of Unicode characters in category Pc.</span>
+        <span style="color: #8787d7;">Pd</span>     = _Pd <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Pd is the set of Unicode characters in category Pd.</span>
+        <span style="color: #8787d7;">Pe</span>     = _Pe <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Pe is the set of Unicode characters in category Pe.</span>
+        <span style="color: #8787d7;">Pf</span>     = _Pf <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Pf is the set of Unicode characters in category Pf.</span>
+        <span style="color: #8787d7;">Pi</span>     = _Pi <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Pi is the set of Unicode characters in category Pi.</span>
+        <span style="color: #8787d7;">Po</span>     = _Po <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Po is the set of Unicode characters in category Po.</span>
+        <span style="color: #8787d7;">Ps</span>     = _Ps <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Ps is the set of Unicode characters in category Ps.</span>
+        <span style="color: #8787d7;">Punct</span>  = _P  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Punct/P is the set of Unicode punctuation characters, category P.</span>
+        <span style="color: #8787d7;">P</span>      = _P
+        <span style="color: #8787d7;">Sc</span>     = _Sc <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Sc is the set of Unicode characters in category Sc.</span>
+        <span style="color: #8787d7;">Sk</span>     = _Sk <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Sk is the set of Unicode characters in category Sk.</span>
+        <span style="color: #8787d7;">Sm</span>     = _Sm <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Sm is the set of Unicode characters in category Sm.</span>
+        <span style="color: #8787d7;">So</span>     = _So <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">So is the set of Unicode characters in category So.</span>
+        <span style="color: #8787d7;">Space</span>  = _Z  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Space/Z is the set of Unicode space characters, category Z.</span>
+        <span style="color: #8787d7;">Z</span>      = _Z
+        <span style="color: #8787d7;">Symbol</span> = _S <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Symbol/S is the set of Unicode symbol characters, category S.</span>
+        <span style="color: #8787d7;">S</span>      = _S
+        <span style="color: #8787d7;">Title</span>  = _Lt <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Title is the set of Unicode title case letters.</span>
+        <span style="color: #8787d7;">Lt</span>     = _Lt <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Lt is the set of Unicode characters in category Lt.</span>
+        <span style="color: #8787d7;">Upper</span>  = _Lu <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Upper is the set of Unicode upper case letters.</span>
+        <span style="color: #8787d7;">Lu</span>     = _Lu <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Lu is the set of Unicode characters in category Lu.</span>
+        <span style="color: #8787d7;">Zl</span>     = _Zl <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Zl is the set of Unicode characters in category Zl.</span>
+        <span style="color: #8787d7;">Zp</span>     = _Zp <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Zp is the set of Unicode characters in category Zp.</span>
+        <span style="color: #8787d7;">Zs</span>     = _Zs <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Zs is the set of Unicode characters in category Zs.</span>
+)
+</pre>
+</div>
+
+<p>
+这些变量的类型是*RangeTable。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> (
+        <span style="color: #8787d7;">Arabic</span>                 = _Arabic                 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Arabic is the set of Unicode characters in script Arabic.</span>
+        <span style="color: #8787d7;">Armenian</span>               = _Armenian               <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Armenian is the set of Unicode characters in script Armenian.</span>
+        <span style="color: #8787d7;">Avestan</span>                = _Avestan                <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Avestan is the set of Unicode characters in script Avestan.</span>
+        <span style="color: #8787d7;">Balinese</span>               = _Balinese               <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Balinese is the set of Unicode characters in script Balinese.</span>
+        <span style="color: #8787d7;">Bamum</span>                  = _Bamum                  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Bamum is the set of Unicode characters in script Bamum.</span>
+        <span style="color: #8787d7;">Batak</span>                  = _Batak                  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Batak is the set of Unicode characters in script Batak.</span>
+        <span style="color: #8787d7;">Bengali</span>                = _Bengali                <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Bengali is the set of Unicode characters in script Bengali.</span>
+        <span style="color: #8787d7;">Bopomofo</span>               = _Bopomofo               <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Bopomofo is the set of Unicode characters in script Bopomofo.</span>
+        <span style="color: #8787d7;">Brahmi</span>                 = _Brahmi                 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Brahmi is the set of Unicode characters in script Brahmi.</span>
+        <span style="color: #8787d7;">Braille</span>                = _Braille                <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Braille is the set of Unicode characters in script Braille.</span>
+        <span style="color: #8787d7;">Buginese</span>               = _Buginese               <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Buginese is the set of Unicode characters in script Buginese.</span>
+        <span style="color: #8787d7;">Buhid</span>                  = _Buhid                  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Buhid is the set of Unicode characters in script Buhid.</span>
+        <span style="color: #8787d7;">Canadian_Aboriginal</span>    = _Canadian_Aboriginal    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Canadian_Aboriginal is the set of Unicode characters in script Canadian_Aboriginal.</span>
+        <span style="color: #8787d7;">Carian</span>                 = _Carian                 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Carian is the set of Unicode characters in script Carian.</span>
+        <span style="color: #8787d7;">Chakma</span>                 = _Chakma                 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Chakma is the set of Unicode characters in script Chakma.</span>
+        <span style="color: #8787d7;">Cham</span>                   = _Cham                   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Cham is the set of Unicode characters in script Cham.</span>
+        <span style="color: #8787d7;">Cherokee</span>               = _Cherokee               <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Cherokee is the set of Unicode characters in script Cherokee.</span>
+        <span style="color: #8787d7;">Common</span>                 = _Common                 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Common is the set of Unicode characters in script Common.</span>
+        <span style="color: #8787d7;">Coptic</span>                 = _Coptic                 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Coptic is the set of Unicode characters in script Coptic.</span>
+        <span style="color: #8787d7;">Cuneiform</span>              = _Cuneiform              <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Cuneiform is the set of Unicode characters in script Cuneiform.</span>
+        <span style="color: #8787d7;">Cypriot</span>                = _Cypriot                <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Cypriot is the set of Unicode characters in script Cypriot.</span>
+        <span style="color: #8787d7;">Cyrillic</span>               = _Cyrillic               <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Cyrillic is the set of Unicode characters in script Cyrillic.</span>
+        <span style="color: #8787d7;">Deseret</span>                = _Deseret                <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Deseret is the set of Unicode characters in script Deseret.</span>
+        <span style="color: #8787d7;">Devanagari</span>             = _Devanagari             <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Devanagari is the set of Unicode characters in script Devanagari.</span>
+        <span style="color: #8787d7;">Egyptian_Hieroglyphs</span>   = _Egyptian_Hieroglyphs   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Egyptian_Hieroglyphs is the set of Unicode characters in script Egyptian_Hieroglyphs.</span>
+        <span style="color: #8787d7;">Ethiopic</span>               = _Ethiopic               <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Ethiopic is the set of Unicode characters in script Ethiopic.</span>
+        <span style="color: #8787d7;">Georgian</span>               = _Georgian               <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Georgian is the set of Unicode characters in script Georgian.</span>
+        <span style="color: #8787d7;">Glagolitic</span>             = _Glagolitic             <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Glagolitic is the set of Unicode characters in script Glagolitic.</span>
+        <span style="color: #8787d7;">Gothic</span>                 = _Gothic                 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Gothic is the set of Unicode characters in script Gothic.</span>
+        <span style="color: #8787d7;">Greek</span>                  = _Greek                  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Greek is the set of Unicode characters in script Greek.</span>
+        <span style="color: #8787d7;">Gujarati</span>               = _Gujarati               <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Gujarati is the set of Unicode characters in script Gujarati.</span>
+        <span style="color: #8787d7;">Gurmukhi</span>               = _Gurmukhi               <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Gurmukhi is the set of Unicode characters in script Gurmukhi.</span>
+        <span style="color: #8787d7;">Han</span>                    = _Han                    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Han is the set of Unicode characters in script Han.</span>
+        <span style="color: #8787d7;">Hangul</span>                 = _Hangul                 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Hangul is the set of Unicode characters in script Hangul.</span>
+        <span style="color: #8787d7;">Hanunoo</span>                = _Hanunoo                <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Hanunoo is the set of Unicode characters in script Hanunoo.</span>
+        <span style="color: #8787d7;">Hebrew</span>                 = _Hebrew                 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Hebrew is the set of Unicode characters in script Hebrew.</span>
+        <span style="color: #8787d7;">Hiragana</span>               = _Hiragana               <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Hiragana is the set of Unicode characters in script Hiragana.</span>
+        <span style="color: #8787d7;">Imperial_Aramaic</span>       = _Imperial_Aramaic       <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Imperial_Aramaic is the set of Unicode characters in script Imperial_Aramaic.</span>
+        <span style="color: #8787d7;">Inherited</span>              = _Inherited              <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Inherited is the set of Unicode characters in script Inherited.</span>
+        <span style="color: #8787d7;">Inscriptional_Pahlavi</span>  = _Inscriptional_Pahlavi  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Inscriptional_Pahlavi is the set of Unicode characters in script Inscriptional_Pahlavi.</span>
+        <span style="color: #8787d7;">Inscriptional_Parthian</span> = _Inscriptional_Parthian <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Inscriptional_Parthian is the set of Unicode characters in script Inscriptional_Parthian.</span>
+        <span style="color: #8787d7;">Javanese</span>               = _Javanese               <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Javanese is the set of Unicode characters in script Javanese.</span>
+        <span style="color: #8787d7;">Kaithi</span>                 = _Kaithi                 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Kaithi is the set of Unicode characters in script Kaithi.</span>
+        <span style="color: #8787d7;">Kannada</span>                = _Kannada                <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Kannada is the set of Unicode characters in script Kannada.</span>
+        <span style="color: #8787d7;">Katakana</span>               = _Katakana               <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Katakana is the set of Unicode characters in script Katakana.</span>
+        <span style="color: #8787d7;">Kayah_Li</span>               = _Kayah_Li               <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Kayah_Li is the set of Unicode characters in script Kayah_Li.</span>
+        <span style="color: #8787d7;">Kharoshthi</span>             = _Kharoshthi             <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Kharoshthi is the set of Unicode characters in script Kharoshthi.</span>
+        <span style="color: #8787d7;">Khmer</span>                  = _Khmer                  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Khmer is the set of Unicode characters in script Khmer.</span>
+        <span style="color: #8787d7;">Lao</span>                    = _Lao                    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Lao is the set of Unicode characters in script Lao.</span>
+        <span style="color: #8787d7;">Latin</span>                  = _Latin                  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Latin is the set of Unicode characters in script Latin.</span>
+        <span style="color: #8787d7;">Lepcha</span>                 = _Lepcha                 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Lepcha is the set of Unicode characters in script Lepcha.</span>
+        <span style="color: #8787d7;">Limbu</span>                  = _Limbu                  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Limbu is the set of Unicode characters in script Limbu.</span>
+        <span style="color: #8787d7;">Linear_B</span>               = _Linear_B               <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Linear_B is the set of Unicode characters in script Linear_B.</span>
+        <span style="color: #8787d7;">Lisu</span>                   = _Lisu                   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Lisu is the set of Unicode characters in script Lisu.</span>
+        <span style="color: #8787d7;">Lycian</span>                 = _Lycian                 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Lycian is the set of Unicode characters in script Lycian.</span>
+        <span style="color: #8787d7;">Lydian</span>                 = _Lydian                 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Lydian is the set of Unicode characters in script Lydian.</span>
+        <span style="color: #8787d7;">Malayalam</span>              = _Malayalam              <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Malayalam is the set of Unicode characters in script Malayalam.</span>
+        <span style="color: #8787d7;">Mandaic</span>                = _Mandaic                <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Mandaic is the set of Unicode characters in script Mandaic.</span>
+        <span style="color: #8787d7;">Meetei_Mayek</span>           = _Meetei_Mayek           <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Meetei_Mayek is the set of Unicode characters in script Meetei_Mayek.</span>
+        <span style="color: #8787d7;">Meroitic_Cursive</span>       = _Meroitic_Cursive       <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Meroitic_Cursive is the set of Unicode characters in script Meroitic_Cursive.</span>
+        <span style="color: #8787d7;">Meroitic_Hieroglyphs</span>   = _Meroitic_Hieroglyphs   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Meroitic_Hieroglyphs is the set of Unicode characters in script Meroitic_Hieroglyphs.</span>
+        <span style="color: #8787d7;">Miao</span>                   = _Miao                   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Miao is the set of Unicode characters in script Miao.</span>
+        <span style="color: #8787d7;">Mongolian</span>              = _Mongolian              <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Mongolian is the set of Unicode characters in script Mongolian.</span>
+        <span style="color: #8787d7;">Myanmar</span>                = _Myanmar                <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Myanmar is the set of Unicode characters in script Myanmar.</span>
+        <span style="color: #8787d7;">New_Tai_Lue</span>            = _New_Tai_Lue            <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">New_Tai_Lue is the set of Unicode characters in script New_Tai_Lue.</span>
+        <span style="color: #8787d7;">Nko</span>                    = _Nko                    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Nko is the set of Unicode characters in script Nko.</span>
+        <span style="color: #8787d7;">Ogham</span>                  = _Ogham                  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Ogham is the set of Unicode characters in script Ogham.</span>
+        <span style="color: #8787d7;">Ol_Chiki</span>               = _Ol_Chiki               <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Ol_Chiki is the set of Unicode characters in script Ol_Chiki.</span>
+        <span style="color: #8787d7;">Old_Italic</span>             = _Old_Italic             <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Old_Italic is the set of Unicode characters in script Old_Italic.</span>
+        <span style="color: #8787d7;">Old_Persian</span>            = _Old_Persian            <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Old_Persian is the set of Unicode characters in script Old_Persian.</span>
+        <span style="color: #8787d7;">Old_South_Arabian</span>      = _Old_South_Arabian      <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Old_South_Arabian is the set of Unicode characters in script Old_South_Arabian.</span>
+        <span style="color: #8787d7;">Old_Turkic</span>             = _Old_Turkic             <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Old_Turkic is the set of Unicode characters in script Old_Turkic.</span>
+        <span style="color: #8787d7;">Oriya</span>                  = _Oriya                  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Oriya is the set of Unicode characters in script Oriya.</span>
+        <span style="color: #8787d7;">Osmanya</span>                = _Osmanya                <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Osmanya is the set of Unicode characters in script Osmanya.</span>
+        <span style="color: #8787d7;">Phags_Pa</span>               = _Phags_Pa               <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Phags_Pa is the set of Unicode characters in script Phags_Pa.</span>
+        <span style="color: #8787d7;">Phoenician</span>             = _Phoenician             <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Phoenician is the set of Unicode characters in script Phoenician.</span>
+        <span style="color: #8787d7;">Rejang</span>                 = _Rejang                 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Rejang is the set of Unicode characters in script Rejang.</span>
+        <span style="color: #8787d7;">Runic</span>                  = _Runic                  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Runic is the set of Unicode characters in script Runic.</span>
+        <span style="color: #8787d7;">Samaritan</span>              = _Samaritan              <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Samaritan is the set of Unicode characters in script Samaritan.</span>
+        <span style="color: #8787d7;">Saurashtra</span>             = _Saurashtra             <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Saurashtra is the set of Unicode characters in script Saurashtra.</span>
+        <span style="color: #8787d7;">Sharada</span>                = _Sharada                <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Sharada is the set of Unicode characters in script Sharada.</span>
+        <span style="color: #8787d7;">Shavian</span>                = _Shavian                <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Shavian is the set of Unicode characters in script Shavian.</span>
+        <span style="color: #8787d7;">Sinhala</span>                = _Sinhala                <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Sinhala is the set of Unicode characters in script Sinhala.</span>
+        <span style="color: #8787d7;">Sora_Sompeng</span>           = _Sora_Sompeng           <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Sora_Sompeng is the set of Unicode characters in script Sora_Sompeng.</span>
+        <span style="color: #8787d7;">Sundanese</span>              = _Sundanese              <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Sundanese is the set of Unicode characters in script Sundanese.</span>
+        <span style="color: #8787d7;">Syloti_Nagri</span>           = _Syloti_Nagri           <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Syloti_Nagri is the set of Unicode characters in script Syloti_Nagri.</span>
+        <span style="color: #8787d7;">Syriac</span>                 = _Syriac                 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Syriac is the set of Unicode characters in script Syriac.</span>
+        <span style="color: #8787d7;">Tagalog</span>                = _Tagalog                <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Tagalog is the set of Unicode characters in script Tagalog.</span>
+        <span style="color: #8787d7;">Tagbanwa</span>               = _Tagbanwa               <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Tagbanwa is the set of Unicode characters in script Tagbanwa.</span>
+        <span style="color: #8787d7;">Tai_Le</span>                 = _Tai_Le                 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Tai_Le is the set of Unicode characters in script Tai_Le.</span>
+        <span style="color: #8787d7;">Tai_Tham</span>               = _Tai_Tham               <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Tai_Tham is the set of Unicode characters in script Tai_Tham.</span>
+        <span style="color: #8787d7;">Tai_Viet</span>               = _Tai_Viet               <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Tai_Viet is the set of Unicode characters in script Tai_Viet.</span>
+        <span style="color: #8787d7;">Takri</span>                  = _Takri                  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Takri is the set of Unicode characters in script Takri.</span>
+        <span style="color: #8787d7;">Tamil</span>                  = _Tamil                  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Tamil is the set of Unicode characters in script Tamil.</span>
+        <span style="color: #8787d7;">Telugu</span>                 = _Telugu                 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Telugu is the set of Unicode characters in script Telugu.</span>
+        <span style="color: #8787d7;">Thaana</span>                 = _Thaana                 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Thaana is the set of Unicode characters in script Thaana.</span>
+        <span style="color: #8787d7;">Thai</span>                   = _Thai                   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Thai is the set of Unicode characters in script Thai.</span>
+        <span style="color: #8787d7;">Tibetan</span>                = _Tibetan                <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Tibetan is the set of Unicode characters in script Tibetan.</span>
+        <span style="color: #8787d7;">Tifinagh</span>               = _Tifinagh               <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Tifinagh is the set of Unicode characters in script Tifinagh.</span>
+        <span style="color: #8787d7;">Ugaritic</span>               = _Ugaritic               <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Ugaritic is the set of Unicode characters in script Ugaritic.</span>
+        <span style="color: #8787d7;">Vai</span>                    = _Vai                    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Vai is the set of Unicode characters in script Vai.</span>
+        <span style="color: #8787d7;">Yi</span>                     = _Yi                     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Yi is the set of Unicode characters in script Yi.</span>
+)
+</pre>
+</div>
+
+<p>
+这些变量的类型也是*RangeTable。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> (
+        <span style="color: #8787d7;">ASCII_Hex_Digit</span>                    = _ASCII_Hex_Digit                    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">ASCII_Hex_Digit is the set of Unicode characters with property ASCII_Hex_Digit.</span>
+        <span style="color: #8787d7;">Bidi_Control</span>                       = _Bidi_Control                       <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Bidi_Control is the set of Unicode characters with property Bidi_Control.</span>
+        <span style="color: #8787d7;">Dash</span>                               = _Dash                               <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Dash is the set of Unicode characters with property Dash.</span>
+        <span style="color: #8787d7;">Deprecated</span>                         = _Deprecated                         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Deprecated is the set of Unicode characters with property Deprecated.</span>
+        <span style="color: #8787d7;">Diacritic</span>                          = _Diacritic                          <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Diacritic is the set of Unicode characters with property Diacritic.</span>
+        <span style="color: #8787d7;">Extender</span>                           = _Extender                           <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Extender is the set of Unicode characters with property Extender.</span>
+        <span style="color: #8787d7;">Hex_Digit</span>                          = _Hex_Digit                          <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Hex_Digit is the set of Unicode characters with property Hex_Digit.</span>
+        <span style="color: #8787d7;">Hyphen</span>                             = _Hyphen                             <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Hyphen is the set of Unicode characters with property Hyphen.</span>
+        <span style="color: #8787d7;">IDS_Binary_Operator</span>                = _IDS_Binary_Operator                <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">IDS_Binary_Operator is the set of Unicode characters with property IDS_Binary_Operator.</span>
+        <span style="color: #8787d7;">IDS_Trinary_Operator</span>               = _IDS_Trinary_Operator               <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">IDS_Trinary_Operator is the set of Unicode characters with property IDS_Trinary_Operator.</span>
+        <span style="color: #8787d7;">Ideographic</span>                        = _Ideographic                        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Ideographic is the set of Unicode characters with property Ideographic.</span>
+        <span style="color: #8787d7;">Join_Control</span>                       = _Join_Control                       <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Join_Control is the set of Unicode characters with property Join_Control.</span>
+        <span style="color: #8787d7;">Logical_Order_Exception</span>            = _Logical_Order_Exception            <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Logical_Order_Exception is the set of Unicode characters with property Logical_Order_Exception.</span>
+        <span style="color: #8787d7;">Noncharacter_Code_Point</span>            = _Noncharacter_Code_Point            <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Noncharacter_Code_Point is the set of Unicode characters with property Noncharacter_Code_Point.</span>
+        <span style="color: #8787d7;">Other_Alphabetic</span>                   = _Other_Alphabetic                   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Other_Alphabetic is the set of Unicode characters with property Other_Alphabetic.</span>
+        <span style="color: #8787d7;">Other_Default_Ignorable_Code_Point</span> = _Other_Default_Ignorable_Code_Point <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Other_Default_Ignorable_Code_Point is the set of Unicode characters with property Other_Default_Ignorable_Code_Point.</span>
+        <span style="color: #8787d7;">Other_Grapheme_Extend</span>              = _Other_Grapheme_Extend              <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Other_Grapheme_Extend is the set of Unicode characters with property Other_Grapheme_Extend.</span>
+        <span style="color: #8787d7;">Other_ID_Continue</span>                  = _Other_ID_Continue                  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Other_ID_Continue is the set of Unicode characters with property Other_ID_Continue.</span>
+        <span style="color: #8787d7;">Other_ID_Start</span>                     = _Other_ID_Start                     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Other_ID_Start is the set of Unicode characters with property Other_ID_Start.</span>
+        <span style="color: #8787d7;">Other_Lowercase</span>                    = _Other_Lowercase                    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Other_Lowercase is the set of Unicode characters with property Other_Lowercase.</span>
+        <span style="color: #8787d7;">Other_Math</span>                         = _Other_Math                         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Other_Math is the set of Unicode characters with property Other_Math.</span>
+        <span style="color: #8787d7;">Other_Uppercase</span>                    = _Other_Uppercase                    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Other_Uppercase is the set of Unicode characters with property Other_Uppercase.</span>
+        <span style="color: #8787d7;">Pattern_Syntax</span>                     = _Pattern_Syntax                     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Pattern_Syntax is the set of Unicode characters with property Pattern_Syntax.</span>
+        <span style="color: #8787d7;">Pattern_White_Space</span>                = _Pattern_White_Space                <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Pattern_White_Space is the set of Unicode characters with property Pattern_White_Space.</span>
+        <span style="color: #8787d7;">Quotation_Mark</span>                     = _Quotation_Mark                     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Quotation_Mark is the set of Unicode characters with property Quotation_Mark.</span>
+        <span style="color: #8787d7;">Radical</span>                            = _Radical                            <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Radical is the set of Unicode characters with property Radical.</span>
+        <span style="color: #8787d7;">STerm</span>                              = _STerm                              <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">STerm is the set of Unicode characters with property STerm.</span>
+        <span style="color: #8787d7;">Soft_Dotted</span>                        = _Soft_Dotted                        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Soft_Dotted is the set of Unicode characters with property Soft_Dotted.</span>
+        <span style="color: #8787d7;">Terminal_Punctuation</span>               = _Terminal_Punctuation               <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Terminal_Punctuation is the set of Unicode characters with property Terminal_Punctuation.</span>
+        <span style="color: #8787d7;">Unified_Ideograph</span>                  = _Unified_Ideograph                  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Unified_Ideograph is the set of Unicode characters with property Unified_Ideograph.</span>
+        <span style="color: #8787d7;">Variation_Selector</span>                 = _Variation_Selector                 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Variation_Selector is the set of Unicode characters with property Variation_Selector.</span>
+        <span style="color: #8787d7;">White_Space</span>                        = _White_Space                        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">White_Space is the set of Unicode characters with property White_Space.</span>
+)
+</pre>
+</div>
+
+<p>
+这些变量的类型还是*RangeTable。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">CaseRanges</span> = _CaseRanges
+</pre>
+</div>
+
+<p>
+CaseRanges is the table describing case mappings for all letters with non-self mappings.<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">Categories</span> = <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]*<span style="color: #df005f; font-weight: bold;">RangeTable</span>{
+        <span style="color: #2aa198;">"C"</span>:  C,
+        <span style="color: #2aa198;">"Cc"</span>: Cc,
+        <span style="color: #2aa198;">"Cf"</span>: Cf,
+        <span style="color: #2aa198;">"Co"</span>: Co,
+        <span style="color: #2aa198;">"Cs"</span>: Cs,
+        <span style="color: #2aa198;">"L"</span>:  L,
+        <span style="color: #2aa198;">"Ll"</span>: Ll,
+        <span style="color: #2aa198;">"Lm"</span>: Lm,
+        <span style="color: #2aa198;">"Lo"</span>: Lo,
+        <span style="color: #2aa198;">"Lt"</span>: Lt,
+        <span style="color: #2aa198;">"Lu"</span>: Lu,
+        <span style="color: #2aa198;">"M"</span>:  M,
+        <span style="color: #2aa198;">"Mc"</span>: Mc,
+        <span style="color: #2aa198;">"Me"</span>: Me,
+        <span style="color: #2aa198;">"Mn"</span>: Mn,
+        <span style="color: #2aa198;">"N"</span>:  N,
+        <span style="color: #2aa198;">"Nd"</span>: Nd,
+        <span style="color: #2aa198;">"Nl"</span>: Nl,
+        <span style="color: #2aa198;">"No"</span>: No,
+        <span style="color: #2aa198;">"P"</span>:  P,
+        <span style="color: #2aa198;">"Pc"</span>: Pc,
+        <span style="color: #2aa198;">"Pd"</span>: Pd,
+        <span style="color: #2aa198;">"Pe"</span>: Pe,
+        <span style="color: #2aa198;">"Pf"</span>: Pf,
+        <span style="color: #2aa198;">"Pi"</span>: Pi,
+        <span style="color: #2aa198;">"Po"</span>: Po,
+        <span style="color: #2aa198;">"Ps"</span>: Ps,
+        <span style="color: #2aa198;">"S"</span>:  S,
+        <span style="color: #2aa198;">"Sc"</span>: Sc,
+        <span style="color: #2aa198;">"Sk"</span>: Sk,
+        <span style="color: #2aa198;">"Sm"</span>: Sm,
+        <span style="color: #2aa198;">"So"</span>: So,
+        <span style="color: #2aa198;">"Z"</span>:  Z,
+        <span style="color: #2aa198;">"Zl"</span>: Zl,
+        <span style="color: #2aa198;">"Zp"</span>: Zp,
+        <span style="color: #2aa198;">"Zs"</span>: Zs,
+}
+</pre>
+</div>
+
+<p>
+Categories is the set of Unicode category tables.<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">FoldCategory</span> = <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]*<span style="color: #df005f; font-weight: bold;">RangeTable</span>{
+        <span style="color: #2aa198;">"Common"</span>:    foldCommon,
+        <span style="color: #2aa198;">"Greek"</span>:     foldGreek,
+        <span style="color: #2aa198;">"Inherited"</span>: foldInherited,
+        <span style="color: #2aa198;">"L"</span>:         foldL,
+        <span style="color: #2aa198;">"Ll"</span>:        foldLl,
+        <span style="color: #2aa198;">"Lt"</span>:        foldLt,
+        <span style="color: #2aa198;">"Lu"</span>:        foldLu,
+        <span style="color: #2aa198;">"M"</span>:         foldM,
+        <span style="color: #2aa198;">"Mn"</span>:        foldMn,
+}
+</pre>
+</div>
+
+<p>
+FoldCategory maps a category name to a table of code points outside the category that are equivalent under simple case folding to code points inside the category. If there is no entry for a category name, there are no such points.<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">FoldScript</span> = <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]*<span style="color: #df005f; font-weight: bold;">RangeTable</span>{}
+</pre>
+</div>
+
+<p>
+FoldScript maps a script name to a table of code points outside the script that are equivalent under simple case folding to code points inside the script. If there is no entry for a script name, there are no such points.<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">GraphicRanges</span> = []*<span style="color: #df005f; font-weight: bold;">RangeTable</span>{
+        L, M, N, P, S, Zs,
+}
+</pre>
+</div>
+
+<p>
+GraphicRanges defines the set of graphic characters according to Unicode.<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">PrintRanges</span> = []*<span style="color: #df005f; font-weight: bold;">RangeTable</span>{
+        L, M, N, P, S,
+}
+</pre>
+</div>
+
+<p>
+PrintRanges defines the set of printable characters according to Go. ASCII space, U+0020, is handled separately.<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">Properties</span> = <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]*<span style="color: #df005f; font-weight: bold;">RangeTable</span>{
+        <span style="color: #2aa198;">"ASCII_Hex_Digit"</span>:                    ASCII_Hex_Digit,
+        <span style="color: #2aa198;">"Bidi_Control"</span>:                       Bidi_Control,
+        <span style="color: #2aa198;">"Dash"</span>:                               Dash,
+        <span style="color: #2aa198;">"Deprecated"</span>:                         Deprecated,
+        <span style="color: #2aa198;">"Diacritic"</span>:                          Diacritic,
+        <span style="color: #2aa198;">"Extender"</span>:                           Extender,
+        <span style="color: #2aa198;">"Hex_Digit"</span>:                          Hex_Digit,
+        <span style="color: #2aa198;">"Hyphen"</span>:                             Hyphen,
+        <span style="color: #2aa198;">"IDS_Binary_Operator"</span>:                IDS_Binary_Operator,
+        <span style="color: #2aa198;">"IDS_Trinary_Operator"</span>:               IDS_Trinary_Operator,
+        <span style="color: #2aa198;">"Ideographic"</span>:                        Ideographic,
+        <span style="color: #2aa198;">"Join_Control"</span>:                       Join_Control,
+        <span style="color: #2aa198;">"Logical_Order_Exception"</span>:            Logical_Order_Exception,
+        <span style="color: #2aa198;">"Noncharacter_Code_Point"</span>:            Noncharacter_Code_Point,
+        <span style="color: #2aa198;">"Other_Alphabetic"</span>:                   Other_Alphabetic,
+        <span style="color: #2aa198;">"Other_Default_Ignorable_Code_Point"</span>: Other_Default_Ignorable_Code_Point,
+        <span style="color: #2aa198;">"Other_Grapheme_Extend"</span>:              Other_Grapheme_Extend,
+        <span style="color: #2aa198;">"Other_ID_Continue"</span>:                  Other_ID_Continue,
+        <span style="color: #2aa198;">"Other_ID_Start"</span>:                     Other_ID_Start,
+        <span style="color: #2aa198;">"Other_Lowercase"</span>:                    Other_Lowercase,
+        <span style="color: #2aa198;">"Other_Math"</span>:                         Other_Math,
+        <span style="color: #2aa198;">"Other_Uppercase"</span>:                    Other_Uppercase,
+        <span style="color: #2aa198;">"Pattern_Syntax"</span>:                     Pattern_Syntax,
+        <span style="color: #2aa198;">"Pattern_White_Space"</span>:                Pattern_White_Space,
+        <span style="color: #2aa198;">"Quotation_Mark"</span>:                     Quotation_Mark,
+        <span style="color: #2aa198;">"Radical"</span>:                            Radical,
+        <span style="color: #2aa198;">"STerm"</span>:                              STerm,
+        <span style="color: #2aa198;">"Soft_Dotted"</span>:                        Soft_Dotted,
+        <span style="color: #2aa198;">"Terminal_Punctuation"</span>:               Terminal_Punctuation,
+        <span style="color: #2aa198;">"Unified_Ideograph"</span>:                  Unified_Ideograph,
+        <span style="color: #2aa198;">"Variation_Selector"</span>:                 Variation_Selector,
+        <span style="color: #2aa198;">"White_Space"</span>:                        White_Space,
+}
+</pre>
+</div>
+
+<p>
+Properties is the set of Unicode property tables.<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">Scripts</span> = <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]*<span style="color: #df005f; font-weight: bold;">RangeTable</span>{
+        <span style="color: #2aa198;">"Arabic"</span>:                 Arabic,
+        <span style="color: #2aa198;">"Armenian"</span>:               Armenian,
+        <span style="color: #2aa198;">"Avestan"</span>:                Avestan,
+        <span style="color: #2aa198;">"Balinese"</span>:               Balinese,
+        <span style="color: #2aa198;">"Bamum"</span>:                  Bamum,
+        <span style="color: #2aa198;">"Batak"</span>:                  Batak,
+        <span style="color: #2aa198;">"Bengali"</span>:                Bengali,
+        <span style="color: #2aa198;">"Bopomofo"</span>:               Bopomofo,
+        <span style="color: #2aa198;">"Brahmi"</span>:                 Brahmi,
+        <span style="color: #2aa198;">"Braille"</span>:                Braille,
+        <span style="color: #2aa198;">"Buginese"</span>:               Buginese,
+        <span style="color: #2aa198;">"Buhid"</span>:                  Buhid,
+        <span style="color: #2aa198;">"Canadian_Aboriginal"</span>:    Canadian_Aboriginal,
+        <span style="color: #2aa198;">"Carian"</span>:                 Carian,
+        <span style="color: #2aa198;">"Chakma"</span>:                 Chakma,
+        <span style="color: #2aa198;">"Cham"</span>:                   Cham,
+        <span style="color: #2aa198;">"Cherokee"</span>:               Cherokee,
+        <span style="color: #2aa198;">"Common"</span>:                 Common,
+        <span style="color: #2aa198;">"Coptic"</span>:                 Coptic,
+        <span style="color: #2aa198;">"Cuneiform"</span>:              Cuneiform,
+        <span style="color: #2aa198;">"Cypriot"</span>:                Cypriot,
+        <span style="color: #2aa198;">"Cyrillic"</span>:               Cyrillic,
+        <span style="color: #2aa198;">"Deseret"</span>:                Deseret,
+        <span style="color: #2aa198;">"Devanagari"</span>:             Devanagari,
+        <span style="color: #2aa198;">"Egyptian_Hieroglyphs"</span>:   Egyptian_Hieroglyphs,
+        <span style="color: #2aa198;">"Ethiopic"</span>:               Ethiopic,
+        <span style="color: #2aa198;">"Georgian"</span>:               Georgian,
+        <span style="color: #2aa198;">"Glagolitic"</span>:             Glagolitic,
+        <span style="color: #2aa198;">"Gothic"</span>:                 Gothic,
+        <span style="color: #2aa198;">"Greek"</span>:                  Greek,
+        <span style="color: #2aa198;">"Gujarati"</span>:               Gujarati,
+        <span style="color: #2aa198;">"Gurmukhi"</span>:               Gurmukhi,
+        <span style="color: #2aa198;">"Han"</span>:                    Han,
+        <span style="color: #2aa198;">"Hangul"</span>:                 Hangul,
+        <span style="color: #2aa198;">"Hanunoo"</span>:                Hanunoo,
+        <span style="color: #2aa198;">"Hebrew"</span>:                 Hebrew,
+        <span style="color: #2aa198;">"Hiragana"</span>:               Hiragana,
+        <span style="color: #2aa198;">"Imperial_Aramaic"</span>:       Imperial_Aramaic,
+        <span style="color: #2aa198;">"Inherited"</span>:              Inherited,
+        <span style="color: #2aa198;">"Inscriptional_Pahlavi"</span>:  Inscriptional_Pahlavi,
+        <span style="color: #2aa198;">"Inscriptional_Parthian"</span>: Inscriptional_Parthian,
+        <span style="color: #2aa198;">"Javanese"</span>:               Javanese,
+        <span style="color: #2aa198;">"Kaithi"</span>:                 Kaithi,
+        <span style="color: #2aa198;">"Kannada"</span>:                Kannada,
+        <span style="color: #2aa198;">"Katakana"</span>:               Katakana,
+        <span style="color: #2aa198;">"Kayah_Li"</span>:               Kayah_Li,
+        <span style="color: #2aa198;">"Kharoshthi"</span>:             Kharoshthi,
+        <span style="color: #2aa198;">"Khmer"</span>:                  Khmer,
+        <span style="color: #2aa198;">"Lao"</span>:                    Lao,
+        <span style="color: #2aa198;">"Latin"</span>:                  Latin,
+        <span style="color: #2aa198;">"Lepcha"</span>:                 Lepcha,
+        <span style="color: #2aa198;">"Limbu"</span>:                  Limbu,
+        <span style="color: #2aa198;">"Linear_B"</span>:               Linear_B,
+        <span style="color: #2aa198;">"Lisu"</span>:                   Lisu,
+        <span style="color: #2aa198;">"Lycian"</span>:                 Lycian,
+        <span style="color: #2aa198;">"Lydian"</span>:                 Lydian,
+        <span style="color: #2aa198;">"Malayalam"</span>:              Malayalam,
+        <span style="color: #2aa198;">"Mandaic"</span>:                Mandaic,
+        <span style="color: #2aa198;">"Meetei_Mayek"</span>:           Meetei_Mayek,
+        <span style="color: #2aa198;">"Meroitic_Cursive"</span>:       Meroitic_Cursive,
+        <span style="color: #2aa198;">"Meroitic_Hieroglyphs"</span>:   Meroitic_Hieroglyphs,
+        <span style="color: #2aa198;">"Miao"</span>:                   Miao,
+        <span style="color: #2aa198;">"Mongolian"</span>:              Mongolian,
+        <span style="color: #2aa198;">"Myanmar"</span>:                Myanmar,
+        <span style="color: #2aa198;">"New_Tai_Lue"</span>:            New_Tai_Lue,
+        <span style="color: #2aa198;">"Nko"</span>:                    Nko,
+        <span style="color: #2aa198;">"Ogham"</span>:                  Ogham,
+        <span style="color: #2aa198;">"Ol_Chiki"</span>:               Ol_Chiki,
+        <span style="color: #2aa198;">"Old_Italic"</span>:             Old_Italic,
+        <span style="color: #2aa198;">"Old_Persian"</span>:            Old_Persian,
+        <span style="color: #2aa198;">"Old_South_Arabian"</span>:      Old_South_Arabian,
+        <span style="color: #2aa198;">"Old_Turkic"</span>:             Old_Turkic,
+        <span style="color: #2aa198;">"Oriya"</span>:                  Oriya,
+        <span style="color: #2aa198;">"Osmanya"</span>:                Osmanya,
+        <span style="color: #2aa198;">"Phags_Pa"</span>:               Phags_Pa,
+        <span style="color: #2aa198;">"Phoenician"</span>:             Phoenician,
+        <span style="color: #2aa198;">"Rejang"</span>:                 Rejang,
+        <span style="color: #2aa198;">"Runic"</span>:                  Runic,
+        <span style="color: #2aa198;">"Samaritan"</span>:              Samaritan,
+        <span style="color: #2aa198;">"Saurashtra"</span>:             Saurashtra,
+        <span style="color: #2aa198;">"Sharada"</span>:                Sharada,
+        <span style="color: #2aa198;">"Shavian"</span>:                Shavian,
+        <span style="color: #2aa198;">"Sinhala"</span>:                Sinhala,
+        <span style="color: #2aa198;">"Sora_Sompeng"</span>:           Sora_Sompeng,
+        <span style="color: #2aa198;">"Sundanese"</span>:              Sundanese,
+        <span style="color: #2aa198;">"Syloti_Nagri"</span>:           Syloti_Nagri,
+        <span style="color: #2aa198;">"Syriac"</span>:                 Syriac,
+        <span style="color: #2aa198;">"Tagalog"</span>:                Tagalog,
+        <span style="color: #2aa198;">"Tagbanwa"</span>:               Tagbanwa,
+        <span style="color: #2aa198;">"Tai_Le"</span>:                 Tai_Le,
+        <span style="color: #2aa198;">"Tai_Tham"</span>:               Tai_Tham,
+        <span style="color: #2aa198;">"Tai_Viet"</span>:               Tai_Viet,
+        <span style="color: #2aa198;">"Takri"</span>:                  Takri,
+        <span style="color: #2aa198;">"Tamil"</span>:                  Tamil,
+        <span style="color: #2aa198;">"Telugu"</span>:                 Telugu,
+        <span style="color: #2aa198;">"Thaana"</span>:                 Thaana,
+        <span style="color: #2aa198;">"Thai"</span>:                   Thai,
+        <span style="color: #2aa198;">"Tibetan"</span>:                Tibetan,
+        <span style="color: #2aa198;">"Tifinagh"</span>:               Tifinagh,
+        <span style="color: #2aa198;">"Ugaritic"</span>:               Ugaritic,
+        <span style="color: #2aa198;">"Vai"</span>:                    Vai,
+        <span style="color: #2aa198;">"Yi"</span>:                     Yi,
+}
+</pre>
+</div>
+
+<p>
+Scripts is the set of Unicode script tables.<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org6676010" class="outline-2">
+<h2 id="org6676010">type CaseRange</h2>
+<div class="outline-text-2" id="text-org6676010">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">CaseRange</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        Lo    <span style="color: #df005f; font-weight: bold;">uint32</span>
+        Hi    <span style="color: #df005f; font-weight: bold;">uint32</span>
+        Delta <span style="color: #df005f; font-weight: bold;">d</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">d&#20026;[MaxCase]rune&#30340;&#21629;&#21517;&#31867;&#22411;</span>
+}
+</pre>
+</div>
+
+<p>
+代表简单的unicode码值的一一映射。范围为[Lo, Hi]，步长为1。<br>
+</p>
+
+<p>
+该范围内的每个值+Delta[UpperCase]表示对应的大写字母；<br>
+</p>
+
+<p>
+该范围内的每个值+Delta[LowerCase]表示对应的小写字母；<br>
+</p>
+
+<p>
+该范围内的每个值+Delta[TitleCase]表示对应的标题字母。<br>
+</p>
+
+<p>
+Delta数组里的值可为负数或零。如果Delta数组是：<br>
+</p>
+
+<pre class="example" id="org72c065e">
+{UpperLower, UpperLower, UpperLower}
+</pre>
+
+<p>
+表示[Lo, Hi]范围的字符序列是交替的、对应的大写字母小写字母对。否则常数UpperLower不能用Delta数组里。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb5b10b6" class="outline-2">
+<h2 id="orgb5b10b6">type Range16</h2>
+<div class="outline-text-2" id="text-orgb5b10b6">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Range16</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        Lo     <span style="color: #df005f; font-weight: bold;">uint16</span>
+        Hi     <span style="color: #df005f; font-weight: bold;">uint16</span>
+        Stride <span style="color: #df005f; font-weight: bold;">uint16</span>
+}
+</pre>
+</div>
+
+<p>
+代表一系列16位unicode码值，范围为Lo到Hi（可以是Lo/Hi），步长为Stride。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2b03eee" class="outline-2">
+<h2 id="org2b03eee">type Range32</h2>
+<div class="outline-text-2" id="text-org2b03eee">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Range32</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        Lo     <span style="color: #df005f; font-weight: bold;">uint32</span>
+        Hi     <span style="color: #df005f; font-weight: bold;">uint32</span>
+        Stride <span style="color: #df005f; font-weight: bold;">uint32</span>
+}
+</pre>
+</div>
+
+<p>
+代表一系列32位unicode码值，范围为Lo到Hi（可以是Lo/Hi），步长为Stride；Lo和Hi必须大于等于1&lt;&lt;16。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org37c4d7e" class="outline-2">
+<h2 id="org37c4d7e">type RangeTable</h2>
+<div class="outline-text-2" id="text-org37c4d7e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">RangeTable</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        R16         []<span style="color: #df005f; font-weight: bold;">Range16</span>
+        R32         []<span style="color: #df005f; font-weight: bold;">Range32</span>  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">R32&#19981;&#33021;&#21253;&#21547;&#20302;&#20110;0x10000&#65288;&#21363;1&lt;&lt;16&#65289;&#30340;&#20540;</span>
+        LatinOffset <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">R16&#23383;&#27573;&#20013;Hi &lt;= MaxLatin1&#30340;&#25104;&#21592;&#25968;</span>
+}
+</pre>
+</div>
+
+<p>
+通过列出集合中码值的范围，定义了一个unicode码值的集合。出于节省空间，范围保存在两个切片里，分别保存16位字符的范围和32位字符的范围。R16和R32必须是有序排列的，且互不重叠的。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2b97fe3" class="outline-2">
+<h2 id="org2b97fe3">type SpecialCase</h2>
+<div class="outline-text-2" id="text-org2b97fe3">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">SpecialCase</span> []<span style="color: #df005f; font-weight: bold;">CaseRange</span>
+</pre>
+</div>
+
+<p>
+SpecialCase代表特定语言的字符映射，如土耳其语。本类型的方法（通过覆盖）定制了标准映射。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">AzeriCase</span> <span style="color: #df005f; font-weight: bold;">SpecialCase</span> = _TurkishCase
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">TurkishCase</span> <span style="color: #df005f; font-weight: bold;">SpecialCase</span> = _TurkishCase
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org8ad4c4d" class="outline-3">
+<h3 id="org8ad4c4d">func (SpecialCase) ToLower</h3>
+<div class="outline-text-3" id="text-org8ad4c4d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">special</span> <span style="color: #df005f; font-weight: bold;">SpecialCase</span>) <span style="color: #d75fd7; font-weight: bold;">ToLower</span>(<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">rune</span>
+</pre>
+</div>
+
+<p>
+按特定映射，返回对应的小写字母。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org213858e" class="outline-3">
+<h3 id="org213858e">func (SpecialCase) ToUpper</h3>
+<div class="outline-text-3" id="text-org213858e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">special</span> <span style="color: #df005f; font-weight: bold;">SpecialCase</span>) <span style="color: #d75fd7; font-weight: bold;">ToUpper</span>(<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">rune</span>
+</pre>
+</div>
+
+<p>
+按特定映射，返回对应的大写字母。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd9bfabe" class="outline-3">
+<h3 id="orgd9bfabe">func (SpecialCase) ToTitle</h3>
+<div class="outline-text-3" id="text-orgd9bfabe">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">special</span> <span style="color: #df005f; font-weight: bold;">SpecialCase</span>) <span style="color: #d75fd7; font-weight: bold;">ToTitle</span>(<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">rune</span>
+</pre>
+</div>
+
+<p>
+按特定映射，返回对应的标题字母。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org407030e" class="outline-2">
+<h2 id="org407030e">func Is</h2>
+<div class="outline-text-2" id="text-org407030e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Is</span>(<span style="color: #8787d7;">rangeTab</span> *<span style="color: #df005f; font-weight: bold;">RangeTable</span>, <span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+函数报告r是否在rangeTab指定的字符范围内。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org44f2613" class="outline-2">
+<h2 id="org44f2613">func In</h2>
+<div class="outline-text-2" id="text-org44f2613">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">In</span>(<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>, <span style="color: #8787d7;">ranges</span> ...*<span style="color: #df005f; font-weight: bold;">RangeTable</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+函数报告r是否是给出的某个字母集的成员。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgaeb82cb" class="outline-2">
+<h2 id="orgaeb82cb">func IsOneOf</h2>
+<div class="outline-text-2" id="text-orgaeb82cb">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">IsOneOf</span>(<span style="color: #8787d7;">ranges</span> []*<span style="color: #df005f; font-weight: bold;">RangeTable</span>, <span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+函数报告r是否是ranges某个成员指定的字符范围内。本函数的功能类似In，应优先使用In函数。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org0d003ea" class="outline-2">
+<h2 id="org0d003ea">func IsSpace</h2>
+<div class="outline-text-2" id="text-org0d003ea">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">IsSpace</span>(<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+IsSpace报告一个字符是否是空白字符。在Latin-1字符空间中，空白字符为：<br>
+</p>
+
+<pre class="example" id="org517cfa5">
+'\t', '\n', '\v', '\f', '\r', ' ', U+0085 (NEL), U+00A0 (NBSP).
+</pre>
+
+<p>
+其它的空白字符请参见策略Z和属性Pattern_White_Space。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org0d72b92" class="outline-2">
+<h2 id="org0d72b92">func IsDigit</h2>
+<div class="outline-text-2" id="text-org0d72b92">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">IsDigit</span>(<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+IsDigit报告一个字符是否是十进制数字字符。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org7540e99" class="outline-2">
+<h2 id="org7540e99">func IsNumber</h2>
+<div class="outline-text-2" id="text-org7540e99">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">IsNumber</span>(<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+IsNumber报告一个字符是否是数字字符，参见策略N。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9f36d8d" class="outline-2">
+<h2 id="org9f36d8d">func IsLetter</h2>
+<div class="outline-text-2" id="text-org9f36d8d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">IsLetter</span>(<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+IsLetter报告一个字符是否是字母，参见策略L。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org39b3c8f" class="outline-2">
+<h2 id="org39b3c8f">func IsGraphic</h2>
+<div class="outline-text-2" id="text-org39b3c8f">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">IsGraphic</span>(<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+报告一个字符是否是unicode图形。包括字母、标记、数字、符号、标点、空白，参见L、M、N、P、S、Zs。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge262ae1" class="outline-2">
+<h2 id="orge262ae1">func IsMark</h2>
+<div class="outline-text-2" id="text-orge262ae1">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">IsMark</span>(<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+IsMark报告一个字符是否是标记字符，参见策略M。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb4afc24" class="outline-2">
+<h2 id="orgb4afc24">func IsPrint</h2>
+<div class="outline-text-2" id="text-orgb4afc24">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">IsPrint</span>(<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+IsPrint一个字符是否是go的可打印字符。本函数基本和IsGraphic一致，只是ASCII空白字符U+0020会返回假。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5af8697" class="outline-2">
+<h2 id="org5af8697">func IsControl</h2>
+<div class="outline-text-2" id="text-org5af8697">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">IsControl</span>(<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+IsControl报告一个字符是否是控制字符，主要是策略C的字符和一些其他的字符如代理字符。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgdc42537" class="outline-2">
+<h2 id="orgdc42537">func IsPunct</h2>
+<div class="outline-text-2" id="text-orgdc42537">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">IsPunct</span>(<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+IsPunct报告一个字符是否是unicode标点字符，参见策略P。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org067533b" class="outline-2">
+<h2 id="org067533b">func IsSymbol</h2>
+<div class="outline-text-2" id="text-org067533b">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">IsSymbol</span>(<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+IsPunct报告一个字符是否是unicode符号字符。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2f525bf" class="outline-2">
+<h2 id="org2f525bf">func IsLower</h2>
+<div class="outline-text-2" id="text-org2f525bf">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">IsLower</span>(<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+返回字符是否是小写字母。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga89408e" class="outline-2">
+<h2 id="orga89408e">func IsUpper</h2>
+<div class="outline-text-2" id="text-orga89408e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">IsUpper</span>(<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+返回字符是否是大写字母。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org95dcb73" class="outline-2">
+<h2 id="org95dcb73">func IsTitle</h2>
+<div class="outline-text-2" id="text-org95dcb73">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">IsTitle</span>(<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+返回字符是否是标题字母。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org7954faf" class="outline-2">
+<h2 id="org7954faf">func To</h2>
+<div class="outline-text-2" id="text-org7954faf">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">To</span>(<span style="color: #8787d7;">_case</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">rune</span>
+</pre>
+</div>
+
+<p>
+返回_case指定的对应类型的字母：UpperCase、LowerCase、TitleCase。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgfdd1dc3" class="outline-2">
+<h2 id="orgfdd1dc3">func ToLower</h2>
+<div class="outline-text-2" id="text-orgfdd1dc3">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ToLower</span>(<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">rune</span>
+</pre>
+</div>
+
+<p>
+返回对应的小写字母。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org373cbdf" class="outline-2">
+<h2 id="org373cbdf">func ToUpper</h2>
+<div class="outline-text-2" id="text-org373cbdf">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ToUpper</span>(<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">rune</span>
+</pre>
+</div>
+
+<p>
+返回对应的大写字母。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org30c473e" class="outline-2">
+<h2 id="org30c473e">func ToTitle</h2>
+<div class="outline-text-2" id="text-org30c473e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ToTitle</span>(<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">rune</span>
+</pre>
+</div>
+
+<p>
+返回对应的标题字母。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf68dc0b" class="outline-2">
+<h2 id="orgf68dc0b">func SimpleFold</h2>
+<div class="outline-text-2" id="text-orgf68dc0b">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">SimpleFold</span>(<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">rune</span>
+</pre>
+</div>
+
+<p>
+SimpleFold函数迭代在unicode标准字符映射中互相对应的unicode码值。在与r对应的码值中（包括r自身），会返回最小的那个大于r的字符（如果有）；否则返回映射中最小的字符。<br>
+</p>
+
+<p>
+举例：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #d75fd7; font-weight: bold;">SimpleFold</span>(<span style="color: #2aa198;">'A'</span>) = <span style="color: #2aa198;">'a'</span>
+<span style="color: #d75fd7; font-weight: bold;">SimpleFold</span>(<span style="color: #2aa198;">'a'</span>) = <span style="color: #2aa198;">'A'</span>
+<span style="color: #d75fd7; font-weight: bold;">SimpleFold</span>(<span style="color: #2aa198;">'K'</span>) = <span style="color: #2aa198;">'k'</span>
+<span style="color: #d75fd7; font-weight: bold;">SimpleFold</span>(<span style="color: #2aa198;">'k'</span>) = <span style="color: #2aa198;">'\u212A'</span> (Kelvin <span style="color: #df005f; font-weight: bold;">symbol</span>, K)
+<span style="color: #d75fd7; font-weight: bold;">SimpleFold</span>(<span style="color: #2aa198;">'\u212A'</span>) = <span style="color: #2aa198;">'K'</span>
+<span style="color: #d75fd7; font-weight: bold;">SimpleFold</span>(<span style="color: #2aa198;">'1'</span>) = <span style="color: #2aa198;">'1'</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org491bf43" class="outline-2">
+<h2 id="org491bf43">Bugs</h2>
+<div class="outline-text-2" id="text-org491bf43">
+<p>
+☞ 没有全字符（包含多个rune的字符）折叠的机制。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-08 13:02 Tue</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-08 Tue 14:17</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

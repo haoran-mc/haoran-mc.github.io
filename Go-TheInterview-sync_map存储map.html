@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-16 Wed 21:59 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>sync.map 存储 map</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">sync.map 存储 map</h1>
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"sync"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>(){
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">m</span> <span style="color: #df005f; font-weight: bold;">sync.Map</span>
+    m.<span style="color: #d75fd7; font-weight: bold;">Store</span>(<span style="color: #2aa198;">"address"</span>, <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">string</span>{<span style="color: #2aa198;">"province"</span>: <span style="color: #2aa198;">"&#27743;&#33487;"</span>, <span style="color: #2aa198;">"city"</span>: <span style="color: #2aa198;">"&#21335;&#20140;"</span>})
+    <span style="color: #8787d7;">v</span>, <span style="color: #8787d7;">_</span> := m.<span style="color: #d75fd7; font-weight: bold;">Load</span>(<span style="color: #2aa198;">"address"</span>)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(v[<span style="color: #2aa198;">"province"</span>]) 
+}
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>A. 江苏；<br></li>
+<li>B. <code>v["province"]</code> 取值错误；<br></li>
+<li>C. <code>m.Store</code> 存储错误；<br></li>
+<li>D. 不知道<br></li>
+</ul>
+
+<pre class="example" id="orgc4951a9">
+invalid operation: v["province"] (type interface {} does not support indexing)
+</pre>
+
+<p>
+选 B，因为 <code>func (m *Map) Store(key interface{}, value interface{})</code><br>
+</p>
+
+<p>
+所以 <code>v</code> 类型是 <code>interface {}</code> ，这里需要一个类型断言。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(v.(<span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">string</span>)[<span style="color: #2aa198;">"province"</span>]) <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#27743;&#33487;</span>
+</pre>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-16 21:02 Wed</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-16 Wed 21:59</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

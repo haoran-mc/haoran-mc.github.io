@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-02-02 Wed 16:45 -->
+<!-- 2022-02-15 Tue 21:43 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>EDITOR-VIM-NOTES</title>
@@ -25,6 +25,8 @@
 <li><a href="#org7ccd53f">好玩的命令</a></li>
 <li><a href="#orgf55d0c2">vim-plug换源</a></li>
 <li><a href="#org4d9dd08">在 vim 中设置当前目录</a></li>
+<li><a href="#org06af5d2">查看当前文件类型</a></li>
+<li><a href="#org041f951">C、C++ 的格式化配置</a></li>
 </ul>
 </div>
 </div>
@@ -54,7 +56,7 @@ sudo pacman -S gvim<br>
 <p>
 <code>:ab string strings</code><br>
 </p>
-<pre class="example" id="orge8181ad">
+<pre class="example" id="org104b8b9">
 例如 ":ab PROC the People's Republic of China" ,
 当你在文见里插入 PROC 时
 the People's Republic of China 就蹦出来了
@@ -77,7 +79,7 @@ the People's Republic of China 就蹦出来了
 在 plug.vim 中搜索 github, 修改两条语句，即可成功下载GitHub资源。 <br>
 </p>
 
-<pre class="example" id="org48cda7f">
+<pre class="example" id="orgf85988f">
 1 将该行
 let fmt = get(g:, 'plug_url_format', 'https://git::@github.com/%s.git')
 改为
@@ -141,11 +143,63 @@ let fmt = get(g:, 'plug_url_format', 'https://git::@hub.fastgit.org/%s.git')
 </div>
 </div>
 </div>
+<div id="outline-container-org06af5d2" class="outline-2">
+<h2 id="org06af5d2">查看当前文件类型</h2>
+<div class="outline-text-2" id="text-org06af5d2">
+<div class="org-src-container">
+<pre class="src src-bash">:set filetype?
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org041f951" class="outline-2">
+<h2 id="org041f951">C、C++ 的格式化配置</h2>
+<div class="outline-text-2" id="text-org041f951">
+<p>
+astyle的格式化风格配置：<a href="https://astyle.sourceforge.net/astyle.html">Artistic Style</a><br>
+</p>
+
+<pre class="example" id="org2477456">
+nnoremap &lt;c-a-\&gt; :Autoformat&lt;CR&gt;
+let g:formatdef_custom_js = '"js-beautify -t"'
+let g:formatters_javascript = ['custom_js']
+
+func! RunFormatAttach()
+		" exec "w" " 这2条命令是利用vim外部调用功能, 二选一
+		" exec "!astyle --mode=c --style=attach -k3 -n -p -S -U -W3 -xg -xW -y -Y %"
+		" -k3 指针标识 * &amp; ^ 的位置
+		" -n 不要保留原始文件的备份。原始文件在格式化后会被清除。
+		" -p 操作符前后加空格
+		" -S switch 里的 case 都将缩进
+		" -U 删除括号里多余的空格 ( a + b ) -&gt; (a + b)
+		" -W3 char&amp; foo3 -&gt; char &amp;foo3
+		" -xg 逗号后加空格
+		" -xW 宏定义的缩进
+		" -y else 单行
+		" -Y 注释缩进
+		let g:formatdef_my_fmt = '"astyle --mode=c --style=attach -k3 -n -p -S -U -W3 -xg -xW -y -Y "'
+		silent exec "Autoformat"
+endfunc
+
+let g:formatters_c = ['my_fmt']
+let g:formatters_cpp = ['my_fmt']
+au filetype c :call RunFormatAttach()
+au filetype cpp :call RunFormatAttach()
+let g:autoformat_autoindent = 0
+let g:autoformat_retab = 0
+let g:autoformat_remove_trailing_spaces = 0
+</pre>
+
+<p>
+上面是 vim-autoformat 插件使用 astyle 的配置。<br>
+</p>
+</div>
+</div>
 </div>
 <div id="postamble" class="status">
 <p class="date">Date: 2022-02-02 16:02 Wed</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-02-02 Wed 16:45</p>
+<p class="date">Created: 2022-02-15 Tue 21:43</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

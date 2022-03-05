@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-08 Tue 16:24 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FRAMEWORK-WECHAT-APPLETS</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">FRAMEWORK-WECHAT-APPLETS</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgeb81750">项目结构</a></li>
+<li><a href="#orgce81ea9">组件</a>
+<ul>
+<li><a href="#orgace1557">&lt;picker&gt;</a>
+<ul>
+<li><a href="#orgdbcffcb">省市区选择器</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#orgd7791a5">获取用户信息</a></li>
+<li><a href="#orgd4e29d6">flex</a>
+<ul>
+<li><a href="#orgcbab2e0">wxss</a>
+<ul>
+<li><a href="#orga058e5c">尺寸单位</a></li>
+<li><a href="#orge7eafaa">常用属性</a></li>
+</ul>
+</li>
+<li><a href="#org839e8d9">flex布局</a></li>
+</ul>
+</li>
+<li><a href="#org58954da">使用外部API</a></li>
+<li><a href="#org27126e5">后端</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgeb81750" class="outline-2">
+<h2 id="orgeb81750">项目结构</h2>
+<div class="outline-text-2" id="text-orgeb81750">
+<ol class="org-ol">
+<li>app.js, app.json, app.wxss为三个全局文件<br></li>
+<li>创建pages文件夹，存放小程序的各个页面<br></li>
+<li>创建页面<br>
+<dl class="org-dl">
+<dt>js</dt><dd>逻辑<br></dd>
+<dt>json</dt><dd>配置信息<br></dd>
+<dt>wxml</dt><dd>映射html，页面内容<br></dd>
+<dt>wxss</dt><dd>映射css，页面样式<br></dd>
+</dl></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgce81ea9" class="outline-2">
+<h2 id="orgce81ea9">组件</h2>
+<div class="outline-text-2" id="text-orgce81ea9">
+<p>
+新建view视图，用来存放各个组件&lt;view&gt;&lt;/view&gt;<br>
+</p>
+
+<dl class="org-dl">
+<dt>图片</dt><dd>&lt;image&gt;&lt;/image&gt;<br></dd>
+<dt>文字</dt><dd>&lt;text&gt;&lt;/text&gt;<br></dd>
+<dt>按钮</dt><dd>&lt;button&gt;&lt;/button&gt;<br></dd>
+</dl>
+</div>
+<div id="outline-container-orgace1557" class="outline-3">
+<h3 id="orgace1557">&lt;picker&gt;</h3>
+<div class="outline-text-3" id="text-orgace1557">
+<p>
+&lt;picker&gt;是一个滚动选择组件，根据mode属性值的不同支持5种选择器，分别是普通选择器，多列选择器，时间选择器，日期选择器，省市区选择器，若省略mode则默认是普通选择器<br>
+</p>
+</div>
+<div id="outline-container-orgdbcffcb" class="outline-4">
+<h4 id="orgdbcffcb">省市区选择器</h4>
+<div class="outline-text-4" id="text-orgdbcffcb">
+<p>
+mode='region'<br>
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">属性名</th>
+<th scope="col" class="org-left">类型</th>
+<th scope="col" class="org-left">默认值</th>
+<th scope="col" class="org-left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">value</td>
+<td class="org-left">Array</td>
+<td class="org-left">[]</td>
+<td class="org-left">表示选中的省市区，默认选中第一个</td>
+</tr>
+
+<tr>
+<td class="org-left">custom-items</td>
+<td class="org-left">String</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">为每一列顶部添加一个自定义的项</td>
+</tr>
+
+<tr>
+<td class="org-left">bindchange</td>
+<td class="org-left">EventHandle</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">当value改变时触发change事件，event.detail = [value:value]</td>
+</tr>
+
+<tr>
+<td class="org-left">bindcancel</td>
+<td class="org-left">Eventhandle</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">取消时触发</td>
+</tr>
+
+<tr>
+<td class="org-left">disabled</td>
+<td class="org-left">Boolean</td>
+<td class="org-left">false</td>
+<td class="org-left">是否禁用</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgd7791a5" class="outline-2">
+<h2 id="orgd7791a5">获取用户信息</h2>
+<div class="outline-text-2" id="text-orgd7791a5">
+<ol class="org-ol">
+<li><p>
+方式一<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-html">&lt;<span style="color: #d75fd7; font-weight: bold;">open-data</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"userAvatarUrl"</span>&gt;&lt;/<span style="color: #d75fd7; font-weight: bold;">open-data</span>&gt;
+&lt;<span style="color: #d75fd7; font-weight: bold;">open-data</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"userNickName"</span> <span style="color: #8787d7;">lang</span>=<span style="color: #2aa198;">"zh_CN"</span>&gt;&lt;/<span style="color: #d75fd7; font-weight: bold;">open-data</span>&gt;
+</pre>
+</div></li>
+
+<li><p>
+方式二<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-html">&lt;<span style="color: #d75fd7; font-weight: bold;">button</span> <span style="color: #8787d7;">open-type</span>=<span style="color: #2aa198;">'getUserInfo'</span> <span style="color: #8787d7;">lang</span>=<span style="color: #2aa198;">"zh_CN"</span> <span style="color: #8787d7;">bindgetuserinfo</span>=<span style="color: #2aa198;">"onGotUserInfo"</span>&gt;&lt;/<span style="color: #d75fd7; font-weight: bold;">button</span>&gt;
+&lt;<span style="color: #d75fd7; font-weight: bold;">script</span>&gt;
+  onGotUserInfo: function (e) {
+  console.log("nickname=" + e.detail.userInfo.nickName);
+  }
+&lt;/<span style="color: #d75fd7; font-weight: bold;">script</span>&gt;
+</pre>
+</div></li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-orgd4e29d6" class="outline-2">
+<h2 id="orgd4e29d6">flex</h2>
+<div class="outline-text-2" id="text-orgd4e29d6">
+</div>
+<div id="outline-container-orgcbab2e0" class="outline-3">
+<h3 id="orgcbab2e0">wxss</h3>
+<div class="outline-text-3" id="text-orgcbab2e0">
+</div>
+<div id="outline-container-orga058e5c" class="outline-4">
+<h4 id="orga058e5c">尺寸单位</h4>
+<div class="outline-text-4" id="text-orga058e5c">
+<p>
+小程序规定了全新的尺寸单位"rpx"，小程序无视设备原先的尺寸，统一规定屏幕宽度为750rpx<br>
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">设备</th>
+<th scope="col" class="org-left">换算</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">iPhone5</td>
+<td class="org-left">1rpx = 0.42px</td>
+</tr>
+
+<tr>
+<td class="org-left">iPhone6</td>
+<td class="org-left">1rpx = 0.5px</td>
+</tr>
+
+<tr>
+<td class="org-left">iPhone6 Plus</td>
+<td class="org-left">1rpx = 0.522px</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-orge7eafaa" class="outline-4">
+<h4 id="orge7eafaa">常用属性</h4>
+<div class="outline-text-4" id="text-orge7eafaa">
+<dl class="org-dl">
+<dt>background-color</dt><dd>背景色<br></dd>
+<dt>color</dt><dd>前景色<br></dd>
+<dt>font-size</dt><dd>字体大小<br></dd>
+<dt>border</dt><dd>边框<br></dd>
+<dt>width</dt><dd>宽度<br></dd>
+<dt>height</dt><dd>高度<br></dd>
+</dl>
+</div>
+</div>
+</div>
+<div id="outline-container-org839e8d9" class="outline-3">
+<h3 id="org839e8d9">flex布局</h3>
+<div class="outline-text-3" id="text-org839e8d9">
+<ol class="org-ol">
+<li>flex-direction :: 用于设置主轴方向以更改项目的排列方向<br>
+<ul class="org-ul">
+<li>row<br></li>
+<li>row-reverse<br></li>
+<li>column<br></li>
+<li>column-reverse<br></li>
+</ul></li>
+<li>justify-content :: 用于设置在主轴方向上的对齐方式，以及分配项目之间及其周围多余的空间<br>
+<ul class="org-ul">
+<li>space-between<br></li>
+<li>space-around<br></li>
+</ul></li>
+<li>align-items :: 设置项目在行中的对齐方式<br>
+<dl class="org-dl">
+<dt>stretch</dt><dd>默认值，未设置项目尺寸时，将项目拉伸至填满交叉轴<br></dd>
+<dt>flex-start</dt><dd>项目顶部与交叉轴起点对齐<br></dd>
+<dt>center</dt><dd>项目在交叉轴居中对齐<br></dd>
+<dt>flex-end</dt><dd>项目底部与交叉轴终点对齐<br></dd>
+</dl></li>
+<li>align-content :: 用于多行排列时设置项目在交叉轴方向上的对齐方式，以及分配项目之间及周围多余的空间<br>
+<dl class="org-dl">
+<dt>stretch</dt><dd>默认值，未设置项目尺寸时将各行中的项目拉伸至填满交叉轴<br></dd>
+<dt>flex-start</dt><dd>首行在交叉轴起点开始排列，行间不留间距<br></dd>
+<dt>(no term)</dt><dd>center<br></dd>
+<dt>(no term)</dt><dd>flex-end<br></dd>
+<dt>(no term)</dt><dd>space-around<br></dd>
+<dt>(no term)</dt><dd>space-between<br></dd>
+</dl></li>
+<li>flex-wrap :: 用于规定是否允许项目换行，以及换行的方向<br>
+<dl class="org-dl">
+<dt>nowrap</dt><dd>默认值，表示不换行，如果单行内容过多，项目宽度会被压缩<br></dd>
+<dt>wrap</dt><dd>允许换行<br></dd>
+<dt>wrap-reverse</dt><dd>换行反方向<br></dd>
+</dl></li>
+</ol>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org58954da" class="outline-2">
+<h2 id="org58954da">使用外部API</h2>
+<div class="outline-text-2" id="text-org58954da">
+<ol class="org-ol">
+<li>找到一个需要使用的外部API<br></li>
+<li>根据网站的介绍制作url<br></li>
+<li>将域名添加到微信公众平台<br></li>
+<li><p>
+发送请求<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-javascript">wx.request({
+    url: <span style="color: #2aa198;">'https://devapi.qweather.com/v7/weather/now?'</span>,
+    data: {
+        location: that.data.region[<span style="color: #d75fd7;">1</span>],
+        key: <span style="color: #2aa198;">'55003229c6a840e98d1a861b05326d82'</span>
+    },
+    <span style="color: #d75fd7; font-weight: bold;">success</span>: <span style="color: #268bd2; font-weight: bold;">function</span>(<span style="color: #8787d7;">res</span>) {
+        that.setData({nowWeather: res.data.now})
+    }
+})
+</pre>
+</div></li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-org27126e5" class="outline-2">
+<h2 id="org27126e5">后端</h2>
+<div class="outline-text-2" id="text-org27126e5">
+<p>
+<a href="Framework-wechatApplet-微信小程序登录后端开发流程.html">微信小程序登录后端开发流程</a> <br>
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2021-09-01 02:09 周三</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-08 Tue 16:24</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

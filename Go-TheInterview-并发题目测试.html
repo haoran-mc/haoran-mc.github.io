@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-02-15 Tue 00:15 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>并发题目测试</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">并发题目测试</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org5085150">1 Mutex</a></li>
+<li><a href="#org4a1f86a">2 RWMutex</a></li>
+<li><a href="#org146bdcf">3 Waitgroup</a></li>
+<li><a href="#org7f3f7a1">4 双检查实现单例</a></li>
+<li><a href="#org4a471b3">5 Mutex</a></li>
+<li><a href="#orga28dadc">6 Pool</a></li>
+<li><a href="#org7a50681">7 channel</a></li>
+<li><a href="#orgf2bfdc4">8 channel</a></li>
+<li><a href="#orgb1f95a7">9 Map</a></li>
+<li><a href="#org6a730dc">10 happens before</a></li>
+<li><a href="#orgf3f0e0b">答案</a>
+<ul>
+<li><a href="#org976b644">1. D</a></li>
+<li><a href="#org0a7cf36">2. D</a></li>
+<li><a href="#orgaa654da">3. D</a></li>
+<li><a href="#org5f16989">4. C</a></li>
+<li><a href="#org56ef93c">5. D</a></li>
+<li><a href="#org9c85880">6. C</a></li>
+<li><a href="#org2780a34">7. C</a></li>
+<li><a href="#org5eee912">8. D</a></li>
+<li><a href="#org25ac22e">9. A</a></li>
+<li><a href="#orgb06afa5">10. B</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org5085150" class="outline-2">
+<h2 id="org5085150">1 Mutex</h2>
+<div class="outline-text-2" id="text-org5085150">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"sync"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">mu</span> <span style="color: #df005f; font-weight: bold;">sync.Mutex</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">chain</span> <span style="color: #df005f; font-weight: bold;">string</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    chain = <span style="color: #2aa198;">"main"</span>
+    <span style="color: #d75fd7; font-weight: bold;">A</span>()
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(chain)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">A</span>() {
+    mu.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+    <span style="color: #268bd2; font-weight: bold;">defer</span> mu.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+    chain = chain + <span style="color: #2aa198;">" --&gt; A"</span>
+    <span style="color: #d75fd7; font-weight: bold;">B</span>()
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">B</span>() {
+    chain = chain + <span style="color: #2aa198;">" --&gt; B"</span>
+    <span style="color: #d75fd7; font-weight: bold;">C</span>()
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">C</span>() {
+    mu.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+    <span style="color: #268bd2; font-weight: bold;">defer</span> mu.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+    chain = chain + <span style="color: #2aa198;">" --&gt; C"</span>
+}
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>A: 不能编译<br></li>
+<li>B: 输出 main &#x2013;&gt; A &#x2013;&gt; B &#x2013;&gt; C<br></li>
+<li>C: 输出 main<br></li>
+<li>D: panic<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org4a1f86a" class="outline-2">
+<h2 id="org4a1f86a">2 RWMutex</h2>
+<div class="outline-text-2" id="text-org4a1f86a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"sync"</span>
+    <span style="color: #2aa198;">"time"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">rwmu</span> <span style="color: #df005f; font-weight: bold;">sync.RWMutex</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">count</span> <span style="color: #df005f; font-weight: bold;">int</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">A</span>()
+    time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(<span style="color: #d75fd7;">2</span> * time.Second)
+    rwmu.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+    <span style="color: #268bd2; font-weight: bold;">defer</span> rwmu.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+    count ++
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(count)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">A</span>() {
+    rwmu.<span style="color: #d75fd7; font-weight: bold;">RLock</span>()
+    <span style="color: #268bd2; font-weight: bold;">defer</span> rwmu.<span style="color: #d75fd7; font-weight: bold;">RUnlock</span>()
+    <span style="color: #d75fd7; font-weight: bold;">B</span>()
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">B</span>() {
+    time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(<span style="color: #d75fd7;">5</span> * time.Second)
+    <span style="color: #d75fd7; font-weight: bold;">C</span>()
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">C</span>() {
+    rwmu.<span style="color: #d75fd7; font-weight: bold;">RLock</span>()
+    <span style="color: #268bd2; font-weight: bold;">defer</span> rwmu.<span style="color: #d75fd7; font-weight: bold;">RUnlock</span>()
+}
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>A: 不能编译<br></li>
+<li>B: 输出 1<br></li>
+<li>C: 程序hang住<br></li>
+<li>D: panic<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org146bdcf" class="outline-2">
+<h2 id="org146bdcf">3 Waitgroup</h2>
+<div class="outline-text-2" id="text-org146bdcf">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"sync"</span>
+    <span style="color: #2aa198;">"time"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">wg</span> <span style="color: #df005f; font-weight: bold;">sync.WaitGroup</span>
+    wg.<span style="color: #d75fd7; font-weight: bold;">Add</span>(<span style="color: #d75fd7;">1</span>)
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+        time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(time.Millisecond)
+        wg.<span style="color: #d75fd7; font-weight: bold;">Done</span>()
+        wg.<span style="color: #d75fd7; font-weight: bold;">Add</span>(<span style="color: #d75fd7;">1</span>)
+    }()
+    wg.<span style="color: #d75fd7; font-weight: bold;">Wait</span>()
+}
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>A: 不能编译<br></li>
+<li>B: 无输出，正常退出<br></li>
+<li>C: 程序hang住<br></li>
+<li>D: panic<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org7f3f7a1" class="outline-2">
+<h2 id="org7f3f7a1">4 双检查实现单例</h2>
+<div class="outline-text-2" id="text-org7f3f7a1">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> doublecheck
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"sync"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Once</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    m    <span style="color: #df005f; font-weight: bold;">sync.Mutex</span>
+    done <span style="color: #df005f; font-weight: bold;">uint32</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">o</span> *<span style="color: #df005f; font-weight: bold;">Once</span>) <span style="color: #d75fd7; font-weight: bold;">Do</span>(<span style="color: #8787d7;">f</span> <span style="color: #268bd2; font-weight: bold;">func</span>()) {
+    <span style="color: #268bd2; font-weight: bold;">if</span> o.done == <span style="color: #d75fd7;">1</span> {
+        <span style="color: #268bd2; font-weight: bold;">return</span>
+    }
+    o.m.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+    <span style="color: #268bd2; font-weight: bold;">defer</span> o.m.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+    <span style="color: #268bd2; font-weight: bold;">if</span> o.done == <span style="color: #d75fd7;">0</span> {
+        o.done = <span style="color: #d75fd7;">1</span>
+        <span style="color: #d75fd7; font-weight: bold;">f</span>()
+    }
+}
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>A: 不能编译<br></li>
+<li>B: 可以编译，正确实现了单例<br></li>
+<li>C: 可以编译，有并发问题，f 函数可能会被执行多次<br></li>
+<li>D: 可以编译，但是程序运行会 panic<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org4a471b3" class="outline-2">
+<h2 id="org4a471b3">5 Mutex</h2>
+<div class="outline-text-2" id="text-org4a471b3">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"sync"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">MyMutex</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    count <span style="color: #df005f; font-weight: bold;">int</span>
+    sync.Mutex
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">mu</span> <span style="color: #df005f; font-weight: bold;">MyMutex</span>
+    mu.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">mu2</span> = mu
+    mu.count ++
+    mu.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+    mu2.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+    mu2.count ++
+    mu2.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(mu.count, mu2.count)
+}
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>A: 不能编译<br></li>
+<li>B: 输出 1, 1<br></li>
+<li>C: 输出 1, 2<br></li>
+<li>D: panic<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orga28dadc" class="outline-2">
+<h2 id="orga28dadc">6 Pool</h2>
+<div class="outline-text-2" id="text-orga28dadc">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"bytes"</span>
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"runtime"</span>
+    <span style="color: #2aa198;">"sync"</span>
+    <span style="color: #2aa198;">"time"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">pool</span> = <span style="color: #df005f; font-weight: bold;">sync.Pool</span>{
+    <span style="color: #d75fd7;">New</span>: <span style="color: #268bd2; font-weight: bold;">func</span>() <span style="color: #268bd2; font-weight: bold;">interface</span>{} {
+        <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #268bd2;">new</span>(<span style="color: #df005f; font-weight: bold;">bytes.Buffer</span>)
+    },
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+        <span style="color: #268bd2; font-weight: bold;">for</span> {
+            <span style="color: #d75fd7; font-weight: bold;">processRequest</span>(<span style="color: #d75fd7;">1</span> &lt;&lt; <span style="color: #d75fd7;">28</span>) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">256MiB</span>
+        }
+    }()
+
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; <span style="color: #d75fd7;">1000</span>; i++ {
+        <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+            <span style="color: #268bd2; font-weight: bold;">for</span> {
+                <span style="color: #d75fd7; font-weight: bold;">processRequest</span>(<span style="color: #d75fd7;">1</span> &lt;&lt; <span style="color: #d75fd7;">10</span>) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">1KiB</span>
+            }
+        }()
+    }
+
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">stats</span> <span style="color: #df005f; font-weight: bold;">runtime.MemStats</span>
+
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">0</span>; ; i++ {
+        runtime.<span style="color: #d75fd7; font-weight: bold;">ReadMemStats</span>(&amp;stats)
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"Cycle %d: %dB\n"</span>, i, stats.Alloc)
+        time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(time.Second)
+        runtime.<span style="color: #d75fd7; font-weight: bold;">GC</span>()
+    }
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">processRequest</span>(<span style="color: #8787d7;">size</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238; Pool &#20013;&#24050;&#23384;&#22312;&#30340; *bytes.Buffer&#65292;&#21542;&#21017;&#23558;&#35843;&#29992; New &#26041;&#27861;&#26469;&#21021;&#22987;&#21270;&#26032;&#30340; *bytes.Buffer</span>
+    <span style="color: #8787d7;">b</span> := pool.<span style="color: #d75fd7; font-weight: bold;">Get</span>().(*<span style="color: #df005f; font-weight: bold;">bytes.Buffer</span>)
+    time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(<span style="color: #d75fd7;">500</span> * time.Millisecond)
+    b.<span style="color: #d75fd7; font-weight: bold;">Grow</span>(size)
+    pool.<span style="color: #d75fd7; font-weight: bold;">Put</span>(b)
+    time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(<span style="color: #d75fd7;">1</span> * time.Millisecond)
+}
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>A: 不能编译<br></li>
+<li>B: 可以编译，运行时正常，内存稳定<br></li>
+<li>C: 可以编译，运行时内存可能暴涨<br></li>
+<li>D: 可以编译，运行时内存先暴涨，但是过一会会回收掉<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org7a50681" class="outline-2">
+<h2 id="org7a50681">7 channel</h2>
+<div class="outline-text-2" id="text-org7a50681">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"runtime"</span>
+    <span style="color: #2aa198;">"time"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">ch</span> <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #8787d7;">int</span>
+
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+        ch = <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #d75fd7;">1</span>)
+        ch &lt;- <span style="color: #d75fd7;">1</span>
+    }()
+
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">ch</span> <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
+        time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(time.Second)
+        &lt;- ch
+    }(ch)
+
+    <span style="color: #8787d7;">c</span> := time.<span style="color: #d75fd7; font-weight: bold;">Tick</span>(<span style="color: #d75fd7;">1</span> * time.Second)
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #268bd2; font-weight: bold;">range</span> c {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"#goroutines: %d\n"</span>, runtime.<span style="color: #d75fd7; font-weight: bold;">NumGoroutine</span>())
+    }
+}
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>A: 不能编译<br></li>
+<li>B: 一段时间后总是输出 <code>#goroutines: 1</code><br></li>
+<li>C: 一段时间后总是输出 <code>#goroutines: 2</code><br></li>
+<li>D: panic<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgf2bfdc4" class="outline-2">
+<h2 id="orgf2bfdc4">8 channel</h2>
+<div class="outline-text-2" id="text-orgf2bfdc4">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">ch</span> <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #8787d7;">int</span>
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">count</span> <span style="color: #df005f; font-weight: bold;">int</span>
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+        ch &lt;- <span style="color: #d75fd7;">1</span>
+    }()
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+        count++
+        <span style="color: #268bd2;">close</span>(ch)
+    }()
+    &lt;-ch
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(count)
+}
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>A: 不能编译<br></li>
+<li>B: 输出 1<br></li>
+<li>C: 输出 0<br></li>
+<li>D: panic<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgb1f95a7" class="outline-2">
+<h2 id="orgb1f95a7">9 Map</h2>
+<div class="outline-text-2" id="text-orgb1f95a7">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"sync"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">m</span> <span style="color: #df005f; font-weight: bold;">sync.Map</span>
+    m.<span style="color: #d75fd7; font-weight: bold;">LoadOrStore</span>(<span style="color: #2aa198;">"a"</span>, <span style="color: #d75fd7;">1</span>)
+    m.<span style="color: #d75fd7; font-weight: bold;">Delete</span>(<span style="color: #2aa198;">"a"</span>)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(m.<span style="color: #d75fd7; font-weight: bold;">Len</span>())
+}
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>A: 不能编译<br></li>
+<li>B: 输出 1<br></li>
+<li>C: 输出 0<br></li>
+<li>D: panic<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org6a730dc" class="outline-2">
+<h2 id="org6a730dc">10 happens before</h2>
+<div class="outline-text-2" id="text-org6a730dc">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">c</span> = <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">a</span> <span style="color: #df005f; font-weight: bold;">int</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">f</span>() {
+    a = <span style="color: #d75fd7;">1</span>
+    &lt;- c
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">f</span>()
+    c &lt;- <span style="color: #d75fd7;">0</span>
+    <span style="color: #268bd2;">print</span>(a)
+}
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>A: 不能编译<br></li>
+<li>B: 输出 1<br></li>
+<li>C: 输出 0<br></li>
+<li>D: panic<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgf3f0e0b" class="outline-2">
+<h2 id="orgf3f0e0b">答案</h2>
+<div class="outline-text-2" id="text-orgf3f0e0b">
+</div>
+<div id="outline-container-org976b644" class="outline-3">
+<h3 id="org976b644">1. D</h3>
+<div class="outline-text-3" id="text-org976b644">
+<p>
+<code>C()</code> 的第一句会产生死锁 <code>panic</code> ，因为 <code>Mutex</code> 是互斥锁。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org0a7cf36" class="outline-3">
+<h3 id="org0a7cf36">2. D</h3>
+<div class="outline-text-3" id="text-org0a7cf36">
+<p>
+会产生死锁 <code>panic</code> ，根据 <code>sync/rwmutex.go</code> 中注释可以知道，读写锁当有一个协程在等待写锁时，其他协程是不能获得读锁的，而在 A 和 C 中同一个调用链中间需要让出读锁，让写锁优先获取，而 A 的读锁又要求 C 调用完成，因此死锁。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgaa654da" class="outline-3">
+<h3 id="orgaa654da">3. D</h3>
+<div class="outline-text-3" id="text-orgaa654da">
+<p>
+<code>WaitGroup</code> 在调用 <code>Wait</code> 之后是不能再调用 <code>Add</code> 方法的。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5f16989" class="outline-3">
+<h3 id="org5f16989">4. C</h3>
+<div class="outline-text-3" id="text-org5f16989">
+<p>
+在多核 CPU 中，因为 CPU 缓存会导致多个核心中变量值不同步。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org56ef93c" class="outline-3">
+<h3 id="org56ef93c">5. D</h3>
+<div class="outline-text-3" id="text-org56ef93c">
+<p>
+加锁后复制变量，会将锁的状态也复制，所以 <code>mu1</code> 其实是已经加锁状态，再加锁会死锁。Mutex 需要使用指针传播。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9c85880" class="outline-3">
+<h3 id="org9c85880">6. C</h3>
+<div class="outline-text-3" id="text-org9c85880">
+<p>
+在单核 CPU 中，内存可能会稳定在 256 MB，如果是多核可能会暴涨。<br>
+</p>
+
+<p>
+在 <code>processRequest</code> 的 <code>time.Sleep</code> 模拟处理时间，会导致永远都有除了 <code>sync.Pool</code> 外的持有对象，导致内存一致增长，无法 gc。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2780a34" class="outline-3">
+<h3 id="org2780a34">7. C</h3>
+<div class="outline-text-3" id="text-org2780a34">
+<p>
+因为 <code>ch</code> 未初始化，写和读都会阻塞，之后被第一个协程重新赋值，导致写的 <code>ch</code> 都阻塞。<br>
+</p>
+
+<p>
+第一个 func 能够结束，第二个 func 不能结束，还有一个主线程。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5eee912" class="outline-3">
+<h3 id="org5eee912">8. D</h3>
+<div class="outline-text-3" id="text-org5eee912">
+<p>
+<code>ch</code> 未有被初始化，关闭时会报错。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org25ac22e" class="outline-3">
+<h3 id="org25ac22e">9. A</h3>
+<div class="outline-text-3" id="text-org25ac22e">
+<p>
+<code>sync.Map</code> 没有 <code>Len</code> 方法。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb06afa5" class="outline-3">
+<h3 id="orgb06afa5">10. B</h3>
+<div class="outline-text-3" id="text-orgb06afa5">
+<p>
+<code>c &lt;- 0</code> 会阻塞依赖于 <code>f()</code> 的执行。<br>
+</p>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-12 18:02 Sat</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-02-15 Tue 00:15</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
