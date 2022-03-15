@@ -1,0 +1,2813 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-03-14 Mon 19:20 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MySQL 基本语法</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="static/MathJax/cdn.bootcdn.net/ajax/libs/mathjax/3.1.2/es5/tex-mml-chtml.min.js"></script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">MySQL 基本语法</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgf833152">数据库操作</a>
+<ul>
+<li><a href="#org67168b3">创建、修改和删除数据库</a></li>
+<li><a href="#orgac1c493">显示数据库列表</a></li>
+</ul>
+</li>
+<li><a href="#org5be5d50">设有一个学生-课程数据库</a></li>
+<li><a href="#org46af062">数据定义</a>
+<ul>
+<li><a href="#org2568371">数据类型</a></li>
+<li><a href="#orgc71edfa">模式的定义与删除</a>
+<ul>
+<li><a href="#orgb278077">数据库模式的理解</a></li>
+<li><a href="#orgb3c0dfe">定义模式</a></li>
+<li><a href="#orge699508">删除模式</a></li>
+</ul>
+</li>
+<li><a href="#org1961663">基本表的定义、删除与修改</a>
+<ul>
+<li><a href="#org9dd596a">定义基本表</a></li>
+<li><a href="#orgf3d33c0">修改基本表</a></li>
+<li><a href="#orgf75df17">删除基本表</a>
+<ul>
+<li><a href="#org7b2f93c">一次删除多表</a></li>
+<li><a href="#org60a1ed4">删除其中一条信息</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org0e883b1">模式与表</a></li>
+<li><a href="#org890c70d">索引的建立与删除</a>
+<ul>
+<li><a href="#org5be93cb">建立索引</a></li>
+<li><a href="#org7d11f50">修改索引</a></li>
+<li><a href="#orgdab2717">删除索引</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#orga75651d">数据查询</a>
+<ul>
+<li><a href="#org6b1eeab">单表查询</a>
+<ul>
+<li><a href="#orgc55d941">选择表中若干列</a>
+<ul>
+<li><a href="#org0a57a75">查询指定列</a></li>
+<li><a href="#org8670805">查询全部列</a></li>
+<li><a href="#orgb8f8c0e">查询经过计算的值</a></li>
+</ul>
+</li>
+<li><a href="#orgefaf238">选择表中若干元祖</a>
+<ul>
+<li><a href="#org7c95ad8">比较大小</a></li>
+<li><a href="#org348728e">确定范围</a></li>
+<li><a href="#orgb9f2673">确定集合</a></li>
+<li><a href="#org2f94046">字符匹配</a></li>
+<li><a href="#org1e100d2">空值</a></li>
+<li><a href="#org1dfb101">多重条件查询</a></li>
+</ul>
+</li>
+<li><a href="#orgf8d6b79">order by 子句</a></li>
+<li><a href="#org72de309">聚集函数</a></li>
+<li><a href="#orgd7544a6">group by 子句</a></li>
+</ul>
+</li>
+<li><a href="#org872dee5">连接查询</a>
+<ul>
+<li><a href="#orgc5499cf">等值与非等值连接查询</a></li>
+<li><a href="#org22ce042">自身连接</a></li>
+<li><a href="#org9c783a6">外连接</a></li>
+<li><a href="#org8cb0f55">多表连接（七种 JOIN 理论）</a></li>
+</ul>
+</li>
+<li><a href="#org8b6db80">嵌套查询</a>
+<ul>
+<li><a href="#org601232c">带有 in 谓词的子查询</a></li>
+<li><a href="#orga51c1ec">带有比较运算符的子查询</a></li>
+<li><a href="#org8124e68">带有 any（some）或 all 谓词的子查询</a></li>
+<li><a href="#orgdd6dfc9">带有 exists 谓词的子查询</a></li>
+</ul>
+</li>
+<li><a href="#org0bba4dc">集合查询</a></li>
+<li><a href="#org0eb622a">基于派生表的查询</a></li>
+</ul>
+</li>
+<li><a href="#orgeb762fa">数据更新</a>
+<ul>
+<li><a href="#org91e5fe2">插入数据</a>
+<ul>
+<li><a href="#org4b0af8d">插入元祖</a></li>
+<li><a href="#org9757c61">插入 date（日期）数据</a></li>
+<li><a href="#org043c03b">插入子查询结果</a></li>
+</ul>
+</li>
+<li><a href="#orgb342cc5">修改数据</a>
+<ul>
+<li><a href="#org3c666fc">修改某一个元祖的值</a></li>
+<li><a href="#orgb22e24f">修改多个元祖的值</a></li>
+<li><a href="#orgb617bc5">带子查询的修改语句</a></li>
+</ul>
+</li>
+<li><a href="#org112acc8">删除数据</a>
+<ul>
+<li><a href="#org3824a66">删除某一个元祖的值</a></li>
+<li><a href="#orge9bd58e">删除多个元祖的值</a></li>
+<li><a href="#org554653c">带子查询的删除语句</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org803fd1b">空值</a>
+<ul>
+<li><a href="#orge0b4cd3">空值的产生</a></li>
+<li><a href="#orgd9fcc4f">空值的判断</a></li>
+<li><a href="#orgc56f7e4">空值的约束条件</a></li>
+</ul>
+</li>
+<li><a href="#org56e3b7b">视图</a>
+<ul>
+<li><a href="#org0fe10e8">定义视图</a>
+<ul>
+<li><a href="#org29b6bdd">建立视图</a></li>
+<li><a href="#org132dadc">删除视图</a></li>
+</ul>
+</li>
+<li><a href="#orgcf34620">查询视图</a></li>
+<li><a href="#org3050584">更新视图</a></li>
+<li><a href="#org694b757">视图的作用</a></li>
+</ul>
+</li>
+<li><a href="#org02b6e78">其他常用命令</a>
+<ul>
+<li><a href="#orgd041872">创建、删除用户和给用户授权</a></li>
+<li><a href="#orge0c2154">注释</a></li>
+<li><a href="#orgbf054a6">调用</a></li>
+<li><a href="#org69c8af4">导出导入</a></li>
+<li><a href="#org4f0c1f0">执行在文件中的SQL代码</a></li>
+<li><a href="#orga06a61e">delimiter</a></li>
+<li><a href="#orgbdae8b6">数据库备份和恢复</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgf833152" class="outline-2">
+<h2 id="orgf833152">数据库操作</h2>
+<div class="outline-text-2" id="text-orgf833152">
+</div>
+<div id="outline-container-org67168b3" class="outline-3">
+<h3 id="org67168b3">创建、修改和删除数据库</h3>
+<div class="outline-text-3" id="text-org67168b3">
+<dl class="org-dl">
+<dt><code>create database mydb;</code></dt><dd>创建 mydb 数据库<br>
+<dl class="org-dl">
+<dt><code>create database if not exists mydb;</code></dt><dd>如果不存在 mydb 数据库再创建<br></dd>
+</dl></dd>
+<dt><code>alter database mydb character set utf8;</code></dt><dd>修改 mydb 数据库的字符集为 utf8<br></dd>
+<dt><code>drop database mydb;</code></dt><dd>删除 mydb 数据库<br>
+<dl class="org-dl">
+<dt><code>drop database if exists mydb;</code></dt><dd>如果存在 mydb 数据库再删除<br></dd>
+</dl></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgac1c493" class="outline-3">
+<h3 id="orgac1c493">显示数据库列表</h3>
+<div class="outline-text-3" id="text-orgac1c493">
+<dl class="org-dl">
+<dt><code>show databases;</code></dt><dd>显示当前服务器上所有数据库的列表；查询到数据库名后，紧接着我们可以使用 <code>use</code> 命令，改变当前数据库。<br></dd>
+</dl>
+</div>
+</div>
+</div>
+<div id="outline-container-org5be5d50" class="outline-2">
+<h2 id="org5be5d50">设有一个学生-课程数据库</h2>
+<div class="outline-text-2" id="text-org5be5d50">
+<p>
+设有一个学生-课程数据库，包括学生关系 \(Student\)、课程关系 \(Course\) 和选修关系 \(SC\)。<br>
+</p>
+
+<div style="margin-bottom: -0.145rem;">
+<p>
+\(Student:\)<br>
+</p>
+</div>
+
+<div style="display: block; width: auto; height: auto; margin-left: 50px;">
+<table>
+
+
+<colgroup>
+<col  class="org-right">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">学号（\(Sno\)）</th>
+<th scope="col" class="org-left">姓名（\(Sname\)）</th>
+<th scope="col" class="org-left">性别（\(Ssex\)）</th>
+<th scope="col" class="org-right">年龄（\(Sage\)）</th>
+<th scope="col" class="org-left">所在系（\(Sdept\)）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">201215121</td>
+<td class="org-left">李勇</td>
+<td class="org-left">男</td>
+<td class="org-right">20</td>
+<td class="org-left">CS</td>
+</tr>
+
+<tr>
+<td class="org-right">201215122</td>
+<td class="org-left">刘晨</td>
+<td class="org-left">女</td>
+<td class="org-right">19</td>
+<td class="org-left">CS</td>
+</tr>
+
+<tr>
+<td class="org-right">201215123</td>
+<td class="org-left">王敏</td>
+<td class="org-left">女</td>
+<td class="org-right">18</td>
+<td class="org-left">MA</td>
+</tr>
+
+<tr>
+<td class="org-right">201215125</td>
+<td class="org-left">张立</td>
+<td class="org-left">男</td>
+<td class="org-right">19</td>
+<td class="org-left">IS</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<div style="margin-bottom: -0.145rem;">
+<p>
+\(Course:\)<br>
+</p>
+</div>
+
+<div style="display: block; width: auto; height: auto; margin-left: 50px;">
+<table>
+
+
+<colgroup>
+<col  class="org-right">
+
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">课程号（\(Cno\)）</th>
+<th scope="col" class="org-left">课程名（\(Cname\)）</th>
+<th scope="col" class="org-right">先行课（\(Cpno\)）</th>
+<th scope="col" class="org-right">学分（\(Ccredit\)）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">1</td>
+<td class="org-left">数据库</td>
+<td class="org-right">5</td>
+<td class="org-right">4</td>
+</tr>
+
+<tr>
+<td class="org-right">2</td>
+<td class="org-left">数学</td>
+<td class="org-right">&#xa0;</td>
+<td class="org-right">2</td>
+</tr>
+
+<tr>
+<td class="org-right">3</td>
+<td class="org-left">信息系统</td>
+<td class="org-right">1</td>
+<td class="org-right">4</td>
+</tr>
+
+<tr>
+<td class="org-right">4</td>
+<td class="org-left">操作系统</td>
+<td class="org-right">6</td>
+<td class="org-right">3</td>
+</tr>
+
+<tr>
+<td class="org-right">5</td>
+<td class="org-left">数据结构</td>
+<td class="org-right">7</td>
+<td class="org-right">4</td>
+</tr>
+
+<tr>
+<td class="org-right">6</td>
+<td class="org-left">数据处理</td>
+<td class="org-right">&#xa0;</td>
+<td class="org-right">2</td>
+</tr>
+
+<tr>
+<td class="org-right">7</td>
+<td class="org-left">PASCAL语言</td>
+<td class="org-right">6</td>
+<td class="org-right">4</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<div style="margin-bottom: -0.145rem;">
+<p>
+\(SC:\)<br>
+</p>
+</div>
+
+<div style="display: block; width: auto; height: auto; margin-left: 50px;">
+<table>
+
+
+<colgroup>
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">学号（\(Sno\)）</th>
+<th scope="col" class="org-right">课程号（\(Cno\)）</th>
+<th scope="col" class="org-right">成绩（\(Grade\)）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">201215121</td>
+<td class="org-right">1</td>
+<td class="org-right">92</td>
+</tr>
+
+<tr>
+<td class="org-right">201215121</td>
+<td class="org-right">2</td>
+<td class="org-right">85</td>
+</tr>
+
+<tr>
+<td class="org-right">201215121</td>
+<td class="org-right">3</td>
+<td class="org-right">88</td>
+</tr>
+
+<tr>
+<td class="org-right">201215122</td>
+<td class="org-right">2</td>
+<td class="org-right">90</td>
+</tr>
+
+<tr>
+<td class="org-right">201215122</td>
+<td class="org-right">3</td>
+<td class="org-right">80</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="outline-container-org46af062" class="outline-2">
+<h2 id="org46af062">数据定义</h2>
+<div class="outline-text-2" id="text-org46af062">
+</div>
+<div id="outline-container-org2568371" class="outline-3">
+<h3 id="org2568371">数据类型</h3>
+<div class="outline-text-3" id="text-org2568371">
+<ul class="org-ul">
+<li><p>
+数值<br>
+</p>
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">数据类型</th>
+<th scope="col" class="org-left">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">tinyint</td>
+<td class="org-left">短整型（1字节 -128 ~ 127）</td>
+</tr>
+
+<tr>
+<td class="org-left">smallint</td>
+<td class="org-left">短整型（2字节 -32768 ~ 32767）</td>
+</tr>
+
+<tr>
+<td class="org-left">mediumint</td>
+<td class="org-left">中等整型（3字节 -8388608 ~ 8388607）</td>
+</tr>
+
+<tr>
+<td class="org-left">int, integer</td>
+<td class="org-left">长整型（4字节 -2147483648 ~ 2147483647）</td>
+</tr>
+
+<tr>
+<td class="org-left">bigint</td>
+<td class="org-left">大整数（8字节 -9223372036854775808 ~ 9223372036854775807）</td>
+</tr>
+
+<tr>
+<td class="org-left">float(n)</td>
+<td class="org-left">可选精度的浮点数，精度至少为n位数字</td>
+</tr>
+
+<tr>
+<td class="org-left">double precision</td>
+<td class="org-left">取决于机器精度的双精度浮点数</td>
+</tr>
+
+<tr>
+<td class="org-left">decimal</td>
+<td class="org-left">字符串形式的浮点数，用于解决精度问题</td>
+</tr>
+</tbody>
+</table></li>
+<li><p>
+字符串<br>
+</p>
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">数据类型</th>
+<th scope="col" class="org-left">大小</th>
+<th scope="col" class="org-left">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">char(n), character(n)</td>
+<td class="org-left">0 ~ 255 bytes</td>
+<td class="org-left">长度为 n 的定长字符串</td>
+</tr>
+
+<tr>
+<td class="org-left">verchar(n), charactervarying(n)</td>
+<td class="org-left">0 ~ 65535 bytes</td>
+<td class="org-left">最大长度为 n 的变长字符串</td>
+</tr>
+
+<tr>
+<td class="org-left">tinyblob</td>
+<td class="org-left">0 ~ 255 bytes</td>
+<td class="org-left">不超过 255 个字符的二进制字符串</td>
+</tr>
+
+<tr>
+<td class="org-left">tinytext</td>
+<td class="org-left">0 ~ 255 bytes</td>
+<td class="org-left">短文本字符串</td>
+</tr>
+
+<tr>
+<td class="org-left">blob</td>
+<td class="org-left">0 ~ 65535 bytes</td>
+<td class="org-left">二进制形式长文本数据</td>
+</tr>
+
+<tr>
+<td class="org-left">text</td>
+<td class="org-left">0 ~ 65535 bytes</td>
+<td class="org-left">长文本数据</td>
+</tr>
+
+<tr>
+<td class="org-left">mediumblob</td>
+<td class="org-left">0 ~ 16777215 bytes</td>
+<td class="org-left">二进制形式的中等长度文本数据</td>
+</tr>
+
+<tr>
+<td class="org-left">mediumtext</td>
+<td class="org-left">0 ~ 16777215 bytes</td>
+<td class="org-left">中等长度文本数据</td>
+</tr>
+
+<tr>
+<td class="org-left">longblob</td>
+<td class="org-left">0 ~ 4294967295 bytes</td>
+<td class="org-left">二进制形式的极大文本数据</td>
+</tr>
+
+<tr>
+<td class="org-left">longtext</td>
+<td class="org-left">0 ~ 4294967295 bytes</td>
+<td class="org-left">极大文本数据</td>
+</tr>
+</tbody>
+</table></li>
+<li><p>
+时间日期<br>
+</p>
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">数据类型</th>
+<th scope="col" class="org-left">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">date</td>
+<td class="org-left">日期，包含年、月、日，格式为YYYY-MM-DD</td>
+</tr>
+
+<tr>
+<td class="org-left">time</td>
+<td class="org-left">时间，包含一日的时、分、秒，格式为HH:MM:SS</td>
+</tr>
+
+<tr>
+<td class="org-left">datetime</td>
+<td class="org-left">YYYY-MM-DD HH:MM:SS</td>
+</tr>
+
+<tr>
+<td class="org-left">timestamp</td>
+<td class="org-left">1970.1.1 到现在的毫秒数，时间戳类型</td>
+</tr>
+
+<tr>
+<td class="org-left">year</td>
+<td class="org-left">年份值</td>
+</tr>
+
+<tr>
+<td class="org-left">interval</td>
+<td class="org-left">时间间隔类型</td>
+</tr>
+</tbody>
+</table></li>
+<li><p>
+其他<br>
+</p>
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">数据类型</th>
+<th scope="col" class="org-left">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">boolean</td>
+<td class="org-left">逻辑布尔量</td>
+</tr>
+
+<tr>
+<td class="org-left">numeric(p, d)</td>
+<td class="org-left">定点数，由p位数字(不包括符号、小数点)组成，小数点后面有d位数字</td>
+</tr>
+
+<tr>
+<td class="org-left">decimal(p, d), dec(p, d)</td>
+<td class="org-left">同 numeric</td>
+</tr>
+
+<tr>
+<td class="org-left">real</td>
+<td class="org-left">取决于机器精度的单精度浮点数</td>
+</tr>
+</tbody>
+</table></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgc71edfa" class="outline-3">
+<h3 id="orgc71edfa">模式的定义与删除</h3>
+<div class="outline-text-3" id="text-orgc71edfa">
+</div>
+<div id="outline-container-orgb278077" class="outline-4">
+<h4 id="orgb278077"><a href="Database-数据库模式的理解.html">数据库模式的理解</a></h4>
+</div>
+<div id="outline-container-orgb3c0dfe" class="outline-4">
+<h4 id="orgb3c0dfe">定义模式</h4>
+<div class="outline-text-4" id="text-orgb3c0dfe">
+<dl class="org-dl">
+<dt><code>create schema &lt;模式名&gt; authorization &lt;用户名&gt;</code></dt><dd>在SQL中，模式定义语句<br></dd>
+<dt><code>create schema "S-T" authorization wang;</code></dt><dd>为用户wang定义一个学生-课程模式S-T<br></dd>
+<dt><code>create schema authorization wang;</code></dt><dd>如果没有指定&lt;模式名&gt;，所以&lt;模式名&gt;隐含为用户名wang<br></dd>
+</dl>
+
+<p>
+定义模式实际上定义了一个命名空间，在这个空间中可以进一步定义该模式包含的数据库对象，例如基本表、视图、索引等。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge699508" class="outline-4">
+<h4 id="orge699508">删除模式</h4>
+<div class="outline-text-4" id="text-orge699508">
+<pre class="example">
+drop schema &lt;模式名&gt; &lt;cascade | restrict&gt;
+</pre>
+
+<p>
+其中 cascade restrict 两者必选其一：<br>
+</p>
+
+<ul class="org-ul">
+<li>选择了cascade（级联），表示在删除模式的同时把该模式中所有数据库对象全部删除。<br></li>
+<li>选择了restrict（限制），表示如果该模式中已经定义了下属的数据库对象（如表、视图等），则拒绝该删除语句的执行，只有当该模式中没有任何下属的数据库对象时才能执行drop schema语句。<br></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-org1961663" class="outline-3">
+<h3 id="org1961663">基本表的定义、删除与修改</h3>
+<div class="outline-text-3" id="text-org1961663">
+</div>
+<div id="outline-container-org9dd596a" class="outline-4">
+<h4 id="org9dd596a">定义基本表</h4>
+<div class="outline-text-4" id="text-org9dd596a">
+<p>
+创建了一个模式就建立了一个数据库的命名空间，一个框架。 <b>在这个空间中首先要定义的是该模式包含的数据库基本表</b> ：<br>
+</p>
+
+<pre class="example">
+create &lt;表名&gt; (&lt;列名&gt;&lt;数据类型&gt; [列级完整性约束条件]
+               [,&lt;列名&gt;&lt;数据类型&gt; [列级完整性约束条件]]
+               ...
+               [,&lt;表级完整性约束条件&gt;]);
+</pre>
+
+<p>
+建表的同时通常还可以定义与该表有关的完整性约束条件，这些完整性约束条件被存入系统的数据字典中，当用户操作表中数据时由关系数据库管理系统自动检查该操作是否违背这些完整性约束条件。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">create</span> <span style="color: #268bd2; font-weight: bold;">table</span> <span style="color: #d75fd7; font-weight: bold;">Student</span> (
+    Sno <span style="color: #df005f; font-weight: bold;">char</span>(9) <span style="color: #268bd2; font-weight: bold;">primary</span> <span style="color: #268bd2; font-weight: bold;">key</span>,  <span style="color: #008787; background-color: #262626;">/*&#21015;&#32423;&#23436;&#25972;&#24615;&#32422;&#26463;&#26465;&#20214;&#65292;Sno&#26159;&#20027;&#30721;*/</span>
+    Sname <span style="color: #df005f; font-weight: bold;">char</span>(20) <span style="color: #268bd2; font-weight: bold;">unique</span>,    <span style="color: #008787; background-color: #262626;">/*Sname&#21462;&#21807;&#19968;&#20540;*/</span>
+    Ssex <span style="color: #df005f; font-weight: bold;">char</span>(2),
+    Sage <span style="color: #df005f; font-weight: bold;">smallint</span>,
+    Sdept <span style="color: #df005f; font-weight: bold;">char</span>(20)
+);
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">create</span> <span style="color: #268bd2; font-weight: bold;">table</span> <span style="color: #d75fd7; font-weight: bold;">Course</span> (
+    Cno <span style="color: #df005f; font-weight: bold;">char</span>(4) <span style="color: #268bd2; font-weight: bold;">primary</span> <span style="color: #268bd2; font-weight: bold;">key</span>,  <span style="color: #008787; background-color: #262626;">/*&#21015;&#32423;&#23436;&#25972;&#24615;&#32422;&#26463;&#26465;&#20214;&#65292;Cno&#26159;&#20027;&#30721;*/</span>
+    Cname <span style="color: #df005f; font-weight: bold;">char</span>(20) <span style="color: #268bd2; font-weight: bold;">not</span> <span style="color: #268bd2; font-weight: bold;">null</span>,  <span style="color: #008787; background-color: #262626;">/*&#21015;&#32423;&#23436;&#25972;&#24615;&#32422;&#26463;&#26465;&#20214;&#65292;Cname&#19981;&#33021;&#21462;&#31354;&#20540;*/</span>
+    Cpno <span style="color: #df005f; font-weight: bold;">char</span>(4),             <span style="color: #008787; background-color: #262626;">/*Cpno&#30340;&#21547;&#20041;&#26159;&#20808;&#20462;&#35838;*/</span>
+    Ccredit <span style="color: #df005f; font-weight: bold;">smallint</span>,
+    <span style="color: #268bd2; font-weight: bold;">foreign</span> <span style="color: #268bd2; font-weight: bold;">key</span> (Cpno) <span style="color: #268bd2; font-weight: bold;">references</span> Course(Cno)
+                              <span style="color: #008787; background-color: #262626;">/*&#34920;&#32423;&#23436;&#25972;&#24615;&#32422;&#26463;&#26465;&#20214;&#65292;Cpno&#26159;&#22806;&#30721;&#65292;&#34987;&#21442;&#29031;&#34920;&#26159;Course&#65292;&#34987;&#21442;&#29031;&#21015;&#26159;Cno*/</span>
+);
+<span style="color: #008787; background-color: #262626;">/*&#26412;&#20363;&#35828;&#26126;&#21442;&#29031;&#34920;&#21644;&#34987;&#21442;&#29031;&#34920;&#21487;&#20197;&#26159;&#21516;&#19968;&#20010;&#34920;*/</span>
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">create</span> <span style="color: #268bd2; font-weight: bold;">table</span> <span style="color: #d75fd7; font-weight: bold;">SC</span> (
+    Sno <span style="color: #df005f; font-weight: bold;">char</span>(9) <span style="color: #268bd2; font-weight: bold;">NOT</span> <span style="color: #268bd2; font-weight: bold;">NULL</span> COMMENT <span style="color: #2aa198;">'&#23398;&#21495;'</span>,
+    Cno <span style="color: #df005f; font-weight: bold;">char</span>(4),
+    Grade <span style="color: #df005f; font-weight: bold;">smallint</span>,
+    <span style="color: #268bd2; font-weight: bold;">primary</span> <span style="color: #268bd2; font-weight: bold;">key</span> (Sno, Cno), <span style="color: #008787; background-color: #262626;">/*&#20027;&#30721;&#30001;&#20004;&#20010;&#23646;&#24615;&#26500;&#25104;&#65292;&#24517;&#39035;&#20316;&#20026;&#34920;&#32423;&#23436;&#25972;&#24615;&#36827;&#34892;&#23450;&#20041;*/</span>
+    <span style="color: #268bd2; font-weight: bold;">foreign</span> <span style="color: #268bd2; font-weight: bold;">key</span> (Sno) <span style="color: #268bd2; font-weight: bold;">references</span> Student(Sno),
+        <span style="color: #008787; background-color: #262626;">/*&#34920;&#32423;&#23436;&#25972;&#24615;&#32422;&#26463;&#26465;&#20214;&#65292;Sno&#26159;&#22806;&#30721;&#65292;&#34987;&#21442;&#29031;&#34920;&#26159;Student*/</span>
+    <span style="color: #268bd2; font-weight: bold;">foreign</span> <span style="color: #268bd2; font-weight: bold;">key</span> (Cno) <span style="color: #268bd2; font-weight: bold;">references</span> Course(Cno)
+        <span style="color: #008787; background-color: #262626;">/*&#34920;&#32423;&#23436;&#25972;&#24615;&#32422;&#26463;&#26465;&#20214;&#65292;Cno&#26159;&#22806;&#30721;&#65292;&#34987;&#21442;&#29031;&#34920;&#26159;Course*/</span>
+)ENGINE=INNODB <span style="color: #268bd2; font-weight: bold;">DEFAULT</span> CHARSET=utf8
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgf3d33c0" class="outline-4">
+<h4 id="orgf3d33c0">修改基本表</h4>
+<div class="outline-text-4" id="text-orgf3d33c0">
+<pre class="example">
+- alter table 表名
+	- [add [column] &lt;新列名&gt;&lt;数据类型&gt; [完整性约束条件]]
+	- [add &lt;表级完整性约束条件&gt;]
+	- [drop [column] &lt;列名&gt; [cascade | restrict]]
+	- [drop constraint &lt;完整性约束名&gt; [restrict | cascade]]
+	- [alter column &lt;列名&gt;&lt;数据类型&gt;]
+</pre>
+
+<p>
+不论基本表中是否有数据，新增加的一律为空值。<br>
+</p>
+
+<dl class="org-dl">
+<dt><code>alter table tableName rename to newTableName;</code></dt><dd>修改表名<br></dd>
+<dt><code>alter table Student add S_entrance date;</code></dt><dd>向 Student 表增加"入学时间"列，其数据类型为日期型<br></dd>
+<dt><code>alter table Course add unique(Cname);</code></dt><dd>增加课程名称必须取唯一值的约束条件<br></dd>
+<dt><code>alter table Student alter column Sage int;</code></dt><dd>将年龄的数据类型由字符型改为整型<br></dd>
+<dt><code>alter table tableName change oldName newName dataType;</code></dt><dd>修改 tableName 表中的 usrname 列为新的名称和数据类型<br></dd>
+<dt><code>alter table tableName modify columnName int</code></dt><dd>将 tableName 表中的 columnName 列的类型更改为 int<br></dd>
+</dl>
+
+
+<ul class="org-ul">
+<li><b>总结：</b><br>
+<ul class="org-ul">
+<li>renmae 用来重命名表<br></li>
+<li>change 用来重命名字段，不能修改字段类型和约束；<br></li>
+<li>modify 不用来重命名字段，只能修改字段类型和约束；<br></li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgf75df17" class="outline-4">
+<h4 id="orgf75df17">删除基本表</h4>
+<div class="outline-text-4" id="text-orgf75df17">
+<pre class="example">
+drop table &lt;表名&gt; [restrict | cascade]
+</pre>
+
+<ul class="org-ul">
+<li><code>drop table if exists Student;</code><br></li>
+
+<li>若选择 restrict，则该表的删除是有限制条件的，欲删除的基本表不能被其他表的约束所引用(如check, foreign key等约束)，不能有视图，不能有触发器(trigger)，不能有存储过程或函数，如果存在这些依赖该表的对象，则此表不能被删除。<br></li>
+<li>若选择cascade，则该表的删除没有依赖条件，在删除基本表的同时，相关的依赖对象，例如视图，都将被一起删除。<br></li>
+<li>默认情况是restrict。<br></li>
+</ul>
+</div>
+<div id="outline-container-org7b2f93c" class="outline-5">
+<h5 id="org7b2f93c">一次删除多表</h5>
+<div class="outline-text-5" id="text-org7b2f93c">
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">SELECT</span> concat(<span style="color: #2aa198;">'DROP TABLE '</span>, <span style="color: #268bd2; font-weight: bold;">table_name</span>, <span style="color: #2aa198;">';'</span>)
+<span style="color: #268bd2; font-weight: bold;">FROM</span> information_schema.tables
+<span style="color: #268bd2; font-weight: bold;">WHERE</span> table_schema = <span style="color: #2aa198;">'R_student_management'</span>;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org60a1ed4" class="outline-5">
+<h5 id="org60a1ed4">删除其中一条信息</h5>
+<div class="outline-text-5" id="text-org60a1ed4">
+<ul class="org-ul">
+<li><code>delete from AdministratorUser where Uemail = 123;</code><br></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org0e883b1" class="outline-3">
+<h3 id="org0e883b1">模式与表</h3>
+<div class="outline-text-3" id="text-org0e883b1">
+<p>
+每一个基本表都属于某一个模式，一个模式包含多个基本表。当定义基本表时一般可以有三种方法定义它所属的模式， <code>create schema "S-T" authorization wang;</code> ，现在要在S-T中定义Student、course、SC等基本表。<br>
+</p>
+
+<ul class="org-ul">
+<li><p>
+方法一，在表名中明显地给出模式名，<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">create</span> <span style="color: #268bd2; font-weight: bold;">table</span> "S-T".Student(...);  
+<span style="color: #268bd2; font-weight: bold;">create</span> <span style="color: #268bd2; font-weight: bold;">table</span> "S-T".Course(...);  
+<span style="color: #268bd2; font-weight: bold;">create</span> <span style="color: #268bd2; font-weight: bold;">table</span> "S-T".SC(...);  
+</pre>
+</div></li>
+
+<li><p>
+方法二，在创建模式语句中同时创建表<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">create</span> <span style="color: #268bd2; font-weight: bold;">schema</span> test <span style="color: #268bd2; font-weight: bold;">authorization</span> zhang
+<span style="color: #268bd2; font-weight: bold;">create</span> <span style="color: #268bd2; font-weight: bold;">table</span> <span style="color: #d75fd7; font-weight: bold;">tab</span>(
+    col1 <span style="color: #df005f; font-weight: bold;">smallint</span>,
+    col2 <span style="color: #df005f; font-weight: bold;">char</span>(20)
+);
+</pre>
+</div></li>
+
+<li><p>
+方法三，设置所属的模式，这样在创建表时表名中不必给出模式名<br>
+</p>
+
+<p>
+当用户创建基本表(其他数据库对象也一样)时若没有指定模式，系统根据搜索路径来确定该对象所属的模式。<br>
+</p>
+
+<p>
+搜索路径包含一组模式列表，关系数据库管理系统会使用模式列表中第一个存在的模式作为数据库对象的模式名。若搜索路径中的模式名不存在，系统将给出错误。<br>
+</p>
+
+<p>
+使用 <code>show search_path;</code> 这样的一条语句可以显示出当前的搜索路径。<br>
+</p>
+
+<p>
+搜索路径的当前默认值是$user, public。其含义是首先搜索与用户名相同的模式名，如果该模式名不存在，则使用public模式。<br>
+</p>
+
+<p>
+数据库管理员也可以设置搜索路径： <code>set search_path to "S-T", public;</code> ，然后，定义基本表： <code>CREATE TABLE Student (...)</code><br>
+</p>
+
+<p>
+实际结果是建立了 S-T.Student 基本表，因为关系数据库管理系统发现搜索路径第一个模式名 S-T 存在，就把该模式作为基本表 Student 所属的模式。<br>
+</p></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org890c70d" class="outline-3">
+<h3 id="org890c70d">索引的建立与删除</h3>
+<div class="outline-text-3" id="text-org890c70d">
+</div>
+<div id="outline-container-org5be93cb" class="outline-4">
+<h4 id="org5be93cb">建立索引</h4>
+<div class="outline-text-4" id="text-org5be93cb">
+<p>
+建立索引可以提供多种存取路径，以加快查找速度。<br>
+</p>
+
+<p>
+数据库索引有多种类型，常见索引包括顺序文件上的索引、B+树索引、散列（hash）索引、位图索引等。<br>
+</p>
+
+<dl class="org-dl">
+<dt>顺序文件上的索引</dt><dd>针对按指定属性值升序或降序存储的关系，在该属性上建立一个顺序索引文件，索引文件由属性值和相应的元组指针组成。<br></dd>
+<dt>B+树索引</dt><dd>将索引属性组织成B+树形式，B+树的叶结点为属性值和相应的元组指针，B+树索引具有动态平衡的优点。<br></dd>
+<dt>散列索引</dt><dd>建立若干个桶，将索引属性按照其散列函数值映射到相应桶中，桶中存放索引属性值和相应的元组指针，散列索引具有查找速度快的特点。<br></dd>
+<dt>位图索引</dt><dd>用位向量记录索引属性中可能出现的值，每个位向量对应一个可能值。<br></dd>
+</dl>
+
+<p>
+索引虽然能够加速数据库查询，但需要占用一定的存储空间，当基本表更新时，索引要进行相应的维护，这些都会增加数据库的负担，因此要根据实际应用的需要有选择地创建索引。<br>
+</p>
+
+<p>
+在SQL语言中，建立索引使用create index语句，其一般格式为 create [unique][cluster] index &lt;索引名&gt; on &lt;表名&gt;(&lt;列名&gt; [&lt;次序&gt;][, &lt;列名&gt; [&lt;次序&gt;]] &#x2026;)<br>
+</p>
+
+<p>
+次序指定索引值的排列次序，可选ASC(升序)，DESC(降序)，默认值是ASC。<br>
+</p>
+
+<ul class="org-ul">
+<li><b>unique</b> 表明此索引的每一个索引值只对应唯一的数据记录<br></li>
+<li><b>cluster</b> 表示要建立的索引是聚簇索引<br></li>
+</ul>
+
+<p>
+例：为学生-课程数据库中的Student、Course和SC三个表建立索引，其中Student表按学号升序建唯一索引，Course表按课程号升序建唯一索引，SC表按学号升序和课程号降序唯一索引。<br>
+</p>
+
+<ul class="org-ul">
+<li>create unique index Stusno on Student(Sno)<br></li>
+<li>create unique index Coucno on Course(Cno)<br></li>
+<li>create unique index SCno on SC(Sno ASC, Cno DESC)<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org7d11f50" class="outline-4">
+<h4 id="org7d11f50">修改索引</h4>
+<div class="outline-text-4" id="text-org7d11f50">
+<ul class="org-ul">
+<li>alter index &lt;旧索引名&gt; rename to &lt;新索引名&gt;<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgdab2717" class="outline-4">
+<h4 id="orgdab2717">删除索引</h4>
+<div class="outline-text-4" id="text-orgdab2717">
+<ul class="org-ul">
+<li>drop index &lt;索引名&gt;<br></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orga75651d" class="outline-2">
+<h2 id="orga75651d">数据查询</h2>
+<div class="outline-text-2" id="text-orga75651d">
+<p>
+数据查询是数据库的核心操作，SQL提供了SELECT语句进行数据查询（简单模式与困难模式）：<br>
+</p>
+
+<pre class="example">
+select [all|distinct] &lt;目标列表达式&gt; [,&lt;目标列表达式&gt;] ...
+		from &lt;表名或视图名&gt; [,&lt;表名或视图名&gt;...] | (select语句) [AS] &lt;别名&gt;
+		[where &lt;条件表达式&gt;]
+		[group by &lt;列名1&gt; [having &lt;条件表达式&gt;]]
+		[order by &lt;列名2&gt; [asc|desc]];
+</pre>
+
+<pre class="example">
+SELECT
+		[ALL | DISTINCT | DISTINCTROW ]
+			[HIGH_PRIORITY]
+			[STRAIGHT_JOIN]
+			[SQL_SMALL_RESULT] [SQL_BIG_RESULT] [SQL_BUFFER_RESULT]
+			[SQL_CACHE | SQL_NO_CACHE] [SQL_CALC_FOUND_ROWS]
+		select_expr [, select_expr ...]
+		[
+
+		 FROM table_references
+			[PARTITION partition_list]
+		[WHERE where_condition]
+		[GROUP BY {col_name | expr | position}
+			[ASC | DESC], ... [WITH ROLLUP]]
+		[HAVING where_condition]
+		[ORDER BY {col_name | expr | position}
+			[ASC | DESC], ...]
+		[LIMIT {[offset,] row_count | row_count OFFSET offset}]
+		[PROCEDURE procedure_name(argument_list)]
+		[INTO OUTFILE 'file_name'
+				[CHARACTER SET charset_name]
+				export_options
+			| INTO DUMPFILE 'file_name'
+			| INTO var_name [, var_name]]
+		[FOR UPDATE | LOCK IN SHARE MODE]
+
+		]	
+</pre>
+
+<p>
+整个 select 语句的含义是，根据 where 子句的条件表达式从 from 子句指定的基本表、视图或派生表中找出满足条件的元组，再按 select 子句中的目标列表达式选出元组中的属性值形成结果表。<br>
+</p>
+
+<p>
+如果有 group by 子句，则将结果按&lt;列名1&gt;的值进行分组，该属性列值相等的元组为一个组。通常会在每组中作用聚集函数，如果 group by 子句带 having 短语，则只有满足条件的组才予以输出。<br>
+</p>
+
+<p>
+如果有 order by 子句，则结果表还要按&lt;列名2&gt;的值的升序或降序排序。<br>
+</p>
+</div>
+<div id="outline-container-org6b1eeab" class="outline-3">
+<h3 id="org6b1eeab">单表查询</h3>
+<div class="outline-text-3" id="text-org6b1eeab">
+<p>
+单表查询是仅涉及一个表的查询。<br>
+</p>
+</div>
+<div id="outline-container-orgc55d941" class="outline-4">
+<h4 id="orgc55d941">选择表中若干列</h4>
+<div class="outline-text-4" id="text-orgc55d941">
+</div>
+<div id="outline-container-org0a57a75" class="outline-5">
+<h5 id="org0a57a75">查询指定列</h5>
+<div class="outline-text-5" id="text-org0a57a75">
+<dl class="org-dl">
+<dt><code>select Sno, Sname from Student;</code></dt><dd>查询全体学生的学号与姓名<br></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-org8670805" class="outline-5">
+<h5 id="org8670805">查询全部列</h5>
+<div class="outline-text-5" id="text-org8670805">
+<ul class="org-ul">
+<li><code>select * from Student;</code><br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgb8f8c0e" class="outline-5">
+<h5 id="orgb8f8c0e">查询经过计算的值</h5>
+<div class="outline-text-5" id="text-orgb8f8c0e">
+<dl class="org-dl">
+<dt><code>select Sname, 2021-Sage from Student;</code></dt><dd>查询出生年份<br></dd>
+<dt><code>select Sname, 'Year of Birth:', 2014-Sage, lower(Sdept) from Student;</code></dt><dd>查询全体学生的姓名、出生年份和所在的院系，要求用小写字母表示系名<br></dd>
+</dl>
+</div>
+</div>
+</div>
+<div id="outline-container-orgefaf238" class="outline-4">
+<h4 id="orgefaf238">选择表中若干元祖</h4>
+<div class="outline-text-4" id="text-orgefaf238">
+<ol class="org-ol">
+<li><p>
+消除取值重复的行<br>
+两个本来并不完全相同的元祖在投影到指定的某些列上后，可能会变成相同的行。可以用 distinct 消除他们。<br>
+</p>
+
+<p>
+<code>select Sno from SC;</code> 查询选修了课程的学生学号，这条语句执行后可能会出现，输出的结果是重复的学号。<br>
+</p>
+
+<p>
+上面这个代码也等价于 <code>select all Sno from SC;</code> 因为默认就是 all。<br>
+</p>
+
+<p>
+使用 <code>select distinct Sno from SC;</code> 就能消除重复的行<br>
+</p></li>
+
+<li><p>
+查询满足条件的元祖<br>
+查询满足指定条件的元祖可以通过where子句实现，where子句常用的查询条件：<br>
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">查询条件</th>
+<th scope="col" class="org-left">谓词</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">比较</td>
+<td class="org-left">= &gt; &lt; &gt;= &lt;= != &lt;&gt; !&gt; !&lt; NOT+上述比较运算符</td>
+</tr>
+
+<tr>
+<td class="org-left">确定范围</td>
+<td class="org-left">between and, not between and</td>
+</tr>
+
+<tr>
+<td class="org-left">确定集合</td>
+<td class="org-left">in, not in</td>
+</tr>
+
+<tr>
+<td class="org-left">字符匹配</td>
+<td class="org-left">like, not like</td>
+</tr>
+
+<tr>
+<td class="org-left">空值</td>
+<td class="org-left">is NULL, is not NULL</td>
+</tr>
+
+<tr>
+<td class="org-left">多重条件</td>
+<td class="org-left">and, or, not</td>
+</tr>
+</tbody>
+</table></li>
+</ol>
+</div>
+<div id="outline-container-org7c95ad8" class="outline-5">
+<h5 id="org7c95ad8">比较大小</h5>
+<div class="outline-text-5" id="text-org7c95ad8">
+<ul class="org-ul">
+<li><code>select Sname, Sage from Student where Sage &lt; 20;</code><br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org348728e" class="outline-5">
+<h5 id="org348728e">确定范围</h5>
+<div class="outline-text-5" id="text-org348728e">
+<ul class="org-ul">
+<li><code>select Sname, Sdept, Sage from Student where Sage not betwween 20 and 25;</code><br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgb9f2673" class="outline-5">
+<h5 id="orgb9f2673">确定集合</h5>
+<div class="outline-text-5" id="text-orgb9f2673">
+<ul class="org-ul">
+<li><code>select Sname Ssex from Student where Sdept in ('CS', 'MA', 'IS');</code><br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org2f94046" class="outline-5">
+<h5 id="org2f94046">字符匹配</h5>
+<div class="outline-text-5" id="text-org2f94046">
+<pre class="example">
+[not] like '&lt;匹配串&gt;' [escape '&lt;换码字符&gt;']
+</pre>
+
+<dl class="org-dl">
+<dt><code>%</code></dt><dd>代表任意长度的字符串<br></dd>
+<dt><code>_</code></dt><dd>代表任意单个字符<br></dd>
+<dt><code>escape '\'</code></dt><dd>使\代表转换码<br></dd>
+</dl>
+
+<hr>
+
+<dl class="org-dl">
+<dt><code>select Sname, Sno, Ssex from Student where Sanme like '刘%';</code></dt><dd>查询所有姓刘的学生姓名、学号和性别<br></dd>
+<dt><code>select Sname,Sno from Student where Sname like '欧阳_';</code></dt><dd>查询姓“欧阳”且全名为三个汉字的学生的姓名<br></dd>
+<dt><code>select Sname, Sno from Student where Sname like '_阳%';</code> </dt><dd>查询名字中第二个字为“阳”的学生的姓名和学号<br></dd>
+<dt><code>select Sname, Sno, Ssex from Student where Sname no like '刘%';</code> </dt><dd>查询所有不姓刘的学生的姓名、学号和性别<br></dd>
+<dt><code>select Cno, Ccredit from Course where Cname like 'DB\_Design' escape '\';</code></dt><dd>查询 DB_Design 课程的课程号和学分<br></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-org1e100d2" class="outline-5">
+<h5 id="org1e100d2">空值</h5>
+<div class="outline-text-5" id="text-org1e100d2">
+<dl class="org-dl">
+<dt><code>select sno from SC where Grade is null;</code></dt><dd>这里 is 不能用等号（=）代替，查询缺少成绩的学生的学号和相应的课程号<br></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-org1dfb101" class="outline-5">
+<h5 id="org1dfb101">多重条件查询</h5>
+<div class="outline-text-5" id="text-org1dfb101">
+<p>
+使用逻辑运算符 and 和 or 可用来连接多个查询条件，and 的优先级高于 or，但可以使用括号改变优先级。<br>
+</p>
+
+<dl class="org-dl">
+<dt><code>select Sname from Student where Sdept = 'CS' and Sage &lt; 20;</code></dt><dd>查询计算机科学系年龄在20以下的学生学生姓名<br></dd>
+</dl>
+
+<p>
+in 谓词实际上是多个 or 运算符的缩写。<br>
+</p>
+
+<dl class="org-dl">
+<dt><code>select Sname, Ssex from Student where Sdept in ('CS', 'MA', 'IS');</code></dt><dd>查询计算机科学系、数学系和信息系的学生的姓名和性别<br></dd>
+<dt><code>select Sname, Ssex from Student where Sdept = 'CS' or Sdept = 'MA' or Sdept = 'IS';</code></dt><dd>查询计算机科学系、数学系和信息系的学生的姓名和性别<br></dd>
+</dl>
+</div>
+</div>
+</div>
+<div id="outline-container-orgf8d6b79" class="outline-4">
+<h4 id="orgf8d6b79">order by 子句</h4>
+<div class="outline-text-4" id="text-orgf8d6b79">
+<p>
+用户可以用 order by 子句对查询结果按照一个或多个属性列的升序（asc）或降序（desc）排列，默认是升序。<br>
+</p>
+
+<dl class="org-dl">
+<dt><code>select Sno, Grade from SC where Cno='3' order by Grade desc;</code></dt><dd>查询选修了3号课程的学生的学号及其成绩，查询结果按分数的降序排序<br></dd>
+</dl>
+
+<p>
+空值的显示顺序按系统来看。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org72de309" class="outline-4">
+<h4 id="org72de309">聚集函数</h4>
+<div class="outline-text-4" id="text-org72de309">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">聚集函数</th>
+<th scope="col" class="org-left">作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">count(*)</td>
+<td class="org-left">统计元祖个数</td>
+</tr>
+
+<tr>
+<td class="org-left">count([distinct\all]&lt;列名&gt;)</td>
+<td class="org-left">统计一列中值的个数</td>
+</tr>
+
+<tr>
+<td class="org-left">sum([distinct\all]&lt;列名&gt;)</td>
+<td class="org-left">计算一列值的总和</td>
+</tr>
+
+<tr>
+<td class="org-left">avg([distinct\all]&lt;列名&gt;)</td>
+<td class="org-left">计算一列值的平均值</td>
+</tr>
+
+<tr>
+<td class="org-left">max([distinct\all]&lt;列名&gt;)</td>
+<td class="org-left">求一列值中的最大值</td>
+</tr>
+
+<tr>
+<td class="org-left">min([distinct\all]&lt;列名&gt;)</td>
+<td class="org-left">求一列值中的最小值</td>
+</tr>
+</tbody>
+</table>
+
+<dl class="org-dl">
+<dt><code>select count(*) from Student;</code></dt><dd>查询学生总人数<br></dd>
+<dt><code>select count(distinct Sno) from SC;</code></dt><dd>查询选修了课程的学生人数<br></dd>
+<dt><code>select avg(Grade) from SC where Cno = '1';</code></dt><dd>计算选修1号课程的学生平均成绩<br></dd>
+<dt><code>select max(Grade) from SC where Cno = '1';</code></dt><dd>查询选修1号课程的学生最高分数<br></dd>
+<dt><code>select sum(Ccredit) from SC, Course where Sno = '201215012' and SC.cno = Course.Cno;</code></dt><dd>查询学生201215012选修课程的总学分数<br></dd>
+</dl>
+
+<p>
+当聚集函数遇到空值时，除 count(<b>) 外，都跳过空值而只处理非空值，count(</b>) 是对元组进行计数，某个元组的一个或部分列取空值不影响count的统计结果。<br>
+</p>
+
+<p>
+where 子句中是不能用聚集函数作为条件表达式的，聚集函数只能用于 select 子句和 group by 中的 having 子句。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd7544a6" class="outline-4">
+<h4 id="orgd7544a6">group by 子句</h4>
+<div class="outline-text-4" id="text-orgd7544a6">
+<p>
+group by 子句将查询结果按某一列或多列的值分组，值相等的为一组。<br>
+</p>
+
+<p>
+分组后聚集函数将作用于每一个组，即每一组都有一个函数值。<br>
+</p>
+
+<dl class="org-dl">
+<dt><code>select Cno, count(Sno) from SC group by Cno;</code></dt><dd>求各个课程号及相应的选课人数<br></dd>
+</dl>
+
+<p>
+该语句对查询结果按Cno的值分组，所有具有相同Cno的值的元组为一组，然后对每一组作用聚集函数 count 进行计算，以求得该组的学生人数<br>
+</p>
+
+<p>
+查询结果可能为：<br>
+</p>
+
+<div style="display: block; width: auto; height: auto; margin-left: 50px;">
+<table>
+
+
+<colgroup>
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">Cno</th>
+<th scope="col" class="org-right">count(Sno)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">1</td>
+<td class="org-right">22</td>
+</tr>
+
+<tr>
+<td class="org-right">2</td>
+<td class="org-right">34</td>
+</tr>
+
+<tr>
+<td class="org-right">3</td>
+<td class="org-right">44</td>
+</tr>
+
+<tr>
+<td class="org-right">4</td>
+<td class="org-right">33</td>
+</tr>
+
+<tr>
+<td class="org-right">5</td>
+<td class="org-right">48</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<p>
+如果分组后还要求按一定的条件对这些组进行筛选，最终只输出满足指定条件的组，则可以使用having短语指定筛选条件。<br>
+</p>
+
+<dl class="org-dl">
+<dt><code>select Sno from SC group by Sno having count(*) &gt; 3;</code></dt><dd>查询选修了三门以上的课程的学生学号<br></dd>
+</dl>
+
+<p>
+这里先用 group by 子句按 Sno 进行分组，再用聚集函数 count 对每一组计数；having 短语给出了选择组的条件，只有满足条件（即元组个数 &gt; 3，表示此学生选修的课超过3门）的组才会被选出来。<br>
+</p>
+
+<p>
+where 子句与 having 短语的区别在于作用对象不同，where 子句作用于基本表或视图，从中选择满足条件的元组，having 短语作用于组，从中选择满足条件的组。<br>
+</p>
+
+<dl class="org-dl">
+<dt><code>select Sno, avg(Grade) from SC group by Sno having avg(Grade) &gt;= 90;</code></dt><dd>查询平均成绩大于等于90分的学生学号和平均成绩<br></dd>
+</dl>
+</div>
+</div>
+</div>
+<div id="outline-container-org872dee5" class="outline-3">
+<h3 id="org872dee5">连接查询</h3>
+<div class="outline-text-3" id="text-org872dee5">
+<p>
+之前的查询都是针对一个表进行的，若一个查询同时涉及两个以上的表，则称之为连接查询。<br>
+</p>
+</div>
+<div id="outline-container-orgc5499cf" class="outline-4">
+<h4 id="orgc5499cf">等值与非等值连接查询</h4>
+<div class="outline-text-4" id="text-orgc5499cf">
+<p>
+连接查询的 where 子句中用来连接两个表的条件称为连接条件或连接谓词，其中比较运算符主要有 =、&gt;、&lt;、&gt;=、&lt;=、!-（或&lt;&gt;）等。<br>
+</p>
+
+<p>
+此外连接词还可以使用下面形式：[&lt;表名1&gt;, ] &lt;列名1&gt; between [&lt;表名2&gt;, ] &lt;列名2&gt; and [&lt;表名2&gt;, ] &lt;列名3&gt;<br>
+</p>
+
+<p>
+当连接运算符为 = 时，为 <span class="underline">等值连接</span> ，使用其他运算符称为 <span class="underline">非等值连接</span> 。连接谓词中的列名称为连接子段，连接条件中的各连接字段类型必须是可比的，但名字不必相同。<br>
+</p>
+
+<dl class="org-dl">
+<dt><code>select Student.* SC.* from Student, SC where Student.Sno = SC.Sno;</code></dt><dd>查询每个学生及其选修课程情况<br></dd>
+</dl>
+
+<div style="margin-bottom: -0.145rem;">
+<p>
+查询结果：<br>
+</p>
+</div>
+
+<div style="display: block; width: auto; height: auto; margin-left: 50px;">
+<table>
+
+
+<colgroup>
+<col  class="org-right">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">Student.Sno</th>
+<th scope="col" class="org-left">Sname</th>
+<th scope="col" class="org-left">Ssex</th>
+<th scope="col" class="org-right">Sage</th>
+<th scope="col" class="org-left">Sdept</th>
+<th scope="col" class="org-right">SC.Sno</th>
+<th scope="col" class="org-right">Cno</th>
+<th scope="col" class="org-right">Grade</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">201215121</td>
+<td class="org-left">李勇</td>
+<td class="org-left">男</td>
+<td class="org-right">20</td>
+<td class="org-left">CS</td>
+<td class="org-right">201215121</td>
+<td class="org-right">1</td>
+<td class="org-right">92</td>
+</tr>
+
+<tr>
+<td class="org-right">201215121</td>
+<td class="org-left">李勇</td>
+<td class="org-left">男</td>
+<td class="org-right">20</td>
+<td class="org-left">CS</td>
+<td class="org-right">201215121</td>
+<td class="org-right">2</td>
+<td class="org-right">85</td>
+</tr>
+
+<tr>
+<td class="org-right">201215121</td>
+<td class="org-left">李勇</td>
+<td class="org-left">男</td>
+<td class="org-right">20</td>
+<td class="org-left">CS</td>
+<td class="org-right">201215121</td>
+<td class="org-right">3</td>
+<td class="org-right">88</td>
+</tr>
+
+<tr>
+<td class="org-right">201215122</td>
+<td class="org-left">刘晨</td>
+<td class="org-left">女</td>
+<td class="org-right">19</td>
+<td class="org-left">CS</td>
+<td class="org-right">201215122</td>
+<td class="org-right">2</td>
+<td class="org-right">90</td>
+</tr>
+
+<tr>
+<td class="org-right">201215122</td>
+<td class="org-left">刘晨</td>
+<td class="org-left">女</td>
+<td class="org-right">19</td>
+<td class="org-left">CS</td>
+<td class="org-right">201215122</td>
+<td class="org-right">3</td>
+<td class="org-right">80</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<p>
+本例中，select 子句与 where 子句中的属性名前都加上了 <span class="underline">表名前缀</span> ，这是为了避免混淆，如果属性名在参加连接的各表中是唯一的，则可以省略表名前缀。<br>
+</p>
+
+<p>
+<b>关系数据库关系系统执行连接操作是嵌套循环连接的</b> ，所以如果在 SC 表 Sno 上建立了索引的话，就不用每次全表扫描 SC 表了，而是根据 Sno 值通过索引找到相应的 SC 元组，用索引查询 SC 中满足条件的元组一般会比全表扫描快。<br>
+</p>
+
+<p>
+若在等值连接中把目标列中重复的属性列去掉则为 <span class="underline">自然连接</span> 。<br>
+</p>
+
+<dl class="org-dl">
+<dt><code>select Student.Sno, Sname, Ssex, Sage, Sdept, Cno, Grade from Student, SC where Student.Sno = SC.Sno;</code></dt><dd>查询每个学生及其选修课程情况<br></dd>
+<dt><code>select Student.Sno, Sname from Student, SC where Student.Sno = SC.Sno and SC.Cno = '2' and SC.Grade &gt; 90;</code> </dt><dd>查询选修2号课程且成绩在90分以上的所有学生的学号和姓名<br></dd>
+</dl>
+
+<p>
+上面这个查询的一种优化是，先从 SC 中挑选出 Cno = '2' 并且 Grade &gt; 90 的元组形成一个中间关系，再和 Student 中满足连接条件的元组进行连接得到最终关系。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org22ce042" class="outline-4">
+<h4 id="org22ce042">自身连接</h4>
+<div class="outline-text-4" id="text-org22ce042">
+<p>
+一个表与自己进行连接，称为表的自身连接。<br>
+</p>
+
+<div style="margin-bottom: -0.145rem;">
+<p>
+\(Course:\)<br>
+</p>
+</div>
+
+<div style="display: block; width: auto; height: auto; margin-left: 50px;">
+<table>
+
+
+<colgroup>
+<col  class="org-right">
+
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">课程号（\(Cno\)）</th>
+<th scope="col" class="org-left">课程名（\(Cname\)）</th>
+<th scope="col" class="org-right">先行课（\(Cpno\)）</th>
+<th scope="col" class="org-right">学分（\(Ccredit\)）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">1</td>
+<td class="org-left">数据库</td>
+<td class="org-right">5</td>
+<td class="org-right">4</td>
+</tr>
+
+<tr>
+<td class="org-right">2</td>
+<td class="org-left">数学</td>
+<td class="org-right">&#xa0;</td>
+<td class="org-right">2</td>
+</tr>
+
+<tr>
+<td class="org-right">3</td>
+<td class="org-left">信息系统</td>
+<td class="org-right">1</td>
+<td class="org-right">4</td>
+</tr>
+
+<tr>
+<td class="org-right">4</td>
+<td class="org-left">操作系统</td>
+<td class="org-right">6</td>
+<td class="org-right">3</td>
+</tr>
+
+<tr>
+<td class="org-right">5</td>
+<td class="org-left">数据结构</td>
+<td class="org-right">7</td>
+<td class="org-right">4</td>
+</tr>
+
+<tr>
+<td class="org-right">6</td>
+<td class="org-left">数据处理</td>
+<td class="org-right">&#xa0;</td>
+<td class="org-right">2</td>
+</tr>
+
+<tr>
+<td class="org-right">7</td>
+<td class="org-left">PASCAL语言</td>
+<td class="org-right">6</td>
+<td class="org-right">4</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<dl class="org-dl">
+<dt><code>select first.Cno, second.Cpno from Course first, Course second where frist.Cpno = second.cno;</code></dt><dd>查询每门课的间接先修课（即先修课的先修课）。<br></dd>
+</dl>
+
+<p>
+在 Course 表中只有每门课的直接先修课信息，而没有先修课的先修课，要得到这个信息，必须先对一门课找到其先修课，再按先修课的课程号查询它的先修课。<br>
+</p>
+
+<p>
+为此，要为 Course 表取两个别名，一个是 first，另一个是 second。<br>
+</p>
+
+<div style="margin-bottom: -0.145rem;">
+<p>
+结果：<br>
+</p>
+</div>
+
+<div style="display: block; width: auto; height: auto; margin-left: 50px;">
+<table>
+
+
+<colgroup>
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">Cno</th>
+<th scope="col" class="org-right">Cpno</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">1</td>
+<td class="org-right">7</td>
+</tr>
+
+<tr>
+<td class="org-right">3</td>
+<td class="org-right">5</td>
+</tr>
+
+<tr>
+<td class="org-right">5</td>
+<td class="org-right">6</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="outline-container-org9c783a6" class="outline-4">
+<h4 id="org9c783a6">外连接</h4>
+<div class="outline-text-4" id="text-org9c783a6">
+<p>
+在通常的连接操作中，只有满足连接条件的元组才能作为结果输出，例如上面查询每个学生及其选修课程情况中，结果表中没有 201215123 和 201215125 两个学生的信息，原因在于他们没有选课，在 SC 表中没有相应的元组，导致 Student 中这些元组在连接时被舍弃了。<br>
+</p>
+
+<p>
+有时想以 Student 表为主体列出每个学生的基本情况及其选课情况，若某个学生没有选课，仍把 Student 的悬浮元组保存在结果关系中，而在 SC 表的属性上填空值 NULL，这时就需要使用外连接。<br>
+</p>
+
+<ul class="org-ul">
+<li><code>select Student.Sno, Sname, Ssex, Sage, Sdept, Cno, Grade from Student left outer join SC on (Student.Sno = SC.Sno);</code><br></li>
+</ul>
+
+<p>
+也可以使用 using 来去掉结果中的重复值： <code>... from Student left outer join SC using(Sno);</code><br>
+</p>
+
+<div style="margin-bottom: -0.145rem;">
+<p>
+查询结果：<br>
+</p>
+</div>
+
+<div style="display: block; width: auto; height: auto; margin-left: 50px;">
+<table>
+
+
+<colgroup>
+<col  class="org-right">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">Student.Sno</th>
+<th scope="col" class="org-left">Sname</th>
+<th scope="col" class="org-left">Ssex</th>
+<th scope="col" class="org-right">Sage</th>
+<th scope="col" class="org-left">Sdept</th>
+<th scope="col" class="org-right">Cno</th>
+<th scope="col" class="org-right">Grade</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">201215121</td>
+<td class="org-left">李勇</td>
+<td class="org-left">男</td>
+<td class="org-right">20</td>
+<td class="org-left">CS</td>
+<td class="org-right">1</td>
+<td class="org-right">92</td>
+</tr>
+
+<tr>
+<td class="org-right">201215121</td>
+<td class="org-left">李勇</td>
+<td class="org-left">男</td>
+<td class="org-right">20</td>
+<td class="org-left">CS</td>
+<td class="org-right">2</td>
+<td class="org-right">85</td>
+</tr>
+
+<tr>
+<td class="org-right">201215121</td>
+<td class="org-left">李勇</td>
+<td class="org-left">男</td>
+<td class="org-right">20</td>
+<td class="org-left">CS</td>
+<td class="org-right">3</td>
+<td class="org-right">88</td>
+</tr>
+
+<tr>
+<td class="org-right">201215122</td>
+<td class="org-left">刘晨</td>
+<td class="org-left">女</td>
+<td class="org-right">19</td>
+<td class="org-left">CS</td>
+<td class="org-right">2</td>
+<td class="org-right">90</td>
+</tr>
+
+<tr>
+<td class="org-right">201215122</td>
+<td class="org-left">刘晨</td>
+<td class="org-left">女</td>
+<td class="org-right">19</td>
+<td class="org-left">CS</td>
+<td class="org-right">3</td>
+<td class="org-right">80</td>
+</tr>
+
+<tr>
+<td class="org-right">201215123</td>
+<td class="org-left">王敏</td>
+<td class="org-left">女</td>
+<td class="org-right">18</td>
+<td class="org-left">MA</td>
+<td class="org-right">NULL</td>
+<td class="org-right">NULL</td>
+</tr>
+
+<tr>
+<td class="org-right">201215125</td>
+<td class="org-left">张立</td>
+<td class="org-left">男</td>
+<td class="org-right">19</td>
+<td class="org-left">IS</td>
+<td class="org-right">NULL</td>
+<td class="org-right">NULL</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="outline-container-org8cb0f55" class="outline-4">
+<h4 id="org8cb0f55">多表连接（七种 JOIN 理论）</h4>
+<div class="outline-text-4" id="text-org8cb0f55">
+<p>
+连接操作除了可以是两表连接、一个表与自身连接外，还可以是两个以上的表进行连接，后者通常称为多表连接。<br>
+</p>
+
+<dl class="org-dl">
+<dt><code>select Student.Sno, Sname, Cname, Grade from Student, SC, Course where Student.Sno = SC.Sno and SC.Cno = Course.Cno;</code></dt><dd>查询每个学生的学号、姓名、选修的课程名及成绩<br></dd>
+</dl>
+</div>
+</div>
+</div>
+<div id="outline-container-org8b6db80" class="outline-3">
+<h3 id="org8b6db80">嵌套查询</h3>
+<div class="outline-text-3" id="text-org8b6db80">
+<p>
+在 SQL 语言中，一个 select-from-where 语句称为一个查询块，将一个查询块嵌套在另一个查询块的 where 子句或 having 短语的条件中的查询称为嵌套查询。<br>
+</p>
+
+<p>
+SQL 语言允许多层嵌套查询，即一个子查询中还可以嵌套其他子查询，子查询的 select 语句中不能使用 order by 子句，order by 子句只能对最终查询结果排序。<br>
+</p>
+</div>
+<div id="outline-container-org601232c" class="outline-4">
+<h4 id="org601232c">带有 in 谓词的子查询</h4>
+<div class="outline-text-4" id="text-org601232c">
+<p>
+在嵌套查询中，子查询的结果往往是一个集合，所以谓词 in 是嵌套查询中最经常使用的谓词。<br>
+</p>
+
+<p>
+例：查询与“刘晨”在同一个系学习的学生。<br>
+</p>
+
+<dl class="org-dl">
+<dt><code>select Sdept from Student where Sname = '刘晨';</code></dt><dd>确定“刘晨”所在系名<br></dd>
+<dt><code>select Sno, Sname, Sdept from Student where Sdept = 'CS';</code></dt><dd>查找所有在 CS 系学习的学生<br></dd>
+</dl>
+
+<p>
+将第一步查询嵌入到第二步查询的条件中，构造嵌套查询：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">select</span> Sno, Sname, Sdept
+   <span style="color: #268bd2; font-weight: bold;">from</span> Student
+   <span style="color: #268bd2; font-weight: bold;">where</span> Sdept <span style="color: #268bd2; font-weight: bold;">in</span>
+   (
+      <span style="color: #268bd2; font-weight: bold;">select</span> Sdept
+      <span style="color: #268bd2; font-weight: bold;">from</span> Student 
+      <span style="color: #268bd2; font-weight: bold;">where</span> Sname = <span style="color: #2aa198;">'&#21016;&#26216;'</span>;
+   )
+</pre>
+</div>
+
+<p>
+在这个例子中，子查询的查询条件不依赖于父查询，称为不相关查询。<br>
+</p>
+
+<p>
+这里也可以用自身连接来完成： <code>select S1.Sno, S1.Sname, S1.Sdept from Student S1, Student S2 where S1.Sdept = S2.Sdept and S2.name = '刘晨';</code><br>
+</p>
+
+<p>
+例：查询选修了课程名为"信息系统"的学生学号和姓。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">select</span> Sno, Sname   <span style="color: #008787; background-color: #262626;">-- &#26368;&#21518;&#22312;Student&#20851;&#31995;&#20013;&#21462;&#20986;Sno&#21644;Sname</span>
+<span style="color: #268bd2; font-weight: bold;">from</span> Student
+<span style="color: #268bd2; font-weight: bold;">where</span> Sno <span style="color: #268bd2; font-weight: bold;">in</span>
+(
+   <span style="color: #268bd2; font-weight: bold;">select</span> Sno   <span style="color: #008787; background-color: #262626;">-- &#28982;&#21518;&#22312;SC&#20851;&#31995;&#20013;&#25214;&#20986;&#36873;&#20462;&#20102;3&#21495;&#35838;&#31243;&#30340;&#23398;&#29983;&#23398;&#21495;</span>
+   <span style="color: #268bd2; font-weight: bold;">from</span> SC
+   <span style="color: #268bd2; font-weight: bold;">where</span> Cno <span style="color: #268bd2; font-weight: bold;">in</span>
+   (
+      <span style="color: #268bd2; font-weight: bold;">select</span> Cno   <span style="color: #008787; background-color: #262626;">-- &#22312;Course&#20851;&#31995;&#20013;&#25214;&#20986;&#8220;&#20449;&#24687;&#31995;&#32479;&#8221;&#30340;&#35838;&#31243;&#21495;&#20026;3&#21495;&#12290;</span>
+      <span style="color: #268bd2; font-weight: bold;">from</span> Course
+      <span style="color: #268bd2; font-weight: bold;">where</span> Cname = <span style="color: #2aa198;">'&#20449;&#24687;&#31995;&#32479;'</span>
+   )
+);
+</pre>
+</div>
+
+<p>
+同样可以使用连接查询完成： <code>select Student.Sno, Sname from Student, SC, Course where Student.Sno = SC.Sno and SC.Cno = Course.Cno and Course.Cname = '信息系统';</code><br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga51c1ec" class="outline-4">
+<h4 id="orga51c1ec">带有比较运算符的子查询</h4>
+<div class="outline-text-4" id="text-orga51c1ec">
+<p>
+带有比较运算符的子查询是指父查询与子查询之间用比较运算符（ <code>&gt;、&lt;、=、&gt;=、&lt;=、!= 或 &lt;&gt;</code> ）进行连接。<br>
+</p>
+
+<p>
+在上面查询和刘晨在同一个系学习的学生的例子中，由于一个学生只能在一个系学习，也就是说内查询的结果是一个值，所以可以用 = 代替 in：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">select</span> Sno, Sname, Sdept
+<span style="color: #268bd2; font-weight: bold;">from</span> Student
+<span style="color: #268bd2; font-weight: bold;">where</span> Sdept = (
+      <span style="color: #268bd2; font-weight: bold;">select</span> Sdept
+      <span style="color: #268bd2; font-weight: bold;">from</span> Student
+      <span style="color: #268bd2; font-weight: bold;">where</span> Sname = <span style="color: #2aa198;">'&#21016;&#26216;'</span>
+);
+</pre>
+</div>
+
+<p>
+例：找出每个学生超过他自己选修课程平均成绩的课程号：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">select</span> Sno, Cno
+<span style="color: #268bd2; font-weight: bold;">from</span> SC x
+<span style="color: #268bd2; font-weight: bold;">where</span> Grade &gt;= (
+      <span style="color: #268bd2; font-weight: bold;">select</span> <span style="color: #268bd2;">avg</span>(Grade)
+      <span style="color: #268bd2; font-weight: bold;">from</span> SC y
+      <span style="color: #268bd2; font-weight: bold;">where</span> y.Sno = x.Sno
+);
+</pre>
+</div>
+
+<p>
+x 是表 SC 的别名，又称为元组变量，可以用来表示 SC 的一个元组，内层查询是求一个学生所有选修课程平均成绩的，至于是哪个学生的平均成绩要看参数 x.Sno 的值，而该值是与父查询相关的，因此这类查询称为相关子查询。<br>
+</p>
+
+<p>
+这个语句一种可能的执行过程采用以下三个步骤：<br>
+</p>
+
+<ol class="org-ol">
+<li>从外层查询中取出 SC 的一个元组 x，将元组 x 的 Sno 值（201215121）传送给内层查询<br></li>
+<li>执行内层查询，得到值88，用该值代替内层擦和讯，得到外层查询<br></li>
+<li>执行这个查询，得到（201215121, 1）（201215121,3）<br></li>
+</ol>
+
+<p>
+然后外层查询取出下一个元组重复做上述1-3的步骤的处理，直到外层的 SC 元组全部处理完毕。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8124e68" class="outline-4">
+<h4 id="org8124e68">带有 any（some）或 all 谓词的子查询</h4>
+<div class="outline-text-4" id="text-org8124e68">
+<p>
+子查询返回单值时可以用比较运算符，但返回多值时要用 any（有的系统用some）或 all 谓词修饰符。而使用 any 或 all 谓词时则必须同时使用比较运算符：<br>
+</p>
+
+<dl class="org-dl">
+<dt>&gt; any</dt><dd>大于子查询结果中的某个值<br></dd>
+<dt>&gt; all</dt><dd>大于子查询结果中的所有值<br></dd>
+<dt>&lt; any</dt><dd>小于子查询结果中的某个值<br></dd>
+<dt>&lt; all</dt><dd>小于子查询结果中的所有值<br></dd>
+<dt>&gt;= any</dt><dd>大于等于子查询结果中的某个值<br></dd>
+<dt>&gt;= all</dt><dd>大于等于子查询结果中的所有值<br></dd>
+<dt>&lt;= any</dt><dd>小于等于子查询结果中的某个值<br></dd>
+<dt>&lt;= all</dt><dd>小于等于子查询结果中的所有值<br></dd>
+<dt>= any</dt><dd>等于子查询结果中的某个值<br></dd>
+<dt>= all</dt><dd>等于子查询结果中的所有值（通常没有实际意义）<br></dd>
+<dt>!=（或&lt;&gt;）any</dt><dd>不等于子查询结果中的某个值<br></dd>
+<dt>!=（或&lt;&gt;）all</dt><dd>不等于子查询结果中的任何一个值<br></dd>
+</dl>
+
+<p>
+查询非计算机科学系中比计算机科学系任意一个ie学生年龄小的学生姓名和年龄：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">select</span> Sname, Sage
+<span style="color: #268bd2; font-weight: bold;">from</span> Student
+<span style="color: #268bd2; font-weight: bold;">where</span> Sage &lt; <span style="color: #268bd2; font-weight: bold;">any</span>(
+      <span style="color: #268bd2; font-weight: bold;">select</span> Sage
+      <span style="color: #268bd2; font-weight: bold;">from</span> Student
+      <span style="color: #268bd2; font-weight: bold;">where</span> Sdept = <span style="color: #2aa198;">'CS'</span>
+)
+<span style="color: #268bd2; font-weight: bold;">and</span> Sdept &lt;&gt; <span style="color: #2aa198;">'CS'</span>;
+</pre>
+</div>
+
+<p>
+也可以用聚集函数来实现：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">select</span> Sname, Sage
+<span style="color: #268bd2; font-weight: bold;">from</span> Student
+<span style="color: #268bd2; font-weight: bold;">where</span> Sage &lt; (
+      <span style="color: #268bd2; font-weight: bold;">select</span> <span style="color: #268bd2;">max</span>(Sage)
+      <span style="color: #268bd2; font-weight: bold;">from</span> Student
+      <span style="color: #268bd2; font-weight: bold;">where</span> Sdept = <span style="color: #2aa198;">'CS'</span>
+)
+<span style="color: #268bd2; font-weight: bold;">and</span> Sdept &lt;&gt; <span style="color: #2aa198;">'CS'</span>;
+</pre>
+</div>
+
+<p>
+查询非计算机科学系中比计算机科学系所有学生年龄都小的学生姓名及年龄：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">select</span> Sname, Sage
+<span style="color: #268bd2; font-weight: bold;">from</span> Student
+<span style="color: #268bd2; font-weight: bold;">where</span> Sage &lt; <span style="color: #268bd2; font-weight: bold;">all</span>(
+      <span style="color: #268bd2; font-weight: bold;">select</span> Sage
+      <span style="color: #268bd2; font-weight: bold;">from</span> Student
+      <span style="color: #268bd2; font-weight: bold;">where</span> Sdept = <span style="color: #2aa198;">'CS'</span>
+)
+<span style="color: #268bd2; font-weight: bold;">and</span> Sdept &lt;&gt; <span style="color: #2aa198;">'CS'</span>;
+</pre>
+</div>
+
+<p>
+同样可以用聚集函数来实现：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">select</span> Sname, Sage
+<span style="color: #268bd2; font-weight: bold;">from</span> Student
+<span style="color: #268bd2; font-weight: bold;">where</span> Sage &lt; (
+      <span style="color: #268bd2; font-weight: bold;">select</span> <span style="color: #268bd2;">min</span>(Sage)
+      <span style="color: #268bd2; font-weight: bold;">from</span> Student
+      <span style="color: #268bd2; font-weight: bold;">where</span> Sdept = <span style="color: #2aa198;">'CS'</span>
+)
+<span style="color: #268bd2; font-weight: bold;">and</span> Sdept &lt;&gt; <span style="color: #2aa198;">'CS'</span>;
+</pre>
+</div>
+
+<p>
+实际上，使用聚集函数实现子查询通常比直接用 any 或 all 查询效率高。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgdd6dfc9" class="outline-4">
+<h4 id="orgdd6dfc9">带有 exists 谓词的子查询</h4>
+<div class="outline-text-4" id="text-orgdd6dfc9">
+<p>
+exists 代表存在量词 \(\exists\)，带有 exists 谓词的子查询不返回任何数据，只产生逻辑真值“true”或逻辑假值“false”。<br>
+</p>
+
+<p>
+可以用 exists 来判断 \(x \in S、S \subseteq R、S = R、S \cap R\) 非空等是否成立。<br>
+</p>
+
+<p>
+例：查询所有选修了1号课程的学生姓名：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">select</span> Sname
+<span style="color: #268bd2; font-weight: bold;">from</span> Student
+<span style="color: #268bd2; font-weight: bold;">where</span> <span style="color: #268bd2; font-weight: bold;">exists</span>(
+      <span style="color: #268bd2; font-weight: bold;">select</span> *
+      <span style="color: #268bd2; font-weight: bold;">from</span> SC
+      <span style="color: #268bd2; font-weight: bold;">where</span> Sno = Student.Sno <span style="color: #268bd2; font-weight: bold;">and</span> Cno = <span style="color: #2aa198;">'1'</span>
+);
+</pre>
+</div>
+
+<p>
+使用存在量词 exists 后，若内层查询结果非空，则外层的 where 子句返回真值，否则返回假值。<br>
+</p>
+
+<p>
+由 exists 引出的子查询，其目标列表通常都用 * ，因为带 exists 的子查询只返回真值或假值，给出列名无实际意义。<br>
+</p>
+
+<p>
+与 exists 谓词想对应的是 not exists 谓词，使用存在量词 not exists 后，若内层查询结果为空，则外层的 where 子句返回真值，否则返回假值。<br>
+</p>
+
+<p>
+由于带 exists 量词的相关子查询只关心内层查询是否有返回值，并不需要差具体值，因此其效率并不一定低于不相关子查询，有时是高校的方法。<br>
+</p>
+
+<p>
+例：查询选修了全部课程的学生姓名。<br>
+</p>
+
+<p>
+SQL 中没有全称量词（for all），但是可以把带有全称量词的谓词转换为等价的带有存在量词的谓词：\((\forall x)P \equiv \neg(\exists x (\neg P))\)<br>
+</p>
+
+<p>
+即：没有一门课程是他不选修的<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">select</span> Sname
+<span style="color: #268bd2; font-weight: bold;">from</span> Student
+<span style="color: #268bd2; font-weight: bold;">where</span> <span style="color: #268bd2; font-weight: bold;">not</span> <span style="color: #268bd2; font-weight: bold;">exists</span>(
+      <span style="color: #268bd2; font-weight: bold;">select</span> *
+      <span style="color: #268bd2; font-weight: bold;">from</span> Course
+      <span style="color: #268bd2; font-weight: bold;">where</span> <span style="color: #268bd2; font-weight: bold;">not</span> <span style="color: #268bd2; font-weight: bold;">exists</span> (
+            <span style="color: #268bd2; font-weight: bold;">select</span> *
+            <span style="color: #268bd2; font-weight: bold;">from</span> SC
+            <span style="color: #268bd2; font-weight: bold;">where</span> Sno = Student.Sno <span style="color: #268bd2; font-weight: bold;">and</span> Cno = Course.Cno
+      )
+);
+</pre>
+</div>
+
+<p>
+例：查询至少选修了学生201215122选修的全部课程的学生号码。<br>
+</p>
+
+<p>
+本查询可以用逻辑蕴涵来表达：查询学号为 x 的学生，对所有的课程y，只要有201215122学生选修了课程y，则 x 也选修了 y，形式化表示如下：<br>
+</p>
+
+<ul class="org-ul">
+<li>用 p 表示谓词“学生201215122选修了课程 y”<br></li>
+<li>用 q 表示谓词“学 x 选修了课程 y”<br></li>
+</ul>
+
+<p>
+则上述查询为：\((\forall y) p \rightarrow q\)<br>
+</p>
+
+<p>
+SQL 没有蕴涵逻辑运算，但是可以利用谓词演算将一个逻辑蕴涵的谓词等价转换为：\(p \rightarrow q \equiv \neg p \lor q\)<br>
+</p>
+
+<p>
+该查询可以转换为等价形式：\((\forall y)p \rightarrow q \equiv \neg (\exists y (\neg (p \rightarrow q))) \equiv \neg (\exists y (\neg (\neg p \lor q))) \equiv \neg \exists y (p \land \neg q)\)<br>
+</p>
+
+<p>
+它所表达的语义为：不存在这样的课程 y，学生201215122选修了 y，而学生 x 没有选。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">select</span> <span style="color: #268bd2; font-weight: bold;">distinct</span> Sno
+<span style="color: #268bd2; font-weight: bold;">from</span> SC SCX
+<span style="color: #268bd2; font-weight: bold;">where</span> <span style="color: #268bd2; font-weight: bold;">not</span> <span style="color: #268bd2; font-weight: bold;">exists</span>(
+      <span style="color: #268bd2; font-weight: bold;">select</span> *
+      <span style="color: #268bd2; font-weight: bold;">from</span> SC SCY
+      <span style="color: #268bd2; font-weight: bold;">where</span> SCY.Sno = <span style="color: #2aa198;">'201215122'</span> <span style="color: #268bd2; font-weight: bold;">and</span> <span style="color: #268bd2; font-weight: bold;">not</span> <span style="color: #268bd2; font-weight: bold;">exists</span>(
+            <span style="color: #268bd2; font-weight: bold;">select</span> *
+            <span style="color: #268bd2; font-weight: bold;">from</span> SC SCZ
+            <span style="color: #268bd2; font-weight: bold;">where</span> SCZ.Sno = SCX.sno <span style="color: #268bd2; font-weight: bold;">and</span> SCZ.Cno = SCY.Cno
+      )
+);
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org0bba4dc" class="outline-3">
+<h3 id="org0bba4dc">集合查询</h3>
+<div class="outline-text-3" id="text-org0bba4dc">
+<p>
+select 语句的查询结果是元组的集合，所以多个 select 语句的结果可进行集合操作，集合操作主要包括并操作union、交操作intersect和差操作except。<br>
+</p>
+
+<p>
+注意：参加集合操作的各查询结果的列数必须相同；对应项的数据类型也必须相同。<br>
+</p>
+
+<p>
+例：查询激素那几科学系的学生及年龄不大于19岁的学生。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">select</span> *
+<span style="color: #268bd2; font-weight: bold;">from</span> Student
+<span style="color: #268bd2; font-weight: bold;">where</span> Sdept = <span style="color: #2aa198;">'CS'</span>
+<span style="color: #268bd2; font-weight: bold;">union</span>
+<span style="color: #268bd2; font-weight: bold;">select</span> *
+<span style="color: #268bd2; font-weight: bold;">from</span> Student
+<span style="color: #268bd2; font-weight: bold;">where</span> Sage &lt;= 19;
+</pre>
+</div>
+
+<p>
+系统会自动去掉重复元组，如果要保留重复元组则用 union all 操作符。<br>
+</p>
+
+<p>
+例：查询计算机科学系的学生与年龄不大于19岁学生的交集。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">select</span> *
+<span style="color: #268bd2; font-weight: bold;">from</span> Student
+<span style="color: #268bd2; font-weight: bold;">where</span> Sdept = <span style="color: #2aa198;">'CS'</span>
+<span style="color: #268bd2; font-weight: bold;">intersect</span>
+<span style="color: #268bd2; font-weight: bold;">select</span> *
+<span style="color: #268bd2; font-weight: bold;">from</span> Student
+<span style="color: #268bd2; font-weight: bold;">where</span> Sage &lt;= 19;
+</pre>
+</div>
+
+<p>
+实际上就是查询计算机系中年龄不大于19岁的学生： <code>select * from Student where Sdept = 'CS' and Sage &lt;= 19;</code><br>
+</p>
+
+<p>
+例：查询计算机科学系的学生与年龄不大于19岁的学生的差集。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">select</span> *
+<span style="color: #268bd2; font-weight: bold;">from</span> Student
+<span style="color: #268bd2; font-weight: bold;">where</span> Sdept = <span style="color: #2aa198;">'CS'</span>
+<span style="color: #268bd2; font-weight: bold;">except</span>
+<span style="color: #268bd2; font-weight: bold;">select</span> *
+<span style="color: #268bd2; font-weight: bold;">from</span> Student
+<span style="color: #268bd2; font-weight: bold;">where</span> Sage &lt;= 19;
+</pre>
+</div>
+
+<p>
+也就是查询计算机科学系中年龄大于19岁的学生： <code>select * from Student where Sdept = 'CS' and Sage &gt; 19;</code><br>
+</p>
+</div>
+</div>
+<div id="outline-container-org0eb622a" class="outline-3">
+<h3 id="org0eb622a">基于派生表的查询</h3>
+<div class="outline-text-3" id="text-org0eb622a">
+<p>
+子查询不仅可以出现在 where 子句中，还可以出现在 from 子句中，这时子查询生成的临时派生表成为主查询的查询对象。<br>
+</p>
+
+<p>
+例：找出每个学生超过他自己选修课程平均成绩的课程号。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">select</span> Sno, Cno
+<span style="color: #268bd2; font-weight: bold;">from</span> SC, (<span style="color: #268bd2; font-weight: bold;">select</span> Sno, <span style="color: #268bd2;">avg</span>(Grade) <span style="color: #268bd2; font-weight: bold;">from</span> SC <span style="color: #268bd2; font-weight: bold;">group</span> <span style="color: #268bd2; font-weight: bold;">by</span> Sno) <span style="color: #268bd2; font-weight: bold;">as</span> avg_sc(avg_sno, avg_grade)
+<span style="color: #268bd2; font-weight: bold;">where</span> SC.Sno = avg_sc.avg_sno <span style="color: #268bd2; font-weight: bold;">and</span> SC.Grade &gt;= avg_sc.avg_grade;
+</pre>
+</div>
+
+<p>
+这里 from 子句中的子查询将生成一个派生表 avg_sc，该表由 avg_sno 和 avg_grade 两个属性组成，记录了每个学生的学号及平均成绩。主查询将 SC 表与 avg_sc 按学号相等进行连接，选出选修课成绩大于其平均成绩的课程号。<br>
+</p>
+
+<p>
+如果子查询中没有聚集函数，派生表可以不指定属性列，子查询 select 子句后面的列名为其默认属性。<br>
+</p>
+
+<p>
+例如查询所有选修了1号课程的学生姓名，可以用如下查询：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">select</span> Sname
+<span style="color: #268bd2; font-weight: bold;">from</span> Student, (<span style="color: #268bd2; font-weight: bold;">select</span> Sno <span style="color: #268bd2; font-weight: bold;">from</span> sc <span style="color: #268bd2; font-weight: bold;">from</span> Sc <span style="color: #268bd2; font-weight: bold;">where</span> Cno = <span style="color: #2aa198;">'1'</span>) <span style="color: #268bd2; font-weight: bold;">as</span> SC1
+<span style="color: #268bd2; font-weight: bold;">where</span> Student.Sno = SC1.Sno;
+</pre>
+</div>
+
+<p>
+<b>通过 from 子句生成派生表时，as 关键字可以省略，但必须为派生关系指定一个别名，而对于基本表，别名是可选项。</b><br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgeb762fa" class="outline-2">
+<h2 id="orgeb762fa">数据更新</h2>
+<div class="outline-text-2" id="text-orgeb762fa">
+</div>
+<div id="outline-container-org91e5fe2" class="outline-3">
+<h3 id="org91e5fe2">插入数据</h3>
+<div class="outline-text-3" id="text-org91e5fe2">
+</div>
+<div id="outline-container-org4b0af8d" class="outline-4">
+<h4 id="org4b0af8d">插入元祖</h4>
+<div class="outline-text-4" id="text-org4b0af8d">
+<pre class="example">
+insert into &lt;表名&gt; [(&lt;属性列1&gt; [,&lt;属性列2&gt;] ...)] values (&lt;常量1&gt; [,&lt;常量2&gt;] ...);
+</pre>
+
+<p>
+将新元祖插入指定表中，其中新元祖的属性列1的值为常量1，属性列2的值为常量2，&#x2026;。into 子句中没有出现的属性列，新元祖在这些列上将取空值，但必须注意的是，在表定义时说明了not null的属性列不能取空值，否则会出错。<br>
+</p>
+
+<p>
+如果into子句中没有指明任何属性列名，则新插入的元祖必须在每个属性列上有值。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #008787; background-color: #262626;">-- &#25351;&#26126;&#20102;&#23646;&#24615;&#21015;&#65292;&#23646;&#24615;&#21015;&#30340;&#39034;&#24207;&#21487;&#20197;&#19982;create table&#20013;&#27425;&#24207;&#19981;&#21516;&#65292;&#23383;&#31526;&#20018;&#24120;&#37327;&#35201;&#29992;&#21333;&#24341;&#21495;&#25324;&#36215;&#26469;</span>
+<span style="color: #268bd2; font-weight: bold;">insert</span> <span style="color: #268bd2; font-weight: bold;">into</span> Student(Sno, Sname, Ssex, Sdept, Sage) <span style="color: #268bd2; font-weight: bold;">values</span>(<span style="color: #2aa198;">'201215128'</span>, <span style="color: #2aa198;">'&#24352;&#25104;&#27665;'</span>, <span style="color: #2aa198;">'&#30007;'</span>, <span style="color: #2aa198;">'IS'</span>, 18);
+
+<span style="color: #008787; background-color: #262626;">-- &#21482;&#25351;&#26126;&#20102;&#34920;&#21517;&#65292;&#23646;&#24615;&#21015;&#30340;&#27425;&#24207;&#38656;&#35201;&#19982;create table&#20013;&#27425;&#24207;&#30456;&#21516;</span>
+<span style="color: #268bd2; font-weight: bold;">insert</span> <span style="color: #268bd2; font-weight: bold;">into</span> Student <span style="color: #268bd2; font-weight: bold;">values</span>(<span style="color: #2aa198;">'201215128'</span>, <span style="color: #2aa198;">'&#24352;&#25104;&#27665;'</span>, <span style="color: #2aa198;">'&#30007;'</span>, 18, <span style="color: #2aa198;">'IS'</span>);
+
+<span style="color: #008787; background-color: #262626;">-- &#22312;&#27809;&#26377;&#36171;&#20540;&#30340;&#23646;&#24615;&#21015;&#36171;&#31354;&#20540;</span>
+<span style="color: #268bd2; font-weight: bold;">insert</span> <span style="color: #268bd2; font-weight: bold;">into</span> SC(Sno, Cno) <span style="color: #268bd2; font-weight: bold;">values</span> (<span style="color: #2aa198;">'201215128'</span>, <span style="color: #2aa198;">'1'</span>);
+
+<span style="color: #008787; background-color: #262626;">-- &#22240;&#20026;&#27809;&#26377;&#25351;&#20986;SC&#30340;&#23646;&#24615;&#21517;&#65292;&#25152;&#20197;&#38656;&#35201;&#32473;Grade&#25351;&#26126;&#36171;&#31354;&#20540;</span>
+<span style="color: #268bd2; font-weight: bold;">insert</span> <span style="color: #268bd2; font-weight: bold;">into</span> SC <span style="color: #268bd2; font-weight: bold;">values</span>(<span style="color: #2aa198;">'201215128'</span>, <span style="color: #2aa198;">'1'</span>, <span style="color: #268bd2; font-weight: bold;">NULL</span>);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org9757c61" class="outline-4">
+<h4 id="org9757c61">插入 date（日期）数据</h4>
+<div class="outline-text-4" id="text-org9757c61">
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">insert</span> <span style="color: #268bd2; font-weight: bold;">into</span> <span style="color: #df005f; font-weight: bold;">date</span> <span style="color: #268bd2; font-weight: bold;">values</span>(<span style="color: #2aa198;">'2006-01-02'</span>)
+<span style="color: #268bd2; font-weight: bold;">insert</span> <span style="color: #268bd2; font-weight: bold;">into</span> tweets <span style="color: #268bd2; font-weight: bold;">values</span>(<span style="color: #2aa198;">'2017-03-02 15:22:22'</span>);
+<span style="color: #268bd2; font-weight: bold;">insert</span> <span style="color: #268bd2; font-weight: bold;">into</span> tweets <span style="color: #268bd2; font-weight: bold;">values</span>(<span style="color: #2aa198;">'2017-03-02 16:34'</span>);
+<span style="color: #008787; background-color: #262626;">-- &#26411;&#23614;&#31186;&#65292;&#20998;&#65292;&#26102;&#65292;&#21487;&#20197;&#20381;&#27425;&#30465;&#30053;&#65292;&#20294;&#26085;&#65292;&#26376;&#65292;&#24180;&#19981;&#21487;&#20197;&#30465;&#30053;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org043c03b" class="outline-4">
+<h4 id="org043c03b">插入子查询结果</h4>
+<div class="outline-text-4" id="text-org043c03b">
+<p>
+子查询不仅可以嵌套在 select 语句中用以构造父查询的条件，也可以嵌套在 insert 语句中用以生成要插入的批量数据。<br>
+</p>
+
+<pre class="example">
+insert into &lt;表名&gt; [(&lt;属性列1&gt; [, &lt;属性列2&gt; ...])] 子查询;
+</pre>
+
+<p>
+例：对每一个系，求学生的平均年龄，并把结果存入数据库<br>
+</p>
+
+<ol class="org-ol">
+<li><p>
+首先在数据库中建立一个新表，其中一列存放系名，另一列存放相应的学生平均年龄<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">create</span> <span style="color: #268bd2; font-weight: bold;">table</span> <span style="color: #d75fd7; font-weight: bold;">Dept_age</span> (
+Sdept <span style="color: #df005f; font-weight: bold;">char</span>(15),
+Avg_age <span style="color: #df005f; font-weight: bold;">smallint</span>);
+</pre>
+</div></li>
+<li><p>
+然后对 Student 表按系分组求平均年龄，再把系名和平均年龄存入新表中<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">insert</span> <span style="color: #268bd2; font-weight: bold;">into</span> Dept_age(Sdept, Avg_age) 
+<span style="color: #268bd2; font-weight: bold;">select</span> Sdept, <span style="color: #268bd2;">AVG</span>(Sage) <span style="color: #268bd2; font-weight: bold;">from</span> Student <span style="color: #268bd2; font-weight: bold;">group</span> <span style="color: #268bd2; font-weight: bold;">by</span> Sdept;
+</pre>
+</div></li>
+</ol>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb342cc5" class="outline-3">
+<h3 id="orgb342cc5">修改数据</h3>
+<div class="outline-text-3" id="text-orgb342cc5">
+<pre class="example">
+update &lt;表名&gt; set &lt;列名&gt;=&lt;表达式&gt; [,&lt;列名&gt;=&lt;表达式&gt;] ... [where &lt;条件&gt;];
+</pre>
+</div>
+<div id="outline-container-org3c666fc" class="outline-4">
+<h4 id="org3c666fc">修改某一个元祖的值</h4>
+<div class="outline-text-4" id="text-org3c666fc">
+<dl class="org-dl">
+<dt><code>update Student set Sage=22, Sgrade=2019 where Sno='201215121';</code></dt><dd>将学生 201215121 的年龄改为 22 岁，年级改为 2019 级<br></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgb22e24f" class="outline-4">
+<h4 id="orgb22e24f">修改多个元祖的值</h4>
+<div class="outline-text-4" id="text-orgb22e24f">
+<p>
+省略 where 子句表示要修改表中所有元组。<br>
+</p>
+
+<dl class="org-dl">
+<dt><code>update Student set Sage=Sage+1;</code></dt><dd>将所有学生的年龄增加1岁<br></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgb617bc5" class="outline-4">
+<h4 id="orgb617bc5">带子查询的修改语句</h4>
+<div class="outline-text-4" id="text-orgb617bc5">
+<ul class="org-ul">
+<li><p>
+将计算机科学系全体学生成绩置零<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">update</span> SC
+<span style="color: #268bd2; font-weight: bold;">set</span> grade=0
+<span style="color: #268bd2; font-weight: bold;">where</span> Sno <span style="color: #268bd2; font-weight: bold;">in</span> (
+      <span style="color: #268bd2; font-weight: bold;">select</span> Sno
+      <span style="color: #268bd2; font-weight: bold;">from</span> Student
+      <span style="color: #268bd2; font-weight: bold;">where</span> Sdept=<span style="color: #2aa198;">'CS'</span>
+);
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-org112acc8" class="outline-3">
+<h3 id="org112acc8">删除数据</h3>
+<div class="outline-text-3" id="text-org112acc8">
+<pre class="example">
+delete from &lt;表名&gt; [where &lt;条件&gt;];
+</pre>
+
+<p>
+delete 语句的功能是从指定表中删除满足 where 子句条件的所有元祖，如果省略 where 子句则表示删除表中全部元祖，但表的定义人在字典中，也就是说，delete 语句删除的是表中的数据，而不是关于表的定义。<br>
+</p>
+</div>
+<div id="outline-container-org3824a66" class="outline-4">
+<h4 id="org3824a66">删除某一个元祖的值</h4>
+<div class="outline-text-4" id="text-org3824a66">
+<dl class="org-dl">
+<dt><code>delete from Student where Sno='201215128';</code></dt><dd>删除学号为 201215128 的学生记录<br></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orge9bd58e" class="outline-4">
+<h4 id="orge9bd58e">删除多个元祖的值</h4>
+<div class="outline-text-4" id="text-orge9bd58e">
+<dl class="org-dl">
+<dt><code>delete from SC;</code></dt><dd>删除所有学生选课记录，表结构保留<br></dd>
+<dt><code>truncate SC;</code></dt><dd>删除所有学生选课记录，表结构保留<br></dd>
+</dl>
+
+<p>
+delete 与 truncate 之间的不同点：<br>
+</p>
+<ul class="org-ul">
+<li>truncate 会重新设置自增列，计数器归零<br></li>
+<li>truncate 不会影响事务<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org554653c" class="outline-4">
+<h4 id="org554653c">带子查询的删除语句</h4>
+<div class="outline-text-4" id="text-org554653c">
+<ul class="org-ul">
+<li><p>
+删除计算机科学系所有学生的选课记录<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">delete</span> <span style="color: #268bd2; font-weight: bold;">from</span> SC
+<span style="color: #268bd2; font-weight: bold;">where</span> Sno <span style="color: #268bd2; font-weight: bold;">in</span> (
+      <span style="color: #268bd2; font-weight: bold;">select</span> Sno
+      <span style="color: #268bd2; font-weight: bold;">from</span> Student
+      <span style="color: #268bd2; font-weight: bold;">where</span> Sdept=<span style="color: #2aa198;">'CS'</span>
+);
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org803fd1b" class="outline-2">
+<h2 id="org803fd1b">空值</h2>
+<div class="outline-text-2" id="text-org803fd1b">
+</div>
+<div id="outline-container-orge0b4cd3" class="outline-3">
+<h3 id="orge0b4cd3">空值的产生</h3>
+<div class="outline-text-3" id="text-orge0b4cd3">
+<ol class="org-ol">
+<li>插入时的值为空<br></li>
+<li>更新值为空<br></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgd9fcc4f" class="outline-3">
+<h3 id="orgd9fcc4f">空值的判断</h3>
+<div class="outline-text-3" id="text-orgd9fcc4f">
+<p>
+判断一个属性的值是否为空值，用is null或is not null来表示。<br>
+</p>
+
+<dl class="org-dl">
+<dt><code>select * from Student where Sname is null or Ssex is null or Sage is null or Sdept is null;</code></dt><dd>从Student表中找出漏填的学生信息<br></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgc56f7e4" class="outline-3">
+<h3 id="orgc56f7e4">空值的约束条件</h3>
+<div class="outline-text-3" id="text-orgc56f7e4">
+<p>
+属性定义（或者域定义）中有 not null 约束条件的不能取空值，码属性不能取空值。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org56e3b7b" class="outline-2">
+<h2 id="org56e3b7b">视图</h2>
+<div class="outline-text-2" id="text-org56e3b7b">
+</div>
+<div id="outline-container-org0fe10e8" class="outline-3">
+<h3 id="org0fe10e8">定义视图</h3>
+<div class="outline-text-3" id="text-org0fe10e8">
+</div>
+<div id="outline-container-org29b6bdd" class="outline-4">
+<h4 id="org29b6bdd">建立视图</h4>
+<div class="outline-text-4" id="text-org29b6bdd">
+<pre class="example">
+create view &lt;视图名&gt; [(&lt;列名&gt; [, &lt;列名&gt;] ...)] as &lt;子查询&gt; [with check option];
+</pre>
+
+<p>
+其中子查询可以是任意的 select 语句，是否可以含有 order by 子句和 distinct 短语，则取决于具体系统的实现。<br>
+</p>
+
+<p>
+with check option 表示对视图进行 update、insert 和 delete 操作时要保证更新、插入或删除的行满足视图定义中的谓词条件（即子查询中的条件表达式）。<br>
+</p>
+
+<p>
+组成视图的属性列名或全部省略或者全部指定，没有第三种选择，如果省略了视图的各个属性列名，则隐含该视图由子查询中 select 子句目标列中的诸字段组成，但在下列三种情况下必须明确指定组成视图的所有列名。<br>
+</p>
+
+<ol class="org-ol">
+<li>某个目标列不是单纯的属性名，而是聚集函数或列表达式<br></li>
+<li>多表连接时选出了几个同名列作为视图的字段<br></li>
+<li>需要在视图中为某个列启用新的更适合的名字<br></li>
+
+<li value="<code>create view IS_Student as select Sno, Sname, Sage from Student where Sdept = 'IS';</code>">建立信息系学生的视图<br></li>
+</ol>
+
+<p>
+本例中省略了视图 IS_Student 的列名，隐含了由子查询中 select 子句中的三个列名组成。<br>
+</p>
+
+<p>
+关系数据库管理系统执行 create view 语句的结果只是把视图的定义存入数据字典，并不执行其中的 select 语句，只是在对试图查询时，才按视图的定义从基本表中将数据查出。<br>
+</p>
+
+<dl class="org-dl">
+<dt><code>create view IS_Student as select Sno, Sname, Sage from Student where Sdept = 'IS' with check option;</code></dt><dd>建立信息系学生的视图，并要求进行修改和插入操作时仍需保证该视图只有信息系的学生<br></dd>
+</dl>
+
+<p>
+由于在定义 IS_Student 视图时加上了 with check option 子句，以后对该视图进行插入、修改和删除操作时，关系数据库管理系统会自动加上 Sdept = 'IS' 的条件。<br>
+</p>
+
+<p>
+若一个视图是从单个基本表导出的，并且只是去掉了基本表的某些行和某些列，但保留了主码，则称这类视图为行列子集视图。IS_Student 视图就是一个行列子集视图。<br>
+</p>
+
+<p>
+视图不仅可以建立在单个基本表上，也可以建立在多个基本表上。<br>
+</p>
+
+<ul class="org-ul">
+<li><p>
+建立信息系选修了1号课程的学生的视图（包括学号、姓名、成绩）<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">create</span> <span style="color: #268bd2; font-weight: bold;">view</span> <span style="color: #d75fd7; font-weight: bold;">IS_S1</span>(Sno, Sname, Grade)
+<span style="color: #268bd2; font-weight: bold;">as</span>
+<span style="color: #268bd2; font-weight: bold;">select</span> Student.Sno, Sname, Grade
+<span style="color: #268bd2; font-weight: bold;">from</span> Student, SC
+<span style="color: #268bd2; font-weight: bold;">where</span> Sdept = <span style="color: #2aa198;">'IS'</span> <span style="color: #268bd2; font-weight: bold;">and</span> Student.Sno = SC.Sno <span style="color: #268bd2; font-weight: bold;">and</span> SC.Cno = <span style="color: #2aa198;">'1'</span>;
+</pre>
+</div></li>
+</ul>
+
+<p>
+由于视图 IS_S1 的属性列中包含了 Student 表和 SC 表的同名列 Sno，所以必须在视图名后面明确说明视图的各个属性列名。<br>
+</p>
+
+<p>
+视图不仅可以建立在一个或多个基本表上，也可以建立在一个或多个已定义好的视图上，或建立在基本表与视图上。<br>
+</p>
+
+<dl class="org-dl">
+<dt><code>create view IS_S2 as select Sno, Sname, Grade from IS_S1 where Grade &gt;= 90;</code></dt><dd>建立信息系选修了1号课程且成绩在90分以上的学生的视图<br></dd>
+</dl>
+
+<p>
+定义基本表时，为了减少数据库中的冗余数据，表中只存放基本数据，由基本数据经过各种计算派生的数据一般是不存储的。<br>
+</p>
+
+<dl class="org-dl">
+<dt><code>create view BT_S(Sno, Sname, Sbirth) as select Sno, Sname, 2014 - Sage from Student;</code></dt><dd>定义一个反映学生出生年份的视图<br></dd>
+</dl>
+
+<p>
+这里视图 BT_S 是一个带表达式的视图，视图中的出生年份值是通过计算得到的。还可以用带有聚集函数和 group by 子句的查询来定义视图，这种视图称为分组视图。<br>
+</p>
+
+<dl class="org-dl">
+<dt><code>create view S_G(Sno, Gavg) as select Sno, avg(Grade) from SC group by Sno;</code></dt><dd>将学生的学号及平均成绩定义为一个视图<br></dd>
+</dl>
+
+<p>
+由于 as 子句中 select 语句的目标列平均成绩是通过作用聚集函数得到的，所以 create view 中必须明确定义组成 S_G 视图的各个属性列名。S_G 是一个分组视图。<br>
+</p>
+
+<dl class="org-dl">
+<dt><code>create view F_Student(F_sno, name, sex, age, dept) as select * from Student where Ssex = '女';</code></dt><dd>将 Student 表中所有女生记录定义为一个视图<br></dd>
+</dl>
+
+<p>
+这里视图 F_Student 是由子查询 select * 建立的，F_Student 视图的属性列与 Student 表的属性列一一对应，如果以后修改了基本表 Student 结构，则 Student 表与 F_Student 视图的映像关系就会被破坏，该视图就不能正常工作了。为避免出现这类问题，最好在修改基本表之后删除由该基本表导出的视图，然后重建这个视图。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org132dadc" class="outline-4">
+<h4 id="org132dadc">删除视图</h4>
+<div class="outline-text-4" id="text-org132dadc">
+<pre class="example">
+drop view &lt;视图名&gt; [cascade];
+</pre>
+
+<p>
+如果该视图上还导出了其他视图，则使用 cascade 级联删除语句把该视图和由它导出的所有视图一起删除。<br>
+</p>
+
+<p>
+基本表删除后，由该基本表导出的所有视图均无法使用了，但是视图的定义没有从字典中删除，删除这些视图需要显式地使用 drop view 语句。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgcf34620" class="outline-3">
+<h3 id="orgcf34620">查询视图</h3>
+<div class="outline-text-3" id="text-orgcf34620">
+<dl class="org-dl">
+<dt><code>select Sno, Sage from IS_Student where Sage &lt; 20;</code></dt><dd>在信息系学生的视图中找出年龄小于20岁的学生<br></dd>
+</dl>
+
+<p>
+关系数据库管理系统执行对视图的查询时，首先进行有效性检查，检查查询中涉及的表、视图是否存在。如果存在，则从数据字典中取出视图的定义，把定义中的子查询和用户的查询结合起来，转换成等价的对基本表的查询，然后再执行修正了的查询，这一转换过程称为视图消解。<br>
+</p>
+
+<p>
+本例转换后的查询语句为： <code>select Sno, Sage from Student where Sdept = 'IS' and Sage &lt; 20;</code><br>
+</p>
+
+<dl class="org-dl">
+<dt><code>select IS_Student.Sno Sname from IS_Student, SC where IS_Student.Sno = SC.Sno and SC.Cno = '1';</code></dt><dd>查询选修了1号课程的信息系学生<br></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-org3050584" class="outline-3">
+<h3 id="org3050584">更新视图</h3>
+</div>
+<div id="outline-container-org694b757" class="outline-3">
+<h3 id="org694b757">视图的作用</h3>
+</div>
+</div>
+<div id="outline-container-org02b6e78" class="outline-2">
+<h2 id="org02b6e78">其他常用命令</h2>
+<div class="outline-text-2" id="text-org02b6e78">
+</div>
+<div id="outline-container-orgd041872" class="outline-3">
+<h3 id="orgd041872">创建、删除用户和给用户授权</h3>
+<div class="outline-text-3" id="text-orgd041872">
+<dl class="org-dl">
+<dt><code>create user username1</code></dt><dd>创建用户 usernname1<br></dd>
+
+<dt><code>drop user username1</code></dt><dd>删除用户 username1<br></dd>
+
+<dt><code>grant all privileges on DBName.* to username1@'% ' identified by 'password123' with grant option;</code></dt><dd>授权用户 username1 仅能访问数据库 DBName 下的所有数据表，密码为password123<br></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orge0c2154" class="outline-3">
+<h3 id="orge0c2154">注释</h3>
+<div class="outline-text-3" id="text-orge0c2154">
+<ul class="org-ul">
+<li><b>MySQL 单行注释：</b><br>
+<ol class="org-ol">
+<li>单行注释可以使用 <code>#</code> 注释符， <code>#</code> 注释符后直接加注释内容。格式如下：<br>
+<code>#注释内容</code><br></li>
+<li><p>
+单行注释可以使用 <code>--</code> 注释符， <code>--</code> 注释符后需要加一个空格，注释才能生效。格式如下：<br>
+</p>
+
+<p>
+<code>-- 注释内容</code><br>
+</p>
+
+<p>
+<code>#</code> 和 <code>--</code> 的区别就是：#后面直接加注释内容，而 <code>--</code> 的第 2 个破折号后需要跟一个空格符在加注释内容。<br>
+</p></li>
+</ol></li>
+<li><p>
+<b>MySQL 多行注释：</b><br>
+多行注释使用/* */注释符。/*用于注释内容的开头，*/用于注释内容的结尾。多行注释格式如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #008787; background-color: #262626;">/*</span>
+<span style="color: #008787; background-color: #262626;">&#31532;&#19968;&#34892;&#27880;&#37322;&#20869;&#23481;</span>
+<span style="color: #008787; background-color: #262626;">&#31532;&#20108;&#34892;&#27880;&#37322;&#20869;&#23481;</span>
+<span style="color: #008787; background-color: #262626;">*/</span>
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgbf054a6" class="outline-3">
+<h3 id="orgbf054a6">调用</h3>
+<div class="outline-text-3" id="text-orgbf054a6">
+<ul class="org-ul">
+<li><b>调用存储过程：</b><br>
+<ul class="org-ul">
+<li><code>call</code><br></li>
+</ul></li>
+<li><p>
+<b>调用函数：</b><br>
+</p>
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">select</span> database()
+<span style="color: #008787; background-color: #262626;">-- &#35843;&#29992; MySQL &#25968;&#25454;&#24211;&#25152;&#25903;&#25345;&#30340;&#21508;&#31181;&#20989;&#25968;&#65292;&#22312;select&#20043;&#21518;&#36319;&#30528;&#20989;&#25968;&#21517;</span>
+
+database() <span style="color: #008787; background-color: #262626;">-- &#26174;&#31034;&#24403;&#21069;&#25968;&#25454;&#24211;</span>
+<span style="color: #268bd2;">user</span>() <span style="color: #008787; background-color: #262626;">-- &#26174;&#31034;&#30331;&#24405;&#29992;&#25143;</span>
+<span style="color: #268bd2;">current_date</span>() <span style="color: #008787; background-color: #262626;">-- &#26174;&#31034;&#24403;&#21069;&#31995;&#32479;&#26085;&#26399;</span>
+<span style="color: #268bd2;">current_time</span>() <span style="color: #008787; background-color: #262626;">-- &#26174;&#31034;&#24403;&#21069;&#31995;&#32479;&#26102;&#38388;</span>
+<span style="color: #268bd2;">current_timestamp</span>() <span style="color: #008787; background-color: #262626;">-- &#26174;&#31034;&#24403;&#21069;&#31995;&#32479;&#26085;&#26399;&#21644;&#26102;&#38388;</span>
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org69c8af4" class="outline-3">
+<h3 id="org69c8af4">导出导入</h3>
+<div class="outline-text-3" id="text-org69c8af4">
+<ul class="org-ul">
+<li><b>导出数据：</b><br>
+<ul class="org-ul">
+<li><code>mysqldump -u root -p DBNAMETBNAME&gt; dump.txt</code><br></li>
+<li><code>mysqldump -u root -p --all-databases &gt; database_dump.txt</code><br></li>
+<li><code>mysqldump -u root -p dbname | mysql -h other-host dbname</code><br></li>
+</ul></li>
+<li><p>
+<b>导入数据：</b><br>
+</p>
+<div class="org-src-container">
+<pre class="src src-sql">mysql -u root -p database_name &lt; dump.txt
+
+use mydb;
+<span style="color: #268bd2; font-weight: bold;">source</span> ~/tables.<span style="color: #268bd2; font-weight: bold;">sql</span>
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org4f0c1f0" class="outline-3">
+<h3 id="org4f0c1f0">执行在文件中的SQL代码</h3>
+<div class="outline-text-3" id="text-org4f0c1f0">
+<p>
+<code>source</code> 指令的缩写是 <code>\.</code><br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga06a61e" class="outline-3">
+<h3 id="orga06a61e">delimiter</h3>
+<div class="outline-text-3" id="text-orga06a61e">
+<p>
+默认情况下，delimiter是分号，在命令行客户端，如果有一行命令以分好结束，那么回车后，mysql将会执行该命令<br>
+</p>
+
+<p>
+可以使用delimiter将界定符转化为其他 <code>delimiter $$</code><br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgbdae8b6" class="outline-3">
+<h3 id="orgbdae8b6">数据库备份和恢复</h3>
+<div class="outline-text-3" id="text-orgbdae8b6">
+<div class="org-src-container">
+<pre class="src src-sql">mysqldump -h localhost -P 6688 -u root -p test &gt; test_db.<span style="color: #268bd2; font-weight: bold;">sql</span>
+</pre>
+</div>
+
+<p>
+上述命令将 test 数据库备份到当前路径下的 test_db.sql 文件中。它一次性备份了 test 库中的所有表，如果只需要备份某几张表，在库名后分别列出表命即可，表之间用空格分开<br>
+</p>
+
+<p>
+该命令中 -h, -P, -u, -p 等参数的含义，请参考 登录数据库 部分的解释<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql">mysql -h localhost -P 6688 -u root -p test &lt; test_db.<span style="color: #268bd2; font-weight: bold;">sql</span>
+</pre>
+</div>
+
+<p>
+上述命令从当前路径下读取 test_db.sql 文件的内容，将其恢复到 test 数据库中<br>
+</p>
+<div class="reference">
+	<ul style="list-style: none;">
+		<li>本文完全参考“数据库系统概论（第5版）王珊 萨师煊”</li>
+	</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>
