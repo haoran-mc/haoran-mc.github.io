@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-03-14 Mon 19:20 -->
+<!-- 2022-03-18 Fri 12:55 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MySQL 基本语法</title>
@@ -75,7 +75,21 @@
 <li><a href="#org0e883b1">模式与表</a></li>
 <li><a href="#org890c70d">索引的建立与删除</a>
 <ul>
-<li><a href="#org5be93cb">建立索引</a></li>
+<li><a href="#org5be93cb">建立索引</a>
+<ul>
+<li><a href="#org4dfa892">创建表的同时创建索引</a>
+<ul>
+<li><a href="#org3b75735">普通索引创建</a></li>
+<li><a href="#org87545f8">创建唯一索引</a></li>
+<li><a href="#org9ddbd30">创建全文索引</a></li>
+<li><a href="#orge04f09c">创建单列索引</a></li>
+<li><a href="#org6ec79c2">创建多列索引</a></li>
+<li><a href="#orgb59099d">创建空间索引</a></li>
+</ul>
+</li>
+<li><a href="#orgd08e211">创建表之后创建索引</a></li>
+</ul>
+</li>
 <li><a href="#org7d11f50">修改索引</a></li>
 <li><a href="#orgdab2717">删除索引</a></li>
 </ul>
@@ -99,7 +113,7 @@
 <li><a href="#org348728e">确定范围</a></li>
 <li><a href="#orgb9f2673">确定集合</a></li>
 <li><a href="#org2f94046">字符匹配</a></li>
-<li><a href="#org1e100d2">空值</a></li>
+<li><a href="#orgcc6bde3">空值</a></li>
 <li><a href="#org1dfb101">多重条件查询</a></li>
 </ul>
 </li>
@@ -153,7 +167,7 @@
 </li>
 </ul>
 </li>
-<li><a href="#org803fd1b">空值</a>
+<li><a href="#org3123812">空值</a>
 <ul>
 <li><a href="#orge0b4cd3">空值的产生</a></li>
 <li><a href="#orgd9fcc4f">空值的判断</a></li>
@@ -175,12 +189,12 @@
 </li>
 <li><a href="#org02b6e78">其他常用命令</a>
 <ul>
-<li><a href="#orgd041872">创建、删除用户和给用户授权</a></li>
 <li><a href="#orge0c2154">注释</a></li>
+<li><a href="#orga06a61e">delimiter</a></li>
 <li><a href="#orgbf054a6">调用</a></li>
 <li><a href="#org69c8af4">导出导入</a></li>
 <li><a href="#org4f0c1f0">执行在文件中的SQL代码</a></li>
-<li><a href="#orga06a61e">delimiter</a></li>
+<li><a href="#orgd041872">创建、删除用户和给用户授权</a></li>
 <li><a href="#orgbdae8b6">数据库备份和恢复</a></li>
 </ul>
 </li>
@@ -911,27 +925,208 @@ drop table &lt;表名&gt; [restrict | cascade]
 <h4 id="org5be93cb">建立索引</h4>
 <div class="outline-text-4" id="text-org5be93cb">
 <p>
-建立索引可以提供多种存取路径，以加快查找速度。<br>
+索引是关系数据库中对某一列或多个列的值进行预排序的数据结构。通过使用索引，可以让数据库系统不必扫描整个表，而是直接定位到符合条件的记录，这样就大大加快了查询速度。<br>
 </p>
 
 <p>
 数据库索引有多种类型，常见索引包括顺序文件上的索引、B+树索引、散列（hash）索引、位图索引等。<br>
 </p>
 
-<dl class="org-dl">
-<dt>顺序文件上的索引</dt><dd>针对按指定属性值升序或降序存储的关系，在该属性上建立一个顺序索引文件，索引文件由属性值和相应的元组指针组成。<br></dd>
-<dt>B+树索引</dt><dd>将索引属性组织成B+树形式，B+树的叶结点为属性值和相应的元组指针，B+树索引具有动态平衡的优点。<br></dd>
-<dt>散列索引</dt><dd>建立若干个桶，将索引属性按照其散列函数值映射到相应桶中，桶中存放索引属性值和相应的元组指针，散列索引具有查找速度快的特点。<br></dd>
-<dt>位图索引</dt><dd>用位向量记录索引属性中可能出现的值，每个位向量对应一个可能值。<br></dd>
-</dl>
+<div class="div-center">
+	<img src="./images/MySQL索引分类.webp"/>
+</div>
 
 <p>
 索引虽然能够加速数据库查询，但需要占用一定的存储空间，当基本表更新时，索引要进行相应的维护，这些都会增加数据库的负担，因此要根据实际应用的需要有选择地创建索引。<br>
 </p>
+</div>
+<div id="outline-container-org4dfa892" class="outline-5">
+<h5 id="org4dfa892">创建表的同时创建索引</h5>
+<div class="outline-text-5" id="text-org4dfa892">
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">CREATE</span>  <span style="color: #268bd2; font-weight: bold;">TABLE</span>  <span style="color: #268bd2; font-weight: bold;">table_name</span>(
+    &#23646;&#24615;&#21517;  &#25968;&#25454;&#31867;&#22411;[&#32422;&#26463;&#26465;&#20214;],
+    ...
+    &#23646;&#24615;&#21517;  &#25968;&#25454;&#31867;&#22411;
+    [<span style="color: #268bd2; font-weight: bold;">UNIQUE</span> | FULLTEXT | SPATIAL] INDEX | <span style="color: #268bd2; font-weight: bold;">KEY</span> [&#32034;&#24341;&#21517;] (&#23383;&#27573;&#21517; [(&#38271;&#24230;)] [<span style="color: #268bd2; font-weight: bold;">ASC</span>|<span style="color: #268bd2; font-weight: bold;">DESC</span>])
+);
+</pre>
+</div>
+
+<dl class="org-dl">
+<dt>UNIQUE</dt><dd>可选参数，表示索引为唯一索引。<br></dd>
+<dt>FULLTEXT</dt><dd>可选参数，表示索引为全文索引。<br></dd>
+<dt>SPATIAL</dt><dd>可选参数，表示索引为空间索引。<br></dd>
+<dt>INDEX</dt><dd>和 KEY 参数用于指定字段为索引的，用户在选择时，只需要选择其中的一种即可。<br></dd>
+<dt>索引名</dt><dd>为可选参数，其作用是给创建的索引取新名称。<br></dd>
+<dt>字段名</dt><dd>指索引对应的字段名称，该字段必须被预先定义。<br></dd>
+<dt>长度</dt><dd>可选参数，其指索引的长度，必须是字符串类型才可以使用。<br></dd>
+<dt>ASC/DESC</dt><dd>可选参数，ASC 表示升序排列，DESC 表示降序排列。<br></dd>
+</dl>
+</div>
+<div id="outline-container-org3b75735" class="outline-6">
+<h6 id="org3b75735">普通索引创建</h6>
+<div class="outline-text-6" id="text-org3b75735">
+<p>
+创建普通索引，即不添加 unique、fulltext 等任何参数。<br>
+</p>
 
 <p>
-在SQL语言中，建立索引使用create index语句，其一般格式为 create [unique][cluster] index &lt;索引名&gt; on &lt;表名&gt;(&lt;列名&gt; [&lt;次序&gt;][, &lt;列名&gt; [&lt;次序&gt;]] &#x2026;)<br>
+【例】创建表名为 score 的数据表，并在该表的 id 字段上建立索引，SQL 语句如下:<br>
 </p>
+
+<div class="org-src-container">
+<pre class="src src-sql">mysql&gt; <span style="color: #268bd2; font-weight: bold;">CREATE</span> <span style="color: #268bd2; font-weight: bold;">table</span> score(
+    -&gt; id  <span style="color: #df005f; font-weight: bold;">int</span>(11)  AUTO_INCREMENT  <span style="color: #268bd2; font-weight: bold;">primary</span>  <span style="color: #268bd2; font-weight: bold;">key</span>  <span style="color: #268bd2; font-weight: bold;">not</span>  <span style="color: #268bd2; font-weight: bold;">null</span>,
+    -&gt; <span style="color: #268bd2; font-weight: bold;">name</span>  <span style="color: #df005f; font-weight: bold;">varchar</span>(50)  <span style="color: #268bd2; font-weight: bold;">not</span> <span style="color: #268bd2; font-weight: bold;">null</span>,
+    -&gt; math  <span style="color: #df005f; font-weight: bold;">int</span>(5)  <span style="color: #268bd2; font-weight: bold;">not</span> <span style="color: #268bd2; font-weight: bold;">null</span>,
+    -&gt; English  <span style="color: #df005f; font-weight: bold;">int</span> (5)  <span style="color: #268bd2; font-weight: bold;">not</span> <span style="color: #268bd2; font-weight: bold;">null</span>,
+    -&gt; Chinese  <span style="color: #df005f; font-weight: bold;">int</span> (5) <span style="color: #268bd2; font-weight: bold;">not</span>  <span style="color: #268bd2; font-weight: bold;">null</span>,
+    -&gt; index(id)
+    -&gt; );
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org87545f8" class="outline-6">
+<h6 id="org87545f8">创建唯一索引</h6>
+<div class="outline-text-6" id="text-org87545f8">
+<p>
+创建唯一索引时，使用  UNIQUE  参数进行约束。<br>
+</p>
+
+<p>
+【例】创建表名为 address 的数据表，并在该表的 id 字段上建立唯一索引，SQL 语句如下:<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql">mysql&gt; <span style="color: #268bd2; font-weight: bold;">CREATE</span> <span style="color: #268bd2; font-weight: bold;">table</span> address (
+    -&gt; id <span style="color: #df005f; font-weight: bold;">int</span>(11)  auto_increment  <span style="color: #268bd2; font-weight: bold;">primary</span>  <span style="color: #268bd2; font-weight: bold;">key</span>  <span style="color: #268bd2; font-weight: bold;">not</span>  <span style="color: #268bd2; font-weight: bold;">null</span>,
+    -&gt; <span style="color: #268bd2; font-weight: bold;">name</span> <span style="color: #df005f; font-weight: bold;">varchar</span>(50),
+    -&gt; pos <span style="color: #df005f; font-weight: bold;">varchar</span>(200),
+    -&gt; <span style="color: #268bd2; font-weight: bold;">UNIQUE</span> INDEX address(id <span style="color: #268bd2; font-weight: bold;">ASC</span>)
+    -&gt; );
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org9ddbd30" class="outline-6">
+<h6 id="org9ddbd30">创建全文索引</h6>
+<div class="outline-text-6" id="text-org9ddbd30">
+<p>
+全文索引只能作用在  CHAR、VARCHAR、TEXT、类型的字段上。创建全文索引需要使用  FULLTEXT  参数进行约束。<br>
+</p>
+
+<p>
+【例】创建表名为 cards  的数据表，并在该表的 name 字段上建立全文索引，SQL 语句如下:<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql">mysql&gt; <span style="color: #268bd2; font-weight: bold;">create</span>  <span style="color: #268bd2; font-weight: bold;">table</span> cards(
+    -&gt; id <span style="color: #df005f; font-weight: bold;">int</span>(11)  auto_increment  <span style="color: #268bd2; font-weight: bold;">primary</span> <span style="color: #268bd2; font-weight: bold;">key</span>  <span style="color: #268bd2; font-weight: bold;">not</span>  <span style="color: #268bd2; font-weight: bold;">null</span>,
+    -&gt; <span style="color: #268bd2; font-weight: bold;">name</span>  <span style="color: #df005f; font-weight: bold;">varchar</span>(50),
+    -&gt; <span style="color: #268bd2; font-weight: bold;">number</span>  bigint(11),
+    -&gt; info  <span style="color: #df005f; font-weight: bold;">varchar</span>(50),
+    -&gt; FULLTEXT  <span style="color: #268bd2; font-weight: bold;">KEY</span>  cards_number(<span style="color: #268bd2; font-weight: bold;">name</span>)
+    -&gt; );
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orge04f09c" class="outline-6">
+<h6 id="orge04f09c">创建单列索引</h6>
+<div class="outline-text-6" id="text-orge04f09c">
+<p>
+创建单列索引，即在数据表的单个字段上创建索引。创建该类型索引不需要引入约束参数，用户在建立时只需要指定单列字段名，即可创建单列索引。<br>
+</p>
+
+<p>
+【例】创建名称为  telephone  的数据表，并指定在  tel  字段上建立名称为  tel_num  的单列索引，SQL  语句如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql">mysql&gt; <span style="color: #268bd2; font-weight: bold;">create</span>  <span style="color: #268bd2; font-weight: bold;">table</span>  telephone(
+  -&gt; id  <span style="color: #df005f; font-weight: bold;">int</span>(11)  <span style="color: #268bd2; font-weight: bold;">primary</span> <span style="color: #268bd2; font-weight: bold;">key</span> auto_increment  <span style="color: #268bd2; font-weight: bold;">not</span>  <span style="color: #268bd2; font-weight: bold;">null</span>,
+  -&gt; <span style="color: #268bd2; font-weight: bold;">name</span>  <span style="color: #df005f; font-weight: bold;">varchar</span>(50)  <span style="color: #268bd2; font-weight: bold;">not</span>  <span style="color: #268bd2; font-weight: bold;">null</span>,
+  -&gt; tel  <span style="color: #df005f; font-weight: bold;">varchar</span>(50)  <span style="color: #268bd2; font-weight: bold;">not</span> <span style="color: #268bd2; font-weight: bold;">null</span>,
+  -&gt; index  tel_num(tel(20))
+  -&gt; ); 
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org6ec79c2" class="outline-6">
+<h6 id="org6ec79c2">创建多列索引</h6>
+<div class="outline-text-6" id="text-org6ec79c2">
+<p>
+创建多列索引即指定表的多个字段即可实现。<br>
+</p>
+
+<p>
+【例】创建名称为  information  的数据表，并指定  name  和  sex  为  多列索引，SQL  语句如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql">mysql&gt; <span style="color: #268bd2; font-weight: bold;">create</span> <span style="color: #268bd2; font-weight: bold;">table</span>  information(
+  -&gt; inf_id  <span style="color: #df005f; font-weight: bold;">int</span>(11)  auto_increment  <span style="color: #268bd2; font-weight: bold;">primary</span>  <span style="color: #268bd2; font-weight: bold;">key</span>  <span style="color: #268bd2; font-weight: bold;">not</span>  <span style="color: #268bd2; font-weight: bold;">null</span>,
+  -&gt; <span style="color: #268bd2; font-weight: bold;">name</span>  <span style="color: #df005f; font-weight: bold;">varchar</span>(50)  <span style="color: #268bd2; font-weight: bold;">not</span>  <span style="color: #268bd2; font-weight: bold;">null</span>,
+  -&gt; sex  <span style="color: #df005f; font-weight: bold;">varchar</span>(5)  <span style="color: #268bd2; font-weight: bold;">not</span> <span style="color: #268bd2; font-weight: bold;">null</span>,
+  -&gt; birthday  <span style="color: #df005f; font-weight: bold;">varchar</span>(50)  <span style="color: #268bd2; font-weight: bold;">not</span>  <span style="color: #268bd2; font-weight: bold;">null</span>,
+  -&gt; index  info(<span style="color: #268bd2; font-weight: bold;">name</span>,sex)
+  -&gt; ); 
+</pre>
+</div>
+
+<p>
+需要注意的是，在多列索引中，只有查询条件中使用了这些字段中的第一个字段（即上面示例中的  name 字段），索引才会被使用。<br>
+</p>
+
+<p>
+触发多列索引的条件是用户必须使用索引的第一字段，如果没有用到第一字段，则索引不起任何作用，用户想要优化查询速度，可以应用该类索引形式。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb59099d" class="outline-6">
+<h6 id="orgb59099d">创建空间索引</h6>
+<div class="outline-text-6" id="text-orgb59099d">
+<p>
+创建空间索引时，需要设置  SPATIAL 参数。同样，必须说明的是，只有  MyISAM 类型表支持该类型索引。而且，索引字段必须有非空约束。<br>
+</p>
+
+<p>
+【例】创建一个名称为 list 的数据表，并创建一个名为  listinfo 的空间索引，SQL语句如下:<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql">mysql&gt; <span style="color: #268bd2; font-weight: bold;">create</span>  <span style="color: #268bd2; font-weight: bold;">table</span>  list(
+    -&gt; id  <span style="color: #df005f; font-weight: bold;">int</span>(11)  <span style="color: #268bd2; font-weight: bold;">primary</span>  <span style="color: #268bd2; font-weight: bold;">key</span>  auto_increment  <span style="color: #268bd2; font-weight: bold;">not</span> <span style="color: #268bd2; font-weight: bold;">null</span>,
+    -&gt; goods  geometry  <span style="color: #268bd2; font-weight: bold;">not</span>  <span style="color: #268bd2; font-weight: bold;">null</span>,
+    -&gt; SPATIAL  INDEX  listinfo(goods)
+    -&gt; )engine=MyISAM;
+</pre>
+</div>
+
+<p>
+goods  字段上已经建立名称为  listinfo 的空间索引，其中  goods  字段必须不能为空，且数据类型是  GEOMETRY，该类型是空间数据类型。空间类型不能用其他类型代替，否则在生成空间素引时会产生错误且不能正常创建该类型索引。<br>
+</p>
+
+<p>
+空间类型除了上述示例中提到的 GEOMETRY 类型外，还包括如  POINT、LINESTRING、POLYGON  等类型，这些空间教据类型在平常的操作中很少被用到。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgd08e211" class="outline-5">
+<h5 id="orgd08e211">创建表之后创建索引</h5>
+<div class="outline-text-5" id="text-orgd08e211">
+<p>
+在SQL语言中，建立索引使用 create index 语句，其一般格式为：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">create</span> [<span style="color: #268bd2; font-weight: bold;">unique</span>][cluster] index &lt;&#32034;&#24341;&#21517;&gt; <span style="color: #268bd2; font-weight: bold;">on</span> &lt;&#34920;&#21517;&gt;(&lt;&#21015;&#21517;&gt; [&lt;&#27425;&#24207;&gt;][, &lt;&#21015;&#21517;&gt; [&lt;&#27425;&#24207;&gt;]] ...)
+</pre>
+</div>
 
 <p>
 次序指定索引值的排列次序，可选ASC(升序)，DESC(降序)，默认值是ASC。<br>
@@ -943,30 +1138,33 @@ drop table &lt;表名&gt; [restrict | cascade]
 </ul>
 
 <p>
-例：为学生-课程数据库中的Student、Course和SC三个表建立索引，其中Student表按学号升序建唯一索引，Course表按课程号升序建唯一索引，SC表按学号升序和课程号降序唯一索引。<br>
+例：为学生-课程数据库中的 Student、Course 和 SC 三个表建立索引，其中 Student 表按学号升序建唯一索引，Course 表按课程号升序建唯一索引，SC 表按学号升序和课程号降序唯一索引。<br>
 </p>
 
 <ul class="org-ul">
-<li>create unique index Stusno on Student(Sno)<br></li>
-<li>create unique index Coucno on Course(Cno)<br></li>
-<li>create unique index SCno on SC(Sno ASC, Cno DESC)<br></li>
+<li><code>create unique index Stusno on Student(Sno)</code><br></li>
+<li><code>create unique index Coucno on Course(Cno)</code><br></li>
+<li><code>create unique index SCno on SC(Sno ASC, Cno DESC)</code><br></li>
 </ul>
+</div>
 </div>
 </div>
 <div id="outline-container-org7d11f50" class="outline-4">
 <h4 id="org7d11f50">修改索引</h4>
 <div class="outline-text-4" id="text-org7d11f50">
-<ul class="org-ul">
-<li>alter index &lt;旧索引名&gt; rename to &lt;新索引名&gt;<br></li>
-</ul>
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">alter</span> index &lt;&#26087;&#32034;&#24341;&#21517;&gt; rename <span style="color: #268bd2; font-weight: bold;">to</span> &lt;&#26032;&#32034;&#24341;&#21517;&gt;
+</pre>
+</div>
 </div>
 </div>
 <div id="outline-container-orgdab2717" class="outline-4">
 <h4 id="orgdab2717">删除索引</h4>
 <div class="outline-text-4" id="text-orgdab2717">
-<ul class="org-ul">
-<li>drop index &lt;索引名&gt;<br></li>
-</ul>
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">drop</span> index &lt;&#32034;&#24341;&#21517;&gt;
+</pre>
+</div>
 </div>
 </div>
 </div>
@@ -1187,9 +1385,9 @@ SELECT
 </dl>
 </div>
 </div>
-<div id="outline-container-org1e100d2" class="outline-5">
-<h5 id="org1e100d2">空值</h5>
-<div class="outline-text-5" id="text-org1e100d2">
+<div id="outline-container-orgcc6bde3" class="outline-5">
+<h5 id="orgcc6bde3">空值</h5>
+<div class="outline-text-5" id="text-orgcc6bde3">
 <dl class="org-dl">
 <dt><code>select sno from SC where Grade is null;</code></dt><dd>这里 is 不能用等号（=）代替，查询缺少成绩的学生的学号和相应的课程号<br></dd>
 </dl>
@@ -2464,9 +2662,9 @@ delete 与 truncate 之间的不同点：<br>
 </div>
 </div>
 </div>
-<div id="outline-container-org803fd1b" class="outline-2">
-<h2 id="org803fd1b">空值</h2>
-<div class="outline-text-2" id="text-org803fd1b">
+<div id="outline-container-org3123812" class="outline-2">
+<h2 id="org3123812">空值</h2>
+<div class="outline-text-2" id="text-org3123812">
 </div>
 <div id="outline-container-orge0b4cd3" class="outline-3">
 <h3 id="orge0b4cd3">空值的产生</h3>
@@ -2661,18 +2859,6 @@ drop view &lt;视图名&gt; [cascade];
 <h2 id="org02b6e78">其他常用命令</h2>
 <div class="outline-text-2" id="text-org02b6e78">
 </div>
-<div id="outline-container-orgd041872" class="outline-3">
-<h3 id="orgd041872">创建、删除用户和给用户授权</h3>
-<div class="outline-text-3" id="text-orgd041872">
-<dl class="org-dl">
-<dt><code>create user username1</code></dt><dd>创建用户 usernname1<br></dd>
-
-<dt><code>drop user username1</code></dt><dd>删除用户 username1<br></dd>
-
-<dt><code>grant all privileges on DBName.* to username1@'% ' identified by 'password123' with grant option;</code></dt><dd>授权用户 username1 仅能访问数据库 DBName 下的所有数据表，密码为password123<br></dd>
-</dl>
-</div>
-</div>
 <div id="outline-container-orge0c2154" class="outline-3">
 <h3 id="orge0c2154">注释</h3>
 <div class="outline-text-3" id="text-orge0c2154">
@@ -2706,6 +2892,18 @@ drop view &lt;视图名&gt; [cascade];
 </pre>
 </div></li>
 </ul>
+</div>
+</div>
+<div id="outline-container-orga06a61e" class="outline-3">
+<h3 id="orga06a61e">delimiter</h3>
+<div class="outline-text-3" id="text-orga06a61e">
+<p>
+默认情况下，delimiter是分号，在命令行客户端，如果有一行命令以分好结束，那么回车后，mysql将会执行该命令<br>
+</p>
+
+<p>
+可以使用delimiter将界定符转化为其他 <code>delimiter $$</code><br>
+</p>
 </div>
 </div>
 <div id="outline-container-orgbf054a6" class="outline-3">
@@ -2764,16 +2962,41 @@ use mydb;
 </p>
 </div>
 </div>
-<div id="outline-container-orga06a61e" class="outline-3">
-<h3 id="orga06a61e">delimiter</h3>
-<div class="outline-text-3" id="text-orga06a61e">
-<p>
-默认情况下，delimiter是分号，在命令行客户端，如果有一行命令以分好结束，那么回车后，mysql将会执行该命令<br>
-</p>
+<div id="outline-container-orgd041872" class="outline-3">
+<h3 id="orgd041872">创建、删除用户和给用户授权</h3>
+<div class="outline-text-3" id="text-orgd041872">
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #008787; background-color: #262626;">-- &#21019;&#24314;&#29992;&#25143; usernname</span>
+<span style="color: #268bd2; font-weight: bold;">create</span> <span style="color: #268bd2;">user</span> username
+<span style="color: #008787; background-color: #262626;">-- &#21019;&#24314;&#29992;&#20110;&#24182;&#35774;&#32622;&#23494;&#30721;</span>
+<span style="color: #268bd2; font-weight: bold;">create</span> <span style="color: #268bd2;">user</span> username identified <span style="color: #268bd2; font-weight: bold;">by</span> <span style="color: #2aa198;">'123456'</span>
 
-<p>
-可以使用delimiter将界定符转化为其他 <code>delimiter $$</code><br>
-</p>
+<span style="color: #008787; background-color: #262626;">-- &#21024;&#38500;&#29992;&#25143; username</span>
+<span style="color: #268bd2; font-weight: bold;">drop</span> <span style="color: #268bd2;">user</span> username
+
+<span style="color: #008787; background-color: #262626;">-- &#20462;&#25913;&#23494;&#30721;</span>
+<span style="color: #268bd2; font-weight: bold;">set</span> password = password(<span style="color: #2aa198;">'123456'</span>)
+
+<span style="color: #008787; background-color: #262626;">-- &#20462;&#25913;&#25351;&#23450;&#29992;&#25143;&#23494;&#30721;</span>
+<span style="color: #268bd2; font-weight: bold;">set</span> password <span style="color: #268bd2; font-weight: bold;">for</span> username = password(<span style="color: #2aa198;">'123456'</span>)
+
+<span style="color: #008787; background-color: #262626;">-- &#37325;&#21629;&#21517; rename user &#21407;&#26469;&#30340;&#21517;&#23383; to &#26032;&#30340;&#21517;&#23383;</span>
+rename <span style="color: #268bd2;">user</span> olduser <span style="color: #268bd2; font-weight: bold;">to</span> newuser
+
+<span style="color: #008787; background-color: #262626;">-- &#29992;&#25143;&#25480;&#26435; all privileges &#20840;&#37096;&#30340;&#26435;&#38480;&#65292;&#24211;.&#34920;</span>
+<span style="color: #008787; background-color: #262626;">-- all privileges &#38500;&#20102;&#32473;&#21035;&#20154;&#25480;&#26435;&#65292;&#20854;&#20182;&#37117;&#33021;&#20570;</span>
+<span style="color: #268bd2; font-weight: bold;">grant</span> <span style="color: #268bd2; font-weight: bold;">all</span> <span style="color: #268bd2; font-weight: bold;">privileges</span> <span style="color: #268bd2; font-weight: bold;">on</span> *.* <span style="color: #268bd2; font-weight: bold;">to</span> username
+<span style="color: #008787; background-color: #262626;">-- &#25480;&#26435;&#29992;&#25143; username &#20165;&#33021;&#35775;&#38382;&#25968;&#25454;&#24211; DBName &#19979;&#30340;&#25152;&#26377;&#25968;&#25454;&#34920;&#65292;&#23494;&#30721;&#20026; password123</span>
+<span style="color: #268bd2; font-weight: bold;">grant</span> <span style="color: #268bd2; font-weight: bold;">all</span> <span style="color: #268bd2; font-weight: bold;">privileges</span> <span style="color: #268bd2; font-weight: bold;">on</span> DBName.* <span style="color: #268bd2; font-weight: bold;">to</span> username@<span style="color: #2aa198;">'% '</span> identified <span style="color: #268bd2; font-weight: bold;">by</span> <span style="color: #2aa198;">'password123'</span> <span style="color: #268bd2; font-weight: bold;">with</span> <span style="color: #268bd2; font-weight: bold;">grant</span> <span style="color: #268bd2; font-weight: bold;">option</span>;
+
+<span style="color: #008787; background-color: #262626;">-- &#26597;&#35810;&#26435;&#38480;</span>
+show grants <span style="color: #268bd2; font-weight: bold;">for</span> username
+show grants <span style="color: #268bd2; font-weight: bold;">for</span> root@localhost
+
+<span style="color: #008787; background-color: #262626;">-- &#25764;&#38144;&#26435;&#38480;</span>
+<span style="color: #268bd2; font-weight: bold;">revoke</span> <span style="color: #268bd2; font-weight: bold;">all</span> <span style="color: #268bd2; font-weight: bold;">privileges</span> <span style="color: #268bd2; font-weight: bold;">on</span> *.* <span style="color: #268bd2; font-weight: bold;">from</span> username
+</pre>
+</div>
 </div>
 </div>
 <div id="outline-container-orgbdae8b6" class="outline-3">
@@ -2788,9 +3011,12 @@ use mydb;
 上述命令将 test 数据库备份到当前路径下的 test_db.sql 文件中。它一次性备份了 test 库中的所有表，如果只需要备份某几张表，在库名后分别列出表命即可，表之间用空格分开<br>
 </p>
 
-<p>
-该命令中 -h, -P, -u, -p 等参数的含义，请参考 登录数据库 部分的解释<br>
-</p>
+<dl class="org-dl">
+<dt>-h</dt><dd>服务器ip地址<br></dd>
+<dt>-P</dt><dd>端口<br></dd>
+<dt>-u</dt><dd>用户名<br></dd>
+<dt>-p</dt><dd>密码<br></dd>
+</dl>
 
 <div class="org-src-container">
 <pre class="src src-sql">mysql -h localhost -P 6688 -u root -p test &lt; test_db.<span style="color: #268bd2; font-weight: bold;">sql</span>
@@ -2800,9 +3026,11 @@ use mydb;
 <p>
 上述命令从当前路径下读取 test_db.sql 文件的内容，将其恢复到 test 数据库中<br>
 </p>
+
 <div class="reference">
 	<ul style="list-style: none;">
-		<li>本文完全参考“数据库系统概论（第5版）王珊 萨师煊”</li>
+		<li>参考 "数据库系统概论（第5版）王珊 萨师煊"</li>
+		<li>参考 "清华大学出版社《MySQL数据库应用案例课堂》2016年1月第1版"</li>
 	</ul>
 </div>
 </div>

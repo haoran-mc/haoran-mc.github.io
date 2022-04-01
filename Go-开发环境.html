@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-02-07 Mon 21:13 -->
+<!-- 2022-03-31 Thu 13:53 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GO 开发环境</title>
@@ -17,13 +17,233 @@
 <body>
 <div id="content">
 <h1 class="title">GO 开发环境</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org7729350">Go 的安装</a></li>
+<li><a href="#orge3dbe2e">Go 项目的环境变量</a></li>
+<li><a href="#orgffcddad">go1.5.1 项目结构搭建</a>
+<ul>
+<li><a href="#org5c485d9">1、安装 ubuntu 更新</a></li>
+<li><a href="#org4044b9a">2、下载 Go 二进制文件</a></li>
+<li><a href="#org553526e">3、环境设置</a></li>
+<li><a href="#orgdd28351">4、更新 shell 会话</a></li>
+<li><a href="#orgbf7258a">5、检查是否安装成功</a></li>
+<li><a href="#orgd9d52e7">6、建立 Go 的工作空间</a></li>
+<li><a href="#org1007414">7、新建项目</a></li>
+<li><a href="#org616406e">8、新建 go 代码</a></li>
+<li><a href="#orgb9127eb">9、编译生成 go 程序</a></li>
+<li><a href="#orgde0be02">10、运行 go 程序</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
 
+<div id="outline-container-org7729350" class="outline-2">
+<h2 id="org7729350">Go 的安装</h2>
+</div>
+<div id="outline-container-orge3dbe2e" class="outline-2">
+<h2 id="orge3dbe2e">Go 项目的环境变量</h2>
+<div class="outline-text-2" id="text-orge3dbe2e">
+<ul class="org-ul">
+<li><code>GOROOT</code> 是 go 的安装目录<br></li>
+<li><code>GOPATH</code> 可以设定为自己想要的位置，以后 go 项目需要的依赖库都会存放在这个路径下面<br></li>
+</ul>
+
+<p>
+在进行 Go 语言开发的时候，我们的代码总是保存在 <code>$GOPATH/src</code> 目录下，再工程经过 <code>go build</code> 、 <code>go install</code> 或 <code>go get</code> 指令后，会将下载的第三方包源代码文件放在 <code>$GOPATH/src</code> 目录下，产生的二进制可执行文件放在 <code>$GOPATH/bin</code> 目录下，生成的中间缓存文件会被保存在 <code>$GOPATH/pkg</code> 下。<br>
+</p>
+
+<img src="./images/Go项目结构01.png" />
+
+<p>
+Go语言中也是通过包来组织代码文件，我们可以引用别人的包也可以发布自己的包，但是为了防止不同包的项目名冲突，我们通常使用顶级域名来作为包名的前缀，这样就不担心项目名冲突的问题了。<br>
+</p>
+
+<p>
+因为不是每个个人开发者都拥有自己的顶级域名，所以目前流行的方式是使用个人的github用户名来区分不同的包。<br>
+</p>
+
+<img src="./images/Go项目结构02.png" />
+
+<p>
+适合企业开发者的目录结构：<br>
+</p>
+
+<img src="./images/Go项目结构03.png" />
+</div>
+</div>
+<div id="outline-container-orgffcddad" class="outline-2">
+<h2 id="orgffcddad">go1.5.1 项目结构搭建</h2>
+<div class="outline-text-2" id="text-orgffcddad">
+<p>
+最近在看 go 源码剖析，里面用的 go 版本是 1.5.1，网上的许多 go 项目结构搭建都已经 1.14.1 了，由于 1.11.1 之后官方推出了 go mod，所以在这里总结一下。<br>
+</p>
+</div>
+<div id="outline-container-org5c485d9" class="outline-3">
+<h3 id="org5c485d9">1、安装 ubuntu 更新</h3>
+<div class="outline-text-3" id="text-org5c485d9">
+<div class="org-src-container">
+<pre class="src src-bash">sudo apt-get update 
+sudo apt-get -y upgrade
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org4044b9a" class="outline-3">
+<h3 id="org4044b9a">2、下载 Go 二进制文件</h3>
+<div class="outline-text-3" id="text-org4044b9a">
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #268bd2;">cd</span> ~
+mkdir tmp
+<span style="color: #268bd2;">cd</span> tmp
+wget https://dl.google.com/go/go1.5.1.linux-amd64.tar.gz 
+</pre>
+</div>
+
+<p>
+解压缩下载的 tar，通常会放在 <code>/usr/local/go</code> 下面。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">sudo tar -xvf go1.5.linux-amd64.tar.gz
+sudo mv go /usr/local 
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org553526e" class="outline-3">
+<h3 id="org553526e">3、环境设置</h3>
+<div class="outline-text-3" id="text-org553526e">
+<p>
+在 <code>~/.bashrc</code> 文件最后加上这样几句：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #268bd2;">export</span> <span style="color: #8787d7;">GOROOT</span>=/usr/local/go
+<span style="color: #268bd2;">export</span> <span style="color: #8787d7;">GOPATH</span>=$<span style="color: #8787d7;">HOME</span>/go
+<span style="color: #268bd2;">export</span> <span style="color: #8787d7;">PATH</span>=$<span style="color: #8787d7;">GOPATH</span>/bin:$<span style="color: #8787d7;">GOROOT</span>/bin:$<span style="color: #8787d7;">PATH</span> 
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgdd28351" class="outline-3">
+<h3 id="orgdd28351">4、更新 shell 会话</h3>
+<div class="outline-text-3" id="text-orgdd28351">
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #268bd2;">source</span> ~/.bashrc 
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgbf7258a" class="outline-3">
+<h3 id="orgbf7258a">5、检查是否安装成功</h3>
+<div class="outline-text-3" id="text-orgbf7258a">
+<div class="org-src-container">
+<pre class="src src-bash">go version 
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgd9d52e7" class="outline-3">
+<h3 id="orgd9d52e7">6、建立 Go 的工作空间</h3>
+<div class="outline-text-3" id="text-orgd9d52e7">
+<p>
+workspace，也就是 GOPATH 环境变量指向的目录。<br>
+</p>
+
+<p>
+GO 代码必须在工作空间内。工作空间是一个目录，其中包含三个子目录：<br>
+</p>
+
+<dl class="org-dl">
+<dt>src</dt><dd>里面每一个子目录，就是一个包。包内是Go的源码文件<br></dd>
+<dt>pkg</dt><dd>编译后生成的，包的目标文件<br></dd>
+<dt>bin</dt><dd>生成的可执行文件<br></dd>
+</dl>
+
+<p>
+这里，我们在 /home 目录下, 建立一个名为 go（因为上面我们设置 <code>GOPATH=$HOME/go</code> , 任意名字都可以，和上面保持一致就行）的文件夹。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org1007414" class="outline-3">
+<h3 id="org1007414">7、新建项目</h3>
+<div class="outline-text-3" id="text-org1007414">
+<p>
+一般包名和目录名保持一致，所以在 src 文件夹下，按照你想要创建的包名组织文件夹路径。<br>
+</p>
+
+<p>
+这里，我们在 ~/go/src 下面建立 hello 文件夹（说明：如果你的包名为 mygo/hello，那么你就需要这样的目录结构：~/src/mygo/hello，如果要引入 git 版本库管理，那么可以简历这样的包名：github.com/mygo）。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org616406e" class="outline-3">
+<h3 id="org616406e">8、新建 go 代码</h3>
+<div class="outline-text-3" id="text-org616406e">
+<p>
+~/go/src/hello 下面建立 helloworld.go 文件，加入下面代码：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"hello world"</span>)
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb9127eb" class="outline-3">
+<h3 id="orgb9127eb">9、编译生成 go 程序</h3>
+<div class="outline-text-3" id="text-orgb9127eb">
+<p>
+在任意文件路径下，运行<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">go install hello
+
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#20063;&#21487;&#20197;&#36827;&#20837;&#39033;&#30446;</span>
+go install
+</pre>
+</div>
+
+<p>
+在编译生成的 go 程序时，go 会去两个地方找程序包：GOROOT 下的 src 文件夹，以及 GOPATH 下的 src 文件夹。<br>
+</p>
+
+<p>
+在程序包里找 main 包的 main 函数作为程序入口，然后进行编译。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgde0be02" class="outline-3">
+<h3 id="orgde0be02">10、运行 go 程序</h3>
+<div class="outline-text-3" id="text-orgde0be02">
+<p>
+在 ~/go/bin 下会出现一个 hello 的可执行文件，运行：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">./hello
+</pre>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div id="postamble" class="status">
 <p class="date">Date: 2022-02-07 21:02 Mon</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-02-07 Mon 21:13</p>
-<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+<p class="date">Created: 2022-03-31 Thu 13:53</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>

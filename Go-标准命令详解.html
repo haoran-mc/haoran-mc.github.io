@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-04-01 Fri 07:56 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>标准命令详解</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">标准命令详解</h1>
+<p>
+Go 语言的 1.5 版本在标准命令方面有了重大变更。这倒不是说它们的用法有多大的变化，而是说它们的底层支持已经大变样了。让我们先来对比一下 <code>$GOROOT/pkg/tool/&lt;平台相关目录&gt;</code> 中的内容。以下简称此目录为 Go 工具目录 。<br>
+</p>
+
+<p>
+<b><b>插播：</b></b> 平台相关目录即以 <code>&lt;GOOS&gt;_&lt;GOARCH&gt;</code> 命名的目录，用于存放因特定平台的不同而不同的代码包归档文件或可执行文件。其中， <code>&lt;GOOS&gt;</code> 代表特定平台的操作系统代号，而 <code>&lt;GOARCH&gt;</code> 则代表特定平台的计算架构代号。使用 <code>go env</code> 命令便可查看它们在你的计算机中的实际值。<br>
+</p>
+
+<p>
+1.4 版本的Go工具目录的内容如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">5a        5l        6g        8c        addr2line dist      objdump   tour
+5c        6a        6l        8g        cgo       fix       pack      vet
+5g        6c        8a        8l        cover     nm        pprof     yacc
+</pre>
+</div>
+
+<p>
+下面是 Go 1.5 版本的：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">addr2line asm       compile   dist      fix       nm        pack      tour      vet
+api       cgo       cover     doc       link      objdump   pprof     trace     yacc
+</pre>
+</div>
+
+<p>
+可以看到，1.5 版本的目录内容精简了不少。这是因为 Go 1.5 的编译器、链接器都已经完全用 Go 语言重写了。而在这之前，它们都是用 C 语言写的，因此不得不为每类平台编写不同的程序并生成不同的文件。例如，8g、6g 和 5g 分别是 gc 编译器在 x86（32bit）、x86-64（64bit）和 ARM 计算架构的计算机上的实现程序。相比之下，用 Go 语言实现的好处就是，编译器和链接器都将是跨平台的了。简要来说，Go 1.5 版本的目录中的文件 compile 即是统一后的编译器，而文件 link 则是统一后的链接器。<br>
+</p>
+
+<p>
+本教程并不会讲解 Go 语言的编译器、链接器以及其它工具是怎样被编写出来的，并只会关注于怎样用好包含它们在内的 Go 语言自带的命令和工具。<br>
+</p>
+
+<p>
+为了让讲解更具关联性，也为了让读者能够更容易的理解这些命令和工具，本教程并不会按照这些命令的字典顺序描述它们，而会按照我们在实际开发过程中通常的使用顺序以及它们的重要程度来逐一进行说明。现在，我们就先从 <code>go build</code> 命令开始。<br>
+</p>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2021-09-22 04:09 三</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-04-01 Fri 07:56</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

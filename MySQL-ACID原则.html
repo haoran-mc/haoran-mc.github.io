@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-03-15 Tue 16:41 -->
+<!-- 2022-03-27 Sun 17:15 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>数据库 ACID 原则</title>
@@ -35,13 +35,19 @@
 <li><a href="#org4663b4c">脏读</a></li>
 <li><a href="#org72bc7e1">不可重复读</a></li>
 <li><a href="#org829d3a3">幻读</a></li>
-<li><a href="#orgf621908">丢失更新</a></li>
+<li><a href="#org25cf743">丢失更新（脏写）</a>
+<ul>
+<li><a href="#org3ad9aec">丢失更新分类</a></li>
+<li><a href="#org4ab4301">解决丢失更新问题</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="#org33c22be">理解 SQL SERVER 中的隔离级别</a></li>
 </ul>
 </li>
 <li><a href="#org7e8fccf">Durability 持久性</a></li>
+<li><a href="#orga8e7220">总结</a></li>
 </ul>
 </li>
 </ul>
@@ -83,13 +89,14 @@
 <h2 id="orga93b547">事务控制语句</h2>
 <div class="outline-text-2" id="text-orga93b547">
 <ul class="org-ul">
-<li>BEGIN 或 START TRANSACTION 显式地开启一个事务；<br></li>
-<li>COMMIT 也可以使用 COMMIT WORK，不过二者是等价的。COMMIT 会提交事务，并使已对数据库进行的所有修改成为永久性的；<br></li>
-<li>ROLLBACK 也可以使用 ROLLBACK WORK，不过二者是等价的。回滚会结束用户的事务，并撤销正在进行的所有未提交的修改；<br></li>
-<li>SAVEPOINT identifier，SAVEPOINT 允许在事务中创建一个保存点，一个事务中可以有多个 SAVEPOINT；<br></li>
-<li>RELEASE SAVEPOINT identifier 删除一个事务的保存点，当没有指定的保存点时，执行该语句会抛出一个异常；<br></li>
-<li>ROLLBACK TO identifier 把事务回滚到标记点；<br></li>
-<li>SET TRANSACTION 用来设置事务的隔离级别。InnoDB 存储引擎提供事务的隔离级别有READ UNCOMMITTED、READ COMMITTED、REPEATABLE READ 和 SERIALIZABLE。<br></li>
+<li><code>SET autocommit = 0</code> 关闭默认的事务自动提交<br></li>
+<li><code>BEGIN</code> 或 <code>START TRANSACTION</code> 显式地开启一个事务；<br></li>
+<li><code>COMMIT</code> 也可以使用 <code>COMMIT WORK</code> ，不过二者是等价的。COMMIT 会提交事务，并使已对数据库进行的所有修改成为永久性的；<br></li>
+<li><code>ROLLBACK</code> 也可以使用 <code>ROLLBACK WORK</code> ，不过二者是等价的。回滚会结束用户的事务，并撤销正在进行的所有未提交的修改；<br></li>
+<li><code>SAVEPOINT identifier</code> ，SAVEPOINT 允许在事务中创建一个保存点，一个事务中可以有多个 SAVEPOINT；<br></li>
+<li><code>RELEASE SAVEPOINT identifier</code> 删除一个事务的保存点，当没有指定的保存点时，执行该语句会抛出一个异常；<br></li>
+<li><code>ROLLBACK TO identifier</code> 把事务回滚到标记点；<br></li>
+<li><code>SET TRANSACTION</code> 用来设置事务的隔离级别。InnoDB 存储引擎提供事务的隔离级别有 <code>READ UNCOMMITTED</code> 、 <code>READ COMMITTED</code> 、 <code>REPEATABLE READ</code> 和 <code>SERIALIZABLE</code> 。<br></li>
 </ul>
 </div>
 </div>
@@ -97,16 +104,16 @@
 <h2 id="org6861097">MySQL 事务处理只要有两种方法</h2>
 <div class="outline-text-2" id="text-org6861097">
 <ol class="org-ol">
-<li>用 BEGIN, ROLLBACK, COMMIT来实现<br>
+<li>用 BEGIN, ROLLBACK, COMMIT 来实现<br>
 <ul class="org-ul">
-<li>BEGIN 开始一个事务<br></li>
-<li>ROLLBACK 事务回滚<br></li>
-<li>COMMIT 事务确认<br></li>
+<li><code>BEGIN</code> 开始一个事务<br></li>
+<li><code>ROLLBACK</code> 事务回滚<br></li>
+<li><code>COMMIT</code> 事务确认<br></li>
 </ul></li>
 <li>直接用 SET 来改变 MySQL 的自动提交模式<br>
 <ul class="org-ul">
-<li>SET AUTOCOMMIT=0 禁止自动提交<br></li>
-<li>SET AUTOCOMMIT=1 开启自动提交<br></li>
+<li><code>SET AUTOCOMMIT=0</code> 禁止自动提交<br></li>
+<li><code>SET AUTOCOMMIT=1</code> 开启自动提交<br></li>
 </ul></li>
 </ol>
 </div>
@@ -136,11 +143,11 @@ if Error <span style="color: #268bd2; font-weight: bold;">then</span>
 </div>
 
 <p>
-在事务中的扣款和加款两条语句，要么都执行，要么就都不执行。否则如果只执行了扣款语句就提交了，此时如果突然断电，A 账号已经发生了扣款，B 账号却没收到加款，在生活中就会引起纠纷。<br>
+在事务中的扣款和加款两条语句，要么都执行，要么就都不执行。否则如果只执行了扣款语句就提交了，此时如果突然断电，A 账号已经发生了扣款，B 账号却没有收款，在生活中就会引起纠纷。<br>
 </p>
 
 <p>
-解决方法：在数据库管理系统（DBMS）中，默认情况下一条SQL就是一个单独事务，事务是自动提交的。只有显式的使用start transaction开启一个事务，才能将一个代码块放在事务中执行。保障事务的原子性是数据库管理系统的责任，为此许多数据源采用日志机制。例如，SQL Server使用一个预写事务日志，在将数据提交到实际数据页面前，先写在事务日志上。<br>
+解决方法：在数据库管理系统（DBMS）中，默认情况下一条 SQL 就是一个单独事务，事务是自动提交的。只有显式的使用 <code>start transaction</code> 开启一个事务，才能将一个代码块放在事务中执行。保障事务的原子性是数据库管理系统的责任，为此许多数据源采用日志机制。例如，SQL Server 使用一个预写事务日志，在将数据提交到实际数据页面前，先写在事务日志上。<br>
 </p>
 </div>
 </div>
@@ -157,26 +164,13 @@ if Error <span style="color: #268bd2; font-weight: bold;">then</span>
 案例：对银行转帐事务，不管事务成功还是失败，应该保证事务结束后 ACCOUNT 表中 aaa 和 bbb 的存款总额为 2000 元。<br>
 </p>
 
-<p>
-<b>解决方法：</b><br>
-</p>
+<p style="margin: 0.145rem 0 0 0;"><b>解决方法：</b></p>
 
 <ol class="org-ol">
-<li><p>
-数据库机制层面：<br>
-</p>
-
-<p>
-数据库层面的一致性是，在一个事务执行之前和之后，数据会符合你设置的约束（唯一约束，外键约束,Check约束等)和触发器设置。这一点是由SQL SERVER进行保证的。比如转账，则可以使用CHECK约束两个账户之和等于2000来达到一致性目的<br>
-</p></li>
-
-<li><p>
-业务层面：<br>
-</p>
-
-<p>
-对于业务层面来说，一致性是保持业务的一致性。这个业务一致性需要由开发人员进行保证。当然，很多业务方面的一致性，也可以通过转移到数据库机制层面进行保证。<br>
-</p></li>
+<li>数据库机制层面：<br>
+数据库层面的一致性是，在一个事务执行之前和之后，数据会符合你设置的约束（唯一约束，外键约束，Check 约束等）和触发器设置。这一点是由 SQL SERVER 进行保证的。比如转账，则可以使用 CHECK 约束两个账户之和等于 2000 来达到一致性目的。<br></li>
+<li>业务层面：<br>
+对于业务层面来说，一致性是保持业务的一致性。这个业务一致性需要由开发人员进行保证。当然，很多业务方面的一致性，也可以通过转移到数据库机制层面进行保证。<br></li>
 </ol>
 </div>
 </div>
@@ -240,9 +234,9 @@ if Error <span style="color: #268bd2; font-weight: bold;">then</span>
 </div>
 </div>
 </div>
-<div id="outline-container-orgf621908" class="outline-5">
-<h5 id="orgf621908">丢失更新</h5>
-<div class="outline-text-5" id="text-orgf621908">
+<div id="outline-container-org25cf743" class="outline-5">
+<h5 id="org25cf743">丢失更新（脏写）</h5>
+<div class="outline-text-5" id="text-org25cf743">
 <p>
 丢失更新就是两个事务在并发下同时进行更新，后一个事务的更新覆盖了前一个事务更新的情况，丢失更新是数据没有保证一致性导致的。比如，事务 A 修改了一条记录，事务 B 在 事务 A 提交的同时也进行了一次修改并且提交。当事务 A 查询的时候，会发现刚才修改的内容没有被修改，好像丢失了更新。<br>
 </p>
@@ -251,13 +245,110 @@ if Error <span style="color: #268bd2; font-weight: bold;">then</span>
 	<img src="./images/MySQL-丢失更新.png" />
 </div>
 </div>
+
+<div id="outline-container-org3ad9aec" class="outline-6">
+<h6 id="org3ad9aec">丢失更新分类</h6>
+<div class="outline-text-6" id="text-org3ad9aec">
+<p>
+上图中，事务二最后一步进行提交，造成事务一的更新没有了，这样的丢失叫做 <b>覆盖丢失</b> ；如果上图中的事务二最后一步进行的是回滚，事务一的更新还是会丢失，这样的丢失叫做 <b>回滚丢失</b> 。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4ab4301" class="outline-6">
+<h6 id="org4ab4301">解决丢失更新问题</h6>
+<div class="outline-text-6" id="text-org4ab4301">
+<p>
+两种思路，一种是悲观锁，另一种是乐观锁，详细了解请看：<a href="MySQL-锁机制.html">MySQL锁机制</a><br>
+</p>
+</div>
+</div>
 </div>
 </div>
 <div id="outline-container-org33c22be" class="outline-4">
 <h4 id="org33c22be">理解 SQL SERVER 中的隔离级别</h4>
-</div>
-</div>
+<div class="outline-text-4" id="text-org33c22be">
+<p>
+数据库的事务隔离级别（TRANSACTION ISOLATION LEVEL）是一个数据库上很基本的一个概念。为什么会有事务隔离级别，SQL Server上实现了哪些事务隔离级别？事务隔离级别的前提是一个多用户、多进程、多线程的并发系统，在这个系统中为了保证数据的一致性和完整性，我们引入了事务隔离级别这个概念，对一个单用户、单线程的应用来说则不存在这个问题。<br>
+</p>
 
+<p>
+为了避免上述几种事务之间的影响，SQL Server 通过设置不同的隔离级别来进行不同程度的避免。因为高的隔离等级意味着更多的锁，从而牺牲性能。所以这个选项开放给了用户根据具体的需求进行设置。不过默认的隔离级别 Read Commited 符合了多数的实际需求：<br>
+</p>
+
+<p>
+通过 ~show variables like '%%'<br>
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">隔离级别</th>
+<th scope="col" class="org-left">解决脏写</th>
+<th scope="col" class="org-left">解决脏读</th>
+<th scope="col" class="org-left">解决不可重复读</th>
+<th scope="col" class="org-left">解决幻读</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">读未提交 READ UNCOMMITTED</td>
+<td class="org-left">是</td>
+<td class="org-left">否</td>
+<td class="org-left">否</td>
+<td class="org-left">否</td>
+</tr>
+
+<tr>
+<td class="org-left">读已提交 READ COMMITTED</td>
+<td class="org-left">是</td>
+<td class="org-left">是</td>
+<td class="org-left">否</td>
+<td class="org-left">否</td>
+</tr>
+
+<tr>
+<td class="org-left">可重复读 REPEATABLE READ</td>
+<td class="org-left">是</td>
+<td class="org-left">是</td>
+<td class="org-left">是</td>
+<td class="org-left">否</td>
+</tr>
+
+<tr>
+<td class="org-left">串行化 SERIALIZABLE</td>
+<td class="org-left">是</td>
+<td class="org-left">是</td>
+<td class="org-left">是</td>
+<td class="org-left">是</td>
+</tr>
+</tbody>
+</table>
+
+
+
+<p>
+四个隔离级别解决问题程度的递增，是用牺牲数据库的并发性能来得到的，如串行化级别，解决了所有的并发问题，但却没有任何并发能力。所以需要根据实际业务情况选择合适的隔离级别。<br>
+</p>
+
+<p>
+还需要清楚，四个隔离级别只是 SQL 给出的规范，包括前面所讲的 ACID 事务的实现，每个数据库存储引擎对这些的实现技术都是不同的，所有引擎都在追求更高的隔离级别下的更高的并发能力。比如 MySQL 默认使用的 InnoDB 引擎，使用 MVCC 技术在可重复读级别下，不用阻塞事务 B 的写操作就可以解决不可重复读甚至是幻读问题。<br>
+</p>
+</div>
+</div>
+</div>
 <div id="outline-container-org7e8fccf" class="outline-3">
 <h3 id="org7e8fccf">Durability 持久性</h3>
 <div class="outline-text-3" id="text-org7e8fccf">
@@ -266,6 +357,22 @@ if Error <span style="color: #268bd2; font-weight: bold;">then</span>
 事务处理结束后，对数据的修改就是永久的，即便系统故障也不会丢失。<br>
 </p>
 </blockquote>
+
+<p>
+SQL SERVER通过write-ahead transaction log来保证持久性。write-ahead transaction log的意思是，事务中对数据库的改变在写入到数据库之前，首先写入到事务日志中。而事务日志是按照顺序排号的（LSN）。当数据库崩溃或者服务器断点时，重启动SQL SERVER，SQLSERVER首先会检查日志顺序号，将本应对数据库做更改而未做的部分持久化到数据库，从而保证了持久性。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga8e7220" class="outline-3">
+<h3 id="orga8e7220">总结</h3>
+<div class="outline-text-3" id="text-orga8e7220">
+<p>
+事务的（ACID）特性是由关系数据库管理系统（RDBMS，数据库系统）来实现的。数据库管理系统采用日志来保证事务的原子性、一致性和持久性。日志记录了事务对数据库所做的更新，如果某个事务在执行过程中发生错误，就可以根据日志，撤销事务对数据库已做的更新，使数据库退回到执行事务前的初始状态。<br>
+</p>
+
+<p>
+数据库管理系统采用锁机制来实现事务的隔离性。当多个事务同时更新数据库中相同的数据时，只允许持有锁的事务能更新该数据，其他事务必须等待，直到前一个事务释放了锁，其他事务才有机会更新该数据。<br>
+</p>
 </div>
 </div>
 </div>
@@ -273,7 +380,7 @@ if Error <span style="color: #268bd2; font-weight: bold;">then</span>
 <div id="postamble" class="status">
 <p class="date">Date: 2022-03-14 20:03 Mon</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-03-15 Tue 16:41</p>
+<p class="date">Created: 2022-03-27 Sun 17:15</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

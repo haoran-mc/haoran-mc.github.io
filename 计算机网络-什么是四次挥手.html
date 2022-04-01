@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-03-03 Thu 17:19 -->
+<!-- 2022-03-27 Sun 17:45 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>什么是四次挥手</title>
@@ -21,10 +21,10 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org7ee5c07">四次挥手的过程</a></li>
-<li><a href="#org0b049bb">为什么不能把服务器发送的 ACK 和 FIN 合并起来，变成三次挥手（CLOSE_WAIT 状态意义是什么）？</a></li>
-<li><a href="#org392c7fa">如果第二次挥手时服务器的 ACK 没有送达客户端，会怎样？</a></li>
-<li><a href="#org7ba4a81">客户端 TIME_WAIT 状态的意义是什么？</a></li>
+<li><a href="#orga303c4a">四次挥手的过程</a></li>
+<li><a href="#orga0dc377">为什么不能把服务器发送的 ACK 和 FIN 合并起来，变成三次挥手（CLOSE_WAIT 状态意义是什么）？</a></li>
+<li><a href="#orgcc77c84">如果第二次挥手时服务器的 ACK 没有送达客户端，会怎样？</a></li>
+<li><a href="#org0a50291">客户端 TIME_WAIT 状态的意义是什么？</a></li>
 </ul>
 </div>
 </div>
@@ -37,9 +37,9 @@
 }
 </style>
 
-<div id="outline-container-org7ee5c07" class="outline-2">
-<h2 id="org7ee5c07">四次挥手的过程</h2>
-<div class="outline-text-2" id="text-org7ee5c07">
+<div id="outline-container-orga303c4a" class="outline-2">
+<h2 id="orga303c4a">四次挥手的过程</h2>
+<div class="outline-text-2" id="text-orga303c4a">
 <img src="./images/四次挥手.png" width="650px" />
 
 <ul class="org-ul">
@@ -50,25 +50,25 @@
 </ul>
 </div>
 </div>
-<div id="outline-container-org0b049bb" class="outline-2">
-<h2 id="org0b049bb">为什么不能把服务器发送的 ACK 和 FIN 合并起来，变成三次挥手（CLOSE_WAIT 状态意义是什么）？</h2>
-<div class="outline-text-2" id="text-org0b049bb">
+<div id="outline-container-orga0dc377" class="outline-2">
+<h2 id="orga0dc377">为什么不能把服务器发送的 ACK 和 FIN 合并起来，变成三次挥手（CLOSE_WAIT 状态意义是什么）？</h2>
+<div class="outline-text-2" id="text-orga0dc377">
 <p>
 分组交换中，分组到达目的地不是按序的，服务器收到客户端断开连接的请求时，可能还有一些数据没有发完，这时先回复 ACK，表示接收到了断开连接的请求。等到数据发完之后再发 FIN，断开服务器到客户端的数据传送。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org392c7fa" class="outline-2">
-<h2 id="org392c7fa">如果第二次挥手时服务器的 ACK 没有送达客户端，会怎样？</h2>
-<div class="outline-text-2" id="text-org392c7fa">
+<div id="outline-container-orgcc77c84" class="outline-2">
+<h2 id="orgcc77c84">如果第二次挥手时服务器的 ACK 没有送达客户端，会怎样？</h2>
+<div class="outline-text-2" id="text-orgcc77c84">
 <p>
 客户端没有收到 ACK 确认，会重新发送 FIN 请求。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org7ba4a81" class="outline-2">
-<h2 id="org7ba4a81">客户端 TIME_WAIT 状态的意义是什么？</h2>
-<div class="outline-text-2" id="text-org7ba4a81">
+<div id="outline-container-org0a50291" class="outline-2">
+<h2 id="org0a50291">客户端 TIME_WAIT 状态的意义是什么？</h2>
+<div class="outline-text-2" id="text-org0a50291">
 <p>
 第四次挥手时，客户端发送给服务器的 ACK 有可能丢失， <code>TIME_WAIT</code> 状态就是用来重发可能丢失的 ACK 报文。如果 Server 没有收到 ACK，就会重发 FIN，如果 Client 在 2 * MSL 的时间内收到了 FIN，就会重新发送 ACK 并再次等待 2MSL，防止 Server 没有收到 ACK 而不断重发 FIN。<br>
 </p>
@@ -82,8 +82,8 @@ MSL（Maximum Segment Lifetime），指一个片段在网络中最大的存活�
 <div id="postamble" class="status">
 <p class="date">Date: 2022-03-03 16:03 Thu</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-03-03 Thu 17:19</p>
-<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+<p class="date">Created: 2022-03-27 Sun 17:45</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>

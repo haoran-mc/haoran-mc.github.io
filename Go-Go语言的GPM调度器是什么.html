@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-02-19 Sat 22:02 -->
+<!-- 2022-03-27 Sun 17:26 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GO语言的GPM调度器是什么</title>
@@ -21,24 +21,24 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgc177b25">并发模型</a>
+<li><a href="#orgc8066da">并发模型</a>
 <ul>
-<li><a href="#orge14cef5">CSP篇</a></li>
-<li><a href="#org3f8c041">GPM调度模型</a></li>
-<li><a href="#org68cb8be">Goroutine</a></li>
-<li><a href="#orgf6aa2db">Processor</a></li>
-<li><a href="#org463f781">三者的关系</a></li>
+<li><a href="#org4dcc322">CSP篇</a></li>
+<li><a href="#orgee8e13f">GPM调度模型</a></li>
+<li><a href="#orgb35e73f">Goroutine</a></li>
+<li><a href="#orgc6eae07">Processor</a></li>
+<li><a href="#orgc812ad1">三者的关系</a></li>
 </ul>
 </li>
-<li><a href="#org15240ba">系统调用</a></li>
-<li><a href="#orgfec8c03">sysmon</a></li>
+<li><a href="#org02e1578">系统调用</a></li>
+<li><a href="#orgf2b2ac2">sysmon</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgc177b25" class="outline-2">
-<h2 id="orgc177b25">并发模型</h2>
-<div class="outline-text-2" id="text-orgc177b25">
+<div id="outline-container-orgc8066da" class="outline-2">
+<h2 id="orgc8066da">并发模型</h2>
+<div class="outline-text-2" id="text-orgc8066da">
 <p>
 相信很多人都听说过Go语言天然支持高并发，原因是内部有协程（goroutine）加持，可以在一个进程中启动成千上万个协程。那么，它凭什么做到如此高的并发呢？那就需要先了解什么是并发模型。<br>
 </p>
@@ -65,9 +65,9 @@
 而今天，我们只讲与Go语言相关的并发模型CSP，感兴趣的同学可以自行查阅书籍《七周七并发模型》。<br>
 </p>
 </div>
-<div id="outline-container-orge14cef5" class="outline-3">
-<h3 id="orge14cef5">CSP篇</h3>
-<div class="outline-text-3" id="text-orge14cef5">
+<div id="outline-container-org4dcc322" class="outline-3">
+<h3 id="org4dcc322">CSP篇</h3>
+<div class="outline-text-3" id="text-org4dcc322">
 <p>
 CSP，全称Communicating Sequential Processes，意为通讯顺序进程，它是七大并发模型中的一种，它的核心观念是将两个并发执行的实体通过通道channel连接起来，所有的消息都通过channel传输。其实CSP概念早在1978年就被东尼·霍尔提出，由于近来Go语言的兴起，CSP又火了起来。<br>
 </p>
@@ -77,9 +77,9 @@ CSP，全称Communicating Sequential Processes，意为通讯顺序进程，它�
 </p>
 </div>
 </div>
-<div id="outline-container-org3f8c041" class="outline-3">
-<h3 id="org3f8c041">GPM调度模型</h3>
-<div class="outline-text-3" id="text-org3f8c041">
+<div id="outline-container-orgee8e13f" class="outline-3">
+<h3 id="orgee8e13f">GPM调度模型</h3>
+<div class="outline-text-3" id="text-orgee8e13f">
 <p>
 GPM代表了三个角色，分别是Goroutine、Processor、Machine。<br>
 </p>
@@ -93,9 +93,9 @@ GPM代表了三个角色，分别是Goroutine、Processor、Machine。<br>
 </ul>
 </div>
 </div>
-<div id="outline-container-org68cb8be" class="outline-3">
-<h3 id="org68cb8be">Goroutine</h3>
-<div class="outline-text-3" id="text-org68cb8be">
+<div id="outline-container-orgb35e73f" class="outline-3">
+<h3 id="orgb35e73f">Goroutine</h3>
+<div class="outline-text-3" id="text-orgb35e73f">
 <p>
 Goroutine就是代码中使用go关键词创建的执行单元，也是大家熟知的有"轻量级线程"之称的协程，协程是不为操作系统所知的，它由编程语言层面实现，上下文切换不需要经过内核态，再加上协程占用的内存空间极小，所以有着非常大的发展潜力。<br>
 </p>
@@ -192,9 +192,9 @@ M里面存了两个比较重要的东西，一个是g0，一个是curg。<br>
 </ul>
 </div>
 </div>
-<div id="outline-container-orgf6aa2db" class="outline-3">
-<h3 id="orgf6aa2db">Processor</h3>
-<div class="outline-text-3" id="text-orgf6aa2db">
+<div id="outline-container-orgc6eae07" class="outline-3">
+<h3 id="orgc6eae07">Processor</h3>
+<div class="outline-text-3" id="text-orgc6eae07">
 <p>
 Proccessor负责Machine与Goroutine的连接，它能提供线程需要的上下文环境，也能分配G到它应该去的线程上执行，有了它，每个G都能得到合理的调用，每个线程都不再浑水摸鱼，真是居家必备之良品。<br>
 </p>
@@ -209,7 +209,7 @@ Proccessor负责Machine与Goroutine的连接，它能提供线程需要的上下
 
     runqhead <span style="color: #df005f; font-weight: bold;">uint32</span>
     runqtail <span style="color: #df005f; font-weight: bold;">uint32</span>
-    runq     [<span style="color: #d75fd7;">256</span>]<span style="color: #df005f; font-weight: bold;">guintptr</span>
+    runq     [256]<span style="color: #df005f; font-weight: bold;">guintptr</span>
     runnext <span style="color: #df005f; font-weight: bold;">guintptr</span>
     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">...</span>
 }
@@ -221,9 +221,9 @@ Proccessor负责Machine与Goroutine的连接，它能提供线程需要的上下
 </p>
 </div>
 </div>
-<div id="outline-container-org463f781" class="outline-3">
-<h3 id="org463f781">三者的关系</h3>
-<div class="outline-text-3" id="text-org463f781">
+<div id="outline-container-orgc812ad1" class="outline-3">
+<h3 id="orgc812ad1">三者的关系</h3>
+<div class="outline-text-3" id="text-orgc812ad1">
 <p>
 首先，默认启动四个线程四个处理器，然后互相绑定。<br>
 </p>
@@ -268,9 +268,9 @@ Proccessor负责Machine与Goroutine的连接，它能提供线程需要的上下
 </div>
 </div>
 </div>
-<div id="outline-container-org15240ba" class="outline-2">
-<h2 id="org15240ba">系统调用</h2>
-<div class="outline-text-2" id="text-org15240ba">
+<div id="outline-container-org02e1578" class="outline-2">
+<h2 id="org02e1578">系统调用</h2>
+<div class="outline-text-2" id="text-org02e1578">
 <p>
 如果G进行了系统调用syscall，M也会跟着进入系统调用状态，那么这个P留在这里就浪费了，怎么办呢？这点精妙之处在于，P不会傻傻的等待G和M系统调用完成，而会去找其他比较闲的M执行其他的G。<br>
 </p>
@@ -290,9 +290,9 @@ Proccessor负责Machine与Goroutine的连接，它能提供线程需要的上下
 <img src="./images/无空闲处理器放入全局队列等待.jpg" width="650px" />
 </div>
 </div>
-<div id="outline-container-orgfec8c03" class="outline-2">
-<h2 id="orgfec8c03">sysmon</h2>
-<div class="outline-text-2" id="text-orgfec8c03">
+<div id="outline-container-orgf2b2ac2" class="outline-2">
+<h2 id="orgf2b2ac2">sysmon</h2>
+<div class="outline-text-2" id="text-orgf2b2ac2">
 <p>
 sysmon是我们的保洁阿姨，它是一个M，又叫监控线程，不需要P就可以独立运行，每20us~10ms会被唤醒一次出来打扫卫生，主要工作就是回收垃圾、回收长时间系统调度阻塞的P、向长时间运行的G发出抢占调度等等。<br>
 </p>
@@ -308,8 +308,8 @@ sysmon是我们的保洁阿姨，它是一个M，又叫监控线程，不需要P
 <div id="postamble" class="status">
 <p class="date">Date: 2022-02-19 18:02 Sat</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-02-19 Sat 22:02</p>
-<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+<p class="date">Created: 2022-03-27 Sun 17:26</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>

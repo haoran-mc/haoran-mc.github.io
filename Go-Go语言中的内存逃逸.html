@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-02-16 Wed 00:21 -->
+<!-- 2022-03-27 Sun 17:22 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GO语言中的内存逃逸</title>
@@ -21,27 +21,27 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org3c18216">什么是内存逃逸</a></li>
-<li><a href="#org184aa05">内存逃逸的危害</a></li>
-<li><a href="#orgb92288b">什么是逃逸分析</a></li>
-<li><a href="#org3560388">Go 语言中的逃逸分析</a></li>
-<li><a href="#org8a2cbe5">一些内存逃逸的例子</a>
+<li><a href="#orge6390a7">什么是内存逃逸</a></li>
+<li><a href="#org92020fa">内存逃逸的危害</a></li>
+<li><a href="#orgfc2ed9b">什么是逃逸分析</a></li>
+<li><a href="#orgcd054ae">Go 语言中的逃逸分析</a></li>
+<li><a href="#orgb2b7b6e">一些内存逃逸的例子</a>
 <ul>
-<li><a href="#orgc0a6982">1. 函数返回局部指针变量</a></li>
-<li><a href="#org1986c11">2. interface 类型逃逸</a></li>
-<li><a href="#orgf0b9bed">3. 闭包产生的逃逸</a></li>
-<li><a href="#org563c6a7">4. 变量大小不确定及栈空间不足引发逃逸</a></li>
-<li><a href="#org639ba30">小结</a></li>
+<li><a href="#orgff87053">1. 函数返回局部指针变量</a></li>
+<li><a href="#org2c7e826">2. interface 类型逃逸</a></li>
+<li><a href="#org0458ed0">3. 闭包产生的逃逸</a></li>
+<li><a href="#org01c0e0c">4. 变量大小不确定及栈空间不足引发逃逸</a></li>
+<li><a href="#org8e26d19">小结</a></li>
 </ul>
 </li>
-<li><a href="#orgd030d11">避免内存逃逸的办法</a></li>
+<li><a href="#orgacc5229">避免内存逃逸的办法</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org3c18216" class="outline-2">
-<h2 id="org3c18216">什么是内存逃逸</h2>
-<div class="outline-text-2" id="text-org3c18216">
+<div id="outline-container-orge6390a7" class="outline-2">
+<h2 id="orge6390a7">什么是内存逃逸</h2>
+<div class="outline-text-2" id="text-orge6390a7">
 <p>
 内存空间包含两个最重要的区域：堆区（Heap）和栈区（Stack）。在 C 语言中，栈区域会专门存放函数的参数、局部变量等，栈的地址从内存高地址往低地址增长；而堆内存正好相反，堆地址从内存低地址往高地址增长。如果想要在堆区域分配内存，需要我们手动调用 <code>malloc</code> 函数去堆区域申请内存分配，使用完还需要手动释放，如果没有释放就会导致内存泄漏。<br>
 </p>
@@ -60,8 +60,8 @@
 
 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;&#21160;&#24577;&#20998;&#37197;&#30340;&#22320;&#22336;</span>
 <span style="color: #df005f; font-weight: bold;">int</span> *<span style="color: #d75fd7; font-weight: bold;">f1</span>() {
-    <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">a</span> = <span style="color: #d75fd7;">9</span>;
-    <span style="color: #df005f; font-weight: bold;">int</span> *<span style="color: #8787d7;">pa</span> = (<span style="color: #df005f; font-weight: bold;">int</span> *)malloc(<span style="color: #d75fd7;">8</span>);
+    <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">a</span> = 9;
+    <span style="color: #df005f; font-weight: bold;">int</span> *<span style="color: #8787d7;">pa</span> = (<span style="color: #df005f; font-weight: bold;">int</span> *)malloc(8);
     *pa = a;
     <span style="color: #268bd2; font-weight: bold;">return</span> pa;
 }
@@ -71,7 +71,7 @@
     pb = f1();
     printf(<span style="color: #2aa198;">"after : *pb = %d\tpb = %p\n"</span>, *pb, pb);
     free(pb);
-    <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">1</span>;
+    <span style="color: #268bd2; font-weight: bold;">return</span> 1;
 }
 </pre>
 </div>
@@ -91,17 +91,17 @@
 </blockquote>
 </div>
 </div>
-<div id="outline-container-org184aa05" class="outline-2">
-<h2 id="org184aa05">内存逃逸的危害</h2>
-<div class="outline-text-2" id="text-org184aa05">
+<div id="outline-container-org92020fa" class="outline-2">
+<h2 id="org92020fa">内存逃逸的危害</h2>
+<div class="outline-text-2" id="text-org92020fa">
 <p>
 堆是一块没有特定结构，也没有固定大小的内存区域，可以根据需要进行调整。全局变量，内存占用较大的局部变量，函数调用结束后不能立刻回收的局部变量都会存在堆里面。变量在堆上的分配和回收都比在栈上开销大的多。对于 go 这种带 GC 的语言来说，会增加 gc 压力，同时也容易造成内存碎片。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-orgb92288b" class="outline-2">
-<h2 id="orgb92288b">什么是逃逸分析</h2>
-<div class="outline-text-2" id="text-orgb92288b">
+<div id="outline-container-orgfc2ed9b" class="outline-2">
+<h2 id="orgfc2ed9b">什么是逃逸分析</h2>
+<div class="outline-text-2" id="text-orgfc2ed9b">
 <p>
 上面我们知道了什么是内存逃逸，下面我们就来看一看什么是逃逸分析？<br>
 </p>
@@ -121,30 +121,30 @@
 </blockquote>
 </div>
 </div>
-<div id="outline-container-org3560388" class="outline-2">
-<h2 id="org3560388">Go 语言中的逃逸分析</h2>
-<div class="outline-text-2" id="text-org3560388">
+<div id="outline-container-orgcd054ae" class="outline-2">
+<h2 id="orgcd054ae">Go 语言中的逃逸分析</h2>
+<div class="outline-text-2" id="text-orgcd054ae">
 <p>
 通过 <code>go build -gcflags '-m -m 'l'</code> 命令查看到逃逸分析的结果，分析内联优化时使用的 <code>-gcflags '-m -m'</code> 能看到所有的编译器优化，这里使用 <code>-l</code> 禁用掉内联优化，只关注逃逸优化就好。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org8a2cbe5" class="outline-2">
-<h2 id="org8a2cbe5">一些内存逃逸的例子</h2>
-<div class="outline-text-2" id="text-org8a2cbe5">
+<div id="outline-container-orgb2b7b6e" class="outline-2">
+<h2 id="orgb2b7b6e">一些内存逃逸的例子</h2>
+<div class="outline-text-2" id="text-orgb2b7b6e">
 </div>
-<div id="outline-container-orgc0a6982" class="outline-3">
-<h3 id="orgc0a6982">1. 函数返回局部指针变量</h3>
-<div class="outline-text-3" id="text-orgc0a6982">
+<div id="outline-container-orgff87053" class="outline-3">
+<h3 id="orgff87053">1. 函数返回局部指针变量</h3>
+<div class="outline-text-3" id="text-orgff87053">
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Add</span>(<span style="color: #8787d7;">x</span>,<span style="color: #8787d7;">y</span> <span style="color: #df005f; font-weight: bold;">int</span>) *<span style="color: #df005f; font-weight: bold;">int</span> {
-    <span style="color: #8787d7;">res</span> := <span style="color: #d75fd7;">0</span>
+    <span style="color: #8787d7;">res</span> := 0
     res = x + y
     <span style="color: #268bd2; font-weight: bold;">return</span> &amp;res
 }
 
 <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>()  {
-    <span style="color: #d75fd7; font-weight: bold;">Add</span>(<span style="color: #d75fd7;">1</span>, <span style="color: #d75fd7;">2</span>)
+    <span style="color: #d75fd7; font-weight: bold;">Add</span>(1, 2)
 }
 </pre>
 </div>
@@ -154,9 +154,9 @@
 </p>
 </div>
 </div>
-<div id="outline-container-org1986c11" class="outline-3">
-<h3 id="org1986c11">2. interface 类型逃逸</h3>
-<div class="outline-text-3" id="text-org1986c11">
+<div id="outline-container-org2c7e826" class="outline-3">
+<h3 id="org2c7e826">2. interface 类型逃逸</h3>
+<div class="outline-text-3" id="text-org2c7e826">
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
     <span style="color: #8787d7;">str</span> := <span style="color: #2aa198;">"hello world"</span>
@@ -190,12 +190,12 @@
 </p>
 </div>
 </div>
-<div id="outline-container-orgf0b9bed" class="outline-3">
-<h3 id="orgf0b9bed">3. 闭包产生的逃逸</h3>
-<div class="outline-text-3" id="text-orgf0b9bed">
+<div id="outline-container-org0458ed0" class="outline-3">
+<h3 id="org0458ed0">3. 闭包产生的逃逸</h3>
+<div class="outline-text-3" id="text-org0458ed0">
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Increase</span>() <span style="color: #268bd2; font-weight: bold;">func</span>() <span style="color: #df005f; font-weight: bold;">int</span> {
-    <span style="color: #8787d7;">n</span> := <span style="color: #d75fd7;">0</span>
+    <span style="color: #8787d7;">n</span> := 0
     <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #268bd2; font-weight: bold;">func</span>() <span style="color: #df005f; font-weight: bold;">int</span> {
         n++
         <span style="color: #268bd2; font-weight: bold;">return</span> n
@@ -214,14 +214,14 @@
 </p>
 </div>
 </div>
-<div id="outline-container-org563c6a7" class="outline-3">
-<h3 id="org563c6a7">4. 变量大小不确定及栈空间不足引发逃逸</h3>
-<div class="outline-text-3" id="text-org563c6a7">
+<div id="outline-container-org01c0e0c" class="outline-3">
+<h3 id="org01c0e0c">4. 变量大小不确定及栈空间不足引发逃逸</h3>
+<div class="outline-text-3" id="text-org01c0e0c">
 <p>
 我们先使用 <code>ulimit -a</code> 查看操作系统的栈空间。<br>
 </p>
 
-<pre class="example" id="org32aeae7">
+<pre class="example">
 $ ulimit -a
 -t: cpu time (seconds)              unlimited
 -f: file size (blocks)              unlimited
@@ -253,23 +253,23 @@ $ ulimit -a
 )
 
 <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">LessThan8192</span>() {
-    <span style="color: #8787d7;">nums</span> := <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #d75fd7;">100</span>) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">= 64KB</span>
-    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; <span style="color: #268bd2;">len</span>(nums); i++ {
+    <span style="color: #8787d7;">nums</span> := <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">int</span>, 100) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">= 64KB</span>
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := 0; i &lt; <span style="color: #268bd2;">len</span>(nums); i++ {
         nums[i] = rand.<span style="color: #d75fd7; font-weight: bold;">Int</span>()
     }
 }
 
 <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">MoreThan8192</span>() {
-    <span style="color: #8787d7;">nums</span> := <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #d75fd7;">1000000</span>) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">= 64KB</span>
-    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; <span style="color: #268bd2;">len</span>(nums); i++ {
+    <span style="color: #8787d7;">nums</span> := <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">int</span>, 1000000) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">= 64KB</span>
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := 0; i &lt; <span style="color: #268bd2;">len</span>(nums); i++ {
         nums[i] = rand.<span style="color: #d75fd7; font-weight: bold;">Int</span>()
     }
 }
 
 <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">NonConstant</span>() {
-    <span style="color: #8787d7;">number</span> := <span style="color: #d75fd7;">10</span>
+    <span style="color: #8787d7;">number</span> := 10
     <span style="color: #8787d7;">s</span> := <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">int</span>, number)
-    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; <span style="color: #268bd2;">len</span>(s); i++ {
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := 0; i &lt; <span style="color: #268bd2;">len</span>(s); i++ {
         s[i] = i
     }
 }
@@ -291,9 +291,9 @@ $ ulimit -a
 </p>
 </div>
 </div>
-<div id="outline-container-org639ba30" class="outline-3">
-<h3 id="org639ba30">小结</h3>
-<div class="outline-text-3" id="text-org639ba30">
+<div id="outline-container-org8e26d19" class="outline-3">
+<h3 id="org8e26d19">小结</h3>
+<div class="outline-text-3" id="text-org8e26d19">
 <p>
 能引起变量逃逸到堆上的典型情况：<br>
 </p>
@@ -308,9 +308,9 @@ $ ulimit -a
 </div>
 </div>
 </div>
-<div id="outline-container-orgd030d11" class="outline-2">
-<h2 id="orgd030d11">避免内存逃逸的办法</h2>
-<div class="outline-text-2" id="text-orgd030d11">
+<div id="outline-container-orgacc5229" class="outline-2">
+<h2 id="orgacc5229">避免内存逃逸的办法</h2>
+<div class="outline-text-2" id="text-orgacc5229">
 <ul class="org-ul">
 <li>对于小型的数据，使用传值而不是传指针，避免内存逃逸。<br></li>
 <li>避免使用长度不固定的slice切片，在编译期无法确定切片长度，只能将切片使用堆分配。<br></li>
@@ -331,8 +331,8 @@ $ ulimit -a
 <div id="postamble" class="status">
 <p class="date">Date: 2022-02-15 16:02 Tue</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-02-16 Wed 00:21</p>
-<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+<p class="date">Created: 2022-03-27 Sun 17:22</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>

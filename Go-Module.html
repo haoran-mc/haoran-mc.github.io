@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-11-04 Thu 16:16 -->
+<!-- 2022-03-31 Thu 10:17 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GO MODULE</title>
@@ -21,28 +21,28 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org39e6c38">什么是go.mod？</a></li>
-<li><a href="#org60d8dec">Modules 与传统 GOPATH 的区别</a></li>
-<li><a href="#org92dc7d5">使用 go.mod</a></li>
-<li><a href="#orgd7b9b0c">GO111MODULE</a></li>
-<li><a href="#orga3a6df2">go.mod 命令</a></li>
-<li><a href="#org439acc3">go.mod 如何在项目中使用？</a>
+<li><a href="#orge79e8a3">什么是go.mod？</a></li>
+<li><a href="#orgbc5101f">Modules 与传统 GOPATH 的区别</a></li>
+<li><a href="#orgf55b6d6">使用 go.mod</a></li>
+<li><a href="#org27cfb65">GO111MODULE</a></li>
+<li><a href="#org861cead">go.mod 命令</a></li>
+<li><a href="#orgade195e">go.mod 如何在项目中使用？</a>
 <ul>
-<li><a href="#org513d7fb">1. 写一个 hello.go 文件</a></li>
-<li><a href="#org1cf9121">2. 在当前目录下运行命令行 go mod init + 模块名称 初始化模板</a></li>
+<li><a href="#orgf0076bd">1. 写一个 hello.go 文件</a></li>
+<li><a href="#org7cc825a">2. 在当前目录下运行命令行 go mod init + 模块名称 初始化模板</a></li>
 </ul>
 </li>
-<li><a href="#org67b0d10">go.sum</a></li>
-<li><a href="#org7ebb4a5">自动下载依赖包</a></li>
-<li><a href="#org36cabec">依赖的包下载到哪里了？</a></li>
-<li><a href="#org9dcaa99">如何控制依赖包的版本？</a></li>
+<li><a href="#org4337e32">go.sum</a></li>
+<li><a href="#org299ae67">自动下载依赖包</a></li>
+<li><a href="#org2a088c9">依赖的包下载到哪里了？</a></li>
+<li><a href="#org2b8c02a">如何控制依赖包的版本？</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org39e6c38" class="outline-2">
-<h2 id="org39e6c38">什么是go.mod？</h2>
-<div class="outline-text-2" id="text-org39e6c38">
+<div id="outline-container-orge79e8a3" class="outline-2">
+<h2 id="orge79e8a3">什么是go.mod？</h2>
+<div class="outline-text-2" id="text-orge79e8a3">
 <p>
 Go.mod是Golang1.11版本新引入的官方包管理工具用于解决之前没有地方记录依赖包具体版本的问题，方便依赖包的管理。<br>
 </p>
@@ -62,26 +62,47 @@ Modules 是相关 Go 包的集合，是源代码发行，版本控制，分布�
 </blockquote>
 </div>
 </div>
-<div id="outline-container-org60d8dec" class="outline-2">
-<h2 id="org60d8dec">Modules 与传统 GOPATH 的区别</h2>
-<div class="outline-text-2" id="text-org60d8dec">
+<div id="outline-container-orgbc5101f" class="outline-2">
+<h2 id="orgbc5101f">Modules 与传统 GOPATH 的区别</h2>
+<div class="outline-text-2" id="text-orgbc5101f">
 <p>
-Modules和传统的GOPATH不同，不需要包含例如src，bin这样的子目录，一个源代码目录甚至是空目录都可以作为Modules，只要其中包含有go.mod文件。<br>
+若是想要在其他位置新建 go 项目，就不得不更改系统变量 GOPATH，将其设为新项目的位置，可能还要改 goland 中的 GOPATH 设置。<br>
+</p>
+
+<p>
+go mod 是 golang1.11 后引入的 package 依赖管理工具，用于解决之前没有地方记录依赖包具体版本的问题，方便依赖包管理。之前主要是用 GOPATH 和 Vendor，vendor 相对主流，但现在官方更提倡 go mod。<br>
+</p>
+
+<p>
+在 GOPATH 的目录下，新建项目文件夹，进入新建路径执行 go mod init，在文件夹下生成 go.mod 文件，然后将需要引入外部包的 go 文件置于项目目录下，编译文件，就会把外部包下载到本地的 GOPATH/pkg/mod 目录下。<br>
+</p>
+
+<p>
+set GO111MODULE=off，GOPATH mode，查找vendor和GOPATH目录。<br>
+set GO111MODULE=auto，如果当前目录不在$GOPATH 并且 当前目录（或者父目录）下有go.mod文件，则使用 GO111MODULE， 否则仍旧使用 GOPATH mode。<br>
+</p>
+
+<p>
+注意：在使用 GoLand 工具时，不要配置 Project GOPATH 为当前工程目录，最好不要配置 Project GOPATH，而是配置Module GOPATH。<br>
+</p>
+
+<p>
+在使用模块的时候， GOPATH 是无意义的，不过它还是会把下载的依赖储存在 GOPATH/src/mod 中，也会把 go install 的结果放在 GOPATH/bin（如果 GOBIN 不存在的话）<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org92dc7d5" class="outline-2">
-<h2 id="org92dc7d5">使用 go.mod</h2>
-<div class="outline-text-2" id="text-org92dc7d5">
+<div id="outline-container-orgf55b6d6" class="outline-2">
+<h2 id="orgf55b6d6">使用 go.mod</h2>
+<div class="outline-text-2" id="text-orgf55b6d6">
 <ol class="org-ol">
 <li>首先将 go 的版本升级到 1.11 以上<br></li>
 <li>设置 GO111MODULE<br></li>
 </ol>
 </div>
 </div>
-<div id="outline-container-orgd7b9b0c" class="outline-2">
-<h2 id="orgd7b9b0c">GO111MODULE</h2>
-<div class="outline-text-2" id="text-orgd7b9b0c">
+<div id="outline-container-org27cfb65" class="outline-2">
+<h2 id="org27cfb65">GO111MODULE</h2>
+<div class="outline-text-2" id="text-org27cfb65">
 <p>
 GO111MODULE有三个值：off, on和auto。<br>
 </p>
@@ -97,9 +118,9 @@ GO111MODULE有三个值：off, on和auto。<br>
 </ul>
 </div>
 </div>
-<div id="outline-container-orga3a6df2" class="outline-2">
-<h2 id="orga3a6df2">go.mod 命令</h2>
-<div class="outline-text-2" id="text-orga3a6df2">
+<div id="outline-container-org861cead" class="outline-2">
+<h2 id="org861cead">go.mod 命令</h2>
+<div class="outline-text-2" id="text-org861cead">
 <p>
 在使用模块的时候， GOPATH 是无意义的，不过它还是会把下载的依赖储存在 GOPATH/src/mod 中，也会把 go install 的结果放在 GOPATH/bin（如果 GOBIN 不存在的话）。<br>
 </p>
@@ -141,28 +162,28 @@ go get rsc.io/sampler@v1.3.1
 </div>
 </div>
 
-<div id="outline-container-org439acc3" class="outline-2">
-<h2 id="org439acc3">go.mod 如何在项目中使用？</h2>
-<div class="outline-text-2" id="text-org439acc3">
+<div id="outline-container-orgade195e" class="outline-2">
+<h2 id="orgade195e">go.mod 如何在项目中使用？</h2>
+<div class="outline-text-2" id="text-orgade195e">
 </div>
-<div id="outline-container-org513d7fb" class="outline-3">
-<h3 id="org513d7fb">1. 写一个 hello.go 文件</h3>
-<div class="outline-text-3" id="text-org513d7fb">
+<div id="outline-container-orgf0076bd" class="outline-3">
+<h3 id="orgf0076bd">1. 写一个 hello.go 文件</h3>
+<div class="outline-text-3" id="text-orgf0076bd">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #BD93F9;">package</span> main
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
 
-<span style="color: #BD93F9;">import</span> <span style="color: #FC9F4E;">"fmt"</span>
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
 
-<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">main</span>() {
-    fmt.<span style="color: #AFAFAF;">Println</span>(<span style="color: #FC9F4E;">"Hello World!"</span>)
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Hello World!"</span>)
 }
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org1cf9121" class="outline-3">
-<h3 id="org1cf9121">2. 在当前目录下运行命令行 go mod init + 模块名称 初始化模板</h3>
-<div class="outline-text-3" id="text-org1cf9121">
+<div id="outline-container-org7cc825a" class="outline-3">
+<h3 id="org7cc825a">2. 在当前目录下运行命令行 go mod init + 模块名称 初始化模板</h3>
+<div class="outline-text-3" id="text-org7cc825a">
 <div class="org-src-container">
 <pre class="src src-sh">go mod init hello
 </pre>
@@ -174,9 +195,9 @@ go get rsc.io/sampler@v1.3.1
 </div>
 </div>
 </div>
-<div id="outline-container-org67b0d10" class="outline-2">
-<h2 id="org67b0d10">go.sum</h2>
-<div class="outline-text-2" id="text-org67b0d10">
+<div id="outline-container-org4337e32" class="outline-2">
+<h2 id="org4337e32">go.sum</h2>
+<div class="outline-text-2" id="text-org4337e32">
 <p>
 除了 go.mod 之外，go 命令还维护了一个名为 go.sum 的文件，其中包含特定模块版本内容的预期加密哈系。<br>
 </p>
@@ -190,9 +211,9 @@ go.sum 不需要手工维护，所以可以不用太关注。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org7ebb4a5" class="outline-2">
-<h2 id="org7ebb4a5">自动下载依赖包</h2>
-<div class="outline-text-2" id="text-org7ebb4a5">
+<div id="outline-container-org299ae67" class="outline-2">
+<h2 id="org299ae67">自动下载依赖包</h2>
+<div class="outline-text-2" id="text-org299ae67">
 <p>
 注意：子目录里是不需要init的，所有的子目录里的依赖都会组织在根目录的go.mod文件里。<br>
 </p>
@@ -202,15 +223,15 @@ go.sum 不需要手工维护，所以可以不用太关注。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #BD93F9;">package</span> main
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
 
-<span style="color: #BD93F9;">import</span> (
-    <span style="color: #FC9F4E;">"fmt"</span>
-    <span style="color: #FC9F4E;">"gohouse/gorose"</span>
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"gohouse/gorose"</span>
 )
 
-<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">main</span>() {
-    fmt.<span style="color: #AFAFAF;">Println</span>(<span style="color: #FC9F4E;">"Hello, world!"</span>)
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Hello, world!"</span>)
 }
 </pre>
 </div>
@@ -224,10 +245,10 @@ go.sum 不需要手工维护，所以可以不用太关注。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go">module <span style="color: #AFAFAF;">hello</span>
+<pre class="src src-go">module <span style="color: #df005f; font-weight: bold;">hello</span>
 
-<span style="color: #AFAFAF;">require</span> (
-    gohouse/gorose v1.<span style="color: #009F9F;">0</span>.<span style="color: #009F9F;">5</span>
+<span style="color: #d75fd7; font-weight: bold;">require</span> (
+    gohouse/gorose <span style="color: #df005f; font-weight: bold;">v1.0</span>.5
 )
 </pre>
 </div>
@@ -242,17 +263,17 @@ require 关键字是引用，后面是包，最后v1.0.5 是引用的版本号�
 </div>
 </div>
 
-<div id="outline-container-org36cabec" class="outline-2">
-<h2 id="org36cabec">依赖的包下载到哪里了？</h2>
-<div class="outline-text-2" id="text-org36cabec">
+<div id="outline-container-org2a088c9" class="outline-2">
+<h2 id="org2a088c9">依赖的包下载到哪里了？</h2>
+<div class="outline-text-2" id="text-org2a088c9">
 <p>
 不是下载到 GOPATH 里，依赖的第三方包被下载到了 $GOPATH/pkg/mod 路径下。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org9dcaa99" class="outline-2">
-<h2 id="org9dcaa99">如何控制依赖包的版本？</h2>
-<div class="outline-text-2" id="text-org9dcaa99">
+<div id="outline-container-org2b8c02a" class="outline-2">
+<h2 id="org2b8c02a">如何控制依赖包的版本？</h2>
+<div class="outline-text-2" id="text-org2b8c02a">
 <p>
 在上一个问题里，可以看到最终下载在$GOPATH/pkg/mod 下的包中最后会有一个版本号 v1.0.5，也就是说，$GOPATH/pkg/mod里可以保存相同包的不同版本。<br>
 </p>
@@ -270,8 +291,8 @@ require 关键字是引用，后面是包，最后v1.0.5 是引用的版本号�
 <div id="postamble" class="status">
 <p class="date">Date: 2021-10-28 19:10 Thu</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2021-11-04 Thu 16:16</p>
-<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+<p class="date">Created: 2022-03-31 Thu 10:17</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>

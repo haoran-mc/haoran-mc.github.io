@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-02-15 Tue 00:56 -->
+<!-- 2022-03-24 Thu 16:21 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>值类型与引用类型、内建函数MAKE()与NEW()的区别</title>
@@ -21,22 +21,22 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgb408004">值类型与引用类型</a></li>
-<li><a href="#org40fb089">new 与 make 区别</a>
+<li><a href="#org89cfcb5">值类型与引用类型</a></li>
+<li><a href="#orgdb5eeea">new 与 make 区别</a>
 <ul>
-<li><a href="#org73ef53c">var</a></li>
-<li><a href="#org88617cd">new</a></li>
-<li><a href="#org90fcb03">make</a></li>
+<li><a href="#orga164a63">var</a></li>
+<li><a href="#orge37ae80">new</a></li>
+<li><a href="#org87d99f8">make</a></li>
 </ul>
 </li>
-<li><a href="#org3bbd790">小结</a></li>
+<li><a href="#orge9efbb8">小结</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgb408004" class="outline-2">
-<h2 id="orgb408004">值类型与引用类型</h2>
-<div class="outline-text-2" id="text-orgb408004">
+<div id="outline-container-org89cfcb5" class="outline-2">
+<h2 id="org89cfcb5">值类型与引用类型</h2>
+<div class="outline-text-2" id="text-org89cfcb5">
 <p>
 golang 中分为值类型和引用类型。<br>
 </p>
@@ -47,31 +47,29 @@ golang 中分为值类型和引用类型。<br>
 </ul>
 
 <p>
-<b>值类型</b><br>
+<b>值类型：</b><br>
 </p>
-
 <ul class="org-ul">
 <li>特点是：变量直接存储值，内存通常在栈中分配<br></li>
 <li>当使用等于号 <code>=</code> 将一个变量的值赋值给另一个变量时，实际上是在那内存中进行拷贝<br></li>
 </ul>
 
 <p>
-<b>引用类型</b><br>
+<b>引用类型：</b><br>
 </p>
-
 <ul class="org-ul">
 <li>特点是：变量存储的是一个地址，这个地址对应的空间里才是真正存储的值，内存通常在堆中分配<br></li>
 <li>当使用赋值语句时，修改的时变量中存储的地址值<br></li>
 </ul>
 </div>
 </div>
-<div id="outline-container-org40fb089" class="outline-2">
-<h2 id="org40fb089">new 与 make 区别</h2>
-<div class="outline-text-2" id="text-org40fb089">
+<div id="outline-container-orgdb5eeea" class="outline-2">
+<h2 id="orgdb5eeea">new 与 make 区别</h2>
+<div class="outline-text-2" id="text-orgdb5eeea">
 </div>
-<div id="outline-container-org73ef53c" class="outline-3">
-<h3 id="org73ef53c">var</h3>
-<div class="outline-text-3" id="text-org73ef53c">
+<div id="outline-container-orga164a63" class="outline-3">
+<h3 id="orga164a63">var</h3>
+<div class="outline-text-3" id="text-orga164a63">
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">num</span> <span style="color: #df005f; font-weight: bold;">int</span>
 <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">str</span> <span style="color: #df005f; font-weight: bold;">tring</span>
@@ -93,13 +91,13 @@ golang 中分为值类型和引用类型。<br>
 
 <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
     <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">p</span> *<span style="color: #df005f; font-weight: bold;">int</span>
-    *p = <span style="color: #d75fd7;">10</span>
+    *p = 10
     fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(*p)
 }
 </pre>
 </div>
 
-<pre class="example" id="org3133b14">
+<pre class="example">
 panic: runtime error: invalid memory address or nil pointer dereference
 </pre>
 
@@ -116,9 +114,9 @@ panic: runtime error: invalid memory address or nil pointer dereference
 </p>
 </div>
 </div>
-<div id="outline-container-org88617cd" class="outline-3">
-<h3 id="org88617cd">new</h3>
-<div class="outline-text-3" id="text-org88617cd">
+<div id="outline-container-orge37ae80" class="outline-3">
+<h3 id="orge37ae80">new</h3>
+<div class="outline-text-3" id="text-orge37ae80">
 <p>
 对于上面出现的问题如何解决呢？既然知道了没有为其分配内存，那么我们就使用 <code>new</code> 分配一个吧。<br>
 </p>
@@ -131,7 +129,7 @@ panic: runtime error: invalid memory address or nil pointer dereference
 <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
     <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">p</span> *<span style="color: #df005f; font-weight: bold;">int</span>
     p = <span style="color: #268bd2;">new</span>(<span style="color: #df005f; font-weight: bold;">int</span>)
-    *p = <span style="color: #d75fd7;">10</span>
+    *p = 10
     fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(*p)
 }
 </pre>
@@ -150,7 +148,7 @@ panic: runtime error: invalid memory address or nil pointer dereference
 </div>
 
 <p>
-内置的 <code>new</code> 函数只接受一个参数，这个参数是一个类型，分配号内存后 <b>返回一个指向该类型内存地址的指针</b> 。同时把分配的内存置为该类型的零值。<br>
+内置的 <code>new</code> 函数只接受一个参数，这个参数是一个类型，分配好内存后 <b>返回一个指向该类型内存地址的指针</b> 。同时把分配的内存置为该类型的零值。<br>
 </p>
 
 <p>
@@ -174,13 +172,13 @@ panic: runtime error: invalid memory address or nil pointer dereference
 <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
     <span style="color: #8787d7;">m</span> := <span style="color: #268bd2;">new</span>(<span style="color: #df005f; font-weight: bold;">Money</span>)
 
-    m.spending = <span style="color: #d75fd7;">0</span>
-    m.remain   = <span style="color: #d75fd7;">10</span>
+    m.spending = 0
+    m.remain   = 10
 
     fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(m)
 
     m.lock.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
-    m.spending = <span style="color: #d75fd7;">1</span>
+    m.spending = 1
     m.remain  -= m.spending
     m.lock.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
 
@@ -194,9 +192,9 @@ panic: runtime error: invalid memory address or nil pointer dereference
 </p>
 </div>
 </div>
-<div id="outline-container-org90fcb03" class="outline-3">
-<h3 id="org90fcb03">make</h3>
-<div class="outline-text-3" id="text-org90fcb03">
+<div id="outline-container-org87d99f8" class="outline-3">
+<h3 id="org87d99f8">make</h3>
+<div class="outline-text-3" id="text-org87d99f8">
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">The make built-in function allocates and initializes an object of type</span>
 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">slice, map, or chan (only). Like new, the first argument is a type, not a</span>
@@ -225,9 +223,9 @@ panic: runtime error: invalid memory address or nil pointer dereference
 </div>
 </div>
 </div>
-<div id="outline-container-org3bbd790" class="outline-2">
-<h2 id="org3bbd790">小结</h2>
-<div class="outline-text-2" id="text-org3bbd790">
+<div id="outline-container-orge9efbb8" class="outline-2">
+<h2 id="orge9efbb8">小结</h2>
+<div class="outline-text-2" id="text-orge9efbb8">
 <p>
 <code>new</code> 与 <code>make</code> 二者都是内存的分配（堆上），但是 <code>make</code> 只用于 slice、map 以及 channel 的初始化（非零值）；而 <code>new</code> 用于类型的内存分配，并且内存置为零。<br>
 </p>
@@ -237,7 +235,7 @@ panic: runtime error: invalid memory address or nil pointer dereference
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #8787d7;">num</span> := <span style="color: #d75fd7;">0</span>
+<pre class="src src-go"><span style="color: #8787d7;">num</span> := 0
 <span style="color: #8787d7;">m</span> := <span style="color: #df005f; font-weight: bold;">Money</span>{}
 </pre>
 </div>
@@ -251,8 +249,8 @@ panic: runtime error: invalid memory address or nil pointer dereference
 <div id="postamble" class="status">
 <p class="date">Date: 2022-02-03 18:02 Thu</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-02-15 Tue 00:56</p>
-<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+<p class="date">Created: 2022-03-24 Thu 16:21</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>

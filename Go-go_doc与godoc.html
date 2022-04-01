@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-04-01 Fri 16:47 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>go doc 与 godoc</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">go doc 与 godoc</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org349b4ea">go doc</a></li>
+<li><a href="#org3465678">godoc</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org349b4ea" class="outline-2">
+<h2 id="org349b4ea">go doc</h2>
+<div class="outline-text-2" id="text-org349b4ea">
+<p>
+<code>go doc</code> 命令可以打印附于 Go 语言程序实体上的文档。我们可以通过把程序实体的标识符作为该命令的参数来达到查看其文档的目的。<br>
+</p>
+
+<p>
+<b>插播：</b> 所谓 Go 语言的程序实体，是指变量、常量、函数、结构体以及接口。而程序实体的标识符即是代表它们的名称。标识符又分非限定标识符和限定标识符。其中，限定标识符一般用于表示某个代码包中的程序实体或者某个结构体类型中的方法或字段。例如，标准库代码包 <code>io</code> 中的名为 <code>EOF</code> 的变量用限定标识符表示即 <code>io.EOF</code> 。又例如，如果我有一个 <code>sync.WaitGroup</code> 类型的变量 <code>wg</code> 并且想调用它的 <code>Add</code> 方法，那么可以这样写 <code>wg.Add()</code> 。其中， <code>wg.Add</code> 就是一个限定标识符，而后面的 <code>()</code> 则代表了调用操作。<br>
+</p>
+
+<p>
+下面说明怎样使用 <code>go doc</code> 命令。先来看一下 <code>go doc</code> 命令可接受的标记。<br>
+</p>
+
+<p>
+<span class="underline">表 0-5 <code>go doc</code> 命令的标记说明</span><br>
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">标记名称</td>
+<td class="org-left">标记描述</td>
+</tr>
+
+<tr>
+<td class="org-left">----------</td>
+<td class="org-left">-------</td>
+</tr>
+
+<tr>
+<td class="org-left">-c</td>
+<td class="org-left">加入此标记后会使 <code>go doc</code> 命令区分参数中字母的大小写。默认情况下，命令是大小写不敏感的。</td>
+</tr>
+
+<tr>
+<td class="org-left">-cmd</td>
+<td class="org-left">加入此标记后会使 <code>go doc</code> 命令同时打印出 <code>main</code> 包中的可导出的程序实体（其名称的首字母大写）的文档。默认情况下，这部分文档是不会被打印出来的。</td>
+</tr>
+
+<tr>
+<td class="org-left">-u</td>
+<td class="org-left">加入此标记后会使 <code>go doc</code> 命令同时打印出不可导出的程序实体（其名称的首字母小写）的文档。默认情况下，这部分文档是不会被打印出来的。</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+这几个标记的意图都非常简单和明确，大家可以根据实际情况选用。<br>
+</p>
+
+<p>
+<code>go doc</code> 命令可以后跟一个或两个参数。当然，我们也可以不附加任务参数。如果不附加参数，那么 <code>go doc</code> 命令会试图打印出当前目录所代表的代码包的文档及其中的包级程序实体的列表。<br>
+</p>
+
+<p>
+例如，我要在 goc2p 项目的 <code>loadgen</code> 代码包所在目录中运行 <code>go doc</code> 命令的话，那么就会是这样：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">hc@ubt:~/golang/goc2p/src/loadgen$ go doc
+package loadgen // import <span style="color: #2aa198;">"loadgen"</span>
+
+func NewGenerator(
+  caller lib.Caller,
+  timeoutNs time.Duration,
+  lps uint32,
+  durationNs time.Duration,
+  resultCh chan *lib.CallResult) (lib.Generator, error)
+</pre>
+</div>
+
+<p>
+如果你需要指定代码包或程序实体，那么就需要在 <code>go doc</code> 命令后附上参数了。例如，只要我本地的 goc2p 项目的所在目录存在于 GOPATH 环境变量中，我就可以在任意目录中敲入 <code>go doc loadgen</code> 。如此得到的输出一定是与上面那个示例一致的。<br>
+</p>
+
+<p>
+看过 <code>loadgen</code> 代码包中源码的读者会知道，其中只有一个可导出的程序实体，即 <code>NewGenerator</code> 函数。这也是上述示例中如此输出的原因。该代码包中的结构体类型 <code>myGenerator</code> 是不可导出，但是我们只需附加 <code>-u</code> 标记便可查看它的文档了：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">hc@ubt:~$ go doc -u loadgen.myGenerator
+<span style="color: #268bd2;">type</span> myGenerator struct {
+  caller      lib.Caller           // &#35843;&#29992;&#22120;&#12290;
+  timeoutNs   time.Duration        // &#22788;&#29702;&#36229;&#26102;&#26102;&#38388;&#65292;&#21333;&#20301;&#65306;&#32435;&#31186;&#12290;
+  lps         uint32               // &#27599;&#31186;&#36733;&#33655;&#37327;&#12290;
+  durationNs  time.Duration        // &#36127;&#36733;&#25345;&#32493;&#26102;&#38388;&#65292;&#21333;&#20301;&#65306;&#32435;&#31186;&#12290;
+  concurrency uint32               // &#24182;&#21457;&#37327;&#12290;
+  tickets     lib.GoTickets        // Goroutine&#31080;&#27744;&#12290;
+  stopSign    chan byte            // &#20572;&#27490;&#20449;&#21495;&#30340;&#20256;&#36882;&#36890;&#36947;&#12290;
+  cancelSign  byte                 // &#21462;&#28040;&#21457;&#36865;&#21518;&#32493;&#32467;&#26524;&#30340;&#20449;&#21495;&#12290;
+  endSign     chan uint64          // &#23436;&#32467;&#20449;&#21495;&#30340;&#20256;&#36882;&#36890;&#36947;&#65292;&#21516;&#26102;&#34987;&#29992;&#20110;&#20256;&#36882;&#35843;&#29992;&#25191;&#34892;&#35745;&#25968;&#12290;
+  callCount   uint64               // &#35843;&#29992;&#25191;&#34892;&#35745;&#25968;&#12290;
+  status      lib.GenStatus        // &#29366;&#24577;&#12290;
+  resultCh    chan *lib.CallResult // &#35843;&#29992;&#32467;&#26524;&#36890;&#36947;&#12290;
+}
+
+    &#36733;&#33655;&#21457;&#29983;&#22120;&#30340;&#23454;&#29616;&#12290;
+
+<span style="color: #d75fd7; font-weight: bold;">func</span> (gen *myGenerator) Start()
+<span style="color: #d75fd7; font-weight: bold;">func</span> (gen *myGenerator) Status() lib.GenStatus
+<span style="color: #d75fd7; font-weight: bold;">func</span> (gen *myGenerator) Stop() (uint64, bool)
+<span style="color: #d75fd7; font-weight: bold;">func</span> (gen *myGenerator) asyncCall()
+<span style="color: #d75fd7; font-weight: bold;">func</span> (gen *myGenerator) genLoad(throttle &lt;-chan time.Time)
+<span style="color: #d75fd7; font-weight: bold;">func</span> (gen *myGenerator) handleStopSign(callCount uint64)
+<span style="color: #d75fd7; font-weight: bold;">func</span> (gen *myGenerator) init() error
+<span style="color: #d75fd7; font-weight: bold;">func</span> (gen *myGenerator) interact(rawReq *lib.RawReq) *lib.RawResp
+<span style="color: #d75fd7; font-weight: bold;">func</span> (gen *myGenerator) sendResult(result *lib.CallResult) bool
+</pre>
+</div>
+
+<p>
+如此一来， <code>loadgen.myGenerator</code> 类型的文档、字段和方法都尽收眼底。注意，这里我们使用到了限定标识符。下面再进一步，如果你只想查看 <code>loadgen.myGenerator</code> 类型的 <code>init</code> 方法的文档，那么只要续写这个限定标识符就可以了，像这样：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">hc@ubt:~$ go doc -u loadgen.myGenerator.init
+<span style="color: #d75fd7; font-weight: bold;">func</span> (gen *myGenerator) init() error
+
+    &#21021;&#22987;&#21270;&#36733;&#33655;&#21457;&#29983;&#22120;&#12290;
+</pre>
+</div>
+
+<p>
+注意，结构体类型中的字段的文档是无法被单独打印的。另外， <code>go doc</code> 命令根据参数查找代码包或程序实体的顺序是：先Go语言根目录（即GOROOT所环境变量指定的那个目录）后工作区目录（即GOPATH环境变量包含的那些目录）。并且，在前者或后者中， <code>go doc</code> 命令的查找顺序遵循字典序。因此，如果某个工作区目录中的代码包与标准库中的包重名了，那么它是无法被打印出来的。 <code>go doc</code> 命令只会打印出第一个匹配的代码包或程序实体的文档。<br>
+</p>
+
+<p>
+我们在前面说过， <code>go doc</code> 命令还可以接受两个参数。这是一种更加精细的指定代码包或程序实体的方式。一个显著的区别是，如果你想打印标准库代码包 <code>net/http</code> 中的结构体类型 <code>Request</code> 的文档，那么可以这样敲入 <code>go doc</code> 命令：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">go doc http.Request
+</pre>
+</div>
+
+<p>
+注意，这里并没有写入 <code>net/http</code> 代码包的导入路径，而只是写入了其中的最后一个元素 <code>http</code> 。但是如果你把 <code>http.Request</code> 拆成两个参数（即 = http Request= ）的话，命令程序就会什么也查不到了。因为这与前一种用法的解析方式是不一样的。正确的做法是，当你指定两个参数时，作为第一个参数的代码包名称必须是完整的导入路径，即：在敲入命令 <code>go doc net/http Request</code> 后，你会得到想要的结果。<br>
+</p>
+
+<p>
+最后，在给定两个参数时， <code>go doc</code> 会打印出所有匹配的文档，而不是像给定一个参数时那样只打印出第一个匹配的文档。这对于查找只有大小写不同的多个方法（如 <code>New</code> 和 <code>new</code> ）的文档来说非常有用。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org3465678" class="outline-2">
+<h2 id="org3465678">godoc</h2>
+<div class="outline-text-2" id="text-org3465678">
+<p>
+命令 <code>godoc</code> 是一个很强大的工具，同样用于展示指定代码包的文档。在 Go 语言的 1.5 版本中，它是一个内置的标准命令。<br>
+</p>
+
+<p>
+该命令有两种模式可供选择。如果在执行命令时不加入 <code>-http</code> 标记，则该命令就以命令行模式运行。在打印纯文本格式的文档到标准输出后，命令执行就结束了。比如，我们用命令行模式查看代码包 fmt 的文档：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">hc@ubt:~$ godoc fmt
+</pre>
+</div>
+
+<p>
+为了节省篇幅，我们在这里略去了文档查询结果。读者可以自己运行一下上述命令。在该命令被执行之后，我们就可以看到编排整齐有序的文档内容了。这包括代码包 <code>fmt</code> 及其中所有可导出的包级程序实体的声明、文档和例子。<br>
+</p>
+
+<p>
+有时候我们只是想查看某一个函数或者结构体类型的文档，那么我们可以将这个函数或者结构体的名称加入命令的后面，像这样：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">hc@ubt:~$ godoc fmt Printf
+</pre>
+</div>
+
+<p>
+或者：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">hc@ubt:~$ godoc os File
+</pre>
+</div>
+
+<p>
+如果我们想同时查看一个代码包中的几个函数的文档，则仅需将函数或者结构体名称追加到命令后面。比如我们要查看代码包 <code>fmt</code> 中函数 <code>Printf</code> 和函数 <code>Println</code> 的文档：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">hc@ubt:~$ godoc fmt Printf Println
+</pre>
+</div>
+
+<p>
+如果我们不但想在文档中查看可导出的程序实体的声明，还想看到它们的源码，那么我们可以在执行 <code>godoc</code> 命令的时候加入标记 <code>-src</code> ，比如这样：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">hc@ubt:~$ godoc -src fmt Printf
+</pre>
+</div>
+
+<p>
+Go 语言为程序使用示例代码设立了专有的规则。我们在这里暂不讨论这个规则的细节。只需要知道正因为有了这个专有规则，使得 <code>godoc</code> 命令可以根据这些规则提取相应的示例代码并把它们加入到对应的文档中。如果我们想在查看代码包 <code>net</code> 中的结构体类型 <code>Listener</code> 的文档的同时查看关于它的示例代码，那么我们只需要在执行命令时加入标记 <code>-ex</code> 。使用方法如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">hc@ubt:~$ godoc -ex net/http FileServer
+</pre>
+</div>
+
+<p>
+注意，我们在使用 <code>godoc</code> 命令时，只能把代码包和程序实体的标识符拆成两个参数。也就是说， <code>godoc</code> 命令不支持前文所述的 <code>go doc</code> 命令的单参数用法。<br>
+</p>
+
+<p>
+在实际的 Go 语言环境中，我们可能会遇到一个命令源码文件所产生的可执行文件与代码包重名的情况。比如，这里介绍的标准命令 <code>go</code> 和官方代码包 <code>go</code> 。现在我们要明确的告诉 <code>godoc</code> 命令要查看可执行文件 go 的文档，我们需要在名称前加入 <code>cmd/</code> 前缀：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">hc@ubt:~$ godoc cmd/go
+</pre>
+</div>
+
+<p>
+另外，如果我们想查看 HTML 格式的文档，就需要加入标记 <code>-html</code> 。当然，这样在命令行模式下的查看效果是很差的。但是，如果仔细查看的话，可以在其中找到一些相应源码的链接地址。<br>
+</p>
+
+<p>
+一般情况下， <code>godoc</code> 命令会去 Go 语言根目录和环境变量 GOPATH 包含的工作区目录中查找代码包。我们可以通过加入标记 <code>-goroot</code> 来制定一个 Go 语言根目录。这个被指定的 Go 语言根目录仅被用于当次命令的执行。示例如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">hc@ubt:~$ godoc -goroot=<span style="color: #2aa198;">"/usr/local/go"</span> fmt
+</pre>
+</div>
+
+<p>
+现在让我们来看看另外一种模式。如果我们在执行命令时加上 <code>-http</code> 标记则会启用另一模式。这种模式被叫做 Web 服务器模式，它以 Web 页面的形式提供 Go 语言文档。<br>
+</p>
+
+<p>
+我们使用如下命令启动这个文档 Web 服务器：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">hc@ubt:~/golang/goc2p$ godoc -http=:6060
+</pre>
+</div>
+
+<p>
+标记 <code>-http</code> 的值 <code>:6060</code> 表示启动的 Web 服务器使用本机的 6060 端口。之后，我们就可以通过在网络浏览器的地址栏中输入 <a href="http://localhost:6060">http://localhost:6060</a> 来查看以网页方式展现的 Go 文档了。<br>
+</p>
+
+<p>
+<span class="underline">图 0-1 本机的 Go 文档 Web 服务首页</span><br>
+</p>
+
+<img src="./images/go_doc01.png" />
+
+<p>
+这与 <a href="http://golang.org">Go语言官方站点</a> 的 Web 服务页面如出一辙。这使得我们在不方便访问 Go 语言官方站点的情况下也可以查看 Go 语言文档。并且，更便利的是，通过本机的 Go 文档 Web 服务，我们还可以查看所有本机工作区下的代码的文档。比如， goc2p 项目中的代码包 <code>pkgtool</code> 的页面如下图：<br>
+</p>
+
+<p>
+<span class="underline">图 0-2 goc2p 项目中的 pkgtool 包的 Go 文档页面</span><br>
+</p>
+
+<img src="./images/go_doc02.png" />
+
+<p>
+现在，我们在本机开启 Go 文档 Web 服务器，端口为 9090。命令如下:<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">hc@ubt:~$ godoc -http=:9090 -index
+</pre>
+</div>
+
+<p>
+注意，要使用 <code>-index</code> 标记开启搜索索引。这个索引会在服务器启动时创建并维护。如果不加入此标记，那么无论在 Web 页面还是命令行终端中都是无法进行查询操作的。<br>
+</p>
+
+<p>
+索引中提供了标识符和全文本搜索信息（通过正则表达式为可搜索性提供支持）。全文本搜索结果显示条目的最大数量可以通过标记 <code>-maxresults</code> 提供。标记 <code>-maxresults</code> 默认值是 10000。如果不想提供如此多的结果条目，可以设置小一些的值。甚至，如果不想提供全文本搜索结果，可以将标记 <code>-maxresults</code> 的值设置为 0，这样服务器就只会创建标识符索引，而根本不会创建全文本搜索索引了。标识符索引即为对程序实体名称的索引。<br>
+</p>
+
+<p>
+正因为在使用了 <code>-index</code> 标记的情况下文档服务器会在启动时创建索引，所以在文档服务器启动之后还不能立即提供搜索服务，需要稍等片刻。在索引为被创建完毕之前，我们的搜索操作都会得到提示信息“Indexing in progress: result may be inaccurate”。<br>
+</p>
+
+<p>
+如果我们在本机用 <code>godoc</code> 命令启动了 Go 文档 Web 服务器，且 IP 地址为 192.168.1.4、端口为 9090，那么我们就可以在另一个命令行终端甚至另一台能够与本机联通的计算机中通过如下命令进行查询了。查询命令如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">hc@ubt:~$ godoc -q -server=<span style="color: #2aa198;">"192.168.1.4:9090"</span> Listener
+</pre>
+</div>
+
+<p>
+命令的最后为要查询的内容，可以是任何你想搜索的字符串，而不仅限于代码包、函数或者结构体的名称。<br>
+</p>
+
+<p>
+标记 <code>-q</code> 开启了远程查询的功能。而标记 <code>-server="192.168.1.4:9090"</code> 则指明了远程文档服务器的IP地址和端口号。实际上，如果不指明远程查询服务器的地址，那么该命令会自行将地址“:6060”和“golang.org”作为远程查询服务器的地址。这两个地址即是默认的本机文档Web站点地址和官方的文档Web站点地址。所以执行如下命令我们也可以查询到标准库的信息：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">hc@ubt:~$ godoc -q fmt
+</pre>
+</div>
+
+<p>
+命令 <code>godoc</code> 还有很多可用的标记，但在通常情况下并不常用。读者如果有兴趣，可以在命令行环境下敲入 <code>godoc</code> 并查看其文档。<br>
+</p>
+
+<p>
+至于怎样才能写出优秀的代码包文档，我在《Go并发编程实战》的 5.2 节中做了详细说明。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2021-09-22 04:09 三</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-04-01 Fri 16:47</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
