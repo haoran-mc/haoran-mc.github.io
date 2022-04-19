@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-12-14 Tue 19:57 -->
+<!-- 2022-04-13 Wed 11:16 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>初识GIN</title>
@@ -21,79 +21,208 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org3afcc2e">Gin Web Framework</a>
+<li><a href="#org38f0375">什么是 web</a>
 <ul>
-<li><a href="#orgee28f7d">关于web</a></li>
-<li><a href="#org835c594">目前主要的两种web开发的模式</a></li>
-<li><a href="#orgff3ed12">什么是 gin 框架</a></li>
+<li><a href="#org7c1ea68">关于 web</a></li>
+<li><a href="#org9faef61">目前主要的两种 web 开发的模式</a></li>
 </ul>
 </li>
-<li><a href="#org9642d4d">Gin 框架初体验</a></li>
+<li><a href="#org4edda28">使用 go 内置 net/http 包进行 web 开发</a>
+<ul>
+<li><a href="#org7233e39">hello world</a></li>
+<li><a href="#org5c59f3d">从文件中获取前端页面</a></li>
+</ul>
+</li>
+<li><a href="#org6744bf5">gin 框架简介</a>
+<ul>
+<li><a href="#orgb258caf">什么是 gin 框架</a></li>
+<li><a href="#orgb81a753">安装</a></li>
+</ul>
+</li>
+<li><a href="#org1b36520">使用 gin 框架进行 web 开发</a>
+<ul>
+<li><a href="#orgd62409e">在 Goland 中写代码</a></li>
+<li><a href="#orgeaac601">hello world</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org3afcc2e" class="outline-2">
-<h2 id="org3afcc2e">Gin Web Framework</h2>
-<div class="outline-text-2" id="text-org3afcc2e">
+<div id="outline-container-org38f0375" class="outline-2">
+<h2 id="org38f0375">什么是 web</h2>
+<div class="outline-text-2" id="text-org38f0375">
 </div>
-<div id="outline-container-orgee28f7d" class="outline-3">
-<h3 id="orgee28f7d">关于web</h3>
-<div class="outline-text-3" id="text-orgee28f7d">
+<div id="outline-container-org7c1ea68" class="outline-3">
+<h3 id="org7c1ea68">关于 web</h3>
+<div class="outline-text-3" id="text-org7c1ea68">
 <ul class="org-ul">
-<li>web是基于HTTp协议进行交互的应用网络<br></li>
-<li>web就是通过使用浏览器/APP访问的资源<br></li>
+<li>web 是基于 HTTP 协议进行交互的应用网络<br></li>
+<li>web 就是通过使用浏览器或 APP 访问的资源<br></li>
 </ul>
 </div>
 </div>
-<div id="outline-container-org835c594" class="outline-3">
-<h3 id="org835c594">目前主要的两种web开发的模式</h3>
-<div class="outline-text-3" id="text-org835c594">
+<div id="outline-container-org9faef61" class="outline-3">
+<h3 id="org9faef61">目前主要的两种 web 开发的模式</h3>
+<div class="outline-text-3" id="text-org9faef61">
 <ol class="org-ol">
-<li>将完整的html的返回给前端<br></li>
-<li>前端的框架自己定义了模板，后端返回json格式的数据，前端通过json文件渲染<br></li>
+<li>将完整的 html 的返回给前端<br></li>
+<li>前端的框架自己定义了模板，后端返回 json 格式的数据，前端通过 json 文件渲染<br></li>
 </ol>
 </div>
 </div>
-<div id="outline-container-orgff3ed12" class="outline-3">
-<h3 id="orgff3ed12">什么是 gin 框架</h3>
 </div>
+<div id="outline-container-org4edda28" class="outline-2">
+<h2 id="org4edda28">使用 go 内置 net/http 包进行 web 开发</h2>
+<div class="outline-text-2" id="text-org4edda28">
 </div>
-
-<div id="outline-container-org9642d4d" class="outline-2">
-<h2 id="org9642d4d">Gin 框架初体验</h2>
-<div class="outline-text-2" id="text-org9642d4d">
+<div id="outline-container-org7233e39" class="outline-3">
+<h3 id="org7233e39">hello world</h3>
+<div class="outline-text-3" id="text-org7233e39">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #BD93F9;">package</span> main
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
 
-<span style="color: #BD93F9;">import</span> (
-    <span style="color: #FC9F4E;">"github.com/gin-gonic/gin"</span>
-    <span style="color: #FC9F4E;">"net/http"</span>
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"net/http"</span>
 )
 
-<span style="color: #BD93F9;">func</span> <span style="color: #AFAFAF;">main</span>() {
-    <span style="color: #AFAFAF;">r</span> := gin.<span style="color: #AFAFAF;">Default</span>()
-    r.<span style="color: #AFAFAF;">GET</span>(<span style="color: #FC9F4E;">"/hello"</span>, <span style="color: #BD93F9;">func</span>(<span style="color: #AFAFAF;">c</span> *<span style="color: #AFAFAF;">gin.Context</span>) {
-        c.<span style="color: #AFAFAF;">JSON</span>(http.StatusOK, <span style="color: #AFAFAF;">gin.H</span>{
-            <span style="color: #FC9F4E;">"name"</span>: <span style="color: #FC9F4E;">"&#23567;&#29579;&#23376;"</span>,
-            <span style="color: #FC9F4E;">"age"</span>: <span style="color: #009F9F;">18</span>,
-            <span style="color: #FC9F4E;">"msg"</span>: <span style="color: #FC9F4E;">"hello"</span>,
-        })
-    })
-    r.<span style="color: #AFAFAF;">Run</span>(<span style="color: #FC9F4E;">":9080"</span>)
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">sayHello</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">http.Request</span>) {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Fprinln &#24448;&#25991;&#20214;&#20013;&#20889;&#23383;&#31526;&#20018;</span>
+    _, _ = fmt.<span style="color: #d75fd7; font-weight: bold;">Fprintln</span>(w, <span style="color: #2aa198;">"&lt;h1&gt;Hello, Goland!&lt;/h1&gt;"</span>)
+    _, _ = fmt.<span style="color: #d75fd7; font-weight: bold;">Fprintln</span>(w, <span style="color: #2aa198;">"&lt;h2&gt;Hello, Goland!&lt;/h2&gt;"</span>)
+    _, _ = fmt.<span style="color: #d75fd7; font-weight: bold;">Fprintln</span>(w, <span style="color: #2aa198;">"&lt;h3&gt;Hello, Goland!&lt;/h3&gt;"</span>)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">sayHello &#36825;&#20010;&#20989;&#25968;&#24517;&#39035;&#35201;&#25509;&#25910;&#20004;&#20010;&#21442;&#25968;&#65292;&#31532;&#19968;&#20010;&#21442;&#25968;&#26159; http &#21253;&#37324;&#30340; ResponseWriter&#65292;&#34920;&#31034;&#21709;&#24212;&#65292;&#36820;&#22238;&#32473;&#27983;&#35272;&#22120;&#30340;&#20869;&#23481;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#31532;&#20108;&#20010;&#21442;&#25968;&#26159;&#19968;&#20010;&#25351;&#38024;&#65292;*http.Request&#65292;&#34920;&#31034;&#35831;&#27714;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">web &#24320;&#21457;&#23601;&#26159;&#19968;&#20010;&#35831;&#27714;&#23545;&#24212;&#19968;&#20010;&#21709;&#24212;</span>
+    http.<span style="color: #d75fd7; font-weight: bold;">HandleFunc</span>(<span style="color: #2aa198;">"/hello"</span>, sayHello)
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22238;&#24212;&#19982;&#35831;&#27714;</span>
+    <span style="color: #8787d7;">err</span> := http.<span style="color: #d75fd7; font-weight: bold;">ListenAndServe</span>(<span style="color: #2aa198;">":9001"</span>, <span style="color: #d75fd7;">nil</span>)
+    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"HTTP server failed, err: %v\n"</span>, err)
+        <span style="color: #268bd2; font-weight: bold;">return</span>
+    }
 }
 </pre>
 </div>
+</div>
+</div>
+<div id="outline-container-org5c59f3d" class="outline-3">
+<h3 id="org5c59f3d">从文件中获取前端页面</h3>
+<div class="outline-text-3" id="text-org5c59f3d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
 
-<img src="./images/gin01.png"/.
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"io/ioutil"</span>
+    <span style="color: #2aa198;">"net/http"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">sayHello</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">http.Request</span>) {
+    <span style="color: #8787d7;">b</span>, <span style="color: #8787d7;">_</span> := ioutil.<span style="color: #d75fd7; font-weight: bold;">ReadFile</span>(<span style="color: #2aa198;">"./hello.txt"</span>)
+    _, _ = fmt.<span style="color: #d75fd7; font-weight: bold;">Fprintln</span>(w, <span style="color: #d75fd7; font-weight: bold;">string</span>(b))
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    http.<span style="color: #d75fd7; font-weight: bold;">HandleFunc</span>(<span style="color: #2aa198;">"/hello"</span>, sayHello)
+    <span style="color: #8787d7;">err</span> := http.<span style="color: #d75fd7; font-weight: bold;">ListenAndServe</span>(<span style="color: #2aa198;">":9002"</span>, <span style="color: #d75fd7;">nil</span>)
+    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"http serve failed, err: %v\n"</span>, err)
+        <span style="color: #268bd2; font-weight: bold;">return</span>
+    }
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org6744bf5" class="outline-2">
+<h2 id="org6744bf5">gin 框架简介</h2>
+<div class="outline-text-2" id="text-org6744bf5">
+</div>
+<div id="outline-container-orgb258caf" class="outline-3">
+<h3 id="orgb258caf">什么是 gin 框架</h3>
+<div class="outline-text-3" id="text-orgb258caf">
+<p>
+Gin 是一个 golang 的微框架，封装比较优雅，API 友好，源码注释比较明确，已经发布了 1.0 版本。具有快速灵活，容错方便等特点。其实对于 golang 而言，web 框架的依赖要远比 Python，Java 之类的要小。自身的 net/http 足够简单，性能也非常不错。框架更像是一些常用函数或者工具的集合。借助框架开发，不仅可以省去很多常用的封装带来的时间，也有助于团队的编码风格和形成规范。<br>
+</p>
+
+<p>
+Gin 框架是开源的，可以在 github 上下载其源码库，查看相应的说明。Gin 源码库地址：github.com/gin-gonic/gin<br>
+Gin 框架有一个官方网站，有对Gin相关的介绍和学习资料。官方网站：gin-gonic.com/<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb81a753" class="outline-3">
+<h3 id="orgb81a753">安装</h3>
+<div class="outline-text-3" id="text-orgb81a753">
+<p>
+下载并安装 Gin：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">go get -u github.com/gin-gonic/gin
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org1b36520" class="outline-2">
+<h2 id="org1b36520">使用 gin 框架进行 web 开发</h2>
+<div class="outline-text-2" id="text-org1b36520">
+</div>
+<div id="outline-container-orgd62409e" class="outline-3">
+<h3 id="orgd62409e">在 Goland 中写代码</h3>
+<div class="outline-text-3" id="text-orgd62409e">
+<img src="./images/Gin-在goland中写代码.png" />
+</div>
+</div>
+<div id="outline-container-orgeaac601" class="outline-3">
+<h3 id="orgeaac601">hello world</h3>
+<div class="outline-text-3" id="text-orgeaac601">
+<p>
+第一个 Gin 实例：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"github.com/gin-gonic/gin"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21019;&#24314;&#19968;&#20010;&#40664;&#35748;&#30340;&#36335;&#30001;&#24341;&#25806;</span>
+    <span style="color: #8787d7;">r</span> := gin.<span style="color: #d75fd7; font-weight: bold;">Default</span>()
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">GET&#65306;&#35831;&#27714;&#26041;&#24335;&#65307;/hello&#65306;&#35831;&#27714;&#30340;&#36335;&#24452;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#24403;&#23458;&#25143;&#31471;&#20197;GET&#26041;&#27861;&#35831;&#27714; /hello &#36335;&#24452;&#26102;&#65292;&#20250;&#25191;&#34892;&#21518;&#38754;&#30340;&#21311;&#21517;&#20989;&#25968;</span>
+    r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/hello"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">c.JSON&#65306;&#36820;&#22238; JSON &#26684;&#24335;&#30340;&#25968;&#25454;</span>
+        c.<span style="color: #d75fd7; font-weight: bold;">JSON</span>(200, <span style="color: #df005f; font-weight: bold;">gin.H</span>{
+            <span style="color: #2aa198;">"message"</span>: <span style="color: #2aa198;">"hello world"</span>,
+        })
+    })
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21551;&#21160; HTTP &#26381;&#21153;&#65292;&#40664;&#35748;&#22312; 127.0.0.1:8080 &#21551;&#21160;&#26381;&#21153;</span>
+    r.<span style="color: #d75fd7; font-weight: bold;">Run</span>()
+}   
+</pre>
+</div>
+
+<img src="./images/Gin-hello_world.png" />
+</div>
 </div>
 </div>
 </div>
 <div id="postamble" class="status">
 <p class="date">Date: 2021-12-14 17:12 Tue</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2021-12-14 Tue 19:57</p>
-<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+<p class="date">Created: 2022-04-13 Wed 11:16</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>

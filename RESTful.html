@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-12-17 Fri 20:51 -->
+<!-- 2022-04-13 Wed 10:08 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>RESTFUL</title>
@@ -17,12 +17,168 @@
 <body>
 <div id="content">
 <h1 class="title">RESTFUL</h1>
+<p>
+REST 与技术无关，代表的是一种软件架构风格，REST 是 Representational State Transfer 的简称，中文翻译为“表征状态转移”或“表现层状态转化”。<br>
+</p>
+
+<p>
+推荐阅读 <a href="http://www.ruanyifeng.com/blog/2011/09/restful.html">阮一峰 理解RESTful架构</a> <br>
+</p>
+
+<p>
+简单来说，REST 的含义就是客户端与 Web 服务器之间进行交互的时候，使用 HTTP 协议中的4个请求方法代表不同的动作。<br>
+</p>
+
+<ul class="org-ul">
+<li><code>GET</code> 用来获取资源<br></li>
+<li><code>POST</code> 用来新建资源<br></li>
+<li><code>PUT</code> 用来更新资源<br></li>
+<li><code>DELETE</code> 用来删除资源。<br></li>
+</ul>
+
+<p>
+只要 API 程序遵循了 REST 风格，那就可以称其为 RESTful API。目前在前后端分离的架构中，前后端基本都是通过 RESTful API 来进行交互。<br>
+</p>
+
+<p>
+例如，我们现在要编写一个管理书籍的系统，我们可以查询对一本书进行查询、创建、更新和删除等操作，我们在编写程序的时候就要设计客户端浏览器与我们 Web 服务端交互的方式和路径。按照经验我们通常会设计成如下模式：<br>
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">请求方法</th>
+<th scope="col" class="org-left">URL</th>
+<th scope="col" class="org-left">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">GET</td>
+<td class="org-left">/book</td>
+<td class="org-left">查询书籍信息</td>
+</tr>
+
+<tr>
+<td class="org-left">POST</td>
+<td class="org-left">/create_book</td>
+<td class="org-left">创建书籍记录</td>
+</tr>
+
+<tr>
+<td class="org-left">POST</td>
+<td class="org-left">/update_book</td>
+<td class="org-left">更新书籍信息</td>
+</tr>
+
+<tr>
+<td class="org-left">POST</td>
+<td class="org-left">/delete_book</td>
+<td class="org-left">删除书籍信息</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+同样的需求我们按照RESTful API设计如下：<br>
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">请求方法</th>
+<th scope="col" class="org-left">URL</th>
+<th scope="col" class="org-left">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">GET</td>
+<td class="org-left">/book</td>
+<td class="org-left">查询书籍信息</td>
+</tr>
+
+<tr>
+<td class="org-left">POST</td>
+<td class="org-left">/book</td>
+<td class="org-left">创建书籍记录</td>
+</tr>
+
+<tr>
+<td class="org-left">PUT</td>
+<td class="org-left">/book</td>
+<td class="org-left">更新书籍信息</td>
+</tr>
+
+<tr>
+<td class="org-left">DELETE</td>
+<td class="org-left">/book</td>
+<td class="org-left">删除书籍信息</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Gin 框架支持开发 RESTful API 的开发。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">r</span> := gin.<span style="color: #d75fd7; font-weight: bold;">Default</span>()
+    r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/book"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {
+        c.<span style="color: #d75fd7; font-weight: bold;">JSON</span>(200, <span style="color: #df005f; font-weight: bold;">gin.H</span>{
+            <span style="color: #2aa198;">"message"</span>: <span style="color: #2aa198;">"GET"</span>,
+        })
+    })
+
+    r.<span style="color: #d75fd7; font-weight: bold;">POST</span>(<span style="color: #2aa198;">"/book"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {
+        c.<span style="color: #d75fd7; font-weight: bold;">JSON</span>(200, <span style="color: #df005f; font-weight: bold;">gin.H</span>{
+            <span style="color: #2aa198;">"message"</span>: <span style="color: #2aa198;">"POST"</span>,
+        })
+    })
+
+    r.<span style="color: #d75fd7; font-weight: bold;">PUT</span>(<span style="color: #2aa198;">"/book"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {
+        c.<span style="color: #d75fd7; font-weight: bold;">JSON</span>(200, <span style="color: #df005f; font-weight: bold;">gin.H</span>{
+            <span style="color: #2aa198;">"message"</span>: <span style="color: #2aa198;">"PUT"</span>,
+        })
+    })
+
+    r.<span style="color: #d75fd7; font-weight: bold;">DELETE</span>(<span style="color: #2aa198;">"/book"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {
+        c.<span style="color: #d75fd7; font-weight: bold;">JSON</span>(200, <span style="color: #df005f; font-weight: bold;">gin.H</span>{
+            <span style="color: #2aa198;">"message"</span>: <span style="color: #2aa198;">"DELETE"</span>,
+        })
+    })
+}
+</pre>
+</div>
+
+<p>
+开发 RESTful API 的时候我们通常使用 Postman 来作为客户端的测试工具。<br>
+</p>
 </div>
 <div id="postamble" class="status">
 <p class="date">Date: 2021-12-17 20:12 Fri</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2021-12-17 Fri 20:51</p>
-<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+<p class="date">Created: 2022-04-13 Wed 10:08</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>

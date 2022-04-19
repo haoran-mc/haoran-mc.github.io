@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-11-24 Wed 17:43 -->
+<!-- 2022-04-06 Wed 01:44 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>深度优先搜索</title>
@@ -34,7 +34,7 @@
 });
 </script>
 <script type="text/javascript"
-        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+        src="static/MathJax/cdn.bootcdn.net/ajax/libs/mathjax/3.1.2/es5/tex-mml-chtml.min.js"></script>
 </head>
 <body>
 <div id="content">
@@ -43,37 +43,37 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orga5f1664">深度优先搜索(Depth First Search)</a></li>
-<li><a href="#orgda3a97b">指数型搜索</a>
+<li><a href="#org9d30ebe">深度优先搜索(Depth First Search)</a></li>
+<li><a href="#orga7a3919">指数型搜索</a>
 <ul>
-<li><a href="#org546ad07">vector</a></li>
-<li><a href="#org48c6467">数组</a></li>
-<li><a href="#orgb1744fd">状压</a></li>
+<li><a href="#orgcb80499">vector</a></li>
+<li><a href="#org05284a1">数组</a></li>
+<li><a href="#org8009ab9">状压</a></li>
 </ul>
 </li>
-<li><a href="#org8556388">组合型搜索</a>
+<li><a href="#orga58bc6c">组合型搜索</a>
 <ul>
-<li><a href="#org59e7612">数组</a></li>
-<li><a href="#orgbc58406">状压</a></li>
-<li><a href="#org6e2f559">手动写栈</a></li>
+<li><a href="#org64e3af6">数组</a></li>
+<li><a href="#org26bc61c">状压</a></li>
+<li><a href="#org13267c5">手动写栈</a></li>
 </ul>
 </li>
-<li><a href="#org1b2fbef">排列型搜索</a>
+<li><a href="#orgbb71d08">排列型搜索</a>
 <ul>
-<li><a href="#org49887ce">经典递归实现全排列</a></li>
-<li><a href="#org38f0abc">swap</a></li>
-<li><a href="#org6082316">状压</a></li>
+<li><a href="#org012e09e">经典递归实现全排列</a></li>
+<li><a href="#orgf8568c3">swap</a></li>
+<li><a href="#org3a2ba35">状压</a></li>
 </ul>
 </li>
-<li><a href="#org04d7e41">例题1：全排列问题</a></li>
-<li><a href="#org877e2db">例题2：N皇后问题</a></li>
+<li><a href="#orgad494a1">例题1：全排列问题</a></li>
+<li><a href="#orgb3140a8">例题2：N皇后问题</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orga5f1664" class="outline-2">
-<h2 id="orga5f1664">深度优先搜索(Depth First Search)</h2>
-<div class="outline-text-2" id="text-orga5f1664">
+<div id="outline-container-org9d30ebe" class="outline-2">
+<h2 id="org9d30ebe">深度优先搜索(Depth First Search)</h2>
+<div class="outline-text-2" id="text-org9d30ebe">
 <p>
 深度优先搜索是一种枚举所有完整路径以遍历所有情况的搜索方法。对于当前状态来说，只选择所有可以到达的状态中的其中一种状态。每次搜索皆是如此，一直走到尽头。如果当前状态不满足目标，后退到上次搜索，选择上次搜索中没有选择的状态，如果所有状态都被选完，再次后退，直到搜索到目标。<br>
 </p>
@@ -84,359 +84,359 @@
 </ul>
 </div>
 </div>
-<div id="outline-container-orgda3a97b" class="outline-2">
-<h2 id="orgda3a97b">指数型搜索</h2>
-<div class="outline-text-2" id="text-orgda3a97b">
+<div id="outline-container-orga7a3919" class="outline-2">
+<h2 id="orga7a3919">指数型搜索</h2>
+<div class="outline-text-2" id="text-orga7a3919">
 <p>
 从 \(1 \sim n\) 这 \(n\) 个数中随机选取任意多个数，输出所有可能的方案，输出每个方案时按升序输出。<br>
 </p>
 </div>
-<div id="outline-container-org546ad07" class="outline-3">
-<h3 id="org546ad07">vector</h3>
-<div class="outline-text-3" id="text-org546ad07">
+<div id="outline-container-orgcb80499" class="outline-3">
+<h3 id="orgcb80499">vector</h3>
+<div class="outline-text-3" id="text-orgcb80499">
 <div class="org-src-container">
-<pre class="src src-cpp"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cstdio&gt;</span>
-<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;vector&gt;</span>
-<span style="color: #BD93F9;">using</span> <span style="color: #BD93F9;">namespace</span> <span style="color: #009F9F;">std</span>;
-<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">n</span>;
-<span style="color: #AFAFAF;">vector</span>&lt;<span style="color: #AFAFAF;">int</span>&gt; <span style="color: #AFAFAF;">vec</span>;
+<pre class="src src-cpp"><span style="color: #d75fd7;">#include</span> <span style="color: #2aa198;">&lt;cstdio&gt;</span>
+<span style="color: #d75fd7;">#include</span> <span style="color: #2aa198;">&lt;vector&gt;</span>
+<span style="color: #268bd2; font-weight: bold;">using</span> <span style="color: #268bd2; font-weight: bold;">namespace</span> <span style="color: #d75fd7;">std</span>;
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">n</span>;
+<span style="color: #df005f; font-weight: bold;">vector</span>&lt;<span style="color: #df005f; font-weight: bold;">int</span>&gt; <span style="color: #8787d7;">vec</span>;
 
-<span style="color: #AFAFAF;">void</span> <span style="color: #AFAFAF;">DFS</span>(<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">x</span>) {
-    <span style="color: #BD93F9;">if</span> (x == n + <span style="color: #009F9F;">1</span>) {
-        <span style="color: #BD93F9;">for</span> (<span style="color: #BD93F9;">auto</span> <span style="color: #AFAFAF;">i</span> : vec)
-            printf(<span style="color: #FC9F4E;">"%d "</span>, i);
-        puts(<span style="color: #FC9F4E;">""</span>);
-        <span style="color: #BD93F9;">return</span>;
+<span style="color: #df005f; font-weight: bold;">void</span> <span style="color: #d75fd7; font-weight: bold;">DFS</span>(<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">x</span>) {
+    <span style="color: #268bd2; font-weight: bold;">if</span> (x == n + 1) {
+        <span style="color: #268bd2; font-weight: bold;">for</span> (<span style="color: #268bd2; font-weight: bold;">auto</span> <span style="color: #8787d7;">i</span> : vec)
+            printf(<span style="color: #2aa198;">"%d "</span>, i);
+        puts(<span style="color: #2aa198;">""</span>);
+        <span style="color: #268bd2; font-weight: bold;">return</span>;
     }
-    DFS(x + <span style="color: #009F9F;">1</span>);         <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#19981;&#36873;&#25321; x</span>
-    vec.push_back(x);   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#36873;&#25321; x</span>
-    DFS(x + <span style="color: #009F9F;">1</span>);         <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#36873;&#25321; x</span>
-    vec.pop_back();     <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#22238;&#28335;</span>
+    DFS(x + 1);         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#19981;&#36873;&#25321; x</span>
+    vec.push_back(x);   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36873;&#25321; x</span>
+    DFS(x + 1);         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36873;&#25321; x</span>
+    vec.pop_back();     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22238;&#28335;</span>
 }
 
-<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
-    scanf(<span style="color: #FC9F4E;">"%d"</span>, &amp;n);
-    DFS(<span style="color: #009F9F;">1</span>);   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#20915;&#31574;&#25968;&#23383;1</span>
-    <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">0</span>;
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    scanf(<span style="color: #2aa198;">"%d"</span>, &amp;n);
+    DFS(1);   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20915;&#31574;&#25968;&#23383;1</span>
+    <span style="color: #268bd2; font-weight: bold;">return</span> 0;
 }
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org48c6467" class="outline-3">
-<h3 id="org48c6467">数组</h3>
-<div class="outline-text-3" id="text-org48c6467">
+<div id="outline-container-org05284a1" class="outline-3">
+<h3 id="org05284a1">数组</h3>
+<div class="outline-text-3" id="text-org05284a1">
 <div class="org-src-container">
-<pre class="src src-cpp"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cstdio&gt;</span>
-<span style="color: #BD93F9;">const</span> <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">maxn</span> = <span style="color: #009F9F;">20</span>;
-<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">n</span>;
-<span style="color: #AFAFAF;">bool</span> <span style="color: #AFAFAF;">used</span>[maxn];
+<pre class="src src-cpp"><span style="color: #d75fd7;">#include</span> <span style="color: #2aa198;">&lt;cstdio&gt;</span>
+<span style="color: #268bd2; font-weight: bold;">const</span> <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">maxn</span> = 20;
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">n</span>;
+<span style="color: #df005f; font-weight: bold;">bool</span> <span style="color: #8787d7;">used</span>[maxn];
 
-<span style="color: #AFAFAF;">void</span> <span style="color: #AFAFAF;">DFS</span>(<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">x</span>) {
-    <span style="color: #BD93F9;">if</span> (x == n + <span style="color: #009F9F;">1</span>) {
-        <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">1</span>; i &lt;= n; ++ i)
-            <span style="color: #BD93F9;">if</span> (used[i])
-                printf(<span style="color: #FC9F4E;">"%d "</span>, i);
-        puts(<span style="color: #FC9F4E;">""</span>);
-        <span style="color: #BD93F9;">return</span>;
+<span style="color: #df005f; font-weight: bold;">void</span> <span style="color: #d75fd7; font-weight: bold;">DFS</span>(<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">x</span>) {
+    <span style="color: #268bd2; font-weight: bold;">if</span> (x == n + 1) {
+        <span style="color: #268bd2; font-weight: bold;">for</span> (<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">i</span> = 1; i &lt;= n; ++ i)
+            <span style="color: #268bd2; font-weight: bold;">if</span> (used[i])
+                printf(<span style="color: #2aa198;">"%d "</span>, i);
+        puts(<span style="color: #2aa198;">""</span>);
+        <span style="color: #268bd2; font-weight: bold;">return</span>;
     }
-    DFS(x + <span style="color: #009F9F;">1</span>);
-    used[x] = <span style="color: #009F9F;">true</span>;
-    DFS(x + <span style="color: #009F9F;">1</span>);
-    used[x] = <span style="color: #009F9F;">false</span>;
+    DFS(x + 1);
+    used[x] = <span style="color: #d75fd7;">true</span>;
+    DFS(x + 1);
+    used[x] = <span style="color: #d75fd7;">false</span>;
 }
 
-<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
-    scanf(<span style="color: #FC9F4E;">"%d"</span>, &amp;n);
-    DFS(<span style="color: #009F9F;">1</span>);
-    <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">0</span>;
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    scanf(<span style="color: #2aa198;">"%d"</span>, &amp;n);
+    DFS(1);
+    <span style="color: #268bd2; font-weight: bold;">return</span> 0;
 }
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orgb1744fd" class="outline-3">
-<h3 id="orgb1744fd">状压</h3>
-<div class="outline-text-3" id="text-orgb1744fd">
+<div id="outline-container-org8009ab9" class="outline-3">
+<h3 id="org8009ab9">状压</h3>
+<div class="outline-text-3" id="text-org8009ab9">
 <div class="org-src-container">
-<pre class="src src-cpp"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cstdio&gt;</span>
-<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">n</span>;
+<pre class="src src-cpp"><span style="color: #d75fd7;">#include</span> <span style="color: #2aa198;">&lt;cstdio&gt;</span>
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">n</span>;
 
-<span style="color: #AFAFAF;">void</span> <span style="color: #AFAFAF;">DFS</span>(<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">u</span>, <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">state</span>) {
-    <span style="color: #BD93F9;">if</span> (u == n) {
-        <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">0</span>; i &lt; n; ++ i)
-            <span style="color: #BD93F9;">if</span> (state &gt;&gt; i &amp; <span style="color: #009F9F;">1</span>)
-                printf(<span style="color: #FC9F4E;">"%d "</span>, i + <span style="color: #009F9F;">1</span>);
-        puts(<span style="color: #FC9F4E;">""</span>);
-        <span style="color: #BD93F9;">return</span>;
+<span style="color: #df005f; font-weight: bold;">void</span> <span style="color: #d75fd7; font-weight: bold;">DFS</span>(<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">u</span>, <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">state</span>) {
+    <span style="color: #268bd2; font-weight: bold;">if</span> (u == n) {
+        <span style="color: #268bd2; font-weight: bold;">for</span> (<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">i</span> = 0; i &lt; n; ++ i)
+            <span style="color: #268bd2; font-weight: bold;">if</span> (state &gt;&gt; i &amp; 1)
+                printf(<span style="color: #2aa198;">"%d "</span>, i + 1);
+        puts(<span style="color: #2aa198;">""</span>);
+        <span style="color: #268bd2; font-weight: bold;">return</span>;
     }
-    DFS(u + <span style="color: #009F9F;">1</span>, state);   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#19981;&#36873;</span>
-    DFS(u + <span style="color: #009F9F;">1</span>, state | <span style="color: #009F9F;">1</span> &lt;&lt; u);   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#36873;</span>
+    DFS(u + 1, state);   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#19981;&#36873;</span>
+    DFS(u + 1, state | 1 &lt;&lt; u);   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36873;</span>
 }
 
-<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
-    scanf(<span style="color: #FC9F4E;">"%d"</span>, &amp;n);
-    DFS(<span style="color: #009F9F;">0</span>, <span style="color: #009F9F;">0</span>);
-    <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">0</span>;
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    scanf(<span style="color: #2aa198;">"%d"</span>, &amp;n);
+    DFS(0, 0);
+    <span style="color: #268bd2; font-weight: bold;">return</span> 0;
 }
 </pre>
 </div>
 </div>
 </div>
 </div>
-<div id="outline-container-org8556388" class="outline-2">
-<h2 id="org8556388">组合型搜索</h2>
-<div class="outline-text-2" id="text-org8556388">
+<div id="outline-container-orga58bc6c" class="outline-2">
+<h2 id="orga58bc6c">组合型搜索</h2>
+<div class="outline-text-2" id="text-orga58bc6c">
 <p>
 从 \(1 \sim n\) 这 \(n\) 个数中随机选取 \(m\) 个数，输出所有可能的方案，对于不同的方案，字典序小的方案先输出，输出每个方案时按升序输出。<br>
 </p>
 </div>
-<div id="outline-container-org59e7612" class="outline-3">
-<h3 id="org59e7612">数组</h3>
-<div class="outline-text-3" id="text-org59e7612">
+<div id="outline-container-org64e3af6" class="outline-3">
+<h3 id="org64e3af6">数组</h3>
+<div class="outline-text-3" id="text-org64e3af6">
 <div class="org-src-container">
-<pre class="src src-cpp"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cstdio&gt;</span>
-<span style="color: #BD93F9;">const</span> <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">maxn</span> = <span style="color: #009F9F;">30</span>;
-<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">n</span>, <span style="color: #AFAFAF;">m</span>;
-<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">path</span>[maxn];
+<pre class="src src-cpp"><span style="color: #d75fd7;">#include</span> <span style="color: #2aa198;">&lt;cstdio&gt;</span>
+<span style="color: #268bd2; font-weight: bold;">const</span> <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">maxn</span> = 30;
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">n</span>, <span style="color: #8787d7;">m</span>;
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">path</span>[maxn];
 
-<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">start &#34920;&#31034;&#25509;&#19979;&#26469;&#20174;&#21738;&#37324;&#24320;&#22987;&#25628;&#32034;</span>
-<span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">cnt &#34920;&#31034;&#24050;&#32463;&#36873;&#25321;&#20102;&#20960;&#20010;&#25968;</span>
-<span style="color: #AFAFAF;">void</span> <span style="color: #AFAFAF;">DFS</span>(<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">start</span>, <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">cnt</span>) {
-    <span style="color: #BD93F9;">if</span> (cnt == m + <span style="color: #009F9F;">1</span>) {
-        <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">1</span>; i &lt;= m; ++ i)
-            printf(<span style="color: #FC9F4E;">"%d "</span>, path[i]);
-        puts(<span style="color: #FC9F4E;">""</span>);
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">start &#34920;&#31034;&#25509;&#19979;&#26469;&#20174;&#21738;&#37324;&#24320;&#22987;&#25628;&#32034;</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">cnt &#34920;&#31034;&#24050;&#32463;&#36873;&#25321;&#20102;&#20960;&#20010;&#25968;</span>
+<span style="color: #df005f; font-weight: bold;">void</span> <span style="color: #d75fd7; font-weight: bold;">DFS</span>(<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">start</span>, <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">cnt</span>) {
+    <span style="color: #268bd2; font-weight: bold;">if</span> (cnt == m + 1) {
+        <span style="color: #268bd2; font-weight: bold;">for</span> (<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">i</span> = 1; i &lt;= m; ++ i)
+            printf(<span style="color: #2aa198;">"%d "</span>, path[i]);
+        puts(<span style="color: #2aa198;">""</span>);
     }
-    <span style="color: #BD93F9;">else</span> {
-        <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = start; i &lt;= n; ++ i) {
+    <span style="color: #268bd2; font-weight: bold;">else</span> {
+        <span style="color: #268bd2; font-weight: bold;">for</span> (<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">i</span> = start; i &lt;= n; ++ i) {
             path[cnt] = i;
-            DFS(i + <span style="color: #009F9F;">1</span>, cnt + <span style="color: #009F9F;">1</span>);
+            DFS(i + 1, cnt + 1);
         }
     }
 }
 
-<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
-    scanf(<span style="color: #FC9F4E;">"%d %d"</span>, &amp;n, &amp;m);
-    DFS(<span style="color: #009F9F;">1</span>, <span style="color: #009F9F;">1</span>);
-    <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">0</span>;
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    scanf(<span style="color: #2aa198;">"%d %d"</span>, &amp;n, &amp;m);
+    DFS(1, 1);
+    <span style="color: #268bd2; font-weight: bold;">return</span> 0;
 }
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orgbc58406" class="outline-3">
-<h3 id="orgbc58406">状压</h3>
-<div class="outline-text-3" id="text-orgbc58406">
+<div id="outline-container-org26bc61c" class="outline-3">
+<h3 id="org26bc61c">状压</h3>
+<div class="outline-text-3" id="text-org26bc61c">
 <div class="org-src-container">
-<pre class="src src-cpp"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cstdio&gt;</span>
-<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">n</span>, <span style="color: #AFAFAF;">m</span>;
+<pre class="src src-cpp"><span style="color: #d75fd7;">#include</span> <span style="color: #2aa198;">&lt;cstdio&gt;</span>
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">n</span>, <span style="color: #8787d7;">m</span>;
 
-<span style="color: #AFAFAF;">void</span> <span style="color: #AFAFAF;">DFS</span>(<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">start</span>, <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">cnt</span>, <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">state</span>) {
-    <span style="color: #BD93F9;">if</span> (n - start + cnt &lt; m)   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#21098;&#26525;</span>
-        <span style="color: #BD93F9;">return</span>;
-    <span style="color: #BD93F9;">if</span> (cnt == m) {
-        <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">0</span>; i &lt; n; ++ i)
-            <span style="color: #BD93F9;">if</span> (state &gt;&gt; i &amp; <span style="color: #009F9F;">1</span>)
-                printf(<span style="color: #FC9F4E;">"%d "</span>, i + <span style="color: #009F9F;">1</span>);
-        puts(<span style="color: #FC9F4E;">""</span>);
-        <span style="color: #BD93F9;">return</span>;
+<span style="color: #df005f; font-weight: bold;">void</span> <span style="color: #d75fd7; font-weight: bold;">DFS</span>(<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">start</span>, <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">cnt</span>, <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">state</span>) {
+    <span style="color: #268bd2; font-weight: bold;">if</span> (n - start + cnt &lt; m)   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21098;&#26525;</span>
+        <span style="color: #268bd2; font-weight: bold;">return</span>;
+    <span style="color: #268bd2; font-weight: bold;">if</span> (cnt == m) {
+        <span style="color: #268bd2; font-weight: bold;">for</span> (<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">i</span> = 0; i &lt; n; ++ i)
+            <span style="color: #268bd2; font-weight: bold;">if</span> (state &gt;&gt; i &amp; 1)
+                printf(<span style="color: #2aa198;">"%d "</span>, i + 1);
+        puts(<span style="color: #2aa198;">""</span>);
+        <span style="color: #268bd2; font-weight: bold;">return</span>;
     }
 
-    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#19979;&#38754;&#20004;&#21477;&#21453;&#36807;&#26469;&#35797;&#35797;&#65311;</span>
-    DFS(start + <span style="color: #009F9F;">1</span>, cnt + <span style="color: #009F9F;">1</span>, state | <span style="color: #009F9F;">1</span> &lt;&lt; start);
-    DFS(start + <span style="color: #009F9F;">1</span>, cnt, state);
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#19979;&#38754;&#20004;&#21477;&#21453;&#36807;&#26469;&#35797;&#35797;&#65311;</span>
+    DFS(start + 1, cnt + 1, state | 1 &lt;&lt; start);
+    DFS(start + 1, cnt, state);
 }
 
-<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
-    scanf(<span style="color: #FC9F4E;">"%d %d"</span>, &amp;n, &amp;m);
-    DFS(<span style="color: #009F9F;">0</span>, <span style="color: #009F9F;">0</span>, <span style="color: #009F9F;">0</span>);
-    <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">0</span>;
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    scanf(<span style="color: #2aa198;">"%d %d"</span>, &amp;n, &amp;m);
+    DFS(0, 0, 0);
+    <span style="color: #268bd2; font-weight: bold;">return</span> 0;
 }
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org6e2f559" class="outline-3">
-<h3 id="org6e2f559">手动写栈</h3>
-<div class="outline-text-3" id="text-org6e2f559">
+<div id="outline-container-org13267c5" class="outline-3">
+<h3 id="org13267c5">手动写栈</h3>
+<div class="outline-text-3" id="text-org13267c5">
 <div class="org-src-container">
-<pre class="src src-cpp"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cstdio&gt;</span>
-<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;stack&gt;</span>
-<span style="color: #BD93F9;">using</span> <span style="color: #BD93F9;">namespace</span> <span style="color: #009F9F;">std</span>;
-<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">n</span>, <span style="color: #AFAFAF;">m</span>;
+<pre class="src src-cpp"><span style="color: #d75fd7;">#include</span> <span style="color: #2aa198;">&lt;cstdio&gt;</span>
+<span style="color: #d75fd7;">#include</span> <span style="color: #2aa198;">&lt;stack&gt;</span>
+<span style="color: #268bd2; font-weight: bold;">using</span> <span style="color: #268bd2; font-weight: bold;">namespace</span> <span style="color: #d75fd7;">std</span>;
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">n</span>, <span style="color: #8787d7;">m</span>;
 
-<span style="color: #BD93F9;">struct</span> <span style="color: #AFAFAF;">State</span> {
-    <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">pos</span>;
-    <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">start</span>, <span style="color: #AFAFAF;">cnt</span>, <span style="color: #AFAFAF;">state</span>;
+<span style="color: #268bd2; font-weight: bold;">struct</span> <span style="color: #df005f; font-weight: bold;">State</span> {
+    <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">pos</span>;
+    <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">start</span>, <span style="color: #8787d7;">cnt</span>, <span style="color: #8787d7;">state</span>;
 };
 
-<span style="color: #AFAFAF;">void</span> <span style="color: #AFAFAF;">DFS</span>(<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">start</span>, <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">cnt</span>, <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">state</span>) {
-    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">0:</span>
-    <span style="color: #BD93F9;">if</span> (n - start + cnt  &lt; m)
-        <span style="color: #BD93F9;">return</span>;
-    <span style="color: #BD93F9;">if</span> (cnt == m) {
-        <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">0</span>; i &lt; n; ++ i)
-            <span style="color: #BD93F9;">if</span> (state &gt;&gt; i &amp; <span style="color: #009F9F;">1</span>)
-                printf(<span style="color: #FC9F4E;">"%d "</span>, i + <span style="color: #009F9F;">1</span>);
-        puts(<span style="color: #FC9F4E;">""</span>);
-        <span style="color: #BD93F9;">return</span>;
+<span style="color: #df005f; font-weight: bold;">void</span> <span style="color: #d75fd7; font-weight: bold;">DFS</span>(<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">start</span>, <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">cnt</span>, <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">state</span>) {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">0:</span>
+    <span style="color: #268bd2; font-weight: bold;">if</span> (n - start + cnt  &lt; m)
+        <span style="color: #268bd2; font-weight: bold;">return</span>;
+    <span style="color: #268bd2; font-weight: bold;">if</span> (cnt == m) {
+        <span style="color: #268bd2; font-weight: bold;">for</span> (<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">i</span> = 0; i &lt; n; ++ i)
+            <span style="color: #268bd2; font-weight: bold;">if</span> (state &gt;&gt; i &amp; 1)
+                printf(<span style="color: #2aa198;">"%d "</span>, i + 1);
+        puts(<span style="color: #2aa198;">""</span>);
+        <span style="color: #268bd2; font-weight: bold;">return</span>;
     }
-    DFS(start + <span style="color: #009F9F;">1</span>, cnt + <span style="color: #009F9F;">1</span>, state | <span style="color: #009F9F;">1</span> &lt;&lt; start);
-    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">1:</span>
-    DFS(start + <span style="color: #009F9F;">1</span>, cnt, state);
-    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">2:</span>
+    DFS(start + 1, cnt + 1, state | 1 &lt;&lt; start);
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">1:</span>
+    DFS(start + 1, cnt, state);
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">2:</span>
 }
 
-<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
-    scanf(<span style="color: #FC9F4E;">"%d %d"</span>, &amp;n, &amp;m);
-    <span style="color: #AFAFAF;">stack</span>&lt;<span style="color: #AFAFAF;">State</span>&gt; <span style="color: #AFAFAF;">stk</span>;
-    stk.push({<span style="color: #009F9F;">0</span>, <span style="color: #009F9F;">0</span>, <span style="color: #009F9F;">0</span>, <span style="color: #009F9F;">0</span>});
-    <span style="color: #BD93F9;">while</span> (stk.size()) {
-        <span style="color: #BD93F9;">auto</span> <span style="color: #AFAFAF;">sta</span> = stk.top(); stk.pop();
-        <span style="color: #BD93F9;">if</span> (sta.pos == <span style="color: #009F9F;">0</span>) {
-            <span style="color: #BD93F9;">if</span> (n - sta.start + sta.cnt &lt; m)
-                <span style="color: #BD93F9;">continue</span>;
-            <span style="color: #BD93F9;">if</span> (sta.cnt == m) {
-                <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">0</span>; i &lt; n; ++ i)
-                    <span style="color: #BD93F9;">if</span> (sta.state &gt;&gt; i &amp; <span style="color: #009F9F;">1</span>)
-                        printf(<span style="color: #FC9F4E;">"%d "</span>, i + <span style="color: #009F9F;">1</span>);
-                puts(<span style="color: #FC9F4E;">""</span>);
-                <span style="color: #BD93F9;">continue</span>;
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    scanf(<span style="color: #2aa198;">"%d %d"</span>, &amp;n, &amp;m);
+    <span style="color: #df005f; font-weight: bold;">stack</span>&lt;<span style="color: #df005f; font-weight: bold;">State</span>&gt; <span style="color: #8787d7;">stk</span>;
+    stk.push({0, 0, 0, 0});
+    <span style="color: #268bd2; font-weight: bold;">while</span> (stk.size()) {
+        <span style="color: #268bd2; font-weight: bold;">auto</span> <span style="color: #8787d7;">sta</span> = stk.top(); stk.pop();
+        <span style="color: #268bd2; font-weight: bold;">if</span> (sta.pos == 0) {
+            <span style="color: #268bd2; font-weight: bold;">if</span> (n - sta.start + sta.cnt &lt; m)
+                <span style="color: #268bd2; font-weight: bold;">continue</span>;
+            <span style="color: #268bd2; font-weight: bold;">if</span> (sta.cnt == m) {
+                <span style="color: #268bd2; font-weight: bold;">for</span> (<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">i</span> = 0; i &lt; n; ++ i)
+                    <span style="color: #268bd2; font-weight: bold;">if</span> (sta.state &gt;&gt; i &amp; 1)
+                        printf(<span style="color: #2aa198;">"%d "</span>, i + 1);
+                puts(<span style="color: #2aa198;">""</span>);
+                <span style="color: #268bd2; font-weight: bold;">continue</span>;
             }
-            sta.pos = <span style="color: #009F9F;">1</span>; stk.push(sta);
-            stk.push({<span style="color: #009F9F;">0</span>, sta.start + <span style="color: #009F9F;">1</span>, sta.cnt + <span style="color: #009F9F;">1</span>, sta.state | <span style="color: #009F9F;">1</span> &lt;&lt; sta.start});
+            sta.pos = 1; stk.push(sta);
+            stk.push({0, sta.start + 1, sta.cnt + 1, sta.state | 1 &lt;&lt; sta.start});
         }
-        <span style="color: #BD93F9;">else</span> <span style="color: #BD93F9;">if</span> (sta.pos == <span style="color: #009F9F;">1</span>) {
-            sta.pos = <span style="color: #009F9F;">2</span>; stk.push(sta);
-            stk.push({<span style="color: #009F9F;">0</span>, sta.start + <span style="color: #009F9F;">1</span>, sta.cnt, sta.state});
+        <span style="color: #268bd2; font-weight: bold;">else</span> <span style="color: #268bd2; font-weight: bold;">if</span> (sta.pos == 1) {
+            sta.pos = 2; stk.push(sta);
+            stk.push({0, sta.start + 1, sta.cnt, sta.state});
         }
-        <span style="color: #BD93F9;">else</span> <span style="color: #BD93F9;">if</span> (sta.pos == <span style="color: #009F9F;">2</span>) {
-            <span style="color: #BD93F9;">continue</span>;
+        <span style="color: #268bd2; font-weight: bold;">else</span> <span style="color: #268bd2; font-weight: bold;">if</span> (sta.pos == 2) {
+            <span style="color: #268bd2; font-weight: bold;">continue</span>;
         }
     }
-    <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">0</span>;
+    <span style="color: #268bd2; font-weight: bold;">return</span> 0;
 }
 </pre>
 </div>
 </div>
 </div>
 </div>
-<div id="outline-container-org1b2fbef" class="outline-2">
-<h2 id="org1b2fbef">排列型搜索</h2>
-<div class="outline-text-2" id="text-org1b2fbef">
+<div id="outline-container-orgbb71d08" class="outline-2">
+<h2 id="orgbb71d08">排列型搜索</h2>
+<div class="outline-text-2" id="text-orgbb71d08">
 </div>
-<div id="outline-container-org49887ce" class="outline-3">
-<h3 id="org49887ce">经典递归实现全排列</h3>
-<div class="outline-text-3" id="text-org49887ce">
+<div id="outline-container-org012e09e" class="outline-3">
+<h3 id="org012e09e">经典递归实现全排列</h3>
+<div class="outline-text-3" id="text-org012e09e">
 <div class="org-src-container">
-<pre class="src src-cpp"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cstdio&gt;</span>
-<span style="color: #BD93F9;">const</span> <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">maxn</span> = <span style="color: #009F9F;">10</span>;
-<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">n</span>, <span style="color: #AFAFAF;">site</span>[maxn], <span style="color: #AFAFAF;">ha</span>[maxn];
+<pre class="src src-cpp"><span style="color: #d75fd7;">#include</span> <span style="color: #2aa198;">&lt;cstdio&gt;</span>
+<span style="color: #268bd2; font-weight: bold;">const</span> <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">maxn</span> = 10;
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">n</span>, <span style="color: #8787d7;">site</span>[maxn], <span style="color: #8787d7;">ha</span>[maxn];
 
-<span style="color: #AFAFAF;">void</span> <span style="color: #AFAFAF;">DFS</span>(<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">idx</span>) {
-    <span style="color: #BD93F9;">if</span> (idx == n + <span style="color: #009F9F;">1</span>) {
-        <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">1</span>; i &lt;= n; ++ i)
-            printf(<span style="color: #FC9F4E;">"%d "</span>, site[i]);
-        puts(<span style="color: #FC9F4E;">""</span>);
-        <span style="color: #BD93F9;">return</span>;
+<span style="color: #df005f; font-weight: bold;">void</span> <span style="color: #d75fd7; font-weight: bold;">DFS</span>(<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">idx</span>) {
+    <span style="color: #268bd2; font-weight: bold;">if</span> (idx == n + 1) {
+        <span style="color: #268bd2; font-weight: bold;">for</span> (<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">i</span> = 1; i &lt;= n; ++ i)
+            printf(<span style="color: #2aa198;">"%d "</span>, site[i]);
+        puts(<span style="color: #2aa198;">""</span>);
+        <span style="color: #268bd2; font-weight: bold;">return</span>;
     }
-    <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">1</span>; i &lt;= n; ++ i) {
-        <span style="color: #BD93F9;">if</span> (!ha[i]) {
+    <span style="color: #268bd2; font-weight: bold;">for</span> (<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">i</span> = 1; i &lt;= n; ++ i) {
+        <span style="color: #268bd2; font-weight: bold;">if</span> (<span style="color: #d75fd7;">!</span>ha[i]) {
             site[idx] = i;
-            ha[i] = <span style="color: #009F9F;">true</span>;
-            DFS(idx + <span style="color: #009F9F;">1</span>);
-            ha[i] = <span style="color: #009F9F;">false</span>;
+            ha[i] = <span style="color: #d75fd7;">true</span>;
+            DFS(idx + 1);
+            ha[i] = <span style="color: #d75fd7;">false</span>;
         }
     }
 }
 
-<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
-    scanf(<span style="color: #FC9F4E;">"%d"</span>, &amp;n);
-    DFS(<span style="color: #009F9F;">1</span>);
-    <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">0</span>;
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    scanf(<span style="color: #2aa198;">"%d"</span>, &amp;n);
+    DFS(1);
+    <span style="color: #268bd2; font-weight: bold;">return</span> 0;
 }
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org38f0abc" class="outline-3">
-<h3 id="org38f0abc">swap</h3>
-<div class="outline-text-3" id="text-org38f0abc">
+<div id="outline-container-orgf8568c3" class="outline-3">
+<h3 id="orgf8568c3">swap</h3>
+<div class="outline-text-3" id="text-orgf8568c3">
 <p>
 输出不是按照字典序小的先输出，而且不是很理解这样可以。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-cpp"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cstdio&gt;</span>
-<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;algorithm&gt;</span>
-<span style="color: #BD93F9;">using</span> <span style="color: #BD93F9;">namespace</span> <span style="color: #009F9F;">std</span>;
-<span style="color: #BD93F9;">const</span> <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">maxn</span> = <span style="color: #009F9F;">10</span>;
-<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">n</span>, <span style="color: #AFAFAF;">cnt</span>, <span style="color: #AFAFAF;">arr</span>[maxn];
+<pre class="src src-cpp"><span style="color: #d75fd7;">#include</span> <span style="color: #2aa198;">&lt;cstdio&gt;</span>
+<span style="color: #d75fd7;">#include</span> <span style="color: #2aa198;">&lt;algorithm&gt;</span>
+<span style="color: #268bd2; font-weight: bold;">using</span> <span style="color: #268bd2; font-weight: bold;">namespace</span> <span style="color: #d75fd7;">std</span>;
+<span style="color: #268bd2; font-weight: bold;">const</span> <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">maxn</span> = 10;
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">n</span>, <span style="color: #8787d7;">cnt</span>, <span style="color: #8787d7;">arr</span>[maxn];
 
-<span style="color: #AFAFAF;">void</span> <span style="color: #AFAFAF;">DFS</span>(<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">idx</span>) {
-    <span style="color: #BD93F9;">if</span> (idx == n) {
-        <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">0</span>; i &lt; n; ++ i)
-            printf(<span style="color: #FC9F4E;">"%d "</span>, arr[i]);
-        puts(<span style="color: #FC9F4E;">""</span>);
-        <span style="color: #BD93F9;">return</span>;
+<span style="color: #df005f; font-weight: bold;">void</span> <span style="color: #d75fd7; font-weight: bold;">DFS</span>(<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">idx</span>) {
+    <span style="color: #268bd2; font-weight: bold;">if</span> (idx == n) {
+        <span style="color: #268bd2; font-weight: bold;">for</span> (<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">i</span> = 0; i &lt; n; ++ i)
+            printf(<span style="color: #2aa198;">"%d "</span>, arr[i]);
+        puts(<span style="color: #2aa198;">""</span>);
+        <span style="color: #268bd2; font-weight: bold;">return</span>;
     }
-    <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = idx; i &lt; n; ++ i) {
+    <span style="color: #268bd2; font-weight: bold;">for</span> (<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">i</span> = idx; i &lt; n; ++ i) {
         swap(arr[i], arr[idx]);
-        DFS(idx + <span style="color: #009F9F;">1</span>);
+        DFS(idx + 1);
         swap(arr[i], arr[idx]);
     }
 }
 
-<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
-    scanf(<span style="color: #FC9F4E;">"%d"</span>, &amp;n);
-    <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">0</span>; i &lt; n; ++ i)
-        arr[i] = i + <span style="color: #009F9F;">1</span>;
-    DFS(<span style="color: #009F9F;">0</span>);
-    <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">0</span>;
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    scanf(<span style="color: #2aa198;">"%d"</span>, &amp;n);
+    <span style="color: #268bd2; font-weight: bold;">for</span> (<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">i</span> = 0; i &lt; n; ++ i)
+        arr[i] = i + 1;
+    DFS(0);
+    <span style="color: #268bd2; font-weight: bold;">return</span> 0;
 }
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org6082316" class="outline-3">
-<h3 id="org6082316">状压</h3>
-<div class="outline-text-3" id="text-org6082316">
+<div id="outline-container-org3a2ba35" class="outline-3">
+<h3 id="org3a2ba35">状压</h3>
+<div class="outline-text-3" id="text-org3a2ba35">
 <div class="org-src-container">
-<pre class="src src-cpp"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cstdio&gt;</span>
-<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;vector&gt;</span>
-<span style="color: #BD93F9;">using</span> <span style="color: #BD93F9;">namespace</span> <span style="color: #009F9F;">std</span>;
-<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">n</span>;
-<span style="color: #AFAFAF;">vector</span>&lt;<span style="color: #AFAFAF;">int</span>&gt; <span style="color: #AFAFAF;">vec</span>;
+<pre class="src src-cpp"><span style="color: #d75fd7;">#include</span> <span style="color: #2aa198;">&lt;cstdio&gt;</span>
+<span style="color: #d75fd7;">#include</span> <span style="color: #2aa198;">&lt;vector&gt;</span>
+<span style="color: #268bd2; font-weight: bold;">using</span> <span style="color: #268bd2; font-weight: bold;">namespace</span> <span style="color: #d75fd7;">std</span>;
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">n</span>;
+<span style="color: #df005f; font-weight: bold;">vector</span>&lt;<span style="color: #df005f; font-weight: bold;">int</span>&gt; <span style="color: #8787d7;">vec</span>;
 
-<span style="color: #AFAFAF;">void</span> <span style="color: #AFAFAF;">DFS</span>(<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">idx</span>, <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">state</span>) {
-    <span style="color: #BD93F9;">if</span> (idx == n) {
-        <span style="color: #BD93F9;">for</span> (<span style="color: #BD93F9;">auto</span> <span style="color: #AFAFAF;">i</span> : vec)
-            printf(<span style="color: #FC9F4E;">"%d "</span>, i);
-        puts(<span style="color: #FC9F4E;">""</span>);
-        <span style="color: #BD93F9;">return</span>;
+<span style="color: #df005f; font-weight: bold;">void</span> <span style="color: #d75fd7; font-weight: bold;">DFS</span>(<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">idx</span>, <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">state</span>) {
+    <span style="color: #268bd2; font-weight: bold;">if</span> (idx == n) {
+        <span style="color: #268bd2; font-weight: bold;">for</span> (<span style="color: #268bd2; font-weight: bold;">auto</span> <span style="color: #8787d7;">i</span> : vec)
+            printf(<span style="color: #2aa198;">"%d "</span>, i);
+        puts(<span style="color: #2aa198;">""</span>);
+        <span style="color: #268bd2; font-weight: bold;">return</span>;
     }
-    <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">0</span>; i &lt; n; ++ i)
-        <span style="color: #BD93F9;">if</span> (!(state &gt;&gt; i &amp; <span style="color: #009F9F;">1</span>)) {
-            vec.push_back(i + <span style="color: #009F9F;">1</span>);
-            DFS(idx + <span style="color: #009F9F;">1</span>, state | <span style="color: #009F9F;">1</span> &lt;&lt; i);
+    <span style="color: #268bd2; font-weight: bold;">for</span> (<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">i</span> = 0; i &lt; n; ++ i)
+        <span style="color: #268bd2; font-weight: bold;">if</span> (<span style="color: #d75fd7;">!</span>(state &gt;&gt; i &amp; 1)) {
+            vec.push_back(i + 1);
+            DFS(idx + 1, state | 1 &lt;&lt; i);
             vec.pop_back();
         }
 }
 
-<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
-    scanf(<span style="color: #FC9F4E;">"%d"</span>, &amp;n);
-    DFS(<span style="color: #009F9F;">0</span>, <span style="color: #009F9F;">0</span>);
-    <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">0</span>;
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    scanf(<span style="color: #2aa198;">"%d"</span>, &amp;n);
+    DFS(0, 0);
+    <span style="color: #268bd2; font-weight: bold;">return</span> 0;
 }
 </pre>
 </div>
 </div>
 </div>
 </div>
-<div id="outline-container-org04d7e41" class="outline-2">
-<h2 id="org04d7e41">例题1：全排列问题</h2>
-<div class="outline-text-2" id="text-org04d7e41">
+<div id="outline-container-orgad494a1" class="outline-2">
+<h2 id="orgad494a1">例题1：全排列问题</h2>
+<div class="outline-text-2" id="text-orgad494a1">
 <p>
 <a href="https://www.luogu.com.cn/problem/P1706">[Luogu P1706] 全排列问题</a><br>
 </p>
@@ -446,9 +446,9 @@
 </p>
 </div>
 </div>
-<div id="outline-container-org877e2db" class="outline-2">
-<h2 id="org877e2db">例题2：N皇后问题</h2>
-<div class="outline-text-2" id="text-org877e2db">
+<div id="outline-container-orgb3140a8" class="outline-2">
+<h2 id="orgb3140a8">例题2：N皇后问题</h2>
+<div class="outline-text-2" id="text-orgb3140a8">
 <p>
 在棋盘上放置n个皇后，使得它们不同行、不同列、不同对角线。<br>
 </p>

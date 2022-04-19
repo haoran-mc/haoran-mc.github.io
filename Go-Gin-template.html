@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-04-16 Sat 14:50 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gin + template</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">gin + template</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orga56d76d">模板的使用</a></li>
+<li><a href="#orgc6bd5df">HTML 渲染</a>
+<ul>
+<li><a href="#orgfcf99ae">介绍如何使用 gin 渲染</a></li>
+<li><a href="#orgdbb53c3">根据业务分模块</a></li>
+</ul>
+</li>
+<li><a href="#org9ad0ea5">自定义模板函数</a></li>
+<li><a href="#orgd6906f5">静态文件处理</a></li>
+<li><a href="#orgb6ed41a">使用模板继承</a></li>
+<li><a href="#org53e6810">补充文件路径处理</a></li>
+<li><a href="#org379085f">JSON渲染</a></li>
+<li><a href="#org7c92b82">XML渲染</a></li>
+<li><a href="#org85d2dc3">YMAL渲染</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orga56d76d" class="outline-2">
+<h2 id="orga56d76d">模板的使用</h2>
+<div class="outline-text-2" id="text-orga56d76d">
+<ul class="org-ul">
+<li><a href="Go-模板（template）.html">Go模板（template）</a><br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgc6bd5df" class="outline-2">
+<h2 id="orgc6bd5df">HTML 渲染</h2>
+<div class="outline-text-2" id="text-orgc6bd5df">
+</div>
+<div id="outline-container-orgfcf99ae" class="outline-3">
+<h3 id="orgfcf99ae">介绍如何使用 gin 渲染</h3>
+<div class="outline-text-3" id="text-orgfcf99ae">
+<p>
+我们首先定义一个存放模板文件的 <code>templates</code> 文件夹，然后在其内部定义我们的模板 <code>index.tmpl</code> 。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-html">&lt;<span style="color: #268bd2; font-weight: bold;">!DOCTYPE</span> html&gt;
+&lt;<span style="color: #d75fd7; font-weight: bold;">html</span> <span style="color: #8787d7;">lang</span>=<span style="color: #2aa198;">"en"</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">head</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">meta</span> <span style="color: #8787d7;">charset</span>=<span style="color: #2aa198;">"UTF-8"</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;<span style="font-weight: bold; text-decoration: underline;">Document</span>&lt;/<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;
+  &lt;/<span style="color: #d75fd7; font-weight: bold;">head</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
+    {{.title}}
+  &lt;/<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
+&lt;/<span style="color: #d75fd7; font-weight: bold;">html</span>&gt;
+</pre>
+</div>
+
+<p>
+Gin 框架中使用 <code>LoadHTMLGlob()</code> 或者 <code>LoadHTMLFiles()</code> 方法进行 HTML 模板渲染，这里使用 <code>LoadHTMLFiles()</code> 进行渲染：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"github.com/gin-gonic/gin"</span>
+    <span style="color: #2aa198;">"net/http"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">r</span> := gin.<span style="color: #d75fd7; font-weight: bold;">Default</span>()
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#27169;&#26495;&#23450;&#20041;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#27169;&#26495;&#35299;&#26512;</span>
+    r.<span style="color: #d75fd7; font-weight: bold;">LoadHTMLFiles</span>(<span style="color: #2aa198;">"templates/index.tmpl"</span>)
+    r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/index"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#27169;&#26495;&#28210;&#26579;</span>
+        c.<span style="color: #d75fd7; font-weight: bold;">HTML</span>(http.StatusOK, <span style="color: #2aa198;">"index.tmpl"</span>, <span style="color: #df005f; font-weight: bold;">gin.H</span>{
+            <span style="color: #2aa198;">"title"</span>: <span style="color: #2aa198;">"gin + template"</span>,
+        })
+    })
+    _ = r.<span style="color: #d75fd7; font-weight: bold;">Run</span>(<span style="color: #2aa198;">":9003"</span>)
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgdbb53c3" class="outline-3">
+<h3 id="orgdbb53c3">根据业务分模块</h3>
+<div class="outline-text-3" id="text-orgdbb53c3">
+<p>
+仍然首先定义一个存放模板文件的 <code>templates</code> 文件夹，然后在其内部按照业务分别定义一个 <code>posts</code> 文件夹和一个 <code>users</code> 文件夹。  <code>posts/index.tmpl</code> 文件的内容如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-html">{{define "posts/index.html"}}
+&lt;<span style="color: #268bd2; font-weight: bold;">!DOCTYPE</span> html&gt;
+&lt;<span style="color: #d75fd7; font-weight: bold;">html</span> <span style="color: #8787d7;">lang</span>=<span style="color: #2aa198;">"en"</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">head</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">meta</span> <span style="color: #8787d7;">charset</span>=<span style="color: #2aa198;">"UTF-8"</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">meta</span> <span style="color: #8787d7;">name</span>=<span style="color: #2aa198;">"viewport"</span> <span style="color: #8787d7;">content</span>=<span style="color: #2aa198;">"width=device-width, initial-scale=1.0"</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">meta</span> <span style="color: #8787d7;">http-equiv</span>=<span style="color: #2aa198;">"X-UA-Compatible"</span> <span style="color: #8787d7;">content</span>=<span style="color: #2aa198;">"ie=edge"</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;<span style="font-weight: bold; text-decoration: underline;">posts/index</span>&lt;/<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;
+  &lt;/<span style="color: #d75fd7; font-weight: bold;">head</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
+    {{.title}}
+  &lt;/<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
+&lt;/<span style="color: #d75fd7; font-weight: bold;">html</span>&gt;
+{{end}}
+</pre>
+</div>
+
+<p>
+<code>users/index.tmpl</code> 文件的内容如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-html">{{define "users/index.html"}}
+&lt;<span style="color: #268bd2; font-weight: bold;">!DOCTYPE</span> html&gt;
+&lt;<span style="color: #d75fd7; font-weight: bold;">html</span> <span style="color: #8787d7;">lang</span>=<span style="color: #2aa198;">"en"</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">head</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">meta</span> <span style="color: #8787d7;">charset</span>=<span style="color: #2aa198;">"UTF-8"</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">meta</span> <span style="color: #8787d7;">name</span>=<span style="color: #2aa198;">"viewport"</span> <span style="color: #8787d7;">content</span>=<span style="color: #2aa198;">"width=device-width, initial-scale=1.0"</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">meta</span> <span style="color: #8787d7;">http-equiv</span>=<span style="color: #2aa198;">"X-UA-Compatible"</span> <span style="color: #8787d7;">content</span>=<span style="color: #2aa198;">"ie=edge"</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;<span style="font-weight: bold; text-decoration: underline;">users/index</span>&lt;/<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;
+  &lt;/<span style="color: #d75fd7; font-weight: bold;">head</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
+    {{.title}}
+  &lt;/<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
+&lt;/<span style="color: #d75fd7; font-weight: bold;">html</span>&gt;
+{{end}}
+</pre>
+</div>
+
+<p>
+这次 Gin 框架使用 <code>LoadHTMLGlob()</code> 方法进行模板渲染：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"github.com/gin-gonic/gin"</span>
+    <span style="color: #2aa198;">"net/http"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">r</span> := gin.<span style="color: #d75fd7; font-weight: bold;">Default</span>()
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">r.LoadHTMLFiles("templates/posts/index.tmpl", "templates/users/index.tmpl")</span>
+    r.<span style="color: #d75fd7; font-weight: bold;">LoadHTMLGlob</span>(<span style="color: #2aa198;">"templates/**/*"</span>) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#27169;&#26495;&#35299;&#26512;</span>
+
+    r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/posts/index"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {
+        c.<span style="color: #d75fd7; font-weight: bold;">HTML</span>(http.StatusOK, <span style="color: #2aa198;">"posts/index.tmpl"</span>, <span style="color: #df005f; font-weight: bold;">gin.H</span>{ <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#27169;&#26495;&#28210;&#26579;</span>
+            <span style="color: #2aa198;">"title"</span>: <span style="color: #2aa198;">"[posts] gin + templates"</span>,
+        })
+    })
+    r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/users/index"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {
+        c.<span style="color: #d75fd7; font-weight: bold;">HTML</span>(http.StatusOK, <span style="color: #2aa198;">"users/index.tmpl"</span>, <span style="color: #df005f; font-weight: bold;">gin.H</span>{ <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#27169;&#26495;&#28210;&#26579;</span>
+            <span style="color: #2aa198;">"title"</span>: <span style="color: #2aa198;">"[users] gin + templates"</span>,
+        })
+    })
+
+    _ = r.<span style="color: #d75fd7; font-weight: bold;">Run</span>(<span style="color: #2aa198;">":9003"</span>)
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org9ad0ea5" class="outline-2">
+<h2 id="org9ad0ea5">自定义模板函数</h2>
+<div class="outline-text-2" id="text-org9ad0ea5">
+<p>
+定义一个不转义相应内容的 <code>safe</code> 模板函数如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">router</span> := gin.<span style="color: #d75fd7; font-weight: bold;">Default</span>()
+    router.<span style="color: #d75fd7; font-weight: bold;">SetFuncMap</span>(<span style="color: #df005f; font-weight: bold;">template.FuncMap</span>{
+        <span style="color: #2aa198;">"safe"</span>: <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">str</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">template.HTML</span>{
+            <span style="color: #268bd2; font-weight: bold;">return</span> template.<span style="color: #d75fd7; font-weight: bold;">HTML</span>(str)
+        },
+    })
+    router.<span style="color: #d75fd7; font-weight: bold;">LoadHTMLFiles</span>(<span style="color: #2aa198;">"./index.tmpl"</span>)
+
+    router.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/index"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {
+        c.<span style="color: #d75fd7; font-weight: bold;">HTML</span>(http.StatusOK, <span style="color: #2aa198;">"index.tmpl"</span>, <span style="color: #2aa198;">"&lt;a href='https://liwenzhou.com'&gt;&#26446;&#25991;&#21608;&#30340;&#21338;&#23458;&lt;/a&gt;"</span>)
+    })
+
+    router.<span style="color: #d75fd7; font-weight: bold;">Run</span>(<span style="color: #2aa198;">":8080"</span>)
+}
+</pre>
+</div>
+
+<p>
+在 <code>index.tmpl</code> 中使用定义好的 <code>safe</code> 模板函数：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-html">&lt;<span style="color: #268bd2; font-weight: bold;">!DOCTYPE</span> html&gt;
+&lt;<span style="color: #d75fd7; font-weight: bold;">html</span> <span style="color: #8787d7;">lang</span>=<span style="color: #2aa198;">"zh-CN"</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">head</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;<span style="font-weight: bold; text-decoration: underline;">&#20462;&#25913;&#27169;&#26495;&#24341;&#25806;&#30340;&#26631;&#35782;&#31526;</span>&lt;/<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;
+  &lt;/<span style="color: #d75fd7; font-weight: bold;">head</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;{{ . | safe }}&lt;/<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+  &lt;/<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
+&lt;/<span style="color: #d75fd7; font-weight: bold;">html</span>&gt;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgd6906f5" class="outline-2">
+<h2 id="orgd6906f5">静态文件处理</h2>
+<div class="outline-text-2" id="text-orgd6906f5">
+<p>
+当我们渲染的 HTML 文件中引用了静态文件时，我们只需要按照以下方式在渲染页面前调用 <code>gin.Static</code> 方法即可。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">r</span> := gin.<span style="color: #d75fd7; font-weight: bold;">Default</span>()
+    r.<span style="color: #d75fd7; font-weight: bold;">Static</span>(<span style="color: #2aa198;">"/xxx"</span>, <span style="color: #2aa198;">"./static"</span>)
+    r.<span style="color: #d75fd7; font-weight: bold;">LoadHTMLGlob</span>(<span style="color: #2aa198;">"templates/**/*"</span>)
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">...</span>
+    r.<span style="color: #d75fd7; font-weight: bold;">Run</span>(<span style="color: #2aa198;">":8080"</span>)
+}
+</pre>
+</div>
+
+<p>
+模板文件：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-html">{{define "posts/index.tmpl"}}
+&lt;<span style="color: #268bd2; font-weight: bold;">!DOCTYPE</span> html&gt;
+&lt;<span style="color: #d75fd7; font-weight: bold;">html</span> <span style="color: #8787d7;">lang</span>=<span style="color: #2aa198;">"en"</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">head</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">meta</span> <span style="color: #8787d7;">charset</span>=<span style="color: #2aa198;">"UTF-8"</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">meta</span> <span style="color: #8787d7;">name</span>=<span style="color: #2aa198;">"viewport"</span> <span style="color: #8787d7;">content</span>=<span style="color: #2aa198;">"width=device-width, initial-scale=1.0"</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">meta</span> <span style="color: #8787d7;">http-equiv</span>=<span style="color: #2aa198;">"X-UA-Compatible"</span> <span style="color: #8787d7;">content</span>=<span style="color: #2aa198;">"ie=edge"</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">link</span> <span style="color: #8787d7;">rel</span>=<span style="color: #2aa198;">"stylesheet"</span> <span style="color: #8787d7;">href</span>=<span style="color: #2aa198;">"/xxx/style.css"</span>&gt;   <span style="color: #008787; background-color: #262626;">&lt;!-- </span><span style="color: #008787; background-color: #262626;">&#23548;&#20837;&#26679;&#24335;&#25991;&#20214; </span><span style="color: #008787; background-color: #262626;">--&gt;</span> 
+    &lt;<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;<span style="font-weight: bold; text-decoration: underline;">posts/index</span>&lt;/<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;
+  &lt;/<span style="color: #d75fd7; font-weight: bold;">head</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
+    {{.title}}
+
+    &lt;<span style="color: #d75fd7; font-weight: bold;">p</span> <span style="color: #8787d7;">class</span>=<span style="color: #2aa198;">"center"</span>&gt;&#23621;&#20013;&lt;/<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;   <span style="color: #008787; background-color: #262626;">&lt;!-- </span><span style="color: #008787; background-color: #262626;">center &#26159; ./statics/style.css &#20013;&#23450;&#20041;&#30340;&#26679;&#24335; </span><span style="color: #008787; background-color: #262626;">--&gt;</span>
+  &lt;/<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
+&lt;/<span style="color: #d75fd7; font-weight: bold;">html</span>&gt;
+{{end}}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb6ed41a" class="outline-2">
+<h2 id="orgb6ed41a">使用模板继承</h2>
+<div class="outline-text-2" id="text-orgb6ed41a">
+<p>
+Gin 框架默认都是使用单模板，如果需要使用 block template 功能，可以通过 "github.com/gin-contrib/multitemplate" 库实现，具体示例如下：<br>
+</p>
+
+<p>
+首先，假设我们项目目录下的 <code>templates</code> 文件夹下有以下模板文件，其中 <code>home.tmpl</code> 和 <code>index.tmpl</code> 继承了 <code>base.tmpl</code> ：<br>
+</p>
+
+<pre class="example">
+templates
+├── includes
+│   ├── home.tmpl
+│   └── index.tmpl
+├── layouts
+│   └── base.tmpl
+└── scripts.tmpl
+</pre>
+
+<p>
+然后我们定义一个 <code>loadTemplates</code> 函数如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">loadTemplates</span>(<span style="color: #8787d7;">templatesDir</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">multitemplate.Renderer</span> {
+    <span style="color: #8787d7;">r</span> := multitemplate.<span style="color: #d75fd7; font-weight: bold;">NewRenderer</span>()
+    <span style="color: #8787d7;">layouts</span>, <span style="color: #8787d7;">err</span> := filepath.<span style="color: #d75fd7; font-weight: bold;">Glob</span>(templatesDir + <span style="color: #2aa198;">"/layouts/*.tmpl"</span>)
+    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
+        <span style="color: #268bd2;">panic</span>(err.<span style="color: #d75fd7; font-weight: bold;">Error</span>())
+    }
+    <span style="color: #8787d7;">includes</span>, <span style="color: #8787d7;">err</span> := filepath.<span style="color: #d75fd7; font-weight: bold;">Glob</span>(templatesDir + <span style="color: #2aa198;">"/includes/*.tmpl"</span>)
+    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
+        <span style="color: #268bd2;">panic</span>(err.<span style="color: #d75fd7; font-weight: bold;">Error</span>())
+    }
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20026;layouts/&#21644;includes/&#30446;&#24405;&#29983;&#25104; templates map</span>
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">_</span>, <span style="color: #8787d7;">include</span> := <span style="color: #268bd2; font-weight: bold;">range</span> includes {
+        <span style="color: #8787d7;">layoutCopy</span> := <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #268bd2;">len</span>(layouts))
+        <span style="color: #268bd2;">copy</span>(layoutCopy, layouts)
+        <span style="color: #8787d7;">files</span> := <span style="color: #268bd2;">append</span>(layoutCopy, include)
+        r.<span style="color: #d75fd7; font-weight: bold;">AddFromFiles</span>(filepath.<span style="color: #d75fd7; font-weight: bold;">Base</span>(include), files...)
+    }
+    <span style="color: #268bd2; font-weight: bold;">return</span> r
+}
+</pre>
+</div>
+
+<p>
+我们在 <code>main</code> 函数中<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">indexFunc</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>){
+    c.<span style="color: #d75fd7; font-weight: bold;">HTML</span>(http.StatusOK, <span style="color: #2aa198;">"index.tmpl"</span>, <span style="color: #d75fd7;">nil</span>)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">homeFunc</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>){
+    c.<span style="color: #d75fd7; font-weight: bold;">HTML</span>(http.StatusOK, <span style="color: #2aa198;">"home.tmpl"</span>, <span style="color: #d75fd7;">nil</span>)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>(){
+    <span style="color: #8787d7;">r</span> := gin.<span style="color: #d75fd7; font-weight: bold;">Default</span>()
+    r.HTMLRender = <span style="color: #d75fd7; font-weight: bold;">loadTemplates</span>(<span style="color: #2aa198;">"./templates"</span>)
+    r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/index"</span>, indexFunc)
+    r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/home"</span>, homeFunc)
+    r.<span style="color: #d75fd7; font-weight: bold;">Run</span>()
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org53e6810" class="outline-2">
+<h2 id="org53e6810">补充文件路径处理</h2>
+<div class="outline-text-2" id="text-org53e6810">
+<p>
+关于模板文件和静态文件的路径，我们需要根据公司/项目的要求进行设置。可以使用下面的函数获取当前执行程序的路径。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">getCurrentPath</span>() <span style="color: #df005f; font-weight: bold;">string</span> {
+    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #8787d7;">ex</span>, <span style="color: #8787d7;">err</span> := os.<span style="color: #d75fd7; font-weight: bold;">Executable</span>(); err == <span style="color: #d75fd7;">nil</span> {
+        <span style="color: #268bd2; font-weight: bold;">return</span> filepath.<span style="color: #d75fd7; font-weight: bold;">Dir</span>(ex)
+    }
+    <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #2aa198;">"./"</span>
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org379085f" class="outline-2">
+<h2 id="org379085f">JSON渲染</h2>
+<div class="outline-text-2" id="text-org379085f">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">r</span> := gin.<span style="color: #d75fd7; font-weight: bold;">Default</span>()
+
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">gin.H &#26159;map[string]interface{}&#30340;&#32553;&#20889;</span>
+    r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/someJSON"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26041;&#24335;&#19968;&#65306;&#33258;&#24049;&#25340;&#25509;JSON</span>
+        c.<span style="color: #d75fd7; font-weight: bold;">JSON</span>(http.StatusOK, <span style="color: #df005f; font-weight: bold;">gin.H</span>{<span style="color: #2aa198;">"message"</span>: <span style="color: #2aa198;">"Hello world!"</span>})
+    })
+    r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/moreJSON"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26041;&#27861;&#20108;&#65306;&#20351;&#29992;&#32467;&#26500;&#20307;</span>
+        <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">msg</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+            Name    <span style="color: #df005f; font-weight: bold;">string</span> <span style="color: #2aa198;">`json:"user"`</span>
+            Message <span style="color: #df005f; font-weight: bold;">string</span>
+            Age     <span style="color: #df005f; font-weight: bold;">int</span>
+        }
+        msg.Name = <span style="color: #2aa198;">"&#23567;&#29579;&#23376;"</span>
+        msg.Message = <span style="color: #2aa198;">"Hello world!"</span>
+        msg.Age = 18
+        c.<span style="color: #d75fd7; font-weight: bold;">JSON</span>(http.StatusOK, msg)
+    })
+    r.<span style="color: #d75fd7; font-weight: bold;">Run</span>(<span style="color: #2aa198;">":8080"</span>)
+}
+</pre>
+</div>
+
+<p>
+浏览器向服务器发起请求时，不再返回完整的 html 页面，而是返回 json 格式的数据。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org7c92b82" class="outline-2">
+<h2 id="org7c92b82">XML渲染</h2>
+<div class="outline-text-2" id="text-org7c92b82">
+<p>
+注意需要使用具名的结构体类型。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">r</span> := gin.<span style="color: #d75fd7; font-weight: bold;">Default</span>()
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">gin.H &#26159;map[string]interface{}&#30340;&#32553;&#20889;</span>
+    r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/someXML"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26041;&#24335;&#19968;&#65306;&#33258;&#24049;&#25340;&#25509;JSON</span>
+        c.<span style="color: #d75fd7; font-weight: bold;">XML</span>(http.StatusOK, <span style="color: #df005f; font-weight: bold;">gin.H</span>{<span style="color: #2aa198;">"message"</span>: <span style="color: #2aa198;">"Hello world!"</span>})
+    })
+    r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/moreXML"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26041;&#27861;&#20108;&#65306;&#20351;&#29992;&#32467;&#26500;&#20307;</span>
+        <span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">MessageRecord</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+            Name    <span style="color: #df005f; font-weight: bold;">string</span>
+            Message <span style="color: #df005f; font-weight: bold;">string</span>
+            Age     <span style="color: #df005f; font-weight: bold;">int</span>
+        }
+        <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">msg</span> <span style="color: #df005f; font-weight: bold;">MessageRecord</span>
+        msg.Name = <span style="color: #2aa198;">"&#23567;&#29579;&#23376;"</span>
+        msg.Message = <span style="color: #2aa198;">"Hello world!"</span>
+        msg.Age = 18
+        c.<span style="color: #d75fd7; font-weight: bold;">XML</span>(http.StatusOK, msg)
+    })
+    r.<span style="color: #d75fd7; font-weight: bold;">Run</span>(<span style="color: #2aa198;">":8080"</span>)
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org85d2dc3" class="outline-2">
+<h2 id="org85d2dc3">YMAL渲染</h2>
+<div class="outline-text-2" id="text-org85d2dc3">
+<div class="org-src-container">
+<pre class="src src-go">r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/someYAML"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {
+    c.<span style="color: #d75fd7; font-weight: bold;">YAML</span>(http.StatusOK, <span style="color: #df005f; font-weight: bold;">gin.H</span>{<span style="color: #2aa198;">"message"</span>: <span style="color: #2aa198;">"ok"</span>, <span style="color: #2aa198;">"status"</span>: http.StatusOK})
+})
+protobuf&#28210;&#26579;
+r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/someProtoBuf"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {
+    <span style="color: #8787d7;">reps</span> := []<span style="color: #df005f; font-weight: bold;">int64</span>{<span style="color: #d75fd7; font-weight: bold;">int64</span>(1), <span style="color: #d75fd7; font-weight: bold;">int64</span>(2)}
+    <span style="color: #8787d7;">label</span> := <span style="color: #2aa198;">"test"</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">protobuf &#30340;&#20855;&#20307;&#23450;&#20041;&#20889;&#22312; testdata/protoexample &#25991;&#20214;&#20013;&#12290;</span>
+    <span style="color: #8787d7;">data</span> := &amp;<span style="color: #df005f; font-weight: bold;">protoexample.Test</span>{
+        <span style="color: #d75fd7;">Label</span>: &amp;label,
+        <span style="color: #d75fd7;">Reps</span>:  reps,
+    }
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35831;&#27880;&#24847;&#65292;&#25968;&#25454;&#22312;&#21709;&#24212;&#20013;&#21464;&#20026;&#20108;&#36827;&#21046;&#25968;&#25454;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23558;&#36755;&#20986;&#34987; protoexample.Test protobuf &#24207;&#21015;&#21270;&#20102;&#30340;&#25968;&#25454;</span>
+    c.<span style="color: #d75fd7; font-weight: bold;">ProtoBuf</span>(http.StatusOK, data)
+})
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-04-13 11:04 Wed</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-04-16 Sat 14:50</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

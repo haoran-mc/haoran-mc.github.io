@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-09-30 四 03:18 -->
+<!-- 2022-04-06 Wed 02:36 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>迭代加深搜索</title>
@@ -13,6 +13,28 @@
                 <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
                 <script type="module" src="static/js/main.js" defer></script>
                 <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="static/MathJax/cdn.bootcdn.net/ajax/libs/mathjax/3.1.2/es5/tex-mml-chtml.min.js"></script>
 </head>
 <body>
 <div id="content">
@@ -21,9 +43,9 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org16c22b3">迭代加深搜索(Iterative Deepening DFS)</a>
+<li><a href="#org975ab58">迭代加深搜索(Iterative Deepening DFS)</a>
 <ul>
-<li><a href="#org61c5eb4">埃及分数</a></li>
+<li><a href="#orge3bf1a8">埃及分数</a></li>
 </ul>
 </li>
 </ul>
@@ -31,24 +53,57 @@
 </div>
 
 
-<div id="outline-container-org16c22b3" class="outline-2">
-<h2 id="org16c22b3">迭代加深搜索(Iterative Deepening DFS)</h2>
-<div class="outline-text-2" id="text-org16c22b3">
+<div id="outline-container-org975ab58" class="outline-2">
+<h2 id="org975ab58">迭代加深搜索(Iterative Deepening DFS)</h2>
+<div class="outline-text-2" id="text-org975ab58">
 <p>
-有一类题目，他们的搜索树不仅很深而且很广，使用DFS会陷入递归无法返回，使用BFS队列空间会爆炸，此时可以采用一种结合DFS与BFS思想的搜索方法，迭代加深搜索IDDFS
+迭代加深是一种 每次限制搜索深度的 深度优先搜索。<br>
 </p>
 
 <p>
-操作方法:
+有一类题目，他们的搜索树不仅很深而且很广，使用 DFS 会陷入递归无法返回，使用 BFS 队列空间会爆炸，此时可以采用一种结合 DFS 与 BFS 思想的搜索方法，迭代加深搜索 IDDFS。<br>
+</p>
+
+<p>
+它的本质还是深度优先搜索，只不过在搜索的同时带上了一个深度 \(d\)，当 \(d\) 达到设定的深度时就返回，一般用于找最优解。如果一次搜索没有找到合法的解，就让设定的深度加一，重新从根开始。<br>
+</p>
+
+<p>
+既然是为了找最优解，为什么不用 BFS 呢？我们知道 BFS 的基础是一个队列，队列的空间复杂度很大，当状态比较多或者单个状态比较大时，使用队列的 BFS 就显出了劣势。事实上，迭代加深就类似于用 DFS 方式实现的 BFS，它的空间复杂度相对较小。<br>
+</p>
+
+<p>
+当搜索树的分支比较多时，每增加一层的搜索复杂度会出现指数级爆炸式增长，这时前面重复进行的部分所带来的复杂度几乎可以忽略，这也就是为什么迭代加深是可以近似看成 BFS 的。<br>
+</p>
+
+<p>
+操作方法:<br>
 </p>
 <ol class="org-ol">
-<li>设定搜索深度为1，用DFS搜索到第1层停止</li>
-<li>如果没有找到答案，再设定深度为2,用DFS搜索前两层停止</li>
-<li>继续设定深度为3, 4 &#x2026; 逐步扩大DFS的搜索深度，直到找到答案</li>
+<li>设定搜索深度为 1，用 DFS 搜索到第 1 层停止<br></li>
+<li>如果没有找到答案，再设定深度为 2，用 DFS 搜索前两层停止<br></li>
+<li>继续设定深度为 3, 4 &#x2026; 逐步扩大 DFS 的搜索深度，直到找到答案<br></li>
 </ol>
+
+<p>
+代码框架：<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-c"><span style="color: #df005f; font-weight: bold;">void</span> <span style="color: #d75fd7; font-weight: bold;">IDDFS</span>(<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">depth</span>, <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">max_depth</span>) {
+    <span style="color: #268bd2; font-weight: bold;">if</span> (depth &gt; limit)
+        <span style="color: #268bd2; font-weight: bold;">return</span>;
+    <span style="color: #268bd2; font-weight: bold;">else</span> {
+        <span style="color: #268bd2; font-weight: bold;">for</span> (<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">i</span> = 0; i &lt; n; i ++ ) {
+            IDDFS(depth + 1, max_depth);
+        }
+    }
+    <span style="color: #268bd2; font-weight: bold;">return</span>;
+}
+</pre>
 </div>
-<div id="outline-container-org61c5eb4" class="outline-3">
-<h3 id="org61c5eb4">埃及分数</h3>
+</div>
+<div id="outline-container-orge3bf1a8" class="outline-3">
+<h3 id="orge3bf1a8">埃及分数</h3>
 </div>
 </div>
 </div>

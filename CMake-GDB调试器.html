@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-03-31 Thu 21:34 -->
+<!-- 2022-04-11 Mon 14:46 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GDB 调试器</title>
@@ -21,9 +21,99 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org936a24a">GDB 调试器</a>
-<ul>
+<li><a href="#org936a24a">GDB 调试器</a></li>
 <li><a href="#org5985238">常用调试命令参数</a></li>
+<li><a href="#orge981021">GDB 命令速查</a></li>
+<li><a href="#org5b48fe3">启动调试</a>
+<ul>
+<li><a href="#org687d699">前言</a></li>
+<li><a href="#org3e0553b">哪类程序可被调试</a>
+<ul>
+<li><a href="#orgbd0f36a">gdb filename</a></li>
+<li><a href="#orge622101">readelf 查看段信息</a></li>
+</ul>
+</li>
+<li><a href="#org26fbcd6">调试方式运行程序</a>
+<ul>
+<li><a href="#orgc7f7bf3">调试启动无参程序</a></li>
+<li><a href="#orgb61143a">调试启动带参程序</a></li>
+<li><a href="#org2fb9659">调试 core 文件</a>
+<ul>
+<li><a href="#org3936a68">什么是 core 文件</a></li>
+<li><a href="#org9c4019a">什么是 core dump</a></li>
+<li><a href="#org9d267f5">如何使用 core 文件</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#orgbb9bbfa">调试已运行程序</a>
+<ul>
+<li><a href="#orgd58a4a5">attach 方式</a></li>
+<li><a href="#org3d4d314">直接调试相关 id 进程</a></li>
+<li><a href="#org48319af">已运行程序没有调试信息</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org0c48893">断点设置</a>
+<ul>
+<li><a href="#org584a8ab">为何要设置断点</a></li>
+<li><a href="#org0c8a626">查看已设置的断点</a></li>
+<li><a href="#orgd524996">断点设置</a>
+<ul>
+<li><a href="#org4a2784c">根据行号设置断点</a></li>
+<li><a href="#org5eeb153">根据函数名设置断点</a></li>
+<li><a href="#org7e16090">根据条件设置断点</a></li>
+<li><a href="#org61d8ed1">根据规则设置断点</a></li>
+<li><a href="#org1575567">设置临时断点</a></li>
+<li><a href="#orgf44faf8">跳过多次设置断点</a></li>
+<li><a href="#org383b757">根据表达式值变化产生断点</a></li>
+</ul>
+</li>
+<li><a href="#org2cec6b7">禁用或启动断点</a></li>
+<li><a href="#org1394901">断点清除</a></li>
+</ul>
+</li>
+<li><a href="#org9477b4a">变量查看</a>
+<ul>
+<li><a href="#org3fad9ff">前言</a></li>
+<li><a href="#org870e231">准备工作</a></li>
+<li><a href="#orgfbfcb11">普通变量查看</a>
+<ul>
+<li><a href="#org12dc0ce">打印基本类型变量，数组，字符数组</a></li>
+<li><a href="#orgd2b1265">打印指针指向内容</a></li>
+</ul>
+</li>
+<li><a href="#orgfbf6891">按照特定格式打印变量</a></li>
+<li><a href="#org2858ee4">查看内存内容</a></li>
+<li><a href="#org244684e">自动显示变量内容</a></li>
+<li><a href="#org68a500b">查看寄存器内容</a></li>
+</ul>
+</li>
+<li><a href="#orge377651">单步调试</a>
+<ul>
+<li><a href="#org4fd18ef">前言</a></li>
+<li><a href="#orgf5bfd26">准备</a></li>
+<li><a href="#org27a85db">列出源码 - list</a></li>
+<li><a href="#orge309932">单步执行 - next</a></li>
+<li><a href="#orgfc7c1c7">单步进入 - step</a></li>
+<li><a href="#orgdd98e49">继续执行到下一个断点 - continue</a></li>
+<li><a href="#org98e54db">继续运行到指定位置 - until</a></li>
+<li><a href="#org1d03b01">跳过执行 - skip</a></li>
+</ul>
+</li>
+<li><a href="#orgedfc0ff">源码查看</a>
+<ul>
+<li><a href="#org4f44a43">准备工作</a></li>
+<li><a href="#org68da4b1">列出源码</a></li>
+<li><a href="#orgd06b477">指定源码路径</a>
+<ul>
+<li><a href="#org8ee2411">源码被移走</a></li>
+<li><a href="#orgaa71650">更换源码目录</a></li>
+</ul>
+</li>
+<li><a href="#orge362b3b">编辑源码</a></li>
+<li><a href="#org07fc369">另外一种模式</a></li>
 </ul>
 </li>
 </ul>
@@ -53,9 +143,10 @@ GDB主要功能：<br>
 <li>分析崩溃程序产生的 core 文件<br></li>
 </ul>
 </div>
-<div id="outline-container-org5985238" class="outline-3">
-<h3 id="org5985238">常用调试命令参数</h3>
-<div class="outline-text-3" id="text-org5985238">
+</div>
+<div id="outline-container-org5985238" class="outline-2">
+<h2 id="org5985238">常用调试命令参数</h2>
+<div class="outline-text-2" id="text-org5985238">
 <p>
 调试开始：执行 gdb [exefilename]，进入 gdb 调试程序，其中 exefilename 为要调试的可执行文件名<br>
 </p>
@@ -126,6 +217,1637 @@ Tips：<br>
 <li>回车键：重复上一命令<br></li>
 </ol>
 </blockquote>
+</div>
+</div>
+
+<div id="outline-container-orge981021" class="outline-2">
+<h2 id="orge981021">GDB 命令速查</h2>
+<div class="outline-text-2" id="text-orge981021">
+<dl class="org-dl">
+<dt>info files</dt><dd>查看正在调试的目标和文件的名称<br></dd>
+<dt>info functions</dt><dd>所有函数名<br></dd>
+<dt>info breakpoints</dt><dd>查看断点,可以后接参数 n 表示查看某个断点号<br></dd>
+<dt>info args</dt><dd>打印当前函数的参数名及其值<br></dd>
+<dt>info locals</dt><dd>打印出当前函数中所有局部变量及其值<br></dd>
+<dt>break &lt;function&gt;</dt><dd>在进入指定函数时停住<br></dd>
+<dt>break &lt;linenum&gt;</dt><dd>在指定行号停住<br></dd>
+<dt>break +offset</dt><dd>在当前行号的前面的 offset 行停住<br></dd>
+<dt>break -offset</dt><dd>在当前行号的后面的 offset 行停住<br></dd>
+<dt>break filename:function</dt><dd>在指定文件的 function 函数的入口处停住<br></dd>
+<dt>break filename:linenum</dt><dd>在指定文件的 linenum 行停住<br></dd>
+<dt>break *address</dt><dd>在程序运行的内存地址处停住<br></dd>
+<dt>break</dt><dd>break 命令没有参数时，表示在吓一条指令处停住<br></dd>
+<dt>break if &lt;condition&gt;</dt><dd>在条件成立时停住，比如：break if i=100<br></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-org5b48fe3" class="outline-2">
+<h2 id="org5b48fe3">启动调试</h2>
+<div class="outline-text-2" id="text-org5b48fe3">
+</div>
+<div id="outline-container-org687d699" class="outline-3">
+<h3 id="org687d699">前言</h3>
+<div class="outline-text-3" id="text-org687d699">
+<p>
+GDB（GNU Debugger）是 UNIX 及 UNIX-like 下的强大调试工具，可以调试 ada, c, c++, asm, minimal, d, fortran, objective-c, go, java,pascal 等语言。本文以 C 程序为例，介绍 GDB 启动调试的多种方式。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org3e0553b" class="outline-3">
+<h3 id="org3e0553b">哪类程序可被调试</h3>
+<div class="outline-text-3" id="text-org3e0553b">
+<p>
+对于 C 程序来说，需要在编译时加上 <code>-g</code> 参数，保留调试信息，否则不能使用 GDB 进行调试。<br>
+</p>
+
+<p>
+但如果不是自己编译的程序，并不知道是否带有 <code>-g</code> 参数，如何判断一个文件是否带有调试信息呢？<br>
+</p>
+</div>
+<div id="outline-container-orgbd0f36a" class="outline-4">
+<h4 id="orgbd0f36a">gdb filename</h4>
+<div class="outline-text-4" id="text-orgbd0f36a">
+<img src="./images/gdb判断是否可被调试01.png" />
+
+<img src="./images/gdb判断是否可被调试02.png" />
+
+<p>
+如果没有调试信息，会提示 <code>no debugging symbols found</code> 。<br>
+</p>
+
+<p>
+如果是下面的提示：<br>
+</p>
+
+<img src="./images/gdb判断是否可被调试03.png" />
+
+<p>
+则可以进行调试。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge622101" class="outline-4">
+<h4 id="orge622101">readelf 查看段信息</h4>
+<div class="outline-text-4" id="text-orge622101">
+<img src="./images/使用readelf判断是否可被调试.png" />
+
+<p>
+如果没有任何 debug 信息，则不能被调试。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org26fbcd6" class="outline-3">
+<h3 id="org26fbcd6">调试方式运行程序</h3>
+<div class="outline-text-3" id="text-org26fbcd6">
+</div>
+<div id="outline-container-orgc7f7bf3" class="outline-4">
+<h4 id="orgc7f7bf3">调试启动无参程序</h4>
+<div class="outline-text-4" id="text-orgc7f7bf3">
+<p>
+输入 <code>run</code> 命令，即可运行程序。<br>
+</p>
+
+<img src="./images/调试启动无参程序.png" />
+</div>
+</div>
+<div id="outline-container-orgb61143a" class="outline-4">
+<h4 id="orgb61143a">调试启动带参程序</h4>
+<div class="outline-text-4" id="text-orgb61143a">
+<p>
+假设有以下程序，启动时需要带参数：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-c"><span style="color: #d75fd7;">#include</span> <span style="color: #2aa198;">&lt;stdio.h&gt;</span>
+
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #d75fd7; font-weight: bold;">main</span>(<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">argc</span>, <span style="color: #df005f; font-weight: bold;">char</span> *<span style="color: #8787d7;">argv</span>[]) {
+    <span style="color: #268bd2; font-weight: bold;">if</span> (argc &lt;= 1) {
+        printf(<span style="color: #2aa198;">"argc &lt;= 1"</span>);
+        <span style="color: #268bd2; font-weight: bold;">return</span> 0;
+    }
+    printf(<span style="color: #2aa198;">"hello world %s!\n"</span>, argv[1]);
+    <span style="color: #268bd2; font-weight: bold;">return</span> 0;
+}
+</pre>
+</div>
+
+<img src="./images/调试启动带参程序.png" />
+
+<p>
+只需要 <code>run</code> 的时候带上参数即可，或者使用 <code>set args</code> ，然后再用 <code>run</code> 启动。<br>
+</p>
+
+<img src="./images/调试启动带参程序，使用set_args设置参数.png" />
+</div>
+</div>
+<div id="outline-container-org2fb9659" class="outline-4">
+<h4 id="org2fb9659">调试 core 文件</h4>
+<div class="outline-text-4" id="text-org2fb9659">
+</div>
+<div id="outline-container-org3936a68" class="outline-5">
+<h5 id="org3936a68">什么是 core 文件</h5>
+<div class="outline-text-5" id="text-org3936a68">
+<p>
+core 时 unix 系统的内核，当你的程序出现内存越界的时候，操作系统会中止你的进程，并将当前内存状态倒出到 core 文件中，以便能进一步分析。<br>
+</p>
+
+<p>
+linux 系统下执行代码，如果不能正常运行，程序会 core，或者直接离开，不会 core。<br>
+</p>
+
+<p>
+bug 和操作系统或硬件的保护机制都会导致程序异常终止，操作系统会 kill 掉这些进程并产生 core 文件， <span class="underline">程序员可以通过 core 文件来找出问题所在，它记录了程序挂掉时详细的状态描述</span> 。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9c4019a" class="outline-5">
+<h5 id="org9c4019a">什么是 core dump</h5>
+<div class="outline-text-5" id="text-org9c4019a">
+<p>
+<code>core</code> 的意思是内存,  <code>dump</code> 的意思是扔出来, 堆出来.<br>
+</p>
+
+<p>
+开发和使用 Unix 程序时, 有时程序莫名其妙的 down 了, 却没有任何的提示（有时候会提示core dumped）。这时候可以查看一下有没有形如 <code>core.进程号</code> 的文件生成, 这个文件便是操作系统把程序 down 掉时的内存内容扔出来生成的, 它可以做为调试程序的参考。<br>
+</p>
+
+<p>
+core dump 又叫核心转储, 当程序运行过程中发生异常, 程序异常退出时, 由操作系统把程序当前的内存状况存储在一个 core 文件中, 叫 core dump。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9d267f5" class="outline-5">
+<h5 id="org9d267f5">如何使用 core 文件</h5>
+<div class="outline-text-5" id="text-org9d267f5">
+<p>
+使用的前提是系统没有限制 core 文件的产生，可以使用以下命令查看：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">$ ulimit -c
+0
+</pre>
+</div>
+
+<p>
+如果结果是 0，即使程序 core dump 了，也不会有 core 文件留下，我们需要让 core 文件能够产生：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #268bd2;">ulimit</span> -c unlimied   <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#34920;&#31034;&#19981;&#38480;&#21046; core &#25991;&#20214;&#22823;&#23567;</span>
+<span style="color: #268bd2;">ulimit</span> -c 10         <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#35774;&#32622;&#26368;&#22823;&#22823;&#23567;&#65292;&#21333;&#20301;&#20026;&#22359;&#65292;&#19968;&#22359;&#40664;&#35748;&#20026; 512 &#23383;&#33410;</span>
+</pre>
+</div>
+
+<p>
+上面两种方式可选其一，第一种无限制，第二种指定最大产生的大小。<br>
+</p>
+
+<p>
+调试 core 文件也很简单：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">gdb -c core&#25991;&#20214;&#36335;&#24452; [&#24212;&#29992;&#31243;&#24207;&#36335;&#24452;] 
+</pre>
+</div>
+
+<p>
+进入后输入 <code>where</code> 回车，就可以显示程序在哪一个函数、哪一行挂掉的。<br>
+</p>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgbb9bbfa" class="outline-3">
+<h3 id="orgbb9bbfa">调试已运行程序</h3>
+<div class="outline-text-3" id="text-orgbb9bbfa">
+</div>
+<div id="outline-container-orgd58a4a5" class="outline-4">
+<h4 id="orgd58a4a5">attach 方式</h4>
+<div class="outline-text-4" id="text-orgd58a4a5">
+<p>
+假设获取到进程 id 为 20829，则可用下面的方式调试进程。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">$ gdb
+(gdb) attach 20829
+</pre>
+</div>
+
+<p>
+接下来就可以继续调试了。<br>
+</p>
+
+<p>
+可能会有下面的错误提示：<br>
+</p>
+
+<pre class="example">
+Could not attach to process.  If your uid matches the uid of the target
+process, check the setting of /proc/sys/kernel/yama/ptrace_scope, or try
+again as the root user.  For more details, see /etc/sysctl.d/10-ptrace.conf
+ptrace: Operation not permitted.
+</pre>
+
+<p>
+解决方法，切换到 root 用户，将 /etc/sysctl.d/10-ptrace.conf 中的<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-conf"><span style="color: #8787d7;">kernel.yama.ptrace_scopr</span> = 1
+</pre>
+</div>
+
+<p>
+修改为<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-conf"><span style="color: #8787d7;">kernel.yama.ptrace_scopr</span> = 0
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org3d4d314" class="outline-4">
+<h4 id="org3d4d314">直接调试相关 id 进程</h4>
+<div class="outline-text-4" id="text-org3d4d314">
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">gdb program pid</span>
+gdb hello 20829
+
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#25110;&#32773;</span>
+gdb hello --pid 20829
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org48319af" class="outline-4">
+<h4 id="org48319af">已运行程序没有调试信息</h4>
+<div class="outline-text-4" id="text-org48319af">
+<p>
+为了节省磁盘空间，已经运行的程序通常没有调试信息。但如果又不能停止当前程序重新启动调试，那怎么办？还有办法，那就是同样的代码，再编译出一个带调试信息的版本。然后使用和前面提到的方式操作。对于 attach 方式，再 attach 之前，使用 file 命令即可。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">$ gdb
+(gdb) file hello
+Reading symbols from hello...done.
+(gdb)attach 20829
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org0c48893" class="outline-2">
+<h2 id="org0c48893">断点设置</h2>
+<div class="outline-text-2" id="text-org0c48893">
+</div>
+<div id="outline-container-org584a8ab" class="outline-3">
+<h3 id="org584a8ab">为何要设置断点</h3>
+<div class="outline-text-3" id="text-org584a8ab">
+<p>
+再代码的指定位置设置断点之后，程序运行到该位置就会 "暂停"，这个时候我们就可以对程序进行更多的操作，比如查看变量内容，堆栈情况等等，以帮助我们调试程序。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org0c8a626" class="outline-3">
+<h3 id="org0c8a626">查看已设置的断点</h3>
+<div class="outline-text-3" id="text-org0c8a626">
+<p>
+再学习断点设置之前，使用 <code>info breakpoints</code> 查看已设置断点。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd524996" class="outline-3">
+<h3 id="orgd524996">断点设置</h3>
+<div class="outline-text-3" id="text-orgd524996">
+<p>
+设置断点的方式有很多，借助下面实例（setpoints.c）来介绍：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-c"><span style="color: #d75fd7;">#include</span> <span style="color: #2aa198;">&lt;stdio.h&gt;</span>
+
+<span style="color: #df005f; font-weight: bold;">void</span> <span style="color: #d75fd7; font-weight: bold;">bubbleSort</span>() {
+    <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">num</span>[] = {9, 8, 7, 6, 5, 4, 3, 2, 1, 0}, <span style="color: #8787d7;">n</span> = 10;
+
+    <span style="color: #268bd2; font-weight: bold;">for</span> (<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">i</span> = 0; i &lt; n; ++ i)
+        <span style="color: #268bd2; font-weight: bold;">for</span> (<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">j</span> = n - 1; j &gt; i; -- j)
+            <span style="color: #268bd2; font-weight: bold;">if</span> (num[j] &lt; num[j - 1]) {
+                <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">tmp</span> = num[j - 1];
+                num[j - 1] = num[j], num[j] = tmp;
+            }
+
+    <span style="color: #268bd2; font-weight: bold;">for</span> (<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">i</span> = 0; i &lt; n; ++ i)
+        i == n - 1 ? printf(<span style="color: #2aa198;">"%d\n"</span>, num[i]) : printf(<span style="color: #2aa198;">"%d "</span>, num[i]);
+}
+
+<span style="color: #df005f; font-weight: bold;">void</span> <span style="color: #d75fd7; font-weight: bold;">insertSort</span>() {
+    <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">num</span>[] = {9, 8, 7, 6, 5, 4, 3, 2, 1, 0}, <span style="color: #8787d7;">n</span> = 10;
+
+    <span style="color: #268bd2; font-weight: bold;">for</span> (<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">i</span> = 1; i &lt; n; ++ i)
+        <span style="color: #268bd2; font-weight: bold;">for</span> (<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">j</span> = i - 1; j &gt;= 0; -- j)
+            <span style="color: #268bd2; font-weight: bold;">if</span> (num[j] &gt; num[j + 1]) {
+                <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">tmp</span> = num[j];
+                num[j] = num[j + 1], num[j + 1] = tmp;
+            }
+
+    <span style="color: #268bd2; font-weight: bold;">for</span> (<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">i</span> = 0; i &lt; n; ++ i)
+        i == n - 1 ? printf(<span style="color: #2aa198;">"%d\n"</span>, num[i]) : printf(<span style="color: #2aa198;">"%d "</span>, num[i]);
+}
+
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    bubbleSort();
+    insertSort();
+    <span style="color: #268bd2; font-weight: bold;">return</span> 0;
+}
+</pre>
+</div>
+
+<p>
+编译：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">gcc -g -o setpoints setpoints.c
+</pre>
+</div>
+</div>
+<div id="outline-container-org4a2784c" class="outline-4">
+<h4 id="org4a2784c">根据行号设置断点</h4>
+<div class="outline-text-4" id="text-org4a2784c">
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #268bd2; font-weight: bold;">break</span> 9
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#21487;&#31616;&#20889;&#20026; b 9</span>
+</pre>
+</div>
+
+<p>
+或者<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #268bd2; font-weight: bold;">break</span> setpoints.c:9
+</pre>
+</div>
+
+<p>
+程序运行到第 9 行的时候会断住。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5eeb153" class="outline-4">
+<h4 id="org5eeb153">根据函数名设置断点</h4>
+<div class="outline-text-4" id="text-org5eeb153">
+<p>
+可以将断点设置在函数处：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #268bd2; font-weight: bold;">break</span> bubbleSort
+</pre>
+</div>
+
+<p>
+程序在调用到 <code>bubbleSort</code> 函数的时候会断住。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org7e16090" class="outline-4">
+<h4 id="org7e16090">根据条件设置断点</h4>
+<div class="outline-text-4" id="text-org7e16090">
+<p>
+假设程序某处发生崩溃，而崩溃的原因怀疑是某个地方出现了非期望的值，那么你就可以在这里断点观察，当出现该非法值时，程序断住。这个时候我们可以借助 gdb 来设置条件断点，例如：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #268bd2; font-weight: bold;">break</span> setpoints.c:28 if <span style="color: #8787d7;">i</span>==9
+</pre>
+</div>
+
+<p>
+当在 <code>i</code> 等于 9 时，程序将会在第 28 行断住。<br>
+</p>
+
+<p>
+它和 condition 有着类似的作用，假设上面的断点号为 1，那么：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">condition 1 <span style="color: #8787d7;">i</span>==9
+</pre>
+</div>
+
+<p>
+会使得 <code>i</code> 等于 0 时，产生断点 1。而实际上可以很方便地用来改变断点产生的条件，例如，之前设置 <code>i==9</code> 时产生该断点，那么使用 condition 可以修改断点产生的条件。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org61d8ed1" class="outline-4">
+<h4 id="org61d8ed1">根据规则设置断点</h4>
+<div class="outline-text-4" id="text-org61d8ed1">
+<p>
+例如需要对所有调用 <code>bubbleSort</code> 函数都设置断点，可以使用下面的方式：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">rbreak bubbleSort*
+</pre>
+</div>
+
+<p>
+所有以 <code>bubbleSort</code> 开头的函数都设置了断点。而下面是对所有函数设置断点：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#29992;&#27861;&#65306;rbreak file:regex</span>
+rbreak . 
+rbreak setpoints.c:.        <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#23545;setpoints.c&#20013;&#30340;&#25152;&#26377;&#20989;&#25968;&#35774;&#32622;&#26029;&#28857;</span>
+rbreak setpoints.c:Sort$    <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#23545;&#20197; Sort &#32467;&#23614;&#30340;&#20989;&#25968;&#35774;&#32622;&#26029;&#28857;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org1575567" class="outline-4">
+<h4 id="org1575567">设置临时断点</h4>
+<div class="outline-text-4" id="text-org1575567">
+<p>
+假设某处的断点只想生效一次，那么可以设置临时断点，这样断点后面就不复存在了：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">tbreak setpoints.c:l0  <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#22312;&#31532; 10 &#34892;&#35774;&#32622;&#20020;&#26102;&#26029;&#28857;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgf44faf8" class="outline-4">
+<h4 id="orgf44faf8">跳过多次设置断点</h4>
+<div class="outline-text-4" id="text-orgf44faf8">
+<p>
+假如有某个地方，我们知道可能出错，但是前面 10 次都没有问题，虽然在该处设置了断点，但是想跳过前面 10 次，可以使用下面的方式：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">ignore 1 10
+</pre>
+</div>
+
+<p>
+其中，1 是你要忽略的断点号，可以通过前面的方式查找到，10 是需要跳过的次数。这样设置之后，会跳过前面 10 次。再次通过 <code>info breakpoints</code> 可以看到：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">Num     Type           Disp Enb Address            What
+1       breakpoint     keep y   0x000000000000073b<span style="color: #268bd2; font-weight: bold;"> in</span> bubbleSort at setpoints.c:9
+        ignore next 10 hits
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org383b757" class="outline-4">
+<h4 id="org383b757">根据表达式值变化产生断点</h4>
+<div class="outline-text-4" id="text-org383b757">
+<p>
+有时候我们需要观察某个值或表达式，知道它什么时候发生变化了，这个时候我们可以借助 <code>watch</code> 命令。例如：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">watch a
+</pre>
+</div>
+
+<p>
+这个时候，让程序继续运行，如果 a 的值发生变化，则会打印相关内容，如：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">Hardware watchpoint 2: a
+Old <span style="color: #8787d7;">value</span> = 12
+New <span style="color: #8787d7;">value</span> = 11
+</pre>
+</div>
+
+<p>
+但是这里要特别注意的是，程序必须运行起来，否则会出现：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">No symbol <span style="color: #2aa198;">"a"</span><span style="color: #268bd2; font-weight: bold;"> in</span> current context.
+</pre>
+</div>
+
+<p>
+因为程序没有运行，当前上下文也就没有相关变量信息。<br>
+</p>
+
+<p>
+<code>rwatch</code> 和 <code>awatch</code> 同样可以设置观察点前者是当变量值被读时断住，后者是被读或者被改写时断住。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org2cec6b7" class="outline-3">
+<h3 id="org2cec6b7">禁用或启动断点</h3>
+<div class="outline-text-3" id="text-org2cec6b7">
+<p>
+有些断点暂时不想使用，但又不想删除，可以暂时禁用或启用。例如：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #268bd2;">disable</span>              <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#31105;&#29992;&#25152;&#26377;&#26029;&#28857;</span>
+<span style="color: #268bd2;">disable</span> bnum         <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#31105;&#29992;&#26631;&#21495;&#20026; bnum &#30340;&#26029;&#28857;</span>
+<span style="color: #268bd2;">enable</span>               <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#21551;&#29992;&#25152;&#26377;&#26029;&#28857;</span>
+<span style="color: #268bd2;">enable</span> bnum          <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#21551;&#29992;&#26631;&#21495;&#20026; bnum &#30340;&#26029;&#28857;</span>
+<span style="color: #268bd2;">enable</span> delete bnum   <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#21551;&#21160;&#26631;&#21495;&#20026; bnum &#30340;&#26029;&#28857;&#65292;&#24182;&#19988;&#22312;&#27492;&#20043;&#21518;&#21024;&#38500;&#35813;&#26029;&#28857;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org1394901" class="outline-3">
+<h3 id="org1394901">断点清除</h3>
+<div class="outline-text-3" id="text-org1394901">
+<p>
+断点清除主要用到 <code>clear</code> 和 <code>delete</code> 命令。常见使用如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">clear                     <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#21024;&#38500;&#24403;&#21069;&#34892;&#25152;&#26377; breakpoints</span>
+clear <span style="color: #268bd2; font-weight: bold;">function</span>            <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#21024;&#38500;&#20989;&#25968;&#21517;&#20026; function &#22788;&#30340;&#26029;&#28857;</span>
+clear filename:<span style="color: #268bd2; font-weight: bold;">function</span>   <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#21024;&#38500;&#25991;&#20214; filename &#20013;&#20989;&#25968; function &#22788;&#30340;&#26029;&#28857;</span>
+clear lineNum             <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#21024;&#38500;&#34892;&#21495;&#20026; lineNum &#22788;&#30340;&#26029;&#28857;</span>
+clear f:lename&#65306;lineNum   <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#21024;&#38500;&#25991;&#20214; filename &#20013;&#34892;&#21495;&#20026; lineNum &#22788;&#30340;&#26029;&#28857;</span>
+delete                    <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#21024;&#38500;&#25152;&#26377; breakpoints&#12289;watchpoints &#21644; catchpoints</span>
+delete bnum               <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#21024;&#38500;&#26029;&#28857;&#21495;&#20026; bnum &#30340;&#26029;&#28857;</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org9477b4a" class="outline-2">
+<h2 id="org9477b4a">变量查看</h2>
+<div class="outline-text-2" id="text-org9477b4a">
+</div>
+<div id="outline-container-org3fad9ff" class="outline-3">
+<h3 id="org3fad9ff">前言</h3>
+<div class="outline-text-3" id="text-org3fad9ff">
+<p>
+在启动调试以及设置断点之后，就到了我们非常关键的一步-查看变量。GDB 调试最大的目的之一就是走查代码，查看运行结果是否符合预期。既然如此，我们就不得不了解一些查看各种类型变量的方法，以帮助我们进一步定位问题。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org870e231" class="outline-3">
+<h3 id="org870e231">准备工作</h3>
+<div class="outline-text-3" id="text-org870e231">
+<div class="org-src-container">
+<pre class="src src-c"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">checkvars.c</span>
+<span style="color: #d75fd7;">#include</span> <span style="color: #2aa198;">&lt;stdio.h&gt;</span>
+<span style="color: #d75fd7;">#include</span> <span style="color: #2aa198;">&lt;stdlib.h&gt;</span>
+<span style="color: #d75fd7;">#include</span> <span style="color: #2aa198;">"checkvars.h"</span>
+
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #d75fd7; font-weight: bold;">main</span>(<span style="color: #df005f; font-weight: bold;">void</span>) {
+    <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">a</span> = 10;
+    <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">b</span>[] = {0, 1, 2, 3, 4};
+    <span style="color: #df005f; font-weight: bold;">char</span> <span style="color: #8787d7;">c</span>[] = <span style="color: #2aa198;">"hello world"</span>;
+
+    <span style="color: #df005f; font-weight: bold;">int</span>* <span style="color: #8787d7;">d</span> = (<span style="color: #df005f; font-weight: bold;">int</span> *)malloc(a * <span style="color: #268bd2; font-weight: bold;">sizeof</span>(<span style="color: #df005f; font-weight: bold;">int</span>));
+    <span style="color: #268bd2; font-weight: bold;">if</span> (<span style="color: #d75fd7;">NULL</span> == d) {
+        printf(<span style="color: #2aa198;">"malloc error\n"</span>);
+        <span style="color: #268bd2; font-weight: bold;">return</span> -1;
+    }
+
+    <span style="color: #268bd2; font-weight: bold;">for</span> (<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">i</span> = 0; i &lt; 10; ++ i)
+        d[i] = i;
+
+    free(d);
+    d = <span style="color: #d75fd7;">NULL</span>;
+    <span style="color: #df005f; font-weight: bold;">float</span> <span style="color: #8787d7;">e</span> = 8.5f;
+    <span style="color: #268bd2; font-weight: bold;">return</span> 0;
+} 
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-c"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">checkvars.h</span>
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">a</span> = 11; 
+</pre>
+</div>
+
+<p>
+编译：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">gcc -g -o checkvars checkvars.c
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgfbfcb11" class="outline-3">
+<h3 id="orgfbfcb11">普通变量查看</h3>
+<div class="outline-text-3" id="text-orgfbfcb11">
+</div>
+<div id="outline-container-org12dc0ce" class="outline-4">
+<h4 id="org12dc0ce">打印基本类型变量，数组，字符数组</h4>
+<div class="outline-text-4" id="text-org12dc0ce">
+<p>
+最常见的使用便是使用 <code>print</code> （可简写为 <code>p</code> ）打印变量内容。<br>
+</p>
+
+<p>
+当然有时候，多个函数或者多个文件会有同一个变量名，这个时候可以在前面加上函数名或者文件名来区分：<br>
+</p>
+
+<img src="./images/gdb_打印基本类型变量.png" />
+
+<p>
+这里所打印的 <code>a</code> 值是我们定义在 <code>checkvars.h</code> 文件里的，而 <code>b</code> 值是 <code>main</code> 函数中的 <code>b</code> 。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd2b1265" class="outline-4">
+<h4 id="orgd2b1265">打印指针指向内容</h4>
+<div class="outline-text-4" id="text-orgd2b1265">
+<img src="./images/gdb_打印指针指向的内容.png" />
+
+<p>
+如果还是使用上面的方式打印指针指向的内容，那么打印出来的只是指针地址而已，例如：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">(gdb) p d
+$<span style="color: #8787d7;">6</span> = (int *) 0x8402260
+</pre>
+</div>
+
+<p>
+而如果想要打印指针指向的内容，需要解引用：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">(gdb) p *d
+$<span style="color: #8787d7;">7</span> = 0
+(gdb) p *d@10
+$<span style="color: #8787d7;">8</span> = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
+</pre>
+</div>
+
+<p>
+从上面可以看到，仅仅使用 <code>*</code> 只能打印第一个值，如果要打印多个值，后面跟上 <code>@</code> 并加上要打印的长度。<br>
+</p>
+
+<p>
+或者 <code>@</code> 后面跟上变量值：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">(gdb) p *d@a
+$<span style="color: #8787d7;">9</span> = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
+</pre>
+</div>
+
+<p>
+由于 <code>a</code> 的值为 10，并且是作为整型指针数据长度，因此后面可以直接跟着 <code>a</code> ，也可以打印出所有内容。<br>
+</p>
+
+<p>
+另外值得一提的是， <code>$</code> 可表示上一个变量，而假设此时有一个链表 <code>linkNode</code> ，它有 <code>next</code> 成员代表下一个节点，则可使用下面方式不断打印链表内容：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">(gdb) p *linkNode   <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">(&#36825;&#37324;&#26174;&#31034;linkNode&#33410;&#28857;&#20869;&#23481;)</span>
+(gdb) p *$.next     <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">(&#36825;&#37324;&#26174;&#31034;linkNode&#33410;&#28857;&#19979;&#19968;&#20010;&#33410;&#28857;&#30340;&#20869;&#23481;)</span>
+</pre>
+</div>
+
+<p>
+如果想要查看前面数组的内容，你可以将下标一个一个累加，还可以定义一个类似 UNIX 环境变量，例如：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">(gdb) <span style="color: #268bd2;">set</span> $<span style="color: #8787d7;">index</span>=0
+(gdb) p b[$<span style="color: #8787d7;">index</span>++]
+$<span style="color: #8787d7;">11</span> = 1
+(gdb) p b[$<span style="color: #8787d7;">index</span>++]
+$<span style="color: #8787d7;">12</span> = 2
+(gdb) p b[$<span style="color: #8787d7;">index</span>++]
+$<span style="color: #8787d7;">13</span> = 3
+</pre>
+</div>
+
+<p>
+这样就不需要每次修改下标去打印啦。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgfbf6891" class="outline-3">
+<h3 id="orgfbf6891">按照特定格式打印变量</h3>
+<div class="outline-text-3" id="text-orgfbf6891">
+<p>
+对于简单的数据， <code>print</code> 默认的打印方式已经足够了，它会根据变量类型的格式打印出来，但是有时候这还不够，我们需要更多的格式控制。常见格式控制字符如下：<br>
+</p>
+
+<ul class="org-ul">
+<li>x 按十六进制格式显示变量。<br></li>
+<li>d 按十进制格式显示变量。<br></li>
+<li>u 按十六进制格式显示无符号整型。<br></li>
+<li>o 按八进制格式显示变量。<br></li>
+<li>t 按二进制格式显示变量。<br></li>
+<li>a 按十六进制格式显示变量。<br></li>
+<li>c 按字符格式显示变量。<br></li>
+<li>f 按浮点数格式显示变量。<br></li>
+</ul>
+
+<p>
+还是以辅助程序来说明，正常方式打印字符数组 <code>c</code> ：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">(gdb) p c
+$<span style="color: #8787d7;">10</span> = <span style="color: #2aa198;">"hello world"</span>
+</pre>
+</div>
+
+<p>
+但是如果我们要查看它的十六进制格式打印呢？<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">(gdb) p/x c
+$<span style="color: #8787d7;">11</span> = {0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64, 0x0}
+</pre>
+</div>
+
+<p>
+但是如果我们想用这种方式查看浮点数的二进制格式是怎样的是不行的，因为直接打印它首先会被转换成整型，因此最终会得到8：<br>
+</p>
+
+<img src="./images/gdb_查看浮点数的二进制格式.png" />
+
+<p>
+那么就需要另外一种查看方式了。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2858ee4" class="outline-3">
+<h3 id="org2858ee4">查看内存内容</h3>
+<div class="outline-text-3" id="text-org2858ee4">
+<p>
+<code>examine</code> （简写为 <code>x</code> ）可以用来查看内存地址中的值。语法如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">x/[n][f][u] addr
+</pre>
+</div>
+
+<p>
+其中：<br>
+</p>
+
+<ul class="org-ul">
+<li>n 表示要显示的内存单元数，默认值为1<br></li>
+<li>f 表示要打印的格式，前面已经提到了格式控制字符<br></li>
+<li>u 要打印的单元长度<br></li>
+<li>addr 内存地址<br></li>
+</ul>
+
+<p>
+单元类型常见有如下：<br>
+</p>
+
+<ul class="org-ul">
+<li>b 字节<br></li>
+<li>h 半字，即双字节<br></li>
+<li>w 字，即四字节<br></li>
+<li>g 八字节<br></li>
+</ul>
+
+<p>
+我们通过一个实例来看，假如我们要把float变量e按照二进制方式打印，并且打印单位是一字节：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">(gdb) x/4tb &amp;e
+0x7ffffffedda4: 00000000        00000000        00001000        01000001
+</pre>
+</div>
+
+<p>
+可以看到，变量 <code>e</code> 的四个字节都以二进制的方式打印出来了。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org244684e" class="outline-3">
+<h3 id="org244684e">自动显示变量内容</h3>
+<div class="outline-text-3" id="text-org244684e">
+<p>
+假设我们希望程序断住时，就显示某个变量的值，可以使用 <code>display</code> 命令。<br>
+</p>
+
+<img src="./images/gdb_自动查看变量.png" />
+
+<div class="org-src-container">
+<pre class="src src-bash">(gdb) display a
+1: <span style="color: #8787d7;">a</span> = 10
+</pre>
+</div>
+
+<p>
+那么每次程序断住时，就会打印 <code>a</code> 的值。要查看哪些变量被设置了 <code>display</code> ，可以使用：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">Auto-display expressions now<span style="color: #268bd2; font-weight: bold;"> in</span> effect:
+Num Enb Expression
+1:   y  a
+2:   y  c
+3:   y  e
+</pre>
+</div>
+
+<p>
+如果想要清除可以：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">delete display num   <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">num &#20026;&#21069;&#38754;&#21464;&#37327;&#21069;&#30340;&#32534;&#21495;&#65292;&#19981;&#24102; num &#26102;&#28165;&#38500;&#25152;&#26377;&#12290;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org68a500b" class="outline-3">
+<h3 id="org68a500b">查看寄存器内容</h3>
+<div class="outline-text-3" id="text-org68a500b">
+<div class="org-src-container">
+<pre class="src src-bash">(gdb) info registers
+rax            0x0      0
+rbx            0x0      0
+rcx            0x1      1
+rdx            0x8402010        138420240
+rsi            0x8402018        138420248
+rdi            0x0      0
+rbp            0x7ffffffedde0   0x7ffffffedde0 
+&#65288;&#20869;&#23481;&#36807;&#22810;&#26410;&#26174;&#31034;&#23436;&#20840;&#65289;
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orge377651" class="outline-2">
+<h2 id="orge377651">单步调试</h2>
+<div class="outline-text-2" id="text-orge377651">
+</div>
+<div id="outline-container-org4fd18ef" class="outline-3">
+<h3 id="org4fd18ef">前言</h3>
+<div class="outline-text-3" id="text-org4fd18ef">
+<p>
+在启动调试设置断点观察之后，没有我们想要的信息怎么办呢？这个时候，就需要单步执行或者跳过当前断点继续执行等等。而本文所说的单步调试并非仅仅指单步执行，而是指在你的控制之下，按要求执行语句。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf5bfd26" class="outline-3">
+<h3 id="orgf5bfd26">准备</h3>
+<div class="outline-text-3" id="text-orgf5bfd26">
+<div class="org-src-container">
+<pre class="src src-c"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">step.c</span>
+<span style="color: #d75fd7;">#include</span> <span style="color: #2aa198;">&lt;stdio.h&gt;</span>
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;&#20004;&#20010;&#25968;&#30340;&#21644;</span>
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #d75fd7; font-weight: bold;">add</span>(<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">a</span>, <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">b</span>) {
+    <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">c</span> = a + b;
+    <span style="color: #268bd2; font-weight: bold;">return</span> c;
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25171;&#21360; [0, n) &#30340;&#25968;</span>
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #d75fd7; font-weight: bold;">count</span>(<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">n</span>) {
+    <span style="color: #268bd2; font-weight: bold;">if</span> (n &lt; 0)
+        <span style="color: #268bd2; font-weight: bold;">return</span> 0;
+
+    <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">i</span> = 0;
+    <span style="color: #268bd2; font-weight: bold;">while</span> (i &lt; n) {
+        printf(<span style="color: #2aa198;">"%d\n"</span>, i);
+        i ++ ;
+    }
+    <span style="color: #268bd2; font-weight: bold;">return</span> i;
+}
+
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #d75fd7; font-weight: bold;">main</span>(<span style="color: #df005f; font-weight: bold;">void</span>) {
+    <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">a</span> = 3;
+    <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">b</span> = 7;
+    printf(<span style="color: #2aa198;">"it will calc a + b\n"</span>);
+    <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">c</span> = add(a, b);
+    printf(<span style="color: #2aa198;">"%d + %d = %d\n"</span>, a, b, c);
+    count(c);
+    <span style="color: #268bd2; font-weight: bold;">return</span> 0;
+} 
+</pre>
+</div>
+
+<p>
+编译：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">gcc -g -o step step.c
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org27a85db" class="outline-3">
+<h3 id="org27a85db">列出源码 - list</h3>
+<div class="outline-text-3" id="text-org27a85db">
+<p>
+特别说明一条命令， <code>list</code> （可简写为 <code>l</code> ），它可以将源码列出来，例如：<br>
+</p>
+
+<ul class="org-ul">
+<li><p>
+查看 <code>list</code> 的帮助文档<br>
+</p>
+<img src="./images/gdb_查看list的帮助文档.png" /></li>
+<li><p>
+<code>l</code> （ <code>list</code> ）列出源码<br>
+</p>
+<pre class="example">
+(gdb) list
+16          while (i &lt; n) {
+17              printf("%d\n", i);
+18              i ++ ;
+19          }
+20          return i;
+21      }
+22
+23      int main(void) {
+24          int a = 3;
+25          int b = 7;
+</pre></li>
+<li><p>
+继续 <code>list</code> 或继续回车<br>
+</p>
+
+<p>
+会接着上面的源码继续打印后面的源码。<br>
+</p>
+
+<pre class="example">
+(gdb) list
+26          printf("it will calc a + b\n");
+27          int c = add(a, b);
+28          printf("%d + %d = %d\n", a, b, c);
+29          count(c);
+30          return 0;
+31      } 
+</pre></li>
+<li><p>
+<code>list</code> 到文件末尾<br>
+</p>
+<pre class="example">
+(gdb) list
+Line number 32 out of range; step.c has 31 lines. 
+</pre></li>
+<li><p>
+<code>list + 数字</code><br>
+</p>
+
+<p>
+打印行号为 "数字" 的周围十行源码。<br>
+</p>
+
+<pre class="example">
+(gdb) list 20
+15          int i = 0;
+16          while (i &lt; n) {
+17              printf("%d\n", i);
+18              i ++ ;
+19          }
+20          return i;
+21      }
+22
+23      int main(void) {
+24          int a = 3;
+</pre></li>
+<li><p>
+<code>list -</code><br>
+</p>
+
+<p>
+打印上次查看源码位置的上面部分源码，如果是 <code>list +</code> ，则是下面部分源码。<br>
+</p>
+
+<pre class="example">
+(gdb) list -
+5       int add(int a, int b) {
+6           int c = a + b;
+7           return c;
+8       }
+9
+10      // 打印 [0, n) 的数
+11      int count(int n) {
+12          if (n &lt; 0)
+13              return 0;
+14 
+</pre></li>
+<li><p>
+<code>list 数字1, 数字2</code><br>
+</p>
+
+<p>
+打印数字1，数字2之间的源码。<br>
+</p>
+
+<pre class="example">
+(gdb) list 11, 20
+11      int count(int n) {
+12          if (n &lt; 0)
+13              return 0;
+14
+15          int i = 0;
+16          while (i &lt; n) {
+17              printf("%d\n", i);
+18              i ++ ;
+19          }
+20          return i; 
+</pre></li>
+<li><p>
+<code>list 数字1,</code><br>
+</p>
+
+<p>
+省略了 "数字2"，也可以省略 "数字1" 显示的行数是默认的 10 行。<br>
+</p>
+
+<pre class="example">
+(gdb) list 3,
+3
+4       // 返回两个数的和
+5       int add(int a, int b) {
+6           int c = a + b;
+7           return c;
+8       }
+9
+10      // 打印 [0, n) 的数
+11      int count(int n) {
+12          if (n &lt; 0)
+</pre></li>
+<li><p>
+<code>list 函数名</code><br>
+</p>
+
+<p>
+函数周围十行源码。<br>
+</p>
+
+<pre class="example">
+(gdb) list count
+6           int c = a + b;
+7           return c;
+8       }
+9
+10      // 打印 [0, n) 的数
+11      int count(int n) {
+12          if (n &lt; 0)
+13              return 0;
+14
+15          int i = 0; 
+</pre></li>
+<li><p>
+<code>list 文件名:数字</code><br>
+</p>
+<pre class="example">
+(gdb) list step.c:9
+4       // 返回两个数的和
+5       int add(int a, int b) {
+6           int c = a + b;
+7           return c;
+8       }
+9
+10      // 打印 [0, n) 的数
+11      int count(int n) {
+12          if (n &lt; 0)
+13              return 0; 
+</pre></li>
+<li><p>
+<code>list 文件名:数字1, 文件名:数字2</code><br>
+</p>
+<pre class="example">
+(gdb) list step.c:3,step.c:7
+3
+4       // 返回两个数的和
+5       int add(int a, int b) {
+6           int c = a + b;
+7           return c;
+</pre></li>
+<li><p>
+<code>list 文件名:函数名</code><br>
+</p>
+<pre class="example">
+(gdb) list step.c:count
+6           int c = a + b;
+7           return c;
+8       }
+9
+10      // 打印 [0, n) 的数
+11      int count(int n) {
+12          if (n &lt; 0)
+13              return 0;
+14
+15          int i = 0; 
+</pre></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orge309932" class="outline-3">
+<h3 id="orge309932">单步执行 - next</h3>
+<div class="outline-text-3" id="text-orge309932">
+<p>
+<code>next</code> 命令（可简写为 <code>n</code> ）用于在程序断住后，继续执行下一条语句，假设已经启动调试，并在第 12 行停住，如果要继续执行，则使用 <code>n</code> 执行下一条语句，如果后面跟上数字 num ，则表示执行该命令 num 次，就达到继续执行 <code>n</code> 行的效果了：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">$ gdb step
+(gdb) b 25   <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#23558;&#26029;&#28857;&#35774;&#32622;&#22312; 25 &#34892;</span>
+Breakpoint 1 at 0x6fb: file step.c, line 25.
+(gdb) run    <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#36816;&#34892;&#31243;&#24207;</span>
+Starting program: /home/haoran/gdb/step
+
+Breakpoint 1, main () at step.c:25
+25          int <span style="color: #8787d7;">b</span> = 7;
+(gdb) n      <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#21333;&#27493;&#25191;&#34892;</span>
+26          printf(<span style="color: #2aa198;">"it will calc a + b\n"</span>);
+(gdb) n 2    <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#21333;&#27493;&#25191;&#34892;&#20004;&#27425;</span>
+it will calc a + b
+28          printf(<span style="color: #2aa198;">"%d + %d = %d\n"</span>, a, b, c);
+(gdb) list 26, 28
+26          printf(<span style="color: #2aa198;">"it will calc a + b\n"</span>);
+27          int <span style="color: #8787d7;">c</span> = add(a, b);
+28          printf(<span style="color: #2aa198;">"%d + %d = %d\n"</span>, a, b, c); 
+</pre>
+</div>
+
+<p>
+从上面的执行结果可以看到，我们在 25 行处断住，执行 <code>n</code> 之后，运行到 26 行，运行 <code>n 2</code> 之后，运行到 28 行，但是有没有发现一个问题，为什么不会进入到 <code>add</code> 函数内部呢？那就需要用到另外一个命令啦。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgfc7c1c7" class="outline-3">
+<h3 id="orgfc7c1c7">单步进入 - step</h3>
+<div class="outline-text-3" id="text-orgfc7c1c7">
+<p>
+对于上面的情况，如果我们想跟踪 <code>add</code> 函数内部的情况，可以使用 <code>step</code> 命令（可简写为 <code>s</code> ），它可以单步跟踪到函数内部，但前提是该函数有调试信息并且有源码信息。<br>
+</p>
+
+<img src="./images/gdb_step.png" />
+
+<p>
+从上面的过程可以看到， <code>s</code> 命令会尝试进入函数，但是如果没有该函数源码，需要跳过该函数执行，可使用 <code>finish</code> 命令，继续后面的执行。如果没有函数调用， <code>s</code> 的作用与 <code>n</code> 的作用并无差别，仅仅是继续执行下一行。它后面也可以跟数字，表明要执行的次数。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">(gdb) show step-mode 
+Mode of the step operation is off.
+(gdb) <span style="color: #268bd2;">set</span> step-mode on
+(gdb) <span style="color: #268bd2;">set</span> step-mode off 
+</pre>
+</div>
+
+<pre class="example">
+(gdb) show step-mode
+Mode of the step operation is off.
+(gdb) set step-mode on
+(gdb) show step-mode
+Mode of the step operation is on.
+(gdb) n 3
+main () at step.c:28
+28          printf("%d + %d = %d\n", a, b, c);
+(gdb) s
+__printf (format=0x80007eb "%d + %d = %d\n") at printf.c:28
+28      printf.c: No such file or directory.
+(gdb) n
+33      in printf.c
+(gdb) n
+32      in printf.c
+(gdb) set step-mode off
+(gdb) n
+33      in printf.c
+(gdb) n
+3 + 7 = 10
+37      in printf.c
+(gdb) n
+main () at step.c:29
+29          count(c);
+(gdb) 
+</pre>
+</div>
+</div>
+<div id="outline-container-orgdd98e49" class="outline-3">
+<h3 id="orgdd98e49">继续执行到下一个断点 - continue</h3>
+<div class="outline-text-3" id="text-orgdd98e49">
+<p>
+使用 <code>continue</code> 命令（可简写为 <code>c</code> 或者 ~fg~），程序会从一个断点处继续执行直到再次遇到断点。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">(gdb) b 25
+Breakpoint 1 at 0x6fb: file step.c, line 25.
+(gdb) b 28
+Breakpoint 2 at 0x720: file step.c, line 28.
+(gdb) b 30
+Breakpoint 3 at 0x746: file step.c, line 30.
+(gdb) run
+Starting program: /home/haoran/gdb/step
+
+Breakpoint 1, main () at step.c:25
+25          int <span style="color: #8787d7;">b</span> = 7;
+(gdb) c
+Continuing.
+it will calc a + b
+
+Breakpoint 2, main () at step.c:28
+28          printf(<span style="color: #2aa198;">"%d + %d = %d\n"</span>, a, b, c);
+(gdb) c
+Continuing.
+3 + <span style="color: #8787d7;">7</span> = 10
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+
+Breakpoint 3, main () at step.c:30
+30          return 0;
+(gdb) 
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org98e54db" class="outline-3">
+<h3 id="org98e54db">继续运行到指定位置 - until</h3>
+<div class="outline-text-3" id="text-org98e54db">
+<p>
+假如我们在 25 行停住了，现在想要运行到 29 行停住，就可以使用 <code>until</code> 命令（可简写为 <code>u</code> ）：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">(gdb) b 25
+Breakpoint 1 at 0x6fb: file step.c, line 25.
+(gdb) run
+Starting program: /home/haoran/gdb/step
+
+Breakpoint 1, main () at step.c:25
+25          int <span style="color: #8787d7;">b</span> = 7;
+(gdb) u 29
+it will calc a + b
+3 + <span style="color: #8787d7;">7</span> = 10
+<span style="color: #d75fd7; font-weight: bold;">main</span> () at step.c:29
+29          count(c);
+(gdb)  
+</pre>
+</div>
+
+<p>
+可以看到，在执行 <code>u 29</code> 之后，它在 29 行停住了。它利用的是临时断点。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org1d03b01" class="outline-3">
+<h3 id="org1d03b01">跳过执行 - skip</h3>
+<div class="outline-text-3" id="text-org1d03b01">
+<p>
+<code>skip</code> 可以在 <code>step</code> 时跳过一些不想关注的函数或者某个文件的代码:<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">$ gdb step
+(gdb) b 27
+Breakpoint 1 at 0x70e: file step.c, line 27.
+(gdb) skip <span style="color: #268bd2; font-weight: bold;">function</span> <span style="color: #d75fd7; font-weight: bold;">add</span>
+Function add will be skipped when stepping.
+(gdb) info skip
+Num   Enb Glob File                 RE Function
+1     y      n &lt;none&gt;                n add
+(gdb) run
+Starting program: /home/haoran/gdb/step
+it will calc a + b
+
+Breakpoint 1, main () at step.c:27
+27          int <span style="color: #8787d7;">c</span> = add(a, b);
+(gdb) s
+28          printf(<span style="color: #2aa198;">"%d + %d = %d\n"</span>, a, b, c);
+(gdb) 
+</pre>
+</div>
+
+<p>
+可以看到，再使用 <code>skip</code> 之后，使用 <code>step</code> 将不会进入 <code>add</code> 函数。<br>
+</p>
+
+<p>
+<code>step</code> 也后面也可以跟文件：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">(gdb)skip file step.c
+</pre>
+</div>
+
+<p>
+这样 step.c 中的函数都不会进入。<br>
+</p>
+
+<p>
+其他相关命令：<br>
+</p>
+
+<ul class="org-ul">
+<li>skip delete [num] 删除skip<br></li>
+<li>skip enable [num] 使能skip<br></li>
+<li>skip disable [num] 去使能skip<br></li>
+</ul>
+
+<p>
+其中 num 是前面通过 <code>info skip</code> 看到的 num 值，上面可以带或不带该值，如果不带 num，则针对所有 skip，如果带上了，则只针对某一个 skip。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgedfc0ff" class="outline-2">
+<h2 id="orgedfc0ff">源码查看</h2>
+<div class="outline-text-2" id="text-orgedfc0ff">
+</div>
+<div id="outline-container-org4f44a43" class="outline-3">
+<h3 id="org4f44a43">准备工作</h3>
+<div class="outline-text-3" id="text-org4f44a43">
+<div class="org-src-container">
+<pre class="src src-c"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">main.c</span>
+<span style="color: #d75fd7;">#include</span> <span style="color: #2aa198;">&lt;stdio.h&gt;</span>
+<span style="color: #d75fd7;">#include</span> <span style="color: #2aa198;">"print.h"</span>
+
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    printf(<span style="color: #2aa198;">"it will print from 0 to 5\n"</span>);
+    print01(5);
+    printf(<span style="color: #2aa198;">"print end\n"</span>);
+
+    printf(<span style="color: #2aa198;">"it will print from 5 to 0\n"</span>);
+    print02(5);
+    printf(<span style="color: #2aa198;">"print end\n"</span>);
+    <span style="color: #268bd2; font-weight: bold;">return</span> 0;
+} 
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-c"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">print.h</span>
+<span style="color: #d75fd7;">#if</span><span style="color: #d75fd7;">n</span><span style="color: #d75fd7;">def</span> _PRINT_H
+<span style="color: #d75fd7;">#define</span> <span style="color: #8787d7;">_PRINT_H</span>
+<span style="color: #d75fd7;">#include</span> <span style="color: #2aa198;">&lt;stdio.h&gt;</span>
+<span style="color: #df005f; font-weight: bold;">void</span> <span style="color: #d75fd7; font-weight: bold;">print01</span>(<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">n</span>);
+<span style="color: #df005f; font-weight: bold;">void</span> <span style="color: #d75fd7; font-weight: bold;">print02</span>(<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">n</span>);
+<span style="color: #d75fd7;">#endif</span> 
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-c"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">print.c</span>
+<span style="color: #d75fd7;">#include</span> <span style="color: #2aa198;">"print.h"</span>
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">0 to n</span>
+<span style="color: #df005f; font-weight: bold;">void</span> <span style="color: #d75fd7; font-weight: bold;">print01</span>(<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">n</span>) {
+    <span style="color: #268bd2; font-weight: bold;">if</span> (n &lt; 0)
+        <span style="color: #268bd2; font-weight: bold;">return</span>;
+
+    <span style="color: #268bd2; font-weight: bold;">while</span> (n) {
+        printf(<span style="color: #2aa198;">"%d\n"</span>, n);
+        n -- ;
+    }
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">n to 0</span>
+<span style="color: #df005f; font-weight: bold;">void</span> <span style="color: #d75fd7; font-weight: bold;">print02</span>(<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">n</span>) {
+    <span style="color: #268bd2; font-weight: bold;">if</span> (n &lt; 0)
+        <span style="color: #268bd2; font-weight: bold;">return</span>;
+
+    <span style="color: #268bd2; font-weight: bold;">for</span> (<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">i</span> = 0; i &lt; n; i ++ ) {
+        printf(<span style="color: #2aa198;">"%d\n"</span>, i);
+    }
+} 
+</pre>
+</div>
+
+<p>
+编译运行：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">$ gcc -g -o main main.c print.c
+$ ./main
+it will print from 0 to 5
+5
+4
+3
+2
+1
+<span style="color: #268bd2;">print</span> end
+it will print from 5 to 0
+0
+1
+2
+3
+4
+<span style="color: #268bd2;">print</span> end
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org68da4b1" class="outline-3">
+<h3 id="org68da4b1">列出源码</h3>
+<div class="outline-text-3" id="text-org68da4b1">
+<p>
+前面 <span class="underline">列出源码 - list</span> 部分已经讲解如何查看源码，这里再添加一些补充：<br>
+</p>
+
+<ul class="org-ul">
+<li><p>
+设置每次列出的行数<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-bash">(gdb) <span style="color: #268bd2;">set</span> listsize 20
+(gdb) show listsize
+Number of source lines gdb will list by default is 20.
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgd06b477" class="outline-3">
+<h3 id="orgd06b477">指定源码路径</h3>
+<div class="outline-text-3" id="text-orgd06b477">
+<p>
+在查看源码之前，首先要确保我们的程序能够关联到源码，一般来说，我们在自己的机器上加上 <code>-g</code> 参数编译完之后，使用 gdb 都能查看到源码，但是如果出现下面的情况呢？<br>
+</p>
+</div>
+<div id="outline-container-org8ee2411" class="outline-4">
+<h4 id="org8ee2411">源码被移走</h4>
+<div class="outline-text-4" id="text-org8ee2411">
+<img src="./images/gdb_修改源码位置.png" />
+
+<div class="org-src-container">
+<pre class="src src-bash">(gdb) l
+1       main.c: No such file or directory.  
+</pre>
+</div>
+
+<p>
+提示找不到源码文件，这里我们使用 <code>dir</code> 命令指定源码路径，例如：<br>
+</p>
+
+<pre class="example">
+(gdb) dir ./tmp
+Source directories searched: /home/haoran/gdb/move/./tmp:$cdir:$cwd
+(gdb) l
+1       // main.c
+2       #include &lt;stdio.h&gt;
+3       #include "print.h"
+4
+5       int main() {
+6           printf("it will print from 0 to 5\n");
+7           print01(5);
+8           printf("print end\n");
+9
+10          printf("it will print from 5 to 0\n");
+</pre>
+
+<p>
+这时候就能找到源码路径了，这里使用的是相对路径，为了保险起见，你也可以使用绝对路径。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgaa71650" class="outline-4">
+<h4 id="orgaa71650">更换源码目录</h4>
+<div class="outline-text-4" id="text-orgaa71650">
+<p>
+例如，你编译好的程序文件，放到了另外一台机器上进行调试，或者你的源码文件全都移动到了另外一个目录，怎么办呢？当然你还可以使用前面的方法添加源码搜索路径，也可以使用 <code>set substitute-path from to</code> 将原来的路径替换为新的路径，那么我们如何知道原来的源码路径是什么呢？借助 <code>readelf</code> 命令可以知道：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">$ readelf main -p .debug_str
+
+String dump of section <span style="color: #2aa198;">'.debug_str'</span>:
+[     0]  _IO_buf_end
+[     c]  _old_offset
+...
+[    61]  /home/haoran/gdb
+...
+[   146]  main
+...
+[   174]  main.c
+...
+</pre>
+</div>
+
+<p>
+<code>main</code> 为你将要调试的程序名，这里我们可以看到原来的路径，那么我们现在替换掉它：<br>
+</p>
+
+<img src="./images/gdb_更换源码目录.png" />
+
+<p>
+设置完成后，可以通过 <code>show substitute-path</code> 来查看设置结果。这样它也能在正确的路径查找源码啦。<br>
+</p>
+
+<p>
+需要注意的是，这里对路径做了字符串替换，那么如果你有多个路径，可以做多个替换。甚至可以对指定文件路径进行替换。<br>
+</p>
+
+<p>
+最后你也可以通过 <code>unset substitute-path [path]</code> 取消替换。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orge362b3b" class="outline-3">
+<h3 id="orge362b3b">编辑源码</h3>
+<div class="outline-text-3" id="text-orge362b3b">
+<p>
+为了避免已经启动了调试之后，需要编辑源码，又不想退出，可以直接在gdb模式下编辑源码，它默认使用的编辑器是 <code>/bin/ex</code> ，但是你的机器上可能没有这个编辑器，或者你想使用自己熟悉的编辑器，那么可以通过下面的方式进行设置：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">(gdb) edit
+bash: /bin/ex: No such file or directory
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-bash">$ <span style="color: #8787d7;">EDITOR</span>=/usr/bin/vim
+$ export EDITOR
+</pre>
+</div>
+
+<p>
+<code>/usr/bin/vim</code> 可以替换为你熟悉的编辑器的路径，如果你不知道你的编辑器在什么位置，可借助 <code>whereis</code> 命令或者 <code>witch</code> 命令查看：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">$ whereis vim
+vim: /usr/bin/vim /usr/bin/vim.basic /usr/bin/vim.tiny /etc/vim /usr/share/vim /mnt/c/Users/haora/haoran/Software/gvim/Vim/vim82/vim.exe /usr/share/man/man1/vim.1.gz
+$ which vim
+/usr/bin/vim
+</pre>
+</div>
+
+<p>
+设置之后，就可以在 gdb 调试模式下进行编辑源码了，使用命令 <code>edit location</code> ，例如：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">(gdb)edit 3          <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#32534;&#36753;&#31532;&#19977;&#34892;</span>
+(gdb)edit print01    <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#32534;&#36753; print01 &#20989;&#25968;</span>
+(gdb)edit print.c:5  <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#32534;&#36753; print.c &#31532;&#20116;&#34892;</span>
+</pre>
+</div>
+
+<p>
+可自行尝试，这里的 <code>location</code> 和前面介绍的一样，可以跟指定文件的特定行或指定文件的指定函数。<br>
+</p>
+
+<p>
+编辑完保存后，别忘了重新编译程序：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">(gdb)shell gcc -g -o main main.c print.c
+</pre>
+</div>
+
+<p>
+这里要注意，为了在 gdb 调试模式下执行 shell 命令，需要在命令之前加上 shell，表明这是一条 shell 命令。这样就能在不用退出 GDB 调试模式的情况下编译程序了。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org07fc369" class="outline-3">
+<h3 id="org07fc369">另外一种模式</h3>
+<div class="outline-text-3" id="text-org07fc369">
+<p>
+启动时，带上 tui（Text User Interface）参数，会有意想不到的效果，它会将调试在多个文本窗口呈现：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">gdb main -tui
+</pre>
+</div>
+
+<img src="./images/gdb_tui.png" />
 </div>
 </div>
 </div>

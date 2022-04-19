@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-11-24 Wed 15:19 -->
+<!-- 2022-04-06 Wed 01:50 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>宽度优先搜索</title>
@@ -34,7 +34,7 @@
 });
 </script>
 <script type="text/javascript"
-        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+        src="static/MathJax/cdn.bootcdn.net/ajax/libs/mathjax/3.1.2/es5/tex-mml-chtml.min.js"></script>
 </head>
 <body>
 <div id="content">
@@ -43,13 +43,13 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org216a4d3">宽度优先搜索(Breadth First Search BFS)</a></li>
-<li><a href="#org76e5005">洪泛法</a></li>
-<li><a href="#org5a1f2db">最短路模型</a></li>
-<li><a href="#orgc29df9d">多源BFS</a></li>
-<li><a href="#org3a460e4">八数码问题和状态图搜索</a>
+<li><a href="#org71ce1f8">宽度优先搜索（Breadth First Search BFS）</a></li>
+<li><a href="#org710af32">洪泛法</a></li>
+<li><a href="#org893ec49">最短路模型</a></li>
+<li><a href="#org94787f4">多源BFS</a></li>
+<li><a href="#org94a37c6">八数码问题和状态图搜索</a>
 <ul>
-<li><a href="#org145e397">八数码问题</a></li>
+<li><a href="#orgd43b3b2">八数码问题</a></li>
 </ul>
 </li>
 </ul>
@@ -57,9 +57,9 @@
 </div>
 
 
-<div id="outline-container-org216a4d3" class="outline-2">
-<h2 id="org216a4d3">宽度优先搜索(Breadth First Search BFS)</h2>
-<div class="outline-text-2" id="text-org216a4d3">
+<div id="outline-container-org71ce1f8" class="outline-2">
+<h2 id="org71ce1f8">宽度优先搜索（Breadth First Search BFS）</h2>
+<div class="outline-text-2" id="text-org71ce1f8">
 <p>
 广度优先搜索是一种枚举所有路径的下一次状态的搜索方法，对于当前状态来说，一次性选择能到达的所有状态，依次判断各个状态是否满足条件。<br>
 </p>
@@ -69,17 +69,16 @@
 广度优先搜索一般使用队列来实现<br>
 </p>
 <div class="org-src-container">
-<pre class="src src-C++"><span style="color: #7c7c7c; font-style: italic;">//</span><span style="color: #7c7c7c; font-style: italic;">&#22522;&#26412;&#20889;&#27861;(&#27169;&#26495;)</span>
-<span style="color: #AFAFAF;">void</span> <span style="color: #AFAFAF;">BFS</span>(<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">x</span>) {
-    <span style="color: #AFAFAF;">queue</span>&lt;<span style="color: #AFAFAF;">int</span>&gt; <span style="color: #AFAFAF;">q</span>;
+<pre class="src src-C++"><span style="color: #df005f; font-weight: bold;">void</span> <span style="color: #d75fd7; font-weight: bold;">BFS</span>(<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">x</span>) {
+    <span style="color: #df005f; font-weight: bold;">queue</span>&lt;<span style="color: #df005f; font-weight: bold;">int</span>&gt; <span style="color: #8787d7;">q</span>;
     q.push(x);
-    <span style="color: #BD93F9;">while</span> (!q.empty()) {
-        <span style="color: #009F9F; font-style: italic;">/**</span>
-<span style="color: #009F9F; font-style: italic;">         * &#21462;&#20986;&#38431;&#39318;&#20803;&#32032;top</span>
-<span style="color: #009F9F; font-style: italic;">         * &#35775;&#38382;&#38431;&#39318;&#20803;&#32032;top</span>
-<span style="color: #009F9F; font-style: italic;">         * &#23558;&#38431;&#39318;&#20803;&#32032;&#20986;&#38431;</span>
-<span style="color: #009F9F; font-style: italic;">         * &#23558;top&#30340;&#19979;&#19968;&#23618;&#32467;&#28857;&#20013;&#26410;&#26366;&#20837;&#38431;&#30340;&#32467;&#28857;&#20840;&#37096;&#20837;&#38431;&#65292;&#24182;&#35774;&#32622;&#20026;&#24050;&#20837;&#38431;</span>
-<span style="color: #009F9F; font-style: italic;">         **/</span>
+    <span style="color: #268bd2; font-weight: bold;">while</span> (<span style="color: #d75fd7;">!</span>q.empty()) {
+        <span style="color: #af875f;">/**</span>
+<span style="color: #af875f;">         * &#21462;&#20986;&#38431;&#39318;&#20803;&#32032; top</span>
+<span style="color: #af875f;">         * &#35775;&#38382;&#38431;&#39318;&#20803;&#32032; top</span>
+<span style="color: #af875f;">         * &#23558;&#38431;&#39318;&#20803;&#32032;&#20986;&#38431;</span>
+<span style="color: #af875f;">         * &#23558; top &#30340;&#19979;&#19968;&#23618;&#32467;&#28857;&#20013;&#26410;&#26366;&#20837;&#38431;&#30340;&#32467;&#28857;&#20840;&#37096;&#20837;&#38431;&#65292;&#24182;&#35774;&#32622;&#20026;&#24050;&#20837;&#38431;</span>
+<span style="color: #af875f;">         **/</span>
     }
 }
 </pre>
@@ -91,22 +90,22 @@
 </ul>
 </div>
 </div>
-<div id="outline-container-org76e5005" class="outline-2">
-<h2 id="org76e5005">洪泛法</h2>
+<div id="outline-container-org710af32" class="outline-2">
+<h2 id="org710af32">洪泛法</h2>
 </div>
-<div id="outline-container-org5a1f2db" class="outline-2">
-<h2 id="org5a1f2db">最短路模型</h2>
+<div id="outline-container-org893ec49" class="outline-2">
+<h2 id="org893ec49">最短路模型</h2>
 </div>
-<div id="outline-container-orgc29df9d" class="outline-2">
-<h2 id="orgc29df9d">多源BFS</h2>
+<div id="outline-container-org94787f4" class="outline-2">
+<h2 id="org94787f4">多源BFS</h2>
 </div>
-<div id="outline-container-org3a460e4" class="outline-2">
-<h2 id="org3a460e4">八数码问题和状态图搜索</h2>
-<div class="outline-text-2" id="text-org3a460e4">
+<div id="outline-container-org94a37c6" class="outline-2">
+<h2 id="org94a37c6">八数码问题和状态图搜索</h2>
+<div class="outline-text-2" id="text-org94a37c6">
 </div>
-<div id="outline-container-org145e397" class="outline-3">
-<h3 id="org145e397">八数码问题</h3>
-<div class="outline-text-3" id="text-org145e397">
+<div id="outline-container-orgd43b3b2" class="outline-3">
+<h3 id="orgd43b3b2">八数码问题</h3>
+<div class="outline-text-3" id="text-orgd43b3b2">
 <table>
 
 
@@ -170,7 +169,7 @@
 </table>
 
 <p>
-在一个 \(3 \times 3\) 的棋盘上放置编号 \(1 ~ 8\) 的 \(8\) 个方块，另外有一个空格，与空格相邻的数字方块可以移动到空格里<br>
+在一个 \(3 \times 3\) 的棋盘上放置编号 \(1 \sim 8\) 的 \(8\) 个方块，另外有一个空格，与空格相邻的数字方块可以移动到空格里<br>
 </p>
 
 <ul class="org-ul">
@@ -183,11 +182,11 @@
 </p>
 
 <p>
-BFS是从近到远的扩散，适合解决最短距离问题，将棋盘中空格放入数字0，也就是BFS移动数字0，直到到达目标状态。<br>
+BFS 是从近到远的扩散，适合解决最短距离问题，将棋盘中空格放入数字 0，也就是 BFS 移动数字 0，直到到达目标状态。<br>
 </p>
 
 <p>
-一个重要的点是判重，和一般的BFS不同，0可以重新移动到曾经移动到的地方，可以记住当前棋局序列，如初始棋局：{1, 2, 3, 0, 8, 4, 7, 6, 5}，那么就记录123084765已出现。<br>
+一个重要的点是判重，和一般的 BFS 不同，0 可以重新移动到曾经移动到的地方，可以记住当前棋局序列，如初始棋局：\(\{1, 2, 3, 0, 8, 4, 7, 6, 5\}\)，那么就记录 \(123084765\) 已出现。<br>
 </p>
 
 <p>
@@ -195,7 +194,7 @@ BFS是从近到远的扩散，适合解决最短距离问题，将棋盘中空�
 </p>
 
 <ul class="org-ul">
-<li>用BFS + Cantor解决八数码问题。<br></li>
+<li>用 BFS + Cantor 解决八数码问题。<br></li>
 </ul>
 </div>
 </div>

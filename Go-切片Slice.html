@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-02-11 Fri 00:46 -->
+<!-- 2022-04-14 Thu 22:27 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>切片SLICE</title>
@@ -17,13 +17,985 @@
 <body>
 <div id="content">
 <h1 class="title">切片SLICE</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgfcbb230">什么是切片</a></li>
+<li><a href="#org24ac78c">创建切片的各种方式</a></li>
+<li><a href="#orgb8d8764">切片初始化</a></li>
+<li><a href="#org9b2715e">通过 make 来创建切片</a></li>
+<li><a href="#orgfc27f53">用 append 内置函数操作切片（切片追加）</a></li>
+<li><a href="#orgc67e97b">重新分配底层数组</a></li>
+<li><a href="#orgd01e445">slice 中 cap 重新分配规律</a></li>
+<li><a href="#org4cc9d70">切片拷贝</a></li>
+<li><a href="#org158d285">slice 遍历</a></li>
+<li><a href="#org3295a75">切片 resize（调整大小）</a></li>
+<li><a href="#org8f5a1da">数组和切片的内存布局</a></li>
+<li><a href="#org53e273a">字符串和切片（string and slice）</a></li>
+<li><a href="#orga9255a1">含有中文字符串</a></li>
+<li><a href="#orgd6abc13">切片传参</a></li>
+<li><a href="#org999ec04">指向切片的指针：方法接收器</a></li>
+</ul>
+</div>
+</div>
 
+<div id="outline-container-orgfcbb230" class="outline-2">
+<h2 id="orgfcbb230">什么是切片</h2>
+<div class="outline-text-2" id="text-orgfcbb230">
+<p>
+需要说明， <code>slice</code> 并不是数组或数组指针，它通过内部指针和相关属性引用数组片段，以实现变长方案。<br>
+</p>
+
+<ol class="org-ol">
+<li>切片是数组的一个引用，因此切片是引用类型。但自身是结构体，值拷贝传递。<br></li>
+<li>切片的长度可以改变，因此，切片是一个可变的数组。<br></li>
+<li>切片遍历方式和数组一样，可以用 <code>len()</code> 求长度。表示可用元素数量，读写操作不能超过该限制。<br></li>
+<li><code>cap</code> 可以求出 <code>slice</code> 最大扩张容量，不能超出数组限制。 <code>0 &lt;= len(slice) &lt;= len(array)</code> ，其中 <code>array</code> 是 <code>slice</code> 引用的数组。<br></li>
+<li>切片的定义： <code>var 变量名 []类型</code> ，比如 <code>var str []string</code> 、 <code>var arr []int</code> 。<br></li>
+<li>如果 <code>slice == nil</code> ，那么 <code>len</code> 、 <code>cap</code> 结果都等于 0。<br></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-org24ac78c" class="outline-2">
+<h2 id="org24ac78c">创建切片的各种方式</h2>
+<div class="outline-text-2" id="text-org24ac78c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">1. &#22768;&#26126;&#20999;&#29255;</span>
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">s1</span> []<span style="color: #df005f; font-weight: bold;">int</span>
+
+    <span style="color: #268bd2; font-weight: bold;">if</span> s1 == <span style="color: #d75fd7;">nil</span> {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"s1 == nil"</span>)
+    } <span style="color: #268bd2; font-weight: bold;">else</span> {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"s1 != nil"</span>)
+    }
+
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">2. :=</span>
+    <span style="color: #8787d7;">s2</span> := []<span style="color: #df005f; font-weight: bold;">int</span>{}
+    <span style="color: #268bd2; font-weight: bold;">if</span> s2 == <span style="color: #d75fd7;">nil</span> {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"s2 == nil"</span>)
+    } <span style="color: #268bd2; font-weight: bold;">else</span> {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"s2 != nil"</span>)
+    }
+
+    <span style="color: #8787d7;">s3</span> := []<span style="color: #df005f; font-weight: bold;">int</span>{1, 2, 3}
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(s3)
+
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">3. make()</span>
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">s4</span> []<span style="color: #df005f; font-weight: bold;">int</span> = <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">int</span>, 0)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(s1, s2, s4)
+
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">4. &#21021;&#22987;&#21270;&#36171;&#20540;</span>
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">s5</span> []<span style="color: #df005f; font-weight: bold;">int</span> = <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">int</span>, 0, 0)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(s5)
+
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">5. &#20174;&#25968;&#32452;&#20999;&#29255;</span>
+    <span style="color: #8787d7;">arr</span> := [5]<span style="color: #df005f; font-weight: bold;">int</span>{1, 2, 3, 4, 5}
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">s6</span> []<span style="color: #df005f; font-weight: bold;">int</span>
+    s6 = arr[1:4]
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(s6)
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb8d8764" class="outline-2">
+<h2 id="orgb8d8764">切片初始化</h2>
+<div class="outline-text-2" id="text-orgb8d8764">
+<p>
+全局：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr</span> = [...]<span style="color: #df005f; font-weight: bold;">int</span>{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">slice0</span> []<span style="color: #df005f; font-weight: bold;">int</span> = arr[start:end] 
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">slice1</span> []<span style="color: #df005f; font-weight: bold;">int</span> = arr[:end]        
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">slice2</span> []<span style="color: #df005f; font-weight: bold;">int</span> = arr[start:]        
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">slice3</span> []<span style="color: #df005f; font-weight: bold;">int</span> = arr[:] 
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">slice4</span> = arr[:<span style="color: #268bd2;">len</span>(arr) - 1]      <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21435;&#25481;&#20999;&#29255;&#30340;&#26368;&#21518;&#19968;&#20010;&#20803;&#32032;</span>
+</pre>
+</div>
+
+<p>
+局部：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">arr2</span> := [...]<span style="color: #df005f; font-weight: bold;">int</span>{9, 8, 7, 6, 5, 4, 3, 2, 1, 0}
+<span style="color: #8787d7;">slice5</span> := arr[start:end]
+<span style="color: #8787d7;">slice6</span> := arr[:end]        
+<span style="color: #8787d7;">slice7</span> := arr[start:]     
+<span style="color: #8787d7;">slice8</span> := arr[:]  
+<span style="color: #8787d7;">slice9</span> := arr[:<span style="color: #268bd2;">len</span>(arr) - 1]   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21435;&#25481;&#20999;&#29255;&#30340;&#26368;&#21518;&#19968;&#20010;&#20803;&#32032;</span>
+</pre>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">操作</th>
+<th scope="col" class="org-left">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">s[n]</td>
+<td class="org-left">切片 s 中索引位置为 n 的项</td>
+</tr>
+
+<tr>
+<td class="org-left">s[:]</td>
+<td class="org-left">从切片 s 的索引位置 0 到 len(s) - 1 处所获得的切片</td>
+</tr>
+
+<tr>
+<td class="org-left">s[low:]</td>
+<td class="org-left">从切片 s 的索引位置 low 到 len(s) - 1 处所获得的切片</td>
+</tr>
+
+<tr>
+<td class="org-left">s[:high]</td>
+<td class="org-left">从切片 s 的索引位置 0 到 high 处所获得的切片</td>
+</tr>
+
+<tr>
+<td class="org-left">s[low:high]</td>
+<td class="org-left">从切片 s 的索引位置 low 到 high 处所获得的切片</td>
+</tr>
+
+<tr>
+<td class="org-left">s[low:high:max]</td>
+<td class="org-left">从切片 s 的索引位置 low 到 high 处所获得的切片，len = high - low，cap = max - low</td>
+</tr>
+
+<tr>
+<td class="org-left">len(s)</td>
+<td class="org-left">切片 s 的长度，len(s) &lt;= cap(s)</td>
+</tr>
+
+<tr>
+<td class="org-left">cap(s)</td>
+<td class="org-left">切片 s 的容量，cap(s) &gt;= len(s)</td>
+</tr>
+</tbody>
+</table>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr</span> = [...]<span style="color: #df005f; font-weight: bold;">int</span>{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">slice0</span> []<span style="color: #df005f; font-weight: bold;">int</span> = arr[2:8]
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">slice1</span> []<span style="color: #df005f; font-weight: bold;">int</span> = arr[0:6]            <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21487;&#20197;&#31616;&#20889;&#20026; var slice []int = arr[:end]</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">slice2</span> []<span style="color: #df005f; font-weight: bold;">int</span> = arr[5:10]           <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21487;&#20197;&#31616;&#20889;&#20026; var slice[]int = arr[start:]</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">slice3</span> []<span style="color: #df005f; font-weight: bold;">int</span> = arr[0:<span style="color: #268bd2;">len</span>(arr)]     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">var slice []int = arr[:]</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">slice4</span> = arr[:<span style="color: #268bd2;">len</span>(arr) - 1]        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21435;&#25481;&#20999;&#29255;&#30340;&#26368;&#21518;&#19968;&#20010;&#20803;&#32032;</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+                fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"&#20840;&#23616;&#21464;&#37327;&#65306;arr %v\n"</span>, arr)
+                fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"&#20840;&#23616;&#21464;&#37327;&#65306;slice0 %v\n"</span>, slice0)
+                fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"&#20840;&#23616;&#21464;&#37327;&#65306;slice1 %v\n"</span>, slice1)
+                fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"&#20840;&#23616;&#21464;&#37327;&#65306;slice2 %v\n"</span>, slice2)
+                fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"&#20840;&#23616;&#21464;&#37327;&#65306;slice3 %v\n"</span>, slice3)
+                fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"&#20840;&#23616;&#21464;&#37327;&#65306;slice4 %v\n"</span>, slice4)
+
+                fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"-----------------------------------\n"</span>)
+
+                <span style="color: #8787d7;">arr</span> := [...]<span style="color: #df005f; font-weight: bold;">int</span>{9, 8, 7, 6, 5, 4, 3, 2, 1, 0}
+
+                <span style="color: #8787d7;">slice5</span> := arr[2:8]
+                slice6 := arr[0:6]             <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21487;&#20197;&#31616;&#20889;&#20026; slice := arr[:end]</span>
+                slice7 := arr[5:10]            <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21487;&#20197;&#31616;&#20889;&#20026; slice := arr[start:]</span>
+                slice8 := arr[0:<span style="color: #268bd2;">len</span>(arr)]      <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">slice := arr[:]</span>
+                <span style="color: #8787d7;">slice9</span> := arr[:<span style="color: #268bd2;">len</span>(arr) - 1]   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21435;&#25481;&#20999;&#29255;&#30340;&#26368;&#21518;&#19968;&#20010;&#20803;&#32032;</span>
+
+                fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"&#23616;&#37096;&#21464;&#37327;&#65306;arr %v\n"</span>, arr)
+                fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"&#23616;&#37096;&#21464;&#37327;&#65306;slice5 %v\n"</span>, slice5)
+                fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"&#23616;&#37096;&#21464;&#37327;&#65306;slice6 %v\n"</span>, slice6)
+                fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"&#23616;&#37096;&#21464;&#37327;&#65306;slice7 %v\n"</span>, slice7)
+                fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"&#23616;&#37096;&#21464;&#37327;&#65306;slice8 %v\n"</span>, slice8)
+                fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"&#23616;&#37096;&#21464;&#37327;&#65306;slice9 %v\n"</span>, slice9)
+}
+</pre>
+</div>
+
+<p>
+输出结果：<br>
+</p>
+
+<pre class="example">
+全局变量：arr [0 1 2 3 4 5 6 7 8 9]
+全局变量：slice0 [2 3 4 5 6 7]
+全局变量：slice1 [0 1 2 3 4 5]
+全局变量：slice2 [5 6 7 8 9]
+全局变量：slice3 [0 1 2 3 4 5 6 7 8 9]
+全局变量：slice4 [0 1 2 3 4 5 6 7 8]
+-----------------------------------
+局部变量：arr [9 8 7 6 5 4 3 2 1 0]
+局部变量：slice5 [7 6 5 4 3 2]
+局部变量：slice6 [9 8 7 6 5 4]
+局部变量：slice7 [4 3 2 1 0]
+局部变量：slice8 [9 8 7 6 5 4 3 2 1 0]
+局部变量：slice9 [9 8 7 6 5 4 3 2 1]
+</pre>
+</div>
+</div>
+<div id="outline-container-org9b2715e" class="outline-2">
+<h2 id="org9b2715e">通过 make 来创建切片</h2>
+<div class="outline-text-2" id="text-org9b2715e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">slice</span> []<span style="color: #268bd2; font-weight: bold;">type</span> = <span style="color: #268bd2;">make</span>([]<span style="color: #268bd2; font-weight: bold;">type</span>, len)
+<span style="color: #8787d7;">slice</span> := <span style="color: #268bd2;">make</span>([]<span style="color: #268bd2; font-weight: bold;">type</span>, len)
+<span style="color: #8787d7;">slice</span> := <span style="color: #268bd2;">make</span>([]<span style="color: #268bd2; font-weight: bold;">type</span>, len, cap)
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">slice0</span> []<span style="color: #df005f; font-weight: bold;">int</span> = <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">int</span>, 10)
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">slice1</span> = <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">int</span>, 10)
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">slice2</span> = <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">int</span>, 10, 10)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"make&#20840;&#23616;slice0 &#65306;%v\n"</span>, slice0)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"make&#20840;&#23616;slice1 &#65306;%v\n"</span>, slice1)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"make&#20840;&#23616;slice2 &#65306;%v\n"</span>, slice2)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"--------------------------------------"</span>)
+    <span style="color: #8787d7;">slice3</span> := <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">int</span>, 10)
+    <span style="color: #8787d7;">slice4</span> := <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">int</span>, 10)
+    <span style="color: #8787d7;">slice5</span> := <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">int</span>, 10, 10)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"make&#23616;&#37096;slice3 &#65306;%v\n"</span>, slice3)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"make&#23616;&#37096;slice4 &#65306;%v\n"</span>, slice4)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"make&#23616;&#37096;slice5 &#65306;%v\n"</span>, slice5)
+}   
+</pre>
+</div>
+
+<pre class="example">
+make全局slice0 ：[0 0 0 0 0 0 0 0 0 0]
+make全局slice1 ：[0 0 0 0 0 0 0 0 0 0]
+make全局slice2 ：[0 0 0 0 0 0 0 0 0 0]
+--------------------------------------
+make局部slice3 ：[0 0 0 0 0 0 0 0 0 0]
+make局部slice4 ：[0 0 0 0 0 0 0 0 0 0]
+make局部slice5 ：[0 0 0 0 0 0 0 0 0 0]	
+</pre>
+
+<p>
+读写操作实际目标是底层数组，只需要注意索引号的差别。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">data</span> := [...]<span style="color: #df005f; font-weight: bold;">int</span>{0, 1, 2, 3, 4, 5}
+
+    <span style="color: #8787d7;">s</span> := data[2:4]
+    s[0] += 100
+    s[1] += 200
+
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(s)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(data)
+}
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">[102 203]</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">[0 1 102 203 4 5]</span>
+</pre>
+</div>
+
+<p>
+可直接创建 slice 对象，自动分配底层数组。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">s1</span> := []<span style="color: #df005f; font-weight: bold;">int</span>{0, 1, 2, 3, <span style="color: #d75fd7;">8</span>: 100} <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36890;&#36807;&#21021;&#22987;&#21270;&#34920;&#36798;&#24335;&#26500;&#36896;&#65292;&#21487;&#20351;&#29992;&#32034;&#24341;&#21495;&#12290;</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(s1, <span style="color: #268bd2;">len</span>(s1), <span style="color: #268bd2;">cap</span>(s1))
+
+    <span style="color: #8787d7;">s2</span> := <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">int</span>, 6, 8) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20351;&#29992; make &#21019;&#24314;&#65292;&#25351;&#23450; len &#21644; cap &#20540;&#12290;</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(s2, <span style="color: #268bd2;">len</span>(s2), <span style="color: #268bd2;">cap</span>(s2))
+
+    <span style="color: #8787d7;">s3</span> := <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">int</span>, 6) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#30465;&#30053; cap&#65292;&#30456;&#24403;&#20110; cap = len&#12290;</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(s3, <span style="color: #268bd2;">len</span>(s3), <span style="color: #268bd2;">cap</span>(s3))
+}   
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">[0 1 2 3 0 0 0 0 100] 9 9</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">[0 0 0 0 0 0] 6 8</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">[0 0 0 0 0 0] 6 6</span>
+</pre>
+</div>
+
+<p>
+使用 make 动态创建slice，避免了数组必须用常量做长度的麻烦。还可用指针直接访问底层数组，退化成普通数组操作。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">s</span> := []<span style="color: #df005f; font-weight: bold;">int</span>{0, 1, 2, 3}
+    <span style="color: #8787d7;">p</span> := &amp;s[2] <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">*int, &#33719;&#21462;&#24213;&#23618;&#25968;&#32452;&#20803;&#32032;&#25351;&#38024;&#12290;</span>
+    *p += 100
+
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(s)
+}   
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">[0 1 102 3] </span>
+</pre>
+</div>
+
+<p>
+至于 <code>[][]T</code> ，是指元素类型为 <code>[]T</code> 。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">data</span> := [][]<span style="color: #df005f; font-weight: bold;">int</span>{
+        []<span style="color: #df005f; font-weight: bold;">int</span>{1, 2, 3},
+        []<span style="color: #df005f; font-weight: bold;">int</span>{100, 200},
+        []<span style="color: #df005f; font-weight: bold;">int</span>{11, 22, 33, 44},
+    }
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(data)
+}
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">[[1 2 3] [100 200] [11 22 33 44]]</span>
+</pre>
+</div>
+
+<p>
+可直接修改 <code>struct array/slice</code> 成员。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">d</span> := [5]<span style="color: #268bd2; font-weight: bold;">struct</span> {
+        x <span style="color: #df005f; font-weight: bold;">int</span>
+    }{}
+
+    <span style="color: #8787d7;">s</span> := d[:]
+
+    d[1].x = 10
+    s[2].x = 20
+
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(d)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%p, %p\n"</span>, &amp;d, &amp;d[0])
+}
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">[{0} {10} {20} {0} {0}]</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">0xc4200160f0, 0xc4200160f0</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgfc27f53" class="outline-2">
+<h2 id="orgfc27f53">用 append 内置函数操作切片（切片追加）</h2>
+<div class="outline-text-2" id="text-orgfc27f53">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">a</span> = []<span style="color: #df005f; font-weight: bold;">int</span>{1, 2, 3}
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"slice a : %v\n"</span>, a)
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">b</span> = []<span style="color: #df005f; font-weight: bold;">int</span>{4, 5, 6}
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"slice b : %v\n"</span>, b)
+    <span style="color: #8787d7;">c</span> := <span style="color: #268bd2;">append</span>(a, b...)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"slice c : %v\n"</span>, c)
+    <span style="color: #8787d7;">d</span> := <span style="color: #268bd2;">append</span>(c, 7)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"slice d : %v\n"</span>, d)
+    <span style="color: #8787d7;">e</span> := <span style="color: #268bd2;">append</span>(d, 8, 9, 10)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"slice e : %v\n"</span>, e)
+}
+</pre>
+</div>
+
+<pre class="example">
+slice a : [1 2 3]
+slice b : [4 5 6]
+slice c : [1 2 3 4 5 6]
+slice d : [1 2 3 4 5 6 7]
+slice e : [1 2 3 4 5 6 7 8 9 10]	
+</pre>
+
+<p>
+<code>append</code> ：向 <code>slice</code> 尾部添加数据，返回新的 <code>slice</code> 对象。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">s1</span> := <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">int</span>, 0, 5)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%p\n"</span>, &amp;s1)
+
+    <span style="color: #8787d7;">s2</span> := <span style="color: #268bd2;">append</span>(s1, 1)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%p\n"</span>, &amp;s2)
+
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(s1, s2)
+}
+</pre>
+</div>
+
+<pre class="example">
+0xc42000a060
+0xc42000a080
+[] [1]
+</pre>
+</div>
+</div>
+<div id="outline-container-orgc67e97b" class="outline-2">
+<h2 id="orgc67e97b">重新分配底层数组</h2>
+<div class="outline-text-2" id="text-orgc67e97b">
+<p>
+超出原 <code>slice.cap</code> 限制，就会重新分配底层数组，即便原数组并未填满。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">data</span> := [...]<span style="color: #df005f; font-weight: bold;">int</span>{0, 1, 2, 3, 4, <span style="color: #d75fd7;">10</span>: 0}
+    <span style="color: #8787d7;">s</span> := data[:2:3]
+
+    s = <span style="color: #268bd2;">append</span>(s, 100, 200) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#19968;&#27425; append &#20004;&#20010;&#20540;&#65292;&#36229;&#20986; s.cap &#38480;&#21046;&#12290;</span>
+
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(s, data)         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#37325;&#26032;&#20998;&#37197;&#24213;&#23618;&#25968;&#32452;&#65292;&#19982;&#21407;&#25968;&#32452;&#26080;&#20851;&#12290;</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(&amp;s[0], &amp;data[0]) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#27604;&#23545;&#24213;&#23618;&#25968;&#32452;&#36215;&#22987;&#25351;&#38024;&#12290;</span>
+}
+</pre>
+</div>
+
+<pre class="example">
+[0 1 100 200] [0 1 2 3 4 0 0 0 0 0 0]
+0xc4200160f0 0xc420070060
+</pre>
+
+<p>
+从输出结果可以看出， <code>append</code> 后的 <code>s</code> 重新分配了底层数组，并复制数据。如果只追加一个值，则不会超过 <code>s.cap</code> 限制，也就不会重新分配。 通常以 2 倍容量重新分配底层数组。在大批量添加数据时，建议一次性分配足够大的空间，以减少内存分配和数据复制开销。或初始化足够长的 <code>len</code> 属性，改用索引号进行操作。及时释放不再使用的 <code>slice</code> 对象，避免持有过期数组，造成 <code>GC</code> 无法回收。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd01e445" class="outline-2">
+<h2 id="orgd01e445">slice 中 cap 重新分配规律</h2>
+<div class="outline-text-2" id="text-orgd01e445">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">s</span> := <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">int</span>, 0, 1)
+    <span style="color: #8787d7;">c</span> := <span style="color: #268bd2;">cap</span>(s)
+
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := 0; i &lt; 50; i ++ {
+        s = <span style="color: #268bd2;">append</span>(s, i)
+        <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #8787d7;">n</span> := <span style="color: #268bd2;">cap</span>(s); n &gt; c {
+            fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"cap: %d -&gt; %d\n"</span>, c, n)
+            c = n
+        }
+    }
+}
+</pre>
+</div>
+
+<pre class="example">
+cap: 1 -&gt; 2
+cap: 2 -&gt; 4
+cap: 4 -&gt; 8
+cap: 8 -&gt; 16
+cap: 16 -&gt; 32
+cap: 32 -&gt; 64	
+</pre>
+</div>
+</div>
+<div id="outline-container-org4cc9d70" class="outline-2">
+<h2 id="org4cc9d70">切片拷贝</h2>
+<div class="outline-text-2" id="text-org4cc9d70">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">s1</span> := []<span style="color: #df005f; font-weight: bold;">int</span>{1, 2, 3, 4, 5}
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"slice s1 : %v\n"</span>, s1)
+    <span style="color: #8787d7;">s2</span> := <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">int</span>, 10)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"slice s2 : %v\n"</span>, s2)
+
+    <span style="color: #268bd2;">copy</span>(s2, s1)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"copied slice s1 : %v\n"</span>, s1)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"copied slice s2 : %v\n"</span>, s2)
+
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">s3 := append(s3, s2)   // &#22914;&#26524;&#26159;&#20004;&#20010;&#20999;&#29255;&#65292;&#23601;&#38656;&#35201; ...</span>
+    <span style="color: #8787d7;">s3</span> := []<span style="color: #df005f; font-weight: bold;">int</span>{1, 2, 3}
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"slice s3 : %v\n"</span>, s3)
+
+    s3 = <span style="color: #268bd2;">append</span>(s3, s2...)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"appended slice s3 : %v\n"</span>, s3)
+
+    s3 = <span style="color: #268bd2;">append</span>(s3, 4, 5, 6)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"last slice s3 : %v\n"</span>, s3)
+}   
+</pre>
+</div>
+
+<pre class="example">
+slice s1 : [1 2 3 4 5]
+slice s2 : [0 0 0 0 0 0 0 0 0 0]
+copied slice s1 : [1 2 3 4 5]
+copied slice s2 : [1 2 3 4 5 0 0 0 0 0]
+slice s3 : [1 2 3]
+appended slice s3 : [1 2 3 1 2 3 4 5 0 0 0 0 0]
+last slice s3 : [1 2 3 1 2 3 4 5 0 0 0 0 0 4 5 6]	
+</pre>
+
+<p>
+<code>copy</code> ：函数 <code>copy</code> 在两个 <code>slice</code> 间复制数据，复制长度以 <code>len</code> 小的为准。两个 <code>slice</code> 可指向同一底层数组，允许元素区间重叠。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">data</span> := [...]<span style="color: #df005f; font-weight: bold;">int</span>{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"array data : "</span>, data)
+    <span style="color: #8787d7;">s1</span> := data[8:]
+    <span style="color: #8787d7;">s2</span> := data[:5]
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"slice s1 : %v\n"</span>, s1)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"slice s2 : %v\n"</span>, s2)
+    <span style="color: #268bd2;">copy</span>(s2, s1)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"copied slice s1 : %v\n"</span>, s1)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"copied slice s2 : %v\n"</span>, s2)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"last array data : "</span>, data)
+}
+</pre>
+</div>
+
+<pre class="example">
+array data :  [0 1 2 3 4 5 6 7 8 9]
+slice s1 : [8 9]
+slice s2 : [0 1 2 3 4]
+copied slice s1 : [8 9]
+copied slice s2 : [8 9 2 3 4]
+last array data :  [8 9 2 3 4 5 6 7 8 9]
+</pre>
+
+<p>
+应及时将所需数据 <code>copy</code> 到较小的 <code>slice</code> ，以便释放超大号底层数组内存。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org158d285" class="outline-2">
+<h2 id="org158d285">slice 遍历</h2>
+<div class="outline-text-2" id="text-org158d285">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">data</span> := [...]<span style="color: #df005f; font-weight: bold;">int</span>{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
+    <span style="color: #8787d7;">slice</span> := data[:]
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">index</span>, <span style="color: #8787d7;">value</span> := <span style="color: #268bd2; font-weight: bold;">range</span> slice {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"inde : %v , value : %v\n"</span>, index, value)
+    }
+}
+</pre>
+</div>
+
+<pre class="example">
+inde : 0 , value : 0
+inde : 1 , value : 1
+inde : 2 , value : 2
+inde : 3 , value : 3
+inde : 4 , value : 4
+inde : 5 , value : 5
+inde : 6 , value : 6
+inde : 7 , value : 7
+inde : 8 , value : 8
+inde : 9 , value : 9
+</pre>
+</div>
+</div>
+<div id="outline-container-org3295a75" class="outline-2">
+<h2 id="org3295a75">切片 resize（调整大小）</h2>
+<div class="outline-text-2" id="text-org3295a75">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">a</span> = []<span style="color: #df005f; font-weight: bold;">int</span>{1, 3, 4, 5}
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"slice a : %v , len(a) : %v\n"</span>, a, <span style="color: #268bd2;">len</span>(a))
+    <span style="color: #8787d7;">b</span> := a[1:2]
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"slice b : %v , len(b) : %v\n"</span>, b, <span style="color: #268bd2;">len</span>(b))
+    <span style="color: #8787d7;">c</span> := b[0:3]
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"slice c : %v , len(c) : %v\n"</span>, c, <span style="color: #268bd2;">len</span>(c))
+}
+</pre>
+</div>
+
+<pre class="example">
+slice a : [1 3 4 5] , len(a) : 4
+slice b : [3] , len(b) : 1
+slice c : [3 4 5] , len(c) : 3
+</pre>
+</div>
+</div>
+<div id="outline-container-org8f5a1da" class="outline-2">
+<h2 id="org8f5a1da">数组和切片的内存布局</h2>
+<div class="outline-text-2" id="text-org8f5a1da">
+<p>
+切片的结构：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#37096;&#20998;&#32467;&#26500;</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">sliceHeader</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    Length        <span style="color: #df005f; font-weight: bold;">int</span>
+    Capacity      <span style="color: #df005f; font-weight: bold;">int</span>
+    ZerothElement *<span style="color: #df005f; font-weight: bold;">byte</span>
+}   
+</pre>
+</div>
+
+<p>
+通过一个数组定义一个切片：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">buffer</span> [256]<span style="color: #df005f; font-weight: bold;">byte</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">slice1</span> []<span style="color: #df005f; font-weight: bold;">byte</span> = buffer[100:150]
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21478;&#22806;&#20004;&#31181;&#26356;&#31616;&#27905;&#30340;&#20889;&#27861;</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">slice2</span> = buffer[100:150]
+<span style="color: #8787d7;">slice3</span> := buffer[100:150]
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36825;&#26102; slice1 &#30340;&#32467;&#26500;&#22914;&#19979;&#65306;</span>
+<span style="color: #8787d7;">slice</span> := <span style="color: #df005f; font-weight: bold;">sliceHeader</span>{
+        <span style="color: #d75fd7;">Length</span>:        50,
+        <span style="color: #d75fd7;">ZerothElement</span>: &amp;buffer[100],
+}
+</pre>
+</div>
+
+<p>
+通过图片说明：<br>
+</p>
+
+<img src="./images/go_slice存储结构01.png" width="650px" />
+
+<img src="./images/go_slice存储结构02.png" width="650px" />
+</div>
+</div>
+<div id="outline-container-org53e273a" class="outline-2">
+<h2 id="org53e273a">字符串和切片（string and slice）</h2>
+<div class="outline-text-2" id="text-org53e273a">
+<p>
+<code>string</code> 底层就是一个 <code>byte</code> 的数组，因此，也可以进行切片操作。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+        <span style="color: #8787d7;">str</span> := <span style="color: #2aa198;">"hello world"</span>
+        <span style="color: #8787d7;">s1</span> := str[0:5]
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(s1)
+
+        <span style="color: #8787d7;">s2</span> := str[6:]
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(s2)
+}
+</pre>
+</div>
+
+<pre class="example">
+hello
+world
+</pre>
+
+<p>
+<code>string</code> 本身是不可变的，因此要改变 <code>string</code> 中字符。需要如下操作：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">str</span> := <span style="color: #2aa198;">"Hello world"</span>
+    <span style="color: #8787d7;">s</span> := []<span style="color: #d75fd7; font-weight: bold;">byte</span>(str)   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20013;&#25991;&#23383;&#31526;&#38656;&#35201;&#29992; []rune(str)</span>
+    s[6] = <span style="color: #2aa198;">'G'</span>
+    s = s[:8]
+    s = <span style="color: #268bd2;">append</span>(s, <span style="color: #2aa198;">'!'</span>)
+    str = <span style="color: #d75fd7; font-weight: bold;">string</span>(s)   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20877;&#36716;&#21270;&#22238; string</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(str)
+}
+</pre>
+</div>
+
+<pre class="example">
+Hello Go!
+</pre>
+</div>
+</div>
+<div id="outline-container-orga9255a1" class="outline-2">
+<h2 id="orga9255a1">含有中文字符串</h2>
+<div class="outline-text-2" id="text-orga9255a1">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">str</span> := <span style="color: #2aa198;">"&#26089;&#19978;&#22909;&#65281;"</span>
+    <span style="color: #8787d7;">s</span> := []<span style="color: #d75fd7; font-weight: bold;">rune</span>(str)
+    s[0] = <span style="color: #2aa198;">'&#26202;'</span>
+    str = <span style="color: #d75fd7; font-weight: bold;">string</span>(s)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(str)
+}
+</pre>
+</div>
+
+
+<pre class="example">
+晚上好！
+</pre>
+
+<p>
+<code>golang slice data[:6:8]</code> 两个冒号的理解<br>
+</p>
+
+<p>
+常规 <code>slice</code> ， <code>data[6:8]</code> ，从第 6 位到第 8 位（返回6，7），长度 <code>len</code> 为 2， 最大可扩充长度 <code>cap</code> 为4（6 - 9）<br>
+</p>
+
+<p>
+另一种写法： <code>data[:6:8]</code> 每个数字前都有个冒号， <code>slice</code> 内容为 <code>data</code> 从 0 到第 6 位，长度 <code>len</code> 为 6，最大扩充项 <code>cap</code> 设置为 8。<br>
+</p>
+
+<p>
+<code>a[x:y:z]</code> 切片内容 <code>[x:y]</code> 切片长度： <code>y-x</code> 切片容量： <code>z-x</code><br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">slice</span> := []<span style="color: #df005f; font-weight: bold;">int</span>{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
+    <span style="color: #8787d7;">d1</span> := slice[6:8]
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(d1, <span style="color: #268bd2;">len</span>(d1), <span style="color: #268bd2;">cap</span>(d1))
+    <span style="color: #8787d7;">d2</span> := slice[:6:8]
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(d2, <span style="color: #268bd2;">len</span>(d2), <span style="color: #268bd2;">cap</span>(d2))
+}
+</pre>
+</div>
+
+<p>
+数组 or 切片转字符串：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">strings.<span style="color: #d75fd7; font-weight: bold;">Replace</span>(strings.<span style="color: #d75fd7; font-weight: bold;">Trim</span>(fmt.<span style="color: #d75fd7; font-weight: bold;">Sprint</span>(array_or_slice), <span style="color: #2aa198;">"[]"</span>), <span style="color: #2aa198;">" "</span>, <span style="color: #2aa198;">","</span>, -1)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgd6abc13" class="outline-2">
+<h2 id="orgd6abc13">切片传参</h2>
+<div class="outline-text-2" id="text-orgd6abc13">
+<p>
+尽管切片中包含了一个指针，但还是要和结构体指针分清，切片传参是值传递，让我们看下面一个例子：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">SubtractOneFromLength</span>(<span style="color: #8787d7;">slice</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) []<span style="color: #df005f; font-weight: bold;">byte</span> {
+    slice = slice[0 : <span style="color: #268bd2;">len</span>(slice)-1]
+    <span style="color: #268bd2; font-weight: bold;">return</span> slice
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Before: len(slice) ="</span>, <span style="color: #268bd2;">len</span>(slice))
+    <span style="color: #8787d7;">newSlice</span> := <span style="color: #d75fd7; font-weight: bold;">SubtractOneFromLength</span>(slice)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"After:  len(slice) ="</span>, <span style="color: #268bd2;">len</span>(slice))
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"After:  len(newSlice) ="</span>, <span style="color: #268bd2;">len</span>(newSlice))
+}
+</pre>
+</div>
+
+<pre class="example">
+Before: len(slice) = 50
+After:  len(slice) = 50
+After:  len(newSlice) = 49
+</pre>
+
+<p>
+<code>slice</code> 的值并没有改变，新的切片赋值给了 <code>newSlice</code> 。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">AddOneToEachElement</span>(<span style="color: #8787d7;">slice</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) {
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #268bd2; font-weight: bold;">range</span> slice {
+        slice[i]++
+    }
+}   
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">slice</span> := <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">byte</span>, 10)
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := 0; i &lt; <span style="color: #268bd2;">len</span>(slice); i++ {
+        slice[i] = <span style="color: #d75fd7; font-weight: bold;">byte</span>(i)
+    }
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"before"</span>, slice)
+    <span style="color: #d75fd7; font-weight: bold;">AddOneToEachElement</span>(slice)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"after"</span>, slice)
+}
+</pre>
+</div>
+
+<pre class="example">
+before [0 1 2 3 4 5 6 7 8 9]
+after [1 2 3 4 5 6 7 8 9 10]	
+</pre>
+
+<p>
+尽管切片头是按值传递的，但头包含一个指向数组元素的指针，因此传递给函数的原始切片头和头的副本都描述了同一个数组。因此，当函数返回时，可以通过原始的 <code>slice</code> 变量看到修改后的元素。<br>
+</p>
+
+<p>
+更详细的说明请看： <a href="https://go.dev/blog/slices">Arrays, slices (and strings): The mechanics of 'append'</a> <br>
+</p>
+</div>
+</div>
+<div id="outline-container-org999ec04" class="outline-2">
+<h2 id="org999ec04">指向切片的指针：方法接收器</h2>
+<div class="outline-text-2" id="text-org999ec04">
+<p>
+让函数修改切片的另一种方法是传递一个指向它的指针，这是我们前面示例的一个变体：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">PtrSubtractOneFromLength</span>(<span style="color: #8787d7;">slicePtr</span> *[]<span style="color: #df005f; font-weight: bold;">byte</span>) {
+    <span style="color: #8787d7;">slice</span> := *slicePtr
+    *slicePtr = slice[0 : <span style="color: #268bd2;">len</span>(slice)-1]
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Before: len(slice) ="</span>, <span style="color: #268bd2;">len</span>(slice))
+    <span style="color: #d75fd7; font-weight: bold;">PtrSubtractOneFromLength</span>(&amp;slice)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"After:  len(slice) ="</span>, <span style="color: #268bd2;">len</span>(slice))
+}
+</pre>
+</div>
+
+<pre class="example">
+Before: len(slice) = 50
+After:  len(slice) = 49	
+</pre>
+
+<p>
+这样的写法不太灵活，特别是处理额外的间接级别（临时变量有助于帮助），虽然你会经常看到这种情况，但我们推荐你使用指针接收器修改切片。<br>
+</p>
+
+<p>
+假设希望在最后一个斜线位置截断切片，我们可以这样：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">path</span> []<span style="color: #df005f; font-weight: bold;">byte</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">p</span> *<span style="color: #df005f; font-weight: bold;">path</span>) <span style="color: #d75fd7; font-weight: bold;">TruncateAtFinalSlash</span>() {
+    <span style="color: #8787d7;">i</span> := bytes.<span style="color: #d75fd7; font-weight: bold;">LastIndex</span>(*p, []<span style="color: #d75fd7; font-weight: bold;">byte</span>(<span style="color: #2aa198;">"/"</span>))
+    <span style="color: #268bd2; font-weight: bold;">if</span> i &gt;= 0 {
+        *p = (*p)[0:i]
+    }
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">pathName</span> := <span style="color: #d75fd7; font-weight: bold;">path</span>(<span style="color: #2aa198;">"/usr/bin/tso"</span>) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Conversion from string to path.</span>
+    pathName.<span style="color: #d75fd7; font-weight: bold;">TruncateAtFinalSlash</span>()
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%s\n"</span>, pathName)
+}   
+</pre>
+</div>
+
+<pre class="example">
+/usr/bin	
+</pre>
+
+<p>
+如果我们想要为 <code>path</code> 编写一个可以将 <code>path</code> 中的 ASCII 字母转大写（忽略非英文字母）的方法，该方法可以是值接收器，因为值接收器仍然指向相同的底层数组：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">path</span> []<span style="color: #df005f; font-weight: bold;">byte</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">p</span> <span style="color: #df005f; font-weight: bold;">path</span>) <span style="color: #d75fd7; font-weight: bold;">ToUpper</span>() {
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">b</span> := <span style="color: #268bd2; font-weight: bold;">range</span> p {
+        <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #2aa198;">'a'</span> &lt;= b &amp;&amp; b &lt;= <span style="color: #2aa198;">'z'</span> {
+            p[i] = b + <span style="color: #2aa198;">'A'</span> - <span style="color: #2aa198;">'a'</span>
+        }
+    }
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">pathName</span> := <span style="color: #d75fd7; font-weight: bold;">path</span>(<span style="color: #2aa198;">"/usr/bin/tso"</span>)
+    pathName.<span style="color: #d75fd7; font-weight: bold;">ToUpper</span>()
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%s\n"</span>, pathName)
+}   
+</pre>
+</div>
+
+<pre class="example">
+/USR/BIN/TSO	
+</pre>
+</div>
+</div>
 </div>
 <div id="postamble" class="status">
 <p class="date">Date: 2022-02-11 00:02 Fri</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-02-11 Fri 00:46</p>
-<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+<p class="date">Created: 2022-04-14 Thu 22:27</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>

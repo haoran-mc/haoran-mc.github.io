@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-04-12 Tue 23:36 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>使用内置包 net/http 进行 web 开发</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">使用内置包 net/http 进行 web 开发</h1>
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"net/http"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">sayHello</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">http.Request</span>) {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Fprinln &#24448;&#25991;&#20214;&#20013;&#20889;&#23383;&#31526;&#20018;</span>
+    _, _ = fmt.<span style="color: #d75fd7; font-weight: bold;">Fprintln</span>(w, <span style="color: #2aa198;">"&lt;h1&gt;Hello, Goland!&lt;/h1&gt;"</span>)
+    _, _ = fmt.<span style="color: #d75fd7; font-weight: bold;">Fprintln</span>(w, <span style="color: #2aa198;">"&lt;h2&gt;Hello, Goland!&lt;/h2&gt;"</span>)
+    _, _ = fmt.<span style="color: #d75fd7; font-weight: bold;">Fprintln</span>(w, <span style="color: #2aa198;">"&lt;h3&gt;Hello, Goland!&lt;/h3&gt;"</span>)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">sayHello &#36825;&#20010;&#20989;&#25968;&#24517;&#39035;&#35201;&#25509;&#25910;&#20004;&#20010;&#21442;&#25968;&#65292;&#31532;&#19968;&#20010;&#21442;&#25968;&#26159; http &#21253;&#37324;&#30340; ResponseWriter&#65292;&#34920;&#31034;&#21709;&#24212;&#65292;&#36820;&#22238;&#32473;&#27983;&#35272;&#22120;&#30340;&#20869;&#23481;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#31532;&#20108;&#20010;&#21442;&#25968;&#26159;&#19968;&#20010;&#25351;&#38024;&#65292;*http.Request&#65292;&#34920;&#31034;&#35831;&#27714;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">web &#24320;&#21457;&#23601;&#26159;&#19968;&#20010;&#35831;&#27714;&#23545;&#24212;&#19968;&#20010;&#21709;&#24212;</span>
+    http.<span style="color: #d75fd7; font-weight: bold;">HandleFunc</span>(<span style="color: #2aa198;">"/hello"</span>, sayHello)
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22238;&#24212;&#19982;&#35831;&#27714;</span>
+    <span style="color: #8787d7;">err</span> := http.<span style="color: #d75fd7; font-weight: bold;">ListenAndServe</span>(<span style="color: #2aa198;">":9001"</span>, <span style="color: #d75fd7;">nil</span>)
+    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"HTTP server failed, err: %v\n"</span>, err)
+        <span style="color: #268bd2; font-weight: bold;">return</span>
+    }
+}
+</pre>
+</div>
+
+<p>
+可以在函数中导入文件，使代码更有条理。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"net/http"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">sayHello</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">http.Request</span>) {
+    b, err = ioutil.<span style="color: #d75fd7; font-weight: bold;">ReadFile</span>(<span style="color: #2aa198;">"./hello.txt"</span>)
+    _, _ = fmt.<span style="color: #d75fd7; font-weight: bold;">Fprintln</span>(w, <span style="color: #d75fd7; font-weight: bold;">string</span>(b))
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">sayHello &#36825;&#20010;&#20989;&#25968;&#24517;&#39035;&#35201;&#25509;&#25910;&#20004;&#20010;&#21442;&#25968;&#65292;&#31532;&#19968;&#20010;&#21442;&#25968;&#26159; http &#21253;&#37324;&#30340; ResponseWriter&#65292;&#34920;&#31034;&#21709;&#24212;&#65292;&#36820;&#22238;&#32473;&#27983;&#35272;&#22120;&#30340;&#20869;&#23481;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#31532;&#20108;&#20010;&#21442;&#25968;&#26159;&#19968;&#20010;&#25351;&#38024;&#65292;*http.Request&#65292;&#34920;&#31034;&#35831;&#27714;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">web &#24320;&#21457;&#23601;&#26159;&#19968;&#20010;&#35831;&#27714;&#23545;&#24212;&#19968;&#20010;&#21709;&#24212;</span>
+    http.<span style="color: #d75fd7; font-weight: bold;">HandleFunc</span>(<span style="color: #2aa198;">"/hello"</span>, sayHello)
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22238;&#24212;&#19982;&#35831;&#27714;</span>
+    <span style="color: #8787d7;">err</span> := http.<span style="color: #d75fd7; font-weight: bold;">ListenAndServe</span>(<span style="color: #2aa198;">":9001"</span>, <span style="color: #d75fd7;">nil</span>)
+    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"HTTP server failed, err: %v\n"</span>, err)
+        <span style="color: #268bd2; font-weight: bold;">return</span>
+    }
+}
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-html">&lt;<span style="color: #d75fd7; font-weight: bold;">h1</span>&gt;<span style="font-weight: bold; text-decoration: underline;">Hello, Goland!</span>&lt;/<span style="color: #d75fd7; font-weight: bold;">h1</span>&gt;
+&lt;<span style="color: #d75fd7; font-weight: bold;">h2</span>&gt;<span style="font-weight: bold; font-style: italic; text-decoration: underline;">Hello, Goland!</span>&lt;/<span style="color: #d75fd7; font-weight: bold;">h2</span>&gt;
+&lt;<span style="color: #d75fd7; font-weight: bold;">h3</span>&gt;<span style="font-style: italic; text-decoration: underline;">Hello, Goland!</span>&lt;/<span style="color: #d75fd7; font-weight: bold;">h3</span>&gt;
+</pre>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-04-12 23:04 Tue</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-04-12 Tue 23:36</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

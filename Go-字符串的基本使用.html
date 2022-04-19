@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-04-14 Thu 23:21 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GO-字符串的基本使用</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">GO-字符串的基本使用</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgc93dfee">字符串定义</a>
+<ul>
+<li><a href="#orgbfd2302">解释字符串：</a></li>
+<li><a href="#org02a50c3">非解释字符串：</a></li>
+<li><a href="#org5617aa9">字符串拼接符 +</a></li>
+</ul>
+</li>
+<li><a href="#orgf39de4b">字符串使用</a>
+<ul>
+<li><a href="#org9b30442">声明一个字符串</a></li>
+<li><a href="#orga114be7">创建一个字符串</a></li>
+<li><a href="#org0429852">字符串可修改</a></li>
+<li><a href="#orgb7553be">字符串复制</a></li>
+<li><a href="#orgeab006d">字符串遍历</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgc93dfee" class="outline-2">
+<h2 id="orgc93dfee">字符串定义</h2>
+<div class="outline-text-2" id="text-orgc93dfee">
+<p>
+字符串是 UTF-8 字符的一个序列（当字符为 ASCII 码时则占用 1 个字节，其它字符根据需要占用 2-4 个字节）。UTF-8 是被广泛使用的编码格式，是文本文件的标准编码，其它包括 XML 和 JSON 在内，也都使用该编码。由于该编码对占用字节长度的不定性，Go 中的字符串也可能根据需要占用 1 至 4 个字节（示例见第 4.6 节），这与其它语言如 C++、Java 或者 Python 不同（Java 始终使用 2 个字节）。Go 这样做的好处是不仅减少了内存和硬盘空间占用，同时也不用像其它语言那样需要对使用 UTF-8 字符集的文本进行编码和解码。<br>
+</p>
+
+<p>
+字符串是一种值类型，且值不可变，即创建某个文本后你无法再次修改这个文本的内容；更深入地讲，字符串是字节的定长数组。<br>
+</p>
+
+<p>
+Go 支持以下 2 种形式的字面值：<br>
+</p>
+</div>
+<div id="outline-container-orgbfd2302" class="outline-3">
+<h3 id="orgbfd2302">解释字符串：</h3>
+<div class="outline-text-3" id="text-orgbfd2302">
+<p>
+该类字符串使用双引号括起来，其中的相关的转义字符将被替换，这些转义字符包括：<br>
+</p>
+
+<ul class="org-ul">
+<li><code>\n</code> ：换行符<br></li>
+<li><code>\r</code> ：回车符<br></li>
+<li><code>\t</code> ：tab 键<br></li>
+<li><code>\u</code>  或 <code>\U</code> ：Unicode 字符<br></li>
+<li><code>\\</code> ：反斜杠自身<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org02a50c3" class="outline-3">
+<h3 id="org02a50c3">非解释字符串：</h3>
+<div class="outline-text-3" id="text-org02a50c3">
+<p>
+该类字符串使用反引号括起来，支持换行，例如：<br>
+</p>
+
+<pre class="example">
+`This is a raw string \n` 中的 `\n\` 会被原样输出。
+</pre>
+
+<p>
+和 C/C++ 不一样，Go 中的字符串是根据长度限定，而非特殊字符 \0。<br>
+</p>
+
+<p>
+string 类型的零值为长度为零的字符串，即空字符串 ""。<br>
+</p>
+
+<p>
+一般的比较运算符（==、!=、&lt;、&lt;=、&gt;=、&gt;）通过在内存中按字节比较来实现字符串的对比。你可以通过函数 len() 来获取字符串所占的字节长度，例如：len(str)。<br>
+</p>
+
+<p>
+字符串的内容（纯字节）可以通过标准索引法来获取，在中括号 [] 内写入索引，索引从 0 开始计数：<br>
+</p>
+
+<ul class="org-ul">
+<li>字符串 str 的第 1 个字节：str[0]<br></li>
+<li>第 i 个字节：str[i - 1]<br></li>
+<li>最后 1 个字节：str[len(str)-1]<br></li>
+</ul>
+
+<p>
+需要注意的是，这种转换方案只对纯 ASCII 码的字符串有效。<br>
+</p>
+
+<p>
+<b>注意事项</b> 获取字符串中某个字节的地址的行为是非法的，例如：&amp;str[i]。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5617aa9" class="outline-3">
+<h3 id="org5617aa9">字符串拼接符 +</h3>
+<div class="outline-text-3" id="text-org5617aa9">
+<p>
+两个字符串 s1 和 s2 可以通过 s := s1 + s2 拼接在一起。<br>
+</p>
+
+<p>
+s2 追加在 s1 尾部并生成一个新的字符串 s。<br>
+</p>
+
+<p>
+你可以通过以下方式来对代码中多行的字符串进行拼接：<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">str</span> := <span style="color: #2aa198;">"Beginning of the string "</span> + <span style="color: #2aa198;">"second part of the string"</span>
+</pre>
+</div>
+
+<p>
+由于编译器行尾自动补全分号的缘故，加号 + 必须放在第一行。<br>
+</p>
+
+<p>
+拼接的简写形式 += 也可以用于字符串：<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">s</span> := <span style="color: #2aa198;">"hel"</span> + <span style="color: #2aa198;">"lo,"</span>
+s += <span style="color: #2aa198;">"world!"</span>
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(s) <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#36755;&#20986; &#8220;hello, world!&#8221;</span>
+</pre>
+</div>
+
+<p>
+在循环中使用加号 + 拼接字符串并不是最高效的做法，更好的办法是使用函数 strings.Join()，有没有更好地办法了？有！使用字节缓冲（bytes.Buffer）拼接更加给力！<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgf39de4b" class="outline-2">
+<h2 id="orgf39de4b">字符串使用</h2>
+<div class="outline-text-2" id="text-orgf39de4b">
+</div>
+<div id="outline-container-org9b30442" class="outline-3">
+<h3 id="org9b30442">声明一个字符串</h3>
+<div class="outline-text-3" id="text-org9b30442">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">str</span> <span style="color: #df005f; font-weight: bold;">string</span> 
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orga114be7" class="outline-3">
+<h3 id="orga114be7">创建一个字符串</h3>
+<div class="outline-text-3" id="text-orga114be7">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">s</span> = <span style="color: #2aa198;">"String"</span>
+<span style="color: #8787d7;">s</span> := <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">string</span>, 3)
+<span style="color: #8787d7;">s</span> := []<span style="color: #df005f; font-weight: bold;">string</span>{<span style="color: #2aa198;">"g"</span>, <span style="color: #2aa198;">"h"</span>, <span style="color: #2aa198;">"i"</span>}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org0429852" class="outline-3">
+<h3 id="org0429852">字符串可修改</h3>
+<div class="outline-text-3" id="text-org0429852">
+<div class="org-src-container">
+<pre class="src src-go">s[0] = <span style="color: #2aa198;">"a"</span>
+s[1] = <span style="color: #2aa198;">"b"</span>
+s[2] = <span style="color: #2aa198;">"c"</span>
+
+s = <span style="color: #268bd2;">append</span>(s, <span style="color: #2aa198;">"d"</span>)
+s = <span style="color: #268bd2;">append</span>(s, <span style="color: #2aa198;">"e"</span>, <span style="color: #2aa198;">"f"</span>)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb7553be" class="outline-3">
+<h3 id="orgb7553be">字符串复制</h3>
+<div class="outline-text-3" id="text-orgb7553be">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">c</span> := <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #268bd2;">len</span>(s))
+<span style="color: #268bd2;">copy</span>(c, s)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgeab006d" class="outline-3">
+<h3 id="orgeab006d">字符串遍历</h3>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-04-14 23:04 Thu</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-04-14 Thu 23:21</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
