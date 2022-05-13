@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-02-08 Tue 18:01 -->
+<!-- 2022-05-11 Wed 16:37 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GO 类型转换</title>
@@ -21,39 +21,39 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgee505e8">Golang 是强类型语言</a></li>
-<li><a href="#org4c7d856">Golang 没有隐式转换</a></li>
-<li><a href="#org7493071">指针的类型转换</a>
+<li><a href="#orgd96b4bd">Golang 是强类型语言</a></li>
+<li><a href="#orgc210189">Golang 没有隐式转换</a></li>
+<li><a href="#org2e5169b">指针的类型转换</a>
 <ul>
-<li><a href="#org934f725">慎用 unsafe</a></li>
+<li><a href="#org8c0a865">慎用 unsafe</a></li>
 </ul>
 </li>
-<li><a href="#org3427092">类型断言</a></li>
-<li><a href="#org575aeab">与 string 类型相关的转换</a>
+<li><a href="#org3b293aa">类型断言</a></li>
+<li><a href="#org7882ac9">与 string 类型相关的转换</a>
 <ul>
-<li><a href="#org5f55c70">string 到 int</a></li>
-<li><a href="#orgab21816">string 到 int64</a></li>
-<li><a href="#org01dcf4d">int 到 string</a></li>
-<li><a href="#org268f2b6">int64 到 string</a></li>
-<li><a href="#org3a04cbf">float 到 string</a></li>
-<li><a href="#orgeb7a305">string 到 float</a></li>
+<li><a href="#orgcbc2468">string 到 int</a></li>
+<li><a href="#org5dd23e8">string 到 int64</a></li>
+<li><a href="#org645a4f1">int 到 string</a></li>
+<li><a href="#org7f88887">int64 到 string</a></li>
+<li><a href="#orgec7570c">float 到 string</a></li>
+<li><a href="#org3a6913a">string 到 float</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgee505e8" class="outline-2">
-<h2 id="orgee505e8">Golang 是强类型语言</h2>
-<div class="outline-text-2" id="text-orgee505e8">
+<div id="outline-container-orgd96b4bd" class="outline-2">
+<h2 id="orgd96b4bd">Golang 是强类型语言</h2>
+<div class="outline-text-2" id="text-orgd96b4bd">
 <p>
 Golang 是一种强类型语言，虽然会有 <code>i := 10</code> 这种写法，这其实是编译器在编译期间自动做了类型推断。编译器会对数据进行类型检查，不同类型的数据不能赋值，不能在函数中传参。强类型语言有一些优势，很多的错误会在编译期间被检查出来，而一些弱类型语言，很多错误只有运行到才能发现。同样，强类型也有一些缺点，写代码的时候要考虑类型，失去了一些灵活性。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org4c7d856" class="outline-2">
-<h2 id="org4c7d856">Golang 没有隐式转换</h2>
-<div class="outline-text-2" id="text-org4c7d856">
+<div id="outline-container-orgc210189" class="outline-2">
+<h2 id="orgc210189">Golang 没有隐式转换</h2>
+<div class="outline-text-2" id="text-orgc210189">
 <p>
 Golang 的类型转换和 C/C++、Java 等语言的类型转换有点区别：<br>
 </p>
@@ -70,8 +70,8 @@ Golang 的类型转换和 C/C++、Java 等语言的类型转换有点区别：<b
 <div class="org-src-container">
 <pre class="src src-c++"><span style="color: #d75fd7;">#include</span> <span style="color: #2aa198;">&lt;stdio.h&gt;</span>
 <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">a</span> = <span style="color: #d75fd7;">5</span>;
-    <span style="color: #df005f; font-weight: bold;">float</span> <span style="color: #8787d7;">b</span> = <span style="color: #d75fd7;">3.5</span>;
+    <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">a</span> = 5;
+    <span style="color: #df005f; font-weight: bold;">float</span> <span style="color: #8787d7;">b</span> = 3.5;
     printf(<span style="color: #2aa198;">"%f\n"</span>, a * b);
 }
 </pre>
@@ -87,8 +87,8 @@ Golang 的类型转换和 C/C++、Java 等语言的类型转换有点区别：<b
 <span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
 
 <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">a</span> <span style="color: #df005f; font-weight: bold;">float32</span> = <span style="color: #d75fd7;">5</span>.<span style="color: #d75fd7;">6</span>
-    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">b</span> <span style="color: #df005f; font-weight: bold;">int</span> = <span style="color: #d75fd7;">10</span>
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">a</span> <span style="color: #df005f; font-weight: bold;">float32</span> = 5.6
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">b</span> <span style="color: #df005f; font-weight: bold;">int</span> = 10
     fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(a * <span style="color: #d75fd7; font-weight: bold;">float32</span>(b))
 }
 </pre>
@@ -119,9 +119,9 @@ Golang 的类型转换和 C/C++、Java 等语言的类型转换有点区别：<b
 </ul>
 </div>
 </div>
-<div id="outline-container-org7493071" class="outline-2">
-<h2 id="org7493071">指针的类型转换</h2>
-<div class="outline-text-2" id="text-org7493071">
+<div id="outline-container-org2e5169b" class="outline-2">
+<h2 id="org2e5169b">指针的类型转换</h2>
+<div class="outline-text-2" id="text-org2e5169b">
 <p>
 在 Golang 中，指针也是有类型的：<br>
 </p>
@@ -132,7 +132,7 @@ Golang 的类型转换和 C/C++、Java 等语言的类型转换有点区别：<b
 <span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
 
 <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">a</span> <span style="color: #df005f; font-weight: bold;">int32</span> = <span style="color: #d75fd7;">10</span>
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">a</span> <span style="color: #df005f; font-weight: bold;">int32</span> = 10
     <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">p</span> *<span style="color: #df005f; font-weight: bold;">int32</span> = &amp;a
     <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">int64</span>
     c = (*int64)(p)
@@ -145,7 +145,7 @@ Golang 的类型转换和 C/C++、Java 等语言的类型转换有点区别：<b
 报错：<br>
 </p>
 
-<pre class="example" id="orgaecd7b9">
+<pre class="example">
 9:14: 错误：invalid type conversion
 ....9 |         c = (*int64)(p)
 ......|   
@@ -164,7 +164,7 @@ Golang 的类型转换和 C/C++、Java 等语言的类型转换有点区别：<b
 )
 
 <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">a</span> <span style="color: #df005f; font-weight: bold;">int64</span> = <span style="color: #d75fd7;">10</span>
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">a</span> <span style="color: #df005f; font-weight: bold;">int64</span> = 10
     <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">b</span> *<span style="color: #df005f; font-weight: bold;">int64</span> = &amp;a
     <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">int32</span> = (*int32)(unsafe.<span style="color: #d75fd7; font-weight: bold;">Pointer</span>(b))
     fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(*c)
@@ -172,9 +172,9 @@ Golang 的类型转换和 C/C++、Java 等语言的类型转换有点区别：<b
 </pre>
 </div>
 </div>
-<div id="outline-container-org934f725" class="outline-3">
-<h3 id="org934f725">慎用 unsafe</h3>
-<div class="outline-text-3" id="text-org934f725">
+<div id="outline-container-org8c0a865" class="outline-3">
+<h3 id="org8c0a865">慎用 unsafe</h3>
+<div class="outline-text-3" id="text-org8c0a865">
 <p>
 虽然在 <code>unsafe</code> 的帮助下，我们可以对指针进行类型转换，不过请注意，这些操作都是不安全的，因为 <code>unsafe</code> 包里提供的函数打破 Go 类型系统和内存管理的安全机制，需要使用者非常小心，这也就是其包名为什么叫做 <code>unsafe</code> 。<br>
 </p>
@@ -185,16 +185,16 @@ Golang 的类型转换和 C/C++、Java 等语言的类型转换有点区别：<b
 </div>
 </div>
 </div>
-<div id="outline-container-org3427092" class="outline-2">
-<h2 id="org3427092">类型断言</h2>
-<div class="outline-text-2" id="text-org3427092">
+<div id="outline-container-org3b293aa" class="outline-2">
+<h2 id="org3b293aa">类型断言</h2>
+<div class="outline-text-2" id="text-org3b293aa">
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
 
 <span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
 
 <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">a</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{} =<span style="color: #d75fd7;">10</span>
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">a</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{} =10
     <span style="color: #268bd2; font-weight: bold;">switch</span> a.(<span style="color: #268bd2; font-weight: bold;">type</span>){
         <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #df005f; font-weight: bold;">int</span>:
         fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"int"</span>)
@@ -219,7 +219,7 @@ Golang 的类型转换和 C/C++、Java 等语言的类型转换有点区别：<b
 <span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
 
 <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">a</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{} =<span style="color: #d75fd7;">10</span>
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">a</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{} =10
     <span style="color: #8787d7;">t</span>,ok:= a.(<span style="color: #df005f; font-weight: bold;">int</span>)
     <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #df005f; font-weight: bold;">ok</span>{
         fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"int"</span>,t)
@@ -237,27 +237,27 @@ Golang 的类型转换和 C/C++、Java 等语言的类型转换有点区别：<b
 </p>
 </div>
 </div>
-<div id="outline-container-org575aeab" class="outline-2">
-<h2 id="org575aeab">与 string 类型相关的转换</h2>
-<div class="outline-text-2" id="text-org575aeab">
+<div id="outline-container-org7882ac9" class="outline-2">
+<h2 id="org7882ac9">与 string 类型相关的转换</h2>
+<div class="outline-text-2" id="text-org7882ac9">
 <p>
 <a href="Go-strconv.html">strconv</a> 包提供了关于 string 与其他类型的转换方法。<br>
 </p>
 </div>
-<div id="outline-container-org5f55c70" class="outline-3">
-<h3 id="org5f55c70">string 到 int</h3>
-<div class="outline-text-3" id="text-org5f55c70">
+<div id="outline-container-orgcbc2468" class="outline-3">
+<h3 id="orgcbc2468">string 到 int</h3>
+<div class="outline-text-3" id="text-orgcbc2468">
 <div class="org-src-container">
 <pre class="src src-go">int, err: = strconv.<span style="color: #d75fd7; font-weight: bold;">Atoi</span>(string)
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orgab21816" class="outline-3">
-<h3 id="orgab21816">string 到 int64</h3>
-<div class="outline-text-3" id="text-orgab21816">
+<div id="outline-container-org5dd23e8" class="outline-3">
+<h3 id="org5dd23e8">string 到 int64</h3>
+<div class="outline-text-3" id="text-org5dd23e8">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #8787d7;">int64</span>, <span style="color: #8787d7;">err</span> := strconv.<span style="color: #d75fd7; font-weight: bold;">ParseInt</span>(string, <span style="color: #d75fd7;">10</span>, <span style="color: #d75fd7;">64</span>)
+<pre class="src src-go"><span style="color: #8787d7;">int64</span>, <span style="color: #8787d7;">err</span> := strconv.<span style="color: #d75fd7; font-weight: bold;">ParseInt</span>(string, 10, 64)
 </pre>
 </div>
 
@@ -266,9 +266,9 @@ Golang 的类型转换和 C/C++、Java 等语言的类型转换有点区别：<b
 </p>
 </div>
 </div>
-<div id="outline-container-org01dcf4d" class="outline-3">
-<h3 id="org01dcf4d">int 到 string</h3>
-<div class="outline-text-3" id="text-org01dcf4d">
+<div id="outline-container-org645a4f1" class="outline-3">
+<h3 id="org645a4f1">int 到 string</h3>
+<div class="outline-text-3" id="text-org645a4f1">
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #8787d7;">string</span> := strconv.<span style="color: #d75fd7; font-weight: bold;">Itoa</span>(int)
 </pre>
@@ -279,31 +279,31 @@ Golang 的类型转换和 C/C++、Java 等语言的类型转换有点区别：<b
 </p>
 </div>
 </div>
-<div id="outline-container-org268f2b6" class="outline-3">
-<h3 id="org268f2b6">int64 到 string</h3>
-<div class="outline-text-3" id="text-org268f2b6">
+<div id="outline-container-org7f88887" class="outline-3">
+<h3 id="org7f88887">int64 到 string</h3>
+<div class="outline-text-3" id="text-org7f88887">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #8787d7;">string</span> := strconv.<span style="color: #d75fd7; font-weight: bold;">FormatInt</span>(int64, <span style="color: #d75fd7;">10</span>)
+<pre class="src src-go"><span style="color: #8787d7;">string</span> := strconv.<span style="color: #d75fd7; font-weight: bold;">FormatInt</span>(int64, 10)
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org3a04cbf" class="outline-3">
-<h3 id="org3a04cbf">float 到 string</h3>
-<div class="outline-text-3" id="text-org3a04cbf">
+<div id="outline-container-orgec7570c" class="outline-3">
+<h3 id="orgec7570c">float 到 string</h3>
+<div class="outline-text-3" id="text-orgec7570c">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #8787d7;">string</span> := strconv.<span style="color: #d75fd7; font-weight: bold;">FormatFloat</span>(float32, <span style="color: #2aa198;">'E'</span>, -<span style="color: #d75fd7;">1</span>, <span style="color: #d75fd7;">32</span>)
-<span style="color: #8787d7;">string</span> := strconv.<span style="color: #d75fd7; font-weight: bold;">FormatFloat</span>(float64, <span style="color: #2aa198;">'E'</span>, -<span style="color: #d75fd7;">1</span>, <span style="color: #d75fd7;">64</span>)
+<pre class="src src-go"><span style="color: #8787d7;">string</span> := strconv.<span style="color: #d75fd7; font-weight: bold;">FormatFloat</span>(float32, <span style="color: #2aa198;">'E'</span>, -1, 32)
+<span style="color: #8787d7;">string</span> := strconv.<span style="color: #d75fd7; font-weight: bold;">FormatFloat</span>(float64, <span style="color: #2aa198;">'E'</span>, -1, 64)
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orgeb7a305" class="outline-3">
-<h3 id="orgeb7a305">string 到 float</h3>
-<div class="outline-text-3" id="text-orgeb7a305">
+<div id="outline-container-org3a6913a" class="outline-3">
+<h3 id="org3a6913a">string 到 float</h3>
+<div class="outline-text-3" id="text-org3a6913a">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #8787d7;">float</span>, <span style="color: #8787d7;">err</span> := strconv.<span style="color: #d75fd7; font-weight: bold;">ParseFloat</span>(string, <span style="color: #d75fd7;">64</span>)
-<span style="color: #8787d7;">float</span>, <span style="color: #8787d7;">err</span> := strconv.<span style="color: #d75fd7; font-weight: bold;">ParseFloat</span>(string, <span style="color: #d75fd7;">32</span>)
+<pre class="src src-go"><span style="color: #8787d7;">float</span>, <span style="color: #8787d7;">err</span> := strconv.<span style="color: #d75fd7; font-weight: bold;">ParseFloat</span>(string, 64)
+<span style="color: #8787d7;">float</span>, <span style="color: #8787d7;">err</span> := strconv.<span style="color: #d75fd7; font-weight: bold;">ParseFloat</span>(string, 32)
 </pre>
 </div>
 </div>

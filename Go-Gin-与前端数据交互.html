@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-01-26 Wed 14:38 -->
+<!-- 2022-05-11 Wed 23:33 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>数据交互</title>
@@ -21,38 +21,38 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org3c65637">返回 json</a>
+<li><a href="#orgc7edee8">返回 json</a>
 <ul>
-<li><a href="#orga46a060">使用 map</a></li>
-<li><a href="#org53d7875">使用 struct</a></li>
+<li><a href="#orgf9e2f08">使用 map</a></li>
+<li><a href="#org1ad9b8b">使用 struct</a></li>
 </ul>
 </li>
-<li><a href="#orgf3ef9e8">获取数据</a>
+<li><a href="#org657bb88">获取数据</a>
 <ul>
-<li><a href="#orgcf081f6">获取 params 中的参数</a></li>
-<li><a href="#orgcc2e71c">获取 query 中的参数</a></li>
-<li><a href="#orge538936">获取 body 中的参数</a></li>
+<li><a href="#orgf7d0390">获取 params 中的参数</a></li>
+<li><a href="#orgd58e099">获取 query 中的参数</a></li>
+<li><a href="#org44b80ae">获取 body 中的参数</a></li>
 </ul>
 </li>
-<li><a href="#org9967c36">Gin 解析参数</a>
+<li><a href="#org7cd210d">Gin 解析参数</a>
 <ul>
-<li><a href="#org7308ea8">BindJSON</a></li>
-<li><a href="#org7f545a4">ShouldBindJSON()</a></li>
-<li><a href="#org86c4b0e">ShouldBindWith</a></li>
-<li><a href="#org7dc12de">如何选择使用</a></li>
+<li><a href="#orgf2928a9">BindJSON</a></li>
+<li><a href="#org0e3eb1a">ShouldBindJSON</a></li>
+<li><a href="#org5d79006">ShouldBindWith</a></li>
+<li><a href="#orgd07af3d">如何选择使用</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org3c65637" class="outline-2">
-<h2 id="org3c65637">返回 json</h2>
-<div class="outline-text-2" id="text-org3c65637">
+<div id="outline-container-orgc7edee8" class="outline-2">
+<h2 id="orgc7edee8">返回 json</h2>
+<div class="outline-text-2" id="text-orgc7edee8">
 </div>
-<div id="outline-container-orga46a060" class="outline-3">
-<h3 id="orga46a060">使用 map</h3>
-<div class="outline-text-3" id="text-orga46a060">
+<div id="outline-container-orgf9e2f08" class="outline-3">
+<h3 id="orgf9e2f08">使用 map</h3>
+<div class="outline-text-3" id="text-orgf9e2f08">
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
     <span style="color: #8787d7;">r</span> := gin.<span style="color: #d75fd7; font-weight: bold;">Default</span>()
@@ -67,7 +67,7 @@
 <span style="color: #008787; background-color: #262626;">         */</span>
 
         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26041;&#27861;1.5&#65306;&#20351;&#29992;gin.H&#65288;&#23601;&#26159;gin&#30340;&#20316;&#32773;&#24819;&#21040;&#22823;&#23478;&#32463;&#24120;&#29992; map[string]interface{} &#29305;&#24847;&#35774;&#35745;&#30340;&#24555;&#25463;&#31867;&#65289;</span>
-        <span style="color: #8787d7;">data</span> := <span style="color: #df005f; font-weight: bold;">gin.H</span>{<span style="color: #2aa198;">"name"</span>: <span style="color: #2aa198;">"&#23567;&#29579;&#23376;"</span>, <span style="color: #2aa198;">"message"</span>: <span style="color: #2aa198;">"hello"</span>, <span style="color: #2aa198;">"age"</span>: <span style="color: #d75fd7;">18</span>}
+        <span style="color: #8787d7;">data</span> := <span style="color: #df005f; font-weight: bold;">gin.H</span>{<span style="color: #2aa198;">"name"</span>: <span style="color: #2aa198;">"&#23567;&#29579;&#23376;"</span>, <span style="color: #2aa198;">"message"</span>: <span style="color: #2aa198;">"hello"</span>, <span style="color: #2aa198;">"age"</span>: 18}
 
         c.<span style="color: #d75fd7; font-weight: bold;">JSON</span>(http.StatusOK, data)
     })
@@ -78,25 +78,25 @@
 </div>
 </div>
 </div>
-<div id="outline-container-org53d7875" class="outline-3">
-<h3 id="org53d7875">使用 struct</h3>
-<div class="outline-text-3" id="text-org53d7875">
+<div id="outline-container-org1ad9b8b" class="outline-3">
+<h3 id="org1ad9b8b">使用 struct</h3>
+<div class="outline-text-3" id="text-org1ad9b8b">
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
     <span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">msg</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
         Name <span style="color: #df005f; font-weight: bold;">string</span>
-        message <span style="color: #df005f; font-weight: bold;">string</span>         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23567;&#20889;&#30340;&#19981;&#21487;&#20197;&#21734;</span>
-        Age <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #2aa198;">`json:"name"`</span>  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#21069;&#31471;&#19968;&#23450;&#38656;&#35201;&#23567;&#20889;&#30340;&#65292;&#20351;&#29992;tag</span>
+        message <span style="color: #df005f; font-weight: bold;">string</span>         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23567;&#20889;&#30340;&#35270;&#20026;&#31169;&#26377;&#21464;&#37327;</span>
+        Age <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #2aa198;">`json:"name"`</span>  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22240;&#20026;&#21069;&#31471;&#21516;&#23398;&#20064;&#24815;&#20351;&#29992;&#23567;&#20889;&#21464;&#37327;&#65292;&#20026;&#20102;&#36801;&#23601;&#21069;&#31471;&#21516;&#23398;&#65292;&#36825;&#37324;&#20351;&#29992; tag</span>
     }
 
     <span style="color: #8787d7;">r</span> := gin.<span style="color: #d75fd7; font-weight: bold;">Default</span>()
 
     r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/struct"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {
-        <span style="color: #8787d7;">data</span> := msg {
+        <span style="color: #8787d7;">data</span> := <span style="color: #df005f; font-weight: bold;">msg</span>{
             <span style="color: #d75fd7;">Name</span>: <span style="color: #2aa198;">"&#23567;&#29579;&#23376;"</span>,
-                <span style="color: #d75fd7;">message</span>: <span style="color: #2aa198;">"Hello"</span>,
-                <span style="color: #d75fd7;">Age</span>: <span style="color: #d75fd7;">18</span>,
-            }
+            <span style="color: #d75fd7;">message</span>: <span style="color: #2aa198;">"Hello"</span>,
+            <span style="color: #d75fd7;">Age</span>: 18,
+        }
         c.<span style="color: #d75fd7; font-weight: bold;">JSON</span>(http.StatusOK, data)   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">json &#24207;&#21015;&#21270;</span>
     })
     r.<span style="color: #d75fd7; font-weight: bold;">Run</span>(<span style="color: #2aa198;">":8080"</span>)
@@ -106,18 +106,18 @@
 </div>
 </div>
 </div>
-<div id="outline-container-orgf3ef9e8" class="outline-2">
-<h2 id="orgf3ef9e8">获取数据</h2>
-<div class="outline-text-2" id="text-orgf3ef9e8">
+<div id="outline-container-org657bb88" class="outline-2">
+<h2 id="org657bb88">获取数据</h2>
+<div class="outline-text-2" id="text-org657bb88">
 </div>
-<div id="outline-container-orgcf081f6" class="outline-3">
-<h3 id="orgcf081f6">获取 params 中的参数</h3>
-<div class="outline-text-3" id="text-orgcf081f6">
+<div id="outline-container-orgf7d0390" class="outline-3">
+<h3 id="orgf7d0390">获取 params 中的参数</h3>
+<div class="outline-text-3" id="text-orgf7d0390">
 <p>
 常用于 GET 请求。<br>
 </p>
 
-<pre class="example" id="orgc0d17f8">
+<pre class="example">
 http://127.0.0.1:8080/api/user/:username
 http://127.0.0.1:8080/api/user/Tom
 </pre>
@@ -139,14 +139,14 @@ http://127.0.0.1:8080/api/user/Tom
 </div>
 </div>
 </div>
-<div id="outline-container-orgcc2e71c" class="outline-3">
-<h3 id="orgcc2e71c">获取 query 中的参数</h3>
-<div class="outline-text-3" id="text-orgcc2e71c">
+<div id="outline-container-orgd58e099" class="outline-3">
+<h3 id="orgd58e099">获取 query 中的参数</h3>
+<div class="outline-text-3" id="text-orgd58e099">
 <p>
 常用于 GET 请求。<br>
 </p>
 
-<pre class="example" id="org23f6435">
+<pre class="example">
 http://127.0.0.1:8080/api/user
 http://127.0.0.1:8080/api/user?name=Tom&amp;age=16
 </pre>
@@ -172,9 +172,9 @@ http://127.0.0.1:8080/api/user?name=Tom&amp;age=16
 </div>
 </div>
 </div>
-<div id="outline-container-orge538936" class="outline-3">
-<h3 id="orge538936">获取 body 中的参数</h3>
-<div class="outline-text-3" id="text-orge538936">
+<div id="outline-container-org44b80ae" class="outline-3">
+<h3 id="org44b80ae">获取 body 中的参数</h3>
+<div class="outline-text-3" id="text-org44b80ae">
 <p>
 常用于 POST 请求。<br>
 </p>
@@ -205,18 +205,18 @@ http://127.0.0.1:8080/api/user?name=Tom&amp;age=16
 </div>
 </div>
 
-<div id="outline-container-org9967c36" class="outline-2">
-<h2 id="org9967c36">Gin 解析参数</h2>
-<div class="outline-text-2" id="text-org9967c36">
+<div id="outline-container-org7cd210d" class="outline-2">
+<h2 id="org7cd210d">Gin 解析参数</h2>
+<div class="outline-text-2" id="text-org7cd210d">
 <p>
-BindJSON 和 ShouldBindJSON，ShouldBindWith 的区别：<br>
+<code>BindJSON</code> 和 <code>ShouldBindJSON</code> ， <code>ShouldBindWith</code> 的区别：<br>
 </p>
 </div>
-<div id="outline-container-org7308ea8" class="outline-3">
-<h3 id="org7308ea8">BindJSON</h3>
-<div class="outline-text-3" id="text-org7308ea8">
+<div id="outline-container-orgf2928a9" class="outline-3">
+<h3 id="orgf2928a9">BindJSON</h3>
+<div class="outline-text-3" id="text-orgf2928a9">
 <ul class="org-ul">
-<li>返回错误，并在header里面写400的状态码<br></li>
+<li>返回错误，并在 <code>header</code> 里面写 400 的状态码<br></li>
 </ul>
 
 <div class="org-src-container">
@@ -238,12 +238,11 @@ BindJSON 和 ShouldBindJSON，ShouldBindWith 的区别：<br>
 </div>
 </div>
 </div>
-
-<div id="outline-container-org7f545a4" class="outline-3">
-<h3 id="org7f545a4">ShouldBindJSON()</h3>
-<div class="outline-text-3" id="text-org7f545a4">
+<div id="outline-container-org0e3eb1a" class="outline-3">
+<h3 id="org0e3eb1a">ShouldBindJSON</h3>
+<div class="outline-text-3" id="text-org0e3eb1a">
 <ul class="org-ul">
-<li>只会返回错误信息，不会往header里面写400的错误状态码<br></li>
+<li>只会返回错误信息，不会往 <code>header</code> 里面写 400 的错误状态码<br></li>
 </ul>
 
 <div class="org-src-container">
@@ -260,12 +259,11 @@ BindJSON 和 ShouldBindJSON，ShouldBindWith 的区别：<br>
 </div>
 </div>
 </div>
-
-<div id="outline-container-org86c4b0e" class="outline-3">
-<h3 id="org86c4b0e">ShouldBindWith</h3>
-<div class="outline-text-3" id="text-org86c4b0e">
+<div id="outline-container-org5d79006" class="outline-3">
+<h3 id="org5d79006">ShouldBindWith</h3>
+<div class="outline-text-3" id="text-org5d79006">
 <ul class="org-ul">
-<li>根据b的类型去绑定json，query，去绑定<br></li>
+<li>根据 b 的类型去绑定 json，query，去绑定<br></li>
 </ul>
 
 <div class="org-src-container">
@@ -276,30 +274,29 @@ BindJSON 和 ShouldBindJSON，ShouldBindWith 的区别：<br>
 </div>
 </div>
 </div>
-
-<div id="outline-container-org7dc12de" class="outline-3">
-<h3 id="org7dc12de">如何选择使用</h3>
-<div class="outline-text-3" id="text-org7dc12de">
+<div id="outline-container-orgd07af3d" class="outline-3">
+<h3 id="orgd07af3d">如何选择使用</h3>
+<div class="outline-text-3" id="text-orgd07af3d">
 <p>
-gin提供了灵活的bind解析参数的方法供你选择。<br>
+gin 提供了灵活的 bind 解析参数的方法供你选择。<br>
 </p>
 
 <blockquote>
 <p>
-Shouldxxx和bindxxx区别就是bindxxx会在head中添加400的返回信息，而Shouldxxx不会。<br>
+Shouldxxx 和 bindxxx 区别就是 bindxxx 会在 head 中添加 400 的返回信息，而 Shouldxxx 不会。<br>
 </p>
 </blockquote>
 
 <ul class="org-ul">
 <li><p>
-解析错误回在header中写一个400的状态码<br>
+解析错误回在 <code>header</code> 中写一个 400 的状态码<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20869;&#37096;&#26681;&#25454;Content-Type&#21435;&#35299;&#26512;</span>
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20869;&#37096;&#26681;&#25454; Content-Type &#21435;&#35299;&#26512;</span>
 c.<span style="color: #d75fd7; font-weight: bold;">Bind</span>(obj <span style="color: #268bd2; font-weight: bold;">interface</span>{})
 
-<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20869;&#37096;&#26367;&#20320;&#20256;&#36882;&#20102;&#19968;&#20010;binding.JSON&#65292;&#23545;&#35937;&#21435;&#35299;&#26512;</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20869;&#37096;&#26367;&#20320;&#20256;&#36882;&#20102;&#19968;&#20010; binding.JSON&#65292;&#23545;&#35937;&#21435;&#35299;&#26512;</span>
 c.<span style="color: #d75fd7; font-weight: bold;">BindJSON</span>(obj <span style="color: #268bd2; font-weight: bold;">interface</span>{})
 
 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35299;&#26512;&#21738;&#19968;&#31181;&#32465;&#23450;&#30340;&#31867;&#22411;&#65292;&#26681;&#25454;&#20320;&#30340;&#36873;&#25321;</span>
@@ -312,10 +309,10 @@ c.<span style="color: #d75fd7; font-weight: bold;">BindWith</span>(obj <span sty
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20869;&#37096;&#26681;&#25454;Content-Type&#21435;&#35299;&#26512;</span>
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20869;&#37096;&#26681;&#25454; Content-Type &#21435;&#35299;&#26512;</span>
 c.<span style="color: #d75fd7; font-weight: bold;">ShouldBind</span>(obj <span style="color: #268bd2; font-weight: bold;">interface</span>{})
 
-<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20869;&#37096;&#26367;&#20320;&#20256;&#36882;&#20102;&#19968;&#20010;binding.JSON&#65292;&#23545;&#35937;&#21435;&#35299;&#26512;</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20869;&#37096;&#26367;&#20320;&#20256;&#36882;&#20102;&#19968;&#20010; binding.JSON&#65292;&#23545;&#35937;&#21435;&#35299;&#26512;</span>
 c.<span style="color: #d75fd7; font-weight: bold;">ShouldBindJSON</span>(obj <span style="color: #268bd2; font-weight: bold;">interface</span>{})
 
 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35299;&#26512;&#21738;&#19968;&#31181;&#32465;&#23450;&#30340;&#31867;&#22411;&#65292;&#26681;&#25454;&#20320;&#30340;&#36873;&#25321;</span>
@@ -330,8 +327,8 @@ c.<span style="color: #d75fd7; font-weight: bold;">ShouldBindWith</span>(obj <sp
 <div id="postamble" class="status">
 <p class="date">Date: 2021-12-14 17:12 Tue</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-01-26 Wed 14:38</p>
-<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+<p class="date">Created: 2022-05-11 Wed 23:33</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>

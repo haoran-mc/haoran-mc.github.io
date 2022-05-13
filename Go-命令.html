@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-04-01 Fri 19:56 -->
+<!-- 2022-05-10 Tue 16:14 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GO 命令教程</title>
@@ -21,8 +21,61 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org58c89f9">Go 命令</a></li>
+<li><a href="#org58c89f9">Go 命令</a>
+<ul>
+<li><a href="#org5a408ad">go bug</a></li>
+<li><a href="#orgab1dacc">go build</a></li>
+<li><a href="#orgbd54201">go install</a></li>
+<li><a href="#org16c17de">go get</a>
+<ul>
+<li><a href="#org6f458c0">手动下载</a></li>
+<li><a href="#org12e4d65">设置代理</a></li>
+<li><a href="#org2f8a754">使用 GOPROXY 环境变量</a>
+<ul>
+<li><a href="#org1e7f326">设置 GOPROXY</a></li>
+</ul>
+</li>
+<li><a href="#org6692219">go get 参数说明</a></li>
+</ul>
+</li>
+<li><a href="#org84b285a">go mod</a>
+<ul>
+<li><a href="#org11b7911">使用 go mod 来管理项目</a></li>
+<li><a href="#org2dba6ba">依赖包地址变更的做法</a></li>
+<li><a href="#orge7611b3">go mod 命令</a></li>
+</ul>
+</li>
+<li><a href="#org59c91c2">go run</a></li>
+<li><a href="#org7f112a4">go clean</a></li>
+<li><a href="#org3dd8a8e">go fmt</a></li>
+<li><a href="#orgcc3ed82">go list</a></li>
+<li><a href="#orgd90dfef">go version</a></li>
+<li><a href="#org0c46139">go env</a></li>
+<li><a href="#org3850527">交叉编译各大平台命令</a>
+<ul>
+<li><a href="#org16bfca0">在Mac平台编译：</a></li>
+<li><a href="#orgeb950db">在Linux平台编译：</a></li>
+<li><a href="#orgd0ae797">在Windows平台编译：</a></li>
+<li><a href="#org3903ed4">在Goland中的设置交叉编译</a></li>
+</ul>
+</li>
+<li><a href="#org2b6d87b">go test</a></li>
+<li><a href="#org84b6c0c">go generate</a></li>
+<li><a href="#org75b937c">go doc &amp; godoc</a></li>
+<li><a href="#org2d809ec">go tool</a>
+<ul>
+<li><a href="#orgdeff3c4">go tool asm</a></li>
+<li><a href="#orgf68d16f">go tool compile</a></li>
+<li><a href="#org9f37571">go tool pack</a></li>
+<li><a href="#orgaa23f78">go tool link</a></li>
+<li><a href="#org0f6a37b">go tool objdump</a></li>
+<li><a href="#org1cd21ae">go tool nm</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li><a href="#orge01170c">Go 命令教程</a></li>
+<li><a href="#orgfca7f82">Go 命令使用场景实例</a></li>
 </ul>
 </div>
 </div>
@@ -104,6 +157,923 @@ Use <span style="color: #2aa198;">"go help &lt;topic&gt;"</span> for more inform
 <dt>go vet</dt><dd>是一个用于检查Go语言源码中静态错误的简单工具。<br></dd>
 <dt>go tool pprof</dt><dd>命令来交互式的访问概要文件的内容。<br></dd>
 </dl>
+
+<p>
+若想更加详细了解某个命令的具体用法，只需输入 "go help 命令"，同时官方也给出了非常详细的 <a href="https://golang.google.cn/cmd/go/">文档说明</a> 。<br>
+</p>
+</div>
+<div id="outline-container-org5a408ad" class="outline-3">
+<h3 id="org5a408ad">go bug</h3>
+<div class="outline-text-3" id="text-org5a408ad">
+<p>
+输入此命令后会直接打开默认浏览器，显示 go 的 github 页面进行 bug 报告，并会自动添加系统的信息。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">go bug
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgab1dacc" class="outline-3">
+<h3 id="orgab1dacc">go build</h3>
+<div class="outline-text-3" id="text-orgab1dacc">
+<p>
+此命令用于编译指定的源码文件或代码包、依赖包。<br>
+</p>
+
+<p>
+若只有一个 main 函数文件，进入 main 函数所在目录，直接输入 <code>go build</code> 会自动编译 main 函数所在文件，并生成一个可执行文件。<br>
+</p>
+
+<p>
+若要指定文件名，可使用参数 -o，也可指定文件输出的目录。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">go build -o main.exe
+</pre>
+</div>
+
+<p>
+若有多个 main 函数文件，若只想编译其中某个文件，可在 go build 后加入文件名即可，如： <code>go build 文件名</code><br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">go build main2.go 
+</pre>
+</div>
+
+<p>
+若是在普通包下，输入 <code>go build</code> 后不会生成任何文件，只会检查错误。<br>
+</p>
+
+<p>
+除了 <code>-o</code> 参数，还有一些其他参数：<br>
+</p>
+
+<ul class="org-ul">
+<li><code>-o</code> 指定输出的文件名，可以带上路径，例如 <code>go build -o a/b/c</code><br></li>
+<li><code>-i</code> 安装相应的包，编译 + go install<br></li>
+<li><code>-a</code> 更新全部已经是最新的包的，但是对标准包不适用<br></li>
+<li><code>-n</code> 把需要执行的编译命令打印出来，但是不执行，这样就可以很容易的知道底层是如何运行的<br></li>
+<li><code>-p n</code> 指定可以并行可运行的编译数目，默认是 CPU 数目<br></li>
+<li><code>-race</code> 开启编译的时候自动检测数据竞争的情况，目前只支持64位的机器<br></li>
+<li><code>-v</code> 打印出来我们正在编译的包名<br></li>
+<li><code>-work</code> 打印出来编译时候的临时文件夹名称，并且如果已经存在的话就不要删除<br></li>
+<li><code>-x</code> 打印出来执行的命令，其实就是和 <code>-n</code> 的结果类似，只是这个会执行<br></li>
+<li><code>-ccflags 'arg list'</code> 传递参数给 5c, 6c, 8c 调用<br></li>
+<li><code>-compiler name</code> 指定相应的编译器，gccgo 还是 gc<br></li>
+<li><code>-gccgoflags 'arg list'</code> 传递参数给 gccgo 编译连接调用<br></li>
+<li><code>-gcflags 'arg list'</code> 传递参数给 5g, 6g, 8g 调用<br></li>
+<li><code>-installsuffix suffix</code> 为了和默认的安装包区别开来，采用这个前缀来重新安装那些依赖的包， <code>-race</code> 的时候默认已经是 <code>-installsuffix race</code> ，可以通过 <code>-n</code> 命令来验证<br></li>
+<li><code>-ldflags 'flag list'</code> 传递参数给 5l, 6l, 8l 调用<br></li>
+<li><code>-tags 'tag list'</code> 设置在编译的时候可以适配的那些 tag，详细的 tag 限制参考里面的 <a href="https://pkg.go.dev/go/build">Build Constraints</a><br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgbd54201" class="outline-3">
+<h3 id="orgbd54201">go install</h3>
+<div class="outline-text-3" id="text-orgbd54201">
+<p>
+<code>go install</code> 跟 <code>go build</code> 类似，只是多做了一件事就是安装编译后的文件到指定目录。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">go install main.go
+</pre>
+</div>
+
+<p>
+出现错误：“go install: no install location for .go files listed on command line (GOBIN not set)”<br>
+</p>
+
+<p>
+这是因为没有设置环境变量GOBIN。<br>
+</p>
+
+<p>
+Go 开发中一般要设置环境变量 GOROOT 和 GOPATH。按照 Go 开发规范，GOPATH 目录下一般分为三个子目录：src、pkg、bin<br>
+</p>
+
+<ul class="org-ul">
+<li>src：源代码文件<br></li>
+<li>pkg：编译后的库静态文件<br></li>
+<li>bin：源代码编译后的可执行文件<br></li>
+</ul>
+
+<p>
+因此环境变量 GOBIN 设置的就是上面的 bin 目录，"go install"命令就将可执行文件自动安装到 bin 目录下。<br>
+</p>
+
+
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#35774;&#32622;&#29615;&#22659;&#21464;&#37327; GOBIN</span>
+<span style="color: #268bd2;">export</span> <span style="color: #8787d7;">GOBIN</span>=$<span style="color: #8787d7;">GOPATH</span>/bin
+</pre>
+</div>
+
+<img src="./images/设置GOBIN.png" />
+
+<p>
+设置成功后再来执行上面的 <code>go install</code> 命令。<br>
+</p>
+
+<img src="./images/go_install.png" />
+
+<p>
+执行后可执行文件自动安装到 bin 目录下了。<br>
+</p>
+
+<p>
+<code>go install</code> 的参数跟 <code>go build</code> 一样，这里不再说明。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org16c17de" class="outline-3">
+<h3 id="org16c17de">go get</h3>
+<div class="outline-text-3" id="text-org16c17de">
+<p>
+<code>go get</code> 命令用于动态获取远程代码包及其依赖包，并进行编译和安装。<br>
+</p>
+
+<p>
+执行命令后一般会下载在 GOPATH 的 src 目录下。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">go get github.com/PuerkitoBio/goquery
+</pre>
+</div>
+
+<p>
+当想要修改 package 的版本时，只需要 go get package@指定的version 即可。<br>
+</p>
+
+<p>
+受国内网络限制原因，会出现无法下载 golang.org 网站内容，出现这种情况一般有三种方法解决<br>
+</p>
+</div>
+<div id="outline-container-org6f458c0" class="outline-4">
+<h4 id="org6f458c0">手动下载</h4>
+<div class="outline-text-4" id="text-org6f458c0">
+<p>
+不推荐，因为可能有太多的依赖（或依赖的依赖）关系。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org12e4d65" class="outline-4">
+<h4 id="org12e4d65">设置代理</h4>
+<div class="outline-text-4" id="text-org12e4d65">
+<p>
+若你有代理，可以使用如下命令<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #268bd2;">export</span> <span style="color: #8787d7;">http_proxy</span>=http://proxyAddress:port
+<span style="color: #268bd2;">export</span> <span style="color: #8787d7;">https_proxy</span>=http://proxyAddress:port
+</pre>
+</div>
+
+<p>
+或<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #268bd2;">export</span> <span style="color: #8787d7;">all_proxy</span>=http://proxyAddress:port
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org2f8a754" class="outline-4">
+<h4 id="org2f8a754">使用 GOPROXY 环境变量</h4>
+<div class="outline-text-4" id="text-org2f8a754">
+<p>
+推荐使用这种方法，但前提是 Go 版本是 1.11 及以后。<br>
+</p>
+
+<p>
+所以需要设置 GOPROXY 环境变量，设置后下载源码将通过这个环境变量设置的代理地址进行下载。<br>
+</p>
+
+<p>
+goproxy.io 这个开源项目帮我们实现了代理功能，并提供了公用的代理服务：<br>
+</p>
+
+<pre class="example">
+https://goproxy.io
+</pre>
+</div>
+<div id="outline-container-org1e7f326" class="outline-5">
+<h5 id="org1e7f326">设置 GOPROXY</h5>
+<div class="outline-text-5" id="text-org1e7f326">
+<p>
+使用公用代理服务 <a href="https://goproxy.io">https://goproxy.io</a><br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #268bd2;">export</span> <span style="color: #8787d7;">GOPROXY</span>=https://goproxy.io
+</pre>
+</div>
+
+<p>
+由于需要依赖 go module 功能，所以需要开启 MODULE<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #268bd2;">export</span> <span style="color: #8787d7;">GO111MODULE</span>=on
+</pre>
+</div>
+
+<p>
+最后再来执行上面的 go get 命令：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">go get github.com/PuerkitoBio/goquery
+</pre>
+</div>
+
+<p>
+不过这种方法下载的包源码在 GOPATH 目录下的 pkg/mod 目录下。<br>
+</p>
+
+<p>
+若需要关闭 GOPROXY 环境变量，只需：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #268bd2;">export</span> <span style="color: #8787d7;">GOPROXY</span>=
+</pre>
+</div>
+
+<p>
+另外，国内开源项目 goproxy.cn 也提供了类似服务，公用代理服务：<a href="https://goproxy.cn">https://goproxy.cn</a><br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org6692219" class="outline-4">
+<h4 id="org6692219">go get 参数说明</h4>
+<div class="outline-text-4" id="text-org6692219">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">标记名称</th>
+<th scope="col" class="org-left">标记描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">-d</td>
+<td class="org-left">让命令程序只执行下载动作，而不执行安装动作。</td>
+</tr>
+
+<tr>
+<td class="org-left">-f</td>
+<td class="org-left">仅在使用 -u 标记时才有效，该标记会让命令程序忽略掉已下载代码包的导入路径的检查。如果下载并安装的代码包所属的项目是你从别人那里 Fork 过来的，那么这样做就尤为重要了</td>
+</tr>
+
+<tr>
+<td class="org-left">-fix</td>
+<td class="org-left">让命令程序在下载代码包后限制性修正动作，而后再进行编译和安装。</td>
+</tr>
+
+<tr>
+<td class="org-left">-insecure</td>
+<td class="org-left">允许命令程序使用非安全的 scheme（如 HTTP）去下载指定的代码包，如果你用的代码仓库（如公司内部的 Gitlab）没有 HTTPS 支持，可以添加此标记，请在确定安全的情况下使用它。</td>
+</tr>
+
+<tr>
+<td class="org-left">-t</td>
+<td class="org-left">让命令程序同时下载并安装指定的代码包中的测试源码文件中依赖的代码包。</td>
+</tr>
+
+<tr>
+<td class="org-left">-u</td>
+<td class="org-left">让命令利用网络来更新已有代码包及其依赖包，默认情况下，该命令只会从网络上下载本地不存在的代码包，而不会更新已有的代码包。</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="outline-container-org84b285a" class="outline-3">
+<h3 id="org84b285a">go mod</h3>
+<div class="outline-text-3" id="text-org84b285a">
+<p>
+go mod 是 go modules 的简写，用于对 go 包的管理。从 go1.11 开始实现了 modules 管理，mod 相比以前的方式，优点主要体现在：<br>
+</p>
+
+<ul class="org-ul">
+<li>项目不需要放在 GOPATH 下的 src 目录了，可以在任意目录。<br></li>
+<li>自动下载第三方包和依赖包。<br></li>
+<li>第三方包会指定版本号。<br></li>
+<li>项目内会生成一个 go.mod 文件，文件内指定包依赖关系。<br></li>
+<li>有一些第三方包不存在了或转移到其他地方，不需要改代码，只需用 replace 命令替换即可。<br></li>
+<li><p>
+要使用 modules，前提是需要将环境变量 GO111MODULE 设为 on 或者 auto:<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #8787d7;">GO111MODULE</span>=on
+</pre>
+</div></li>
+</ul>
+
+<p>
+GO111MODULE 有三个值：<br>
+</p>
+
+<ul class="org-ul">
+<li>GO111MODULE=off：go 命令行将不会支持 module 功能，寻找依赖包的方式将会沿用旧版本那种通过 vendor 目录或者 GOPATH 模式来查找。<br></li>
+<li>GO111MODULE=on：go命令行会使用 modules，不会去 GOPATH 目录下查找。<br></li>
+<li>GO111MODULE=auto：这是默认值，会根据当前目录的位置来决定是否启用 modules 功能，若项目在 GOPATH 的 src 之外且根目录下有 go.mod 文件时会启用 modules。<br></li>
+</ul>
+</div>
+<div id="outline-container-org11b7911" class="outline-4">
+<h4 id="org11b7911">使用 go mod 来管理项目</h4>
+<div class="outline-text-4" id="text-org11b7911">
+<ol class="org-ol">
+<li>再任意目录下创建一个自己的项目<br></li>
+<li><p>
+使用 <code>go mod init 模块名</code> 初始化项目<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">go mod init my
+</pre>
+</div>
+
+<p>
+执行 init 后，会再项目目录下生成一个 go.mod 文件，此时 go.mod 文件中包含了模块名和当前 go 的版本号。<br>
+</p></li>
+<li><p>
+引用第三方包<br>
+</p>
+
+<p>
+此时引用第三方包，以 beego（一个 web 服务器）为例，看 mod 是如何工作的。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"github.com/astaxie/beego"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>(){
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Zarten"</span>)
+    beego.<span style="color: #d75fd7; font-weight: bold;">Run</span>()
+}
+</pre>
+</div>
+
+<p>
+编写完成后直接 <code>go build zarten.go</code> 或 <code>go run zarten.go</code> 命令，go 会自动查找依赖关系并下载写入 go.mod 文件中，并生成 go.sum 文件（用来检测依赖模块是否被篡改）。<br>
+</p>
+
+<p>
+注：若在检测依赖时，由于网络原因需要用代理，在上面有讲解如何使用代理！<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">go build zarten.go
+</pre>
+</div>
+
+<p>
+此时查看 go.mod 文件，如下<br>
+</p>
+
+<pre class="example">
+module my
+
+go 1.14
+
+require github.com/astaxie/beego v1.12.2
+</pre>
+
+<p>
+require 后面是引用的包，并且还制定了包的版本 v1.12.2<br>
+</p>
+
+<p>
+下载的包保存在了 GOPATH/pkg/mod 下面，并且可以多版本共存保存。<br>
+</p>
+
+<p>
+若需要下载不同的版本，需要在go.mod文件的require后面指定版本号。<br>
+</p></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-org2dba6ba" class="outline-4">
+<h4 id="org2dba6ba">依赖包地址变更的做法</h4>
+<div class="outline-text-4" id="text-org2dba6ba">
+<p>
+上面我们说到，mod 管理的好处是项目地址变更后无需更改源代码，只需使用 replace 命令即可。<br>
+</p>
+
+<p>
+例如 zarten 这个包从 <a href="http://golang.org/x/zarten">http://golang.org/x/zarten</a> 移动到了 <a href="http://github.com/golang/zarten">http://github.com/golang/zarten</a><br>
+</p>
+
+<p>
+在 go.mod 文件中，使用 replace 命令如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">replace golang.org/x/zarten =&gt; github.com/golang/zarten latest
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orge7611b3" class="outline-4">
+<h4 id="orge7611b3">go mod 命令</h4>
+<div class="outline-text-4" id="text-orge7611b3">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">download</td>
+<td class="org-left">下载依赖包</td>
+</tr>
+
+<tr>
+<td class="org-left">edit</td>
+<td class="org-left">编辑 go.mod</td>
+</tr>
+
+<tr>
+<td class="org-left">graph</td>
+<td class="org-left">打印模块依赖图</td>
+</tr>
+
+<tr>
+<td class="org-left">init</td>
+<td class="org-left">在当前目录初始化 mod</td>
+</tr>
+
+<tr>
+<td class="org-left">tidy</td>
+<td class="org-left">拉取缺少的模块，移除不用的模块</td>
+</tr>
+
+<tr>
+<td class="org-left">vendor</td>
+<td class="org-left">将依赖复制到 vender 下</td>
+</tr>
+
+<tr>
+<td class="org-left">verify</td>
+<td class="org-left">验证依赖是否正确</td>
+</tr>
+
+<tr>
+<td class="org-left">why</td>
+<td class="org-left">解释为什么需要依赖</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="outline-container-org59c91c2" class="outline-3">
+<h3 id="org59c91c2">go run</h3>
+<div class="outline-text-3" id="text-org59c91c2">
+<p>
+go run 用于编译并运行源码文件，由于包含编译步骤，所以go build参数都可用于go run，在go run 中只接受go源码文件而不接受代码包。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">go run zarten.go
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org7f112a4" class="outline-3">
+<h3 id="org7f112a4">go clean</h3>
+<div class="outline-text-3" id="text-org7f112a4">
+<p>
+go clean 命令用于删除执行其他命令时产生的文件或目录，这些文件包括：<br>
+</p>
+
+<ul class="org-ul">
+<li><code>_obj/</code> 旧的 object 目录，由 Makefiles 遗留<br></li>
+<li><code>_test/</code> 旧的 test 目录，由 Makefiles 遗留<br></li>
+<li><code>_testmain.go</code> 旧的 gotest 文件，由 Makefiles 遗留<br></li>
+<li><code>test.out</code> 旧的 test 记录，由 Makefiles 遗留<br></li>
+<li><code>build.out</code> 旧的 test 记录，由 Makefiles 遗留<br></li>
+<li><code>*.[568ao]</code> object 文件，由 Makefiles 遗留<br></li>
+<li><code>DIR(.exe)</code> 由 go build 产生<br></li>
+<li><code>DIR.test(.exe)</code> 由 go test -c 产生<br></li>
+<li><code>MAINFILE(.exe)</code> 由 go build MAINFILE.go 产生<br></li>
+<li><code>*.so</code> 由 SWIG 产生<br></li>
+</ul>
+
+<p>
+参数包括：<br>
+</p>
+
+<ul class="org-ul">
+<li><code>-i</code> 清除关联的安装的包和可运行文件，也就是通过 <code>go install</code> 安装的文件<br></li>
+<li><code>-n</code> 把需要执行的清除命令打印出来，但是不执行，这样就可以很容易的知道底层是如何运行的<br></li>
+<li><code>-r</code> 循环的清除在 import 中引入的包<br></li>
+<li><code>-x</code> 打印出来执行的详细命令，其实就是 -n 打印的执行版本<br></li>
+</ul>
+
+<p>
+一般使用 <code>go clean</code> 命令清理干净后上传到代码托管。<br>
+</p>
+
+<p>
+执行 <code>go clean -i -n</code> 进行清理（根据 go 版本不同，可能需要 mod 支持）<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">go clean -i -n 
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org3dd8a8e" class="outline-3">
+<h3 id="org3dd8a8e">go fmt</h3>
+<div class="outline-text-3" id="text-org3dd8a8e">
+<p>
+<code>go fmt</code> 用于检查并格式化成 go 语言的规范格式。<br>
+</p>
+
+<p>
+我们知道，在 go 语言中有严格的代码规范，否则编译不通过。不过大部分编译器已经自动实现规范格式，但此命名还是非常有用的。<br>
+</p>
+
+<p>
+参数说明：<br>
+</p>
+
+<ul class="org-ul">
+<li><code>-l</code> 显示那些需要格式化的文件<br></li>
+<li><code>-w</code> 把改写后的内容直接写入到文件中，而不是作为结果打印到标准输出。<br></li>
+<li><code>-r</code> 添加形如 “a[b:len(a)] -&gt; a[b:]” 的重写规则，方便我们做批量替换<br></li>
+<li><code>-s</code> 简化文件中的代码<br></li>
+<li><code>-d</code> 显示格式化前后的 diff 而不是写入文件，默认是 false<br></li>
+<li><code>-e</code> 打印所有的语法错误到标准输出。如果不使用此标记，则只会打印不同行的前10个错误。<br></li>
+<li><code>-cpuprofile</code> 支持调试模式，写入相应的 cpufile 到指定的文件<br></li>
+</ul>
+
+<p>
+<code>go fmt</code> 可以格式化整个项目或某个 go 文件，一般使用 gofmt 工具。<br>
+</p>
+
+<p>
+例如在 my 目录下有 2 个不规范文件：zarten.go 和 zarten2.go<br>
+</p>
+
+<pre class="example">
+// zarten.go
+package main
+
+import (
+	"fmt"
+)
+
+func main() {
+				fmt.Println("Zarten")
+	fmt.Println("Zarten")
+
+}
+</pre>
+
+<pre class="example">
+// zarten2.go
+package main
+
+import (
+	"fmt"
+)
+
+func main() {
+fmt.Println("Zarten2") 
+
+
+
+ fmt.Println("Zarten2")
+}
+</pre>
+
+<p>
+显示项目内需要格式的文件：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">gofmt -l my
+</pre>
+</div>
+
+<p>
+加上参数-w，自动写入文件中：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">gofmt -l -w my
+</pre>
+</div>
+
+<p>
+查看文件发现，格式已经改写成规范格式了。<br>
+</p>
+
+<p>
+同时 gofmt 也可对单个文件使用，例如 zarten.go<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">gofmt zarten.go
+</pre>
+</div>
+
+<p>
+将规范化的代码打印出来，但没有将规范化写入文件中<br>
+</p>
+
+<p>
+要将写入文件中需要加 <code>-w</code> 参数：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">gofmt -w zarten.go
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgcc3ed82" class="outline-3">
+<h3 id="orgcc3ed82">go list</h3>
+<div class="outline-text-3" id="text-orgcc3ed82">
+<p>
+列出当前安装的包<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">go list
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgd90dfef" class="outline-3">
+<h3 id="orgd90dfef">go version</h3>
+<div class="outline-text-3" id="text-orgd90dfef">
+<p>
+查看当前 go 的版本<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">go version
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org0c46139" class="outline-3">
+<h3 id="org0c46139">go env</h3>
+<div class="outline-text-3" id="text-org0c46139">
+<p>
+查看当前 go 的环境<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">go env
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org3850527" class="outline-3">
+<h3 id="org3850527">交叉编译各大平台命令</h3>
+<div class="outline-text-3" id="text-org3850527">
+<p>
+有时我们需要在某一平台编译出其他平台的可执行文件，go语言也提供了相关的命令或配置<br>
+</p>
+</div>
+<div id="outline-container-org16bfca0" class="outline-4">
+<h4 id="org16bfca0">在Mac平台编译：</h4>
+<div class="outline-text-4" id="text-org16bfca0">
+<ul class="org-ul">
+<li><p>
+Linux<br>
+</p>
+
+<pre class="example">
+CGO_ENABLED=0  GOOS=linux  GOARCH=amd64  go build main.go
+</pre></li>
+
+<li><p>
+Windows<br>
+</p>
+
+<pre class="example">
+CGO_ENABLED=0 GOOS=windows  GOARCH=amd64  go  build  main.go
+</pre></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgeb950db" class="outline-4">
+<h4 id="orgeb950db">在Linux平台编译：</h4>
+<div class="outline-text-4" id="text-orgeb950db">
+<ul class="org-ul">
+<li><p>
+Mac<br>
+</p>
+
+<pre class="example">
+CGO_ENABLED=0 GOOS=darwin  GOARCH=amd64  go build main.go
+</pre></li>
+
+<li><p>
+Windows<br>
+</p>
+
+<pre class="example">
+CGO_ENABLED=0 GOOS=windows  GOARCH=amd64  go build main.go
+</pre></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgd0ae797" class="outline-4">
+<h4 id="orgd0ae797">在Windows平台编译：</h4>
+<div class="outline-text-4" id="text-orgd0ae797">
+<ul class="org-ul">
+<li><p>
+Mac<br>
+</p>
+
+<pre class="example">
+SET CGO_ENABLED=0 SET GOOS=darwin SET GOARCH=amd64 go build main.go
+</pre>
+
+<p>
+或写成批处理<br>
+</p>
+
+<pre class="example">
+SET CGO_ENABLED=0
+SET GOOS=darwin
+SET GOARCH=amd64
+go build main.go
+</pre></li>
+
+<li><p>
+Linux<br>
+</p>
+
+<pre class="example">
+SET CGO_ENABLED=0 SET GOOS=linux SET GOARCH=amd64 go build main.go
+</pre>
+
+<p>
+或写成批处理<br>
+</p>
+
+<pre class="example">
+SET CGO_ENABLED=0
+SET GOOS=linux
+SET GOARCH=amd64
+go build main.go
+</pre></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org3903ed4" class="outline-4">
+<h4 id="org3903ed4">在Goland中的设置交叉编译</h4>
+<div class="outline-text-4" id="text-org3903ed4">
+<p>
+例如编译在linux下的程序设置：<br>
+</p>
+
+<pre class="example">
+GOARCH=amd64;GOOS=linux	 
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org2b6d87b" class="outline-3">
+<h3 id="org2b6d87b">go test</h3>
+<div class="outline-text-3" id="text-org2b6d87b">
+<p>
+执行这个命令，会自动读取源码目录下面名为 *_test.go 的文件，生成并运行测试用的可执行文件。输出的信息类似<br>
+</p>
+
+<pre class="example">
+ok   archive/tar   0.011s
+FAIL archive/zip   0.022s
+ok   compress/gzip 0.033s
+...
+</pre>
+
+<p>
+默认的情况下，不需要任何的参数，它会自动把你源码包下面所有 test 文件测试完毕，当然你也可以带上参数，详情请参考 <code>go help testflag</code><br>
+</p>
+
+<p>
+这里我介绍几个我们常用的参数：<br>
+</p>
+
+<ul class="org-ul">
+<li><code>-bench regexp</code> 执行相应的 benchmarks，例如 <code>-bench=</code><br></li>
+<li><code>-cover</code> 开启测试覆盖率<br></li>
+<li><code>-run regexp</code> 只运行 regexp 匹配的函数，例如 <code>-run=Array</code> 那么就执行包含有 Array 开头的函数<br></li>
+<li><code>-v</code> 显示测试的详细命令<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org84b6c0c" class="outline-3">
+<h3 id="org84b6c0c">go generate</h3>
+</div>
+<div id="outline-container-org75b937c" class="outline-3">
+<h3 id="org75b937c">go doc &amp; godoc</h3>
+<div class="outline-text-3" id="text-org75b937c">
+<dl class="org-dl">
+<dt>doc</dt><dd>go doc 命令行工具可以输出文档注释，参数可以是包名，包成员，方法名。<br></dd>
+<dt>godoc</dt><dd>godoc 命令行工具可以提供一个 HTML 页面来浏览文档注释。<br></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-org2d809ec" class="outline-3">
+<h3 id="org2d809ec">go tool</h3>
+<div class="outline-text-3" id="text-org2d809ec">
+</div>
+<div id="outline-container-orgdeff3c4" class="outline-4">
+<h4 id="orgdeff3c4">go tool asm</h4>
+<div class="outline-text-4" id="text-orgdeff3c4">
+<ul class="org-ul">
+<li>go tool asm：处理汇编文件（.s文件），输出 obj 文件<br>
+<ul class="org-ul">
+<li>go tool asm file 将 go 汇编文件编译为 object（.o） 文件。<br></li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgf68d16f" class="outline-4">
+<h4 id="orgf68d16f">go tool compile</h4>
+<div class="outline-text-4" id="text-orgf68d16f">
+<ul class="org-ul">
+<li>go tool compile file 将 go 文件编译为 .o 文件。<br></li>
+<li>go tool compile：处理 go 文件，执行词法分析、语法分析、汇编、编译，输出obj文件<br>
+<ul class="org-ul">
+<li>go tool compile -S main.go 反编译代码为汇编代码<br></li>
+<li>go tool compile -N -l -S file 将文件编译为汇编代码<br>
+或者使用：go build -gcflags -S x.go<br>
+gcflags == go compile flags<br></li>
+<li>GOOS=linux GOARCH=amd64 go tool compile -S -N -l main.go 禁止内联生成伪汇编代码<br></li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org9f37571" class="outline-4">
+<h4 id="org9f37571">go tool pack</h4>
+<div class="outline-text-4" id="text-org9f37571">
+<ul class="org-ul">
+<li>go tool pack：打包 package 下的所有 obj 文件，输出 .a 文件<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgaa23f78" class="outline-4">
+<h4 id="orgaa23f78">go tool link</h4>
+<div class="outline-text-4" id="text-orgaa23f78">
+<ul class="org-ul">
+<li>go tool link：链接不同 package 的 .a 文件，输出可执行文件<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org0f6a37b" class="outline-4">
+<h4 id="org0f6a37b">go tool objdump</h4>
+<div class="outline-text-4" id="text-org0f6a37b">
+<ul class="org-ul">
+<li>go tool objdump：反汇编 obj 文件<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org1cd21ae" class="outline-4">
+<h4 id="org1cd21ae">go tool nm</h4>
+<div class="outline-text-4" id="text-org1cd21ae">
+<ul class="org-ul">
+<li>go tool nm：输出 obj 文件、.a 文件或可执行文件中定义的符号<br></li>
+</ul>
+</div>
+</div>
 </div>
 </div>
 <div id="outline-container-orge01170c" class="outline-2">
@@ -132,11 +1102,14 @@ Use <span style="color: #2aa198;">"go help &lt;topic&gt;"</span> for more inform
 </ul>
 </div>
 </div>
+<div id="outline-container-orgfca7f82" class="outline-2">
+<h2 id="orgfca7f82">Go 命令使用场景实例</h2>
+</div>
 </div>
 <div id="postamble" class="status">
 <p class="date">Date: 2022-02-10 23:02 Thu</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-04-01 Fri 19:56</p>
+<p class="date">Created: 2022-05-10 Tue 16:14</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-05-12 Thu 23:44 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mutex 4 种易错场景</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">Mutex 4 种易错场景</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org9dbbf28">常见的 4 种错误场景</a>
+<ul>
+<li><a href="#org0634278">Lock/Unlock 不是成对出现</a></li>
+<li><a href="#org28b25e0">Copy 已使用的 Mutex</a></li>
+<li><a href="#orgeaf8d70">重入</a>
+<ul>
+<li><a href="#orge483622">方案一：goroutine id</a></li>
+<li><a href="#org09c143f">方案二：token</a></li>
+</ul>
+</li>
+<li><a href="#orge153aa1">死锁</a></li>
+</ul>
+</li>
+<li><a href="#org731bfed">流行的 Go 开发项目踩坑记</a>
+<ul>
+<li><a href="#org914d9ef">Docker</a>
+<ul>
+<li><a href="#org9fa3ad8">issue 36114</a></li>
+<li><a href="#org811947f">issue 34881</a></li>
+</ul>
+</li>
+<li><a href="#org9251604">Kubernetes</a>
+<ul>
+<li><a href="#orgfe2e290">issue 72361</a></li>
+<li><a href="#orge6b3057">issue 45192</a></li>
+</ul>
+</li>
+<li><a href="#orgb125d45">gRPC</a>
+<ul>
+<li><a href="#org7cfe1e2">issue 795</a></li>
+</ul>
+</li>
+<li><a href="#org12739c4">etcd</a>
+<ul>
+<li><a href="#org7502f43">issue 10419</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org6bf9641">总结</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org9dbbf28" class="outline-2">
+<h2 id="org9dbbf28">常见的 4 种错误场景</h2>
+<div class="outline-text-2" id="text-org9dbbf28">
+</div>
+<div id="outline-container-org0634278" class="outline-3">
+<h3 id="org0634278">Lock/Unlock 不是成对出现</h3>
+<div class="outline-text-3" id="text-org0634278">
+<p>
+Lock/Unlock 没有成对出现，就意味着会出现死锁的情况，或者是因为 Unlock 一个未加锁的 Mutex 而导致 panic。<br>
+</p>
+
+<p>
+我们先来看看缺少 Unlock 的场景，常见的有三种情况：<br>
+</p>
+
+<ol class="org-ol">
+<li>代码中有太多的 if-else 分支，可能在某个分支中漏写了 <code>Unlock</code> ；<br></li>
+<li>在重构的时候把 <code>Unlock</code> 给删除了；<br></li>
+<li><code>Unlock</code> 误写成了 <code>Lock</code> 。<br></li>
+</ol>
+
+<p>
+在这种情况下，锁被获取之后，就不会被释放了，这也就意味着，其它的 goroutine 永远都没机会获取到锁。<br>
+</p>
+
+<p>
+我们再来看缺少 <code>Lock</code> 的场景，这就很简单了，一般来说就是误操作删除了 <code>Lock</code> 。 比如先前使用 <code>Mutex</code> 都是正常的，结果后来其他人重构代码的时候，由于对代码不熟悉，或者由于开发者的马虎，把 Lock 调用给删除了，或者注释掉了。比如下面的代码， <code>mu.Lock()</code> 一行代码被删除了，直接 <code>Unlock</code> 一个未加锁的 <code>Mutex</code> 会 <code>panic</code> ：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">foo</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">mu</span> <span style="color: #df005f; font-weight: bold;">sync.Mutex</span>
+    <span style="color: #268bd2; font-weight: bold;">defer</span> mu.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"hello world!"</span>)
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org28b25e0" class="outline-3">
+<h3 id="org28b25e0">Copy 已使用的 Mutex</h3>
+<div class="outline-text-3" id="text-org28b25e0">
+<p>
+第二种误用是 <code>Copy</code> 已使用的 <code>Mutex</code> 。在正式分析这个错误之前，先交代一个小知识点，那就是 Package sync 的同步原语在使用后是不能复制的。我们知道 <code>Mutex</code> 是最常用的一个同步原语，那它也是不能复制的。为什么呢？<br>
+</p>
+
+<p>
+原因在于， <code>Mutex</code> 是一个有状态的对象，它的 <code>state</code> 字段记录这个锁的状态。如果你要复制一个已经加锁的 <code>Mutex</code> 给一个新的变量，那么新的刚初始化的变量居然被加锁了，这显然不符合你的期望，因为你期望的是一个零值的 <code>Mutex</code> 。关键是在并发环境下，你根本不知道要复制的 <code>Mutex</code> 状态是什么，因为要复制的 <code>Mutex</code> 是由其它 goroutine 并发访问的，状态可能总是在变化。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Counter</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    sync.Mutex
+    Count <span style="color: #df005f; font-weight: bold;">int</span>
+}
+
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">c</span> <span style="color: #df005f; font-weight: bold;">Counter</span>
+    c.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+    <span style="color: #268bd2; font-weight: bold;">defer</span> c.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+    c.Count++
+    <span style="color: #d75fd7; font-weight: bold;">foo</span>(c) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22797;&#21046;&#38145;</span>
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36825;&#37324;Counter&#30340;&#21442;&#25968;&#26159;&#36890;&#36807;&#22797;&#21046;&#30340;&#26041;&#24335;&#20256;&#20837;&#30340;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">foo</span>(<span style="color: #8787d7;">c</span> <span style="color: #df005f; font-weight: bold;">Counter</span>) {
+    c.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+    <span style="color: #268bd2; font-weight: bold;">defer</span> c.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"in foo"</span>)
+} 
+</pre>
+</div>
+
+<p>
+第 12 行在调用 <code>foo</code> 函数的时候，调用者会复制 <code>Mutex</code> 变量 <code>c</code> 作为 <code>foo</code> 函数的参数，不幸的是，复制之前已经使用了这个锁，这就导致，复制的 <code>Counter</code> 是一个带状态 <code>Counter</code> 。<br>
+</p>
+
+<p>
+怎么办呢？Go 在运行时，有死锁的检查机制（<a href="https://golang.org/src/runtime/proc.go?h=checkdead#L4345">checkdead()</a> 方法），它能够发现死锁的 goroutine。这个例子中因为复制了一个使用了的 Mutex，导致锁无法使用，程序处于死锁的状态。程序运行的时候，死锁检查机制能够发现这种死锁情况并输出错误信息，如下图中错误信息以及错误堆栈：<br>
+</p>
+
+<div class="div-center">
+	<img src="./images/Go-并发编程-死锁检查机制.png" />
+</div>
+
+<p>
+你肯定不想运行的时候才发现这个因为复制 <code>Mutex</code> 导致的死锁问题，那么你怎么能够及时发现问题呢？可以使用 <code>vet</code> 工具，把检查写在 Makefile 文件中，在持续集成的时候跑一跑，这样可以及时发现问题，及时修复。我们可以使用 <code>go vet</code> 检查这个 Go 文件：<br>
+</p>
+
+<div class="div-center">
+	<img src="./images/Go-并发编程-vet工具.png" />
+</div>
+
+<p>
+使用这个工具就可以发现 <code>Mutex</code> 复制的问题，错误信息显示得很清楚，是在调用 <code>foo</code> 函数的时候发生了 lock value 复制的情况，还告诉我们出问题的代码行数以及 copy lock 导致的错误。<br>
+</p>
+
+<p>
+那么， <code>vet</code> 工具是怎么发现 <code>Mutex</code> 复制使用问题的呢？<br>
+</p>
+
+<p>
+检查是通过 <a href="https://github.com/golang/tools/blob/master/go/analysis/passes/copylock/copylock.go">copylock</a> 分析器静态分析实现的。这个分析器会分析函数调用、range 遍历、复制、声明、函数返回值等位置，有没有锁的值 copy 的情景，以此来判断有没有问题。可以说，只要是实现了 <code>Locker</code> 接口，就会被分析。我们看到，下面的代码就是确定什么类型会被分析，其实就是实现了 Lock/Unlock 两个方法的 <code>Locker</code> 接口：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">lockerType</span> *<span style="color: #df005f; font-weight: bold;">types.Interface</span>
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Construct a sync.Locker interface type.</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">init</span>() {
+    <span style="color: #8787d7;">nullary</span> := types.<span style="color: #d75fd7; font-weight: bold;">NewSignature</span>(<span style="color: #d75fd7;">nil</span>, <span style="color: #d75fd7;">nil</span>, <span style="color: #d75fd7;">nil</span>, <span style="color: #d75fd7;">false</span>) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">func()</span>
+    <span style="color: #8787d7;">methods</span> := []*<span style="color: #df005f; font-weight: bold;">types.Func</span>{
+        types.<span style="color: #d75fd7; font-weight: bold;">NewFunc</span>(token.NoPos, <span style="color: #d75fd7;">nil</span>, <span style="color: #2aa198;">"Lock"</span>, nullary),
+        types.<span style="color: #d75fd7; font-weight: bold;">NewFunc</span>(token.NoPos, <span style="color: #d75fd7;">nil</span>, <span style="color: #2aa198;">"Unlock"</span>, nullary),
+    }
+    lockerType = types.<span style="color: #d75fd7; font-weight: bold;">NewInterface</span>(methods, <span style="color: #d75fd7;">nil</span>).<span style="color: #d75fd7; font-weight: bold;">Complete</span>()
+}
+</pre>
+</div>
+
+<p>
+其实，有些没有实现 <code>Locker</code> 接口的同步原语（比如 <code>WaitGroup</code> ），也能被分析，这种情况后面再介绍。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgeaf8d70" class="outline-3">
+<h3 id="orgeaf8d70">重入</h3>
+<div class="outline-text-3" id="text-orgeaf8d70">
+<p>
+在说 "重入" 这个问题之前，先解释一个概念： "可重入锁"。<br>
+</p>
+
+<p>
+如果你学过 Java，可能会很熟悉 <code>ReentrantLock</code> ，就是可重入锁，这是 Java 并发包中非常常用的一个同步原语。它的基本行为和互斥锁相同，但是加了一些扩展功能。<br>
+</p>
+
+<p>
+当一个线程获取锁时，如果没有其它线程拥有这个锁，那么，这个线程就成功获取到这个锁。之后，如果其它线程再请求这个锁，就会处于阻塞等待的状态。但是，如果拥有这把锁的线程再请求这把锁的话，不会阻塞，而是成功返回，所以叫可重入锁（有时候也叫做递归锁）。只要你拥有这把锁，你可以可着劲儿地调用，比如通过递归实现一些算法，调用者不会阻塞或者死锁。<br>
+</p>
+
+<p>
+<b>Mutex 不是可重入锁。</b><br>
+</p>
+
+<p>
+<code>Mutex</code> 的实现中没有记录哪个 goroutine 拥有这把锁，理论上，任何 goroutine 都可以随意地 <code>Unlock</code> 这把锁，所以没办法计算重入条件。<br>
+</p>
+
+<p>
+下面是一个误用 <code>Mutex</code> 地重入例子：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">foo</span>(<span style="color: #8787d7;">l</span> <span style="color: #df005f; font-weight: bold;">sync.Locker</span>) {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"in foo"</span>)
+    l.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+    <span style="color: #d75fd7; font-weight: bold;">bar</span>(l)
+    l.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">bar</span>(<span style="color: #8787d7;">l</span> <span style="color: #df005f; font-weight: bold;">sync.Locker</span>) {
+    l.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"in bar"</span>)
+    l.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">l</span> := &amp;<span style="color: #df005f; font-weight: bold;">sync.Mutex</span>{}
+    <span style="color: #d75fd7; font-weight: bold;">foo</span>(l)
+}
+</pre>
+</div>
+
+<p>
+程序一直在请求锁，但是一直没有办法获取到锁，结果就是 Go 运行时发现死锁了，没有其它地方能够释放锁让程序运行下去，你通过下面的错误堆栈信息就能定位到哪一行阻塞请求锁：<br>
+</p>
+
+<div class="div-center">
+	<img src="./images/Go-并发编程-Mutex重入死锁.png" />
+</div>
+
+<p>
+虽然标准库 <code>Mutex</code> 不是可重入锁，那么可以实现一个可重入锁吗？<br>
+</p>
+
+<p>
+这里的关键就是，实现的锁要能记住当前是哪个 goroutine 持有这个锁，提供两种方案：<br>
+</p>
+
+<ul class="org-ul">
+<li>方案一：通过 hacker 的方式获取到 goroutine id，记录下获取锁的 goroutine id，它可以实现 Locker 接口。<br></li>
+<li>方案二：调用 Lock/Unlock 方法时，由 goroutine 提供一个 token，用来标识它自己，而不是我们通过 hacker 的方式获取到 goroutine id，但是，这样一来，就不满足 Locker 接口了。<br></li>
+</ul>
+
+<p>
+可重入锁（递归锁）解决了代码重入或者递归调用带来的死锁问题，同时它也带来了另一个好处，就是我们可以要求，只有持有锁的 goroutine 才能 unlock 这个锁。这也很容易实现，因为在上面这两个方案中，都已经记录了是哪一个 goroutine 持有这个锁。<br>
+</p>
+</div>
+<div id="outline-container-orge483622" class="outline-4">
+<h4 id="orge483622">方案一：goroutine id</h4>
+<div class="outline-text-4" id="text-orge483622">
+<p>
+这个方案的关键第一步是获取 goroutine id，方式有两种，分别是简单方式和 hacker 方式。<br>
+</p>
+
+<p>
+简单方式，就是通过 <code>runtime.Stack</code> 方法获取栈帧信息，栈帧信息里包含 goroutine id。你可以看看上面 panic 时候的贴图，goroutine id 明明白白地显示在那里。 <code>runtime.Stack</code> 方法可以获取当前的 goroutine 信息，第二个参数为 true 会输出所有的 goroutine 信息，信息的格式如下：<br>
+</p>
+
+<pre class="example">
+goroutine 1 [running]:
+main.main()
+				....../main.go:19 +0xb1
+</pre>
+
+<p>
+第一行格式为 goroutine xxx，其中 xxx 就是 goroutine id，你只要解析出这个 id 即可。解析的方法可以采用下面的代码：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">GoID</span>() <span style="color: #df005f; font-weight: bold;">int</span> {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">buf</span> [64]<span style="color: #df005f; font-weight: bold;">byte</span>
+    <span style="color: #8787d7;">n</span> := runtime.<span style="color: #d75fd7; font-weight: bold;">Stack</span>(buf[:], <span style="color: #d75fd7;">false</span>)
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#24471;&#21040;id&#23383;&#31526;&#20018;</span>
+    <span style="color: #8787d7;">idField</span> := strings.<span style="color: #d75fd7; font-weight: bold;">Fields</span>(strings.<span style="color: #d75fd7; font-weight: bold;">TrimPrefix</span>(<span style="color: #d75fd7; font-weight: bold;">string</span>(buf[:n]), <span style="color: #2aa198;">"goroutine "</span>))[0]
+    <span style="color: #8787d7;">id</span>, <span style="color: #8787d7;">err</span> := strconv.<span style="color: #d75fd7; font-weight: bold;">Atoi</span>(idField)
+    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
+        <span style="color: #268bd2;">panic</span>(fmt.<span style="color: #d75fd7; font-weight: bold;">Sprintf</span>(<span style="color: #2aa198;">"cannot get goroutine id: %v"</span>, err))
+    }
+    <span style="color: #268bd2; font-weight: bold;">return</span> id
+}
+</pre>
+</div>
+
+<p>
+了解了简单方式，接下来我们来看 hacker 的方式，这也是我们方案一采取的方式。<br>
+</p>
+
+<p>
+首先，我们获取运行时的 g 指针，反解出对应的 g 的结构。每个运行的 goroutine 结构的 g 指针保存在当前 goroutine 的一个叫做 TLS 对象中。<br>
+</p>
+
+<ul class="org-ul">
+<li>第一步：我们先获取到 TLS 对象；<br></li>
+<li>第二步：再从 TLS 中获取 goroutine 结构的 g 指针；<br></li>
+<li>第三步：再从 g 指针中取出 goroutine id。<br></li>
+</ul>
+
+<p>
+需要注意的是，不同 Go 版本的 goroutine 的结构可能不同，所以需要根据 Go 的不同版本进行调整。当然了，如果想要搞清楚各个版本的 goroutine 结构差异，所涉及的内容又过于底层而且复杂，学习成本太高。怎么办呢？我们可以重点关注一些库。我们没有必要重复发明轮子，直接使用第三方的库来获取 goroutine id 就可以了。<br>
+</p>
+
+<p>
+好消息是现在已经有很多成熟的方法了，可以支持多个 Go 版本的 goroutine id，给你推荐一个常用的库：<a href="https://github.com/petermattis/goid">petermattis/goid</a> 。<br>
+</p>
+
+<p>
+知道了如何获取 goroutine id，接下来就是最后的关键一步了，我们实现一个可以使用的可重入锁：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">RecursiveMutex &#21253;&#35013;&#19968;&#20010;Mutex,&#23454;&#29616;&#21487;&#37325;&#20837;</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">RecursiveMutex</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    sync.Mutex
+    owner     <span style="color: #df005f; font-weight: bold;">int64</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#24403;&#21069;&#25345;&#26377;&#38145;&#30340;goroutine id</span>
+    recursion <span style="color: #df005f; font-weight: bold;">int32</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36825;&#20010;goroutine &#37325;&#20837;&#30340;&#27425;&#25968;</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">m</span> *<span style="color: #df005f; font-weight: bold;">RecursiveMutex</span>) <span style="color: #d75fd7; font-weight: bold;">Lock</span>() {
+    <span style="color: #8787d7;">gid</span> := goid.<span style="color: #d75fd7; font-weight: bold;">Get</span>()
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#24403;&#21069;&#25345;&#26377;&#38145;&#30340;goroutine&#23601;&#26159;&#36825;&#27425;&#35843;&#29992;&#30340;goroutine,&#35828;&#26126;&#26159;&#37325;&#20837;</span>
+    <span style="color: #268bd2; font-weight: bold;">if</span> atomic.<span style="color: #d75fd7; font-weight: bold;">LoadInt64</span>(&amp;m.owner) == gid {
+        m.recursion++
+        <span style="color: #268bd2; font-weight: bold;">return</span>
+    }
+    m.Mutex.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#33719;&#24471;&#38145;&#30340;goroutine&#31532;&#19968;&#27425;&#35843;&#29992;&#65292;&#35760;&#24405;&#19979;&#23427;&#30340;goroutine id,&#35843;&#29992;&#27425;&#25968;&#21152;1</span>
+    atomic.<span style="color: #d75fd7; font-weight: bold;">StoreInt64</span>(&amp;m.owner, gid)
+    m.recursion = 1
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">m</span> *<span style="color: #df005f; font-weight: bold;">RecursiveMutex</span>) <span style="color: #d75fd7; font-weight: bold;">Unlock</span>() {
+    <span style="color: #8787d7;">gid</span> := goid.<span style="color: #d75fd7; font-weight: bold;">Get</span>()
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#38750;&#25345;&#26377;&#38145;&#30340;goroutine&#23581;&#35797;&#37322;&#25918;&#38145;&#65292;&#38169;&#35823;&#30340;&#20351;&#29992;</span>
+    <span style="color: #268bd2; font-weight: bold;">if</span> atomic.<span style="color: #d75fd7; font-weight: bold;">LoadInt64</span>(&amp;m.owner) != gid {
+        <span style="color: #268bd2;">panic</span>(fmt.<span style="color: #d75fd7; font-weight: bold;">Sprintf</span>(<span style="color: #2aa198;">"wrong the owner(%d): %d!"</span>, m.owner, gid))
+    }
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35843;&#29992;&#27425;&#25968;&#20943;1</span>
+    m.recursion--
+    <span style="color: #268bd2; font-weight: bold;">if</span> m.recursion != 0 { <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#36825;&#20010;goroutine&#36824;&#27809;&#26377;&#23436;&#20840;&#37322;&#25918;&#65292;&#21017;&#30452;&#25509;&#36820;&#22238;</span>
+        <span style="color: #268bd2; font-weight: bold;">return</span>
+    }
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#27492;goroutine&#26368;&#21518;&#19968;&#27425;&#35843;&#29992;&#65292;&#38656;&#35201;&#37322;&#25918;&#38145;</span>
+    atomic.<span style="color: #d75fd7; font-weight: bold;">StoreInt64</span>(&amp;m.owner, -1)
+    m.Mutex.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+}
+</pre>
+</div>
+
+<p>
+上面这段代码你可以拿来即用。我们一起来看下这个实现，真是非常巧妙，它相当于给 <code>Mutex</code> 打一个补丁，解决了记录锁的持有者的问题。可以看到，我们用 <code>owner</code> 字段，记录当前锁的拥有者 goroutine 的 id； <code>recursion</code> 是辅助字段，用于记录重入的次数。<br>
+</p>
+
+<p>
+有一点，我要提醒你一句，尽管拥有者可以多次调用 <code>Lock</code> ，但是也必须调用相同次数的 <code>Unlock</code> ，这样才能把锁释放掉。这是一个合理的设计，可以保证 Lock 和 Unlock 一一对应。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org09c143f" class="outline-4">
+<h4 id="org09c143f">方案二：token</h4>
+<div class="outline-text-4" id="text-org09c143f">
+<p>
+方案一是用 goroutine id 做 goroutine 的标识，我们也可以让 goroutine 自己来提供标识。不管怎么说，Go 开发者不期望你利用 goroutine id 做一些不确定的东西，所以，他们没有暴露获取 goroutine id 的方法。<br>
+</p>
+
+<p>
+下面的代码是第二种方案。调用者自己提供一个 <code>token</code> ，获取锁的时候把这个 <code>token</code> 传入，释放锁的时候也需要把这个 <code>token</code> 传入。通过用户传入的 <code>token</code> 替换方案一中 goroutine id，其它逻辑和方案一一致。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Token&#26041;&#24335;&#30340;&#36882;&#24402;&#38145;</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">TokenRecursiveMutex</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    sync.Mutex
+    token     <span style="color: #df005f; font-weight: bold;">int64</span>
+    recursion <span style="color: #df005f; font-weight: bold;">int32</span>
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35831;&#27714;&#38145;&#65292;&#38656;&#35201;&#20256;&#20837;token</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">m</span> *<span style="color: #df005f; font-weight: bold;">TokenRecursiveMutex</span>) <span style="color: #d75fd7; font-weight: bold;">Lock</span>(<span style="color: #8787d7;">token</span> <span style="color: #df005f; font-weight: bold;">int64</span>) {
+    <span style="color: #268bd2; font-weight: bold;">if</span> atomic.<span style="color: #d75fd7; font-weight: bold;">LoadInt64</span>(&amp;m.token) == token { <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#20256;&#20837;&#30340;token&#21644;&#25345;&#26377;&#38145;&#30340;token&#19968;&#33268;&#65292;&#35828;&#26126;&#26159;&#36882;&#24402;&#35843;&#29992;</span>
+        m.recursion++
+        <span style="color: #268bd2; font-weight: bold;">return</span>
+    }
+    m.Mutex.<span style="color: #d75fd7; font-weight: bold;">Lock</span>() <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20256;&#20837;&#30340;token&#19981;&#19968;&#33268;&#65292;&#35828;&#26126;&#19981;&#26159;&#36882;&#24402;&#35843;&#29992;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25250;&#21040;&#38145;&#20043;&#21518;&#35760;&#24405;&#36825;&#20010;token</span>
+    atomic.<span style="color: #d75fd7; font-weight: bold;">StoreInt64</span>(&amp;m.token, token)
+    m.recursion = 1
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#37322;&#25918;&#38145;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">m</span> *<span style="color: #df005f; font-weight: bold;">TokenRecursiveMutex</span>) <span style="color: #d75fd7; font-weight: bold;">Unlock</span>(<span style="color: #8787d7;">token</span> <span style="color: #df005f; font-weight: bold;">int64</span>) {
+    <span style="color: #268bd2; font-weight: bold;">if</span> atomic.<span style="color: #d75fd7; font-weight: bold;">LoadInt64</span>(&amp;m.token) != token { <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#37322;&#25918;&#20854;&#23427;token&#25345;&#26377;&#30340;&#38145;</span>
+        <span style="color: #268bd2;">panic</span>(fmt.<span style="color: #d75fd7; font-weight: bold;">Sprintf</span>(<span style="color: #2aa198;">"wrong the owner(%d): %d!"</span>, m.token, token))
+    }
+    m.recursion-- <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#24403;&#21069;&#25345;&#26377;&#36825;&#20010;&#38145;&#30340;token&#37322;&#25918;&#38145;</span>
+    <span style="color: #268bd2; font-weight: bold;">if</span> m.recursion != 0 { <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36824;&#27809;&#26377;&#22238;&#36864;&#21040;&#26368;&#21021;&#30340;&#36882;&#24402;&#35843;&#29992;</span>
+        <span style="color: #268bd2; font-weight: bold;">return</span>
+    }
+    atomic.<span style="color: #d75fd7; font-weight: bold;">StoreInt64</span>(&amp;m.token, 0) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#27809;&#26377;&#36882;&#24402;&#35843;&#29992;&#20102;&#65292;&#37322;&#25918;&#38145;</span>
+    m.Mutex.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+}
+
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orge153aa1" class="outline-3">
+<h3 id="orge153aa1">死锁</h3>
+<div class="outline-text-3" id="text-orge153aa1">
+<p>
+两个或两个以上的进程（或线程，goroutine）在执行过程中，因争夺共享资源而处于一种互相等待的状态，如果没有外部干涉，它们都将无法推进下去，此时，我们称系统处于死锁状态或系统产生了死锁。<br>
+</p>
+
+<p>
+我们来分析一下死锁产生的必要条件。如果你想避免死锁，只要破坏这四个条件中的一个或者几个，就可以了。<br>
+</p>
+
+<ol class="org-ol">
+<li><b>互斥</b> ： 至少一个资源是被排他性独享的，其他线程必须处于等待状态，直到资源被释放。<br></li>
+<li><b>持有和等待</b> ：goroutine 持有一个资源，并且还在请求其它 goroutine 持有的资源，也就是咱们常说的“吃着碗里，看着锅里”的意思。<br></li>
+<li><b>不可剥夺</b> ：资源只能由持有它的 goroutine 来释放。<br></li>
+<li><b>环路等待</b> ：一般来说，存在一组等待进程，P={P1，P2，…，PN}，P1 等待 P2 持有的资源，P2 等待 P3 持有的资源，依此类推，最后是 PN 等待 P1 持有的资源，这就形成了一个环路等待的死结。<br></li>
+</ol>
+
+<div class="div-center">
+	<img src="./images/Go-并发编程-环路等待.webp" width="620px" />
+</div>
+
+<p>
+一个经典地死锁问题是哲学家就餐问题，双方都持有自己的资源而要求对方的资源，而且自己的资源自己持有，不可剥夺。<br>
+</p>
+
+<p>
+一个简单的只有两个 goroutine 相互等待的死锁的例子：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"sync"</span>
+    <span style="color: #2aa198;">"time"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#27966;&#20986;&#25152;&#35777;&#26126;</span>
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">psCertificate</span> <span style="color: #df005f; font-weight: bold;">sync.Mutex</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#29289;&#19994;&#35777;&#26126;</span>
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">propertyCertificate</span> <span style="color: #df005f; font-weight: bold;">sync.Mutex</span>
+
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">wg</span> <span style="color: #df005f; font-weight: bold;">sync.WaitGroup</span>
+    wg.<span style="color: #d75fd7; font-weight: bold;">Add</span>(2) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#38656;&#35201;&#27966;&#20986;&#25152;&#21644;&#29289;&#19994;&#37117;&#22788;&#29702;</span>
+
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#27966;&#20986;&#25152;&#22788;&#29702;goroutine</span>
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+        <span style="color: #268bd2; font-weight: bold;">defer</span> wg.<span style="color: #d75fd7; font-weight: bold;">Done</span>() <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#27966;&#20986;&#25152;&#22788;&#29702;&#23436;&#25104;</span>
+
+        psCertificate.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+        <span style="color: #268bd2; font-weight: bold;">defer</span> psCertificate.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26816;&#26597;&#26448;&#26009;</span>
+        time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(5 * time.Second)
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35831;&#27714;&#29289;&#19994;&#30340;&#35777;&#26126;</span>
+        propertyCertificate.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+        propertyCertificate.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+    }()
+
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#29289;&#19994;&#22788;&#29702;goroutine</span>
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+        <span style="color: #268bd2; font-weight: bold;">defer</span> wg.<span style="color: #d75fd7; font-weight: bold;">Done</span>() <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#29289;&#19994;&#22788;&#29702;&#23436;&#25104;</span>
+
+        propertyCertificate.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+        <span style="color: #268bd2; font-weight: bold;">defer</span> propertyCertificate.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26816;&#26597;&#26448;&#26009;</span>
+        time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(5 * time.Second)
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35831;&#27714;&#27966;&#20986;&#25152;&#30340;&#35777;&#26126;</span>
+        psCertificate.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+        psCertificate.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+    }()
+
+    wg.<span style="color: #d75fd7; font-weight: bold;">Wait</span>()
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"&#25104;&#21151;&#23436;&#25104;"</span>)
+}
+</pre>
+</div>
+
+<p>
+这个程序没有办法运行成功，因为派出所的处理和物业的处理是一个环路等待的死结。<br>
+</p>
+
+<p>
+你可以引入一个第三方的锁，大家都依赖这个锁进行业务处理，比如现在政府推行的一站式政务服务中心。或者是解决持有等待问题，物业不需要看到派出所的证明才给开物业证明，等等。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org731bfed" class="outline-2">
+<h2 id="org731bfed">流行的 Go 开发项目踩坑记</h2>
+<div class="outline-text-2" id="text-org731bfed">
+</div>
+<div id="outline-container-org914d9ef" class="outline-3">
+<h3 id="org914d9ef">Docker</h3>
+<div class="outline-text-3" id="text-org914d9ef">
+<p>
+Docker 容器是一个开源的应用容器引擎，开发者可以以统一的方式，把他们的应用和依赖包打包到一个可移植的容器中，然后发布到任何安装了 docker 引擎的服务器上。<br>
+</p>
+
+<p>
+Docker 是使用 Go 开发的，也算是 Go 的一个杀手级产品了，它的 Mutex 相关的 Bug 也不少，我们来看几个典型的 Bug。<br>
+</p>
+</div>
+<div id="outline-container-org9fa3ad8" class="outline-4">
+<h4 id="org9fa3ad8">issue 36114</h4>
+<div class="outline-text-4" id="text-org9fa3ad8">
+<p>
+Docker 的 <a href="https://github.com/moby/moby/pull/36114/files">issue 36114</a> 是一个死锁问题。<br>
+</p>
+
+<p>
+原因在于，hotAddVHDsAtStart 方法执行的时候，执行了加锁 svm 操作。但是，在其中调用 hotRemoveVHDsAtStart 方法时，这个 hotRemoveVHDsAtStart 方法也是要加锁 svm 的。很不幸，Go 标准库中的 Mutex 是不可重入的，所以，代码执行到这里，就出现了死锁的现象。<br>
+</p>
+
+<div class="div-center">
+	<img src="./images/Go-并发编程-Docker_issue36114.webp" />
+</div>
+
+<p>
+针对这个问题，解决办法就是，再提供一个不需要锁的 hotRemoveVHDsNoLock 方法，避免 Mutex 的重入。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org811947f" class="outline-4">
+<h4 id="org811947f">issue 34881</h4>
+<div class="outline-text-4" id="text-org811947f">
+<p>
+<a href="https://github.com/moby/moby/pull/34881/files">issue 34881</a> 本来是修复 Docker 的一个简单问题，如果节点在初始化的时候，发现自己不是一个 swarm mananger，就快速返回，这个修复就几行代码，你看出问题来了吗？<br>
+</p>
+
+<div class="div-center">
+	<img src="./images/Go-并发编程-Docker_issue34881_01.webp" />
+</div>
+
+<p>
+在第 34 行，节点发现不满足条件就返回了，但是，c.mu 这个锁没有释放！为什么会出现这个问题呢？其实，这是在重构或者添加新功能的时候经常犯的一个错误，因为不太了解上下文，或者是没有仔细看函数的逻辑，从而导致锁没有被释放。现在的 Docker 当然已经没有这个问题了。<br>
+</p>
+
+<div class="div-center">
+	<img src="./images/Go-并发编程-Docker_issue34881_02.webp" />
+</div>
+
+<p>
+这样的 issue 还有很多，我就不一一列举了。我给你推荐几个关于 Mutex 的 issue 或者 pull request，你可以关注一下，分别是 36840、37583、35517、35482、33305、32826、30696、29554、29191、28912、26507 等。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org9251604" class="outline-3">
+<h3 id="org9251604">Kubernetes</h3>
+<div class="outline-text-3" id="text-org9251604">
+</div>
+<div id="outline-container-orgfe2e290" class="outline-4">
+<h4 id="orgfe2e290">issue 72361</h4>
+<div class="outline-text-4" id="text-orgfe2e290">
+<p>
+issue 72361 增加 Mutex 为了保护资源。这是为了解决 data race 问题而做的一个修复，修复方法也很简单，使用互斥锁即可，这也是我们解决 data race 时常用的方法。<br>
+</p>
+
+<div class="div-center">
+	<img src="./images/Go-并发编程-Kubernetes_issue72361.webp" />
+</div>
+</div>
+</div>
+<div id="outline-container-orge6b3057" class="outline-4">
+<h4 id="orge6b3057">issue 45192</h4>
+<div class="outline-text-4" id="text-orge6b3057">
+<p>
+<a href="https://github.com/kubernetes/kubernetes/pull/45192/files">issue 45192</a> 也是一个返回时忘记 Unlock 的典型例子，和 docker issue 34881 犯的错误都是一样的。<br>
+</p>
+
+<p>
+两大知名项目的开发者都犯了这个错误，所以，你就可以知道，引入这个 Bug 是多么容易， <span class="underline">保证 Lock/Unlock 成对出现，尽可能采用 defer mutex.Unlock 的方式，把它们成对、紧凑地写在一起</span> 。<br>
+</p>
+
+<div class="div-center">
+	<img src="./images/Go-并发编程-Kubernetes_issue45192.webp" />
+</div>
+
+<p>
+除了这些，我也建议你关注一下其它的 Mutex 相关的 issue，比如 71617、70605 等。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb125d45" class="outline-3">
+<h3 id="orgb125d45">gRPC</h3>
+<div class="outline-text-3" id="text-orgb125d45">
+<p>
+gRPC 是 Google 发起的一个开源远程过程调用 （Remote procedure call）系统。该系统基于 HTTP/2 协议传输，使用 Protocol Buffers 作为接口描述语言。它提供 Go 语言的实现。<br>
+</p>
+
+<p>
+即使是 Google 官方出品的系统，也有一些 Mutex 的 issue。<br>
+</p>
+</div>
+<div id="outline-container-org7cfe1e2" class="outline-4">
+<h4 id="org7cfe1e2">issue 795</h4>
+<div class="outline-text-4" id="text-org7cfe1e2">
+<p>
+<a href="https://github.com/grpc/grpc-go/pull/795">issue 785</a> 是一个你可能想不到的 bug，那就是将 Unlock 误写成了 Lock。<br>
+</p>
+
+<div class="div-center">
+	<img src="./images/Go-并发编程-gRPC_issue795.webp" />
+</div>
+
+<p>
+关于这个项目，还有一些其他的为了保护共享资源而添加 Mutex 的 issue，比如 1318、2074、2542 等。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org12739c4" class="outline-3">
+<h3 id="org12739c4">etcd</h3>
+<div class="outline-text-3" id="text-org12739c4">
+<p>
+etcd 是一个非常知名的分布式一致性的 key-value 存储技术， 被用来做配置共享和服务发现。<br>
+</p>
+</div>
+<div id="outline-container-org7502f43" class="outline-4">
+<h4 id="org7502f43">issue 10419</h4>
+<div class="outline-text-4" id="text-org7502f43">
+<p>
+<a href="https://github.com/etcd-io/etcd/pull/10419/files">issue 10419</a> 是一个锁重入导致的问题。 Store 方法内对请求了锁，而调用的 Compact 的方法内又请求了锁，这个时候，会导致死锁，一直等待，解决办法就是提供不需要加锁的 Compact 方法。<br>
+</p>
+
+<div class="div-center">
+	<img src="./images/Go-并发编程-etcd_issue10419.webp" />
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org6bf9641" class="outline-2">
+<h2 id="org6bf9641">总结</h2>
+<div class="outline-text-2" id="text-org6bf9641">
+<p>
+Go 死锁探测工具只能探测整个程序是否因为死锁而冻结了，不能检测出一组 goroutine 死锁导致的某一块业务冻结的情况。你还可以通过 Go 运行时自带的死锁检测工具，或者是第三方的工具（比如go-deadlock、go-tools）进行检查，这样可以尽早发现一些死锁的问题。不过，有些时候，死锁在某些特定情况下才会被触发，所以，如果你的测试或者短时间的运行没问题，不代表程序一定不会有死锁问题。<br>
+</p>
+
+<p>
+并发程序最难跟踪调试的就是很难重现，因为并发问题不是按照我们指定的顺序执行的，由于计算机调度的问题和事件触发的时机不同，死锁的 Bug 可能会在极端的情况下出现。通过搜索日志、查看日志，我们能够知道程序有异常了，比如某个流程一直没有结束。这个时候，可以通过 Go pprof 工具分析，它提供了一个 block profiler 监控阻塞的 goroutine。除此之外，我们还可以查看全部的 goroutine 的堆栈信息，通过它，你可以查看阻塞的 groutine 究竟阻塞在哪一行哪一个对象上了。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-05-12 20:05 Thu</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-05-12 Thu 23:44</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

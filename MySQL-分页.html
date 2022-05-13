@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-03-25 Fri 21:11 -->
+<!-- 2022-05-07 Sat 10:57 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MYSQL-分页</title>
@@ -70,7 +70,7 @@ limit 可接受 1 或 2 个参数，参数必须是非负数。<br>
 </p>
 
 <dl class="org-dl">
-<dt><code>limit offset, row_count</code></dt><dd>从指定偏移位置开始返回，一共返回 row_count 行，例如： <code>select * from tbl limit 5, 10</code> ，表示从第 6 行还是返回，一共返回 10 行。<br></dd>
+<dt><code>limit offset, row_count</code></dt><dd>从指定偏移位置开始返回，一共返回 row_count 行，例如： <code>select * from tbl limit 5, 10</code> ，表示从第 6 行开始返回，一共返回 10 行。<br></dd>
 
 <dt><code>LIMIT row_count OFFSET offset</code></dt><dd><code>limit 10 offset 5</code> 等价于 <code>limit 5, 10</code> 。<br></dd>
 
@@ -85,21 +85,21 @@ limit 可接受 1 或 2 个参数，参数必须是非负数。<br>
 <h4 id="org11344a6">执行器自动优化</h4>
 <div class="outline-text-4" id="text-org11344a6">
 <p>
-MySQL执行器会自动优化含LIMIT的语句，包括但不限于如下情况：<br>
+MySQL 执行器会自动优化含 LIMIT 的语句，包括但不限于如下情况：<br>
 </p>
 
 <ul class="org-ul">
-<li>limit较少行时，可能会直接进行全表扫描、而不走索引<br></li>
+<li><code>limit</code> 较少行时，可能会直接进行全表扫描、而不走索引<br></li>
 <li><p>
-limit和order by、group by、distinct同时使用时，排序/聚合后的行数，一旦达到limit的row_count，排序/聚合就会停止。<br>
+<code>limit</code> 和 <code>order by</code> 、 <code>group by</code> 、 <code>distinct</code> 同时使用时，排序/聚合后的行数，一旦达到 <code>limit</code> 的 row_count，排序/聚合就会停止。<br>
 </p>
 
 <pre class="example">
 因为这个特性，如果多个行的排序列值相同，那么使用LIMIT时其返回的顺序可能不同。
 </pre></li>
 
-<li>limit 0会快速返回一个空结果集<br></li>
-<li>MySQL一旦向客户端发送了所需的行数，它将立即终止查询<br></li>
+<li><code>limit 0</code> 会快速返回一个空结果集<br></li>
+<li>MySQL 一旦向客户端发送了所需的行数，它将立即终止查询<br></li>
 </ul>
 </div>
 </div>
@@ -124,7 +124,7 @@ limit 和 order by 同时使用的概率非常高。如果排序列有索引，�
 </div>
 
 <p>
-建议增加rid、id的联合索引（rid在前，这样索引会先匹配rid、然后再按id的顺序获取数据）。<br>
+建议增加 rid、id 的联合索引（rid 在前，这样索引会先匹配 rid、然后再按 id 的顺序获取数据）。<br>
 </p>
 </div>
 </div>
@@ -132,7 +132,7 @@ limit 和 order by 同时使用的概率非常高。如果排序列有索引，�
 <h5 id="org42fb419">偏移量较大时，使用索引</h5>
 <div class="outline-text-5" id="text-org42fb419">
 <p>
-偏移量较大时，MySQL需要扫描过偏移量之前的所有行，然后再读取所需行返回，磁盘IO(随机IO)很多。因此分页查询越往后越慢。<br>
+偏移量较大时，MySQL 需要扫描过偏移量之前的所有行，然后再读取所需行返回，磁盘IO(随机IO)很多。因此分页查询越往后越慢。<br>
 </p>
 
 <p>
@@ -145,7 +145,7 @@ limit 和 order by 同时使用的概率非常高。如果排序列有索引，�
 </div>
 
 <p>
-实际上只需要10行数据，但是要在磁盘中遍历100000行后，才真正开始获取数据。<br>
+实际上只需要 10 行数据，但是要在磁盘中遍历 100000 行后，才真正开始获取数据。<br>
 </p>
 
 <p>
@@ -160,11 +160,11 @@ limit 和 order by 同时使用的概率非常高。如果排序列有索引，�
 </div>
 
 <p>
-通过子查询，可以直接在索引中获取到匹配行的主键。MySQL的索引是B+树，本身有序、并且节点中存放了主键，所以检索效率非常高。<br>
+通过子查询，可以直接在索引中获取到匹配行的主键。MySQL 的索引是 B+ 树，本身有序、并且节点中存放了主键，所以检索效率非常高。<br>
 </p>
 
 <p>
-这是索引覆盖的一个特例。当explain时extra中出现using index时，即表示实现了索引覆盖。<br>
+这是索引覆盖的一个特例。当 <code>explain</code> 时 <code>extra</code> 中出现 <code>using index</code> 时，即表示实现了索引覆盖。<br>
 </p>
 </div>
 </div>
@@ -175,7 +175,7 @@ limit 和 order by 同时使用的概率非常高。如果排序列有索引，�
 <div id="postamble" class="status">
 <p class="date">Date: 2022-03-14 19:03 Mon</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-03-25 Fri 21:11</p>
+<p class="date">Created: 2022-05-07 Sat 10:57</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-02-19 Sat 02:55 -->
+<!-- 2022-05-09 Mon 14:25 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GOLANG调度器GMP原理与调度全分析</title>
@@ -21,80 +21,80 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org1e33603">视频地址</a></li>
-<li><a href="#org43c0112">一、Golang "调度器" 的由来？</a>
+<li><a href="#org803bcb6">视频地址</a></li>
+<li><a href="#org019c548">一、Golang "调度器" 的由来？</a>
 <ul>
-<li><a href="#org0100080">(1) 单进程时代不需要调度器</a></li>
-<li><a href="#org2bd4892">(2) 多进程 / 线程时代有了调度器需求</a></li>
-<li><a href="#orga9940b5">(3) 协程来提高 CPU 利用率</a>
+<li><a href="#org88c99c3">(1) 单进程时代不需要调度器</a></li>
+<li><a href="#org7384230">(2) 多进程 / 线程时代有了调度器需求</a></li>
+<li><a href="#org123fcc6">(3) 协程来提高 CPU 利用率</a>
 <ul>
-<li><a href="#org8b9c969">协程与线程的映射关系</a>
+<li><a href="#orgc0dd97e">协程与线程的映射关系</a>
 <ul>
-<li><a href="#orga67bc1c">N:1 关系</a></li>
-<li><a href="#org9e96847">1:1 关系</a></li>
-<li><a href="#orgd841a92">N:N 关系</a></li>
+<li><a href="#orgb3e6102">N:1 关系</a></li>
+<li><a href="#org6a14b8e">1:1 关系</a></li>
+<li><a href="#org987a429">M:N 关系</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#org323c6db">(4) Go 语言的协程 goroutine</a></li>
-<li><a href="#org5e1d696">(5) 被废弃的 goroutine 调度器</a></li>
+<li><a href="#org0c35b42">(4) Go 语言的协程 goroutine</a></li>
+<li><a href="#org51b6a2c">(5) 被废弃的 goroutine 调度器</a></li>
 </ul>
 </li>
-<li><a href="#org2f13ec2">二、Goroutine 调度器的 GMP 模型的设计思想</a>
+<li><a href="#orgd1c9e89">二、Goroutine 调度器的 GMP 模型的设计思想</a>
 <ul>
-<li><a href="#orgfbb2c0e">(1) GMP 模型</a>
+<li><a href="#orge42e51e">(1) GMP 模型</a>
 <ul>
-<li><a href="#org940b8cb">有关 P 和 M 的个数问题</a></li>
-<li><a href="#org66e7147">P 和 M 何时会被创建</a></li>
+<li><a href="#orgbc28631">有关 P 和 M 的个数问题</a></li>
+<li><a href="#orgbfdca75">P 和 M 何时会被创建</a></li>
 </ul>
 </li>
-<li><a href="#org19e6d72">(2) 调度器的设计策略</a></li>
-<li><a href="#orgfc1a5b0">(3) go func() 调度流程</a></li>
-<li><a href="#org4e76789">(4) 调度器的生命周期</a></li>
-<li><a href="#org2ef3c23">(5) 可视化 GMP 编程</a>
+<li><a href="#org540f691">(2) 调度器的设计策略</a></li>
+<li><a href="#org599281a">(3) go func() 调度流程</a></li>
+<li><a href="#org8bf7356">(4) 调度器的生命周期</a></li>
+<li><a href="#org62f406e">(5) 可视化 GMP 编程</a>
 <ul>
-<li><a href="#orga205fdf">方式1：go tool trace</a></li>
-<li><a href="#org6d095a2">方式2：Debug trace</a></li>
+<li><a href="#org9a31a2a">方式1：go tool trace</a></li>
+<li><a href="#orgc373727">方式2：Debug trace</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#org29cc884">三、Goroutine 调度场景过程全图文解析</a>
+<li><a href="#orgf57fbff">三、Goroutine 调度场景过程全图文解析</a>
 <ul>
-<li><a href="#org3c85699">(1) 场景1</a></li>
-<li><a href="#org00a7636">(2) 场景2</a></li>
-<li><a href="#orge57e55f">(3) 场景3</a></li>
-<li><a href="#org5f4be15">(4) 场景4</a></li>
-<li><a href="#org0d8386f">(5) 场景5</a></li>
-<li><a href="#org40ad387">(6) 场景6</a></li>
-<li><a href="#orgfcea894">(7) 场景7</a></li>
-<li><a href="#orgace610f">(8) 场景8</a></li>
-<li><a href="#org7308848">(9) 场景9</a></li>
-<li><a href="#orga7ef368">(10) 场景10</a></li>
-<li><a href="#org5646313">(11) 场景11</a></li>
+<li><a href="#orgbba2dc8">(1) 场景1</a></li>
+<li><a href="#org56d81ca">(2) 场景2</a></li>
+<li><a href="#org7d79b7f">(3) 场景3</a></li>
+<li><a href="#orgde71f03">(4) 场景4</a></li>
+<li><a href="#org88b1c05">(5) 场景5</a></li>
+<li><a href="#orgc45840b">(6) 场景6</a></li>
+<li><a href="#org30a58d5">(7) 场景7</a></li>
+<li><a href="#org051fa15">(8) 场景8</a></li>
+<li><a href="#org46d0c17">(9) 场景9</a></li>
+<li><a href="#org66c5bbb">(10) 场景10</a></li>
+<li><a href="#orgaf9d3c5">(11) 场景11</a></li>
 </ul>
 </li>
-<li><a href="#org7a14cdf">四、小结</a></li>
+<li><a href="#orga723b4c">四、小结</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org1e33603" class="outline-2">
-<h2 id="org1e33603">视频地址</h2>
-<div class="outline-text-2" id="text-org1e33603">
+<div id="outline-container-org803bcb6" class="outline-2">
+<h2 id="org803bcb6">视频地址</h2>
+<div class="outline-text-2" id="text-org803bcb6">
 <p>
 本文摘抄自 <a href="https://learnku.com/articles/41728">[典藏版] Golang 调度器 GMP 原理与调度全分析</a> ，视频版本在此 <a href="https://www.bilibili.com/video/BV19r4y1w7Nx">Golang深入理解GPM模型</a> 。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org43c0112" class="outline-2">
-<h2 id="org43c0112">一、Golang "调度器" 的由来？</h2>
-<div class="outline-text-2" id="text-org43c0112">
+<div id="outline-container-org019c548" class="outline-2">
+<h2 id="org019c548">一、Golang "调度器" 的由来？</h2>
+<div class="outline-text-2" id="text-org019c548">
 </div>
-<div id="outline-container-org0100080" class="outline-3">
-<h3 id="org0100080">(1) 单进程时代不需要调度器</h3>
-<div class="outline-text-3" id="text-org0100080">
+<div id="outline-container-org88c99c3" class="outline-3">
+<h3 id="org88c99c3">(1) 单进程时代不需要调度器</h3>
+<div class="outline-text-3" id="text-org88c99c3">
 <p>
 我们知道，一切的软件都是跑在操作系统上，真正用来干活（计算）的是 CPU。早期的操作系统每个程序就是一个进程，直到一个程序运行完，才能进行下一个进程，就是 "单进程时"。<br>
 </p>
@@ -125,9 +125,9 @@
 </p>
 </div>
 </div>
-<div id="outline-container-org2bd4892" class="outline-3">
-<h3 id="org2bd4892">(2) 多进程 / 线程时代有了调度器需求</h3>
-<div class="outline-text-3" id="text-org2bd4892">
+<div id="outline-container-org7384230" class="outline-3">
+<h3 id="org7384230">(2) 多进程 / 线程时代有了调度器需求</h3>
+<div class="outline-text-3" id="text-org7384230">
 <div class="div-center">
 	<img src="./images/多线程多进程操作系统.png" width="620px" />
 </div>
@@ -158,9 +158,9 @@
 </div>
 </div>
 
-<div id="outline-container-orga9940b5" class="outline-3">
-<h3 id="orga9940b5">(3) 协程来提高 CPU 利用率</h3>
-<div class="outline-text-3" id="text-orga9940b5">
+<div id="outline-container-org123fcc6" class="outline-3">
+<h3 id="org123fcc6">(3) 协程来提高 CPU 利用率</h3>
+<div class="outline-text-3" id="text-org123fcc6">
 <p>
 多进程、多线程已经提高了系统的并发能力，但是在当今互联网高并发场景下，为每个任务都创建一个线程是不现实的，因为会消耗大量的内存（进程虚拟内存会占用 4GB [32 位操作系统], 而线程也要大约 4MB）。<br>
 </p>
@@ -202,13 +202,13 @@
 之后，我们就看到了有 3 中协程和线程的映射关系：<br>
 </p>
 </div>
-<div id="outline-container-org8b9c969" class="outline-4">
-<h4 id="org8b9c969">协程与线程的映射关系</h4>
-<div class="outline-text-4" id="text-org8b9c969">
+<div id="outline-container-orgc0dd97e" class="outline-4">
+<h4 id="orgc0dd97e">协程与线程的映射关系</h4>
+<div class="outline-text-4" id="text-orgc0dd97e">
 </div>
-<div id="outline-container-orga67bc1c" class="outline-5">
-<h5 id="orga67bc1c">N:1 关系</h5>
-<div class="outline-text-5" id="text-orga67bc1c">
+<div id="outline-container-orgb3e6102" class="outline-5">
+<h5 id="orgb3e6102">N:1 关系</h5>
+<div class="outline-text-5" id="text-orgb3e6102">
 <p>
 N 个协程绑定 1 个线程，优点就是 <b>协程在用户态线程即完成切换，不会陷入到内核态，这种切换非常的轻量快速</b> 。但也有很大的缺点，1 个进程的所有协程都绑定在 1 个线程上<br>
 </p>
@@ -227,9 +227,9 @@ N 个协程绑定 1 个线程，优点就是 <b>协程在用户态线程即完�
 </div>
 </div>
 </div>
-<div id="outline-container-org9e96847" class="outline-5">
-<h5 id="org9e96847">1:1 关系</h5>
-<div class="outline-text-5" id="text-org9e96847">
+<div id="outline-container-org6a14b8e" class="outline-5">
+<h5 id="org6a14b8e">1:1 关系</h5>
+<div class="outline-text-5" id="text-org6a14b8e">
 <p>
 1 个协程绑定 1 个线程，这种最容易实现。协程的调度都由 CPU 完成了，不存在 N:1 缺点，<br>
 </p>
@@ -247,11 +247,11 @@ N 个协程绑定 1 个线程，优点就是 <b>协程在用户态线程即完�
 </div>
 </div>
 </div>
-<div id="outline-container-orgd841a92" class="outline-5">
-<h5 id="orgd841a92">N:N 关系</h5>
-<div class="outline-text-5" id="text-orgd841a92">
+<div id="outline-container-org987a429" class="outline-5">
+<h5 id="org987a429">M:N 关系</h5>
+<div class="outline-text-5" id="text-org987a429">
 <p>
-M 个协程绑定 1 个线程，是 N:1 和 1:1 类型的结合，克服了以上 2 种模型的缺点，但实现起来最为复杂。<br>
+M 个协程绑定 N 个线程，是 N:1 和 1:1 类型的结合，克服了以上 2 种模型的缺点，但实现起来最为复杂。<br>
 </p>
 
 <div class="div-center">
@@ -259,15 +259,15 @@ M 个协程绑定 1 个线程，是 N:1 和 1:1 类型的结合，克服了以�
 </div>
 
 <p>
-协程跟线程是有区别的，线程由 CPU 调度是抢占式的， <b>协程由用户态调度是协作式的</b> ，一个协程让出 CPU 后，才执行下一个协程。<br>
+<span class="underline">协程跟线程是有区别的，线程由 CPU 调度是抢占式的， <b>协程由用户态调度是协作式的</b> ，一个协程让出 CPU 后，才执行下一个协程。</span><br>
 </p>
 </div>
 </div>
 </div>
 </div>
-<div id="outline-container-org323c6db" class="outline-3">
-<h3 id="org323c6db">(4) Go 语言的协程 goroutine</h3>
-<div class="outline-text-3" id="text-org323c6db">
+<div id="outline-container-org0c35b42" class="outline-3">
+<h3 id="org0c35b42">(4) Go 语言的协程 goroutine</h3>
+<div class="outline-text-3" id="text-org0c35b42">
 <p>
 <b>Go 为了提供更容易使用的并发方法，使用了 goroutine 和 channel</b> 。goroutine 来自协程的概念，让一组可复用的函数运行在一组线程之上，即使有协程阻塞，该线程的其他协程也可以被 runtime 调度，转移到其他可运行的线程上。最关键的是，程序员看不到这些底层的细节，这就降低了编程的难度，提供了更容易的并发。<br>
 </p>
@@ -286,9 +286,9 @@ Goroutine 特点：<br>
 </ul>
 </div>
 </div>
-<div id="outline-container-org5e1d696" class="outline-3">
-<h3 id="org5e1d696">(5) 被废弃的 goroutine 调度器</h3>
-<div class="outline-text-3" id="text-org5e1d696">
+<div id="outline-container-org51b6a2c" class="outline-3">
+<h3 id="org51b6a2c">(5) 被废弃的 goroutine 调度器</h3>
+<div class="outline-text-3" id="text-org51b6a2c">
 <p>
 好了，既然我们知道了协程和线程的关系，那么最关键的一点就是调度协程的调度器的实现了。<br>
 </p>
@@ -331,9 +331,9 @@ M 想要执行、放回 G 都必须访问全局 G 队列，并且 M 有多个，
 </div>
 </div>
 </div>
-<div id="outline-container-org2f13ec2" class="outline-2">
-<h2 id="org2f13ec2">二、Goroutine 调度器的 GMP 模型的设计思想</h2>
-<div class="outline-text-2" id="text-org2f13ec2">
+<div id="outline-container-orgd1c9e89" class="outline-2">
+<h2 id="orgd1c9e89">二、Goroutine 调度器的 GMP 模型的设计思想</h2>
+<div class="outline-text-2" id="text-orgd1c9e89">
 <p>
 面对之前调度器的问题，Go 设计了新的调度器。<br>
 </p>
@@ -350,9 +350,9 @@ M 想要执行、放回 G 都必须访问全局 G 队列，并且 M 有多个，
 Processor，它包含了运行 goroutine 的资源，如果线程想运行 goroutine，必须先获取 P，P 中还包含了可运行的 G 队列。<br>
 </p>
 </div>
-<div id="outline-container-orgfbb2c0e" class="outline-3">
-<h3 id="orgfbb2c0e">(1) GMP 模型</h3>
-<div class="outline-text-3" id="text-orgfbb2c0e">
+<div id="outline-container-orge42e51e" class="outline-3">
+<h3 id="orge42e51e">(1) GMP 模型</h3>
+<div class="outline-text-3" id="text-orge42e51e">
 <p>
 在 Go 中，线程是运行 goroutine 的实体，调度器的功能是把可运行的 goroutine 分配到工作线程上。<br>
 </p>
@@ -372,9 +372,9 @@ Processor，它包含了运行 goroutine 的资源，如果线程想运行 gorou
 Goroutine 调度器和 OS 调度器是通过 M 结合起来的，每个 M 都代表了 1 个内核线程，OS 调度器负责把内核线程分配到 CPU 的核上执行。<br>
 </p>
 </div>
-<div id="outline-container-org940b8cb" class="outline-4">
-<h4 id="org940b8cb">有关 P 和 M 的个数问题</h4>
-<div class="outline-text-4" id="text-org940b8cb">
+<div id="outline-container-orgbc28631" class="outline-4">
+<h4 id="orgbc28631">有关 P 和 M 的个数问题</h4>
+<div class="outline-text-4" id="text-orgbc28631">
 <p>
 1、P 的数量：<br>
 </p>
@@ -398,9 +398,9 @@ M 与 P 的数量没有绝对关系，一个 M 阻塞，P 就会去创建或者�
 </p>
 </div>
 </div>
-<div id="outline-container-org66e7147" class="outline-4">
-<h4 id="org66e7147">P 和 M 何时会被创建</h4>
-<div class="outline-text-4" id="text-org66e7147">
+<div id="outline-container-orgbfdca75" class="outline-4">
+<h4 id="orgbfdca75">P 和 M 何时会被创建</h4>
+<div class="outline-text-4" id="text-orgbfdca75">
 <p>
 1、P 何时创建：在确定了 P 的最大数量 n 后，运行时系统会根据这个数量创建 n 个 P。<br>
 </p>
@@ -411,9 +411,9 @@ M 与 P 的数量没有绝对关系，一个 M 阻塞，P 就会去创建或者�
 </div>
 </div>
 </div>
-<div id="outline-container-org19e6d72" class="outline-3">
-<h3 id="org19e6d72">(2) 调度器的设计策略</h3>
-<div class="outline-text-3" id="text-org19e6d72">
+<div id="outline-container-org540f691" class="outline-3">
+<h3 id="org540f691">(2) 调度器的设计策略</h3>
+<div class="outline-text-3" id="text-org540f691">
 <p>
 <b>复用线程</b> ：避免频繁的创建、销毁线程，而是对线程的复用。<br>
 </p>
@@ -447,9 +447,9 @@ M 与 P 的数量没有绝对关系，一个 M 阻塞，P 就会去创建或者�
 </p>
 </div>
 </div>
-<div id="outline-container-orgfc1a5b0" class="outline-3">
-<h3 id="orgfc1a5b0">(3) go func() 调度流程</h3>
-<div class="outline-text-3" id="text-orgfc1a5b0">
+<div id="outline-container-org599281a" class="outline-3">
+<h3 id="org599281a">(3) go func() 调度流程</h3>
+<div class="outline-text-3" id="text-org599281a">
 <div class="div-center">
 	<img src="./images/go_func()调度流程.jpeg" width="620px" />
 </div>
@@ -468,9 +468,9 @@ M 与 P 的数量没有绝对关系，一个 M 阻塞，P 就会去创建或者�
 </ol>
 </div>
 </div>
-<div id="outline-container-org4e76789" class="outline-3">
-<h3 id="org4e76789">(4) 调度器的生命周期</h3>
-<div class="outline-text-3" id="text-org4e76789">
+<div id="outline-container-org8bf7356" class="outline-3">
+<h3 id="org8bf7356">(4) 调度器的生命周期</h3>
+<div class="outline-text-3" id="text-org8bf7356">
 <div class="div-center">
 	<img src="./images/调度器的生命周期.png" width="420px" />
 </div>
@@ -533,16 +533,16 @@ G0 是每次启动一个 M 都会第一个创建的 goroutine，G0 仅用于负�
 </p>
 </div>
 </div>
-<div id="outline-container-org2ef3c23" class="outline-3">
-<h3 id="org2ef3c23">(5) 可视化 GMP 编程</h3>
-<div class="outline-text-3" id="text-org2ef3c23">
+<div id="outline-container-org62f406e" class="outline-3">
+<h3 id="org62f406e">(5) 可视化 GMP 编程</h3>
+<div class="outline-text-3" id="text-org62f406e">
 <p>
 有两种方式可以查看一个程序的 GMP 的数据。<br>
 </p>
 </div>
-<div id="outline-container-orga205fdf" class="outline-4">
-<h4 id="orga205fdf">方式1：go tool trace</h4>
-<div class="outline-text-4" id="text-orga205fdf">
+<div id="outline-container-org9a31a2a" class="outline-4">
+<h4 id="org9a31a2a">方式1：go tool trace</h4>
+<div class="outline-text-4" id="text-org9a31a2a">
 <p>
 trace 记录了运行时的信息，能提供可视化的 Web 页面。<br>
 </p>
@@ -551,7 +551,7 @@ trace 记录了运行时的信息，能提供可视化的 Web 页面。<br>
 简单测试代码：main 函数创建 trace，trace 会运行在单独的 goroutine 中，然后 main 打印”Hello World” 退出。<br>
 </p>
 
-<pre class="example" id="org7f47e6b">
+<pre class="example">
 trace.go
 </pre>
 
@@ -591,7 +591,7 @@ trace.go
 运行程序<br>
 </p>
 
-<pre class="example" id="org84b813f">
+<pre class="example">
 go run trace.go 
 Hello World
 </pre>
@@ -600,7 +600,7 @@ Hello World
 会得到一个 <code>trace.out</code> 文件，然后我们可以用一个工具打开，来分析这个文件。<br>
 </p>
 
-<pre class="example" id="orgb8a2512">
+<pre class="example">
 go tool trace trace.out 
 2020/02/23 10:44:11 Parsing trace...
 2020/02/23 10:44:11 Splitting trace...
@@ -631,7 +631,7 @@ go tool trace trace.out
 	<img src="./images/go_tool_trace_03.png" width="620px" />
 </div>
 
-<pre class="example" id="org4714aab">
+<pre class="example">
 一共有两个 G 在程序中，一个是特殊的 G0，是每个 M 必须有的一个初始化的 G，这个我们不必讨论。
 </pre>
 
@@ -680,9 +680,9 @@ G1 中调用了 <code>main.main</code> ，创建了 <code>trace goroutine g18</c
 </div>
 </div>
 </div>
-<div id="outline-container-org6d095a2" class="outline-4">
-<h4 id="org6d095a2">方式2：Debug trace</h4>
-<div class="outline-text-4" id="text-org6d095a2">
+<div id="outline-container-orgc373727" class="outline-4">
+<h4 id="orgc373727">方式2：Debug trace</h4>
+<div class="outline-text-4" id="text-orgc373727">
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
 
@@ -692,7 +692,7 @@ G1 中调用了 <code>main.main</code> ，创建了 <code>trace goroutine g18</c
 )
 
 <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; <span style="color: #d75fd7;">5</span>; i++ {
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := 0; i &lt; 5; i++ {
         time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(time.Second)
         fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Hello World"</span>)
     }
@@ -704,7 +704,7 @@ G1 中调用了 <code>main.main</code> ，创建了 <code>trace goroutine g18</c
 编译<br>
 </p>
 
-<pre class="example" id="orgbcbb605">
+<pre class="example">
 go build trace2.go
 </pre>
 
@@ -712,7 +712,7 @@ go build trace2.go
 通过 Debug 方式运行<br>
 </p>
 
-<pre class="example" id="org139659a">
+<pre class="example">
 $ GODEBUG=schedtrace=1000 ./trace2 
 SCHED 0ms: gomaxprocs=2 idleprocs=0 threads=4 spinningthreads=1 idlethreads=1 runqueue=0 [0 0]
 Hello World
@@ -745,13 +745,13 @@ Hello World
 </div>
 </div>
 </div>
-<div id="outline-container-org29cc884" class="outline-2">
-<h2 id="org29cc884">三、Goroutine 调度场景过程全图文解析</h2>
-<div class="outline-text-2" id="text-org29cc884">
+<div id="outline-container-orgf57fbff" class="outline-2">
+<h2 id="orgf57fbff">三、Goroutine 调度场景过程全图文解析</h2>
+<div class="outline-text-2" id="text-orgf57fbff">
 </div>
-<div id="outline-container-org3c85699" class="outline-3">
-<h3 id="org3c85699">(1) 场景1</h3>
-<div class="outline-text-3" id="text-org3c85699">
+<div id="outline-container-orgbba2dc8" class="outline-3">
+<h3 id="orgbba2dc8">(1) 场景1</h3>
+<div class="outline-text-3" id="text-orgbba2dc8">
 <p>
 P 拥有 G1，M1 获取 P 后开始运行 G1，G1 使用 go func() 创建了 G2，为了局部性 G2 优先加入到 P1 的本地队列。<br>
 </p>
@@ -761,9 +761,9 @@ P 拥有 G1，M1 获取 P 后开始运行 G1，G1 使用 go func() 创建了 G2�
 </div>
 </div>
 </div>
-<div id="outline-container-org00a7636" class="outline-3">
-<h3 id="org00a7636">(2) 场景2</h3>
-<div class="outline-text-3" id="text-org00a7636">
+<div id="outline-container-org56d81ca" class="outline-3">
+<h3 id="org56d81ca">(2) 场景2</h3>
+<div class="outline-text-3" id="text-org56d81ca">
 <p>
 G1 运行完成后（函数： <code>goexit</code> ），M 上运行的 goroutine 切换为 G0，G0 负责调度时协程的切换（函数： <code>schedule</code> ）。从 P 的本地队列取 G2，从 G0 切换到 G2，并开始运行 G2 （函数： <code>execute</code> ）。实现了线程 M1 的复用。<br>
 </p>
@@ -773,9 +773,9 @@ G1 运行完成后（函数： <code>goexit</code> ），M 上运行的 goroutin
 </div>
 </div>
 </div>
-<div id="outline-container-orge57e55f" class="outline-3">
-<h3 id="orge57e55f">(3) 场景3</h3>
-<div class="outline-text-3" id="text-orge57e55f">
+<div id="outline-container-org7d79b7f" class="outline-3">
+<h3 id="org7d79b7f">(3) 场景3</h3>
+<div class="outline-text-3" id="text-org7d79b7f">
 <p>
 假设每个 P 的本地队列只能存 3 个 G。G2 要创建了 6 个 G，前 3 个 G（G3, G4, G5）已经加入 p1 的本地队列，p1 本地队列满了。<br>
 </p>
@@ -785,9 +785,9 @@ G1 运行完成后（函数： <code>goexit</code> ），M 上运行的 goroutin
 </div>
 </div>
 </div>
-<div id="outline-container-org5f4be15" class="outline-3">
-<h3 id="org5f4be15">(4) 场景4</h3>
-<div class="outline-text-3" id="text-org5f4be15">
+<div id="outline-container-orgde71f03" class="outline-3">
+<h3 id="orgde71f03">(4) 场景4</h3>
+<div class="outline-text-3" id="text-orgde71f03">
 <p>
 G2 在创建 G7 的时候，发现 P1 的本地队列已满，需要执行 <b>负载均衡</b> （把 P1 中本地队列中前一半的 G，还有新创建 G <b>转移</b> 到全局队列）。<br>
 </p>
@@ -807,9 +807,9 @@ G2 在创建 G7 的时候，发现 P1 的本地队列已满，需要执行 <b>�
 </p>
 </div>
 </div>
-<div id="outline-container-org0d8386f" class="outline-3">
-<h3 id="org0d8386f">(5) 场景5</h3>
-<div class="outline-text-3" id="text-org0d8386f">
+<div id="outline-container-org88b1c05" class="outline-3">
+<h3 id="org88b1c05">(5) 场景5</h3>
+<div class="outline-text-3" id="text-org88b1c05">
 <p>
 G2 创建 G8 时，P1 的本地队列未满，所以 G8 会被加入到 P1 的本地队列。<br>
 </p>
@@ -823,9 +823,9 @@ G8 加入到 P1 点本地队列的原因还是因为 P1 此时在与 M1 绑定�
 </p>
 </div>
 </div>
-<div id="outline-container-org40ad387" class="outline-3">
-<h3 id="org40ad387">(6) 场景6</h3>
-<div class="outline-text-3" id="text-org40ad387">
+<div id="outline-container-orgc45840b" class="outline-3">
+<h3 id="orgc45840b">(6) 场景6</h3>
+<div class="outline-text-3" id="text-orgc45840b">
 <p>
 规定： <b>在创建 G 时，运行的 G 会尝试唤醒其他空闲的 P 和 M 组合去执行</b> 。<br>
 </p>
@@ -839,15 +839,15 @@ G8 加入到 P1 点本地队列的原因还是因为 P1 此时在与 M1 绑定�
 </p>
 </div>
 </div>
-<div id="outline-container-orgfcea894" class="outline-3">
-<h3 id="orgfcea894">(7) 场景7</h3>
-<div class="outline-text-3" id="text-orgfcea894">
+<div id="outline-container-org30a58d5" class="outline-3">
+<h3 id="org30a58d5">(7) 场景7</h3>
+<div class="outline-text-3" id="text-org30a58d5">
 <p>
 M2 尝试从全局队列（简称 "GQ"）取一批 G 放到 P2 的本地队列（函数：~findrunnable()~ ）。M2 从全局队列取的 G 数量符合下面的公式：<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go">n = <span style="color: #d75fd7; font-weight: bold;">min</span>(<span style="color: #268bd2;">len</span>(GQ) / GOMAXPROCS + <span style="color: #d75fd7;">1</span>, <span style="color: #268bd2;">len</span>(GQ / <span style="color: #d75fd7;">2</span>))
+<pre class="src src-go">n = <span style="color: #d75fd7; font-weight: bold;">min</span>(<span style="color: #268bd2;">len</span>(GQ) / GOMAXPROCS + 1, <span style="color: #268bd2;">len</span>(GQ / 2))
 </pre>
 </div>
 
@@ -864,9 +864,9 @@ M2 尝试从全局队列（简称 "GQ"）取一批 G 放到 P2 的本地队列�
 </p>
 </div>
 </div>
-<div id="outline-container-orgace610f" class="outline-3">
-<h3 id="orgace610f">(8) 场景8</h3>
-<div class="outline-text-3" id="text-orgace610f">
+<div id="outline-container-org051fa15" class="outline-3">
+<h3 id="org051fa15">(8) 场景8</h3>
+<div class="outline-text-3" id="text-org051fa15">
 <p>
 假设 G2 一直在 M1 上运行，经过 2 轮后，M2 已经把 G7、G4 从全局队列获取到了 P2 的本地队列并完成运行，全局队列和 P2 的本地队列都空了，如场景 8 图的左半部分。<br>
 </p>
@@ -880,9 +880,9 @@ M2 尝试从全局队列（简称 "GQ"）取一批 G 放到 P2 的本地队列�
 </p>
 </div>
 </div>
-<div id="outline-container-org7308848" class="outline-3">
-<h3 id="org7308848">(9) 场景9</h3>
-<div class="outline-text-3" id="text-org7308848">
+<div id="outline-container-org46d0c17" class="outline-3">
+<h3 id="org46d0c17">(9) 场景9</h3>
+<div class="outline-text-3" id="text-org46d0c17">
 <p>
 G1 本地队列 G5、G6 已经被其他 M 偷走并运行完成，当前 M1 和 M2 分别在运行 G2 和 G8，M3 和 M4 没有 goroutine 可以运行，M3 和 M4 处于 <b>自旋状态</b> ，它们不断寻找 goroutine。<br>
 </p>
@@ -896,9 +896,9 @@ G1 本地队列 G5、G6 已经被其他 M 偷走并运行完成，当前 M1 和 
 </p>
 </div>
 </div>
-<div id="outline-container-orga7ef368" class="outline-3">
-<h3 id="orga7ef368">(10) 场景10</h3>
-<div class="outline-text-3" id="text-orga7ef368">
+<div id="outline-container-org66c5bbb" class="outline-3">
+<h3 id="org66c5bbb">(10) 场景10</h3>
+<div class="outline-text-3" id="text-org66c5bbb">
 <p>
 假定当前除了 M3 和 M4 为自旋线程，还有 M5 和 M6 为空闲的线程（没有得到 P 的绑定，注意我们这里最多就只能够存在 4 个 P，所以 P 的数量应该永远是 M &gt;= P，大部分都是 M 在抢占需要运行的 P），G8 创建了 G9，G8 进行了 <b>阻塞的系统调用</b> ，M2 和 P2 立即解绑，P2 会执行以下判断：如果 P2 本地队列有 G、全局队列有 G 或有空闲的 M，P2 都会立马唤醒 1 个 M 和它绑定，否则 P2 则会加入到空闲 P 列表，等待 M 来获取可用的 p。本场景中，P2 本地队列有 G9，可以和其他空闲的线程 M5 绑定。<br>
 </p>
@@ -908,9 +908,9 @@ G1 本地队列 G5、G6 已经被其他 M 偷走并运行完成，当前 M1 和 
 </div>
 </div>
 </div>
-<div id="outline-container-org5646313" class="outline-3">
-<h3 id="org5646313">(11) 场景11</h3>
-<div class="outline-text-3" id="text-org5646313">
+<div id="outline-container-orgaf9d3c5" class="outline-3">
+<h3 id="orgaf9d3c5">(11) 场景11</h3>
+<div class="outline-text-3" id="text-orgaf9d3c5">
 <p>
 G8 创建了 G9，假如 G8 进行了 <b>非阻塞系统调用</b> 。<br>
 </p>
@@ -925,9 +925,9 @@ M2 和 P2 会解绑，但 M2 会记住 P2，然后 G8 和 M2 进入 <b>系统调
 </div>
 </div>
 </div>
-<div id="outline-container-org7a14cdf" class="outline-2">
-<h2 id="org7a14cdf">四、小结</h2>
-<div class="outline-text-2" id="text-org7a14cdf">
+<div id="outline-container-orga723b4c" class="outline-2">
+<h2 id="orga723b4c">四、小结</h2>
+<div class="outline-text-2" id="text-orga723b4c">
 <p>
 总结，Go 调度器很轻量也很简单，足以撑起 goroutine 的调度工作，并且让 Go 具有了原生（强大）并发的能力。 <b>Go 调度本质是把大量的 goroutine 分配到少量线程上去执行，并利用多核并行，实现更强大的并发</b> 。<br>
 </p>
@@ -946,8 +946,8 @@ M2 和 P2 会解绑，但 M2 会记住 P2，然后 G8 和 M2 进入 <b>系统调
 <div id="postamble" class="status">
 <p class="date">Date: 2022-02-18 18:02 Fri</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-02-19 Sat 02:55</p>
-<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+<p class="date">Created: 2022-05-09 Mon 14:25</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>

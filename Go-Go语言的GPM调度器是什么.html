@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-03-27 Sun 17:26 -->
+<!-- 2022-05-09 Mon 14:07 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GO语言的GPM调度器是什么</title>
@@ -40,7 +40,7 @@
 <h2 id="orgc8066da">并发模型</h2>
 <div class="outline-text-2" id="text-orgc8066da">
 <p>
-相信很多人都听说过Go语言天然支持高并发，原因是内部有协程（goroutine）加持，可以在一个进程中启动成千上万个协程。那么，它凭什么做到如此高的并发呢？那就需要先了解什么是并发模型。<br>
+相信很多人都听说过 Go 语言天然支持高并发，原因是内部有协程（goroutine）加持，可以在一个进程中启动成千上万个协程。那么，它凭什么做到如此高的并发呢？那就需要先了解什么是并发模型。<br>
 </p>
 
 <p>
@@ -62,18 +62,18 @@
 </ul>
 
 <p>
-而今天，我们只讲与Go语言相关的并发模型CSP，感兴趣的同学可以自行查阅书籍《七周七并发模型》。<br>
+而今天，我们只讲与 Go 语言相关的并发模型 CSP，感兴趣的同学可以自行查阅书籍《七周七并发模型》。<br>
 </p>
 </div>
 <div id="outline-container-org4dcc322" class="outline-3">
 <h3 id="org4dcc322">CSP篇</h3>
 <div class="outline-text-3" id="text-org4dcc322">
 <p>
-CSP，全称Communicating Sequential Processes，意为通讯顺序进程，它是七大并发模型中的一种，它的核心观念是将两个并发执行的实体通过通道channel连接起来，所有的消息都通过channel传输。其实CSP概念早在1978年就被东尼·霍尔提出，由于近来Go语言的兴起，CSP又火了起来。<br>
+CSP，全称 Communicating Sequential Processes，意为通讯顺序进程，它是七大并发模型中的一种，它的核心观念是将两个并发执行的实体通过通道 <code>channel</code> 连接起来，所有的消息都通过 <code>channel</code> 传输。其实 CSP 概念早在1978年就被东尼·霍尔提出，由于近来 Go 语言的兴起，CSP 又火了起来。<br>
 </p>
 
 <p>
-那么CSP与Go语言有什么关系呢？接下来我们来看Go语言对CSP并发模型的实现——GPM调度模型。<br>
+那么 CSP 与 Go 语言有什么关系呢？接下来我们来看 Go 语言对 CSP 并发模型的实现——GPM调度模型。<br>
 </p>
 </div>
 </div>
@@ -81,15 +81,15 @@ CSP，全称Communicating Sequential Processes，意为通讯顺序进程，它�
 <h3 id="orgee8e13f">GPM调度模型</h3>
 <div class="outline-text-3" id="text-orgee8e13f">
 <p>
-GPM代表了三个角色，分别是Goroutine、Processor、Machine。<br>
+GPM 代表了三个角色，分别是 <code>Goroutine</code> 、 <code>Processor</code> 、 <code>Machine</code> 。<br>
 </p>
 
 <img src="./images/GPM的三个角色.jpg" width="650px" />
 
 <ul class="org-ul">
-<li>Goroutine：就是咱们常用的用go关键字创建的执行体，它对应一个结构体g，结构体里保存了goroutine的堆栈信息<br></li>
-<li>Machine：表示操作系统的线程<br></li>
-<li>Processor：表示处理器，有了它才能建立G、M的联系<br></li>
+<li>Goroutine：就是咱们常用的用 <code>go</code> 关键字创建的执行体，它对应一个结构体 <code>g</code> ，结构体里保存了 goroutine 的堆栈信息<br></li>
+<li>Machine：表示操作系统的 <b>线程</b><br></li>
+<li>Processor：表示 <b>处理器</b> ，有了它才能建立 G、M 的联系<br></li>
 </ul>
 </div>
 </div>
@@ -97,7 +97,7 @@ GPM代表了三个角色，分别是Goroutine、Processor、Machine。<br>
 <h3 id="orgb35e73f">Goroutine</h3>
 <div class="outline-text-3" id="text-orgb35e73f">
 <p>
-Goroutine就是代码中使用go关键词创建的执行单元，也是大家熟知的有"轻量级线程"之称的协程，协程是不为操作系统所知的，它由编程语言层面实现，上下文切换不需要经过内核态，再加上协程占用的内存空间极小，所以有着非常大的发展潜力。<br>
+Goroutine 就是代码中使用 <code>go</code> 关键词创建的执行单元，也是大家熟知的有 <span class="underline">"轻量级线程"之称的协程</span> ， <span class="underline">协程是不为操作系统所知的，它由编程语言层面实现</span> ，上下文切换不需要经过内核态，再加上协程占用的内存空间极小，所以有着非常大的发展潜力。<br>
 </p>
 
 <div class="org-src-container">
@@ -106,7 +106,7 @@ Goroutine就是代码中使用go关键词创建的执行单元，也是大家熟
 </div>
 
 <p>
-复制代码在Go语言中，Goroutine由一个名为runtime.go的结构体表示，该结构体非常复杂，有40多个成员变量，主要存储执行栈、状态、当前占用的线程、调度相关的数据。还有玩大家很想获取的goroutine标识，但是很抱歉，官方考虑到Go语言的发展，设置成私有了，不给你调用😏。<br>
+复制代码在 Go 语言中，Goroutine 由一个名为 <code>runtime.go</code> 的结构体表示，该结构体非常复杂，有40多个成员变量，主要存储执行栈、状态、当前占用的线程、调度相关的数据。还有大家很想获取的 goroutine 标识，但是很抱歉，官方考虑到 Go 语言的发展，设置成私有了，不给你调用😏。<br>
 </p>
 
 <div class="org-src-container">
@@ -135,7 +135,7 @@ Goroutine就是代码中使用go关键词创建的执行单元，也是大家熟
 </div>
 
 <p>
-Goroutine调度相关的数据存储在sched，在协程切换、恢复上下文的时候用到。<br>
+Goroutine 调度相关的数据存储在 <code>sched</code> ，在协程切换、恢复上下文的时候用到。<br>
 </p>
 
 <div class="org-src-container">
@@ -150,7 +150,7 @@ Goroutine调度相关的数据存储在sched，在协程切换、恢复上下文
 </div>
 
 <p>
-M就是对应操作系统的线程，最多会有GOMAXPROCS个活跃线程能够正常运行，默认情况下GOMAXPROCS被设置为内核数，假如有四个内核，那么默认就创建四个线程，每一个线程对应一个runtime.m结构体。线程数等于CPU个数的原因是，每个线程分配到一个CPU上就不至于出现线程的上下文切换，可以保证系统开销降到最低。<br>
+<span class="underline">M 就是对应操作系统的线程</span> ，最多会有 GOMAXPROCS 个活跃线程能够正常运行，默认情况下 GOMAXPROCS 被设置为内核数，假如有四个内核，那么默认就创建四个线程，每一个线程对应一个 <code>runtime.m</code> 结构体。 <span class="underline">线程数等于 CPU 个数的原因是，每个线程分配到一个 CPU 上就不至于出现线程的上下文切换，可以保证系统开销降到最低。</span><br>
 </p>
 
 <div class="org-src-container">
@@ -163,16 +163,16 @@ M就是对应操作系统的线程，最多会有GOMAXPROCS个活跃线程能够
 </div>
 
 <p>
-M里面存了两个比较重要的东西，一个是g0，一个是curg。<br>
+M 里面存了两个比较重要的东西，一个是 g0，一个是 curg。<br>
 </p>
 
 <ul class="org-ul">
-<li>g0：会深度参与运行时的调度过程，比如goroutine的创建、内存分配等<br></li>
-<li>curg：代表当前正在线程上执行的goroutine。<br></li>
+<li>g0：会深度参与运行时的调度过程，比如 goroutine 的创建、内存分配等<br></li>
+<li>curg：代表当前正在线程上执行的 goroutine。<br></li>
 </ul>
 
 <p>
-刚才说P是负责M与G的关联，所以M里面还要存储与P相关的数据。<br>
+刚才说 P 是负责 M 与 G 的关联，所以 M 里面还要存储与 P 相关的数据。<br>
 </p>
 
 <div class="org-src-container">
@@ -196,11 +196,11 @@ M里面存了两个比较重要的东西，一个是g0，一个是curg。<br>
 <h3 id="orgc6eae07">Processor</h3>
 <div class="outline-text-3" id="text-orgc6eae07">
 <p>
-Proccessor负责Machine与Goroutine的连接，它能提供线程需要的上下文环境，也能分配G到它应该去的线程上执行，有了它，每个G都能得到合理的调用，每个线程都不再浑水摸鱼，真是居家必备之良品。<br>
+Proccessor 负责 Machine 与 Goroutine 的连接，它能提供线程需要的上下文环境，也能分配 G 到它应该去的线程上执行，有了它，每个 G 都能得到合理的调用，每个线程都不再浑水摸鱼，真是居家必备之良品。<br>
 </p>
 
 <p>
-同样的，处理器的数量也是默认按照GOMAXPROCS来设置的，与线程的数量一一对应。<br>
+同样的，处理器的数量也是默认按照 GOMAXPROCS 来设置的，与线程的数量一一对应。<br>
 </p>
 
 <div class="org-src-container">
@@ -217,7 +217,7 @@ Proccessor负责Machine与Goroutine的连接，它能提供线程需要的上下
 </div>
 
 <p>
-结构体P中存储了性能追踪、垃圾回收、计时器等相关的字段外，还存储了处理器的待运行队列，队列中存储的是待执行的Goroutine列表。<br>
+结构体 P 中存储了性能追踪、垃圾回收、计时器等相关的字段外，还存储了处理器的待运行队列，队列中存储的是待执行的 Goroutine 列表。<br>
 </p>
 </div>
 </div>
@@ -231,37 +231,37 @@ Proccessor负责Machine与Goroutine的连接，它能提供线程需要的上下
 <img src="./images/默认启动四个线程四个处理器.jpg" width="650px" />
 
 <p>
-这个时候，一个Goroutine结构体被创建，在进行函数体地址、参数起始地址、参数长度等信息以及调度相关属性更新之后，它就要进到一个处理器的队列等待发车。<br>
+这个时候，一个 Goroutine 结构体被创建，在进行函数体地址、参数起始地址、参数长度等信息以及调度相关属性更新之后，它就要进到一个处理器的队列等待发车。<br>
 </p>
 
 <img src="./images/Goroutine结构体被创建.jpg" width="650px" />
 
 <p>
-啥，又创建了一个G？那就轮流往其他P里面放呗，相信你排队取号的时候看到其他窗口没人排队也会过去的。<br>
+啥，又创建了一个 G？那就轮流往其他 P 里面放呗，相信你排队取号的时候看到其他窗口没人排队也会过去的。<br>
 </p>
 
 <img src="./images/继续存放Goroutine.jpg" width="650px" />
 
 <p>
-假如有很多G，都塞满了怎么办呢？那就不把G塞到处理器的私有队列里了，而是把它塞到全局队列里（候车大厅）。<br>
+假如有很多 G，都塞满了怎么办呢？那就不把 G 塞到处理器的私有队列里了，而是把它塞到全局队列里（候车大厅）。<br>
 </p>
 
 <img src="./images/将Goroutine放入全局队列.jpg" width="650px" />
 
 <p>
-除了往里塞之外，M这边还要疯狂往外取，首先去处理器的私有队列里取G执行，如果取完的话就去全局队列取，如果全局队列里也没有的话，就去其他处理器队列里偷，哇，这么饥渴，简直是恶魔啊！<br>
+除了往里塞之外，M 这边还要疯狂往外取，首先去处理器的私有队列里取 G 执行，如果取完的话就去全局队列取，如果全局队列里也没有的话，就去其他处理器队列里偷，哇，这么饥渴，简直是恶魔啊！<br>
 </p>
 
 <img src="./images/M在私有队列与全局队列中取G.jpg" width="650px" />
 
 <p>
-如果哪里都没找到要执行的G呢？那M就会因为太失望和P断开关系，然后去睡觉（idle）了。<br>
+如果哪里都没找到要执行的 G 呢？那 M 就会因为太失望和 P 断开关系，然后去睡觉（idle）了。<br>
 </p>
 
 <img src="./images/M找不到G沉睡.jpg" width="650px" />
 
 <p>
-那如果两个Goroutine正在通过channel做一些恩恩爱爱的事阻塞住了怎么办，难道M要等他们完事了再继续执行？显然不会，M并不稀罕这对Go男女，而会转身去找别的G执行。<br>
+那如果两个 Goroutine 正在通过 <code>channel</code> 做一些恩恩爱爱的事阻塞住了怎么办，难道 M 要等他们完事了再继续执行？显然不会，M 并不稀罕这对 Go 男女，而会转身去找别的 G 执行。<br>
 </p>
 
 <img src="./images/M再寻其他的空闲G执行.jpg" width="650px" />
@@ -272,19 +272,19 @@ Proccessor负责Machine与Goroutine的连接，它能提供线程需要的上下
 <h2 id="org02e1578">系统调用</h2>
 <div class="outline-text-2" id="text-org02e1578">
 <p>
-如果G进行了系统调用syscall，M也会跟着进入系统调用状态，那么这个P留在这里就浪费了，怎么办呢？这点精妙之处在于，P不会傻傻的等待G和M系统调用完成，而会去找其他比较闲的M执行其他的G。<br>
+如果 G 进行了系统调用 <code>syscall</code> ，M也会跟着进入系统调用状态，那么这个 P 留在这里就浪费了，怎么办呢？这点精妙之处在于，P不会傻傻的等待 G 和 M 系统调用完成，而会去找其他比较闲的 M 执行其他的 G。<br>
 </p>
 
 <img src="./images/G进行系统调用.jpg" width="650px" />
 
 <p>
-当G完成了系统调用，因为要继续往下执行，所以必须要再找一个空闲的处理器发车。<br>
+当 G 完成了系统调用，因为要继续往下执行，所以必须要再找一个空闲的处理器发车。<br>
 </p>
 
 <img src="./images/G完成系统调用后找空闲处理器继续执行.jpg" width="650px" />
 
 <p>
-如果没有空闲的处理器了，那就只能把G放回全局队列当中等待分配。<br>
+如果没有空闲的处理器了，那就只能把 G 放回全局队列当中等待分配。<br>
 </p>
 
 <img src="./images/无空闲处理器放入全局队列等待.jpg" width="650px" />
@@ -294,13 +294,13 @@ Proccessor负责Machine与Goroutine的连接，它能提供线程需要的上下
 <h2 id="orgf2b2ac2">sysmon</h2>
 <div class="outline-text-2" id="text-orgf2b2ac2">
 <p>
-sysmon是我们的保洁阿姨，它是一个M，又叫监控线程，不需要P就可以独立运行，每20us~10ms会被唤醒一次出来打扫卫生，主要工作就是回收垃圾、回收长时间系统调度阻塞的P、向长时间运行的G发出抢占调度等等。<br>
+<code>sysmon</code> 是我们的保洁阿姨，它是一个 M，又叫监控线程，不需要 P 就可以独立运行，每 20us~10ms 会被唤醒一次出来打扫卫生，主要工作就是回收垃圾、回收长时间系统调度阻塞的 P、向长时间运行的 G 发出抢占调度等等。<br>
 </p>
 
 <div class="reference">
-<ul style="list-style: none;">
-<li><a href="https://juejin.im/post/5e999ead518825739b2d44d7" target="_blank">Go语言的GPM调度器是什么？</a></li>
-</ul>
+	<ul style="list-style: none;">
+		<li><a href="https://juejin.im/post/5e999ead518825739b2d44d7" target="_blank">Go语言的GPM调度器是什么？</a></li>
+	</ul>
 </div>
 </div>
 </div>
@@ -308,7 +308,7 @@ sysmon是我们的保洁阿姨，它是一个M，又叫监控线程，不需要P
 <div id="postamble" class="status">
 <p class="date">Date: 2022-02-19 18:02 Sat</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-03-27 Sun 17:26</p>
+<p class="date">Created: 2022-05-09 Mon 14:07</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-05-02 Mon 13:20 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>【Go语言】基本类型排序和 slice 排序</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">【Go语言】基本类型排序和 slice 排序</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org68c4427">引言</a></li>
+<li><a href="#org376d555">基本类型排序（int、float64 和 string）</a>
+<ul>
+<li><a href="#orgacd85ea">升序排序</a></li>
+<li><a href="#orgeea14a1">降序排序</a></li>
+<li><a href="#org11a2750">深入理解排序</a></li>
+</ul>
+</li>
+<li><a href="#orgfc271c9">结构体类型的排序</a>
+<ul>
+<li><a href="#org5bd4e11">1、模拟 IntSlice 排序</a></li>
+<li><a href="#orgc64e0d8">2、封装成 Wrapper</a></li>
+<li><a href="#org50c2b1e">3、进一步封装</a></li>
+<li><a href="#orgb6922d1">4、另一种思路</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<blockquote>
+<p>
+Go 是通过 sort 包提供排序和搜索，因为 Go 在 1.8 之前不支持泛型，所以，Go 的 sort 和 search 使用起来跟类型是有关的，或是需要像 c 一样写比较函数等，稍微显得也不是很方便。<br>
+</p>
+</blockquote>
+
+<div id="outline-container-org68c4427" class="outline-2">
+<h2 id="org68c4427">引言</h2>
+<div class="outline-text-2" id="text-org68c4427">
+<p>
+Go 的排序思路和 C 和 C++ 有些差别。 C 默认是对数组进行排序， C++ 是对一个序列进行排序， Go 则更宽泛一些，待排序的可以是 <b>任何对象</b> ， 虽然很多情况下是一个 slice （分片， 类似于数组），或是包含 slice 的一个对象。<br>
+</p>
+
+<p>
+排序（接口）的三个要素：<br>
+</p>
+
+<ul class="org-ul">
+<li>待排序元素个数 n ；<br></li>
+<li>第 i 和第 j 个元素的比较函数 cmp ；<br></li>
+<li>第 i 和第 j 个元素的交换函数 swap ；<br></li>
+</ul>
+
+<p>
+乍一看条件 3 是多余的， c 和 c++ 都不提供 swap 。 c 的 qsort 的用法： <code>qsort(data, n, sizeof(int), cmp_int)</code> ; data 是起始地址， n 是元素个数， sizeof(int) 是每个元素的大小， cmp_int 是一个比较两个 int 的函数。<br>
+</p>
+
+<p>
+c++ 的 sort 的用法： <code>sort(data, data+n, cmp_int)</code> ; data 是第一个元素的位置， data+n 是最后一个元素的下一个位置， cmp_int 是比较函数。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org376d555" class="outline-2">
+<h2 id="org376d555">基本类型排序（int、float64 和 string）</h2>
+<div class="outline-text-2" id="text-org376d555">
+</div>
+<div id="outline-container-orgacd85ea" class="outline-3">
+<h3 id="orgacd85ea">升序排序</h3>
+<div class="outline-text-3" id="text-orgacd85ea">
+<p>
+对于 <code>int</code> 、 <code>float64</code> 和 <code>string</code> 数组或是分片的排序， go 分别提供了 <code>sort.Ints()</code> 、 <code>sort.Float64s()</code> 和 <code>sort.Strings()</code> 函数， 默认都是从小到大排序。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"sort"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">intList</span> := [] int {2, 4, 3, 5, 7, 6, 9, 8, 1, 0}
+    <span style="color: #8787d7;">float8List</span> := [] float64 {4.2, 5.9, 12.3, 10.0, 50.4, 99.9, 31.4, 27.81828, 3.14}
+    <span style="color: #8787d7;">stringList</span> := [] string {<span style="color: #2aa198;">"a"</span>, <span style="color: #2aa198;">"c"</span>, <span style="color: #2aa198;">"b"</span>, <span style="color: #2aa198;">"d"</span>, <span style="color: #2aa198;">"f"</span>, <span style="color: #2aa198;">"i"</span>, <span style="color: #2aa198;">"z"</span>, <span style="color: #2aa198;">"x"</span>, <span style="color: #2aa198;">"w"</span>, <span style="color: #2aa198;">"y"</span>}
+
+    sort.<span style="color: #d75fd7; font-weight: bold;">Ints</span>(intList)
+    sort.<span style="color: #d75fd7; font-weight: bold;">Float64s</span>(float8List)
+    sort.<span style="color: #d75fd7; font-weight: bold;">Strings</span>(stringList)
+
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%v\n%v\n%v\n"</span>, intList, float8List, stringList)
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgeea14a1" class="outline-3">
+<h3 id="orgeea14a1">降序排序</h3>
+<div class="outline-text-3" id="text-orgeea14a1">
+<p>
+<code>int</code> 、 <code>float64</code> 和 <code>string</code> 都有默认的升序排序函数， 现在问题是如果降序如何？<br>
+</p>
+
+<p>
+有其他语言编程经验的人都知道，只需要交换 cmp 的比较法则就可以了， go 的实现是类似的，然而又有所不同。 go 中对某个 Type 的对象 obj 排序， 可以使用 <code>sort.Sort(obj)</code> 即可，但是需要对 Type 类型绑定三个方法 ： <code>Len()</code> 求长度、 <code>Less(i, j)</code> 比较第 i 和 第 j 个元素大小的函数、 <code>Swap(i, j)</code> 交换第 i 和第 j 个元素的函数。sort 包下的三个类型 <code>IntSlice</code> 、 <code>Float64Slice</code> 、 <code>StringSlice</code> 分别实现了这三个方法，如果期望逆序排序， 只需要将对应的 Less 函数简单修改一下即可。<br>
+</p>
+
+<p>
+可以使用 sort 包中的 <code>sort.Reverse(slice)</code> 来调换比较函数 <code>slice.Interface.Less</code> ，所以 <code>int</code> 、 <code>float64</code> 和 <code>string</code> 的逆序排序函数这么写：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"sort"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">intList</span> := [] int {2, 4, 3, 5, 7, 6, 9, 8, 1, 0}
+    <span style="color: #8787d7;">float8List</span> := [] float64 {4.2, 5.9, 12.3, 10.0, 50.4, 99.9, 31.4, 27.81828, 3.14}
+    <span style="color: #8787d7;">stringList</span> := [] string {<span style="color: #2aa198;">"a"</span>, <span style="color: #2aa198;">"c"</span>, <span style="color: #2aa198;">"b"</span>, <span style="color: #2aa198;">"d"</span>, <span style="color: #2aa198;">"f"</span>, <span style="color: #2aa198;">"i"</span>, <span style="color: #2aa198;">"z"</span>, <span style="color: #2aa198;">"x"</span>, <span style="color: #2aa198;">"w"</span>, <span style="color: #2aa198;">"y"</span>}
+
+    sort.<span style="color: #d75fd7; font-weight: bold;">Sort</span>(sort.<span style="color: #d75fd7; font-weight: bold;">Reverse</span>(sort.<span style="color: #d75fd7; font-weight: bold;">IntSlice</span>(intList)))
+    sort.<span style="color: #d75fd7; font-weight: bold;">Sort</span>(sort.<span style="color: #d75fd7; font-weight: bold;">Reverse</span>(sort.<span style="color: #d75fd7; font-weight: bold;">Float64Slice</span>(float8List)))
+    sort.<span style="color: #d75fd7; font-weight: bold;">Sort</span>(sort.<span style="color: #d75fd7; font-weight: bold;">Reverse</span>(sort.<span style="color: #d75fd7; font-weight: bold;">StringSlice</span>(stringList)))
+
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%v\n%v\n%v\n"</span>, intList, float8List, stringList)
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org11a2750" class="outline-3">
+<h3 id="org11a2750">深入理解排序</h3>
+<div class="outline-text-3" id="text-org11a2750">
+<p>
+sort 包中有一个 <code>sort.Interface</code> 接口，该接口有三个方法 <code>Len()</code> 、 <code>Less(i, j)</code> 和 <code>Swap(i, j)</code> 。通用排序函数 <code>sort.Sort</code> 可以排序任何实现了 <code>sort.Inferface</code> 接口的对象（变量）。对于 <code>[]int</code> 、 <code>[]float64</code> 和 <code>[]string</code> 除了使用特殊指定的函数外，还可以使用改装过的类型 <code>IntSclice</code> 、 <code>Float64Slice</code> 和 <code>StringSlice</code> ，然后直接调用它们对应的 <code>Sort()</code> 方法；因为这三种类型也实现了 <code>sort.Interface</code> 接口，所以可以通过 <code>sort.Reverse</code> 来转换这三种类型的 <code>Interface.Less</code> 方法来实现逆向排序，这就是前面最后一个排序的使用。<br>
+</p>
+
+<p>
+下面使用了一个自定义（用户定义）的 <code>Reverse</code> 结构体， 而不是 <code>sort.Reverse</code> 函数， 来实现逆向排序。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"sort"</span>
+)
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#33258;&#23450;&#20041;&#30340; Reverse &#31867;&#22411;</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Reverse</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    sort.Interface    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36825;&#26679;&#65292;Reverse&#21487;&#20197;&#25509;&#32435;&#20219;&#20309;&#23454;&#29616;&#20102;sort.Interface&#30340;&#23545;&#35937;</span>
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Reverse &#21482;&#26159;&#23558;&#20854;&#20013;&#30340; Inferface.Less &#30340;&#39034;&#24207;&#23545;&#35843;&#20102;&#19968;&#19979;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">Reverse</span>) <span style="color: #d75fd7; font-weight: bold;">Less</span>(<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">j</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">bool</span> {
+    <span style="color: #268bd2; font-weight: bold;">return</span> r.Interface.<span style="color: #d75fd7; font-weight: bold;">Less</span>(j, i)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">ints</span> := []<span style="color: #df005f; font-weight: bold;">int</span>{5, 2, 6, 3, 1, 4}
+
+    sort.<span style="color: #d75fd7; font-weight: bold;">Ints</span>(ints)                                     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#29305;&#27530;&#25490;&#24207;&#20989;&#25968;&#65292;&#21319;&#24207;</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"after sort by Ints:\t"</span>, ints)
+
+    <span style="color: #8787d7;">doubles</span> := []<span style="color: #df005f; font-weight: bold;">float64</span>{2.3, 3.2, 6.7, 10.9, 5.4, 1.8}
+
+    sort.<span style="color: #d75fd7; font-weight: bold;">Float64s</span>(doubles)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"after sort by Float64s:\t"</span>, doubles)   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">[1.8 2.3 3.2 5.4 6.7 10.9]</span>
+
+    <span style="color: #8787d7;">strings</span> := []<span style="color: #df005f; font-weight: bold;">string</span>{<span style="color: #2aa198;">"hello"</span>, <span style="color: #2aa198;">"good"</span>, <span style="color: #2aa198;">"students"</span>, <span style="color: #2aa198;">"morning"</span>, <span style="color: #2aa198;">"people"</span>, <span style="color: #2aa198;">"world"</span>}
+    sort.<span style="color: #d75fd7; font-weight: bold;">Strings</span>(strings)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"after sort by Strings:\t"</span>, strings)    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">[good hello mornig people students world]</span>
+
+    <span style="color: #8787d7;">ipos</span> := sort.<span style="color: #d75fd7; font-weight: bold;">SearchInts</span>(ints, -1)    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">int &#25628;&#32034;</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"pos of 5 is %d th\n"</span>, ipos)
+
+    <span style="color: #8787d7;">dpos</span> := sort.<span style="color: #d75fd7; font-weight: bold;">SearchFloat64s</span>(doubles, 20.1)    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">float64 &#25628;&#32034;</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"pos of 5.0 is %d th\n"</span>, dpos)
+
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"doubles is asc ? %v\n"</span>, sort.<span style="color: #d75fd7; font-weight: bold;">Float64sAreSorted</span>(doubles))
+
+    doubles = []<span style="color: #df005f; font-weight: bold;">float64</span>{3.5, 4.2, 8.9, 100.98, 20.14, 79.32}
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">sort.Sort(sort.Float64Slice(doubles))    // float64 &#25490;&#24207;&#26041;&#27861; 2</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">fmt.Println("after sort by Sort:\t", doubles)    // [3.5 4.2 8.9 20.14 79.32 100.98]</span>
+    (sort.<span style="color: #d75fd7; font-weight: bold;">Float64Slice</span>(doubles)).<span style="color: #d75fd7; font-weight: bold;">Sort</span>()         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">float64 &#25490;&#24207;&#26041;&#27861; 3</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"after sort by Sort:\t"</span>, doubles)       <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">[3.5 4.2 8.9 20.14 79.32 100.98]</span>
+
+    sort.<span style="color: #d75fd7; font-weight: bold;">Sort</span>(<span style="color: #df005f; font-weight: bold;">Reverse</span>{sort.<span style="color: #d75fd7; font-weight: bold;">Float64Slice</span>(doubles)})    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">float64 &#36870;&#24207;&#25490;&#24207;</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"after sort by Reversed Sort:\t"</span>, doubles)      <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">[100.98 79.32 20.14 8.9 4.2 3.5]</span>
+}
+</pre>
+</div>
+
+<p>
+sort.Ints / sort.Float64s / sort.Strings 分别来对整型/浮点型/字符串型slice进行排序。然后是有个测试是否有序的函数。还有分别对应的 search 函数，不过，发现搜索函数只能定位到如果存在的话的位置，不存在的话，位置是不对的。<br>
+</p>
+
+<p>
+关于一般的数组排序，程序中显示了，有 3 种方法！目前提供的三种类型 <code>int</code> ， <code>float64</code> 和 <code>string</code> 呈现对称的，也就是你有的，对应的我也有。关于翻转排序或是逆向排序，就是用个翻转结构体，重写 <code>Less()</code> 函数即可。上面的 Reverse 是个通用的结构体。<br>
+</p>
+
+<p>
+上面说了那么多， 只是对基本类型进行排序， 该到说说 struct 结构体类型的排序的时候了， 实际中这个用得到的会更多。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgfc271c9" class="outline-2">
+<h2 id="orgfc271c9">结构体类型的排序</h2>
+<div class="outline-text-2" id="text-orgfc271c9">
+<p>
+结构体类型的排序是通过使用 <code>sort.Sort(slice)</code> 实现的， 只要 slice 实现了 <code>sort.Interface</code> 的三个方法就可以。虽然这么说，但是排序的方法却有那么好几种。首先一种就是模拟排序 <code>[]int</code> 构造对应的 <code>IntSlice</code> 类型，然后对 <code>IntSlice</code> 类型实现 <code>Interface</code> 的三个方法。<br>
+</p>
+</div>
+<div id="outline-container-org5bd4e11" class="outline-3">
+<h3 id="org5bd4e11">1、模拟 IntSlice 排序</h3>
+<div class="outline-text-3" id="text-org5bd4e11">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"sort"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Person</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    Name <span style="color: #df005f; font-weight: bold;">string</span>
+    Age  <span style="color: #df005f; font-weight: bold;">int</span>
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25353;&#29031; Person.Age &#20174;&#22823;&#21040;&#23567;&#25490;&#24207;</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">PersonSlice</span> [] <span style="color: #df005f; font-weight: bold;">Person</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">a</span> <span style="color: #df005f; font-weight: bold;">PersonSlice</span>) <span style="color: #d75fd7; font-weight: bold;">Len</span>() <span style="color: #df005f; font-weight: bold;">int</span> {         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#37325;&#20889; Len() &#26041;&#27861;</span>
+    <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #268bd2;">len</span>(a)
+}
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">a</span> <span style="color: #df005f; font-weight: bold;">PersonSlice</span>) <span style="color: #d75fd7; font-weight: bold;">Swap</span>(<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">j</span> <span style="color: #df005f; font-weight: bold;">int</span>){     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#37325;&#20889; Swap() &#26041;&#27861;</span>
+    a[i], a[j] = a[j], a[i]
+}
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">a</span> <span style="color: #df005f; font-weight: bold;">PersonSlice</span>) <span style="color: #d75fd7; font-weight: bold;">Less</span>(<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">j</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">bool</span> {    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#37325;&#20889; Less() &#26041;&#27861;&#65292; &#20174;&#22823;&#21040;&#23567;&#25490;&#24207;</span>
+    <span style="color: #268bd2; font-weight: bold;">return</span> a[j].Age &lt; a[i].Age
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">people</span> := [] <span style="color: #df005f; font-weight: bold;">Person</span>{
+        {<span style="color: #2aa198;">"zhang san"</span>, 12},
+        {<span style="color: #2aa198;">"li si"</span>, 30},
+        {<span style="color: #2aa198;">"wang wu"</span>, 52},
+        {<span style="color: #2aa198;">"zhao liu"</span>, 26},
+    }
+
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(people)
+
+    sort.<span style="color: #d75fd7; font-weight: bold;">Sort</span>(<span style="color: #d75fd7; font-weight: bold;">PersonSlice</span>(people))    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25353;&#29031; Age &#30340;&#36870;&#24207;&#25490;&#24207;</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(people)
+
+    sort.<span style="color: #d75fd7; font-weight: bold;">Sort</span>(sort.<span style="color: #d75fd7; font-weight: bold;">Reverse</span>(<span style="color: #d75fd7; font-weight: bold;">PersonSlice</span>(people)))    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25353;&#29031; Age &#30340;&#21319;&#24207;&#25490;&#24207;</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(people)
+}
+</pre>
+</div>
+
+<p>
+这完全是一种模拟的方式，所以如果懂了 <code>IntSlice</code> 自然就理解这里了，反过来，理解了这里那么 <code>IntSlice</code> 那里也就懂了。<br>
+</p>
+
+<p>
+这种方法的缺点是：根据 <code>Age</code> 排序需要重新定义 <code>PersonSlice</code> 方法，绑定 Len 、 Less 和 Swap 方法， 如果需要根据 <code>Name</code> 排序， 又需要重新写三个函数； 如果结构体有 4 个字段，有四种类型的排序，那么就要写 3 × 4 = 12 个方法， 即使有一些完全是多余的， O__O”… 仔细思量一下，根据不同的标准 Age 或是 Name， 真正不同的体现在 Less 方法上，所以可以将 Less 抽象出来， 每种排序的 Less 让其变成动态的，比如下面一种方法。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc64e0d8" class="outline-3">
+<h3 id="orgc64e0d8">2、封装成 Wrapper</h3>
+<div class="outline-text-3" id="text-orgc64e0d8">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"sort"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Person</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    Name <span style="color: #df005f; font-weight: bold;">string</span>
+    Age  <span style="color: #df005f; font-weight: bold;">int</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">PersonWrapper</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {                 <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#27880;&#24847;&#27492;&#22788;</span>
+    people [] Person
+    by <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">p</span>, <span style="color: #8787d7;">q</span> * Person) <span style="color: #df005f; font-weight: bold;">bool</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">pw</span> <span style="color: #df005f; font-weight: bold;">PersonWrapper</span>) <span style="color: #d75fd7; font-weight: bold;">Len</span>() <span style="color: #df005f; font-weight: bold;">int</span> {         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#37325;&#20889; Len() &#26041;&#27861;</span>
+    <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #268bd2;">len</span>(pw.people)
+}
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">pw</span> <span style="color: #df005f; font-weight: bold;">PersonWrapper</span>) <span style="color: #d75fd7; font-weight: bold;">Swap</span>(<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">j</span> <span style="color: #df005f; font-weight: bold;">int</span>){     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#37325;&#20889; Swap() &#26041;&#27861;</span>
+    pw.people[i], pw.people[j] = pw.people[j], pw.people[i]
+}
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">pw</span> <span style="color: #df005f; font-weight: bold;">PersonWrapper</span>) <span style="color: #d75fd7; font-weight: bold;">Less</span>(<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">j</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">bool</span> {    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#37325;&#20889; Less() &#26041;&#27861;</span>
+    <span style="color: #268bd2; font-weight: bold;">return</span> pw.<span style="color: #d75fd7; font-weight: bold;">by</span>(&amp;pw.people[i], &amp;pw.people[j])
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">people</span> := [] <span style="color: #df005f; font-weight: bold;">Person</span>{
+        {<span style="color: #2aa198;">"zhang san"</span>, 12},
+        {<span style="color: #2aa198;">"li si"</span>, 30},
+        {<span style="color: #2aa198;">"wang wu"</span>, 52},
+        {<span style="color: #2aa198;">"zhao liu"</span>, 26},
+    }
+
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(people)
+
+    sort.<span style="color: #d75fd7; font-weight: bold;">Sort</span>(<span style="color: #df005f; font-weight: bold;">PersonWrapper</span>{people, <span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">p</span>, <span style="color: #8787d7;">q</span> *<span style="color: #df005f; font-weight: bold;">Person</span>) <span style="color: #df005f; font-weight: bold;">bool</span> {
+        <span style="color: #268bd2; font-weight: bold;">return</span> q.Age &lt; p.Age    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Age &#36882;&#20943;&#25490;&#24207;</span>
+    }})
+
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(people)
+    sort.<span style="color: #d75fd7; font-weight: bold;">Sort</span>(<span style="color: #df005f; font-weight: bold;">PersonWrapper</span>{people, <span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">p</span>, <span style="color: #8787d7;">q</span> *<span style="color: #df005f; font-weight: bold;">Person</span>) <span style="color: #df005f; font-weight: bold;">bool</span> {
+        <span style="color: #268bd2; font-weight: bold;">return</span> p.Name &lt; q.Name    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Name &#36882;&#22686;&#25490;&#24207;</span>
+    }})
+
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(people)
+}
+</pre>
+</div>
+
+<p>
+这种方法将 <code>[]Person</code> 和比较的准则 cmp 封装在了一起，形成了 PersonWrapper 函数，然后在其上绑定 Len 、 Less 和 Swap 方法。 实际上 <code>sort.Sort(pw)</code> 排序的是 pw 中的 people，这就是前面说的，go 的排序未必就是针对的一个数组或是 slice，而可以是一个对象中的数组或是 slice。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org50c2b1e" class="outline-3">
+<h3 id="org50c2b1e">3、进一步封装</h3>
+<div class="outline-text-3" id="text-org50c2b1e">
+<p>
+感觉方法 2 已经很不错了，唯一一个缺点是，在 main 中使用的时候暴露了 <code>sort.Sort</code> 的使用，还有就是 <code>PersonWrapper</code> 的构造。为了让 main 中使用起来更为方便， me 们可以再简单的封装一下，构造一个 <code>SortPerson</code> 方法，如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"sort"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Person</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    Name <span style="color: #df005f; font-weight: bold;">string</span>
+    Age  <span style="color: #df005f; font-weight: bold;">int</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">PersonWrapper</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    people [] Person
+    by <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">p</span>, <span style="color: #8787d7;">q</span> * Person) <span style="color: #df005f; font-weight: bold;">bool</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">SortBy</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">p</span>, <span style="color: #8787d7;">q</span> *<span style="color: #df005f; font-weight: bold;">Person</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">pw</span> <span style="color: #df005f; font-weight: bold;">PersonWrapper</span>) <span style="color: #d75fd7; font-weight: bold;">Len</span>() <span style="color: #df005f; font-weight: bold;">int</span> {         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#37325;&#20889; Len() &#26041;&#27861;</span>
+    <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #268bd2;">len</span>(pw.people)
+}
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">pw</span> <span style="color: #df005f; font-weight: bold;">PersonWrapper</span>) <span style="color: #d75fd7; font-weight: bold;">Swap</span>(<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">j</span> <span style="color: #df005f; font-weight: bold;">int</span>){         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#37325;&#20889; Swap() &#26041;&#27861;</span>
+    pw.people[i], pw.people[j] = pw.people[j], pw.people[i]
+}
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">pw</span> <span style="color: #df005f; font-weight: bold;">PersonWrapper</span>) <span style="color: #d75fd7; font-weight: bold;">Less</span>(<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">j</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">bool</span> {    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#37325;&#20889; Less() &#26041;&#27861;</span>
+    <span style="color: #268bd2; font-weight: bold;">return</span> pw.<span style="color: #d75fd7; font-weight: bold;">by</span>(&amp;pw.people[i], &amp;pw.people[j])
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23553;&#35013;&#25104; SortPerson &#26041;&#27861;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">SortPerson</span>(<span style="color: #8787d7;">people</span> [] Person, <span style="color: #8787d7;">by</span> <span style="color: #df005f; font-weight: bold;">SortBy</span>){
+    sort.<span style="color: #d75fd7; font-weight: bold;">Sort</span>(<span style="color: #df005f; font-weight: bold;">PersonWrapper</span>{people, by})
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">people</span> := [] <span style="color: #df005f; font-weight: bold;">Person</span>{
+        {<span style="color: #2aa198;">"zhang san"</span>, 12},
+        {<span style="color: #2aa198;">"li si"</span>, 30},
+        {<span style="color: #2aa198;">"wang wu"</span>, 52},
+        {<span style="color: #2aa198;">"zhao liu"</span>, 26},
+    }
+
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(people)
+
+    sort.<span style="color: #d75fd7; font-weight: bold;">Sort</span>(<span style="color: #df005f; font-weight: bold;">PersonWrapper</span>{people, <span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">p</span>, <span style="color: #8787d7;">q</span> *<span style="color: #df005f; font-weight: bold;">Person</span>) <span style="color: #df005f; font-weight: bold;">bool</span> {
+        <span style="color: #268bd2; font-weight: bold;">return</span> q.Age &lt; p.Age    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Age &#36882;&#20943;&#25490;&#24207;</span>
+    }})
+
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(people)
+
+    <span style="color: #d75fd7; font-weight: bold;">SortPerson</span>(people, <span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">p</span>, <span style="color: #8787d7;">q</span> *<span style="color: #df005f; font-weight: bold;">Person</span>) <span style="color: #df005f; font-weight: bold;">bool</span> {
+        <span style="color: #268bd2; font-weight: bold;">return</span> p.Name &lt; q.Name    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Name &#36882;&#22686;&#25490;&#24207;</span>
+    })
+
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(people)
+}
+</pre>
+</div>
+
+<p>
+在方法 2 的基础上构造了 <code>SortPerson</code> 函数，使用的时候传过去一个 <code>[]Person</code> 和一个 cmp 函数。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb6922d1" class="outline-3">
+<h3 id="orgb6922d1">4、另一种思路</h3>
+<div class="outline-text-3" id="text-orgb6922d1">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"sort"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Person</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    Name        <span style="color: #df005f; font-weight: bold;">string</span>
+    Weight      <span style="color: #df005f; font-weight: bold;">int</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">PersonSlice</span> []<span style="color: #df005f; font-weight: bold;">Person</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">PersonSlice</span>) <span style="color: #d75fd7; font-weight: bold;">Len</span>() <span style="color: #df005f; font-weight: bold;">int</span>  { <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #268bd2;">len</span>(s) }
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">PersonSlice</span>) <span style="color: #d75fd7; font-weight: bold;">Swap</span>(<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">j</span> <span style="color: #df005f; font-weight: bold;">int</span>)     { s[i], s[j] = s[j], s[i] }
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">ByName</span> <span style="color: #268bd2; font-weight: bold;">struct</span>{ PersonSlice }    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23558; PersonSlice &#21253;&#35013;&#36215;&#26469;&#21040; ByName &#20013;</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">ByName</span>) <span style="color: #d75fd7; font-weight: bold;">Less</span>(<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">j</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">bool</span>     { <span style="color: #268bd2; font-weight: bold;">return</span> s.PersonSlice[i].Name &lt; s.PersonSlice[j].Name }    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23558; Less &#32465;&#23450;&#21040; ByName &#19978;</span>
+
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">ByWeight</span> <span style="color: #268bd2; font-weight: bold;">struct</span>{ PersonSlice }    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23558; PersonSlice &#21253;&#35013;&#36215;&#26469;&#21040; ByWeight &#20013;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">ByWeight</span>) <span style="color: #d75fd7; font-weight: bold;">Less</span>(<span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">j</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">bool</span>   { <span style="color: #268bd2; font-weight: bold;">return</span> s.PersonSlice[i].Weight &lt; s.PersonSlice[j].Weight }    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23558; Less &#32465;&#23450;&#21040; ByWeight &#19978;</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">s</span> := []<span style="color: #df005f; font-weight: bold;">Person</span>{
+        {<span style="color: #2aa198;">"apple"</span>, 12},
+        {<span style="color: #2aa198;">"pear"</span>, 20},
+        {<span style="color: #2aa198;">"banana"</span>, 50},
+        {<span style="color: #2aa198;">"orange"</span>, 87},
+        {<span style="color: #2aa198;">"hello"</span>, 34},
+        {<span style="color: #2aa198;">"world"</span>, 43},
+    }
+
+    sort.<span style="color: #d75fd7; font-weight: bold;">Sort</span>(<span style="color: #df005f; font-weight: bold;">ByWeight</span>{s})
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"People by weight:"</span>)
+    <span style="color: #d75fd7; font-weight: bold;">printPeople</span>(s)
+
+    sort.<span style="color: #d75fd7; font-weight: bold;">Sort</span>(<span style="color: #df005f; font-weight: bold;">ByName</span>{s})
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"\nPeople by name:"</span>)
+    <span style="color: #d75fd7; font-weight: bold;">printPeople</span>(s)
+
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">printPeople</span>(<span style="color: #8787d7;">s</span> []<span style="color: #df005f; font-weight: bold;">Person</span>) {
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">_</span>, <span style="color: #8787d7;">o</span> := <span style="color: #268bd2; font-weight: bold;">range</span> s {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%-8s (%v)\n"</span>, o.Name, o.Weight)
+    }
+}
+</pre>
+</div>
+
+<p>
+对结构体的排序， 暂时就到这里。 第一种排序对只根据一个字段的比较合适， 另外三个是针对可能根据多个字段排序的。方法 4 我认为每次都要多构造一个 ByXXX，颇为不便，这样多麻烦，不如方法 2 和方法 3 来的方便，直接传进去一个 cmp。方法 2、3 没有太大的差别，3 只是简单封装了一下而已，对于使用者来说，可能会更方便一些，而且也会更少的出错。<br>
+</p>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-05-02 03:05 Mon</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-05-02 Mon 13:20</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

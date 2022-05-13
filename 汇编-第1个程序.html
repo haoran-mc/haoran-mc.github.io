@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-04-19 Tue 14:53 -->
+<!-- 2022-04-19 Tue 22:29 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>汇编、第1个程序</title>
@@ -22,7 +22,18 @@
 <div id="text-table-of-contents">
 <ul>
 <li><a href="#org61e5145">1、编辑源程序</a></li>
-<li><a href="#org8ebfd76">2、编译</a></li>
+<li><a href="#orgf48de02">2、C 盘映射</a></li>
+<li><a href="#org57f9439">3、编译</a>
+<ul>
+<li><a href="#orgb27f902">更简单的编译</a></li>
+</ul>
+</li>
+<li><a href="#org9f88dc2">4、连接</a>
+<ul>
+<li><a href="#org1032a76">更简单的连接</a></li>
+</ul>
+</li>
+<li><a href="#orgea3b5a4">5、运行</a></li>
 </ul>
 </div>
 </div>
@@ -55,19 +66,134 @@
 </div>
 
 <p>
-将程序保存为文件 <code>C:\masm5\prog\1.asm</code> 什么位置不重要，只要和下面的路径保持一致就可以。<br>
+将程序保存为文件 <code>C:\masm5\prog\1.asm</code> 下面会说到为什么选择这样一个目录。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org8ebfd76" class="outline-2">
-<h2 id="org8ebfd76">2、编译</h2>
-<div class="outline-text-2" id="text-org8ebfd76">
+<div id="outline-container-orgf48de02" class="outline-2">
+<h2 id="orgf48de02">2、C 盘映射</h2>
+<div class="outline-text-2" id="text-orgf48de02">
 <p>
-在完成对源程序的编辑后，我们得到一个源程序文件 <code>C:\masm5\prog\1.asm</code> ，我们可以对其进行编译，生成包含机器代码的目标文件。<br>
+我们在编译一个源程序之前首先要找到一个相应的编辑器，这里采用微软的 masm5.0 汇编编译器，文件名为 MASM.exe（作者的汇编编译器在 <code>C:\masm5</code> 目录下，所以源程序就需要放在 <code>C:\masm5</code> 目录下或者子目录下）<br>
 </p>
 
 <p>
-我们在编译一个源程序之前首先要找到一个相应的编辑器，这里采用微软的 masm5.0 汇编编译器，文件名为 MASM.exe（正是因为作者的汇编编译器在<br>
+打开 Dos，然后使用以下命令将 <code>C:\masm5</code> 目录映射为 <code>C</code> 盘，然后进入 <code>C</code> 盘，也就是 <code>masm5</code> 目录下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-asm"><span style="color: #d75fd7; font-weight: bold;">$</span> <span style="color: #268bd2; font-weight: bold;">mount</span> c: c:\masm5
+<span style="color: #d75fd7; font-weight: bold;">$</span> <span style="color: #268bd2; font-weight: bold;">c</span>:
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org57f9439" class="outline-2">
+<h2 id="org57f9439">3、编译</h2>
+<div class="outline-text-2" id="text-org57f9439">
+<div class="org-src-container">
+<pre class="src src-asm"><span style="color: #d75fd7; font-weight: bold;">$</span> <span style="color: #268bd2; font-weight: bold;">masm</span> .\prog\1.asm
+</pre>
+</div>
+
+<p>
+这时会让你选择 <code>.obj</code> 、 <code>.lst</code> 、 <code>.crf</code> 这三个生成文件的文件名，如果直接回车的话，只会在 <code>C:\masm5</code> 目录下生成 <code>1.obj</code> ，我们目前也只需要 <code>.obj</code> 文件，这里我们指定在我们自定义的目录 <code>.\prog</code> 下生成 <code>.obj</code> 文件：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">$ C:<span style="color: #2aa198;">\&gt;</span>masm .\prog\1.asm
+<span style="color: #d75fd7; font-weight: bold;">Microsoft</span> (R) Macro Assembler Version 5.00
+<span style="color: #d75fd7; font-weight: bold;">Copyright</span> (C) Microsoft Corp 1981-1985, 1987. All right reserved.
+
+Object filename [1.OBJ]: .\prog\1.obj             <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#36873;&#25321;&#22312; prog &#23376;&#30446;&#24405;&#19979;&#29983;&#25104; obj &#25991;&#20214;</span>
+Source listing  [NUL.LST]:                        <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#29992;&#19981;&#21040; .lst &#25991;&#20214;&#65292;&#30452;&#25509;&#22238;&#36710;&#23601;&#22909;</span>
+Cross-reference [NUL.CRF]:
+
+    50684 + 465860 Bytes symbol space free
+
+        0 Warning Errors
+        0 Severe  Errors
+</pre>
+</div>
+</div>
+<div id="outline-container-orgb27f902" class="outline-3">
+<h3 id="orgb27f902">更简单的编译</h3>
+<div class="outline-text-3" id="text-orgb27f902">
+<div class="org-src-container">
+<pre class="src src-bash">$ C:<span style="color: #2aa198;">\&gt;</span>masm .\prog\1.asm;
+<span style="color: #d75fd7; font-weight: bold;">Microsoft</span> (R) Macro Assembler Version 5.00
+<span style="color: #d75fd7; font-weight: bold;">Copyright</span> (C) Microsoft Corp 1981-1985, 1987. All right reserved.
+
+    51802 + 464742 Bytes symbol space free
+
+        0 Warning Errors
+        0 Severe  Errors
+</pre>
+</div>
+
+<p>
+在命令后加上分号 <code>;</code> ，这样就不会提示选择 <code>obj</code> 等文件的文件名，而是直接在 <code>C:</code> （即 <code>C:\masm5</code> ）下生成 <code>obj</code> 文件，文件名就使用 <code>asm</code> 的文件名。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org9f88dc2" class="outline-2">
+<h2 id="org9f88dc2">4、连接</h2>
+<div class="outline-text-2" id="text-org9f88dc2">
+<p>
+将上一步生成的 <code>obj</code> 文件连接成 <code>exe</code> 文件：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">$ c:<span style="color: #2aa198;">\&gt;</span> link .\prog\1.obj
+
+<span style="color: #d75fd7; font-weight: bold;">Microsoft</span> (R) Overlay Linker Version 3.60
+<span style="color: #d75fd7; font-weight: bold;">Copyright</span> (C) Microsoft Corp 1983-1987. All rights reserved.
+
+Run File [1.EXE]: .\prog\1.exe
+List File [NUL.MAP]:
+Libraries [.LIB]:
+LINK : warning L4021: nostack segment
+</pre>
+</div>
+</div>
+<div id="outline-container-org1032a76" class="outline-3">
+<h3 id="org1032a76">更简单的连接</h3>
+<div class="outline-text-3" id="text-org1032a76">
+<div class="org-src-container">
+<pre class="src src-bash">$ c:<span style="color: #2aa198;">\&gt;</span> link .\prog\1.obj;
+
+<span style="color: #d75fd7; font-weight: bold;">Microsoft</span> (R) Overlay Linker Version 3.60
+<span style="color: #d75fd7; font-weight: bold;">Copyright</span> (C) Microsoft Corp 1983-1987. All rights reserved.
+
+LINK : warning L4021: nostack segment
+</pre>
+</div>
+
+<p>
+同样在命令后添加分号 <code>;</code> ，直接在 <code>C:</code> （即 <code>C:\masm5</code> ）下生成 <code>exe</code> 文件，文件名就使用 <code>obj</code> 的文件名。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgea3b5a4" class="outline-2">
+<h2 id="orgea3b5a4">5、运行</h2>
+<div class="outline-text-2" id="text-orgea3b5a4">
+<p>
+运行 <code>.exe</code> 文件：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">$ .\prog\1.exe
+</pre>
+</div>
+
+<p>
+程序运行后，竟然没有任何结果，就和没有运行一样，那么，程序到底有没有运行呢？<br>
+</p>
+
+<p>
+程序是运行了的，只是从屏幕上不可能看到任何运行结果，因为我们的程序根本没有向显示器输出任何信息。程序只是做了一些将数据送入寄存器和加法的操作，而这些事情，我们不可能从显示屏上看出来。程序执行完成后，返回，屏幕上再次出现操作系统的提示符。<br>
 </p>
 </div>
 </div>
@@ -75,7 +201,7 @@
 <div id="postamble" class="status">
 <p class="date">Date: 2022-04-19 14:04 Tue</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-04-19 Tue 14:53</p>
+<p class="date">Created: 2022-04-19 Tue 22:29</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
