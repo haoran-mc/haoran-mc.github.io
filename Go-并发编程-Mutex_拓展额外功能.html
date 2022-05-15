@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-05-13 Fri 09:22 -->
+<!-- 2022-05-14 Sat 15:39 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mutex 拓展额外功能</title>
@@ -36,27 +36,300 @@
 <p>
 在一些特定的场景中，互斥锁的基础功能是不足以应对的，这个时候，我们就需要开发一些扩展功能。<br>
 </p>
+
+<p>
+比如说，我们知道，如果互斥锁被某个 goroutine 获取了，而且还没有释放，那么，其他请求这把锁的 goroutine，就会阻塞等待，直到有机会获得这把锁。有时候阻塞并不是一个很好的主意，比如你请求锁更新一个计数器，如果获取不到锁的话没必要等待，大不了这次不更新，我下次更新就好了，如果阻塞的话会导致业务处理能力的下降。<br>
+</p>
+
+<p>
+再比如，如果我们要监控锁的竞争情况，一个监控指标就是，等待这把锁的 goroutine 数量。我们可以把这个指标推送到时间序列数据库中，再通过一些监控系统（比如 Grafana）展示出来。要知道，锁是性能下降的“罪魁祸首”之一，所以，有效地降低锁的竞争，就能够很好地提高性能。因此，监控关键互斥锁上等待的 goroutine 的数量，是我们分析锁竞争的激烈程度的一个重要指标。<br>
+</p>
+
+<p>
+实际上，不论是不希望锁的 goroutine 继续等待，还是想监控锁，我们都可以基于标准库中 Mutex 的实现，通过 Hacker 的方式，为 Mutex 增加一些额外的功能。<br>
+</p>
 </div>
 </div>
-
-
 <div id="outline-container-orgf0fd6cc" class="outline-2">
 <h2 id="orgf0fd6cc">TryLock</h2>
+<div class="outline-text-2" id="text-orgf0fd6cc">
+<p>
+我们可以为 Mutex 添加一个 TryLock 的方法，也就是尝试获取排外锁。PS：在 Go 1.18 官方标准库中，已经为 Mutex/RWMutex 增加了 TryLock 方法。<br>
+</p>
+
+<p>
+这个方法具体是什么意思呢？当一个 goroutine 调用这个 TryLock 方法请求锁的时候，如果这把锁没有被其他 goroutine 所持有，那么，这个 goroutine 就持有了这把锁，并返回 true；如果这把锁已经被其他 goroutine 所持有，或者是正在准备交给某个被唤醒的 goroutine，那么，这个请求锁的 goroutine 就直接返回 false，不会阻塞在方法调用上。<br>
+</p>
+
+<p>
+如下图所示，如果 Mutex 已经被一个 goroutine 持有，调用 Lock 的 goroutine 阻塞排队等待，调用 TryLock 的 goroutine 直接得到一个 false 返回。<br>
+</p>
+
+<div class="div-center">
+	<img src="./images/Go-并发编程-TryLock.webp" width="620px" />
+</div>
+
+<p>
+在实际开发中，如果要更新配置数据，我们通常需要加锁，这样可以避免同时有多个 goroutine 并发修改数据。有的时候，我们也会使用 <code>TryLock</code> 。这样一来，当某个 goroutine 想要更改配置数据时，如果发现已经有 goroutine 在更改了，其他的 goroutine 调用 <code>TryLock</code> ，返回了 false，这个 goroutine 就会放弃更改。<br>
+</p>
+
+<p>
+很多语言（比如 Java）都为锁提供了 <code>TryLock</code> 的方法，但是，Go 官方 <a href="https://github.com/golang/go/issues/6123">issue 6123</a> 有一个讨论（后来一些 issue 中也提到过），标准库的 Mutex 不会添加 <code>TryLock</code> 方法。虽然通过 Go 的 <code>Channel</code> 我们也可以实现 <code>TryLock</code> 的功能，但是基于 <code>Channel</code> 的实现我们会放在 <code>Channel</code> 那一讲中去介绍，这一次我们还是基于 <code>Mutex</code> 去实现，毕竟大部分的程序员还是熟悉传统的同步原语，而且传统的同步原语也不容易出错。所以这节课，还是希望带你掌握基于 <code>Mutex</code> 实现的方法。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22797;&#21046;Mutex&#23450;&#20041;&#30340;&#24120;&#37327;</span>
+<span style="color: #268bd2; font-weight: bold;">const</span> (
+    <span style="color: #d75fd7;">mutexLocked</span> = 1 &lt;&lt; <span style="color: #d75fd7;">iota</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21152;&#38145;&#26631;&#35782;&#20301;&#32622;</span>
+    <span style="color: #d75fd7;">mutexWoken</span>              <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21796;&#37266;&#26631;&#35782;&#20301;&#32622;</span>
+    <span style="color: #d75fd7;">mutexStarving</span>           <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#38145;&#39269;&#39295;&#26631;&#35782;&#20301;&#32622;</span>
+    <span style="color: #d75fd7;">mutexWaiterShift</span> = <span style="color: #d75fd7;">iota</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26631;&#35782;waiter&#30340;&#36215;&#22987;bit&#20301;&#32622;</span>
+)
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25193;&#23637;&#19968;&#20010;Mutex&#32467;&#26500;</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Mutex</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    sync.Mutex
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23581;&#35797;&#33719;&#21462;&#38145;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">m</span> *<span style="color: #df005f; font-weight: bold;">Mutex</span>) <span style="color: #d75fd7; font-weight: bold;">TryLock</span>() <span style="color: #df005f; font-weight: bold;">bool</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#33021;&#25104;&#21151;&#25250;&#21040;&#38145;</span>
+    <span style="color: #268bd2; font-weight: bold;">if</span> atomic.<span style="color: #d75fd7; font-weight: bold;">CompareAndSwapInt32</span>((*int32)(unsafe.<span style="color: #d75fd7; font-weight: bold;">Pointer</span>(&amp;m.Mutex)), 0, mutexLocked) {
+        <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">true</span>
+    }
+
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#22788;&#20110;&#21796;&#37266;&#12289;&#21152;&#38145;&#25110;&#32773;&#39269;&#39295;&#29366;&#24577;&#65292;&#36825;&#27425;&#35831;&#27714;&#23601;&#19981;&#21442;&#19982;&#31454;&#20105;&#20102;&#65292;&#36820;&#22238;false</span>
+    <span style="color: #8787d7;">old</span> := atomic.<span style="color: #d75fd7; font-weight: bold;">LoadInt32</span>((*int32)(unsafe.<span style="color: #d75fd7; font-weight: bold;">Pointer</span>(&amp;m.Mutex)))
+    <span style="color: #268bd2; font-weight: bold;">if</span> old&amp;(mutexLocked|mutexStarving|mutexWoken) != 0 {
+        <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">false</span>
+    }
+
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23581;&#35797;&#22312;&#31454;&#20105;&#30340;&#29366;&#24577;&#19979;&#35831;&#27714;&#38145;</span>
+    <span style="color: #8787d7;">new</span> := old | mutexLocked
+    <span style="color: #268bd2; font-weight: bold;">return</span> atomic.<span style="color: #d75fd7; font-weight: bold;">CompareAndSwapInt32</span>((*int32)(unsafe.<span style="color: #d75fd7; font-weight: bold;">Pointer</span>(&amp;m.Mutex)), old, new)
+}   
+</pre>
+</div>
+
+<p>
+第 17 行是一个 fast path，如果幸运，没有其他 goroutine 争这把锁，那么，这把锁就会被这个请求的 goroutine 获取，直接返回。<br>
+</p>
+
+<p>
+如果锁已经被其他 goroutine 所持有，或者被其他唤醒的 goroutine 准备持有，那么，就直接返回 false，不再请求，代码逻辑在第 23 行。<br>
+</p>
+
+<p>
+如果没有被持有，也没有其它唤醒的 goroutine 来竞争锁，锁也不处于饥饿状态，就尝试获取这把锁（第 29 行），不论是否成功都将结果返回。因为，这个时候，可能还有其他的 goroutine 也在竞争这把锁，所以，不能保证成功获取这把锁。<br>
+</p>
+
+<p>
+我们可以写一个简单的测试程序，来测试我们的 TryLock 的机制是否工作。<br>
+</p>
+
+<p>
+这个测试程序的工作机制是这样子的：程序运行时会启动一个 goroutine 持有这把我们自己实现的锁，经过随机的时间才释放。主 goroutine 会尝试获取这把锁。如果前一个 goroutine 一秒内释放了这把锁，那么，主 goroutine 就有可能获取到这把锁了，输出“got the lock”，否则没有获取到也不会被阻塞，会直接输出“can't get the lock”。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">try</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">mu</span> <span style="color: #df005f; font-weight: bold;">Mutex</span>
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() { <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21551;&#21160;&#19968;&#20010;goroutine&#25345;&#26377;&#19968;&#27573;&#26102;&#38388;&#30340;&#38145;</span>
+        mu.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+        time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(time.<span style="color: #d75fd7; font-weight: bold;">Duration</span>(rand.<span style="color: #d75fd7; font-weight: bold;">Intn</span>(2)) * time.Second)
+        mu.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+    }()
+
+    time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(time.Second)
+
+    <span style="color: #8787d7;">ok</span> := mu.<span style="color: #d75fd7; font-weight: bold;">TryLock</span>() <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23581;&#35797;&#33719;&#21462;&#21040;&#38145;</span>
+    <span style="color: #268bd2; font-weight: bold;">if</span> ok { <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#33719;&#21462;&#25104;&#21151;</span>
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"got the lock"</span>)
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">do something</span>
+        mu.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+        <span style="color: #268bd2; font-weight: bold;">return</span>
+    }
+
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#27809;&#26377;&#33719;&#21462;&#21040;</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"can't get the lock"</span>)
+}
+</pre>
+</div>
+</div>
 </div>
 <div id="outline-container-org8206f29" class="outline-2">
 <h2 id="org8206f29">获取等待者的数量等指标</h2>
+<div class="outline-text-2" id="text-org8206f29">
+<p>
+回顾 <code>Mutex</code> 的数据结构，它包含两个字段， <code>state</code> 和 <code>sema</code> ，前四个字节就是 <code>state</code> 字段。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Mutex</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    state <span style="color: #df005f; font-weight: bold;">int32</span>
+    sema  <span style="color: #df005f; font-weight: bold;">uint32</span>
+}
+</pre>
+</div>
+
+<p>
+<code>Mutex</code> 结构中的 <code>state</code> 字段有很多个含义，通过 <code>state</code> 字段，你可以知道锁是否已经被某个 goroutine 持有、当前是否处于饥饿状态、是否有等待的 goroutine 被唤醒、等待者的数量等信息。但是， <code>state</code> 这个字段并没有暴露出来，所以，我们需要想办法获取到这个字段，并进行解析。<br>
+</p>
+
+<p>
+怎么获取未暴露的字段呢？很简单，我们可以通过 <code>unsafe</code> 的方式实现。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">const</span> (
+    <span style="color: #d75fd7;">mutexLocked</span> = 1 &lt;&lt; <span style="color: #d75fd7;">iota</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">mutex is locked</span>
+    <span style="color: #d75fd7;">mutexWoken</span>
+    <span style="color: #d75fd7;">mutexStarving</span>
+    <span style="color: #d75fd7;">mutexWaiterShift</span> = <span style="color: #d75fd7;">iota</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Mutex</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    sync.Mutex
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">m</span> *<span style="color: #df005f; font-weight: bold;">Mutex</span>) <span style="color: #d75fd7; font-weight: bold;">Count</span>() <span style="color: #df005f; font-weight: bold;">int</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#33719;&#21462; state &#23383;&#27573;&#30340;&#20540;</span>
+    <span style="color: #8787d7;">v</span> := atomic.<span style="color: #d75fd7; font-weight: bold;">LoadInt32</span>((*int32)(unsafe.<span style="color: #d75fd7; font-weight: bold;">Pointer</span>(&amp;m.Mutex)))
+    v = (v &gt;&gt; mutexWaiterShift) + (v &amp; mutexLocked)   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#31561;&#24453;&#30528;&#30340;&#25968;&#37327; + &#25345;&#26377;&#38145;&#30340;&#25968;&#37327;&#65288;0 &#25110;&#32773; 1&#65289;</span>
+    <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7; font-weight: bold;">int</span>(v)
+}
+</pre>
+</div>
+
+<p>
+这个例子的第 14 行通过 <code>unsafe</code> 操作，我们可以得到 <code>state</code> 字段的值。第 15 行我们右移三位（这里的常量 <code>mutexWaiterShift</code> 的值为 3），就得到了当前等待者的数量。如果当前的锁已经被其他 goroutine 持有，那么，我们就稍微调整一下这个值，加上一个 1（第 16 行），你基本上可以把它看作是当前持有和等待这把锁的 goroutine 的总数。<br>
+</p>
+
+<p>
+<code>state</code> 这个字段的第一位是用来标记锁是否被持有，第二位用来标记是否已经唤醒了一个等待者，第三位标记锁是否处于饥饿状态，通过分析这个 <code>state</code> 字段我们就可以得到这些状态信息。我们可以为这些状态提供查询的方法，这样就可以实时地知道锁的状态了。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#38145;&#26159;&#21542;&#34987;&#25345;&#26377;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">m</span> *<span style="color: #df005f; font-weight: bold;">Mutex</span>) <span style="color: #d75fd7; font-weight: bold;">IsLocked</span>() <span style="color: #df005f; font-weight: bold;">bool</span> {
+    <span style="color: #8787d7;">state</span> := atomic.<span style="color: #d75fd7; font-weight: bold;">LoadInt32</span>((*int32)(unsafe.<span style="color: #d75fd7; font-weight: bold;">Pointer</span>(&amp;m.Mutex)))
+    <span style="color: #268bd2; font-weight: bold;">return</span> state&amp;mutexLocked == mutexLocked
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26159;&#21542;&#26377;&#31561;&#24453;&#32773;&#34987;&#21796;&#37266;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">m</span> *<span style="color: #df005f; font-weight: bold;">Mutex</span>) <span style="color: #d75fd7; font-weight: bold;">IsWoken</span>() <span style="color: #df005f; font-weight: bold;">bool</span> {
+    <span style="color: #8787d7;">state</span> := atomic.<span style="color: #d75fd7; font-weight: bold;">LoadInt32</span>((*int32)(unsafe.<span style="color: #d75fd7; font-weight: bold;">Pointer</span>(&amp;m.Mutex)))
+    <span style="color: #268bd2; font-weight: bold;">return</span> state&amp;mutexWoken == mutexWoken
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#38145;&#26159;&#21542;&#22788;&#20110;&#39269;&#39295;&#29366;&#24577;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">m</span> *<span style="color: #df005f; font-weight: bold;">Mutex</span>) <span style="color: #d75fd7; font-weight: bold;">IsStarving</span>() <span style="color: #df005f; font-weight: bold;">bool</span> {
+    <span style="color: #8787d7;">state</span> := atomic.<span style="color: #d75fd7; font-weight: bold;">LoadInt32</span>((*int32)(unsafe.<span style="color: #d75fd7; font-weight: bold;">Pointer</span>(&amp;m.Mutex)))
+    <span style="color: #268bd2; font-weight: bold;">return</span> state&amp;mutexStarving == mutexStarving
+}
+</pre>
+</div>
+
+<p>
+我们可以写一个程序测试一下，比如，在 1000 个 goroutine 并发访问的情况下，我们可以把锁的状态信息输出出来：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">count</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">mu</span> <span style="color: #df005f; font-weight: bold;">Mutex</span>
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := 0; i &lt; 1000; i++ { <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21551;&#21160;1000&#20010;goroutine</span>
+        <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+            mu.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+            time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(time.Second)
+            mu.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+        }()
+    }
+
+    time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(time.Second)
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36755;&#20986;&#38145;&#30340;&#20449;&#24687;</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"waitings: %d, isLocked: %t, woken: %t,  starving: %t\n"</span>, mu.<span style="color: #d75fd7; font-weight: bold;">Count</span>(), mu.<span style="color: #d75fd7; font-weight: bold;">IsLocked</span>(), mu.<span style="color: #d75fd7; font-weight: bold;">IsWoken</span>(), mu.<span style="color: #d75fd7; font-weight: bold;">IsStarving</span>())
+}
+</pre>
+</div>
+
+<p>
+有一点需要注意一下，在获取 <code>state</code> 字段的时候，并没有通过 <code>Lock</code> 获取这把锁，所以获取的这个 <code>state</code> 的值是一个瞬态的值，可能在你解析出这个字段之后，锁的状态已经发生了变化。不过没关系，因为你查看的就是调用的那一时刻的锁的状态。<br>
+</p>
+</div>
 </div>
 <div id="outline-container-org4834981" class="outline-2">
 <h2 id="org4834981">使用 Mutex 实现一个线程安全的队列</h2>
+<div class="outline-text-2" id="text-org4834981">
+<p>
+为什么要讨论这个话题呢？因为 <code>Mutex</code> 经常会和其他非线程安全（对于 Go 来说，我们其实指的是 goroutine 安全）的数据结构一起，组合成一个线程安全的数据结构。新数据结构的业务逻辑由原来的数据结构提供， <span class="underline">而 <code>Mutex</code> 提供了锁的机制，来保证线程安全</span> 。<br>
+</p>
+
+<p>
+比如队列，我们可以通过 <code>Slice</code> 来实现，但是通过 <code>Slice</code> 实现的队列不是线程安全的，出队（Dequeue）和入队（Enqueue）会有 data race 的问题。这个时候， <code>Mutex</code> 就要隆重出场了，通过它，我们可以在出队和入队的时候加上锁的保护。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">SliceQueue</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    data []<span style="color: #268bd2; font-weight: bold;">interface</span>{}
+    mu   <span style="color: #df005f; font-weight: bold;">sync.Mutex</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">NewSliceQueue</span>(<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>) (<span style="color: #8787d7;">q</span> *<span style="color: #df005f; font-weight: bold;">SliceQueue</span>) {
+    <span style="color: #268bd2; font-weight: bold;">return</span> &amp;<span style="color: #df005f; font-weight: bold;">SliceQueue</span>{<span style="color: #d75fd7;">data</span>: <span style="color: #268bd2;">make</span>([]<span style="color: #268bd2; font-weight: bold;">interface</span>{}, 0, n)}
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Enqueue &#25226;&#20540;&#25918;&#22312;&#38431;&#23614;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">q</span> *<span style="color: #df005f; font-weight: bold;">SliceQueue</span>) <span style="color: #d75fd7; font-weight: bold;">Enqueue</span>(<span style="color: #8787d7;">v</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}) {
+    q.mu.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+    q.data = <span style="color: #268bd2;">append</span>(q.data, v)
+    q.mu.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Dequeue &#31227;&#21435;&#38431;&#22836;&#24182;&#36820;&#22238;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">q</span> *<span style="color: #df005f; font-weight: bold;">SliceQueue</span>) <span style="color: #d75fd7; font-weight: bold;">Dequeue</span>() <span style="color: #268bd2; font-weight: bold;">interface</span>{} {
+    q.mu.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #268bd2;">len</span>(q.data) == 0 {
+        q.mu.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+        <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">nil</span>
+    }
+    <span style="color: #8787d7;">v</span> := q.data[0]
+    q.data = q.data[1:]
+    q.mu.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+    <span style="color: #268bd2; font-weight: bold;">return</span> v
+}
+</pre>
+</div>
+
+<p>
+因为标准库中没有线程安全的队列数据结构的实现，所以，你可以通过 Mutex 实现一个简单的队列。通过 Mutex 我们就可以为一个非线程安全的 data interface{}实现线程安全的访问。<br>
+</p>
+</div>
 </div>
 <div id="outline-container-org19ee5c9" class="outline-2">
 <h2 id="org19ee5c9">总结</h2>
+<div class="outline-text-2" id="text-org19ee5c9">
+<p>
+Mutex 是 package sync 的基石，其他的一些同步原语也是基于它实现的，所以，我们“隆重”地用了四讲来深度学习它。学到后面，你一定能感受到，多花些时间来完全掌握 Mutex 是值得的。<br>
+</p>
+
+<p>
+今天这一讲我和你分享了几个 Mutex 的拓展功能，这些方法是不是给你带来了一种“骇客”的编程体验呢，通过 Hacker 的方式，我们真的可以让 Mutex 变得更强大。<br>
+</p>
+
+<p>
+我们学习了基于 Mutex 实现 TryLock，通过 unsafe 的方式读取到 Mutex 内部的 state 字段，这样，我们就解决了开篇列举的问题，一是不希望锁的 goroutine 继续等待，一是想监控锁。<br>
+</p>
+
+<p>
+另外，使用 Mutex 组合成更丰富的数据结构是我们常见的场景，今天我们就实现了一个线程安全的队列，未来我们还会讲到实现线程安全的 map 对象。<br>
+</p>
+</div>
 </div>
 </div>
 <div id="postamble" class="status">
 <p class="date">Date: 2022-05-13 09:05 Fri</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-05-13 Fri 09:22</p>
+<p class="date">Created: 2022-05-14 Sat 15:39</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

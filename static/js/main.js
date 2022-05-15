@@ -1,6 +1,4 @@
 'use strict';
-// import 'https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js';
-// import 'https://cdn.jsdelivr.net/npm/darkreader@4.9.34/darkreader.min.js';
 import './jquery.min.js';
 import './darkreader.min.js';
 import {
@@ -45,13 +43,11 @@ function toggleColor() {
             contrast: 90,
             sepia: 10,
         });
-
         isDark = true;
         bls.set('isDark', isDark);
     } else {
         // ^ to light
         DarkReader.disable();
-
         bls.del('isDark');
         location.reload();
     }
@@ -113,7 +109,6 @@ if (isCurPage('Navigation')) {
 if (isCurPage('Links')) {
     $('a').each(function (idx, item) {
         $(this).attr('target', '_blank');
-        $(this).css('li::before', 'content: "➣ "');
         $(this).css('font-size', '12.5px');
     });
 }
@@ -125,9 +120,9 @@ if (isCurPage('Ideas')) {
     // outline-1 TITLE
     // outline-2 *
     // outline-3 **
-    $('.outline-3').each(function () {
-        $(this).css('font-family', 'kaiti, 华文细黑, 宋体, Consolas');
-        $(this).addClass('js-outline');
+    $('.outline-2').each(function () {
+        $(this).addClass('js-card');
+        $(this).addClass('js-title');
     });
 		$('p').each(function () {
 				$(this).css('margin-bottom', '0');
@@ -136,64 +131,16 @@ if (isCurPage('Ideas')) {
 		});
 }
 
-
-// Math PAGE
+// Card PAGE
 // ---------------------------------
-if (isCurPage('Math')) {
+if (isCurPage('wiki')
+		|| isCurPage('Math')
+		|| isCurPage('Editor-Vim-notes')
+		|| isCurPage('Poem')
+		|| isCurPage('Go-wiki')
+	 ) {
     $('.outline-2').each(function () {
-        $(this).css('font-family', '微软雅黑, 宋体, Consolas');
-        $(this).addClass('js-math-outline');
-    });
-		$('p').each(function () {
-				$(this).css('margin-bottom', '0');
-		});
-		$('p+ul').each(function () {
-				$(this).css('margin-top', '0');
-		});
-}
-
-
-// VIM PAGE
-// ---------------------------------
-if (isCurPage('Editor-Vim-notes')) {
-    // outline-1 TITLE
-    // outline-2 *
-    // outline-3 **
-    $('.outline-2').each(function () {
-        $(this).css('font-family', '微软雅黑, 宋体, Consolas');
-        $(this).addClass('js-math-outline');
-    });
-		$('p').each(function () {
-				$(this).css('margin-bottom', '0');
-		});
-		$('p+ul').each(function () {
-				$(this).css('margin-top', '0');
-		});
-}
-
-
-// POEM PAGE
-// ---------------------------------
-if (isCurPage('Poem')) {
-    $('.outline-2').each(function () {
-        $(this).css('font-family', '微软雅黑, 宋体, Consolas');
-        $(this).addClass('js-math-outline');
-    });
-		$('p').each(function () {
-				// $(this).css('margin-bottom', '0');
-				$(this).css('text-indent', '2em');
-		});
-		$('p+ul').each(function () {
-				$(this).css('margin-top', '0');
-		});
-}
-
-// WIKI PAGE
-// ---------------------------------
-if (isCurPage('wiki')) {
-    $('.outline-2').each(function () {
-        $(this).css('font-family', 'Consolas, 微软雅黑, 宋体');
-        $(this).addClass('js-wiki-outline');
+        $(this).addClass('js-card');
     });
 		$('p').each(function () {
 				$(this).css('margin-bottom', '0');

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-02-03 Thu 21:16 -->
+<!-- 2022-05-15 Sun 14:38 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>日志</title>
@@ -21,42 +21,42 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgc32fce6">介绍</a></li>
-<li><a href="#org69b8c53">内置的日志包</a></li>
-<li><a href="#orgc73d00f">Uber-go zap</a>
+<li><a href="#org74f5ceb">介绍</a></li>
+<li><a href="#org843005d">内置的日志包</a></li>
+<li><a href="#org23342d3">Uber-go zap</a>
 <ul>
-<li><a href="#org0a8f6f2">什么是 Uber-go zap</a>
+<li><a href="#org1383148">什么是 Uber-go zap</a>
 <ul>
-<li><a href="#org3b5ee0e">为什么选择 Uber-go zap</a></li>
-<li><a href="#orgc7cf5b2">安装</a></li>
-<li><a href="#org9e66449">zap 的两种日志记录器</a></li>
+<li><a href="#orga860aab">为什么选择 Uber-go zap</a></li>
+<li><a href="#org033c15c">安装</a></li>
+<li><a href="#org19c2664">zap 的两种日志记录器</a></li>
 </ul>
 </li>
-<li><a href="#org4e39a28">使用 zap</a>
+<li><a href="#org7e1e8a4">使用 zap</a>
 <ul>
-<li><a href="#org3e55371">简单使用</a></li>
-<li><a href="#orgc278c6a">Logger</a></li>
-<li><a href="#org6938a77">Sugared Logger</a></li>
+<li><a href="#orgc71d3b0">简单使用</a></li>
+<li><a href="#orgdaa58be">Logger</a></li>
+<li><a href="#orgdb971b0">Sugared Logger</a></li>
 </ul>
 </li>
-<li><a href="#org485666a">定制 logger</a>
+<li><a href="#org453478d">定制 logger</a>
 <ul>
-<li><a href="#orgf2ded93">将日志写入文件而不是终端</a></li>
-<li><a href="#orgdc1d07f">将 JSON Encoder 更改为普通的 Log Encoder</a></li>
-<li><a href="#orgcd69858">更改时间编码并添加调用者详细信息</a></li>
-<li><a href="#orgbc698b0">定制最终版：</a></li>
+<li><a href="#org91094c9">将日志写入文件而不是终端</a></li>
+<li><a href="#org5bd57a7">将 JSON Encoder 更改为普通的 Log Encoder</a></li>
+<li><a href="#org5003db3">更改时间编码并添加调用者详细信息</a></li>
+<li><a href="#orgfa25e5f">定制最终版：</a></li>
 </ul>
 </li>
-<li><a href="#orgcd8e4b5">常用函数</a></li>
+<li><a href="#orgc40748f">常用函数</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgc32fce6" class="outline-2">
-<h2 id="orgc32fce6">介绍</h2>
-<div class="outline-text-2" id="text-orgc32fce6">
+<div id="outline-container-org74f5ceb" class="outline-2">
+<h2 id="org74f5ceb">介绍</h2>
+<div class="outline-text-2" id="text-org74f5ceb">
 <p>
 在许多Go语言项目中，我们需要一个好的日志记录器能够提供下面这些功能：<br>
 </p>
@@ -69,28 +69,28 @@
 </ul>
 </div>
 </div>
-<div id="outline-container-org69b8c53" class="outline-2">
-<h2 id="org69b8c53">内置的日志包</h2>
-<div class="outline-text-2" id="text-org69b8c53">
+<div id="outline-container-org843005d" class="outline-2">
+<h2 id="org843005d">内置的日志包</h2>
+<div class="outline-text-2" id="text-org843005d">
 <ul class="org-ul">
 <li><a href="Go-Log.html">Log</a><br></li>
 </ul>
 </div>
 </div>
-<div id="outline-container-orgc73d00f" class="outline-2">
-<h2 id="orgc73d00f">Uber-go zap</h2>
-<div class="outline-text-2" id="text-orgc73d00f">
+<div id="outline-container-org23342d3" class="outline-2">
+<h2 id="org23342d3">Uber-go zap</h2>
+<div class="outline-text-2" id="text-org23342d3">
 </div>
-<div id="outline-container-org0a8f6f2" class="outline-3">
-<h3 id="org0a8f6f2">什么是 Uber-go zap</h3>
-<div class="outline-text-3" id="text-org0a8f6f2">
+<div id="outline-container-org1383148" class="outline-3">
+<h3 id="org1383148">什么是 Uber-go zap</h3>
+<div class="outline-text-3" id="text-org1383148">
 <ul class="org-ul">
 <li>zap 是非常快的、结构化的、分日志级别的 Go 日志库。<br></li>
 </ul>
 </div>
-<div id="outline-container-org3b5ee0e" class="outline-4">
-<h4 id="org3b5ee0e">为什么选择 Uber-go zap</h4>
-<div class="outline-text-4" id="text-org3b5ee0e">
+<div id="outline-container-orga860aab" class="outline-4">
+<h4 id="orga860aab">为什么选择 Uber-go zap</h4>
+<div class="outline-text-4" id="text-orga860aab">
 <ol class="org-ol">
 <li>它同时提供了结构化日志记录和 printf 风格的日志记录<br>
 <ul class="org-ul">
@@ -100,18 +100,18 @@
 </ol>
 </div>
 </div>
-<div id="outline-container-orgc7cf5b2" class="outline-4">
-<h4 id="orgc7cf5b2">安装</h4>
-<div class="outline-text-4" id="text-orgc7cf5b2">
+<div id="outline-container-org033c15c" class="outline-4">
+<h4 id="org033c15c">安装</h4>
+<div class="outline-text-4" id="text-org033c15c">
 <div class="org-src-container">
 <pre class="src src-shell">go get -u go.uber.org/zap
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org9e66449" class="outline-4">
-<h4 id="org9e66449">zap 的两种日志记录器</h4>
-<div class="outline-text-4" id="text-org9e66449">
+<div id="outline-container-org19c2664" class="outline-4">
+<h4 id="org19c2664">zap 的两种日志记录器</h4>
+<div class="outline-text-4" id="text-org19c2664">
 <p>
 Zap 提供两种类型的日志记录器， <code>Sugared Logger</code> 和 <code>Logger</code> 。<br>
 </p>
@@ -130,13 +130,13 @@ Zap 提供两种类型的日志记录器， <code>Sugared Logger</code> 和 <cod
 </div>
 </div>
 </div>
-<div id="outline-container-org4e39a28" class="outline-3">
-<h3 id="org4e39a28">使用 zap</h3>
-<div class="outline-text-3" id="text-org4e39a28">
+<div id="outline-container-org7e1e8a4" class="outline-3">
+<h3 id="org7e1e8a4">使用 zap</h3>
+<div class="outline-text-3" id="text-org7e1e8a4">
 </div>
-<div id="outline-container-org3e55371" class="outline-4">
-<h4 id="org3e55371">简单使用</h4>
-<div class="outline-text-4" id="text-org3e55371">
+<div id="outline-container-orgc71d3b0" class="outline-4">
+<h4 id="orgc71d3b0">简单使用</h4>
+<div class="outline-text-4" id="text-orgc71d3b0">
 <p>
 创建一个 logger 实例，然后在所有要用到它的地方将它作为参数传过去<br>
 </p>
@@ -151,14 +151,14 @@ logger.<span style="color: #d75fd7; font-weight: bold;">Info</span>(<span style=
 运行结果：<br>
 </p>
 
-<pre class="example" id="org3846369">
+<pre class="example">
 {"level":"info","ts":1638265846.9222066,"caller":"07-Log/04-startZap.go:8","msg":"打印日志"}
 </pre>
 </div>
 </div>
-<div id="outline-container-orgc278c6a" class="outline-4">
-<h4 id="orgc278c6a">Logger</h4>
-<div class="outline-text-4" id="text-orgc278c6a">
+<div id="outline-container-orgdaa58be" class="outline-4">
+<h4 id="orgdaa58be">Logger</h4>
+<div class="outline-text-4" id="text-orgdaa58be">
 <ul class="org-ul">
 <li>通过调用 zap.NewProduction()/zap.NewDevelopment() 或者 zap.Example() 创建一个 Logger。<br></li>
 <li>上面的每一个函数都将创建一个logger。唯一的区别在于它将记录的信息不同。例如 production logger默认记录调用函数信息、日期和时间等。<br></li>
@@ -205,15 +205,15 @@ logger.<span style="color: #d75fd7; font-weight: bold;">Info</span>(<span style=
 </pre>
 </div>
 
-<pre class="example" id="orgae8e967">
+<pre class="example">
 {"level":"error","ts":1638280858.5779245,"caller":"07-Log/05-Logger.go:25","msg":"Error fetching url..","url":"www.baidu.com","error":"Get \"www.baidu.com\": unsupported protocol scheme \"\"","stacktrace":"main.simpleHttpGet05\n\t/home/haoran/haoran/Code/Language/15-Go/07-Log/05-Logger.go:25\nmain.main\n\t/home/haoran/haoran/Code/Language/15-Go/07-Log/05-Logger.go:14\nruntime.main\n\t/home/haoran/go/go1.17beta1/src/runtime/proc.go:255"}
 {"level":"info","ts":1638280858.6291454,"caller":"07-Log/05-Logger.go:30","msg":"Success..","statusCode":"200 OK","url":"http://www.baidu.com"}
 </pre>
 </div>
 </div>
-<div id="outline-container-org6938a77" class="outline-4">
-<h4 id="org6938a77">Sugared Logger</h4>
-<div class="outline-text-4" id="text-org6938a77">
+<div id="outline-container-orgdb971b0" class="outline-4">
+<h4 id="orgdb971b0">Sugared Logger</h4>
+<div class="outline-text-4" id="text-orgdb971b0">
 <p>
 现在让我们使用 Sugared Logger 来实现相同的功能。<br>
 </p>
@@ -263,20 +263,20 @@ logger.<span style="color: #d75fd7; font-weight: bold;">Info</span>(<span style=
 </pre>
 </div>
 
-<pre class="example" id="org6eaabdf">
+<pre class="example">
 {"level":"error","ts":1638280888.217628,"caller":"07-Log/06-Sugared-Logger.go:26","msg":"Error fetching URL www.baidu.com : Error = Get \"www.baidu.com\": unsupported protocol scheme \"\"","stacktrace":"main.simpleHttpGet06\n\t/home/haoran/haoran/Code/Language/15-Go/07-Log/06-Sugared-Logger.go:26\nmain.main\n\t/home/haoran/haoran/Code/Language/15-Go/07-Log/06-Sugared-Logger.go:13\nruntime.main\n\t/home/haoran/go/go1.17beta1/src/runtime/proc.go:255"}
 {"level":"info","ts":1638280888.2873425,"caller":"07-Log/06-Sugared-Logger.go:28","msg":"Success! statusCode = 200 OK for URL http://www.baidu.com"}
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org485666a" class="outline-3">
-<h3 id="org485666a">定制 logger</h3>
-<div class="outline-text-3" id="text-org485666a">
+<div id="outline-container-org453478d" class="outline-3">
+<h3 id="org453478d">定制 logger</h3>
+<div class="outline-text-3" id="text-org453478d">
 </div>
-<div id="outline-container-orgf2ded93" class="outline-4">
-<h4 id="orgf2ded93">将日志写入文件而不是终端</h4>
-<div class="outline-text-4" id="text-orgf2ded93">
+<div id="outline-container-org91094c9" class="outline-4">
+<h4 id="org91094c9">将日志写入文件而不是终端</h4>
+<div class="outline-text-4" id="text-org91094c9">
 <p>
 首先的更改是把日志写在文件，而不是打印到应用程序控制台。<br>
 </p>
@@ -364,7 +364,7 @@ WriterSyncer：指定日志将写到哪里去。我们使用zapcore.AddSync()函
 </pre>
 </div>
 
-<pre class="example" id="orgfe23d3a">
+<pre class="example">
 {"level":"debug","ts":1638280996.611096,"msg":"Trying to hit GET request for www.baidu.com"}
 {"level":"error","ts":1638280996.6111786,"msg":"Error fetching URL www.baidu.com : Error = Get \"www.baidu.com\": unsupported protocol scheme \"\""}
 {"level":"debug","ts":1638280996.6111882,"msg":"Trying to hit GET request for http://www.baidu.com"}
@@ -372,9 +372,9 @@ WriterSyncer：指定日志将写到哪里去。我们使用zapcore.AddSync()函
 </pre>
 </div>
 </div>
-<div id="outline-container-orgdc1d07f" class="outline-4">
-<h4 id="orgdc1d07f">将 JSON Encoder 更改为普通的 Log Encoder</h4>
-<div class="outline-text-4" id="text-orgdc1d07f">
+<div id="outline-container-org5bd57a7" class="outline-4">
+<h4 id="org5bd57a7">将 JSON Encoder 更改为普通的 Log Encoder</h4>
+<div class="outline-text-4" id="text-org5bd57a7">
 <p>
 希望将编码器从 JSON Encoder 更改为普通Encoder。为此，我们需要将 NewJSONEncoder() 更改为 NewConsoleEncoder()。<br>
 </p>
@@ -388,7 +388,7 @@ WriterSyncer：指定日志将写到哪里去。我们使用zapcore.AddSync()函
 当使用这些修改过的logger配置调用上述部分的main()函数时，以下输出将打印在文件——test.log中。<br>
 </p>
 
-<pre class="example" id="orgdc4d34c">
+<pre class="example">
 1.6382812952657666e+09	debug	Trying to hit GET request for www.baidu.com
 1.6382812952658417e+09	error	Error fetching URL www.baidu.com : Error = Get "www.baidu.com": unsupported protocol scheme ""
 1.6382812952658677e+09	debug	Trying to hit GET request for http://www.baidu.com
@@ -396,9 +396,9 @@ WriterSyncer：指定日志将写到哪里去。我们使用zapcore.AddSync()函
 </pre>
 </div>
 </div>
-<div id="outline-container-orgcd69858" class="outline-4">
-<h4 id="orgcd69858">更改时间编码并添加调用者详细信息</h4>
-<div class="outline-text-4" id="text-orgcd69858">
+<div id="outline-container-org5003db3" class="outline-4">
+<h4 id="org5003db3">更改时间编码并添加调用者详细信息</h4>
+<div class="outline-text-4" id="text-org5003db3">
 <p>
 鉴于我们对配置所做的更改，有下面两个问题：<br>
 </p>
@@ -435,7 +435,7 @@ WriterSyncer：指定日志将写到哪里去。我们使用zapcore.AddSync()函
 </pre>
 </div>
 
-<pre class="example" id="org2054785">
+<pre class="example">
 2021-11-30T22:15:10.453+0800	DEBUG	07-Log/09-friendlyRead.go:43	Trying to hit GET request for www.baidu.com
 2021-11-30T22:15:10.453+0800	ERROR	07-Log/09-friendlyRead.go:46	Error fetching URL www.baidu.com : Error = Get "www.baidu.com": unsupported protocol scheme ""
 2021-11-30T22:15:10.453+0800	DEBUG	07-Log/09-friendlyRead.go:43	Trying to hit GET request for http://www.baidu.com
@@ -443,9 +443,9 @@ WriterSyncer：指定日志将写到哪里去。我们使用zapcore.AddSync()函
 </pre>
 </div>
 </div>
-<div id="outline-container-orgbc698b0" class="outline-4">
-<h4 id="orgbc698b0">定制最终版：</h4>
-<div class="outline-text-4" id="text-orgbc698b0">
+<div id="outline-container-orgfa25e5f" class="outline-4">
+<h4 id="orgfa25e5f">定制最终版：</h4>
+<div class="outline-text-4" id="text-orgfa25e5f">
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
 
@@ -506,9 +506,9 @@ WriterSyncer：指定日志将写到哪里去。我们使用zapcore.AddSync()函
 </div>
 </div>
 </div>
-<div id="outline-container-orgcd8e4b5" class="outline-3">
-<h3 id="orgcd8e4b5">常用函数</h3>
-<div class="outline-text-3" id="text-orgcd8e4b5">
+<div id="outline-container-orgc40748f" class="outline-3">
+<h3 id="orgc40748f">常用函数</h3>
+<div class="outline-text-3" id="text-orgc40748f">
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
 
@@ -525,14 +525,14 @@ WriterSyncer：指定日志将写到哪里去。我们使用zapcore.AddSync()函
     <span style="color: #8787d7;">url</span> := <span style="color: #2aa198;">"http://example.org/api"</span>
     logger.<span style="color: #d75fd7; font-weight: bold;">Info</span>(<span style="color: #2aa198;">"failed to fetch URL"</span>,
         zap.<span style="color: #d75fd7; font-weight: bold;">String</span>(<span style="color: #2aa198;">"url"</span>, url),
-        zap.<span style="color: #d75fd7; font-weight: bold;">Int</span>(<span style="color: #2aa198;">"attempt"</span>, <span style="color: #d75fd7;">3</span>),
+        zap.<span style="color: #d75fd7; font-weight: bold;">Int</span>(<span style="color: #2aa198;">"attempt"</span>, 3),
         zap.<span style="color: #d75fd7; font-weight: bold;">Duration</span>(<span style="color: #2aa198;">"backoff"</span>, time.Second),
     )
 
     <span style="color: #8787d7;">sugar</span> := logger.<span style="color: #d75fd7; font-weight: bold;">Sugar</span>()
     sugar.<span style="color: #d75fd7; font-weight: bold;">Infow</span>(<span style="color: #2aa198;">"failed to fetch URL"</span>,
         <span style="color: #2aa198;">"url"</span>, url,
-        <span style="color: #2aa198;">"attempt"</span>, <span style="color: #d75fd7;">3</span>,
+        <span style="color: #2aa198;">"attempt"</span>, 3,
         <span style="color: #2aa198;">"backoff"</span>, time.Second,
     )
     sugar.<span style="color: #d75fd7; font-weight: bold;">Infof</span>(<span style="color: #2aa198;">"Failed to fetch URL: %s"</span>, url)
@@ -540,7 +540,7 @@ WriterSyncer：指定日志将写到哪里去。我们使用zapcore.AddSync()函
 </pre>
 </div>
 
-<pre class="example" id="orgf0c4489">
+<pre class="example">
 {"level":"info","msg":"failed to fetch URL","url":"http://example.org/api","attempt":3,"backoff":"1s"}
 {"level":"info","msg":"failed to fetch URL","url":"http://example.org/api","attempt":3,"backoff":"1s"}
 {"level":"info","msg":"Failed to fetch URL: http://example.org/api"}
@@ -584,8 +584,8 @@ WriterSyncer：指定日志将写到哪里去。我们使用zapcore.AddSync()函
 <div id="postamble" class="status">
 <p class="date">Date: 2021-11-29 10:11 Mon</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-02-03 Thu 21:16</p>
-<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+<p class="date">Created: 2022-05-15 Sun 14:38</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>

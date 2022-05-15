@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-05-14 Sat 21:30 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>并发编程中的专业名词</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">并发编程中的专业名词</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org5778c02">同步与异步</a></li>
+<li><a href="#org15d8e1e">阻塞与非阻塞</a></li>
+<li><a href="#org98bdc7d">并发和并行</a></li>
+<li><a href="#org609ed72">临界区</a></li>
+<li><a href="#org22d1df9">死锁</a></li>
+<li><a href="#org433637e">饥饿</a></li>
+<li><a href="#orgf8f047e">活锁</a></li>
+<li><a href="#orgbbcc2dd">线程安全</a></li>
+<li><a href="#org38ddcfe">互斥量</a></li>
+<li><a href="#orgfbb1b16">信号量</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org5778c02" class="outline-2">
+<h2 id="org5778c02">同步与异步</h2>
+<div class="outline-text-2" id="text-org5778c02">
+<p>
+同步和异步通常来形容一次方法调用。<br>
+</p>
+
+<p>
+同步就是指一个进程在执行某个请求的时候，若该请求需要一段时间才能返回信息，那么这个进程将会一直等待下去，直到收到返回信息才继续执行下去。异步是指进程不需要一直等下去，而是继续执行下面的操作，不管其他进程的状态。当有消息返回时系统会通知进程进行处理，这样可以提高执行的效率。<br>
+</p>
+
+<img src="./images/并发编程-同步与异步.png" />
+</div>
+</div>
+<div id="outline-container-org15d8e1e" class="outline-2">
+<h2 id="org15d8e1e">阻塞与非阻塞</h2>
+<div class="outline-text-2" id="text-org15d8e1e">
+<p>
+阻塞是指发出一个请求不能立刻返回响应，要等所有的逻辑全处理完才能返回响应。非阻塞反之，发出一个请求立刻返回应答，不用等处理完所有逻辑。阻塞与非阻塞指的是单个线程内遇到同步等待时，是否在原地不做任何操作。<br>
+</p>
+
+<p>
+结合前面介绍的同步与异步，两两组合就会有四种情况，分别是同步阻塞、同步非阻塞、异步阻塞和异步非阻塞。下面通过车道的例子来形象的解释这几种状态：<br>
+</p>
+
+<ul class="org-ul">
+<li><b>同步阻塞</b> 只有一个车道，不能超车，所有车子依次行使，一次只能通过一辆车，尴尬的是这个车道还堵车了。<br></li>
+<li><b>同步非阻塞</b> 只有一个车道，不能超车，所有车子依次行使，一次只能通过一辆车，不过比较幸运这个车道没有堵车，可以正常通行。<br></li>
+<li><b>异步阻塞</b> 有两个或两个以上车道，每条马路都可以通行，不同车道上的车子可以并行行使，尴尬的是所有的车道都堵车了。<br></li>
+<li><p>
+<b>异步非阻塞</b> 有两个或两个以上车道，每条马路都可以通行，不同车道上的车子可以并行行使，不过比较幸运的是没有一个车道堵车，都可以正常通行。<br>
+</p>
+
+<p>
+对应到我们计算机里也是一样的，同步阻塞相当于只有一个线程，而且该线程处于阻塞（Blocked）状态，同步非阻塞相当于只有一个线程，而且该线程处于运行（Running）状态。异步阻塞相当于有多个线程，而且所有线程都处于阻塞（Blocked）状态，异步非阻塞相当于有多个线程，而且所有线程都在正常运行。<br>
+</p></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org98bdc7d" class="outline-2">
+<h2 id="org98bdc7d">并发和并行</h2>
+<div class="outline-text-2" id="text-org98bdc7d">
+<p>
+并行的多个任务是真实的同时执行的，把正在运行的多个任务，分割成小块，分配给多个线程同时运行，现代计算机一般都是多核的，把所有任务只交给一个核显然是不合理的。举例来说，如果计算机是4核的，有4个任务要同时执行，则每个核跑一个任务。<br>
+</p>
+
+<p>
+而对于并发来说，这个过程只是交替的，一会儿执行A，一会儿执行B，系统会不停的在两者之间切换。但对于外部观察者来说，即使多个任务之间是串行并发的，也会造成多任务间是并行执行的错觉。<br>
+</p>
+
+<ul class="org-ul">
+<li>并发的方式<br>
+<ul class="org-ul">
+<li>单核基于时间片的分时处理<br></li>
+<li>多线程<br></li>
+<li>多进程<br></li>
+<li>云原生-流程编排<br></li>
+<li>容器<br></li>
+<li>虚拟机<br></li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org609ed72" class="outline-2">
+<h2 id="org609ed72">临界区</h2>
+<div class="outline-text-2" id="text-org609ed72">
+<p>
+临界区用来表示一种公共资源或者说是共享数据，可以被多个线程使用。但是每一次只能有一个线程使用它，一旦临界区资源被占用，其他线程要想使用这个资源，就必须等待。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org22d1df9" class="outline-2">
+<h2 id="org22d1df9">死锁</h2>
+<div class="outline-text-2" id="text-org22d1df9">
+<p>
+两个或两个以上的进程在执行过程中，由于竞争资源或者由于彼此通信而造成的一种阻塞的现象，若无外力作用，它们都将无法推进下去。此时称系统处于死锁状态或系统产生了死锁，这些永远在互相等待的进程称为死锁进程。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org433637e" class="outline-2">
+<h2 id="org433637e">饥饿</h2>
+<div class="outline-text-2" id="text-org433637e">
+<p>
+饥饿是指某一个或者多个线程因为种种原因无法获得所需要的资源，导致一直无法执行。<br>
+</p>
+
+<p>
+产生这种情况的原因是多种的，可能是它的线程优先级太低，而高优先级的线程不抢占它需要的资源，导致低优先级线程无法工作。也可能是某个线程一直占着关键资源不放，导致其他需要这个资源的线程无法正常执行。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf8f047e" class="outline-2">
+<h2 id="orgf8f047e">活锁</h2>
+<div class="outline-text-2" id="text-orgf8f047e">
+<p>
+任务或者执行者没有被阻塞，由于某些条件没有满足，导致一直重复尝试，失败，尝试，失败。<br>
+</p>
+
+<p>
+活锁可以认为是一种特殊的饥饿。<br>
+</p>
+
+<p>
+列举现实生活中的一个例子：一条狭窄的道路，A 和 B 迎面相遇了，缘分使然，A绅士的想让出道路让B先过，这时B也保持良好的淑女形象想让出道路让A先过，导致两人都避让了；两人尴尬一笑，之后A想着B既然让了，就准备先过，巧的是，这时B心里也想着，A既然让了，不如先过，两人又撞上了；然后又开始礼貌性的相互避让，避让之后各自又想先走结果又撞上了，结果两人都没过去。这种情况就是活锁。<br>
+</p>
+
+<p>
+线程都秉承着"谦让"的原则，主动将资源释放给他人使用，那么就会出现资源不断在两个线程之间跳动，而没有一个线程可以同时拿到所有资源而正常执行。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgbbcc2dd" class="outline-2">
+<h2 id="orgbbcc2dd">线程安全</h2>
+<div class="outline-text-2" id="text-orgbbcc2dd">
+<p>
+线程调用函数，如果这个函数只修改局部变量，或是有序修改共享区数据，则我们说这个函数就是线程安全的。如果是类中的方法，我们就说这个类是线程安全的。<br>
+</p>
+
+<p>
+多线程之所以复杂，是因为要同时访问或修改共享资源，所以可以认为如果函数不对共享资源操作，或安全操作，则该函数是线程安全的。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org38ddcfe" class="outline-2">
+<h2 id="org38ddcfe">互斥量</h2>
+<div class="outline-text-2" id="text-org38ddcfe">
+<p>
+当多个线程同时访问公共资源时，可以使用互斥量，谁先抢到锁，谁就可以访问公共资源，待锁释放后，其它线程才可以再次抢锁。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgfbb1b16" class="outline-2">
+<h2 id="orgfbb1b16">信号量</h2>
+<div class="outline-text-2" id="text-orgfbb1b16">
+<p>
+信号量是更一般化的互斥量。一个互斥量只能被锁定一次，但是一个信号量可以被锁住多次。信号量通常用于保护一定数量的相同资源。<br>
+</p>
+
+<p>
+信号量可以运用在餐厅订座，车票订座等场景<br>
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-05-14 19:05 Sat</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-05-14 Sat 21:30</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
