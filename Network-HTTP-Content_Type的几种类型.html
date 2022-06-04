@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-05-29 Sun 02:11 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Content Type 的几种类型</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">Content Type 的几种类型</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org88f3f67">Content Type 是什么？</a></li>
+<li><a href="#org82221ab">几个常用类型：</a>
+<ul>
+<li><a href="#orga65fc12">1. application/x-www-form-urlencoded</a></li>
+<li><a href="#org5fcb7c8">2. multipart/form-data</a></li>
+<li><a href="#orgc57f9f7">3. application/json</a></li>
+<li><a href="#org4f97f9b">4. test/xml</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org88f3f67" class="outline-2">
+<h2 id="org88f3f67">Content Type 是什么？</h2>
+<div class="outline-text-2" id="text-org88f3f67">
+<p>
+是 HTTP 的实体首部字段，用于说明请求或返回的消息主题是用何种方式编码，在 request header 和 response header 里都存在。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org82221ab" class="outline-2">
+<h2 id="org82221ab">几个常用类型：</h2>
+<div class="outline-text-2" id="text-org82221ab">
+<p>
+常见的媒体格式类型如下：<br>
+</p>
+<ul class="org-ul">
+<li>text/html ： HTML格式<br></li>
+<li>text/plain ：纯文本格式<br></li>
+<li>text/xml ： XML格式<br></li>
+<li>image/gif ：gif图片格式<br></li>
+<li>image/jpeg ：jpg图片格式<br></li>
+<li>image/png：png图片格式<br></li>
+</ul>
+
+<p>
+以 application 开头的媒体格式类型：<br>
+</p>
+<ul class="org-ul">
+<li>application/xhtml+xml ：XHTML格式<br></li>
+<li>application/xml： XML数据格式<br></li>
+<li>application/atom+xml ：Atom XML聚合格式<br></li>
+<li>application/json： JSON数据格式<br></li>
+<li>application/pdf：pdf格式<br></li>
+<li>application/msword ： Word文档格式<br></li>
+<li>application/octet-stream ： 二进制流数据（如常见的文件下载）<br></li>
+<li>application/x-www-form-urlencoded ： &lt;form encType=””&gt;中默认的encType，form表单数据被编码为key/value格式发送到服务器（表单默认的提交数据的格式）<br></li>
+</ul>
+
+<p>
+另外一种常见的媒体格式是上传文件之时使用的：<br>
+</p>
+<ul class="org-ul">
+<li>multipart/form-data ： 需要在表单中进行文件上传时，就需要使用该格式<br></li>
+</ul>
+</div>
+<div id="outline-container-orga65fc12" class="outline-3">
+<h3 id="orga65fc12">1. application/x-www-form-urlencoded</h3>
+<div class="outline-text-3" id="text-orga65fc12">
+<ol class="org-ol">
+<li>浏览器的原生 form 表单<br></li>
+<li>提交的数据按照 key1=val1&amp;key2=val2 的方式进行编码，key 和 val 都进行了 URL 转码<br></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-org5fcb7c8" class="outline-3">
+<h3 id="org5fcb7c8">2. multipart/form-data</h3>
+<div class="outline-text-3" id="text-org5fcb7c8">
+<p>
+常见的 POST 数据提交的方式。我们使用表单上传文件时，必须让 form 的 enctype 等于这个值。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-html">&lt;<span style="color: #d75fd7; font-weight: bold;">form</span> <span style="color: #8787d7;">action</span>=<span style="color: #2aa198;">"/"</span> <span style="color: #8787d7;">method</span>=<span style="color: #2aa198;">"post"</span> <span style="color: #8787d7;">enctype</span>=<span style="color: #2aa198;">"multipart/form-data"</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">input</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"text"</span> <span style="color: #8787d7;">name</span>=<span style="color: #2aa198;">"description"</span> <span style="color: #8787d7;">value</span>=<span style="color: #2aa198;">"some text"</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">input</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"file"</span> <span style="color: #8787d7;">name</span>=<span style="color: #2aa198;">"myFile"</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">button</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"submit"</span>&gt;Submit&lt;/<span style="color: #d75fd7; font-weight: bold;">button</span>&gt;
+&lt;/<span style="color: #d75fd7; font-weight: bold;">form</span>&gt;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgc57f9f7" class="outline-3">
+<h3 id="orgc57f9f7">3. application/json</h3>
+<div class="outline-text-3" id="text-orgc57f9f7">
+<p>
+消息主体是序列化后的 JSON 字符串,这个类型越来越多地被大家所使用<br>
+</p>
+
+<p>
+这种方案，可以方便的提交复杂的结构化数据，特别适合 RESTful 的接口。各大抓包工具如 Chrome 自带的开发者工具、Firebug、Fiddler，都会以树形结构展示 JSON 数据，非常友好。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4f97f9b" class="outline-3">
+<h3 id="org4f97f9b">4. test/xml</h3>
+<div class="outline-text-3" id="text-org4f97f9b">
+<p>
+是一种使用 HTTP 作为传输协议，XML 作为编码方式的远程调用规范。<br>
+</p>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-05-29 Sun 02:11</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

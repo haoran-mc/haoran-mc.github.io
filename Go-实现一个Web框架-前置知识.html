@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-05-29 Sun 17:40 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>实现一个Go Web框架-HTTP基础</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">实现一个Go Web框架-HTTP基础</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org5384d97">标准库启动Web服务</a></li>
+<li><a href="#orgd76143d">实现 http.Handler 接口</a></li>
+<li><a href="#org59d811b">Gee 框架的雏形</a>
+<ul>
+<li><a href="#org1f795f2">go.mod</a></li>
+<li><a href="#org4cddcda">main.go</a></li>
+<li><a href="#org0da9930">gee.go</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org5384d97" class="outline-2">
+<h2 id="org5384d97">标准库启动Web服务</h2>
+<div class="outline-text-2" id="text-org5384d97">
+<p>
+Go语言内置了 <code>net/http</code> 库，封装了 HTTP 网络编程的基础接口，我们实现的是 <code>Gee</code> Web框架便是基于 <code>net/http</code> 的，简单介绍下 <code>net/http</code> 库的使用。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"log"</span>
+    <span style="color: #2aa198;">"net/http"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    http.<span style="color: #d75fd7; font-weight: bold;">HandleFunc</span>(<span style="color: #2aa198;">"/"</span>, indexHandler)
+    http.<span style="color: #d75fd7; font-weight: bold;">HandleFunc</span>(<span style="color: #2aa198;">"/hello"</span>, helloHandler)
+    log.<span style="color: #d75fd7; font-weight: bold;">Fatal</span>(http.<span style="color: #d75fd7; font-weight: bold;">ListenAndServe</span>(<span style="color: #2aa198;">":9999"</span>, <span style="color: #d75fd7;">nil</span>))
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">handler echoes r.URL.Path</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">indexHandler</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #8787d7;">req</span> *<span style="color: #df005f; font-weight: bold;">http.Request</span>) {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Fprintf</span>(w, <span style="color: #2aa198;">"URL.Path = %q\n"</span>, req.URL.Path)
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">handler echoes r.URL.Header</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">helloHandler</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #8787d7;">req</span> *<span style="color: #df005f; font-weight: bold;">http.Request</span>) {
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">k</span>, <span style="color: #8787d7;">v</span> := <span style="color: #268bd2; font-weight: bold;">range</span> req.Header {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Fprintf</span>(w, <span style="color: #2aa198;">"Header[%q] = %q\n"</span>, k, v)
+    }
+}
+</pre>
+</div>
+
+<p>
+<code>http.HandleFunc</code> 函数第一个参数是路由，第二个参数是 <code>Handler</code> 函数，其参数固定是请求（ <code>*http.Request</code> ）和响应（ <code>http.ResponseWriter</code> ）。<br>
+</p>
+
+<p>
+<a href="wiki.html#org75bc823">handle 与 handler 的区别</a><br>
+</p>
+
+<p>
+我们设置了两个路由， <code>/</code> 和 <code>/hello</code> ，分别绑定 <i>indexHandler</i> 和 <i>helloHandler</i> ，根据不同的 HTTP 请求会调用不同的处理函数。 <span class="underline">处理函数内部（服务端）将客户端请求的信息写入到响应（ <code>w http.ResponseWriter</code> ）中，函数内部还可以设置 HTTP 响应报文，比如响应状态码、响应报文头属性（Content-Type、Cache-Control、Set-Cookie &#x2026;&#x2026;）、响应报文体等。</span><br>
+</p>
+
+<p>
+<a href="Network-HTTP请求行、请求头、请求体详解.html">HTTP请求行、请求头、请求体详解</a><br>
+</p>
+
+<p>
+根据我们的代码，访问 <code>/</code> ，响应是 <code>URL.Path = /</code> ，而 <code>/hello</code> 的响应则是请求头（header）中的键值对信息。<br>
+</p>
+
+<p>
+用 <code>curl</code> 这个工具测试一下，将会得到如下结果：<br>
+</p>
+
+<pre class="example">
+$ curl http://localhost:9999/
+URL.Path = "/"
+$ curl http://localhost:9999/hello
+Header["User-Agent"] = ["curl/7.68.0"]
+Header["Accept"] = ["*/*"]
+</pre>
+
+<p>
+<i>main</i> 函数的最后一行，是用来启动Web服务的，第一个参数是地址， <code>:9999</code> 表示在 <i>9999</i> 端口监听。 <span class="underline">而第二个参数则代表所有的 HTTP 请求的实例， <code>nil</code> 代表使用标准库中的实例处理。第二个参数，则是我们基于 <code>net/http</code> 标准库实现 Web 框架的入口（我们通过第二个参数这个入口实现web框架）。</span><br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd76143d" class="outline-2">
+<h2 id="orgd76143d">实现 http.Handler 接口</h2>
+<div class="outline-text-2" id="text-orgd76143d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> http
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Handler</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+    <span style="color: #d75fd7; font-weight: bold;">ServeHTTP</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">ResponseWriter</span>, <span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Request</span>)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ListenAndServe</span>(<span style="color: #8787d7;">address</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">h</span> <span style="color: #df005f; font-weight: bold;">Handler</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+
+<p>
+第二个参数的类型是什么呢？通过查看 <code>net/http</code> 的源码可以发现， <code>Handler</code> 是一个接口，需要实现方法 <i>ServeHTTP</i> ， <span class="underline">也就是说，只要传入任何实现了 <i>ServerHTTP</i> 接口的实例，所有的 HTTP 请求，就都交给了该实例处理了</span> ，马上来试一试吧。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"log"</span>
+    <span style="color: #2aa198;">"net/http"</span>
+)
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Engine is the union handler for all requests.</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Engine</span> <span style="color: #268bd2; font-weight: bold;">struct</span>{}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">engine</span> *<span style="color: #df005f; font-weight: bold;">Engine</span>) <span style="color: #d75fd7; font-weight: bold;">ServeHTTP</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #8787d7;">req</span> *<span style="color: #df005f; font-weight: bold;">http.Request</span>) {
+    <span style="color: #268bd2; font-weight: bold;">switch</span> req.URL.Path {
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #2aa198;">"/"</span>:
+        _, _ = fmt.<span style="color: #d75fd7; font-weight: bold;">Fprintf</span>(w, <span style="color: #2aa198;">"URL.Path = %q\n"</span>, req.URL.Path)
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #2aa198;">"/hello"</span>:
+        <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">k</span>, <span style="color: #8787d7;">v</span> := <span style="color: #268bd2; font-weight: bold;">range</span> req.Header {
+            _, _ = fmt.<span style="color: #d75fd7; font-weight: bold;">Fprintf</span>(w, <span style="color: #2aa198;">"Header[%q] = %q\n"</span>, k, v)
+        }
+    <span style="color: #268bd2; font-weight: bold;">default</span>:
+        _, _ = fmt.<span style="color: #d75fd7; font-weight: bold;">Fprintf</span>(w, <span style="color: #2aa198;">"404 NOT FOUND: %s\n"</span>, req.URL)
+    }
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">engine</span> := <span style="color: #268bd2;">new</span>(<span style="color: #df005f; font-weight: bold;">Engine</span>)
+    log.<span style="color: #d75fd7; font-weight: bold;">Fatal</span>(http.<span style="color: #d75fd7; font-weight: bold;">ListenAndServe</span>(<span style="color: #2aa198;">":9999"</span>, engine))
+}
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>我们定义了一个空的结构体 <code>Engine</code> ，实现了方法 <code>ServeHTTP</code> 。这个方法有 2 个参数，第二个参数是 <i>Request</i> ，该对象包含了该 HTTP 请求的所有信息，比如请求地址、Header 和 Body 等信息；第一个参数是 <i>ResponseWriter</i> ， <span class="underline">利用 <i>ResponseWriter</i> 可以构造针对该请求的响应（也就是设置HTTP响应报文中的信息 <a href="Network-HTTP请求行、请求头、请求体详解.html">HTTP请求行、请求头、请求体详解</a>）</span> 。<br></li>
+<li>在 <i>main</i> 函数中，我们给 <i>ListenAndServe</i> 方法的第二个参数传入了刚才创建的 <i>engine</i> 实例。 <span class="underline">至此，我们走出了实现 Web 框架的第一步</span> ，即，将所有的 HTTP 请求转向了我们自己的处理逻辑。还记得吗，在实现 <code>Engine</code> 之前，我们调用 <i>http.HandleFunc</i> 实现了路由和 Handle 的映射，也就是只能针对具体的路由写处理逻辑，比如 <code>/hello</code> 。但是在实现 <code>Engine</code> 之后，我们拦截了所有的 HTTP 请求，拥有了统一的控制入口。在这里我们可以自由定义路由映射的规则，也可以同意添加一些处理逻辑，例如日志、异常处理等。<br></li>
+<li>代码的运行结果与之前是一致的。<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org59d811b" class="outline-2">
+<h2 id="org59d811b">Gee 框架的雏形</h2>
+<div class="outline-text-2" id="text-org59d811b">
+<p>
+我们接下来重新组织上面的代码，搭建出整个框架的雏形。<br>
+</p>
+
+<p>
+最终的代码目录结构是这样的：<br>
+</p>
+
+<pre class="example">
+gee/
+ |--gee.go
+ |--go.mod
+main.go
+go.mod
+</pre>
+</div>
+<div id="outline-container-org1f795f2" class="outline-3">
+<h3 id="org1f795f2">go.mod</h3>
+<div class="outline-text-3" id="text-org1f795f2">
+<pre class="example">
+module example
+
+go 1.13
+
+require gee v0.0.0
+
+replace gee =&gt; ./gee 
+</pre>
+
+<ul class="org-ul">
+<li>在 <code>go.mod</code> 中使用 <code>replace</code> 将 gee 指向 <code>./gee</code><br></li>
+</ul>
+
+<blockquote>
+<p>
+从 go 1.11 版本开始，引用相对路径的 package 需要使用上述方式。<br>
+</p>
+</blockquote>
+</div>
+</div>
+<div id="outline-container-org4cddcda" class="outline-3">
+<h3 id="org4cddcda">main.go</h3>
+<div class="outline-text-3" id="text-org4cddcda">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"net/http"</span>
+
+    <span style="color: #2aa198;">"gee"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">r</span> := gee.<span style="color: #d75fd7; font-weight: bold;">New</span>()
+    r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #8787d7;">req</span> *<span style="color: #df005f; font-weight: bold;">http.Request</span>) {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Fprintf</span>(w, <span style="color: #2aa198;">"URL.Path = %q\n"</span>, req.URL.Path)
+    })
+
+    r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/hello"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #8787d7;">req</span> *<span style="color: #df005f; font-weight: bold;">http.Request</span>) {
+        <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">k</span>, <span style="color: #8787d7;">v</span> := <span style="color: #268bd2; font-weight: bold;">range</span> req.Header {
+            fmt.<span style="color: #d75fd7; font-weight: bold;">Fprintf</span>(w, <span style="color: #2aa198;">"Header[%q] = %q\n"</span>, k, v)
+        }
+    })
+
+    r.<span style="color: #d75fd7; font-weight: bold;">Run</span>(<span style="color: #2aa198;">":9999"</span>)
+} 
+</pre>
+</div>
+
+<p>
+看到这里，如果你使用过 <i>gin</i> 框架的话，肯定会觉得无比的亲切。 <i>gee</i> 框架的设计以及 API 均参考了 <i>gin</i> 。使用 <code>New()</code> 创建 gee 的实例，使用 <code>GET()</code> 方法添加路由，最后使用 <code>Run()</code> 启动 Web 服务。这里的路由，只是静态路由，不支持 <code>/hello/:name</code> 这样的动态路由，动态路由我们将在下一次实现。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org0da9930" class="outline-3">
+<h3 id="org0da9930">gee.go</h3>
+<div class="outline-text-3" id="text-org0da9930">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> gee
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"net/http"</span>
+)
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">HandlerFunc defines the request handler used by gee</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">HandlerFunc</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, *<span style="color: #df005f; font-weight: bold;">http.Request</span>)
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Engine implement the interface of ServeHTTP</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Engine</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    router <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">HandlerFunc</span>
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">New is the constructor of gee.Engine</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">New</span>() *<span style="color: #df005f; font-weight: bold;">Engine</span> {
+    <span style="color: #268bd2; font-weight: bold;">return</span> &amp;<span style="color: #df005f; font-weight: bold;">Engine</span>{<span style="color: #d75fd7;">router</span>: <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">HandlerFunc</span>)}
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">engine</span> *<span style="color: #df005f; font-weight: bold;">Engine</span>) <span style="color: #d75fd7; font-weight: bold;">addRoute</span>(<span style="color: #8787d7;">method</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">pattern</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">handler</span> <span style="color: #df005f; font-weight: bold;">HandlerFunc</span>) {
+    <span style="color: #8787d7;">key</span> := method + <span style="color: #2aa198;">"-"</span> + pattern
+    engine.router[key] = handler
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">GET defines the method to add GET request</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">engine</span> *<span style="color: #df005f; font-weight: bold;">Engine</span>) <span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #8787d7;">pattern</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">handler</span> <span style="color: #df005f; font-weight: bold;">HandlerFunc</span>) {
+    engine.<span style="color: #d75fd7; font-weight: bold;">addRoute</span>(<span style="color: #2aa198;">"GET"</span>, pattern, handler)
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">POST defines the method to add POST request</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">engine</span> *<span style="color: #df005f; font-weight: bold;">Engine</span>) <span style="color: #d75fd7; font-weight: bold;">POST</span>(<span style="color: #8787d7;">pattern</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">handler</span> <span style="color: #df005f; font-weight: bold;">HandlerFunc</span>) {
+    engine.<span style="color: #d75fd7; font-weight: bold;">addRoute</span>(<span style="color: #2aa198;">"POST"</span>, pattern, handler)
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Run defines the method to start a http server</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">engine</span> *<span style="color: #df005f; font-weight: bold;">Engine</span>) <span style="color: #d75fd7; font-weight: bold;">Run</span>(<span style="color: #8787d7;">addr</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>) {
+    <span style="color: #268bd2; font-weight: bold;">return</span> http.<span style="color: #d75fd7; font-weight: bold;">ListenAndServe</span>(addr, engine)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">engine</span> *<span style="color: #df005f; font-weight: bold;">Engine</span>) <span style="color: #d75fd7; font-weight: bold;">ServeHTTP</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #8787d7;">req</span> *<span style="color: #df005f; font-weight: bold;">http.Request</span>) {
+    <span style="color: #8787d7;">key</span> := req.Method + <span style="color: #2aa198;">"-"</span> + req.URL.Path
+    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #8787d7;">handler</span>, <span style="color: #8787d7;">ok</span> := engine.router[key]; ok {
+        <span style="color: #d75fd7; font-weight: bold;">handler</span>(w, req)
+    } <span style="color: #268bd2; font-weight: bold;">else</span> {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Fprintf</span>(w, <span style="color: #2aa198;">"404 NOT FOUND: %s\n"</span>, req.URL)
+    }
+} 
+</pre>
+</div>
+
+<p>
+那么 <code>gee.go</code> 就是重头戏了。我们重点介绍一下这部分的实现。<br>
+</p>
+
+<ul class="org-ul">
+<li>首先定义了类型 <code>HandlerFunc</code> ，这是提供给框架用户的，用来定义路由映射的处理方法。 我们在 <code>Engine</code> 中，添加了一张路由映射表 <code>router</code> ，key 由请求方法和静态路由地址构成，例如 <code>GET-/</code> 、 <code>GET-/hello</code> 、 <code>POST-/hello</code> ，这样针对相同的路由，如果请求方法不同，可以映射不同的处理方法(Handler)，value 是用户映射的处理方法 <span class="underline">（也就是 RESTful 风格，否则 <code>/hello</code> 这个 URL 路径只能映射到一个 handler 函数）</span> 。<br></li>
+<li>当用户调用 <code>(*Engine).GET()</code> 方法时，会将路由和处理方法注册到映射表 <i>router</i> 中， <code>(*Engine).Run()</code> 方法，是 <i>ListenAndServe</i> 的包装。<br></li>
+<li><code>Engine</code> 实现的 <i>ServeHTTP</i> 方法的作用就是，解析请求的路径，查找路由映射表，如果查到，就执行注册的处理方法。如果查不到，就返回 <i>404 NOT FOUND</i> 。<br></li>
+</ul>
+
+<p>
+执行 <code>go run main.go</code> ，再用 <i>curl</i> 工具访问，结果与最开始的一致。<br>
+</p>
+
+<pre class="example">
+$ curl http://localhost:9999/
+URL.Path = "/"
+$ curl http://localhost:9999/hello
+Header["User-Agent"] = ["curl/7.68.0"]
+Header["Accept"] = ["*/*"]
+$ curl http://localhost:9999/world
+404 NOT FOUND: /world
+</pre>
+
+<p>
+至此，整个 <code>Gee</code> 框架的原型已经出来了。实现了路由映射表，提供了用户注册静态路由的方法，包装了启动服务的函数。当然，到目前为止，我们还没有实现比 <code>net/http</code> 标准库更强大的能力，不用担心，很快就可以将动态路由、中间件等功能添加上去了。<br>
+</p>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-05-29 Sun 17:40</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

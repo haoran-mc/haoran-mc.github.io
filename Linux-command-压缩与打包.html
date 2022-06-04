@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-05-31 Tue 21:53 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LINUX-COMMAND-压缩与打包</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">LINUX-COMMAND-压缩与打包</h1>
+<ul class="org-ul">
+<li>gzip  可以解开zip,gzip压缩的文件<br>
+<ul class="org-ul">
+<li>-c 将压缩的文件输出到屏幕上，可通过数据流重定向来处理<br></li>
+<li>-d 解压缩<br></li>
+<li>-v 可以显示原文件/压缩文件等信息<br></li>
+<li>-# #表示数字，代表压缩等级，-1最快 但是压缩比差，-9最慢，但是压缩比最好，默认-6<br></li>
+<li>使用gzip压缩文件，原文件会删除，只保留压缩文件<br></li>
+<li>可以使用zcat/zmore/zless来从压缩文件查看原文件<br></li>
+</ul></li>
+<li>bzip2 对gzip进行优化<br>
+<ul class="org-ul">
+<li>-c 将压缩过程产生的数据输出大屏幕上，实际压缩数据无法输出，只是加上-d可以看到压缩文件的原文件内容，查看时不会删除原文件<br></li>
+<li>-d -v -# 和gzip相同<br></li>
+<li>-k 保留原始文件，而不会删除原始文件<br></li>
+<li>可以使用bzcat/bzmore/bzless从压缩文件查看原文件<br></li>
+</ul></li>
+<li>xz 对bzip2进行优化<br>
+<ul class="org-ul">
+<li>-d -k -c -#和bzip2相同<br></li>
+<li>-l 列出压缩文件的相关信息<br></li>
+<li>可以使用xzcat/xzmore/xzless从压缩文件查看原文件<br></li>
+</ul></li>
+<li>tar 打包命令 可以将多个文件或目录打包成一个文件，可以同时配合gzip,bzip2,xz来使用<br>
+<ul class="org-ul">
+<li>gzip,bzip2,xz在压缩文件时，只能把单一文件压缩成单一压缩文件<br></li>
+<li>-c 建立打包文件 -t 查看打包内容，重点在文件名  -x 解包  -c -t -x 不能同时出现在一条命令中  可配合-z|-j|-J使用<br></li>
+<li>-f 后面立即接要处理的文件名，可以是要打包成的文件名，也可以是要查询的压缩文件，也可以是要解压缩的压缩文件<br></li>
+<li>-z 使用gzip -j 使用bzip2 -J使用xz   三者不能同时出现在同一条命令中<br></li>
+<li>-v 在压缩/解压缩过程中，将正在处理的文件名显示出来<br></li>
+<li>-C 后面接要目录名   表示在特定目录解包 配合-x使用<br></li>
+<li>常用<br>
+<ul class="org-ul">
+<li>打包压缩   tar -jcv -f filename.tar.bz2   要被压缩的文件或目录名称<br></li>
+<li>查看      tar -jtv -f filename.tar.bz2<br></li>
+<li>解压缩解包 tar -jxv -f filename.tar.bz2 -C 欲解压缩到的目录<br></li>
+</ul></li>
+<li>打包后的文件保留的是相对路径，而不是原来的绝对路径，在解压缩解包到对应目录后，会以对应目录为基目录 可以通过tar -jtv -f filename.tar.bz2发现<br></li>
+<li>tar命令打包时需要自己指定最终文件名，文件名最好按照可读性的需要建立对应后缀<br>
+<ul class="org-ul">
+<li>evince hello.pdf 打开pdf文件<br></li>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-05-31 Tue 21:53</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

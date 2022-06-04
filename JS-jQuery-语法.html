@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-05-22 Sun 03:16 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>jQuery 语法</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">jQuery 语法</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org89535d9">选择器</a>
+<ul>
+<li><a href="#org7cf61d9">与 css 选择器的的不同</a></li>
+<li><a href="#orged5fe0f">id选择器</a></li>
+<li><a href="#org1d3ff82">类选择器</a></li>
+<li><a href="#orga54d45b">标签选择器</a></li>
+<li><a href="#orgbb5f467">相邻选择器</a></li>
+<li><a href="#org72fbece">子选择器</a></li>
+<li><a href="#org533eb1e">后代选择器</a></li>
+<li><a href="#org8083631">通配符选择器</a></li>
+<li><a href="#org887d853">属性选择器</a></li>
+<li><a href="#orgefabaab">伪类选择器</a></li>
+</ul>
+</li>
+<li><a href="#org938fe3f">过滤器</a></li>
+<li><a href="#org8bcfa2b">函数</a></li>
+<li><a href="#org674e1d6">事件</a></li>
+<li><a href="#orgab7e820">Ajax</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org89535d9" class="outline-2">
+<h2 id="org89535d9">选择器</h2>
+<div class="outline-text-2" id="text-org89535d9">
+</div>
+<div id="outline-container-org7cf61d9" class="outline-3">
+<h3 id="org7cf61d9">与 css 选择器的的不同</h3>
+<div class="outline-text-3" id="text-org7cf61d9">
+<p>
+大部分和 css 选择器保持了一致，但是有一些部分进行了改动：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js">:first    $(<span style="color: #2aa198;">"p:first"</span>)    &#31532;&#19968;&#20010; &lt;p&gt; &#20803;&#32032;
+:last    $(<span style="color: #2aa198;">"p:last"</span>)    &#26368;&#21518;&#19968;&#20010; &lt;p&gt; &#20803;&#32032;
+:even    $(<span style="color: #2aa198;">"tr:even"</span>)    &#25152;&#26377;&#20598;&#25968; &lt;tr&gt; &#20803;&#32032;&#65292;&#32034;&#24341;&#20540;&#20174; 0 &#24320;&#22987;&#65292;&#31532;&#19968;&#20010;&#20803;&#32032;&#26159;&#20598;&#25968; (0)&#65292;&#31532;&#20108;&#20010;&#20803;&#32032;&#26159;&#22855;&#25968; (1)&#65292;&#20197;&#27492;&#31867;&#25512;&#12290;
+:odd    $(<span style="color: #2aa198;">"tr:odd"</span>)    &#25152;&#26377;&#22855;&#25968; &lt;tr&gt; &#20803;&#32032;&#65292;&#32034;&#24341;&#20540;&#20174; 0 &#24320;&#22987;&#65292;&#31532;&#19968;&#20010;&#20803;&#32032;&#26159;&#20598;&#25968; (0)&#65292;&#31532;&#20108;&#20010;&#20803;&#32032;&#26159;&#22855;&#25968; (1)&#65292;&#20197;&#27492;&#31867;&#25512;&#12290;
+:eq(index)    $(<span style="color: #2aa198;">"ul li:eq(3)"</span>)    &#21015;&#34920;&#20013;&#30340;&#31532;&#22235;&#20010;&#20803;&#32032;&#65288;index &#20540;&#20174; 0 &#24320;&#22987;&#65289;
+:gt(no)    $(<span style="color: #2aa198;">"ul li:gt(3)"</span>)    &#21015;&#20030; index &#22823;&#20110; 3 &#30340;&#20803;&#32032;
+:lt(no) $(<span style="color: #2aa198;">"ul li:lt(3)"</span>)    &#21015;&#20030; index &#23567;&#20110; 3 &#30340;&#20803;&#32032;
+:header    $(<span style="color: #2aa198;">":header"</span>)    &#25152;&#26377;&#26631;&#39064;&#20803;&#32032; &lt;h1&gt;, &lt;h2&gt; ...
+:animated    $(<span style="color: #2aa198;">":animated"</span>)    &#25152;&#26377;&#21160;&#30011;&#20803;&#32032;
+:contains(text)    $(<span style="color: #2aa198;">":contains('Hello')"</span>)    &#25152;&#26377;&#21253;&#21547;&#25991;&#26412; <span style="color: #2aa198;">"Hello"</span> &#30340;&#20803;&#32032;
+:has(selector)    $(<span style="color: #2aa198;">"div:has(p)"</span>)    &#25152;&#26377;&#21253;&#21547;&#26377; &lt;p&gt; &#20803;&#32032;&#22312;&#20854;&#20869;&#30340; &lt;div&gt; &#20803;&#32032;
+:hidden    $(<span style="color: #2aa198;">"p:hidden"</span>)    &#25152;&#26377;&#38544;&#34255;&#30340; &lt;p&gt; &#20803;&#32032;
+:visible    $(<span style="color: #2aa198;">"table:visible"</span>)    &#25152;&#26377;&#21487;&#35265;&#30340;&#34920;&#26684;
+[attribute$=value]    $(<span style="color: #2aa198;">"[href$='.jpg']"</span>)    &#25152;&#26377;&#24102;&#26377; href &#23646;&#24615;&#19988;&#20540;&#20197; <span style="color: #2aa198;">".jpg"</span> &#32467;&#23614;&#30340;&#20803;&#32032;
+:input    $(<span style="color: #2aa198;">":input"</span>)    &#25152;&#26377; input &#20803;&#32032;
+:text    $(<span style="color: #2aa198;">":text"</span>)    &#25152;&#26377;&#24102;&#26377; type=<span style="color: #2aa198;">"text"</span> &#30340; input &#20803;&#32032;
+:password    $(<span style="color: #2aa198;">":password"</span>)    &#25152;&#26377;&#24102;&#26377; type=<span style="color: #2aa198;">"password"</span> &#30340; input &#20803;&#32032;
+:radio    $(<span style="color: #2aa198;">":radio"</span>)    &#25152;&#26377;&#24102;&#26377; type=<span style="color: #2aa198;">"radio"</span> &#30340; input &#20803;&#32032;
+:checkbox    $(<span style="color: #2aa198;">":checkbox"</span>)    &#25152;&#26377;&#24102;&#26377; type=<span style="color: #2aa198;">"checkbox"</span> &#30340; input &#20803;&#32032;
+:submit    $(<span style="color: #2aa198;">":submit"</span>)    &#25152;&#26377;&#24102;&#26377; type=<span style="color: #2aa198;">"submit"</span> &#30340; input &#20803;&#32032;
+:reset    $(<span style="color: #2aa198;">":reset"</span>)    &#25152;&#26377;&#24102;&#26377; type=<span style="color: #2aa198;">"reset"</span> &#30340; input &#20803;&#32032;
+:button    $(<span style="color: #2aa198;">":button"</span>)    &#25152;&#26377;&#24102;&#26377; type=<span style="color: #2aa198;">"button"</span> &#30340; input &#20803;&#32032;
+:image    $(<span style="color: #2aa198;">":image"</span>)    &#25152;&#26377;&#24102;&#26377; type=<span style="color: #2aa198;">"image"</span> &#30340; input &#20803;&#32032;
+:file    $(<span style="color: #2aa198;">":file"</span>)    &#25152;&#26377;&#24102;&#26377; type=<span style="color: #2aa198;">"file"</span> &#30340; input &#20803;&#32032; 
+</pre>
+</div>
+
+<p>
+针对表单元素，jQuery还有一组特殊的选择器：<br>
+</p>
+
+<ul class="org-ul">
+<li>:input：可以选择&lt;input&gt;，&lt;textarea&gt;，&lt;select&gt;和&lt;button&gt;；<br></li>
+<li>:file：可以选择&lt;input type="file"&gt;，和input[type=file]一样；<br></li>
+<li>:checkbox：可以选择复选框，和input[type=checkbox]一样；<br></li>
+<li>:radio：可以选择单选框，和input[type=radio]一样；<br></li>
+<li>:focus：可以选择当前输入焦点的元素，例如把光标放到一个&lt;input&gt;上，用$('input:focus')就可以选出；<br></li>
+<li>:checked：选择当前勾上的单选框和复选框，用这个选择器可以立刻获得用户选择的项目，如$('input[type=radio]:checked')；<br></li>
+<li>:enabled：可以选择可以正常输入的&lt;input&gt;、&lt;select&gt; 等，也就是没有灰掉的输入；<br></li>
+<li>:disabled：和:enabled正好相反，选择那些不能输入的。<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orged5fe0f" class="outline-3">
+<h3 id="orged5fe0f">id选择器</h3>
+<div class="outline-text-3" id="text-orged5fe0f">
+<div class="org-src-container">
+<pre class="src src-js">
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org1d3ff82" class="outline-3">
+<h3 id="org1d3ff82">类选择器</h3>
+<div class="outline-text-3" id="text-org1d3ff82">
+<div class="org-src-container">
+<pre class="src src-js">
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orga54d45b" class="outline-3">
+<h3 id="orga54d45b">标签选择器</h3>
+<div class="outline-text-3" id="text-orga54d45b">
+<div class="org-src-container">
+<pre class="src src-js">
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgbb5f467" class="outline-3">
+<h3 id="orgbb5f467">相邻选择器</h3>
+</div>
+<div id="outline-container-org72fbece" class="outline-3">
+<h3 id="org72fbece">子选择器</h3>
+</div>
+<div id="outline-container-org533eb1e" class="outline-3">
+<h3 id="org533eb1e">后代选择器</h3>
+</div>
+<div id="outline-container-org8083631" class="outline-3">
+<h3 id="org8083631">通配符选择器</h3>
+</div>
+<div id="outline-container-org887d853" class="outline-3">
+<h3 id="org887d853">属性选择器</h3>
+</div>
+<div id="outline-container-orgefabaab" class="outline-3">
+<h3 id="orgefabaab">伪类选择器</h3>
+</div>
+</div>
+<div id="outline-container-org938fe3f" class="outline-2">
+<h2 id="org938fe3f">过滤器</h2>
+</div>
+<div id="outline-container-org8bcfa2b" class="outline-2">
+<h2 id="org8bcfa2b">函数</h2>
+</div>
+<div id="outline-container-org674e1d6" class="outline-2">
+<h2 id="org674e1d6">事件</h2>
+</div>
+<div id="outline-container-orgab7e820" class="outline-2">
+<h2 id="orgab7e820">Ajax</h2>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-05-21 16:05 Sat</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-05-22 Sun 03:16</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-05-22 Sun 02:14 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>jQuery 选择器</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">jQuery 选择器</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgdc1ee39">一、基本选择器</a>
+<ul>
+<li><a href="#org54da3f2">1. id 选择器</a></li>
+<li><a href="#org9930331">2. 类选择器</a></li>
+<li><a href="#org0443577">3. 标签选择器</a></li>
+<li><a href="#org6662100">4. 通配选择器</a></li>
+<li><a href="#orgc421bab">5. 并列选择器</a></li>
+</ul>
+</li>
+<li><a href="#orgb3be696">二、层次选择器</a>
+<ul>
+<li><a href="#orgae72da9">1. parent child 后代选择器</a></li>
+<li><a href="#org23b67e6">2. parent &gt; child 直系子选择器</a></li>
+<li><a href="#org14113b9">3. prev + next 相邻弟选择器</a></li>
+<li><a href="#org6a1fabb">4. prev ~ siblings 通用弟选择器</a></li>
+</ul>
+</li>
+<li><a href="#orgbdd62d5">三、过滤选择器</a>
+<ul>
+<li><a href="#orgd07438c">1. 基本过滤选择器</a>
+<ul>
+<li><a href="#orgdc12fd2">1.1 :first 和 :last</a></li>
+<li><a href="#org592fdba">1.2 :not</a></li>
+<li><a href="#orgb42c6c3">1.3 :even 和 :odd</a></li>
+<li><a href="#org7ce6005">1.4 :eq(x)</a></li>
+<li><a href="#org81de524">1.5 :gt(x) 和 :lt(x)</a></li>
+<li><a href="#org5cb58c8">1.6 :header</a></li>
+</ul>
+</li>
+<li><a href="#orgb26481a">2. 内容过滤选择器</a>
+<ul>
+<li><a href="#orge6d86e7">2.1 :contains(text)</a></li>
+<li><a href="#org6c69839">2.2 :empty</a></li>
+<li><a href="#orgb8c5fd9">2.3 :has(selector)</a></li>
+<li><a href="#org76f2c74">2.4 :parent</a></li>
+</ul>
+</li>
+<li><a href="#orgd10197a">3. 可见性过滤选择器</a>
+<ul>
+<li><a href="#orgde34a20">3.1 :hidden</a></li>
+<li><a href="#org67fec51">3.2 :visible</a></li>
+</ul>
+</li>
+<li><a href="#org7e63c90">4. 属性过滤选择器</a>
+<ul>
+<li><a href="#org03e97fd">4.1 [attribute]</a></li>
+<li><a href="#orga43c3be">4.2 [attribute = value] 和 [attribute != value]</a></li>
+<li><a href="#org8c99214">4.3 [attribute ^= value], [attribute $= value] 和 [attribute ^= value]</a></li>
+<li><a href="#org0bdc172">4.4 [selector1][selector2]</a></li>
+</ul>
+</li>
+<li><a href="#orgea0a14b">5. 子元素过滤选择器</a>
+<ul>
+<li><a href="#orge9850d7">5.1 :first-child 和 :last-child</a></li>
+<li><a href="#orgf9583e3">5.2 :only-child</a></li>
+<li><a href="#org0aa6735">5.3 :nth-child</a></li>
+</ul>
+</li>
+<li><a href="#org4a6611a">6. 表单对象属性过滤选择器</a>
+<ul>
+<li><a href="#org8822a83">6.1 :enabled 和 :disabled</a></li>
+<li><a href="#orgee53d77">6.2 :checked</a></li>
+<li><a href="#orge800cd1">6.3 :selected</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org03db876">四、表单选择器</a>
+<ul>
+<li><a href="#org8a8160e">1. :input</a></li>
+<li><a href="#orgb5c73a6">2. :text 和 :password</a></li>
+<li><a href="#orgb577f88">3. :radio</a></li>
+<li><a href="#org077ea4b">4. :checkbox</a></li>
+<li><a href="#org818b7a5">5. :submit</a></li>
+<li><a href="#orga6cd1a5">6. :reset</a></li>
+<li><a href="#org863c6f0">7. :button</a></li>
+<li><a href="#org7821c67">8. :file</a></li>
+<li><a href="#org9273ad1">9. :hidden</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgdc1ee39" class="outline-2">
+<h2 id="orgdc1ee39">一、基本选择器</h2>
+<div class="outline-text-2" id="text-orgdc1ee39">
+</div>
+<div id="outline-container-org54da3f2" class="outline-3">
+<h3 id="org54da3f2">1. id 选择器</h3>
+<div class="outline-text-3" id="text-org54da3f2">
+<p>
+将 <code>id="one"</code> 的元素背景色设置为黑色（id选择器返单个元素）。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js">$(document).ready(<span style="color: #268bd2; font-weight: bold;">function</span> () {
+    $(<span style="color: #2aa198;">'#one'</span>).css(<span style="color: #2aa198;">'background'</span>, <span style="color: #2aa198;">'#000'</span>);
+});
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org9930331" class="outline-3">
+<h3 id="org9930331">2. 类选择器</h3>
+<div class="outline-text-3" id="text-org9930331">
+<p>
+将 <code>class="cube"</code> 的元素背景色设为黑色。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js">$(document).ready(<span style="color: #268bd2; font-weight: bold;">function</span> () {
+    $(<span style="color: #2aa198;">'.cube'</span>).css(<span style="color: #2aa198;">'background'</span>, <span style="color: #2aa198;">'#000'</span>);
+});
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org0443577" class="outline-3">
+<h3 id="org0443577">3. 标签选择器</h3>
+<div class="outline-text-3" id="text-org0443577">
+<p>
+将 <code>p</code> 元素的文字大小设置为 12px。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js">$(document).ready(<span style="color: #268bd2; font-weight: bold;">function</span> () {
+    $(<span style="color: #2aa198;">'p'</span>).css(<span style="color: #2aa198;">'font-size'</span>, <span style="color: #2aa198;">'12px'</span>);
+});
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org6662100" class="outline-3">
+<h3 id="org6662100">4. 通配选择器</h3>
+<div class="outline-text-3" id="text-org6662100">
+<div class="org-src-container">
+<pre class="src src-js">$(document).ready(<span style="color: #268bd2; font-weight: bold;">function</span> () {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36941;&#21382;form&#19979;&#30340;&#25152;&#26377;&#20803;&#32032;&#65292;&#23558;&#23383;&#20307;&#39068;&#33394;&#35774;&#32622;&#20026;&#32418;&#33394;</span>
+    $(<span style="color: #2aa198;">'form *'</span>).css(<span style="color: #2aa198;">'color'</span>, <span style="color: #2aa198;">'#FF0000'</span>);
+});
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgc421bab" class="outline-3">
+<h3 id="orgc421bab">5. 并列选择器</h3>
+<div class="outline-text-3" id="text-orgc421bab">
+<div class="org-src-container">
+<pre class="src src-js">$(document).ready(<span style="color: #268bd2; font-weight: bold;">function</span> () {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23558;p&#20803;&#32032;&#21644;div&#20803;&#32032;&#30340;margin&#35774;&#20026;0</span>
+    $(<span style="color: #2aa198;">'p, div'</span>).css(<span style="color: #2aa198;">'margin'</span>, <span style="color: #2aa198;">'0'</span>);
+});
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb3be696" class="outline-2">
+<h2 id="orgb3be696">二、层次选择器</h2>
+<div class="outline-text-2" id="text-orgb3be696">
+</div>
+<div id="outline-container-orgae72da9" class="outline-3">
+<h3 id="orgae72da9">1. parent child 后代选择器</h3>
+<div class="outline-text-3" id="text-orgae72da9">
+<div class="org-src-container">
+<pre class="src src-js">$(document).ready(<span style="color: #268bd2; font-weight: bold;">function</span> () {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36873;&#21462; div &#19979;&#30340;&#25152;&#26377; span &#20803;&#32032;&#65292;&#23558;&#23383;&#20307;&#39068;&#33394;&#35774;&#20026;&#32418;&#33394;</span>
+    $(<span style="color: #2aa198;">'div span'</span>).css(<span style="color: #2aa198;">'color'</span>, <span style="color: #2aa198;">'#FF0000'</span>);
+});
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org23b67e6" class="outline-3">
+<h3 id="org23b67e6">2. parent &gt; child 直系子选择器</h3>
+<div class="outline-text-3" id="text-org23b67e6">
+<div class="org-src-container">
+<pre class="src src-js">$(document).ready(<span style="color: #268bd2; font-weight: bold;">function</span> () {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36873;&#21462;div&#19979;&#30340;&#31532;&#19968;&#20195;span&#20803;&#32032;&#65292;&#23558;&#23383;&#20307;&#39068;&#33394;&#35774;&#20026;&#32418;&#33394;</span>
+    $(<span style="color: #2aa198;">'div &gt; span'</span>).css(<span style="color: #2aa198;">'color'</span>, <span style="color: #2aa198;">'#FF0000'</span>);
+});
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org14113b9" class="outline-3">
+<h3 id="org14113b9">3. prev + next 相邻弟选择器</h3>
+<div class="outline-text-3" id="text-org14113b9">
+<div class="org-src-container">
+<pre class="src src-js">$(document).ready(<span style="color: #268bd2; font-weight: bold;">function</span> () {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36873;&#21462;class&#20026;item&#30340;&#19979;&#19968;&#20010;div&#20804;&#24351;&#20803;&#32032;</span>
+    $(<span style="color: #2aa198;">'.item + div'</span>).css(<span style="color: #2aa198;">'color'</span>, <span style="color: #2aa198;">'#FF0000'</span>);
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#31561;&#20215;&#20195;&#30721;</span>
+    <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">$('.item').next('div').css('color', '#FF0000');</span>
+});
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org6a1fabb" class="outline-3">
+<h3 id="org6a1fabb">4. prev ~ siblings 通用弟选择器</h3>
+<div class="outline-text-3" id="text-org6a1fabb">
+<p>
+prev 元素的所有兄弟元素，等同于 <code>nextAll()</code> 方法。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js">$(document).ready(<span style="color: #268bd2; font-weight: bold;">function</span> () {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36873;&#21462;class&#20026;inside&#20043;&#21518;&#30340;&#25152;&#26377;div&#20804;&#24351;&#20803;&#32032;</span>
+    $(<span style="color: #2aa198;">'.inside ~ div'</span>).css(<span style="color: #2aa198;">'color'</span>, <span style="color: #2aa198;">'#FF0000'</span>);
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#31561;&#20215;&#20195;&#30721;</span>
+    <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">$('.inside').nextAll('div').css('color', '#FF0000');</span>
+}); 
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgbdd62d5" class="outline-2">
+<h2 id="orgbdd62d5">三、过滤选择器</h2>
+<div class="outline-text-2" id="text-orgbdd62d5">
+</div>
+<div id="outline-container-orgd07438c" class="outline-3">
+<h3 id="orgd07438c">1. 基本过滤选择器</h3>
+<div class="outline-text-3" id="text-orgd07438c">
+</div>
+<div id="outline-container-orgdc12fd2" class="outline-4">
+<h4 id="orgdc12fd2">1.1 :first 和 :last</h4>
+<div class="outline-text-4" id="text-orgdc12fd2">
+<p>
+取第一个或最后一个元素。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js">$(document).ready(<span style="color: #268bd2; font-weight: bold;">function</span> () {
+    $(<span style="color: #2aa198;">'span:first'</span>).css(<span style="color: #2aa198;">'color'</span>, <span style="color: #2aa198;">'#FF0000'</span>);
+    $(<span style="color: #2aa198;">'span:last'</span>).css(<span style="color: #2aa198;">'color'</span>, <span style="color: #2aa198;">'#FF0000'</span>);
+});
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org592fdba" class="outline-4">
+<h4 id="org592fdba">1.2 :not</h4>
+<div class="outline-text-4" id="text-org592fdba">
+<p>
+下面取 div 且类不是 .wrap 的元素，给字体设置颜色。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js">$(document).ready(<span style="color: #268bd2; font-weight: bold;">function</span> () {
+    $(<span style="color: #2aa198;">'div:not(.wrap)'</span>).css(<span style="color: #2aa198;">'color'</span>, <span style="color: #2aa198;">'#FF0000'</span>);
+});
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb42c6c3" class="outline-4">
+<h4 id="orgb42c6c3">1.3 :even 和 :odd</h4>
+<div class="outline-text-4" id="text-orgb42c6c3">
+<p>
+取偶数索引或奇数索引元素，索引从 0 开始，even 表示偶数，odd 表示奇数。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js">$(document).ready(<span style="color: #268bd2; font-weight: bold;">function</span> () {
+    $(<span style="color: #2aa198;">'tr:even'</span>).css(<span style="color: #2aa198;">'background'</span>, <span style="color: #2aa198;">'#EEE'</span>); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20598;&#25968;&#34892;&#39068;&#33394;</span>
+    $(<span style="color: #2aa198;">'tr:odd'</span>).css(<span style="color: #2aa198;">'background'</span>, <span style="color: #2aa198;">'#DADADA'</span>); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22855;&#25968;&#34892;&#39068;&#33394;</span>
+});
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org7ce6005" class="outline-4">
+<h4 id="org7ce6005">1.4 :eq(x)</h4>
+<div class="outline-text-4" id="text-org7ce6005">
+<p>
+取指定索引的元素。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js">$(document).ready(<span style="color: #268bd2; font-weight: bold;">function</span> () {
+    $(<span style="color: #2aa198;">'tr:eq(2)'</span>).css(<span style="color: #2aa198;">'background'</span>, <span style="color: #2aa198;">'#FF0000'</span>);
+}); 
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org81de524" class="outline-4">
+<h4 id="org81de524">1.5 :gt(x) 和 :lt(x)</h4>
+<div class="outline-text-4" id="text-org81de524">
+<p>
+取大于 x 索引或小于 x 索引的元素。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js">$(document).ready(<span style="color: #268bd2; font-weight: bold;">function</span> () {
+    $(<span style="color: #2aa198;">'ul li:gt(2)'</span>).css(<span style="color: #2aa198;">'color'</span>, <span style="color: #2aa198;">'#FF0000'</span>);
+    $(<span style="color: #2aa198;">'ul li:lt(2)'</span>).css(<span style="color: #2aa198;">'color'</span>, <span style="color: #2aa198;">'#0000FF'</span>);
+});
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org5cb58c8" class="outline-4">
+<h4 id="org5cb58c8">1.6 :header</h4>
+<div class="outline-text-4" id="text-org5cb58c8">
+<p>
+取H1~H6标题元素。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js">$(document).ready(<span style="color: #268bd2; font-weight: bold;">function</span> () {
+    $(<span style="color: #2aa198;">':header'</span>).css(<span style="color: #2aa198;">'background'</span>, <span style="color: #2aa198;">'#EFEFEF'</span>);
+});
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb26481a" class="outline-3">
+<h3 id="orgb26481a">2. 内容过滤选择器</h3>
+<div class="outline-text-3" id="text-orgb26481a">
+</div>
+<div id="outline-container-orge6d86e7" class="outline-4">
+<h4 id="orge6d86e7">2.1 :contains(text)</h4>
+<div class="outline-text-4" id="text-orge6d86e7">
+<p>
+取包含 text 文本的元素。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js">$(document).ready(<span style="color: #268bd2; font-weight: bold;">function</span> () {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">dd&#20803;&#32032;&#20013;&#21253;&#21547;"jQuery"&#25991;&#26412;&#30340;&#20250;&#21464;&#33394;</span>
+    $(<span style="color: #2aa198;">'dd:contains("jQuery")'</span>).css(<span style="color: #2aa198;">'color'</span>, <span style="color: #2aa198;">'#FF0000'</span>);
+});
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org6c69839" class="outline-4">
+<h4 id="org6c69839">2.2 :empty</h4>
+<div class="outline-text-4" id="text-org6c69839">
+<p>
+取不包含子元素或文本为空的元素。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js">$(document).ready(<span style="color: #268bd2; font-weight: bold;">function</span> () {
+    $(<span style="color: #2aa198;">'dd:empty'</span>).html(<span style="color: #2aa198;">'&#27809;&#26377;&#20869;&#23481;'</span>);
+});
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb8c5fd9" class="outline-4">
+<h4 id="orgb8c5fd9">2.3 :has(selector)</h4>
+<div class="outline-text-4" id="text-orgb8c5fd9">
+<p>
+取选择器匹配的元素，下面为包含 <code>span</code> 元素的 <code>div</code> 添加边框，即使 <code>span</code> 不是 <code>div</code> 的直系子元素也会生效。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js">$(document).ready(<span style="color: #268bd2; font-weight: bold;">function</span> () {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20026;&#21253;&#21547;span&#20803;&#32032;&#30340;div&#28155;&#21152;&#36793;&#26694;</span>
+    $(<span style="color: #2aa198;">'div:has(span)'</span>).css(<span style="color: #2aa198;">'border'</span>, <span style="color: #2aa198;">'1px solid #000'</span>);
+});
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org76f2c74" class="outline-4">
+<h4 id="org76f2c74">2.4 :parent</h4>
+<div class="outline-text-4" id="text-org76f2c74">
+<p>
+取包含子元素或文本的元素。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js">$(document).ready(<span style="color: #268bd2; font-weight: bold;">function</span> () {
+    $(<span style="color: #2aa198;">'ol li:parent'</span>).css(<span style="color: #2aa198;">'border'</span>, <span style="color: #2aa198;">'1px solid #000'</span>);
+});
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgd10197a" class="outline-3">
+<h3 id="orgd10197a">3. 可见性过滤选择器</h3>
+<div class="outline-text-3" id="text-orgd10197a">
+</div>
+<div id="outline-container-orgde34a20" class="outline-4">
+<h4 id="orgde34a20">3.1 :hidden</h4>
+<div class="outline-text-4" id="text-orgde34a20">
+<p>
+取不可见的元素。<br>
+</p>
+
+<p>
+jQuery 至 1.3.2 之后的 <code>:hidden</code> 选择器仅匹配 <code>display:none</code> 或 <code>&lt;input type="hidden" /&gt;</code> 的元素，而不匹配 <code>visibility: hidden</code> 或 <code>opacity: 0</code> 的元素。这也意味着 <code>hidden</code> 只匹配那些“隐藏的”并且不占空间的元素，像 <code>visibility:hidden</code> 或 <code>opactity: 0</code> 的元素占据了空间，会被排除在外。<br>
+</p>
+
+<p>
+下面的代码，先弹出"hello"对话框，然后 hid-1 会显示，hid-2 仍然是不可见的。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-html">&lt;<span style="color: #d75fd7; font-weight: bold;">html</span> <span style="color: #8787d7;">xmlns</span>=<span style="color: #2aa198;">"http://www.w3.org/1999/xhtml"</span> &gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">head</span> <span style="color: #8787d7;">runat</span>=<span style="color: #2aa198;">"server"</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;&lt;/<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">style</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"text/css"</span>&gt;
+      div {
+          margin: 10px;
+          width: 200px;
+          height: 40px;
+          border: 1px solid #FF0000;
+          display:block;
+      }
+      .hid-1 {
+          display: none;
+      }
+      .hid-2 {
+          visibility: hidden;
+      }
+    &lt;/<span style="color: #d75fd7; font-weight: bold;">style</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">script</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"text/javascript"</span> <span style="color: #8787d7;">src</span>=<span style="color: #2aa198;">"js/jquery.min.js"</span>&gt;&lt;/<span style="color: #d75fd7; font-weight: bold;">script</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">script</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"text/javascript"</span>&gt;
+      $(document).ready(function() {
+      $('div:hidden').show(500);
+      alert($('input:hidden').val());
+      });
+    &lt;/<span style="color: #d75fd7; font-weight: bold;">script</span>&gt;
+  &lt;/<span style="color: #d75fd7; font-weight: bold;">head</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">div</span> <span style="color: #8787d7;">class</span>=<span style="color: #2aa198;">"hid-1"</span>&gt;display: none&lt;/<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">div</span> <span style="color: #8787d7;">class</span>=<span style="color: #2aa198;">"hid-2"</span>&gt;visibility: hidden&lt;/<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">input</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"hidden"</span> <span style="color: #8787d7;">value</span>=<span style="color: #2aa198;">"hello"</span>/&gt;
+  &lt;/<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
+&lt;/<span style="color: #d75fd7; font-weight: bold;">html</span>&gt;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org67fec51" class="outline-4">
+<h4 id="org67fec51">3.2 :visible</h4>
+<div class="outline-text-4" id="text-org67fec51">
+<p>
+取可见的元素，下面的代码，最后一个div会有背景色：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-html">&lt;<span style="color: #d75fd7; font-weight: bold;">script</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"text/javascript"</span>&gt;
+  $(document).ready(function() {
+      $('div:visible').css('background', '#EEADBB');
+  });
+&lt;/<span style="color: #d75fd7; font-weight: bold;">script</span>&gt;
+&lt;<span style="color: #d75fd7; font-weight: bold;">div</span> <span style="color: #8787d7;">class</span>=<span style="color: #2aa198;">"hid-1"</span>&gt;display: none&lt;/<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+&lt;<span style="color: #d75fd7; font-weight: bold;">div</span> <span style="color: #8787d7;">class</span>=<span style="color: #2aa198;">"hid-2"</span>&gt;visibility: hidden&lt;/<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+&lt;<span style="color: #d75fd7; font-weight: bold;">input</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"hidden"</span> <span style="color: #8787d7;">value</span>=<span style="color: #2aa198;">"hello"</span>/&gt;
+&lt;<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+  jQuery&#36873;&#25321;&#22120;&#22823;&#20840;
+&lt;/<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org7e63c90" class="outline-3">
+<h3 id="org7e63c90">4. 属性过滤选择器</h3>
+<div class="outline-text-3" id="text-org7e63c90">
+</div>
+<div id="outline-container-org03e97fd" class="outline-4">
+<h4 id="org03e97fd">4.1 [attribute]</h4>
+<div class="outline-text-4" id="text-org03e97fd">
+<p>
+取拥有 attribute 属性的元素，下面的代码，最后一个 a 标签没有 title 属性，所以它仍然会带下划线：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-html">&lt;<span style="color: #d75fd7; font-weight: bold;">script</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"text/javascript"</span>&gt;
+  $(document).ready(function() {
+      $('a[title]').css('text-decoration', 'none');
+  });
+&lt;/<span style="color: #d75fd7; font-weight: bold;">script</span>&gt;       
+&lt;<span style="color: #d75fd7; font-weight: bold;">ul</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">li</span>&gt;&lt;<span style="color: #d75fd7; font-weight: bold;">a</span> <span style="color: #8787d7;">href</span>=<span style="color: #2aa198;">"#"</span> <span style="color: #8787d7;">title</span>=<span style="color: #2aa198;">"DOM&#23545;&#35937;&#21644;jQuery&#23545;&#35937;"</span> <span style="color: #8787d7;">class</span>=<span style="color: #2aa198;">"item"</span>&gt;DOM&#23545;&#35937;&#21644;jQuery&#23545;&#35937;&lt;/<span style="color: #d75fd7; font-weight: bold;">a</span>&gt;&lt;/<span style="color: #d75fd7; font-weight: bold;">li</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">li</span>&gt;&lt;<span style="color: #d75fd7; font-weight: bold;">a</span> <span style="color: #8787d7;">href</span>=<span style="color: #2aa198;">"#"</span> <span style="color: #8787d7;">title</span>=<span style="color: #2aa198;">"jQuery&#36873;&#25321;&#22120;&#22823;&#20840;"</span> <span style="color: #8787d7;">class</span>=<span style="color: #2aa198;">"item-selected"</span>&gt;jQuery&#36873;&#25321;&#22120;&#22823;&#20840;&lt;/<span style="color: #d75fd7; font-weight: bold;">a</span>&gt;&lt;/<span style="color: #d75fd7; font-weight: bold;">li</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">li</span>&gt;&lt;<span style="color: #d75fd7; font-weight: bold;">a</span> <span style="color: #8787d7;">href</span>=<span style="color: #2aa198;">"#"</span> <span style="color: #8787d7;">title</span>=<span style="color: #2aa198;">"jQuery&#20107;&#20214;&#22823;&#20840;"</span> <span style="color: #8787d7;">class</span>=<span style="color: #2aa198;">"item"</span>&gt;jQuery&#20107;&#20214;&#22823;&#20840;&lt;/<span style="color: #d75fd7; font-weight: bold;">a</span>&gt;&lt;/<span style="color: #d75fd7; font-weight: bold;">li</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">li</span>&gt;&lt;<span style="color: #d75fd7; font-weight: bold;">a</span> <span style="color: #8787d7;">href</span>=<span style="color: #2aa198;">"#"</span> <span style="color: #8787d7;">title</span>=<span style="color: #2aa198;">"&#22522;&#20110;jQuery&#30340;&#25554;&#20214;&#24320;&#21457;"</span> <span style="color: #8787d7;">class</span>=<span style="color: #2aa198;">"item"</span>&gt;&#22522;&#20110;jQuery&#30340;&#25554;&#20214;&#24320;&#21457;&lt;/<span style="color: #d75fd7; font-weight: bold;">a</span>&gt;&lt;/<span style="color: #d75fd7; font-weight: bold;">li</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">li</span>&gt;&lt;<span style="color: #d75fd7; font-weight: bold;">a</span> <span style="color: #8787d7;">href</span>=<span style="color: #2aa198;">"#"</span> <span style="color: #8787d7;">title</span>=<span style="color: #2aa198;">"Wordpress &amp; jQuery"</span> <span style="color: #8787d7;">class</span>=<span style="color: #2aa198;">"item"</span>&gt;Wordpress &amp; jQuery&lt;/<span style="color: #d75fd7; font-weight: bold;">a</span>&gt;&lt;/<span style="color: #d75fd7; font-weight: bold;">li</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">li</span>&gt;&lt;<span style="color: #d75fd7; font-weight: bold;">a</span> <span style="color: #8787d7;">href</span>=<span style="color: #2aa198;">"#"</span> <span style="color: #8787d7;">class</span>=<span style="color: #2aa198;">"item"</span>&gt;&#20854;&#20182;&lt;/<span style="color: #d75fd7; font-weight: bold;">a</span>&gt;&lt;/<span style="color: #d75fd7; font-weight: bold;">li</span>&gt;
+&lt;/<span style="color: #d75fd7; font-weight: bold;">ul</span>&gt;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orga43c3be" class="outline-4">
+<h4 id="orga43c3be">4.2 [attribute = value] 和 [attribute != value]</h4>
+<div class="outline-text-4" id="text-orga43c3be">
+<p>
+取 attribute 属性值等于 value 或不等于 value 的元素，下面分别为 <code>class="item"</code> 和 <code>class!=item</code> 的 a 标签指定文字颜色：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-html">&lt;<span style="color: #d75fd7; font-weight: bold;">script</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"text/javascript"</span>&gt;
+  $(document).ready(function() {
+      $('a[class=item]').css('color', '#FF99CC');
+      $('a[class!=item]').css('color', '#FF6600');
+  });
+&lt;/<span style="color: #d75fd7; font-weight: bold;">script</span>&gt;   
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org8c99214" class="outline-4">
+<h4 id="org8c99214">4.3 [attribute ^= value], [attribute $= value] 和 [attribute ^= value]</h4>
+<div class="outline-text-4" id="text-org8c99214">
+<p>
+attribute 属性值以 value 开始，以 value 结束，或包含 value 值。<br>
+</p>
+
+<p>
+在属性选择器中， <code>^$</code> 符号和正则表达式的开始结束符号表示的含义是一致的， <code>*</code> 模糊匹配，类似于 sql 中的 <code>like '%str%'</code> 。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-html">&lt;<span style="color: #d75fd7; font-weight: bold;">script</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"text/javascript"</span>&gt;
+  // &#35782;&#21035;&#22823;&#23567;&#20889;&#65292;&#36755;&#20837;&#23383;&#31526;&#20018;&#26102;&#21487;&#20197;&#36755;&#20837;&#24341;&#21495;&#65292;[title^=jQuery]&#21644;[title^="jQuery"]&#26159;&#19968;&#26679;&#30340;
+  $('a[title^=jQuery]').css('font-weight', 'bold');
+  $('a[title$=jQuery]').css('font-size', '24px');
+  $('a[title*=jQuery]').css('text-decoration', 'line-through');
+&lt;/<span style="color: #d75fd7; font-weight: bold;">script</span>&gt; 
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org0bdc172" class="outline-4">
+<h4 id="org0bdc172">4.4 [selector1][selector2]</h4>
+<div class="outline-text-4" id="text-org0bdc172">
+<p>
+复合型属性过滤器，同时满足多个条件。<br>
+</p>
+
+<p>
+将 title 以 "jQuery" 开始，并且 class="item" 的 a 标签隐藏，那么 <code>&lt;a href="#" title="jQuery事件大全" class="item"&gt;jQuery事件大全&lt;/a&gt;</code> 会被隐藏。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-html">&lt;<span style="color: #d75fd7; font-weight: bold;">script</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"text/javascript"</span>&gt;
+  $(document).ready(function() {
+      $('a[title^=jQuery][class=item]').hide();
+  });
+&lt;/<span style="color: #d75fd7; font-weight: bold;">script</span>&gt;  
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgea0a14b" class="outline-3">
+<h3 id="orgea0a14b">5. 子元素过滤选择器</h3>
+<div class="outline-text-3" id="text-orgea0a14b">
+</div>
+<div id="outline-container-orge9850d7" class="outline-4">
+<h4 id="orge9850d7">5.1 :first-child 和 :last-child</h4>
+<div class="outline-text-4" id="text-orge9850d7">
+<p>
+<code>:first-child</code> 表示第一个子元素， <code>:last-child</code> 表示最后一个子元素。<br>
+</p>
+
+<p>
+需要大家注意的是， <code>:fisrst</code> 和 <code>:last</code> 返回的都是单个元素，而 <code>:first-child</code> 和 <code>:last-child</code> 返回的都是集合元素。举个例子： <code>div:first</code> 返回的是整个 DOM 文档中第一个 div 元素，而 <code>div:first-child</code> 是返回所有 div 元素下的第一个元素合并后的集合。<br>
+</p>
+
+<p>
+这里有个问题：如果一个元素没有子元素， <code>:first-child</code> 和 <code>:last-child</code> 会返回 null 吗？请看下面的代码：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-html">&lt;<span style="color: #d75fd7; font-weight: bold;">html</span> <span style="color: #8787d7;">xmlns</span>=<span style="color: #2aa198;">"http://www.w3.org/1999/xhtml"</span> &gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">head</span> <span style="color: #8787d7;">runat</span>=<span style="color: #2aa198;">"server"</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;&lt;/<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">script</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"text/javascript"</span> <span style="color: #8787d7;">src</span>=<span style="color: #2aa198;">"js/jquery.min.js"</span>&gt;&lt;/<span style="color: #d75fd7; font-weight: bold;">script</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">script</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"text/javascript"</span>&gt;
+      $(document).ready(function() {
+          var len1 = $('div:first-child').length;
+          var len2 = $('div:last-child').length;
+      });
+    &lt;/<span style="color: #d75fd7; font-weight: bold;">script</span>&gt;
+  &lt;/<span style="color: #d75fd7; font-weight: bold;">head</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+      &lt;<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+        &lt;<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;&lt;/<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+      &lt;/<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+    &lt;/<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+  &lt;/<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
+&lt;/<span style="color: #d75fd7; font-weight: bold;">html</span>&gt; 
+</pre>
+</div>
+
+<p>
+也许你觉得这个答案，是不是太简单了？len1 = 2, len2 = 2。但实际确并不是，它们俩都等于 3。<br>
+</p>
+
+<p>
+把上面的代码稍微修改一下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-html">&lt;<span style="color: #d75fd7; font-weight: bold;">html</span> <span style="color: #8787d7;">xmlns</span>=<span style="color: #2aa198;">"http://www.w3.org/1999/xhtml"</span> &gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">head</span> <span style="color: #8787d7;">runat</span>=<span style="color: #2aa198;">"server"</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;&lt;/<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">script</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"text/javascript"</span> <span style="color: #8787d7;">src</span>=<span style="color: #2aa198;">"js/jquery.min.js"</span>&gt;&lt;/<span style="color: #d75fd7; font-weight: bold;">script</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">script</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"text/javascript"</span>&gt;
+      $(document).ready(function() {
+          var len1 = $('div:first-child').length;
+          var len2 = $('div:last-child').length;
+          $('div:first-child').each(function() {
+              alert($(this).html());
+          });
+      });
+    &lt;/<span style="color: #d75fd7; font-weight: bold;">script</span>&gt;
+  &lt;/<span style="color: #d75fd7; font-weight: bold;">head</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;123
+      &lt;<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;456
+        &lt;<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;&lt;/<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+      &lt;/<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+    &lt;/<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+  &lt;/<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
+&lt;/<span style="color: #d75fd7; font-weight: bold;">html</span>&gt;
+</pre>
+</div>
+
+<p>
+结果却是弹出三个 alert，只不过最后一个 alert里面是空白的。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf9583e3" class="outline-4">
+<h4 id="orgf9583e3">5.2 :only-child</h4>
+<div class="outline-text-4" id="text-orgf9583e3">
+<p>
+当某个元素有且仅有一个子元素时， <code>:only-child</code> 才会生效。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-html">&lt;<span style="color: #d75fd7; font-weight: bold;">html</span> <span style="color: #8787d7;">xmlns</span>=<span style="color: #2aa198;">"http://www.w3.org/1999/xhtml"</span> &gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">head</span> <span style="color: #8787d7;">runat</span>=<span style="color: #2aa198;">"server"</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;&lt;/<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">script</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"text/javascript"</span> <span style="color: #8787d7;">src</span>=<span style="color: #2aa198;">"js/jquery.min.js"</span>&gt;&lt;/<span style="color: #d75fd7; font-weight: bold;">script</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">script</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"text/javascript"</span>&gt;
+      $(document).ready(function() {
+          $('div:only-child').css('border', '1px solid #FF0000').css('width','200px');
+      });
+    &lt;/<span style="color: #d75fd7; font-weight: bold;">script</span>&gt;
+  &lt;/<span style="color: #d75fd7; font-weight: bold;">head</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;123
+      &lt;<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;456
+        &lt;<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;&lt;/<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+      &lt;/<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+    &lt;/<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+  &lt;/<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
+&lt;/<span style="color: #d75fd7; font-weight: bold;">html</span>&gt;
+</pre>
+</div>
+
+<p>
+这里 <code>:only-child</code> 也是三个元素，从最后一个很粗的红色边框（实际是两个元素的边框重叠了）也可以看出来。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org0aa6735" class="outline-4">
+<h4 id="org0aa6735">5.3 :nth-child</h4>
+<div class="outline-text-4" id="text-org0aa6735">
+<p>
+<code>:nth-child</code> 就表示第 n 个 child 元素。要注意的是，这儿的 n 不像 <code>eq(x)</code> 、 <code>gt(x)</code> 或 <code>lt(x)</code> 是从 0 开始的，它是从 1 开始的，英文里好像也没有 zeroth 这样的序号词吧。<br>
+</p>
+
+<p>
+<code>:nth-child</code> 有三种用法：<br>
+</p>
+
+<ol class="org-ol">
+<li><code>:nth-child(x)</code> ，获取第 x 个子元素；<br></li>
+<li><code>:nth-child(even)</code> 和 <code>:nth-child(odd)</code> ，从 1 开始，获取第偶数个元素或第奇数个元素；<br></li>
+<li><code>:nth-child(xn+y)</code> ，x &gt;= 0，y &gt;= 0。例如x = 3, y = 0 时就是 3n，表示取第 3n 个元素（n &gt;= 0）。实际上 xn+y 是上面两种的通项式。（当 x=0, y&gt;=0 时，等同于 <code>:hth-child(x)</code> ；当 x=2, y=0 时，等同于 <code>nth-child(even)</code> ；当 x=2, y=1 时，等同于 <code>:nth-child(odd)</code> ）<br></li>
+</ol>
+
+<p>
+例2：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-html">&lt;<span style="color: #d75fd7; font-weight: bold;">html</span> <span style="color: #8787d7;">xmlns</span>=<span style="color: #2aa198;">"http://www.w3.org/1999/xhtml"</span> &gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">head</span> <span style="color: #8787d7;">runat</span>=<span style="color: #2aa198;">"server"</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;&lt;/<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">style</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"text/css"</span>&gt;
+      td {
+          width: 200px;
+          height: 32px;
+          line-height: 32px;
+      }
+    &lt;/<span style="color: #d75fd7; font-weight: bold;">style</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">script</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"text/javascript"</span> <span style="color: #8787d7;">src</span>=<span style="color: #2aa198;">"js/jquery.min.js"</span>&gt;&lt;/<span style="color: #d75fd7; font-weight: bold;">script</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">script</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"text/javascript"</span>&gt;
+      $(document).ready(function() {
+          // &#20598;&#25968;&#34892;&#32972;&#26223;&#32418;&#33394;
+          $('tr:nth-child(even)').css('background', '#FF0000');
+          // &#22855;&#25968;&#34892;&#32972;&#26223;&#34013;&#33394;
+          $('tr:nth-child(odd)').css('background', '#0000FF');
+      });
+    &lt;/<span style="color: #d75fd7; font-weight: bold;">script</span>&gt;
+  &lt;/<span style="color: #d75fd7; font-weight: bold;">head</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">table</span>&gt;
+      &lt;<span style="color: #d75fd7; font-weight: bold;">tr</span>&gt;&lt;<span style="color: #d75fd7; font-weight: bold;">td</span>&gt;1. NBA 2012&#23395;&#21518;&#36187;&lt;/<span style="color: #d75fd7; font-weight: bold;">td</span>&gt;&lt;/<span style="color: #d75fd7; font-weight: bold;">tr</span>&gt;
+      &lt;<span style="color: #d75fd7; font-weight: bold;">tr</span>&gt;&lt;<span style="color: #d75fd7; font-weight: bold;">td</span>&gt;2. NBA 2011&#23395;&#21518;&#36187;&lt;/<span style="color: #d75fd7; font-weight: bold;">td</span>&gt;&lt;/<span style="color: #d75fd7; font-weight: bold;">tr</span>&gt;
+      &lt;<span style="color: #d75fd7; font-weight: bold;">tr</span>&gt;&lt;<span style="color: #d75fd7; font-weight: bold;">td</span>&gt;3. NBA 2010&#23395;&#21518;&#36187;&lt;/<span style="color: #d75fd7; font-weight: bold;">td</span>&gt;&lt;/<span style="color: #d75fd7; font-weight: bold;">tr</span>&gt;
+      &lt;<span style="color: #d75fd7; font-weight: bold;">tr</span>&gt;&lt;<span style="color: #d75fd7; font-weight: bold;">td</span>&gt;4. NBA 2009&#23395;&#21518;&#36187;&lt;/<span style="color: #d75fd7; font-weight: bold;">td</span>&gt;&lt;/<span style="color: #d75fd7; font-weight: bold;">tr</span>&gt;
+      &lt;<span style="color: #d75fd7; font-weight: bold;">tr</span>&gt;&lt;<span style="color: #d75fd7; font-weight: bold;">td</span>&gt;5. NBA 2008&#23395;&#21518;&#36187;&lt;/<span style="color: #d75fd7; font-weight: bold;">td</span>&gt;&lt;/<span style="color: #d75fd7; font-weight: bold;">tr</span>&gt;
+      &lt;<span style="color: #d75fd7; font-weight: bold;">tr</span>&gt;&lt;<span style="color: #d75fd7; font-weight: bold;">td</span>&gt;6. NBA 2007&#23395;&#21518;&#36187;&lt;/<span style="color: #d75fd7; font-weight: bold;">td</span>&gt;&lt;/<span style="color: #d75fd7; font-weight: bold;">tr</span>&gt;
+    &lt;/<span style="color: #d75fd7; font-weight: bold;">table</span>&gt;
+  &lt;/<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
+&lt;/<span style="color: #d75fd7; font-weight: bold;">html</span>&gt; 
+</pre>
+</div>
+
+<p>
+例3，html 代码和例2一样：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-html">&lt;<span style="color: #d75fd7; font-weight: bold;">script</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"text/javascript"</span>&gt;
+  $(document).ready(function() {
+      $('tr:nth-child(3n)').css('background', '#0000FF');
+  });
+&lt;/<span style="color: #d75fd7; font-weight: bold;">script</span>&gt; 
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org4a6611a" class="outline-3">
+<h3 id="org4a6611a">6. 表单对象属性过滤选择器</h3>
+<div class="outline-text-3" id="text-org4a6611a">
+</div>
+<div id="outline-container-org8822a83" class="outline-4">
+<h4 id="org8822a83">6.1 :enabled 和 :disabled</h4>
+<div class="outline-text-4" id="text-org8822a83">
+<p>
+取可用或不可用元素， <code>:enabled</code> 和 <code>:diabled</code> 的匹配范围包括 input, select, textarea。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-html">&lt;<span style="color: #d75fd7; font-weight: bold;">script</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"text/javascript"</span>&gt;
+  $(document).ready(function() {
+     $(':enabled').css('border', '1px solid #FF0000');
+     $(':disabled').css('border', '1px solid #0000FF');
+  });
+&lt;/<span style="color: #d75fd7; font-weight: bold;">script</span>&gt;
+&lt;<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">input</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"text"</span> <span style="color: #8787d7;">value</span>=<span style="color: #2aa198;">"&#21487;&#29992;&#30340;&#25991;&#26412;&#26694;"</span> /&gt;
+&lt;/<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+&lt;<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">input</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"text"</span> <span style="color: #8787d7;">disabled</span>=<span style="color: #2aa198;">"disabled"</span> <span style="color: #8787d7;">value</span>=<span style="color: #2aa198;">"&#19981;&#21487;&#29992;&#30340;&#25991;&#26412;&#26694;"</span> /&gt;
+&lt;/<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+&lt;<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">textarea</span> <span style="color: #8787d7;">disabled</span>=<span style="color: #2aa198;">"disabled"</span>&gt;&#19981;&#21487;&#29992;&#30340;&#25991;&#26412;&#22495;&lt;/<span style="color: #d75fd7; font-weight: bold;">textarea</span>&gt;
+&lt;/<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+&lt;<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">select</span> <span style="color: #8787d7;">disabled</span>=<span style="color: #2aa198;">"disabled"</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">option</span>&gt;English&lt;/<span style="color: #d75fd7; font-weight: bold;">option</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">option</span>&gt;&#31616;&#20307;&#20013;&#25991;&lt;/<span style="color: #d75fd7; font-weight: bold;">option</span>&gt;
+  &lt;/<span style="color: #d75fd7; font-weight: bold;">select</span>&gt;
+&lt;/<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgee53d77" class="outline-4">
+<h4 id="orgee53d77">6.2 :checked</h4>
+<div class="outline-text-4" id="text-orgee53d77">
+<p>
+取选中的单选框或复选框元素，下面的代码，更改边框或背景色仅在 IE 下有效果，chrome 和 firefox 不会改变，但是 alert 都会弹出来。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-html">&lt;<span style="color: #d75fd7; font-weight: bold;">script</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"text/javascript"</span>&gt;
+  $(document).ready(function() {
+      $(':checked').css('background', '#FF0000').each(function() {
+          alert($(this).val());
+      });
+  });
+&lt;/<span style="color: #d75fd7; font-weight: bold;">script</span>&gt;
+&lt;<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">input</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"checkbox"</span> <span style="color: #8787d7;">checked</span>=<span style="color: #2aa198;">"checked"</span> <span style="color: #8787d7;">value</span>=<span style="color: #2aa198;">"must"</span>/&gt;&#24517;&#39035;&#21246;&#36873;
+&lt;/<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+&lt;<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+  &#20320;&#29616;&#22312;&#24037;&#20316;&#30340;&#20225;&#19994;&#23646;&#20110;&#65306;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">input</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"radio"</span> <span style="color: #8787d7;">name</span>=<span style="color: #2aa198;">"radio"</span> <span style="color: #8787d7;">checked</span>=<span style="color: #2aa198;">"checked"</span> <span style="color: #8787d7;">value</span>=<span style="color: #2aa198;">"&#22806;&#20225;"</span>/&gt;&#22806;&#20225;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">input</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"radio"</span> <span style="color: #8787d7;">name</span>=<span style="color: #2aa198;">"radio"</span> <span style="color: #8787d7;">value</span>=<span style="color: #2aa198;">"&#22269;&#20225;"</span>/&gt;&#22269;&#20225;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">input</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"radio"</span> <span style="color: #8787d7;">name</span>=<span style="color: #2aa198;">"radio"</span> <span style="color: #8787d7;">value</span>=<span style="color: #2aa198;">"&#27665;&#20225;"</span>/&gt;&#27665;&#20225;
+&lt;/<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orge800cd1" class="outline-4">
+<h4 id="orge800cd1">6.3 :selected</h4>
+<div class="outline-text-4" id="text-orge800cd1">
+<p>
+取下拉列表被选中的元素。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-html">&lt;<span style="color: #d75fd7; font-weight: bold;">script</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"text/javascript"</span>&gt;
+  $(document).ready(function() {
+      alert($(':selected').val());
+  });
+&lt;/<span style="color: #d75fd7; font-weight: bold;">script</span>&gt;
+&lt;<span style="color: #d75fd7; font-weight: bold;">select</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">option</span> <span style="color: #8787d7;">value</span>=<span style="color: #2aa198;">"&#22806;&#20225;"</span>&gt;&#22806;&#20225;&lt;/<span style="color: #d75fd7; font-weight: bold;">option</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">option</span> <span style="color: #8787d7;">value</span>=<span style="color: #2aa198;">"&#22269;&#20225;"</span>&gt;&#22269;&#20225;&lt;/<span style="color: #d75fd7; font-weight: bold;">option</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">option</span> <span style="color: #8787d7;">value</span>=<span style="color: #2aa198;">"&#31169;&#20225;"</span>&gt;&#31169;&#20225;&lt;/<span style="color: #d75fd7; font-weight: bold;">option</span>&gt;
+&lt;/<span style="color: #d75fd7; font-weight: bold;">select</span>&gt;
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org03db876" class="outline-2">
+<h2 id="org03db876">四、表单选择器</h2>
+<div class="outline-text-2" id="text-org03db876">
+</div>
+<div id="outline-container-org8a8160e" class="outline-3">
+<h3 id="org8a8160e">1. :input</h3>
+<div class="outline-text-3" id="text-org8a8160e">
+<p>
+取 input、textarea、select、button 元素。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb5c73a6" class="outline-3">
+<h3 id="orgb5c73a6">2. :text 和 :password</h3>
+<div class="outline-text-3" id="text-orgb5c73a6">
+<p>
+取单行文本框元素和取密码框元素，这两个选择器分别和属性选择器 <code>$('input[type=text]')</code> 、 <code>$('input[type=password]')</code> 等同。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-html">&lt;<span style="color: #d75fd7; font-weight: bold;">script</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"text/javascript"</span>&gt;
+  $(document).ready(function() {
+      $(':text').css('border', '1px solid #FF0000');
+      $(':password').css('border', '1px solid #0000FF');
+
+      // &#31561;&#25928;&#20195;&#30721;
+      // $('input[type=text]').css('border', '1px solid #FF0000');
+      // $('input[type=password]').css('border', '1px solid #0000FF');
+  });
+&lt;/<span style="color: #d75fd7; font-weight: bold;">script</span>&gt;
+&lt;<span style="color: #d75fd7; font-weight: bold;">fieldset</span> <span style="color: #8787d7;">style</span>=<span style="color: #2aa198;">"width: 300px;"</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">legend</span>&gt;&#36134;&#25143;&#30331;&#24405;&lt;/<span style="color: #d75fd7; font-weight: bold;">legend</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">label</span>&gt;&#29992;&#25143;&#21517;&#65306;&lt;/<span style="color: #d75fd7; font-weight: bold;">label</span>&gt;&lt;<span style="color: #d75fd7; font-weight: bold;">input</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"text"</span>/&gt;
+  &lt;/<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">label</span>&gt;&#23494;<span style="color: #8787d7;">&amp;nbsp;&amp;nbsp;</span>&#30721;&#65306;&lt;/<span style="color: #d75fd7; font-weight: bold;">label</span>&gt;&lt;<span style="color: #d75fd7; font-weight: bold;">input</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"password"</span>/&gt;
+  &lt;/<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+&lt;/<span style="color: #d75fd7; font-weight: bold;">fieldset</span>&gt;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb577f88" class="outline-3">
+<h3 id="orgb577f88">3. :radio</h3>
+<div class="outline-text-3" id="text-orgb577f88">
+<p>
+取单选框元素，属性选择器 <code>$('input[type=radio]')</code> 等同。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-html">&lt;<span style="color: #d75fd7; font-weight: bold;">script</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"text/javascript"</span>&gt;
+  $(document).ready(function() {
+      $(':radio').each(function() {
+          alert($(this).val());
+      });
+      // &#31561;&#25928;&#20195;&#30721;
+      /*
+      $('input[type=radio]').each(function() {
+          alert($(this).val());
+      });
+      */
+  });
+&lt;/<span style="color: #d75fd7; font-weight: bold;">script</span>&gt;
+
+&#20320;&#29616;&#22312;&#24037;&#20316;&#30340;&#20225;&#19994;&#23646;&#20110;&#65306;
+&lt;<span style="color: #d75fd7; font-weight: bold;">input</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"radio"</span> <span style="color: #8787d7;">name</span>=<span style="color: #2aa198;">"radio"</span> <span style="color: #8787d7;">checked</span>=<span style="color: #2aa198;">"checked"</span> <span style="color: #8787d7;">value</span>=<span style="color: #2aa198;">"&#22806;&#20225;"</span>/&gt;&#22806;&#20225;
+&lt;<span style="color: #d75fd7; font-weight: bold;">input</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"radio"</span> <span style="color: #8787d7;">name</span>=<span style="color: #2aa198;">"radio"</span> <span style="color: #8787d7;">value</span>=<span style="color: #2aa198;">"&#22269;&#20225;"</span>/&gt;&#22269;&#20225;
+&lt;<span style="color: #d75fd7; font-weight: bold;">input</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"radio"</span> <span style="color: #8787d7;">name</span>=<span style="color: #2aa198;">"radio"</span> <span style="color: #8787d7;">value</span>=<span style="color: #2aa198;">"&#27665;&#20225;"</span>/&gt;&#27665;&#20225;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org077ea4b" class="outline-3">
+<h3 id="org077ea4b">4. :checkbox</h3>
+<div class="outline-text-3" id="text-org077ea4b">
+<p>
+取复选框元素，和属性选择器 <code>$('input[type=checkbox]')</code> 等同。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-html">&lt;<span style="color: #d75fd7; font-weight: bold;">script</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"text/javascript"</span>&gt;
+  $(document).ready(function() {
+     $(':checkbox').each(function() {
+         alert($(this).val());
+     });
+     // &#31561;&#25928;&#20195;&#30721;
+     /*
+     $('input[type=checkbox]').each(function() {
+         alert($(this).val());
+     });
+     */
+  });
+&lt;/<span style="color: #d75fd7; font-weight: bold;">script</span>&gt;
+&#24744;&#30340;&#20852;&#36259;&#29233;&#22909;&#65306;
+&lt;<span style="color: #d75fd7; font-weight: bold;">input</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"checkbox"</span> /&gt;&#28216;&#27891;
+&lt;<span style="color: #d75fd7; font-weight: bold;">input</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"checkbox"</span> /&gt;&#30475;&#20070;
+&lt;<span style="color: #d75fd7; font-weight: bold;">input</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"checkbox"</span> <span style="color: #8787d7;">checked</span>=<span style="color: #2aa198;">"checked"</span> <span style="color: #8787d7;">value</span>=<span style="color: #2aa198;">"&#25171;&#31726;&#29699;"</span>/&gt;&#25171;&#31726;&#29699;
+&lt;<span style="color: #d75fd7; font-weight: bold;">input</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"checkbox"</span> <span style="color: #8787d7;">checked</span>=<span style="color: #2aa198;">"checked"</span> <span style="color: #8787d7;">value</span>=<span style="color: #2aa198;">"&#30005;&#33041;&#28216;&#25103;"</span>/&gt;&#30005;&#33041;&#28216;&#25103;
+</pre>
+</div>
+
+<p>
+上面的代码，会将所有额 checkbox 的 value 输出出来。若你想选择选中项，有三种写法：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js">$(<span style="color: #2aa198;">':checkbox:checked'</span>).each(<span style="color: #268bd2; font-weight: bold;">function</span>() {
+    alert($(<span style="color: #d75fd7;">this</span>).val());
+});
+
+$(<span style="color: #2aa198;">'input[type=checkbox][checked]'</span>).each(<span style="color: #268bd2; font-weight: bold;">function</span>() {
+    alert($(<span style="color: #d75fd7;">this</span>).val());
+});
+
+$(<span style="color: #2aa198;">':checked'</span>).each(<span style="color: #268bd2; font-weight: bold;">function</span>() {
+    alert($(<span style="color: #d75fd7;">this</span>).val());
+});
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org818b7a5" class="outline-3">
+<h3 id="org818b7a5">5. :submit</h3>
+<div class="outline-text-3" id="text-org818b7a5">
+<p>
+取提交按钮元素，和属性选择器 <code>$('input[type=submit]')</code> 等同。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga6cd1a5" class="outline-3">
+<h3 id="orga6cd1a5">6. :reset</h3>
+<div class="outline-text-3" id="text-orga6cd1a5">
+<p>
+取重置按钮元素，和属性选择器 <code>$('input[type=reset]')</code> 等同。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org863c6f0" class="outline-3">
+<h3 id="org863c6f0">7. :button</h3>
+<div class="outline-text-3" id="text-org863c6f0">
+<p>
+取按钮元素，和属性选择器 <code>$('input[type=button]')</code> 等同。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org7821c67" class="outline-3">
+<h3 id="org7821c67">8. :file</h3>
+<div class="outline-text-3" id="text-org7821c67">
+<p>
+取上传域元素，和属性选择器 <code>$('input[type=file]')</code> 等同。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9273ad1" class="outline-3">
+<h3 id="org9273ad1">9. :hidden</h3>
+<div class="outline-text-3" id="text-org9273ad1">
+<p>
+取不可见元素，和属性选择器 <code>$('input[type=hidden]')</code> 等同。<br>
+</p>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-05-22 01:05 Sun</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-05-22 Sun 02:14</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

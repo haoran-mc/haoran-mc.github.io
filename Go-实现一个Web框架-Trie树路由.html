@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-05-30 Mon 02:20 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>实现一个Go Web框架-trie树路由</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">实现一个Go Web框架-trie树路由</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgf93663b">完成目标：</a></li>
+<li><a href="#org790793e">Trie 树简介</a></li>
+<li><a href="#orge713f0f">Trie 树实现</a></li>
+<li><a href="#org1d24b8c">Router</a></li>
+<li><a href="#org7da42ea">Context 与 handle 的变化</a></li>
+<li><a href="#org9f3b9ff">单元测试</a></li>
+<li><a href="#org70efc47">使用 Demo</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgf93663b" class="outline-2">
+<h2 id="orgf93663b">完成目标：</h2>
+<div class="outline-text-2" id="text-orgf93663b">
+<ul class="org-ul">
+<li>使用 Trie 树实现动态路由（dynamic route）解析；<br></li>
+<li>支持两种模式 <code>:name</code> 和 <code>*filepath</code> ；<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org790793e" class="outline-2">
+<h2 id="org790793e">Trie 树简介</h2>
+<div class="outline-text-2" id="text-org790793e">
+<p>
+之前，我们用了一个非常简单的 <code>map</code> 结构存储了路由表，使用 <code>map</code> 存储键值对，索引非常高效，但是有一个弊端，键值对的存储的方式，只能用来索引静态路由。那如果我们想支持类似于 <code>/hello/:name</code> 这样的动态路由怎么办呢？所谓动态路由，即一条路由规则可以匹配某一类型而非某一条固定的路由。例如 <code>/hello/:name</code> ，可以匹配 <code>/hello/gee</code> 、 <code>hello/jack</code> 等。<br>
+</p>
+
+<p>
+动态路由有很多种实现方式，支持的规则、性能等有很大的差异。例如开源的路由实现 <code>gorouter</code> 支持在路由规则中嵌入正则表达式，例如 <code>/p/[0-9A-Za-z]+</code> ，即路径中的参数仅匹配数字和字母；另一个开源实现 <code>httprouter</code> 就不支持正则表达式。著名的 Web 开源框架 gin 在早期的版本，并没有实现自己的路由，而是直接使用了 <code>httprouter</code> ，后来不知道什么原因，放弃了 <code>httprouter</code> ，自己实现了一个版本。<br>
+</p>
+
+<img src="./images/Gee-Trie树简介.jpg" />
+
+<p>
+实现动态路由最常用的数据结构，被称为前缀树（<a href="Algorithm-字符串-字典树.html">Trie树</a>）。看到名字你大概也能知道前缀树长啥样了：每一个节点的所有的子节点都拥有相同的前缀。这种结构非常适用于路由匹配，比如我们定义了如下路由规则：<br>
+</p>
+
+<ul class="org-ul">
+<li>/:lang/doc<br></li>
+<li>/:lang/tutorial<br></li>
+<li>/:lang/intro<br></li>
+<li>/about<br></li>
+<li>/p/blog<br></li>
+<li>/p/related<br></li>
+</ul>
+
+<p>
+我们用前缀树来表示，是这样的。<br>
+</p>
+
+<p>
+<span class="underline">这幅图重画，有问题，应该是个切片！！！！</span><br>
+</p>
+
+<img src="./images/Gee-Trie树路由.jpg" />
+
+<p>
+HTTP 请求的路径恰好是由/分隔的多段构成的，因此，每一段可以作为前缀树的一个节点。我们通过树结构查询，如果中间某一层的节点都不满足条件，那么就说明没有匹配到的路由，查询结束。<br>
+</p>
+
+<p>
+接下来我们实现的动态路由具备以下两个功能。<br>
+</p>
+
+<ul class="org-ul">
+<li>参数匹配:。例如 <code>/p/:lang/doc</code> ，可以匹配 <code>/p/c/doc</code> 和 <code>/p/go/doc</code> ；<br></li>
+<li>通配*。例如 <code>/static/*filepath</code> ，可以匹配 <code>/static/fav.ico</code> ，也可以匹配 <code>/static/js/jQuery.js</code> ，这种模式常用于静态服务器，能够递归地匹配子路径；<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orge713f0f" class="outline-2">
+<h2 id="orge713f0f">Trie 树实现</h2>
+<div class="outline-text-2" id="text-orge713f0f">
+<p>
+首先我们需要设计树节点上应该存储哪些信息。<br>
+</p>
+
+<blockquote>
+<p>
+gee/trie.go<br>
+</p>
+</blockquote>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">node</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    pattern  <span style="color: #df005f; font-weight: bold;">string</span>  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#24453;&#21305;&#37197;&#36335;&#30001;&#65292;&#20363;&#22914; /p/:lang</span>
+    part     <span style="color: #df005f; font-weight: bold;">string</span>  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#24403;&#21069;&#32467;&#28857;&#21344;&#26377;&#36335;&#30001;&#30340;&#21738;&#19968;&#37096;&#20998;&#65292;&#20363;&#22914; :/lang</span>
+    children []*<span style="color: #df005f; font-weight: bold;">node</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23376;&#33410;&#28857;&#65292;&#20363;&#22914; [doc, tutorial, intro]</span>
+    isWild   <span style="color: #df005f; font-weight: bold;">bool</span>    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26159;&#21542;&#31934;&#30830;&#21305;&#37197;&#65292;part &#21547;&#26377; : &#25110; * &#26102;&#20026; true</span>
+}
+</pre>
+</div>
+
+<p>
+与普通的树不同，为了实现动态路由匹配，加上了 <code>isWild</code> 这个参数。即当我们匹配 <code>/p/go/doc/</code> 这个路由时，第一层节点， <code>p</code> 精准匹配到了 <code>p</code> ，第二层节点，go 模糊匹配到 <code>:lang</code> ，那么将会把 <code>lang</code> 这个参数赋值为 go，继续下一层匹配。我们将匹配的逻辑，包装为一个辅助函数。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">matchChild finds the matched child for insert</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">n</span> *<span style="color: #df005f; font-weight: bold;">node</span>) <span style="color: #d75fd7; font-weight: bold;">matchChild</span>(<span style="color: #8787d7;">part</span> <span style="color: #df005f; font-weight: bold;">string</span>) *<span style="color: #df005f; font-weight: bold;">node</span> {
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">_</span>, <span style="color: #8787d7;">child</span> := <span style="color: #268bd2; font-weight: bold;">range</span> n.children {
+        <span style="color: #268bd2; font-weight: bold;">if</span> child.part == part || child.isWild {
+            <span style="color: #268bd2; font-weight: bold;">return</span> child
+        }
+    }
+    <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">nil</span>
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">matchChildren finds all the matched children for search</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">n</span> *<span style="color: #df005f; font-weight: bold;">node</span>) <span style="color: #d75fd7; font-weight: bold;">matchChildren</span>(<span style="color: #8787d7;">part</span> <span style="color: #df005f; font-weight: bold;">string</span>) []*<span style="color: #df005f; font-weight: bold;">node</span> {
+    <span style="color: #8787d7;">nodes</span> := <span style="color: #268bd2;">make</span>([]*<span style="color: #df005f; font-weight: bold;">node</span>, 0)
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">_</span>, <span style="color: #8787d7;">child</span> := <span style="color: #268bd2; font-weight: bold;">range</span> n.children {
+        <span style="color: #268bd2; font-weight: bold;">if</span> child.part == part || child.isWild {
+            nodes = <span style="color: #268bd2;">append</span>(nodes, child)
+        }
+    }
+    <span style="color: #268bd2; font-weight: bold;">return</span> nodes
+}
+
+</pre>
+</div>
+
+<p>
+对于路由来说，最重要的当然是注册与匹配了。开发服务时，注册路由规则，映射 handler；访问时，匹配路由规则，查找到对应的 handler。因此，Trie 树需要支持节点的插入与查询。插入功能很简单，递归查找每一层的节点，如果没有匹配到当前 <code>part</code> 的节点，则新建一个， <span class="underline">有一点需要注意， <code>/p/:lang/doc</code> 只有在第三层节点，即 <code>doc</code> 节点， <code>pattern</code> 才会设置为 <code>/p/:lang/doc</code> 。 <code>p</code> 和 <code>:lang</code> 节点的 <code>pattern</code> 属性皆为空</span> 。因此，当匹配结束时，我们可以使用 <code>n.pattern == ""</code> 来判断路由规则是否匹配成功。例如， <code>/p/python</code> 虽能成功匹配到 <code>:lang</code> ，但 <code>:lang</code> 的 <code>pattern</code> 值为空，因此匹配失败。查询功能，同样也是递归查询每一层的节点，退出规则是，匹配到了 <code>*</code> ，匹配失败，或者匹配到了第 <code>len(parts)</code> 层节点。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">n</span> *<span style="color: #df005f; font-weight: bold;">node</span>) <span style="color: #d75fd7; font-weight: bold;">insert</span>(<span style="color: #8787d7;">pattern</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">parts</span> []<span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">height</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Recurse to the deepest point</span>
+    <span style="color: #268bd2; font-weight: bold;">if</span> height == <span style="color: #268bd2;">len</span>(parts) {
+        n.pattern = pattern
+        <span style="color: #268bd2; font-weight: bold;">return</span>
+    }
+
+    <span style="color: #8787d7;">part</span> := parts[height]
+    <span style="color: #8787d7;">child</span> := n.<span style="color: #d75fd7; font-weight: bold;">matchChild</span>(part)
+    <span style="color: #268bd2; font-weight: bold;">if</span> child == <span style="color: #d75fd7;">nil</span> {
+        child = &amp;<span style="color: #df005f; font-weight: bold;">node</span>{<span style="color: #d75fd7;">part</span>: part, <span style="color: #d75fd7;">isWild</span>: part[0] == <span style="color: #2aa198;">':'</span> || part[0] == <span style="color: #2aa198;">'*'</span>}
+        n.children = <span style="color: #268bd2;">append</span>(n.children, child)
+    }
+    child.<span style="color: #d75fd7; font-weight: bold;">insert</span>(pattern, parts, height+1)
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Now we want to enter the page: /assets/css/style.css</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">n</span> *<span style="color: #df005f; font-weight: bold;">node</span>) <span style="color: #d75fd7; font-weight: bold;">search</span>(<span style="color: #8787d7;">parts</span> []<span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">height</span> <span style="color: #df005f; font-weight: bold;">int</span>) *<span style="color: #df005f; font-weight: bold;">node</span> {
+    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #268bd2;">len</span>(parts) == height || strings.<span style="color: #d75fd7; font-weight: bold;">HasPrefix</span>(n.part, <span style="color: #2aa198;">"*"</span>) {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">We use the field n.pattern to indicate whether the current node is the end of a full path</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">A match is successful only if the path of the current node is a complete path</span>
+        <span style="color: #268bd2; font-weight: bold;">if</span> n.pattern == <span style="color: #2aa198;">""</span> {
+            <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">nil</span>
+        }
+        <span style="color: #268bd2; font-weight: bold;">return</span> n
+    }
+
+    <span style="color: #8787d7;">part</span> := parts[height]
+    <span style="color: #8787d7;">children</span> := n.<span style="color: #d75fd7; font-weight: bold;">matchChildren</span>(part)
+
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">_</span>, <span style="color: #8787d7;">child</span> := <span style="color: #268bd2; font-weight: bold;">range</span> children {
+        <span style="color: #8787d7;">result</span> := child.<span style="color: #d75fd7; font-weight: bold;">search</span>(parts, height+1)
+        <span style="color: #268bd2; font-weight: bold;">if</span> result != <span style="color: #d75fd7;">nil</span> {
+            <span style="color: #268bd2; font-weight: bold;">return</span> result
+        }
+    }
+
+    <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">nil</span>
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org1d24b8c" class="outline-2">
+<h2 id="org1d24b8c">Router</h2>
+<div class="outline-text-2" id="text-org1d24b8c">
+<p>
+Trie 树的插入与查找都成功实现了，接下来我们将 Trie 树应用到路由中去吧。我们使用 roots 来存储每种请求方式的 Trie 树根节点。使用 handlers 存储每种请求方式的 HandlerFunc 。getRoute 函数中，还解析了 <code>:</code> 和 <code>*</code> 两种匹配符的参数，返回一个 map 。例如 <code>/p/go/doc</code> 匹配到 <code>/p/:lang/doc</code> ，解析结果为： <code>{lang: "go"}</code> ， <code>/static/css/style.css</code> 匹配到 <code>/static/*filepath</code> ，解析结果为 <code>{filepath: "css/style.css"}</code> 。<br>
+</p>
+
+<blockquote>
+<p>
+gee/router.go<br>
+</p>
+</blockquote>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">router</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    roots    <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]*<span style="color: #df005f; font-weight: bold;">node</span>
+    handlers <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">HandlerFunc</span>
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">roots key eg, roots['GET'] roots['POST']</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">handlers key eg, handlers['GET-/p/:lang/doc'], handlers['POST-/p/book']</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">newRouter</span>() *<span style="color: #df005f; font-weight: bold;">router</span> {
+    <span style="color: #268bd2; font-weight: bold;">return</span> &amp;<span style="color: #df005f; font-weight: bold;">router</span>{
+        <span style="color: #d75fd7;">roots</span>:    <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]*<span style="color: #df005f; font-weight: bold;">node</span>),
+        <span style="color: #d75fd7;">handlers</span>: <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">HandlerFunc</span>),
+    }
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Only one * is allowed</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">ip:port/assets/*filepath -&gt; parts: ["assets", "*filepath"]</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">parsePattern</span>(<span style="color: #8787d7;">pattern</span> <span style="color: #df005f; font-weight: bold;">string</span>) []<span style="color: #df005f; font-weight: bold;">string</span> {
+    <span style="color: #8787d7;">vs</span> := strings.<span style="color: #d75fd7; font-weight: bold;">Split</span>(pattern, <span style="color: #2aa198;">"/"</span>)
+
+    <span style="color: #8787d7;">parts</span> := <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">string</span>, 0)
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">_</span>, <span style="color: #8787d7;">item</span> := <span style="color: #268bd2; font-weight: bold;">range</span> vs {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">/hello -&gt; ["", "hello"]</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">prevent the error: index out of range [0] with length 0 on line 35</span>
+        <span style="color: #268bd2; font-weight: bold;">if</span> item != <span style="color: #2aa198;">""</span> {
+            parts = <span style="color: #268bd2;">append</span>(parts, item)
+            <span style="color: #268bd2; font-weight: bold;">if</span> item[0] == <span style="color: #2aa198;">'*'</span> {
+                <span style="color: #268bd2; font-weight: bold;">break</span>
+            }
+        }
+    }
+    <span style="color: #268bd2; font-weight: bold;">return</span> parts
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">router</span>) <span style="color: #d75fd7; font-weight: bold;">addRoute</span>(<span style="color: #8787d7;">method</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">pattern</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">handler</span> <span style="color: #df005f; font-weight: bold;">HandlerFunc</span>) {
+    log.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"Route %4s - %s"</span>, method, pattern)
+    <span style="color: #8787d7;">parts</span> := <span style="color: #d75fd7; font-weight: bold;">parsePattern</span>(pattern)
+
+    <span style="color: #8787d7;">key</span> := method + <span style="color: #2aa198;">"-"</span> + pattern
+    <span style="color: #8787d7;">_</span>, <span style="color: #8787d7;">ok</span> := r.roots[method]
+    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #d75fd7;">!</span>ok {
+        r.roots[method] = &amp;<span style="color: #df005f; font-weight: bold;">node</span>{}
+    }
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">ip:port/assets/*filepath</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">r.roots["GET"].insert()</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">pattern: "assets/*filepath"</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">parts: ["assets", "*filepath"]</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">height: 0</span>
+    r.roots[method].<span style="color: #d75fd7; font-weight: bold;">insert</span>(pattern, parts, 0)
+    r.handlers[key] = handler
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">router</span>) <span style="color: #d75fd7; font-weight: bold;">getRoute</span>(<span style="color: #8787d7;">method</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">path</span> <span style="color: #df005f; font-weight: bold;">string</span>) (*<span style="color: #df005f; font-weight: bold;">node</span>, <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">string</span>) {
+    <span style="color: #8787d7;">searchParts</span> := <span style="color: #d75fd7; font-weight: bold;">parsePattern</span>(path)
+    <span style="color: #8787d7;">params</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">string</span>)
+    <span style="color: #8787d7;">root</span>, <span style="color: #8787d7;">ok</span> := r.roots[method]
+
+    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #d75fd7;">!</span>ok {
+        <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">nil</span>, <span style="color: #d75fd7;">nil</span>
+    }
+
+    <span style="color: #8787d7;">n</span> := root.<span style="color: #d75fd7; font-weight: bold;">search</span>(searchParts, 0)
+
+    <span style="color: #268bd2; font-weight: bold;">if</span> n != <span style="color: #d75fd7;">nil</span> {
+        <span style="color: #8787d7;">parts</span> := <span style="color: #d75fd7; font-weight: bold;">parsePattern</span>(n.pattern)
+        <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">index</span>, <span style="color: #8787d7;">part</span> := <span style="color: #268bd2; font-weight: bold;">range</span> parts {
+            <span style="color: #268bd2; font-weight: bold;">if</span> part[0] == <span style="color: #2aa198;">':'</span> {
+                params[part[1:]] = searchParts[index]
+            }
+            <span style="color: #268bd2; font-weight: bold;">if</span> part[0] == <span style="color: #2aa198;">'*'</span> &amp;&amp; <span style="color: #268bd2;">len</span>(part) &gt; 1 {
+                params[part[1:]] = strings.<span style="color: #d75fd7; font-weight: bold;">Join</span>(searchParts[index:], <span style="color: #2aa198;">"/"</span>)
+            }
+        }
+        <span style="color: #268bd2; font-weight: bold;">return</span> n, params
+    }
+
+    <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">nil</span>, <span style="color: #d75fd7;">nil</span>
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org7da42ea" class="outline-2">
+<h2 id="org7da42ea">Context 与 handle 的变化</h2>
+<div class="outline-text-2" id="text-org7da42ea">
+<p>
+在 HandlerFunc 中，希望能够访问到解析的参数，因此，需要对 Context 对象增加一个属性和方法，来提供对路由参数的访问。我们将解析后的参数存储到 <code>Params</code> 中，通过 <code>c.Param("lang")</code> 的方式获取到对应的值。<br>
+</p>
+
+<blockquote>
+<p>
+gee/context.go<br>
+</p>
+</blockquote>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Context</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">origin objects</span>
+    Writer <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>
+    Req    *<span style="color: #df005f; font-weight: bold;">http.Request</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">request info</span>
+    Path   <span style="color: #df005f; font-weight: bold;">string</span>
+    Method <span style="color: #df005f; font-weight: bold;">string</span>
+    Params <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">string</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">response info</span>
+    StatusCode <span style="color: #df005f; font-weight: bold;">int</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">Context</span>) <span style="color: #d75fd7; font-weight: bold;">Param</span>(<span style="color: #8787d7;">key</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">string</span> {
+    <span style="color: #8787d7;">value</span>, <span style="color: #8787d7;">_</span> := c.Params[key]
+    <span style="color: #268bd2; font-weight: bold;">return</span> value
+}
+</pre>
+</div>
+
+<blockquote>
+<p>
+gee/router.go<br>
+</p>
+</blockquote>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">router</span>) <span style="color: #d75fd7; font-weight: bold;">handle</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">Context</span>) {
+    <span style="color: #8787d7;">n</span>, <span style="color: #8787d7;">params</span> := r.<span style="color: #d75fd7; font-weight: bold;">getRoute</span>(c.Method, c.Path)
+    <span style="color: #268bd2; font-weight: bold;">if</span> n != <span style="color: #d75fd7;">nil</span> {
+        c.Params = params
+        <span style="color: #8787d7;">key</span> := c.Method + <span style="color: #2aa198;">"-"</span> + n.pattern
+        r.handlers[key](c)
+    } <span style="color: #268bd2; font-weight: bold;">else</span> {
+        c.<span style="color: #d75fd7; font-weight: bold;">String</span>(http.StatusNotFound, <span style="color: #2aa198;">"404 NOT FOUND: %s\n"</span>, c.Path)
+    }
+}
+</pre>
+</div>
+
+<p>
+<code>router.go</code> 的变化比较小，比较重要的一点是，在调用匹配到的 <code>handler</code> 前，将解析出来的路由参数赋值给了 <code>c.Params</code> 。这样就能够在 <code>handler</code> 中，通过 <code>Context</code> 对象访问到具体的值了。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9f3b9ff" class="outline-2">
+<h2 id="org9f3b9ff">单元测试</h2>
+<div class="outline-text-2" id="text-org9f3b9ff">
+<blockquote>
+<p>
+gee/router_test.go<br>
+</p>
+</blockquote>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">newTestRouter</span>() *<span style="color: #df005f; font-weight: bold;">router</span> {
+    <span style="color: #8787d7;">r</span> := <span style="color: #d75fd7; font-weight: bold;">newRouter</span>()
+    r.<span style="color: #d75fd7; font-weight: bold;">addRoute</span>(<span style="color: #2aa198;">"GET"</span>, <span style="color: #2aa198;">"/"</span>, <span style="color: #d75fd7;">nil</span>)
+    r.<span style="color: #d75fd7; font-weight: bold;">addRoute</span>(<span style="color: #2aa198;">"GET"</span>, <span style="color: #2aa198;">"/hello/:name"</span>, <span style="color: #d75fd7;">nil</span>)
+    r.<span style="color: #d75fd7; font-weight: bold;">addRoute</span>(<span style="color: #2aa198;">"GET"</span>, <span style="color: #2aa198;">"/hello/b/c"</span>, <span style="color: #d75fd7;">nil</span>)
+    r.<span style="color: #d75fd7; font-weight: bold;">addRoute</span>(<span style="color: #2aa198;">"GET"</span>, <span style="color: #2aa198;">"/hi/:name"</span>, <span style="color: #d75fd7;">nil</span>)
+    r.<span style="color: #d75fd7; font-weight: bold;">addRoute</span>(<span style="color: #2aa198;">"GET"</span>, <span style="color: #2aa198;">"/assets/*filepath"</span>, <span style="color: #d75fd7;">nil</span>)
+    <span style="color: #268bd2; font-weight: bold;">return</span> r
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">TestParsePattern</span>(<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">testing.T</span>) {
+    <span style="color: #8787d7;">ok</span> := reflect.<span style="color: #d75fd7; font-weight: bold;">DeepEqual</span>(<span style="color: #d75fd7; font-weight: bold;">parsePattern</span>(<span style="color: #2aa198;">"/p/:name"</span>), []<span style="color: #df005f; font-weight: bold;">string</span>{<span style="color: #2aa198;">"p"</span>, <span style="color: #2aa198;">":name"</span>})
+    ok = ok &amp;&amp; reflect.<span style="color: #d75fd7; font-weight: bold;">DeepEqual</span>(<span style="color: #d75fd7; font-weight: bold;">parsePattern</span>(<span style="color: #2aa198;">"/p/*"</span>), []<span style="color: #df005f; font-weight: bold;">string</span>{<span style="color: #2aa198;">"p"</span>, <span style="color: #2aa198;">"*"</span>})
+    ok = ok &amp;&amp; reflect.<span style="color: #d75fd7; font-weight: bold;">DeepEqual</span>(<span style="color: #d75fd7; font-weight: bold;">parsePattern</span>(<span style="color: #2aa198;">"/p/*name/*"</span>), []<span style="color: #df005f; font-weight: bold;">string</span>{<span style="color: #2aa198;">"p"</span>, <span style="color: #2aa198;">"*name"</span>})
+    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #d75fd7;">!</span>ok {
+        t.<span style="color: #d75fd7; font-weight: bold;">Fatal</span>(<span style="color: #2aa198;">"test parsePattern failed"</span>)
+    }
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">TestGetRoute</span>(<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">testing.T</span>) {
+    <span style="color: #8787d7;">r</span> := <span style="color: #d75fd7; font-weight: bold;">newTestRouter</span>()
+    <span style="color: #8787d7;">n</span>, <span style="color: #8787d7;">ps</span> := r.<span style="color: #d75fd7; font-weight: bold;">getRoute</span>(<span style="color: #2aa198;">"GET"</span>, <span style="color: #2aa198;">"/hello/haoran"</span>)
+
+    <span style="color: #268bd2; font-weight: bold;">if</span> n == <span style="color: #d75fd7;">nil</span> {
+        t.<span style="color: #d75fd7; font-weight: bold;">Fatal</span>(<span style="color: #2aa198;">"nil shouldn't be returned"</span>)
+    }
+
+    <span style="color: #268bd2; font-weight: bold;">if</span> n.pattern != <span style="color: #2aa198;">"/hello/:name"</span> {
+        t.<span style="color: #d75fd7; font-weight: bold;">Fatal</span>(<span style="color: #2aa198;">"should match /hello/:name"</span>)
+    }
+
+    <span style="color: #268bd2; font-weight: bold;">if</span> ps[<span style="color: #2aa198;">"name"</span>] != <span style="color: #2aa198;">"haoran"</span> {
+        t.<span style="color: #d75fd7; font-weight: bold;">Fatal</span>(<span style="color: #2aa198;">"name should be equal to 'haoran'"</span>)
+    }
+
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"matched path: %s, params['name']: %s\n"</span>, n.pattern, ps[<span style="color: #2aa198;">"name"</span>])
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org70efc47" class="outline-2">
+<h2 id="org70efc47">使用 Demo</h2>
+<div class="outline-text-2" id="text-org70efc47">
+<p>
+看看框架使用的样例吧：<br>
+</p>
+
+<blockquote>
+<p>
+main.go<br>
+</p>
+</blockquote>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">r</span> := gee.<span style="color: #d75fd7; font-weight: bold;">New</span>()
+    r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gee.Context</span>) {
+        c.<span style="color: #d75fd7; font-weight: bold;">HTML</span>(http.StatusOK, <span style="color: #2aa198;">"&lt;h1&gt;Hello Gee&lt;/h1&gt;"</span>)
+    })
+
+    r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/hello"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gee.Context</span>) {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">expect /hello?name=haoran</span>
+        c.<span style="color: #d75fd7; font-weight: bold;">String</span>(http.StatusOK, <span style="color: #2aa198;">"hello %s, you're at %s\n"</span>, c.<span style="color: #d75fd7; font-weight: bold;">Query</span>(<span style="color: #2aa198;">"name"</span>), c.Path)
+    })
+
+    r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/hello/:name"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gee.Context</span>) {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">expect /hello/haoran</span>
+        c.<span style="color: #d75fd7; font-weight: bold;">String</span>(http.StatusOK, <span style="color: #2aa198;">"hello %s, you're at %s\n"</span>, c.<span style="color: #d75fd7; font-weight: bold;">Param</span>(<span style="color: #2aa198;">"name"</span>), c.Path)
+    })
+
+    r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/assets/*filepath"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gee.Context</span>) {
+        c.<span style="color: #d75fd7; font-weight: bold;">JSON</span>(http.StatusOK, <span style="color: #df005f; font-weight: bold;">gee.H</span>{
+            <span style="color: #2aa198;">"filepath"</span>: c.<span style="color: #d75fd7; font-weight: bold;">Param</span>(<span style="color: #2aa198;">"filepath"</span>),
+        })
+    })
+
+    _ = r.<span style="color: #d75fd7; font-weight: bold;">Run</span>(<span style="color: #2aa198;">":9999"</span>)
+}
+</pre>
+</div>
+
+<p>
+使用 <code>curl</code> 工具，测试结果。<br>
+</p>
+
+<pre class="example">
+$ curl "http://localhost:9999/hello/haoran"
+hello haoran, you're at /hello/haoran
+
+$ curl "http://localhost:9999/assets/css/style.css"
+{"filepath":"css/style.css"}
+</pre>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-05-30 Mon 02:20</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

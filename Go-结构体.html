@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-05-10 Tue 20:50 -->
+<!-- 2022-05-28 Sat 23:26 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>结构体</title>
@@ -31,17 +31,17 @@
 <li><a href="#org0162ccf">结构体</a>
 <ul>
 <li><a href="#org8b9524d">结构体的定义</a></li>
-<li><a href="#orgc360e4d">结构体实例化</a></li>
-<li><a href="#orgb79f246">基本实例化</a></li>
-</ul>
-</li>
-<li><a href="#orge8988bc">匿名结构体</a>
+<li><a href="#orgd9f79ea">结构体默认值</a></li>
+<li><a href="#orgc360e4d">结构体实例化</a>
 <ul>
+<li><a href="#orgb79f246">基本实例化</a></li>
 <li><a href="#orgdd9c62d">创建指针类型结构体</a></li>
 <li><a href="#orgba35a2a">取结构体的地址实例化</a></li>
-<li><a href="#orgd9f79ea">结构体默认值</a></li>
 <li><a href="#org2126c8d">使用键值对初始化</a></li>
 <li><a href="#org145b734">使用值的列表初始化</a></li>
+</ul>
+</li>
+<li><a href="#orge8988bc">匿名结构体</a></li>
 <li><a href="#orgba31720">结构体内存布局</a></li>
 <li><a href="#org06e9b03">构造函数</a></li>
 <li><a href="#org14f9b1c">方法和接收者</a></li>
@@ -186,7 +186,7 @@ Go 语言中通过 <code>struct</code> 来实现面向对象。<br>
 </ol>
 
 <p>
-举个例子，我们定义一个 Person（人）结构体，代码如下：<br>
+举个例子，我们定义一个 person（人）结构体，代码如下：<br>
 </p>
 
 <div class="org-src-container">
@@ -203,134 +203,12 @@ Go 语言中通过 <code>struct</code> 来实现面向对象。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">person1</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">person</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
     name, city <span style="color: #df005f; font-weight: bold;">string</span>
     age        <span style="color: #df005f; font-weight: bold;">int8</span>
 }
 </pre>
 </div>
-</div>
-</div>
-<div id="outline-container-orgc360e4d" class="outline-3">
-<h3 id="orgc360e4d">结构体实例化</h3>
-<div class="outline-text-3" id="text-orgc360e4d">
-<p>
-只有当结构体实例化时，才会真正地分配内存。也就是必须实例化后才能使用结构体的字段。<br>
-</p>
-
-<p>
-结构体本身也是一种类型，我们可以像声明内置类型一样使用var关键字声明结构体类型。<br>
-</p>
-
-<div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">&#32467;&#26500;&#20307;&#23454;&#20363;</span> <span style="color: #df005f; font-weight: bold;">&#32467;&#26500;&#20307;&#31867;&#22411;</span>
-</pre>
-</div>
-</div>
-</div>
-<div id="outline-container-orgb79f246" class="outline-3">
-<h3 id="orgb79f246">基本实例化</h3>
-<div class="outline-text-3" id="text-orgb79f246">
-<div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">person</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
-    name <span style="color: #df005f; font-weight: bold;">string</span>
-    city <span style="color: #df005f; font-weight: bold;">string</span>
-    age  <span style="color: #df005f; font-weight: bold;">int8</span>
-}
-
-<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">p1</span> <span style="color: #df005f; font-weight: bold;">person</span>
-    p1.name = <span style="color: #2aa198;">"pprof.cn"</span>
-    p1.city = <span style="color: #2aa198;">"&#21271;&#20140;"</span>
-    p1.age = 18
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"p1 = %v\n"</span>, p1)  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">p1 = {pprof.cn &#21271;&#20140; 18}</span>
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"p1 = %#v\n"</span>, p1) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">p1 = main.person{name:"pprof.cn", city:"&#21271;&#20140;", age:18}</span>
-}
-</pre>
-</div>
-
-<p>
-我们通过 <code>.</code> 来访问结构体的字段（成员变量），例如 <code>p1.name</code> 和 <code>p1.age</code> 等。<br>
-</p>
-</div>
-</div>
-</div>
-<div id="outline-container-orge8988bc" class="outline-2">
-<h2 id="orge8988bc">匿名结构体</h2>
-<div class="outline-text-2" id="text-orge8988bc">
-<p>
-在定义一些临时数据结构等场景下还可以使用匿名结构体。<br>
-</p>
-
-<div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
-
-<span style="color: #268bd2; font-weight: bold;">import</span> (
-    <span style="color: #2aa198;">"fmt"</span>
-)
-
-<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">user</span> <span style="color: #268bd2; font-weight: bold;">struct</span>{Name <span style="color: #df005f; font-weight: bold;">string</span>; Age <span style="color: #df005f; font-weight: bold;">int</span>}
-    user.Name = <span style="color: #2aa198;">"pprof.cn"</span>
-    user.Age = 18
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%#v\n"</span>, user)
-}
-</pre>
-</div>
-</div>
-<div id="outline-container-orgdd9c62d" class="outline-3">
-<h3 id="orgdd9c62d">创建指针类型结构体</h3>
-<div class="outline-text-3" id="text-orgdd9c62d">
-<p>
-我们还可以通过使用 <code>new</code> 关键字对结构体进行实例化，得到的是结构体的地址。 格式如下：<br>
-</p>
-
-<div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">p2</span> = <span style="color: #268bd2;">new</span>(<span style="color: #df005f; font-weight: bold;">person</span>)
-fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%T\n"</span>, p2)     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">*main.person</span>
-fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"p2 = %#v\n"</span>, p2) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">p2 = &amp;main.person{name:"", city:"", age:0}</span>
-</pre>
-</div>
-
-<p>
-从打印的结果中我们可以看出 <code>p2</code> 是一个结构体指针。<br>
-</p>
-
-<p>
-需要注意的是在 Go 语言中支持对结构体指针直接使用 <code>.</code> 来访问结构体的成员。<br>
-</p>
-
-<div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">p2</span> = <span style="color: #268bd2;">new</span>(<span style="color: #df005f; font-weight: bold;">person</span>)
-p2.name = <span style="color: #2aa198;">"&#27979;&#35797;"</span>
-p2.age = 18
-p2.city = <span style="color: #2aa198;">"&#21271;&#20140;"</span>
-fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"p2 = %#v\n"</span>, p2) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">p2 = &amp;main.person{name:"&#27979;&#35797;", city:"&#21271;&#20140;", age:18}</span>
-</pre>
-</div>
-</div>
-</div>
-<div id="outline-container-orgba35a2a" class="outline-3">
-<h3 id="orgba35a2a">取结构体的地址实例化</h3>
-<div class="outline-text-3" id="text-orgba35a2a">
-<p>
-使用 <code>&amp;</code> 对结构体进行取地址操作相当于对该结构体类型进行了一次 <code>new</code> 实例化操作。<br>
-</p>
-
-<div class="org-src-container">
-<pre class="src src-go"><span style="color: #8787d7;">p3</span> := &amp;<span style="color: #df005f; font-weight: bold;">person</span>{}
-fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%T\n"</span>, p3)     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">*main.person</span>
-fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"p3 = %#v\n"</span>, p3) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">p3 = &amp;main.person{name:"", city:"", age:0}</span>
-p3.name = <span style="color: #2aa198;">"&#21338;&#23458;"</span>
-p3.age = 30
-p3.city = <span style="color: #2aa198;">"&#25104;&#37117;"</span>
-fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"p3 = %#v\n"</span>, p3) <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">p3 = &amp;main.person{name:"&#21338;&#23458;", city:"&#25104;&#37117;", age:30}</span>
-</pre>
-</div>
-
-<p>
-<code>p3.name = "博客"</code> 其实在底层是 <code>(* p3).name = "博客"</code> ，这是 Go 语言帮我们实现的语法糖。<br>
-</p>
 </div>
 </div>
 <div id="outline-container-orgd9f79ea" class="outline-3">
@@ -355,9 +233,106 @@ fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="
 </div>
 </div>
 </div>
-<div id="outline-container-org2126c8d" class="outline-3">
-<h3 id="org2126c8d">使用键值对初始化</h3>
-<div class="outline-text-3" id="text-org2126c8d">
+<div id="outline-container-orgc360e4d" class="outline-3">
+<h3 id="orgc360e4d">结构体实例化</h3>
+<div class="outline-text-3" id="text-orgc360e4d">
+<p>
+只有当结构体实例化时，才会真正地分配内存。也就是必须实例化后才能使用结构体的字段。<br>
+</p>
+
+<p>
+结构体本身也是一种类型，我们可以像声明内置类型一样使用 <code>var</code> 关键字声明结构体类型。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">person</span> <span style="color: #df005f; font-weight: bold;">person</span>
+</pre>
+</div>
+</div>
+<div id="outline-container-orgb79f246" class="outline-4">
+<h4 id="orgb79f246">基本实例化</h4>
+<div class="outline-text-4" id="text-orgb79f246">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">person</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    name <span style="color: #df005f; font-weight: bold;">string</span>
+    city <span style="color: #df005f; font-weight: bold;">string</span>
+    age  <span style="color: #df005f; font-weight: bold;">int8</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">p1</span> <span style="color: #df005f; font-weight: bold;">person</span>
+    p1.name = <span style="color: #2aa198;">"pprof.cn"</span>
+    p1.city = <span style="color: #2aa198;">"&#21271;&#20140;"</span>
+    p1.age = 18
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"p1 = %v\n"</span>, p1)  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">p1 = {pprof.cn &#21271;&#20140; 18}</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"p1 = %#v\n"</span>, p1) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">p1 = main.person{name:"pprof.cn", city:"&#21271;&#20140;", age:18}</span>
+}
+</pre>
+</div>
+
+<p>
+我们通过 <code>.</code> 来访问结构体的字段（成员变量），例如 <code>p1.name</code> 和 <code>p1.age</code> 等。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgdd9c62d" class="outline-4">
+<h4 id="orgdd9c62d">创建指针类型结构体</h4>
+<div class="outline-text-4" id="text-orgdd9c62d">
+<p>
+我们还可以通过使用 <code>new</code> 关键字对结构体进行实例化，得到的是结构体的地址。 格式如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">p2</span> = <span style="color: #268bd2;">new</span>(<span style="color: #df005f; font-weight: bold;">person</span>)
+fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%T\n"</span>, p2)     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">*main.person</span>
+fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"p2 = %#v\n"</span>, p2) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">p2 = &amp;main.person{name:"", city:"", age:0}</span>
+</pre>
+</div>
+
+<p>
+从打印的结果中我们可以看出 <code>p2</code> 是一个结构体指针。<br>
+</p>
+
+<p>
+<span class="underline">需要注意的是在 Go 语言中支持对结构体指针直接使用 <code>.</code> 来访问结构体的成员。</span><br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">p2</span> = <span style="color: #268bd2;">new</span>(<span style="color: #df005f; font-weight: bold;">person</span>)
+p2.name = <span style="color: #2aa198;">"&#27979;&#35797;"</span>
+p2.age = 18
+p2.city = <span style="color: #2aa198;">"&#21271;&#20140;"</span>
+fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"p2 = %#v\n"</span>, p2) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">p2 = &amp;main.person{name:"&#27979;&#35797;", city:"&#21271;&#20140;", age:18}</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgba35a2a" class="outline-4">
+<h4 id="orgba35a2a">取结构体的地址实例化</h4>
+<div class="outline-text-4" id="text-orgba35a2a">
+<p>
+使用 <code>&amp;</code> 对结构体进行取地址操作相当于对该结构体类型进行了一次 <code>new</code> 实例化操作。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">p3</span> := &amp;<span style="color: #df005f; font-weight: bold;">person</span>{}
+fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%T\n"</span>, p3)     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">*main.person</span>
+fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"p3 = %#v\n"</span>, p3) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">p3 = &amp;main.person{name:"", city:"", age:0}</span>
+p3.name = <span style="color: #2aa198;">"&#21338;&#23458;"</span>
+p3.age = 30
+p3.city = <span style="color: #2aa198;">"&#25104;&#37117;"</span>
+fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"p3 = %#v\n"</span>, p3) <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">p3 = &amp;main.person{name:"&#21338;&#23458;", city:"&#25104;&#37117;", age:30}</span>
+</pre>
+</div>
+
+<p>
+<code>p3.name = "博客"</code> 其实在底层是 <code>(* p3).name = "博客"</code> ，这是 Go 语言帮我们实现的语法糖。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2126c8d" class="outline-4">
+<h4 id="org2126c8d">使用键值对初始化</h4>
+<div class="outline-text-4" id="text-org2126c8d">
 <p>
 使用键值对对结构体进行初始化时，键对应结构体的字段，值对应该字段的初始值。<br>
 </p>
@@ -365,9 +340,9 @@ fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #8787d7;">p5</span> := <span style="color: #df005f; font-weight: bold;">person</span>{
     <span style="color: #d75fd7;">name</span>: <span style="color: #2aa198;">"pprof.cn"</span>,
-        <span style="color: #d75fd7;">city</span>: <span style="color: #2aa198;">"&#21271;&#20140;"</span>,
-        <span style="color: #d75fd7;">age</span>:  18,
-    }
+    <span style="color: #d75fd7;">city</span>: <span style="color: #2aa198;">"&#21271;&#20140;"</span>,
+    <span style="color: #d75fd7;">age</span>:  18,
+}
 fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"p5 = %#v\n"</span>, p5) <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">p5 = main.person{name:"pprof.cn", city:"&#21271;&#20140;", age:18}</span>
 </pre>
 </div>
@@ -379,9 +354,9 @@ fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #8787d7;">p6</span> := &amp;<span style="color: #df005f; font-weight: bold;">person</span>{
     <span style="color: #d75fd7;">name</span>: <span style="color: #2aa198;">"pprof.cn"</span>,
-        <span style="color: #d75fd7;">city</span>: <span style="color: #2aa198;">"&#21271;&#20140;"</span>,
-        <span style="color: #d75fd7;">age</span>:  18,
-    }
+    <span style="color: #d75fd7;">city</span>: <span style="color: #2aa198;">"&#21271;&#20140;"</span>,
+    <span style="color: #d75fd7;">age</span>:  18,
+}
 fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"p6 = %#v\n"</span>, p6) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">p6 = &amp;main.person{name:"pprof.cn", city:"&#21271;&#20140;", age:18}</span>
 </pre>
 </div>
@@ -393,15 +368,15 @@ fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #8787d7;">p7</span> := &amp;<span style="color: #df005f; font-weight: bold;">person</span>{
     <span style="color: #d75fd7;">city</span>: <span style="color: #2aa198;">"&#21271;&#20140;"</span>,
-    }
+}
 fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"p7 = %#v\n"</span>, p7) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">p7 = &amp;main.person{name:"", city:"&#21271;&#20140;", age:0}</span>
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org145b734" class="outline-3">
-<h3 id="org145b734">使用值的列表初始化</h3>
-<div class="outline-text-3" id="text-org145b734">
+<div id="outline-container-org145b734" class="outline-4">
+<h4 id="org145b734">使用值的列表初始化</h4>
+<div class="outline-text-4" id="text-org145b734">
 <p>
 初始化结构体的时候可以简写，也就是初始化的时候不写键，直接写值：<br>
 </p>
@@ -425,6 +400,31 @@ fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="
 <li>初始值的填充顺序必须与字段在结构体中的声明顺序一致。<br></li>
 <li>该方式不能和键值初始化方式混用。<br></li>
 </ol>
+</div>
+</div>
+</div>
+<div id="outline-container-orge8988bc" class="outline-3">
+<h3 id="orge8988bc">匿名结构体</h3>
+<div class="outline-text-3" id="text-orge8988bc">
+<p>
+在定义一些临时数据结构等场景下还可以使用匿名结构体。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">user</span> <span style="color: #268bd2; font-weight: bold;">struct</span>{Name <span style="color: #df005f; font-weight: bold;">string</span>; Age <span style="color: #df005f; font-weight: bold;">int</span>}
+    user.Name = <span style="color: #2aa198;">"pprof.cn"</span>
+    user.Age = 18
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%#v\n"</span>, user)
+}
+</pre>
+</div>
 </div>
 </div>
 <div id="outline-container-orgba31720" class="outline-3">
@@ -467,7 +467,7 @@ Go 语言的结构体没有构造函数，我们可以自己实现。 例如，�
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">newPerson</span>(<span style="color: #8787d7;">name</span>, <span style="color: #8787d7;">city</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">age</span> <span style="color: #df005f; font-weight: bold;">int8</span>) *<span style="color: #df005f; font-weight: bold;">person</span> {
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">newperson</span>(<span style="color: #8787d7;">name</span>, <span style="color: #8787d7;">city</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">age</span> <span style="color: #df005f; font-weight: bold;">int8</span>) *<span style="color: #df005f; font-weight: bold;">person</span> {
     <span style="color: #268bd2; font-weight: bold;">return</span> &amp;<span style="color: #df005f; font-weight: bold;">person</span>{
         <span style="color: #d75fd7;">name</span>: name,
         <span style="color: #d75fd7;">city</span>: city,
@@ -482,7 +482,7 @@ Go 语言的结构体没有构造函数，我们可以自己实现。 例如，�
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #8787d7;">p9</span> := <span style="color: #d75fd7; font-weight: bold;">newPerson</span>(<span style="color: #2aa198;">"pprof.cn"</span>, <span style="color: #2aa198;">"&#27979;&#35797;"</span>, 90)
+<pre class="src src-go"><span style="color: #8787d7;">p9</span> := <span style="color: #d75fd7; font-weight: bold;">newperson</span>(<span style="color: #2aa198;">"pprof.cn"</span>, <span style="color: #2aa198;">"&#27979;&#35797;"</span>, 90)
 fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%#v\n"</span>, p9)
 </pre>
 </div>
@@ -997,7 +997,7 @@ Tag在结构体字段的后方定义，由一对反引号包裹起来，具体�
 <div id="postamble" class="status">
 <p class="date">Date: 2022-02-11 00:02 Fri</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-05-10 Tue 20:50</p>
+<p class="date">Created: 2022-05-28 Sat 23:26</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

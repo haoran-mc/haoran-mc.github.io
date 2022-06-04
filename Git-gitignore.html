@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-01-15 Sat 03:26 -->
+<!-- 2022-05-31 Tue 13:30 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GIT-GITIGNORE</title>
@@ -21,20 +21,233 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org4ff3279">忽略 .idea 文件</a></li>
+<li><a href="#org8a53607">语法规范</a></li>
+<li><a href="#orgbd48d59">一个 .gitignore 例子</a></li>
+<li><a href="#org876320e"><code>/mtk</code> <code>/mtk/</code> <code>mtk/</code> <code>/mtk/*</code> 区别！</a></li>
+<li><a href="#org390b670">修改 .gitignore</a>
+<ul>
+<li><a href="#org53388aa">在添加 .gitignore 之前就 push 了项目</a></li>
+<li><a href="#orgc492ecc">修改过滤规则使其生效</a></li>
+</ul>
+</li>
+<li><a href="#orga2098bd">eg1. 忽略 .idea 文件</a></li>
+<li><a href="#orgc808464">eg2. 仅包含 .config 里的部分目录</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org4ff3279" class="outline-2">
-<h2 id="org4ff3279">忽略 .idea 文件</h2>
-<div class="outline-text-2" id="text-org4ff3279">
+<div id="outline-container-org8a53607" class="outline-2">
+<h2 id="org8a53607">语法规范</h2>
+<div class="outline-text-2" id="text-org8a53607">
+<ul class="org-ul">
+<li>空行或是以 <code>#</code> 开头的行即注释行将被忽略；<br></li>
+<li>命令和注释不能在同一行，如： <code>*.txt   # 注释 txt</code> ，此行将无法识别；<br></li>
+<li><code>git add</code> 之前如果 .gitignore 有改动，一定要执行 <code>git rm -r --cached .</code> ；<br></li>
+<li>可以在前面添加正斜杠 <code>/</code> 来避免递归；<br></li>
+<li>可以在后面添加正斜杠 <code>/</code> 来忽略文件夹，例如 <code>build/</code> 即忽略 build 文件夹；<br></li>
+<li>可以使用 <code>!</code> 来否定忽略，即比如在前面用了 <code>*.apk</code> ，然后使用 <code>!a.apk</code> ，则这个 a.apk 不会被忽略；<br></li>
+<li><code>*</code> 用来匹配零个或多个字符，如 <code>*.[oa]</code> 忽略所有以".o"或".a"结尾， <code>*~</code> 忽略所有以 <code>~</code> 结尾的文件（这种文件通常被许多编辑器标记为临时文件）； <code>[]</code> 用来匹配括号内的任一字符，如 <code>[abc]</code> ，也可以在括号内加连接符，如 <code>[0-9]</code> 匹配 0 至 9 的数； <code>?</code> 用来匹配单个字符；<br></li>
+<li>使用两个星号 <code>**</code> 表示匹配任意中间目录，比如 <code>a/**/z</code> 可以匹配 a/z, a/b/z 或 a/b/c/z 等；<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgbd48d59" class="outline-2">
+<h2 id="orgbd48d59">一个 .gitignore 例子</h2>
+<div class="outline-text-2" id="text-orgbd48d59">
+<pre class="example">
+~                                  # 如果被忽略，是被哪条规则忽略的？
+├── .bashrc
+├── .bashrc~                       # 4
+├── .config/
+│   ├── nvim
+│   │   ├── images/
+│   │   │   ├── empty.txt
+│   │   │   ├── example1.png       # 9
+│   │   │   └── example2.png       # 9
+│   │   └── init.vim
+│   └── zsh/                       # 10
+├── .gitignore
+│── dir/
+│   ├── dir1/
+│   │   ├── empty.txt
+│   │   ├── f1.txt                 # 1
+│   │   ├── f2.txt                 # 2
+│   │   └── f3.txt                 # 3
+│   ├── dir2/
+│   │   ├── empty.txt
+│   │   ├── f1.txt                 # 1
+│   │   ├── f2.txt                 # 2
+│   │   └── f3.txt                 # 3
+│   ├── f1.txt                     # 1
+│   ├── f2.txt                     # 2
+│   └── f3.txt                     # 3
+├── f1.txt                         # 1
+├── f2.txt                         # 2
+├── f3.txt                         # 3
+├── learn_linux.md                 # 5
+├── learn_web.md
+├── log/
+│   ├── a.log                      # 8
+│   ├── b.log                      # 8
+│   └── c/
+│       └── d.log
+├── web/
+│   ├── README.md
+│   ├── css/
+│   │   └── style.css
+│   ├── index.html
+│   ├── index.html~                # 4
+│   ├── images/
+│   │   ├── empty.txt
+│   │   ├── example1.png           # 9
+│   │   └── example2.png           # 9
+│   │── js/
+│   │ 	└── script.js
+│   └── log/
+│       └── a.log
+└── zshrc
+</pre>
+
+<p>
+假如要在我的家目录下建一个 <a href="https://gitee.com/haoran_mc/test-gitignore">仓库</a>，上面是家目录文件树，下面是 .gitignore 文件的内容：<br>
+</p>
+
+<pre class="example">
+#                  此为注释，将被 git 忽略
+f1.txt             1 忽略所有 f1.txt 文件 /f1.txt、/dir/f1.txt、/dir/dir/f1.txt；不忽略 f1.txt/ 文件夹
+/**/f2.txt         2 忽略所有的 f2.txt 文件，/f2.txt、/dir/f2.txt、/dir/dir/f2.txt
+**/f3.txt         3 表示忽略 f3.txt、dir/f3.txt、dir/dir/f3.txt
+# 上面三种作用相同！
+
+*~                 4 忽略所有以 ~ 结尾的文件（临时文件），/.bashrc~、/work/web/index.html~ 两个文件将被忽略
+/*.md              5 忽略 /learn_linux.md、learn_web.md，不忽略 /web/README.md
+!learn_web.md      6 不忽略所有名叫 learn_web.md 的文件
+!/log/b.log        7 不忽略指定的 /log/b.log 文件
+log/*.log          8 忽略 log/a.log、log/b.log，不忽略 log/c/d.log 和 web/log/a.log；虽然第 5 条指定了 log/b.log 不被忽略，但是 .gitignore 文件自上而下运行，所以 log/b.log 文件最终还是被忽略
+images/**/*.png    9 忽略所有 images/ 目录下的 .png 文件，/.config/nvim/images/*.png、/web/images/*.png
+10 空文件不会上传仓库，所以会在一些文件夹中看到 empty.txt，如果文件夹下所有文件都被忽略，仓库中就找不到文件夹了
+</pre>
+
+<p>
+<code>git push</code> 后出现在仓库中的文件是：<br>
+</p>
+
+<pre class="example">
+~
+├── .bashrc
+├── .config/
+│   └── nvim
+│       └── images/
+│           └── empty.txt
+├── .gitignore
+│── dir/
+│   ├── dir1/
+│   │   └── empty.txt
+│   └── dir2/
+│       └── empty.txt
+├── learn_web.md
+├── log/
+│   └── c/
+│       └── d.log
+├── web/
+│   ├── README.md
+│   ├── css/
+│   │   └── style.css
+│   ├── index.html
+│   ├── images/
+│   │   └── empty.txt
+│   │── js/
+│   │ 	└── script.js
+│   └── log/
+│       └── a.log
+└── zshrc
+</pre>
+</div>
+</div>
+<div id="outline-container-org876320e" class="outline-2">
+<h2 id="org876320e"><code>/mtk</code> <code>/mtk/</code> <code>mtk/</code> <code>/mtk/*</code> 区别！</h2>
+<div class="outline-text-2" id="text-org876320e">
+<dl class="org-dl">
+<dt><code>/mtk</code></dt><dd>过滤根目录下的 mtk 文件<br></dd>
+<dt><code>/mtk/</code></dt><dd>过滤根目录下的 mtk 文件夹，仓库里在根目录下看不到这个文件夹；<br></dd>
+<dt><code>mtk/</code></dt><dd>过滤所有目录下的 mtk 文件夹，包括 <i>mtk/、 /dir/mtk</i> &#x2026;，仓库里看不到任何一个叫 mtk 的文件夹；<br></dd>
+<dt><code>/mtk/*</code></dt><dd>过滤根目录下的 mtk 文件夹下的所有文件，但是仓库里可以在根目录下看到一个叫做 mtk 的文件夹；<br></dd>
+</dl>
+
+<p>
+如果在根目录下的 mtk 文件夹里，只有一个 one.txt 文件是我们向添加到仓库中的，那么应该：<br>
+</p>
+
+<pre class="example">
+/mtk/*
+!/mtk/one.txt
+</pre>
+</div>
+</div>
+<div id="outline-container-org390b670" class="outline-2">
+<h2 id="org390b670">修改 .gitignore</h2>
+<div class="outline-text-2" id="text-org390b670">
+</div>
+<div id="outline-container-org53388aa" class="outline-3">
+<h3 id="org53388aa">在添加 .gitignore 之前就 push 了项目</h3>
+<div class="outline-text-3" id="text-org53388aa">
+<ol class="org-ol">
+<li>在本地项目目录下删除暂存区内容： <code>git rm -r --cached .</code> ；<br></li>
+<li>新建 .gitignore 文件，并添加过滤规则；<br></li>
+<li>再次 add 文件，添加到暂存区；<br></li>
+<li>再次 commit 提交文件；<br></li>
+<li><code>git commit -m "add .gitignore"</code><br></li>
+<li>最后push即可<br></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgc492ecc" class="outline-3">
+<h3 id="orgc492ecc">修改过滤规则使其生效</h3>
+<div class="outline-text-3" id="text-orgc492ecc">
+<ol class="org-ol">
+<li><code>git rm -r --cached .</code><br></li>
+<li><code>git add .</code><br></li>
+<li><code>git commit -m ".gitignore update"</code><br></li>
+</ol>
+</div>
+</div>
+</div>
+<div id="outline-container-orga2098bd" class="outline-2">
+<h2 id="orga2098bd">eg1. 忽略 .idea 文件</h2>
+<div class="outline-text-2" id="text-orga2098bd">
 <ul class="org-ul">
 <li><code>git rm -r --cached .idea</code> ：首先清除 .idea 的 git 缓存<br></li>
 <li>然后在 .gitignore 中添加 <code>.idea</code><br></li>
 </ul>
 </div>
 </div>
+<div id="outline-container-orgc808464" class="outline-2">
+<h2 id="orgc808464">eg2. 仅包含 .config 里的部分目录</h2>
+<div class="outline-text-2" id="text-orgc808464">
+<pre class="example">
+/*             # 忽略根目录下所有文件
+!.gitignore    # 不忽略 .gitignore 问价
+!/nvim/        # 不忽略 /nvim/ 文件夹
+!/ranger/      # 不忽略 /ranger/ 文件夹
+!/zsh/         # 不忽略 /zsh/ 文件夹
+
+!/dir/         # 不忽略 /dir/ 文件夹
+/dir/*         # 忽略 /dir/ 文件夹下的所有文件
+!/dir/dir1/    # 不忽略 /dir/dir1/ 文件夹
+!/dir/dir2/    # 不忽略 /dir/dir2/ 文件夹
+</pre>
+
+<p>
+如果要不忽略/dir/dir1/、/dir/dir2/文件夹，就需要先对/dir/文件夹也就是 dir1、dir2 的父目录使用 <code>!</code> 规则，使其不被排除。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2021-08-30 02:08 一</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-05-31 Tue 13:30</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>

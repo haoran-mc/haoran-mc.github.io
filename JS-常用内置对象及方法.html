@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-05-21 Sat 02:07 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JS 常用内置对象及方法</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">JS 常用内置对象及方法</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org59f8415">一、Number 数字对象</a>
+<ul>
+<li><a href="#org13cb0f5">Number.EPSILON</a></li>
+<li><a href="#orgc15e181">Number.MAX_SAFE_INTEGER</a></li>
+<li><a href="#org679c2aa">Number.MAX_VALUE</a></li>
+<li><a href="#org4e393db">Number.MIN_SAFE_INTEGER</a></li>
+<li><a href="#org74a3206">Number.MIN_VALUE</a></li>
+<li><a href="#org72c09f4">Number.NaN</a></li>
+<li><a href="#orgd1f77e5">Number.NEGATIVE_INFINITY</a></li>
+<li><a href="#org1ee4dca">Number.POSITIVE_INFINITY</a></li>
+<li><a href="#org720ecb5">Number.prototype (en-US)</a></li>
+<li><a href="#org4eabc64">Number.isNaN()</a></li>
+<li><a href="#orgf7794f0">Number.isFinite()</a></li>
+<li><a href="#org88f9101">Number.isInteger()</a></li>
+<li><a href="#org55f42d8">Number.isSafeInteger()</a></li>
+<li><a href="#orga0a4e45">Number.toInteger()</a></li>
+<li><a href="#org978cf74">Number.parseFloat()</a></li>
+<li><a href="#org2784581">Number.parseInt()</a></li>
+</ul>
+</li>
+<li><a href="#orgf4fe8f3">二、String 字符串对象</a>
+<ul>
+<li><a href="#orgc10d167">1. charAt()</a></li>
+<li><a href="#org418a436">2. charCodeAt()</a></li>
+<li><a href="#orgfbc1434">3. String.fromCharCode()</a></li>
+<li><a href="#org77a371a">4. str.concat()</a></li>
+<li><a href="#org3618dbd">5. indexOf() 、lastIndexOf()</a></li>
+<li><a href="#orge4f6322">6. replace()</a></li>
+<li><a href="#orgb3016e0">7. slice(start, end)</a></li>
+<li><a href="#org54b37dc">8. substring()</a></li>
+<li><a href="#org7de268a">9. substr(idx, len)</a></li>
+<li><a href="#org9c4daa8">10. split(ch)</a></li>
+<li><a href="#org0a207b1">11. reverse()</a></li>
+<li><a href="#org926fe9d">12. str.toLowerCase()</a></li>
+<li><a href="#orgc2c51fe">13. str.toUpperCase()</a></li>
+</ul>
+</li>
+<li><a href="#org3282898">三、Array 数组对象</a>
+<ul>
+<li><a href="#orgb0de624">1. push()</a></li>
+<li><a href="#orgb962aff">2. unshift()</a></li>
+<li><a href="#org6573bb7">3. pop()</a></li>
+<li><a href="#orgf082ef7">4. shift()</a></li>
+<li><a href="#orgaea802b">5. concat()</a></li>
+<li><a href="#org0feff19">6. join()</a></li>
+<li><a href="#org03caaf6">7. splice()</a></li>
+<li><a href="#org2bdac56">8. slice(start, end)</a></li>
+<li><a href="#orgcc6df67">9. indexOf(element, start)</a></li>
+<li><a href="#org96a3bcf">10. Array.from(something)</a></li>
+<li><a href="#orgcaa848f">11. lastIndexOf(element，start)</a></li>
+<li><a href="#orgbf324a3">12. arr.sort()</a></li>
+<li><a href="#orgb1d245f">13. some()</a></li>
+<li><a href="#org47386a6">14. every()</a></li>
+<li><a href="#org5e9693a">15. filter()</a></li>
+<li><a href="#orgb68ad2c">16. reduce()</a></li>
+<li><a href="#org4a481d4">17. Array.isArray()</a></li>
+</ul>
+</li>
+<li><a href="#org40eb8c4">四、Boolean 布尔对象</a>
+<ul>
+<li><a href="#org78c7343">创建值为 false 的 Boolean 对象</a></li>
+<li><a href="#org14e2f06">创建值为 true 的  Boolean 对象</a></li>
+</ul>
+</li>
+<li><a href="#org96782e0">五、Math 算数对象</a>
+<ul>
+<li><a href="#orgd9bf680">1. π 和根号2</a></li>
+<li><a href="#org0f85fea">2. 向下取整 Math.floor()</a></li>
+<li><a href="#org5f54421">3. 向上取整 Math.ceil()</a></li>
+<li><a href="#org5add06d">4. 四舍五入 Math.round()</a></li>
+<li><a href="#org50f35ff">5. 最小值 Math.min()</a></li>
+<li><a href="#org3c5f533">6. 最大值 Math.max()</a></li>
+<li><a href="#org7e1c524">7. 随机数 Math.random</a></li>
+<li><a href="#org50144cd">8. 其他的方法</a></li>
+</ul>
+</li>
+<li><a href="#org47f5552">六、Date 对象</a>
+<ul>
+<li><a href="#org4507c7e">1. 创建日期对象</a></li>
+<li><a href="#orgc5e7231">2. 获取日期</a></li>
+<li><a href="#org3583eb6">3. 时间戳</a></li>
+</ul>
+</li>
+<li><a href="#orgb1d177d">七、RegExp 正则对象</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org59f8415" class="outline-2">
+<h2 id="org59f8415">一、Number 数字对象</h2>
+<div class="outline-text-2" id="text-org59f8415">
+</div>
+<div id="outline-container-org13cb0f5" class="outline-3">
+<h3 id="org13cb0f5">Number.EPSILON</h3>
+<div class="outline-text-3" id="text-org13cb0f5">
+<p>
+两个可表示（representable）数之间的最小间隔。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc15e181" class="outline-3">
+<h3 id="orgc15e181">Number.MAX_SAFE_INTEGER</h3>
+<div class="outline-text-3" id="text-orgc15e181">
+<p>
+JavaScript 中最大的安全整数 <code>(2^53 - 1)</code> 。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org679c2aa" class="outline-3">
+<h3 id="org679c2aa">Number.MAX_VALUE</h3>
+<div class="outline-text-3" id="text-org679c2aa">
+<p>
+能表示的最大正数。最小的负数是 <code>-MAX_VALUE</code> 。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4e393db" class="outline-3">
+<h3 id="org4e393db">Number.MIN_SAFE_INTEGER</h3>
+<div class="outline-text-3" id="text-org4e393db">
+<p>
+JavaScript 中最小的安全整数 <code>(-(2^53 - 1))</code> 。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org74a3206" class="outline-3">
+<h3 id="org74a3206">Number.MIN_VALUE</h3>
+<div class="outline-text-3" id="text-org74a3206">
+<p>
+能表示的最小正数即最接近 0 的正数（实际上不会变成 0）。最大的负数是 <code>-MIN_VALUE</code> 。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org72c09f4" class="outline-3">
+<h3 id="org72c09f4">Number.NaN</h3>
+<div class="outline-text-3" id="text-org72c09f4">
+<p>
+特殊的 “非数字” 值。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd1f77e5" class="outline-3">
+<h3 id="orgd1f77e5">Number.NEGATIVE_INFINITY</h3>
+<div class="outline-text-3" id="text-orgd1f77e5">
+<p>
+特殊的负无穷大值，在溢出时返回该值。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org1ee4dca" class="outline-3">
+<h3 id="org1ee4dca">Number.POSITIVE_INFINITY</h3>
+<div class="outline-text-3" id="text-org1ee4dca">
+<p>
+特殊的正无穷大值，在溢出时返回该值。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org720ecb5" class="outline-3">
+<h3 id="org720ecb5">Number.prototype (en-US)</h3>
+<div class="outline-text-3" id="text-org720ecb5">
+<p>
+Number 对象上允许的额外属性。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4eabc64" class="outline-3">
+<h3 id="org4eabc64">Number.isNaN()</h3>
+<div class="outline-text-3" id="text-org4eabc64">
+<p>
+确定传递的值是否是 <code>NaN</code> 。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf7794f0" class="outline-3">
+<h3 id="orgf7794f0">Number.isFinite()</h3>
+<div class="outline-text-3" id="text-orgf7794f0">
+<p>
+确定传递的值类型及本身是否是有限数。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org88f9101" class="outline-3">
+<h3 id="org88f9101">Number.isInteger()</h3>
+<div class="outline-text-3" id="text-org88f9101">
+<p>
+确定传递的值类型是 “number”，且是整数。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org55f42d8" class="outline-3">
+<h3 id="org55f42d8">Number.isSafeInteger()</h3>
+<div class="outline-text-3" id="text-org55f42d8">
+<p>
+确定传递的值是否为安全整数 <code>(-(2^53 - 1) 至 2^53 - 1)</code> 之间。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga0a4e45" class="outline-3">
+<h3 id="orga0a4e45">Number.toInteger()</h3>
+<div class="outline-text-3" id="text-orga0a4e45">
+<p>
+计算传递的值并将其转换为整数（或无穷大）。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org978cf74" class="outline-3">
+<h3 id="org978cf74">Number.parseFloat()</h3>
+<div class="outline-text-3" id="text-org978cf74">
+<p>
+和全局对象 <code>parseFloat()</code> 一样。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2784581" class="outline-3">
+<h3 id="org2784581">Number.parseInt()</h3>
+<div class="outline-text-3" id="text-org2784581">
+<p>
+和全局对象 <code>parseInt()</code> 一样。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgf4fe8f3" class="outline-2">
+<h2 id="orgf4fe8f3">二、String 字符串对象</h2>
+<div class="outline-text-2" id="text-orgf4fe8f3">
+</div>
+<div id="outline-container-orgc10d167" class="outline-3">
+<h3 id="orgc10d167">1. charAt()</h3>
+<div class="outline-text-3" id="text-orgc10d167">
+<p>
+获取下标位置的字符，和 <code>str[1];</code> 一样。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">str</span> = <span style="color: #2aa198;">"abcdef"</span>;
+console.log(str.charAt(3));
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org418a436" class="outline-3">
+<h3 id="org418a436">2. charCodeAt()</h3>
+<div class="outline-text-3" id="text-org418a436">
+<p>
+将下标位置的字符转为 Unicode 编码。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">str</span> = <span style="color: #2aa198;">"abcdef"</span>;
+console.log(str.charCodeAt(2));
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgfbc1434" class="outline-3">
+<h3 id="orgfbc1434">3. String.fromCharCode()</h3>
+<div class="outline-text-3" id="text-orgfbc1434">
+<p>
+将 Unicode 编码转为字符串。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js">n = String.fromCharCode(65); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23558; Unicode &#32534;&#30721;&#36716;&#20026;&#23383;&#31526;&#20018;</span>
+console.log(n);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org77a371a" class="outline-3">
+<h3 id="org77a371a">4. str.concat()</h3>
+<div class="outline-text-3" id="text-org77a371a">
+<p>
+连接字符串，效果等同于拼接符 <code>+</code> 。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">str</span> = <span style="color: #2aa198;">"abc"</span>;
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">str1</span> = <span style="color: #2aa198;">"def"</span>;
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">str2</span> = str.concat(str1);   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">var str2 = str + str1; &#36825;&#20010;&#31561;&#21516;&#20110; concat</span>
+console.log(str2); 
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org3618dbd" class="outline-3">
+<h3 id="org3618dbd">5. indexOf() 、lastIndexOf()</h3>
+<div class="outline-text-3" id="text-org3618dbd">
+<p>
+和数组中 <code>indexOf</code> 相同查找字符所在下标。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr</span> = [
+    {id:1001, name:<span style="color: #2aa198;">"&#35745;&#31639;&#26426;"</span>, price:4999},
+    {id:1002, name:<span style="color: #2aa198;">"&#30005;&#26426;"</span>, price:1999},
+    {id:1003, name:<span style="color: #2aa198;">"&#35760;&#20107;&#26412;"</span>, price:9},
+    {id:1004, name:<span style="color: #2aa198;">"&#35838;&#26412;"</span>, price:99},
+    {id:1005, name:<span style="color: #2aa198;">"&#35745;&#31639;&#22120;"</span>, price:149},
+]; 
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#27169;&#31946;&#26597;&#25214;</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr1</span> = arr.filter(<span style="color: #268bd2; font-weight: bold;">function</span>(<span style="color: #8787d7;">item</span>) {
+    <span style="color: #268bd2; font-weight: bold;">return</span> item.name.indexOf(<span style="color: #2aa198;">"&#26412;"</span>)&gt;-1 
+});
+console.log(arr1); 
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orge4f6322" class="outline-3">
+<h3 id="orge4f6322">6. replace()</h3>
+<div class="outline-text-3" id="text-orge4f6322">
+<p>
+替换，类似于数组中的 <code>splice();</code> ， <code>replace</code> 不修改原字符的内容，会返回一个被修改后的新字符串，如果出现两个相同的元素，那么只修改第一次被查找到的元素。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">str</span> = <span style="color: #2aa198;">"abcdecf"</span>;
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">str1</span> = str.replace(<span style="color: #2aa198;">"c"</span>, <span style="color: #2aa198;">"z"</span>);
+str.replace()
+console.log(str, str1);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb3016e0" class="outline-3">
+<h3 id="orgb3016e0">7. slice(start, end)</h3>
+<div class="outline-text-3" id="text-orgb3016e0">
+<p>
+<code>slice(start, end)</code> 截取复制字符串，允许有负值，负值表示从后向前。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">str</span> = <span style="color: #2aa198;">"abcdecf"</span>;
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">s</span> = str.slice(1, 2);
+console.log(s);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org54b37dc" class="outline-3">
+<h3 id="org54b37dc">8. substring()</h3>
+<div class="outline-text-3" id="text-org54b37dc">
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">str</span> = <span style="color: #2aa198;">"abcdecf"</span>;
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">s</span> = str.substring(2, 4); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21644;slice&#30456;&#20284;</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">substring&#19981;&#20801;&#35768;&#36127;&#25968;&#65292;&#25152;&#26377;&#30340;&#36127;&#20540;&#25351;0&#20043;&#21069;&#65292;&#22240;&#27492;&#36127;&#25968;&#37117;&#26159;0</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21487;&#20197;&#36870;&#21521;&#25130;&#21462;&#36171;&#20540;</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">s</span> = str.substring(4, 2);
+console.log(s);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org7de268a" class="outline-3">
+<h3 id="org7de268a">9. substr(idx, len)</h3>
+<div class="outline-text-3" id="text-org7de268a">
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">str</span> = <span style="color: #2aa198;">"abcdecf"</span>;
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">s</span> = str.substr(-2, 5); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#24320;&#22987;&#20301;&#32622;&#65292;&#25130;&#21462;&#38271;&#24230;</span>
+console.log(s);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org9c4daa8" class="outline-3">
+<h3 id="org9c4daa8">10. split(ch)</h3>
+<div class="outline-text-3" id="text-org9c4daa8">
+<p>
+将字符串以分隔符进行分割转换为数组<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">str</span> = <span style="color: #2aa198;">"a,b,c,d,e,f"</span>;
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr</span> = str.split(<span style="color: #2aa198;">","</span>);
+console.log(arr);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org0a207b1" class="outline-3">
+<h3 id="org0a207b1">11. reverse()</h3>
+<div class="outline-text-3" id="text-org0a207b1">
+<p>
+数组元素倒序或者反转，这是一个数组方法<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">str</span> = <span style="color: #2aa198;">"abcdefg"</span>;
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">str1</span> = str.split(<span style="color: #2aa198;">""</span>).reverse().join(<span style="color: #2aa198;">""</span>);   <span style="color: #008787; background-color: #262626;">//  </span><span style="color: #008787; background-color: #262626;">&#36830;&#32512;</span>
+console.log(str1)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org926fe9d" class="outline-3">
+<h3 id="org926fe9d">12. str.toLowerCase()</h3>
+<div class="outline-text-3" id="text-org926fe9d">
+<div class="org-src-container">
+<pre class="src src-js">console.log(<span style="color: #2aa198;">"ABC"</span>.toLowerCase()); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23558;&#23383;&#31526;&#20018;&#36716;&#25442;&#25104;&#23567;&#20889;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgc2c51fe" class="outline-3">
+<h3 id="orgc2c51fe">13. str.toUpperCase()</h3>
+<div class="outline-text-3" id="text-orgc2c51fe">
+<div class="org-src-container">
+<pre class="src src-js">console.log(<span style="color: #2aa198;">"abc"</span>.toUpperCase()); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23558;&#23383;&#31526;&#20018;&#36716;&#25442;&#25104;&#22823;&#20889;</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org3282898" class="outline-2">
+<h2 id="org3282898">三、Array 数组对象</h2>
+<div class="outline-text-2" id="text-org3282898">
+</div>
+<div id="outline-container-orgb0de624" class="outline-3">
+<h3 id="orgb0de624">1. push()</h3>
+<div class="outline-text-3" id="text-orgb0de624">
+<p>
+在数组尾部添加一个或者多个元素，并且返回数组的长度。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js">arr = [1, 2, 3]
+arr.push(<span style="color: #2aa198;">"a"</span>, <span style="color: #2aa198;">"b"</span>);      <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25554;&#20837;&#23383;&#31526;&#20018;</span>
+arr.push(6);             <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22312;&#25968;&#32452;&#30340;&#23614;&#37096;&#25554;&#20837;&#19968;&#20010;&#26032;&#20803;&#32032;</span>
+arr.push(6, 7, 8);       <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22312;&#25968;&#32452;&#30340;&#23614;&#37096;&#25554;&#20837;&#22810;&#20010;&#26032;&#20803;&#32032;</span>
+a = arr.push(6, 7, 8);   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36890;&#36807;&#28155;&#21152;&#21040;&#23614;&#37096;&#20803;&#32032;&#21518;&#36820;&#22238;&#25968;&#32452;&#30340;&#26032;&#38271;&#24230;</span>
+console.log(arr);        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">[1, 2, 3, "a", "b", 6, 6, 7, 8, 6, 7, 8]</span>
+console.log(a);          <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">12</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb962aff" class="outline-3">
+<h3 id="orgb962aff">2. unshift()</h3>
+<div class="outline-text-3" id="text-orgb962aff">
+<p>
+在数组头部添加一个或者多个元素，并且返回数组的新长度。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js">arr = [1, 2, 3]
+arr.unshift(0);                     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22312;&#25968;&#32452;&#30340;&#22836;&#37096;&#25554;&#20837;&#19968;&#20010;&#26032;&#20803;&#32032;</span>
+arr.unshift(-3, -2, -1, 0);         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22312;&#25968;&#32452;&#30340;&#22836;&#37096;&#25554;&#20837;&#22810;&#20010;&#26032;&#20803;&#32032;</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">a</span> = arr.unshift(-3, -2, -1, 0);   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;&#25968;&#32452;&#30340;&#26032;&#38271;&#24230;</span>
+console.log(arr);                   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">[-3, -2, -1, 0, -3, -2, -1, 0, 0, 1, 2, 3]</span>
+console.log(a);                     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">12</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org6573bb7" class="outline-3">
+<h3 id="org6573bb7">3. pop()</h3>
+<div class="outline-text-3" id="text-org6573bb7">
+<p>
+删除数组尾部的最后一个元素，并且将这个被删除的元素返回。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js">arr = [1, 2, 3, 4, 5, 6]
+arr.pop();           <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">pop &#20013;&#27809;&#26377;&#21442;&#25968;&#65292;&#21024;&#38500;&#25968;&#32452;&#30340;&#26368;&#23614;&#37096;&#19968;&#20010;&#20803;&#32032;</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">a</span> = arr.pop();   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">pop &#21024;&#38500;&#25968;&#32452; &#30340;&#26368;&#23614;&#37096;&#19968;&#20010;&#20803;&#32032;&#65292;&#24182;&#19988;&#23558;&#34987;&#21024;&#38500;&#30340;&#20803;&#32032;&#36820;&#22238;</span>
+console.log(arr);
+console.log(a);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgf082ef7" class="outline-3">
+<h3 id="orgf082ef7">4. shift()</h3>
+<div class="outline-text-3" id="text-orgf082ef7">
+<p>
+删除数组的第一个元素，并且返回被删除的元素。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js">arr = [1, 2, 3, 4, 5, 6]
+arr.shift();           <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23558;&#25968;&#32452;&#30340;&#31532;&#19968;&#20010;&#20803;&#32032;&#21024;&#38500;</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">a</span> = arr.shift();   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23558;&#25968;&#32452;&#30340;&#31532;&#19968;&#20010;&#20803;&#32032;&#21024;&#38500;&#65292;&#24182;&#19988;&#36820;&#22238;&#36825;&#20010;&#34987;&#21024;&#38500;&#30340;&#20803;&#32032;</span>
+console.log(arr);      <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">[3, 4, 5, 6]</span>
+console.log(a);        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">2</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgaea802b" class="outline-3">
+<h3 id="orgaea802b">5. concat()</h3>
+<div class="outline-text-3" id="text-orgaea802b">
+<p>
+数组的合并，合并后会返回一个新数组，原来的两个数组不会变化。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr</span> = [1, 2, 3, 4];
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr1</span> = [5, 6, 7, 8];
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr2</span> = arr.concat(arr1);  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25968;&#32452;&#30340;&#21512;&#24182;&#65292;&#21512;&#24182;&#21518;&#20250;&#36820;&#22238;&#19968;&#20010;&#26032;&#25968;&#32452;&#65292;&#21407;&#26469;&#30340;&#20004;&#20010;&#25968;&#32452;&#19981;&#20250;&#21464;&#21270;</span>
+console.log(arr2);
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr3</span> = arr.concat(0, -1, -2); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25968;&#32452;&#38500;&#20102;&#21487;&#20197;&#21512;&#24182;&#25968;&#32452;&#65292;&#20063;&#21487;&#20197;&#21512;&#24182;&#20803;&#32032;&#65292;&#23558;&#22810;&#20010;&#20803;&#32032;&#19982;&#21407;&#25968;&#32452;&#21512;&#24182;&#65292;&#36820;&#22238;&#26032;&#25968;&#32452;</span>
+console.log(arr3)
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr4</span> = arr.concat(0, arr1, [<span style="color: #2aa198;">"A"</span>, <span style="color: #2aa198;">"B"</span>]); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">concat&#26082;&#21487;&#20197;&#21512;&#24182;&#20803;&#32032;&#65292;&#20063;&#21487;&#20197;&#21512;&#24182;&#25968;&#32452;</span>
+console.log(arr4)
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr5</span> = arr.concat(); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#30452;&#25509;&#20351;&#29992;concat&#65292;&#23601;&#21487;&#20197;&#23436;&#25104;&#25968;&#32452;&#30340;&#22797;&#21046;&#21151;&#33021;</span>
+console.log(arr5)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org0feff19" class="outline-3">
+<h3 id="org0feff19">6. join()</h3>
+<div class="outline-text-3" id="text-org0feff19">
+<p>
+将数组的每个元素以指定的字符连接形成新字符串返回<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr</span> = [1, 2, 3, 4, 5]; <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">join&#23601;&#26159;&#23558;&#25968;&#32452;&#30340;&#27599;&#20010;&#20803;&#32032;&#20197;&#25351;&#23450;&#30340;&#23383;&#31526;&#36830;&#25509;&#24418;&#25104;&#26032;&#23383;&#31526;&#20018;&#36820;&#22238;</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">str</span> = arr.join( ); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23558;&#25968;&#32452;&#21512;&#24182;&#20026;&#23383;&#31526;&#20018;&#36820;&#22238;&#65292;&#40664;&#35748;&#20351;&#29992;&#36887;&#21495; "," &#36830;&#25509;</span>
+console.log(str);
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">str</span> = arr.join(<span style="color: #2aa198;">"|"</span>); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22312;&#36825;&#37324;join&#30340;&#21442;&#25968;&#26159;&#23383;&#31526;&#20018;&#30340;&#36830;&#25509;&#31526;v</span>
+console.log(str);
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">str</span> = arr.join(<span style="color: #2aa198;">""</span>); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">""&#20316;&#20026;&#36830;&#25509;&#31526;&#65292;&#20250;&#23558;&#25968;&#32452;&#20803;&#32032;&#39318;&#23614;&#30456;&#36830;&#25104;&#20026;&#23383;&#31526;&#20018;</span>
+console.log(str);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org03caaf6" class="outline-3">
+<h3 id="org03caaf6">7. splice()</h3>
+<div class="outline-text-3" id="text-org03caaf6">
+<p>
+这个方法可以从指定的位置删除给定数量的元素，并且在这个位置插入需要的元素，并且返回被删除的元素组成的新数组。<br>
+</p>
+
+<p>
+<code>splice(开始位置, 删除元素个数, 要插入的元素);</code><br>
+</p>
+
+<p>
+<code>splice</code> 刪除全部数组返回值：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr1</span> = arr.splice(); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#27809;&#26377;&#20219;&#20309;&#21442;&#25968;&#26102;&#65292;&#36820;&#22238;&#19968;&#20010;&#31354;&#25968;&#32452;</span>
+console.log(arr1);
+</pre>
+</div>
+
+<p>
+第一个参数是 0，表示从第 0 位开始，第二个参数删除多少个没有填，意味着删除到尾部。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr1</span> = arr.splice(0); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23558;&#25152;&#26377;&#25968;&#25454;&#36716;&#31227;&#21040;&#26032;&#25968;&#32452;</span>
+console.log(arr1);
+</pre>
+</div>
+
+<p>
+<code>splice</code> 可以从前向后，也可以从后向前：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr1</span> = arr.splice(0, 3); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20174;&#31532;0&#20301;&#24320;&#22987;&#21024;&#38500;3&#20010;&#20803;&#32032;&#65292;&#36820;&#22238;&#21040;&#26032;&#25968;&#32452;arr1</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr1</span> = arr.splice(-2); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20174;&#31532;&#20960;&#20301;&#24320;&#22987;&#21487;&#20197;&#26159;&#36127;&#25968;&#65292;&#20174;&#21518;&#21521;&#21069;&#25968;&#65288;&#20498;&#25968;&#65289;&#65292;&#22240;&#20026;&#27809;&#26377;&#32473;&#35201;&#21024;&#38500;&#30340;&#25968;&#37327;&#65292;&#22240;&#27492;&#21024;&#38500;&#21040;&#23614;&#37096;</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr1</span> = arr.splice(0, 1, -1); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20174;&#25968;&#32452;&#30340;&#31532;0&#20301;&#24320;&#22987;&#65292;&#21024;&#38500;1&#20010;&#20803;&#32032;&#65292;&#24182;&#19988;&#22312;&#36825;&#20010;&#20301;&#32622;&#25554;&#20837;&#19968;&#20010;&#20803;&#32032; -1 &#26367;&#25442;</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr1</span> = arr.splice(-1, 1, 0); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25968;&#32452;&#30340;&#26368;&#21518;&#19968;&#20301;&#26367;&#25442;&#20301;0</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr1</span> = arr.splice(2, 2, 10, 11); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23558;&#25968;&#32452;&#20013;&#31532;&#20108;&#20301;&#24320;&#22987;&#20004;&#20301;&#20803;&#32032;&#26367;&#25442;&#20026;10&#65292;11</span>
+</pre>
+</div>
+
+<p>
+<code>splice</code> 可以插入一个，可以插入多个元素：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr</span> = [1, 2, 3, 4, 5];
+arr.splice(2, 0, -1); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22312;&#25968;&#32452;&#30340;&#31532;&#20108;&#20301;&#25554;&#20837;&#19968;&#20010;&#20803;&#32032; -1</span>
+console.log(arr);
+arr.splice(2, 0, -1, -2, -3, -4); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22312;&#25968;&#32452;&#30340;&#31532;&#20108;&#20301;&#25554;&#20837;&#22810;&#20010;&#20803;&#32032;</span>
+console.log(arr);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org2bdac56" class="outline-3">
+<h3 id="org2bdac56">8. slice(start, end)</h3>
+<div class="outline-text-3" id="text-org2bdac56">
+<p>
+从下标 <code>start</code> 开始，截取到 <code>end</code> ，包括 <code>start</code> 但不包括 <code>end</code> 。第二个参数不写，默认截取到尾部，只能从前向后截取。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr1</span> = arr.slice(1, 4); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20174;&#31532;1&#20301;&#24320;&#22987;&#25130;&#21462;&#21040;&#31532;4&#20301;&#20043;&#21069;</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr1</span> = arr.slice();   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22797;&#21046;&#25968;&#32452;arr</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr1</span> = arr.slice(0);  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22797;&#21046;&#25968;&#32452;</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr1</span> = arr.slice(3);  <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#20174;&#31532;&#19977;&#20301;&#25130;&#21462;&#21040;&#23614;&#37096;&#22797;&#21046;</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr1</span> = arr.slice(-2); <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#20174;&#20498;&#25968;&#31532;&#20108;&#20301;&#24320;&#22987;&#25130;&#21462;&#21040;&#23614;&#37096;</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr1</span> = arr.slice(-3, -1); <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#20174;&#20498;&#25968;&#31532;&#19977;&#20301;&#21040;&#20498;&#25968;&#31532;&#19968;&#20301;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgcc6df67" class="outline-3">
+<h3 id="orgcc6df67">9. indexOf(element, start)</h3>
+<div class="outline-text-3" id="text-orgcc6df67">
+<p>
+在数组中查找元素，找到返回元素下标，找不到返回-1，查询到第一个后，就返回下标不再继续查询，查询不到返回 -1。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr</span> = [{a:1}, {a:2}, {a:3}, {a:4}];
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">index</span> = arr.indexOf({a:1}); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36825;&#26159;&#38169;&#35823;&#24471;&#65292;&#26597;&#25214;&#19981;&#21040;&#65292;&#22240;&#20026;&#26597;&#25214;&#24471;&#26159;&#26032;&#23545;&#35937;&#65292;&#22320;&#22336;&#19981;&#21516;</span>
+console.log(index);
+</pre>
+</div>
+
+<p>
+查询所有相同的元素：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr</span> = [1, 3, 1, 2, 3, 5, 2, 3, 4, 6];
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">index</span> = arr.indexOf(3); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36825;&#26679;&#21482;&#33021;&#26597;&#35810;&#21040;&#31532;&#19968;&#20010;3 &#65288;&#19979;&#26631;&#20026;1&#65289;</span>
+console.log(index);
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">index</span> = arr.indexOf(3, 2); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36825;&#26679;&#21482;&#33021;&#26597;&#35810;&#21040;&#31532;&#20108;&#20010;3 &#65288;&#19979;&#26631;&#20026;4&#65289;</span>
+console.log(index);
+</pre>
+</div>
+
+<p>
+查询全部相同的元素利用循环查询<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr</span> = [1, 3, 1, 2, 3, 5, 2, 3, 4, 6];
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">index</span> = 0; <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20351;&#29992;&#24490;&#29615;&#65292;&#26597;&#35810;&#21040;&#25968;&#32452;&#20013;&#25152;&#26377;&#20026;3&#30340;&#20803;&#32032;&#65292;&#24182;&#25171;&#21360;&#19979;&#26631;</span>
+<span style="color: #268bd2; font-weight: bold;">while</span> (<span style="color: #d75fd7;">true</span>) {
+    index = arr.indexOf(3, index);
+    console.log(index);
+    <span style="color: #268bd2; font-weight: bold;">if</span> (index === -1)  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26597;&#35810;&#21040;&#26368;&#21518;&#65292;&#26597;&#19981;&#21040;&#26102;&#36820;&#22238;-1  &#22914;&#26524;&#20026;-1 &#36339;&#20986;&#24490;&#29615;&#65292;&#19981;&#20877;&#26597;&#35810;</span>
+        <span style="color: #268bd2; font-weight: bold;">break</span>;
+    index++;
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org96a3bcf" class="outline-3">
+<h3 id="org96a3bcf">10. Array.from(something)</h3>
+<div class="outline-text-3" id="text-org96a3bcf">
+<p>
+根据标签名获取到标签列表：<br>
+</p>
+
+<p>
+获取到的是列表，不是数组，不能直接使用数组的方法。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">divs</span> = document.getElementsByTagName(<span style="color: #2aa198;">"div"</span>); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#33719;&#21462;html&#20803;&#32032;&#26631;&#31614;&#21517;&#26159;div&#30340;&#20803;&#32032;</span>
+
+divs.pop()&#65307;<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#38169;&#35823;&#65292;&#19981;&#26159;&#25968;&#32452;&#19981;&#33021;&#30452;&#25509;&#20351;&#29992;&#25968;&#32452;&#30340;&#26041;&#27861;</span>
+
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr</span> = Array.from(divs);  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">ES6 &#30340;&#20889;&#27861;&#65292;&#25226;divs&#36825;&#20010;&#21015;&#34920;&#65292;&#36716;&#20026;&#25968;&#32452;</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">ES5&#20889;&#27861; =&gt;  var arr=Array.prototype.slice.call(divs);</span>
+</pre>
+</div>
+
+<p>
+给所有 div 元素添加点击事件：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">divs</span> = document.getElementsByTagName(<span style="color: #2aa198;">"div"</span>);
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr</span> = Array.from(divs); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25226;&#33719;&#21462;&#21040;&#30340;&#25152;&#26377;div&#36716;&#25104;&#25968;&#32452;</span>
+
+<span style="color: #268bd2; font-weight: bold;">for</span> (<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">i</span> = 0; i &lt; arr.length; i ++ ) { <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36941;&#21382;&#25968;&#32452;&#32473;&#27599;&#20010;div&#28155;&#21152;&#28857;&#20987;&#20107;&#20214;</span>
+    arr[i].onclick = clickHandler;
+}
+<span style="color: #268bd2; font-weight: bold;">function</span> <span style="color: #d75fd7; font-weight: bold;">clickHandler</span>() {
+    console.log(<span style="color: #d75fd7;">this</span>);
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">index</span> = arr.indexOf(<span style="color: #d75fd7;">this</span>);
+    console.log(index);  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36825;&#26679;&#23601;&#21487;&#20197;&#21028;&#26029;&#28857;&#20987;&#24471;&#26159;&#21015;&#34920;&#20013;&#24471;&#31532;&#20960;&#20010;&#20803;&#32032;</span>
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgcaa848f" class="outline-3">
+<h3 id="orgcaa848f">11. lastIndexOf(element，start)</h3>
+<div class="outline-text-3" id="text-orgcaa848f">
+<p>
+从后向前查找。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr</span> = [1, 3, 1, 2, 3, 5, 2, 3, 4, 6];
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">index</span> = arr.lastIndexOf(3);
+console.log(index); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25171;&#21360;&#19979;&#26631; 7</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgbf324a3" class="outline-3">
+<h3 id="orgbf324a3">12. arr.sort()</h3>
+<div class="outline-text-3" id="text-orgbf324a3">
+<p>
+缺点：按字符排序。<br>
+</p>
+
+<p>
+<code>sort(function(后一项, 前一项) {})</code> 仅适用于数值。<br>
+</p>
+
+<p>
+数值排序：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr</span> = [1, 3, 5, 7, 2, 4, 6, 8];
+arr.sort(<span style="color: #268bd2; font-weight: bold;">function</span>(<span style="color: #8787d7;">a</span>, <span style="color: #8787d7;">b</span>) {      
+    <span style="color: #268bd2; font-weight: bold;">return</span> a - b;  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20174;&#23567;&#21040;&#22823;   </span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">return b - a;  // &#20174;&#22823;&#21040;&#23567;</span>
+})    
+console.log(arr);
+</pre>
+</div>
+
+<p>
+字符排序：<br>
+</p>
+
+<p>
+先把字符转换成 Unicode 编码。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr</span> = [<span style="color: #2aa198;">"n"</span>, <span style="color: #2aa198;">"c"</span>, <span style="color: #2aa198;">"g"</span>, <span style="color: #2aa198;">"h"</span>, <span style="color: #2aa198;">"a"</span>, <span style="color: #2aa198;">"j"</span>, <span style="color: #2aa198;">"y"</span>, <span style="color: #2aa198;">"k"</span>];
+arr.sort(<span style="color: #268bd2; font-weight: bold;">function</span>(<span style="color: #8787d7;">a</span>, <span style="color: #8787d7;">b</span>) {   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23558;&#23383;&#31526;&#25490;&#24207;</span>
+    console.log(a.charCodeAt(0), b.charCodeAt(0)); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">str.charCodeAt(0) =&gt; &#23558;str&#23383;&#31526;&#20018;&#30340;&#31532;0&#39033;&#36716;&#25442;&#20026;Unicode&#32534;&#30721;</span>
+    <span style="color: #268bd2; font-weight: bold;">return</span> a.charCodeAt(0)-b.charCodeAt(0);  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">a-z</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">return b.charCodeAt(0)-a.charCodeAt(0);  // z-a</span>
+})
+console.log(arr);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb1d245f" class="outline-3">
+<h3 id="orgb1d245f">13. some()</h3>
+<div class="outline-text-3" id="text-orgb1d245f">
+<p>
+判断数组中是否存在满足条件的元素，如果有就返回 <code>true</code> ，如果没有就返回 <code>false</code> 。<br>
+</p>
+
+<p>
+遍历数组，如果有一个满足条件的元素，都会直接返回 <code>true</code> ，不继续向后遍历。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr</span> = [1, 4, 6, 2, 7, 9, 0];
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">bool</span> = arr.some(<span style="color: #268bd2; font-weight: bold;">function</span>(<span style="color: #8787d7;">item</span>, <span style="color: #8787d7;">index</span>, <span style="color: #8787d7;">arr</span>) {  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36941;&#21382;&#25968;&#32452;&#65292;&#26159;&#21542;&#23384;&#22312;&#22823;&#20110;5&#30340;&#20803;&#32032;</span>
+   <span style="color: #268bd2; font-weight: bold;">return</span> item &gt; 5;
+});
+console.log(bool);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org47386a6" class="outline-3">
+<h3 id="org47386a6">14. every()</h3>
+<div class="outline-text-3" id="text-org47386a6">
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">bool</span> = arr.every(<span style="color: #268bd2; font-weight: bold;">function</span>(<span style="color: #8787d7;">item</span>, <span style="color: #8787d7;">index</span>, <span style="color: #8787d7;">arr</span>) { });
+</pre>
+</div>
+
+<p>
+判断数组中是否每一个都满足条件，如果有一个不满足条件，直接跳出，所有都满足时返回为 <code>ture</code> 。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr</span> = [1, 4, 6, 2, 7, 9, 0];
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">bool</span> = arr.every(<span style="color: #268bd2; font-weight: bold;">function</span>(<span style="color: #8787d7;">item</span>, <span style="color: #8787d7;">index</span>, <span style="color: #8787d7;">arr</span>) {   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21028;&#26029;&#25968;&#32452;&#20013; &#26159;&#21542;&#25152;&#26377;&#30340;&#20803;&#32032;&#37117;&#22823;&#20110;2</span>
+    <span style="color: #268bd2; font-weight: bold;">return</span> item&gt;2;
+});
+console.log(bool); 
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org5e9693a" class="outline-3">
+<h3 id="org5e9693a">15. filter()</h3>
+<div class="outline-text-3" id="text-org5e9693a">
+<p>
+要求是将数组中大于 5 的返回到一个新数组，首先想到 <code>map</code> ， <code>map</code> 只能实现原数组和新数组长度相同。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr1</span> = arr.filter(<span style="color: #268bd2; font-weight: bold;">function</span>(<span style="color: #8787d7;">item</span>, <span style="color: #8787d7;">index</span>, <span style="color: #8787d7;">arr</span>) {
+   <span style="color: #268bd2; font-weight: bold;">return</span> item&gt;5;
+});
+console.log(arr1);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb68ad2c" class="outline-3">
+<h3 id="orgb68ad2c">16. reduce()</h3>
+<div class="outline-text-3" id="text-orgb68ad2c">
+<p>
+从数组的第 1 位开始遍历，第 0 位没有遍历，下标从 1 开始，刚开始 <code>value</code> 是数组的第 0 项，后面每次 <code>value</code> 都是 <code>undefined</code> 。<br>
+</p>
+
+<p>
+如果在函数中使用 <code>return</code> 就会将返回值在下次数组的遍历中赋予 <code>value</code> 。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr</span> = [10, 3, 4, 7, 3, 5, 8, 9];
+arr.reduce(<span style="color: #268bd2; font-weight: bold;">function</span>(<span style="color: #8787d7;">value</span>, <span style="color: #8787d7;">item</span>, <span style="color: #8787d7;">index</span>, <span style="color: #8787d7;">arr</span>) {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#24490;&#29615;&#30340;&#27425;&#25968;&#26159;&#25968;&#32452;&#30340;&#20010;&#25968;-1</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">value&#23601;&#26159;&#19978;&#27425;&#36941;&#21382;return&#30340;&#20540;&#65292;&#31532;0&#27425;&#36941;&#21382;&#26102;&#65288;&#26368;&#24320;&#22987;&#26102;&#26159;&#25968;&#32452;&#30340;&#31532;0&#39033;&#65289;</span>
+    console.log(value);
+    <span style="color: #268bd2; font-weight: bold;">return</span> value+1
+}) 
+</pre>
+</div>
+
+<p>
+累积相加数组元素求和， <code>reduce</code> 返回的是一个值，就是遍历到最后一次 <code>return</code> 出来的值。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr</span> = [10, 3, 4, 7, 3, 5, 8, 9];
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">sum</span> = arr.reduce(<span style="color: #268bd2; font-weight: bold;">function</span>(<span style="color: #8787d7;">value</span>, <span style="color: #8787d7;">item</span>) {
+    <span style="color: #268bd2; font-weight: bold;">return</span> value+item;
+});
+console.log(sum);
+</pre>
+</div>
+
+
+<p>
+希望求累积相加数组元素求和，在基数 100 的前提下，100 就是初始值。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr</span> = [10, 3, 4, 7, 3, 5, 8, 9];
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">sum</span> = arr.reduce(<span style="color: #268bd2; font-weight: bold;">function</span>(<span style="color: #8787d7;">value</span>, <span style="color: #8787d7;">item</span>) {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20989;&#25968;&#21518;&#38754;&#30340;&#21442;&#25968;&#23601;&#26159;&#32047;&#21152;&#30340;&#21021;&#22987;&#20540;</span>
+    console.log(value);
+    <span style="color: #268bd2; font-weight: bold;">return</span> value+item;
+}, 100); 
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org4a481d4" class="outline-3">
+<h3 id="org4a481d4">17. Array.isArray()</h3>
+<div class="outline-text-3" id="text-org4a481d4">
+<p>
+用来判断是不是数组。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">arr</span> = [1, 2, 3, 4];
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">obj</span> = {a:1};
+console.log(<span style="color: #268bd2; font-weight: bold;">typeof</span> arr);
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21028;&#26029;&#20803;&#32032;&#26159;&#21542;&#26159;&#25968;&#32452;&#65292;&#22914;&#26524;&#26159;&#25968;&#32452;&#36820;&#22238; true &#21542;&#21017;&#36820;&#22238; false&#65292;ES6</span>
+console.log(Array.isArray(arr));
+console.log(Array.isArray(obj));
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org40eb8c4" class="outline-2">
+<h2 id="org40eb8c4">四、Boolean 布尔对象</h2>
+<div class="outline-text-2" id="text-org40eb8c4">
+</div>
+<div id="outline-container-org78c7343" class="outline-3">
+<h3 id="org78c7343">创建值为 false 的 Boolean 对象</h3>
+<div class="outline-text-3" id="text-org78c7343">
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">bNoParam</span> = <span style="color: #268bd2; font-weight: bold;">new</span> <span style="color: #df005f; font-weight: bold;">Boolean</span>();
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">bZero</span> = <span style="color: #268bd2; font-weight: bold;">new</span> <span style="color: #df005f; font-weight: bold;">Boolean</span>(0);
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">bNull</span> = <span style="color: #268bd2; font-weight: bold;">new</span> <span style="color: #df005f; font-weight: bold;">Boolean</span>(<span style="color: #d75fd7;">null</span>);
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">bEmptyString</span> = <span style="color: #268bd2; font-weight: bold;">new</span> <span style="color: #df005f; font-weight: bold;">Boolean</span>(<span style="color: #2aa198;">''</span>);
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">bfalse</span> = <span style="color: #268bd2; font-weight: bold;">new</span> <span style="color: #df005f; font-weight: bold;">Boolean</span>(<span style="color: #d75fd7;">false</span>);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org14e2f06" class="outline-3">
+<h3 id="org14e2f06">创建值为 true 的  Boolean 对象</h3>
+<div class="outline-text-3" id="text-org14e2f06">
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">btrue</span> = <span style="color: #268bd2; font-weight: bold;">new</span> <span style="color: #df005f; font-weight: bold;">Boolean</span>(<span style="color: #d75fd7;">true</span>);
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">btrueString</span> = <span style="color: #268bd2; font-weight: bold;">new</span> <span style="color: #df005f; font-weight: bold;">Boolean</span>(<span style="color: #2aa198;">'true'</span>);
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">bfalseString</span> = <span style="color: #268bd2; font-weight: bold;">new</span> <span style="color: #df005f; font-weight: bold;">Boolean</span>(<span style="color: #2aa198;">'false'</span>);
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">bSuLin</span> = <span style="color: #268bd2; font-weight: bold;">new</span> <span style="color: #df005f; font-weight: bold;">Boolean</span>(<span style="color: #2aa198;">'Su Lin'</span>);
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">bArrayProto</span> = <span style="color: #268bd2; font-weight: bold;">new</span> <span style="color: #df005f; font-weight: bold;">Boolean</span>([]);
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">bObjProto</span> = <span style="color: #268bd2; font-weight: bold;">new</span> <span style="color: #df005f; font-weight: bold;">Boolean</span>({});
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org96782e0" class="outline-2">
+<h2 id="org96782e0">五、Math 算数对象</h2>
+<div class="outline-text-2" id="text-org96782e0">
+</div>
+<div id="outline-container-orgd9bf680" class="outline-3">
+<h3 id="orgd9bf680">1. π 和根号2</h3>
+<div class="outline-text-3" id="text-orgd9bf680">
+<div class="org-src-container">
+<pre class="src src-js">Math.PI; <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#928;</span>
+Math.SQRT2; <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26681;&#21495;2  &#24120;&#37327;&#65292;&#21482;&#33021;&#20351;&#29992;&#19981;&#33021;&#20462;&#25913;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org0f85fea" class="outline-3">
+<h3 id="org0f85fea">2. 向下取整 Math.floor()</h3>
+<div class="outline-text-3" id="text-org0f85fea">
+<div class="org-src-container">
+<pre class="src src-js">a = Math.floor(25.6);
+console.log(a);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org5f54421" class="outline-3">
+<h3 id="org5f54421">3. 向上取整 Math.ceil()</h3>
+<div class="outline-text-3" id="text-org5f54421">
+<div class="org-src-container">
+<pre class="src src-js">b = Math.ceil(25.6);
+console.log(b);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org5add06d" class="outline-3">
+<h3 id="org5add06d">4. 四舍五入 Math.round()</h3>
+<div class="outline-text-3" id="text-org5add06d">
+<p>
+方法存在误差，负数的四舍五入，一般都是转换为正数处理。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js">c = Math.round(25.5);
+console.log(c);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org50f35ff" class="outline-3">
+<h3 id="org50f35ff">5. 最小值 Math.min()</h3>
+<div class="outline-text-3" id="text-org50f35ff">
+<div class="org-src-container">
+<pre class="src src-js">c = Math.min(4, 7, 8, 3, 1, 9, 6, 0, 3, 2)
+console.log(c)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org3c5f533" class="outline-3">
+<h3 id="org3c5f533">6. 最大值 Math.max()</h3>
+<div class="outline-text-3" id="text-org3c5f533">
+<div class="org-src-container">
+<pre class="src src-js">c = Math.max(4, 7, 8, 3, 1, 9, 6, 0, 3, 2)
+console.log(c)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org7e1c524" class="outline-3">
+<h3 id="org7e1c524">7. 随机数 Math.random</h3>
+<div class="outline-text-3" id="text-org7e1c524">
+<div class="org-src-container">
+<pre class="src src-js">c = Math.random() * 10 + 1; <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#38543;&#26426;1-10&#20043;&#38388;&#30340;&#20219;&#24847;&#25968;</span>
+console.log(c)
+</pre>
+</div>
+
+<p>
+随机的数不是一个整数一般做取整处理。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js">c = Math.random() * 10 + 1;
+console.log(Math.floor(c)); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21521;&#19979;&#21462;&#25972;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org50144cd" class="outline-3">
+<h3 id="org50144cd">8. 其他的方法</h3>
+</div>
+</div>
+<div id="outline-container-org47f5552" class="outline-2">
+<h2 id="org47f5552">六、Date 对象</h2>
+<div class="outline-text-2" id="text-org47f5552">
+</div>
+<div id="outline-container-org4507c7e" class="outline-3">
+<h3 id="org4507c7e">1. 创建日期对象</h3>
+<div class="outline-text-3" id="text-org4507c7e">
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">date</span> = <span style="color: #268bd2; font-weight: bold;">new</span> <span style="color: #df005f; font-weight: bold;">Date</span>(); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21019;&#24314;&#26085;&#26399;&#23545;&#35937;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgc5e7231" class="outline-3">
+<h3 id="orgc5e7231">2. 获取日期</h3>
+<div class="outline-text-3" id="text-orgc5e7231">
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">date</span> = <span style="color: #268bd2; font-weight: bold;">new</span> <span style="color: #df005f; font-weight: bold;">Date</span>(); 
+date.getFullYear(); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#33719;&#21462;&#24180;&#20221;</span>
+date.getYear();   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#33719;&#21462;&#30340;&#24180;&#20221;&#26159;&#20174;1900&#24180;&#24320;&#22987;&#35745;&#31639;&#30340;&#65292;&#26377;&#38382;&#39064;</span>
+date.getMonth()+1; <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#33719;&#21462;&#26376;&#20221; &#20174;0&#24320;&#22987;</span>
+date.getDate();  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#33719;&#21462;&#26085;&#26399;</span>
+date.getDay();   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#33719;&#21462;&#26143;&#26399;  &#20174;0&#24320;&#22987;  0&#23601;&#26159;&#26143;&#26399;&#26085; 1&#26159;&#26143;&#26399;1</span>
+date.getHours();   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#33719;&#21462;&#23567;&#26102;</span>
+date.getMinutes(); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#33719;&#21462;&#20998;&#38047;</span>
+date.getSeconds(); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#33719;&#21462;&#31186;</span>
+date.getMilliseconds()&#65307;<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#33719;&#21462;&#27627;&#31186;</span>
+console.log(date);
+</pre>
+</div>
+
+<p>
+以上日期均可设置<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">date</span> = <span style="color: #268bd2; font-weight: bold;">new</span> <span style="color: #df005f; font-weight: bold;">Date</span>(); 
+date.setFullYear(2021);
+date.setMonth(12); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">1&#26376;&#65292;&#36827;&#20301;&#20102;&#24180;&#20221;+1 &#26159;&#20174;0&#24320;&#22987;&#30340;;</span>
+date.setDate(40); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35774;&#32622;&#36827;&#20301;&#20102;</span>
+date.setHours(date.getHours() + 2); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35774;&#32622;&#20026;&#29616;&#22312;&#26102;&#38388;&#30340;2&#23567;&#26102;&#21518;</span>
+date.getUTCFullYear(); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20961;&#26159;&#24102;&#26377;UTC&#37117;&#26159;&#26684;&#26519;&#23612;&#27835;&#26102;&#38388;</span>
+date.toString(); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#30452;&#25509;&#36716;&#25442;&#20026;&#23383;&#31526;&#20018;</span>
+date.toLocaleString(); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36716;&#25442;&#20026;&#26412;&#22320;&#65288;windows&#19978;&#65289;&#35774;&#32622;&#26684;&#24335;&#26102;&#38388;&#23383;&#31526;&#20018;</span>
+date.toUTCString(); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36716;&#25442;&#20026;&#26684;&#26519;&#23612;&#27835;&#26102;&#38388;&#23383;&#31526;&#20018;</span>
+console.log(date);
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org3583eb6" class="outline-3">
+<h3 id="org3583eb6">3. 时间戳</h3>
+<div class="outline-text-3" id="text-org3583eb6">
+<div class="org-src-container">
+<pre class="src src-js">date.getTime(); <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#27627;&#31186;&#25968;&#65292;&#26159;&#35745;&#31639;&#20174;1970&#24180;1&#26376;1&#26085; 00&#65306;00&#65306;00 &#21040;&#29616;&#22312;&#30340;&#27627;&#31186;&#25968; </span>
+</pre>
+</div>
+
+<p>
+时间会一直流逝，这个数据将会一直变大，每毫秒获取值都不同，因此这个数字永远不重复。<br>
+</p>
+
+<p>
+浏览器认为每次请求的地址如果相同时，会先查看浏览器缓存是否存在，如果有就用本地缓存。<br>
+</p>
+
+<p>
+可以通过时间戳使每次访问的地址都不同，避免浏览器使用本地缓存。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb1d177d" class="outline-2">
+<h2 id="orgb1d177d">七、RegExp 正则对象</h2>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-05-20 22:05 Fri</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-05-21 Sat 02:07</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

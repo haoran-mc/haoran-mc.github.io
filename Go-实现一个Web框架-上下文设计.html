@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-05-29 Sun 18:12 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>实现一个Go Web框架-上下文设计</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">实现一个Go Web框架-上下文设计</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org9d163ba">完成目标：</a></li>
+<li><a href="#org6613b1e">使用效果：</a></li>
+<li><a href="#orgb9ac1a8">设计 Context</a>
+<ul>
+<li><a href="#org63b4d15">必要性</a></li>
+<li><a href="#orgbcdfd8c">具体实现</a></li>
+<li><a href="#orgfdb4cb6">总结 Context 是干什么的呢？</a></li>
+</ul>
+</li>
+<li><a href="#org2f1b601">路由（Router）</a></li>
+<li><a href="#orgf908e86">框架入口</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org9d163ba" class="outline-2">
+<h2 id="org9d163ba">完成目标：</h2>
+<div class="outline-text-2" id="text-org9d163ba">
+<ul class="org-ul">
+<li>将路由（ <code>router</code> ）独立出来，方便之后增强；<br></li>
+<li>设计上下文（ <code>Content</code> ），封装 Request 和 Response，提供对 JSON、HTML 等返回类型的支持；<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org6613b1e" class="outline-2">
+<h2 id="org6613b1e">使用效果：</h2>
+<div class="outline-text-2" id="text-org6613b1e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">r</span> := gee.<span style="color: #d75fd7; font-weight: bold;">New</span>()
+    r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gee.Context</span>) {
+        c.<span style="color: #d75fd7; font-weight: bold;">HTML</span>(http.StatusOK, <span style="color: #2aa198;">"&lt;h1&gt;Hello Gee&lt;/h1&gt;"</span>)
+    })
+    r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/hello"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gee.Context</span>) {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">expect /hello?name=haoran</span>
+        c.<span style="color: #d75fd7; font-weight: bold;">String</span>(http.StatusOK, <span style="color: #2aa198;">"hello %s, you're at %s\n"</span>, c.<span style="color: #d75fd7; font-weight: bold;">Query</span>(<span style="color: #2aa198;">"name"</span>), c.Path)
+    })
+
+    r.<span style="color: #d75fd7; font-weight: bold;">POST</span>(<span style="color: #2aa198;">"/login"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gee.Context</span>) {
+        c.<span style="color: #d75fd7; font-weight: bold;">JSON</span>(http.StatusOK, <span style="color: #df005f; font-weight: bold;">gee.H</span>{
+            <span style="color: #2aa198;">"username"</span>: c.<span style="color: #d75fd7; font-weight: bold;">PostForm</span>(<span style="color: #2aa198;">"username"</span>),
+            <span style="color: #2aa198;">"password"</span>: c.<span style="color: #d75fd7; font-weight: bold;">PostForm</span>(<span style="color: #2aa198;">"password"</span>),
+        })
+    })
+
+    r.<span style="color: #d75fd7; font-weight: bold;">Run</span>(<span style="color: #2aa198;">":9999"</span>)
+}
+</pre>
+</div>
+
+<ul class="org-ul">
+<li><code>Handler</code> 的参数变成了 <code>gee.Context</code> ；<br></li>
+<li>提供了查询 <code>Query</code> 、 <code>PostForm</code> 参数的功能；<br></li>
+<li><code>gee.Context</code> 封装了 <code>HTML/String/JSON</code> 函数，能够快速构造 HTTP 响应；<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgb9ac1a8" class="outline-2">
+<h2 id="orgb9ac1a8">设计 Context</h2>
+<div class="outline-text-2" id="text-orgb9ac1a8">
+</div>
+<div id="outline-container-org63b4d15" class="outline-3">
+<h3 id="org63b4d15">必要性</h3>
+<div class="outline-text-3" id="text-org63b4d15">
+<ol class="org-ol">
+<li><p>
+对 Web 服务来说，无非是根据请求 <code>*http.Request</code> ，构造响应 <code>http.ResponseWriter</code> 。但是这两个对象提供的接口粒度太细，比如我们要构造一个完整的响应，需要考虑消息头（Header）和消息体（Body），而 Header 包含了状态码（StatusCode），消息类型（ContentType）等几乎每次请求都需要设置的信息。因此，如果不进行有效的封装，那么框架的用户将需要写大量重复，繁杂的代码，而且容易出错。针对常用场景，能够高效地构造出 HTTP 响应是一个好的框架必须考虑的点。<br>
+</p>
+
+<p>
+用返回 JSON 数据作比较，感受下封装前后的差距：<br>
+</p>
+
+<p>
+封装前：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">obj = <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #268bd2; font-weight: bold;">interface</span>{}{   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21709;&#24212;&#20307;&#20013;&#30340;&#28040;&#24687;&#20027;&#20307;&#65288;&#21709;&#24212;&#20307;&#20013;&#36824;&#21487;&#33021;&#26377;&#20854;&#20182;&#20869;&#23481;&#65289;</span>
+    <span style="color: #2aa198;">"name"</span>: <span style="color: #2aa198;">"haoran"</span>,
+    <span style="color: #2aa198;">"password"</span>: <span style="color: #2aa198;">"1234"</span>,
+}
+w.<span style="color: #d75fd7; font-weight: bold;">Header</span>().<span style="color: #d75fd7; font-weight: bold;">Set</span>(<span style="color: #2aa198;">"Content-Type"</span>, <span style="color: #2aa198;">"application/json"</span>)   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35774;&#32622; HTTP &#21709;&#24212;&#25253;&#25991;&#21709;&#24212;&#22836;&#23646;&#24615; Content-Type&#65292;&#28040;&#24687;&#20027;&#20307;&#20351;&#29992;&#20309;&#31181;&#26041;&#24335;&#32534;&#30721;&#30340;</span>
+w.<span style="color: #d75fd7; font-weight: bold;">WriteHeader</span>(http.StatusOK)   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35774;&#32622; HTTP &#21709;&#24212;&#25253;&#25991;&#21709;&#24212;&#34892;&#20013;&#30340;&#29366;&#24577;&#30721;</span>
+<span style="color: #8787d7;">encoder</span> := json.<span style="color: #d75fd7; font-weight: bold;">NewEncoder</span>(w)   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20351;&#29992; json &#26684;&#24335;&#32534;&#30721;&#65292;&#19982;&#19978;&#38754;&#30340; Content-Type &#19968;&#33268;</span>
+<span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #8787d7;">err</span> := encoder.<span style="color: #d75fd7; font-weight: bold;">Encode</span>(obj); err != <span style="color: #d75fd7;">nil</span> {
+    http.<span style="color: #d75fd7; font-weight: bold;">Error</span>(w, err.<span style="color: #d75fd7; font-weight: bold;">Error</span>(), 500)
+}
+</pre>
+</div>
+
+<p>
+封装后：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">c.<span style="color: #d75fd7; font-weight: bold;">JSON</span>(http.StatusOK, <span style="color: #df005f; font-weight: bold;">gee.H</span>{
+    <span style="color: #2aa198;">"username"</span>: c.<span style="color: #d75fd7; font-weight: bold;">PostForm</span>(<span style="color: #2aa198;">"username"</span>),
+    <span style="color: #2aa198;">"password"</span>: c.<span style="color: #d75fd7; font-weight: bold;">PostForm</span>(<span style="color: #2aa198;">"password"</span>),
+}) 
+</pre>
+</div></li>
+
+<li>针对使用场景，封装 <code>*http.Request</code> 和 <code>http.ResponseWriter</code> 的方法，简化相关接口的调用，只是设计 Context 的原因之一。对于框架来说，还需要支撑额外的功能。例如，将来解析动态路由 <code>/hello/:name</code> ，参数 <code>:name</code> 的值放在哪呢？再比如，框架需要支持中间件，那中间件产生的信息放在哪呢？ <span class="underline">Context 随着每一个请求的出现而产生，请求的结束而销毁，和当前请求强相关的信息都应由 Context 承载。</span> 因此，设计 Context 结构，扩展性和复杂性留在了内部，而对外简化了接口。 <span class="underline">路由的处理函数，以及将要实现的中间件，参数都统一使用 Context 实例</span> ， Context 就像一次会话的百宝箱，可以找到任何东西。<br></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgbcdfd8c" class="outline-3">
+<h3 id="orgbcdfd8c">具体实现</h3>
+<div class="outline-text-3" id="text-orgbcdfd8c">
+<blockquote>
+<p>
+gee/context.go<br>
+</p>
+</blockquote>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">H</span> <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #268bd2; font-weight: bold;">interface</span>{}
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Context</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">origin objects</span>
+    Writer <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>
+    Req    *<span style="color: #df005f; font-weight: bold;">http.Request</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">request info</span>
+    Path   <span style="color: #df005f; font-weight: bold;">string</span>
+    Method <span style="color: #df005f; font-weight: bold;">string</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">response info</span>
+    StatusCode <span style="color: #df005f; font-weight: bold;">int</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">newContext</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #8787d7;">req</span> *<span style="color: #df005f; font-weight: bold;">http.Request</span>) *<span style="color: #df005f; font-weight: bold;">Context</span> {
+    <span style="color: #268bd2; font-weight: bold;">return</span> &amp;<span style="color: #df005f; font-weight: bold;">Context</span>{
+        <span style="color: #d75fd7;">Writer</span>: w,
+        <span style="color: #d75fd7;">Req</span>:    req,
+        <span style="color: #d75fd7;">Path</span>:   req.URL.Path,
+        <span style="color: #d75fd7;">Method</span>: req.Method,
+    }
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">Context</span>) <span style="color: #d75fd7; font-weight: bold;">PostForm</span>(<span style="color: #8787d7;">key</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">string</span> {
+    <span style="color: #268bd2; font-weight: bold;">return</span> c.Req.<span style="color: #d75fd7; font-weight: bold;">FormValue</span>(key)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">Context</span>) <span style="color: #d75fd7; font-weight: bold;">Query</span>(<span style="color: #8787d7;">key</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">string</span> {
+    <span style="color: #268bd2; font-weight: bold;">return</span> c.Req.URL.<span style="color: #d75fd7; font-weight: bold;">Query</span>().<span style="color: #d75fd7; font-weight: bold;">Get</span>(key)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">Context</span>) <span style="color: #d75fd7; font-weight: bold;">Status</span>(<span style="color: #8787d7;">code</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
+    c.StatusCode = code
+    c.Writer.<span style="color: #d75fd7; font-weight: bold;">WriteHeader</span>(code)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">Context</span>) <span style="color: #d75fd7; font-weight: bold;">SetHeader</span>(<span style="color: #8787d7;">key</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">value</span> <span style="color: #df005f; font-weight: bold;">string</span>) {
+    c.Writer.<span style="color: #d75fd7; font-weight: bold;">Header</span>().<span style="color: #d75fd7; font-weight: bold;">Set</span>(key, value)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">Context</span>) <span style="color: #d75fd7; font-weight: bold;">String</span>(<span style="color: #8787d7;">code</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">format</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">values</span> ...<span style="color: #268bd2; font-weight: bold;">interface</span>{}) {
+    c.<span style="color: #d75fd7; font-weight: bold;">SetHeader</span>(<span style="color: #2aa198;">"Content-Type"</span>, <span style="color: #2aa198;">"text/plain"</span>)
+    c.<span style="color: #d75fd7; font-weight: bold;">Status</span>(code)
+    _, _ = c.Writer.<span style="color: #d75fd7; font-weight: bold;">Write</span>([]<span style="color: #d75fd7; font-weight: bold;">byte</span>(fmt.<span style="color: #d75fd7; font-weight: bold;">Sprintf</span>(format, values...)))
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">Context</span>) <span style="color: #d75fd7; font-weight: bold;">JSON</span>(<span style="color: #8787d7;">code</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">obj</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}) {
+    c.<span style="color: #d75fd7; font-weight: bold;">SetHeader</span>(<span style="color: #2aa198;">"Content-Type"</span>, <span style="color: #2aa198;">"application/json"</span>)
+    c.<span style="color: #d75fd7; font-weight: bold;">Status</span>(code)
+    <span style="color: #8787d7;">encoder</span> := json.<span style="color: #d75fd7; font-weight: bold;">NewEncoder</span>(c.Writer)
+    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #8787d7;">err</span> := encoder.<span style="color: #d75fd7; font-weight: bold;">Encode</span>(obj); err != <span style="color: #d75fd7;">nil</span> {
+        http.<span style="color: #d75fd7; font-weight: bold;">Error</span>(c.Writer, err.<span style="color: #d75fd7; font-weight: bold;">Error</span>(), 500)
+    }
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">Context</span>) <span style="color: #d75fd7; font-weight: bold;">Data</span>(<span style="color: #8787d7;">code</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">data</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) {
+    c.<span style="color: #d75fd7; font-weight: bold;">Status</span>(code)
+    _, _ = c.Writer.<span style="color: #d75fd7; font-weight: bold;">Write</span>(data)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">Context</span>) <span style="color: #d75fd7; font-weight: bold;">HTML</span>(<span style="color: #8787d7;">code</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">html</span> <span style="color: #df005f; font-weight: bold;">string</span>) {
+    c.<span style="color: #d75fd7; font-weight: bold;">SetHeader</span>(<span style="color: #2aa198;">"Content-Type"</span>, <span style="color: #2aa198;">"text/html"</span>)
+    c.<span style="color: #d75fd7; font-weight: bold;">Status</span>(code)
+    _, _ = c.Writer.<span style="color: #d75fd7; font-weight: bold;">Write</span>([]<span style="color: #d75fd7; font-weight: bold;">byte</span>(html))
+}
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>代码最开头，给 <code>map[string]interface{}</code> 起了一个别名 <code>gee.H</code> ，构建 JSON 数据时更简洁；<br></li>
+<li><code>Context</code> 目前只包含了 <code>http.ResponseWriter</code> 和 <code>*http.Request</code> ，另外提供了对 Method 和 Path 这两个常用属性的直接访问；<br></li>
+<li>提供了访问 Query 和 PostForm 参数的方法（对 net/http 功能的封装）；<br></li>
+<li>提供了快速构造 <code>String/Data/JSON/HTML</code> 响应的方法；<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgfdb4cb6" class="outline-3">
+<h3 id="orgfdb4cb6">总结 Context 是干什么的呢？</h3>
+<div class="outline-text-3" id="text-orgfdb4cb6">
+<ol class="org-ol">
+<li><p>
+（请求）获取前端传来的信息，是使用 GET 还是 POST、是使用 Query 还是 PostForm，这些都是和前端商量好的；<br>
+</p>
+
+<p>
+使用内置包也可以获得这些信息，但是封装起来更友好；<br>
+</p></li>
+
+<li><p>
+（响应）设置响应内容，状态码、编码方式、消息主体；<br>
+</p>
+
+<p>
+使用内置包也可以设置这些信息，但是封装起来更友好；<br>
+</p></li>
+</ol>
+</div>
+</div>
+</div>
+<div id="outline-container-org2f1b601" class="outline-2">
+<h2 id="org2f1b601">路由（Router）</h2>
+<div class="outline-text-2" id="text-org2f1b601">
+<p>
+我们将和路由相关的方法和结构提取了出来，放到了一个新的文件中 <code>router.go</code> ，方便我们下一次对 router 的功能进行增强，例如提供动态路由的支持。 router 的 handle 方法作了一个细微的调整，即 handler 的参数，变成了 Context。<br>
+</p>
+
+<blockquote>
+<p>
+gee/router.go：<br>
+</p>
+</blockquote>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">router</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    handlers <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">HandlerFunc</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">newRouter</span>() *<span style="color: #df005f; font-weight: bold;">router</span> {
+    <span style="color: #268bd2; font-weight: bold;">return</span> &amp;<span style="color: #df005f; font-weight: bold;">router</span>{
+        <span style="color: #d75fd7;">handlers</span>: <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">HandlerFunc</span>),
+    }
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">router</span>) <span style="color: #d75fd7; font-weight: bold;">addRoute</span>(<span style="color: #8787d7;">method</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">pattern</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">handler</span> <span style="color: #df005f; font-weight: bold;">HandlerFunc</span>) {
+    log.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"Route %4s - %s"</span>, method, pattern)
+    <span style="color: #8787d7;">key</span> := method + <span style="color: #2aa198;">"-"</span> + pattern
+    r.handlers[key] = handler
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">router</span>) <span style="color: #d75fd7; font-weight: bold;">handle</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">Context</span>) {
+    <span style="color: #8787d7;">key</span> := c.Method + <span style="color: #2aa198;">"-"</span> + c.Path
+    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #8787d7;">handler</span>, <span style="color: #8787d7;">ok</span> := r.handlers[key]; ok {
+        <span style="color: #d75fd7; font-weight: bold;">handler</span>(c)
+    } <span style="color: #268bd2; font-weight: bold;">else</span> {
+        c.<span style="color: #d75fd7; font-weight: bold;">String</span>(http.StatusNotFound, <span style="color: #2aa198;">"404 NOT FOUND: %s\n"</span>, c.Path)
+    }
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgf908e86" class="outline-2">
+<h2 id="orgf908e86">框架入口</h2>
+<div class="outline-text-2" id="text-orgf908e86">
+<blockquote>
+<p>
+gee/gee.go<br>
+</p>
+</blockquote>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">HandlerFunc defines the request handler used by gee</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">HandlerFunc</span> <span style="color: #268bd2; font-weight: bold;">func</span>(*<span style="color: #df005f; font-weight: bold;">Context</span>)
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Engine implement the interface of ServeHTTP</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Engine</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    router *<span style="color: #df005f; font-weight: bold;">router</span>
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">New is the constructor of gee.Engine</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">New</span>() *<span style="color: #df005f; font-weight: bold;">Engine</span> {
+    <span style="color: #268bd2; font-weight: bold;">return</span> &amp;<span style="color: #df005f; font-weight: bold;">Engine</span>{
+        <span style="color: #d75fd7;">router</span>: <span style="color: #d75fd7; font-weight: bold;">newRouter</span>(),
+    }
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">engine</span> *<span style="color: #df005f; font-weight: bold;">Engine</span>) <span style="color: #d75fd7; font-weight: bold;">addRoute</span>(<span style="color: #8787d7;">method</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">pattern</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">handler</span> <span style="color: #df005f; font-weight: bold;">HandlerFunc</span>) {
+    engine.router.<span style="color: #d75fd7; font-weight: bold;">addRoute</span>(method, pattern, handler)
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">GET defines the method to add GET request</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">engine</span> *<span style="color: #df005f; font-weight: bold;">Engine</span>) <span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #8787d7;">pattern</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">handler</span> <span style="color: #df005f; font-weight: bold;">HandlerFunc</span>) {
+    engine.<span style="color: #d75fd7; font-weight: bold;">addRoute</span>(<span style="color: #2aa198;">"GET"</span>, pattern, handler)
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">POST defines the method to add POST request</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">engine</span> *<span style="color: #df005f; font-weight: bold;">Engine</span>) <span style="color: #d75fd7; font-weight: bold;">POST</span>(<span style="color: #8787d7;">pattern</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">handler</span> <span style="color: #df005f; font-weight: bold;">HandlerFunc</span>) {
+    engine.<span style="color: #d75fd7; font-weight: bold;">addRoute</span>(<span style="color: #2aa198;">"POST"</span>, pattern, handler)
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Run defines the method to start a http server</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">engine</span> *<span style="color: #df005f; font-weight: bold;">Engine</span>) <span style="color: #d75fd7; font-weight: bold;">Run</span>(<span style="color: #8787d7;">addr</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>) {
+    <span style="color: #268bd2; font-weight: bold;">return</span> http.<span style="color: #d75fd7; font-weight: bold;">ListenAndServe</span>(addr, engine)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">engine</span> *<span style="color: #df005f; font-weight: bold;">Engine</span>) <span style="color: #d75fd7; font-weight: bold;">ServeHTTP</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #8787d7;">req</span> *<span style="color: #df005f; font-weight: bold;">http.Request</span>) {
+    <span style="color: #8787d7;">c</span> := <span style="color: #d75fd7; font-weight: bold;">newContext</span>(w, req)   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">get the request header and request body </span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">We mapped functions to strings that combine methods and paths.</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Now by requesting information, we can get the corresponding function.</span>
+    engine.router.<span style="color: #d75fd7; font-weight: bold;">handle</span>(c)
+}
+</pre>
+</div>
+
+<p>
+将 <code>router</code> 相关的代码独立后， <code>gee.go</code> 简单了不少。最重要的还是通过实现了 ServeHTTP 接口，接管了所有的 HTTP 请求。相比第一天的代码，这个方法也有细微的调整， <span class="underline">在调用 router.handle 之前，构造了一个 Context 对象（用来存放请求与响应过程中的各种信息）</span> 。这个对象目前还非常简单，仅仅是包装了原来的两个参数，之后我们会慢慢地给Context插上翅膀。<br>
+</p>
+
+<p>
+如何使用， <code>main.go</code> 一开始就已经亮相了。运行 <code>go run main.go</code> ，借助 curl ，一起看一看今天的成果吧。<br>
+</p>
+
+<pre class="example">
+$ curl -i http://localhost:9999/
+HTTP/1.1 200 OK
+Content-Type: text/html
+Date: Fri, 27 May 2022 09:15:58 GMT
+Content-Length: 19
+
+&lt;h1&gt;Hello Gee!&lt;/h1&gt;
+
+$ curl "http://localhost:9999/hello?name=haoran"
+hello haoran, you're at /hello
+
+$ curl "http://localhost:9999/login" -X POST -d 'username=haoran&amp;password=123456'
+{"password":"123456","username":"haoran"}
+
+$ curl "http://localhost:9999/xxx"
+404 NOT FOUND: /xxx	
+</pre>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-05-29 Sun 18:12</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

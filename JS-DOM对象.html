@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-05-21 Sat 22:45 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JS DOM对象</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">JS DOM对象</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org6c1e51f">DOM 概览</a></li>
+<li><a href="#org59974f4">Node 类型</a></li>
+<li><a href="#orgd987857">Document 节点</a></li>
+<li><a href="#orgbeee3d5">Element 节点（文档元素节点）</a>
+<ul>
+<li><a href="#org4d65c53">节点的查找</a></li>
+<li><a href="#org6e63fc8">节点的创建</a></li>
+<li><a href="#org29134ea">节点的特性</a></li>
+<li><a href="#org8d75302">非标准特性</a></li>
+<li><a href="#orged1e3b2">数据集属性</a></li>
+<li><a href="#orgac6a995">枚举 element 节点上的所有属性</a></li>
+</ul>
+</li>
+<li><a href="#org82525d1">text 节点（文本节点）</a>
+<ul>
+<li><a href="#org0755143">创建文本节点</a></li>
+<li><a href="#org62e67da">规范化文本节点</a></li>
+</ul>
+</li>
+<li><a href="#org35c70d3">伪数组总结</a></li>
+<li><a href="#orgd032341">浏览器重绘</a>
+<ul>
+<li><a href="#org1bffb78">DocumentFragment类型</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org6c1e51f" class="outline-2">
+<h2 id="org6c1e51f">DOM 概览</h2>
+<div class="outline-text-2" id="text-org6c1e51f">
+<p>
+DOM（文档对象模型）是用来表示 HRML 和 XML 的 API（应用程序编程接口）。即平常使用的 HTML 对于 js 来讲需要使用一种数据结构来表示出来，我们把这种用 js 表示文档对象的模型，称之为 DOM 对象模型。<br>
+</p>
+
+<p>
+DOM 结构比喻成家谱，对于一个 DOM 结构来讲，他的上层只能有一个节点，我们把这种节点称之为父节点，父节点下面的所有节点都称之为子节点，和子节点相互平行在同一个层级的节点称之为兄弟节点，父节点、子节点、兄弟节点构成了 DOM 结构。js 中有 DOM 构成的树形结构称之为 DOM 树，DOM 树上的每一个节点都是一个 node 对象。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org59974f4" class="outline-2">
+<h2 id="org59974f4">Node 类型</h2>
+<div class="outline-text-2" id="text-org59974f4">
+<p>
+js 中所有的节点都是继承 <code>Node</code> 类型下的，因此这些节点都有一些公共属性和方法。<br>
+</p>
+
+<p>
+属性：<br>
+</p>
+
+<dl class="org-dl">
+<dt>nodeType</dt><dd>节点类型，所有节点都可以调用这个属性，最后得到的是一个数字。这个数字是1～12 代表不同节点类型。<br></dd>
+<dt>nodeName</dt><dd>节点名称，返回字符串，表示当前节点名字。<br></dd>
+<dt>nodeValue</dt><dd>节点值，大部分情况下返回字符串，没有值时返回 <code>null</code> 。<br></dd>
+<dt>childNodes</dt><dd>子节点，返回的是对象列表 <code>NodeList</code> 对象，伪数组对象。<br></dd>
+<dt>parentNode</dt><dd>父节点，获取到父节点。<br></dd>
+<dt>previousSibling</dt><dd>兄弟节点，获取前面的兄弟节点。<br></dd>
+<dt>nextSibling</dt><dd>兄弟节点，获取后面的兄弟节点。<br></dd>
+<dt>firstChild</dt><dd>第一个子节点<br></dd>
+<dt>lastChild</dt><dd>最后一个子节点<br></dd>
+<dt>ownerDocument</dt><dd>当前文档的文档节点，不存在返回 <code>null</code> 。<br></dd>
+</dl>
+
+<p>
+nodeType 、nodeName、nodeValue 是节点的公共属性。<br>
+</p>
+
+<p>
+childNodes、parentNode、previousSibling、nextSibling、firstChild、lastChild、ownerDocument 是节点之间的访问。<br>
+</p>
+
+<p>
+方法：<br>
+</p>
+
+<dl class="org-dl">
+<dt>hasChildNodes()</dt><dd>是否有子节点，返回布尔值<br></dd>
+<dt>appendChild()</dt><dd>插入子节点，接收的参数是一个Node，可以把一个节点当作参数传进去，然后在当前节点下插入子节点。这个节点是插入到最后面的。返回值是插入的子节点（没啥用）。<br></dd>
+<dt>insertBefore()</dt><dd>指定特殊位置来插入。接收两个参数，第一个参数是要插入的节点。第二个参数是一个参照节点。通过这个方法可以在子节点的任何位置插入子节点。<br></dd>
+<dt>removeChild()</dt><dd>删除节点，接收要删除的节点作为参数。用来删除子节点。必须在父节点上调用这个方法，传入要删掉的子节点。<br></dd>
+<dt>replaceChild()</dt><dd>替换子节点，接收两个参数，第一个是要新插入的节点，第二个是你要替换的节点。<br></dd>
+<dt>cloneNode()</dt><dd>节点是复杂数据类型。接收一个布尔类型的参数，表示是否深度克隆。当你对一个节点调用cloneNode()的时候会把当前这节点克隆一份出来。他的返回值就是新克隆出来的节点。如果参数为true 就进行深克隆，除了克隆这个节点外还会把节点上的事件，包括这个节点下面的子节点都克隆出来。默认是false<br></dd>
+<dt>normalize()</dt><dd>标准化<br></dd>
+</dl>
+
+<p>
+实际开发中用到的 3 种节点：<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd987857" class="outline-2">
+<h2 id="orgd987857">Document 节点</h2>
+<div class="outline-text-2" id="text-orgd987857">
+<p>
+表示整个文档，它是 <code>window</code> 对象的一个属性，也是一个全局的变量。<br>
+</p>
+
+<dl class="org-dl">
+<dt>document.documentElement</dt><dd>访问到的是 HTML 整个的节点，HTML 标签是整个 HTML 的根节点，这个属就代表的 HTML 节点。<br></dd>
+<dt>document.body</dt><dd>对应的是 HTML 上的那个 body 节点。<br></dd>
+<dt>(no term)</dt><dd>document.title ::对应的是整个页面的标题，对应是 title 标签种的文字。可以赋值修改网页标签。<br></dd>
+<dt>document.domain</dt><dd>包含的是网页对应的域名的信息，只能从低级域名向高级域名修改。<br></dd>
+<dt>document.referrer</dt><dd>获取前一个页面的地址，使用场景：如果是从百度来的页面返回的时候可以知道上一个是不是百度，是的话跳到首页去。<br></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgbeee3d5" class="outline-2">
+<h2 id="orgbeee3d5">Element 节点（文档元素节点）</h2>
+<div class="outline-text-2" id="text-orgbeee3d5">
+<p>
+用来表示HTML或XML里面的每一个元素的，Element节点是Node类型的子类，继承了node节点的所有属性和方法。<br>
+</p>
+
+<ul class="org-ul">
+<li>nodeType 的值为 1；<br></li>
+<li>nodeName 的值为元素的标签名，得到的是大写的标签名；<br></li>
+<li>nodeValue 的值为 null；<br></li>
+</ul>
+
+<p>
+Elemwnt 节点另外四个常用的属性：<br>
+</p>
+
+<dl class="org-dl">
+<dt>id</dt><dd>唯一标识。<br></dd>
+<dt>title</dt><dd>描述节点的相关信息。<br></dd>
+<dt>dir</dt><dd>当前节点的一个语言方向，值只有两个 ltr rtl。<br></dd>
+<dt>className</dt><dd>元素指定的 CSS 类 class 是 js 中的关键字，不能使用 class 作为属性的名称，如果访问节点中的 class 时，使用 className 这个属性，返回的是一个字符串。<br></dd>
+</dl>
+</div>
+<div id="outline-container-org4d65c53" class="outline-3">
+<h3 id="org4d65c53">节点的查找</h3>
+<div class="outline-text-3" id="text-org4d65c53">
+<p>
+从全局角度获取 element 节点：<br>
+</p>
+
+<dl class="org-dl">
+<dt>document.getElementById("myDiv")</dt><dd>返回查找出来的第一个匹配的id<br></dd>
+<dt>document.getElementsByName('aas')</dt><dd>通过 name 属性去获取节点。返回一个 nodelist 伪数组<br></dd>
+<dt>document.getElementsByTagName("div")</dt><dd>通过标签名去获取节点。返回一个 nodelist 伪数组<br></dd>
+<dt>document.getElementsByClassName("aa")</dt><dd>通过 class 属性去获取节点。返回一个 nodelist 伪数组<br></dd>
+</dl>
+
+<p>
+通过 css 选择器来选择对应的节点：<br>
+</p>
+
+<dl class="org-dl">
+<dt>document.querySelectorAll("#preview")</dt><dd>获得到的是一个节点列表 nodeList，传递的参数是一个 css 选择器。<br></dd>
+<dt>document.querySelector("#preview")</dt><dd>获得第一个节点，传递的参数是一个 css 选择器。<br></dd>
+</dl>
+
+
+<dl class="org-dl">
+<dt>document.body.getElementsByTagName("div")</dt><dd>锁定一个节点，在此节点下继续查找<br></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-org6e63fc8" class="outline-3">
+<h3 id="org6e63fc8">节点的创建</h3>
+<div class="outline-text-3" id="text-org6e63fc8">
+<dl class="org-dl">
+<dt>document.createElement()</dt><dd>接收一个字符串作为参数。一般情况会传一个标签名，除此之外还可以传一个 HTML 片断进去，返回创建的 Node 对象，然后使用 appendChild() 方法把它插入到某个位置。<br></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-org29134ea" class="outline-3">
+<h3 id="org29134ea">节点的特性</h3>
+<div class="outline-text-3" id="text-org29134ea">
+<p>
+html 是多元化的东西，有很多 html 标签它上面有一些特有的属性我们把他叫做节点特性，比如 img 标签的 src 属性是一个字符串，有的是事件处理程序如 onclick 。<br>
+</p>
+
+<p>
+节点的特性可以通过 <code>node.attribute</code> 获取和设置。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js">document.getElementsByTagName(<span style="color: #2aa198;">'a'</span>)[0].href=<span style="color: #2aa198;">''</span>
+document.getElementsByTagName(<span style="color: #2aa198;">'img'</span>)[0].src=<span style="color: #2aa198;">""</span>
+</pre>
+</div>
+
+<p>
+注意：<br>
+</p>
+
+<ul class="org-ul">
+<li>html 不区分大小写，js 区分大小写，所以在 js 中读取或设置特性需要使用小写，多个单词的使用小驼峰命名的方式。<br></li>
+<li>如果属性在 html 中可以使用在 js 中是关键字和保留字通常情况下会在前面加一个 html。比如 label 标签的 for 属性在 js 中是关键字，在 js 中使用 htmlFor 获取属性。特殊的 class 在 js 中是关键字使用 className。<br></li>
+<li>在 js 中如果你去获取一个节点属性的时候，大部分情况下得到的是字符串类型，有些特殊的情况可以得到布尔类型（defaultCheck）和数字类型（maxlengs）。如果是事件处理程序得到的是函数类型，style 属性得到的是一个样式对象。<br></li>
+<li>这些特有的属性只能用于获取和修改不能用于删除，也不能使用 delet 操作符删除<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org8d75302" class="outline-3">
+<h3 id="org8d75302">非标准特性</h3>
+<div class="outline-text-3" id="text-org8d75302">
+<p>
+用于操作用户自定义特性<br>
+</p>
+
+<ul class="org-ul">
+<li>getAttribute()<br></li>
+<li>setAttribute()<br></li>
+<li>hasAttribute()<br></li>
+<li>removeAttribute()<br></li>
+</ul>
+
+<p>
+注意：<br>
+</p>
+
+<ol class="org-ol">
+<li>使用这些方法设置和读取的这些属性都是字符串形式。可以设置和读取非标准特性也可以设置和读取标准特性。<br></li>
+<li>对于这些标准特性在 js 中是关键字的属性，都正常使用不需要额外 html 的转换。<br></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orged1e3b2" class="outline-3">
+<h3 id="orged1e3b2">数据集属性</h3>
+<div class="outline-text-3" id="text-orged1e3b2">
+<p>
+非标准特殊设置自定义属性会造成html不合法。H5 增加了一个新的属性可以让用户自定义的去设置一些属性或读取一些属性。H5新增加的属性叫数据集属性。<br>
+</p>
+
+<ol class="org-ol">
+<li><p>
+dataset 属性对应的是一个对象，每一个你在 dataset 中设置的属性在 html 中都会被转换成 data-属性名 的形式。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#26412;&#20363;&#20013;&#20351;&#29992;&#30340;&#26041;&#27861;&#20165;&#29992;&#20110;&#28436;&#31034;</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">div</span> = document.getElementById(<span style="color: #2aa198;">"myDiv"</span>);
+<span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#35774;&#32622;&#20540;</span>
+div.dataset.appId = 23456;
+div.dataset.myname = <span style="color: #2aa198;">"Michael"</span>;
+<span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#21462;&#24471;&#33258;&#23450;&#20041;&#23646;&#24615;&#30340;&#20540;</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">appId</span> = div.dataset.appId;
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">myName</span> = div.dataset.myname;
+div.dataset <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;&#25968;&#25454;&#38598;&#23646;&#24615;&#23545;&#35937; {appId: "23456", myname: "Michael"}</span>
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-html">&lt;<span style="color: #d75fd7; font-weight: bold;">div</span> <span style="color: #8787d7;">id</span>=<span style="color: #2aa198;">"myDiv"</span> <span style="color: #8787d7;">data-app-id</span>=<span style="color: #2aa198;">"23456"</span> <span style="color: #8787d7;">data-myname</span>=<span style="color: #2aa198;">"Michael"</span>&gt;
+</pre>
+</div></li>
+
+<li>长名称属性<br>
+
+<ul class="org-ul">
+<li>html上使用 data-app-id="23456" 形式。<br></li>
+<li>js中获取使用 div.dataset.appId 形式。<br></li>
+</ul></li>
+
+<li><p>
+dataset 属性是一个实时的双向接口<br>
+</p>
+
+<p>
+当你在js当中去设置或删除 dataset 上面的属性的时候，就直接等于修改或删除元素上的属性。<br>
+</p></li>
+</ol>
+
+<p>
+作用：<br>
+</p>
+
+<ol class="org-ol">
+<li>html 中自定义的属性合法化<br></li>
+<li>多个自定义属性方便维护<br></li>
+<li>浏览器支持 dataset 就说明是支持 H5 的浏览器，H5 浏览器同时也支持 css3。css3 中增加了一个属性选择器的东西，通过属性选择器和 dataset 这两个东西结合就可以实现各种不同效果。<br></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgac6a995" class="outline-3">
+<h3 id="orgac6a995">枚举 element 节点上的所有属性</h3>
+<div class="outline-text-3" id="text-orgac6a995">
+<p>
+<code>node.attributes</code> 属性，返回的是一个伪数组，里面包含了元素节点的所有属性。这个伪数组也可以使用索引来调用对应的每一个属性的对象，除此之外你也可以使用属性的名字直接获取该名称对应的属性的值。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">div</span> = document.getElementById(<span style="color: #2aa198;">"myDiv"</span>);
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">attr</span> = div.attributes
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">{0: id, 1: data-app-id, 2: data-myname, length: 3}</span>
+attr[0] <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">id= "app"</span>
+attr.id <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">id= "app"</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org82525d1" class="outline-2">
+<h2 id="org82525d1">text 节点（文本节点）</h2>
+<div class="outline-text-2" id="text-org82525d1">
+<p>
+文本节点包含的是纯文本或者转义后的 HTML 字符，不能包含 HTML 代码。<br>
+</p>
+
+<p>
+继承了 node 节点的属性。<br>
+</p>
+
+<ul class="org-ul">
+<li>nodeType 的值为3；<br></li>
+<li>nodeName 的值为"#text"<br></li>
+<li>nodeValue 的值为节点所包含的文本；<br></li>
+</ul>
+
+<p>
+方法：<br>
+</p>
+
+<dl class="org-dl">
+<dt>appendData(text)</dt><dd>将 text 添加到节点的末尾。<br></dd>
+<dt>deleteData(offset, count)</dt><dd>从 offset 指定的位置开始删除 count 个字<br></dd>
+<dt>insertData(offset, text)</dt><dd>在 offset 指定的位置插入 text。<br></dd>
+<dt>replaceData(offset, count, text)</dt><dd>用 text 替换从 offset 指定的位置开始到offset+count 为止处的文本。<br></dd>
+<dt>splitText(offset)</dt><dd>从 offset 指定的位置将当前文本节点分成两个文本节点。<br></dd>
+<dt>substringData(offset, count)</dt><dd>提取从 offset 指定的位置开始到 offset+count 为止处的字符串<br></dd>
+</dl>
+</div>
+<div id="outline-container-org0755143" class="outline-3">
+<h3 id="org0755143">创建文本节点</h3>
+<div class="outline-text-3" id="text-org0755143">
+<dl class="org-dl">
+<dt>document.createTextNode()</dt><dd>接收一个参数就是一个字符串把字符串转换为文本节点创造出来。这个创建出来的文本节点可以插入到文档的任意位置。<br></dd>
+</dl>
+
+<p>
+引出问题，两个相邻的文本节点。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org62e67da" class="outline-3">
+<h3 id="org62e67da">规范化文本节点</h3>
+<div class="outline-text-3" id="text-org62e67da">
+<dl class="org-dl">
+<dt>normalize()</dt><dd>在一个包含两个或多个文本节点的父元素上调用 normalize()方法，则会将所有文本节点合并成一个节点。<br></dd>
+</dl>
+</div>
+</div>
+</div>
+<div id="outline-container-org35c70d3" class="outline-2">
+<h2 id="org35c70d3">伪数组总结</h2>
+<div class="outline-text-2" id="text-org35c70d3">
+<ul class="org-ul">
+<li>函数中的参数对象 argement<br></li>
+<li>获得的节点列表<br></li>
+<li>node.attributes 节点属性<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgd032341" class="outline-2">
+<h2 id="orgd032341">浏览器重绘</h2>
+<div class="outline-text-2" id="text-orgd032341">
+<p>
+没当我们把创建的节点放到文档中去使用 <code>appendChild()</code> 或者 <code>insertBefore()</code> 的时候，会引起浏览器重绘。<br>
+</p>
+
+<p>
+浏览器重绘：把一个节点插入到 DOM 树当中，浏览器要把这个东西显示出来的时候，它需要把整个浏览器画一下，这个过程我们称之为重绘。如果使用循环去插入很多个节点的时候就会引发很多次重绘，会影响浏览器性能。<br>
+</p>
+
+<p>
+此时引出了文档片段类型<br>
+</p>
+</div>
+<div id="outline-container-org1bffb78" class="outline-3">
+<h3 id="org1bffb78">DocumentFragment类型</h3>
+<div class="outline-text-3" id="text-org1bffb78">
+<p>
+<code>document.createDocumentFragment()</code> 方法创建文档片段。<br>
+</p>
+
+<p>
+可以使用这个方法创建一个文档片段，这个文档片段得到的根普通 node 节点几乎没有区别，得到这个文档节点之后你后面可以接着去创建其他的 element 节点或文本节点，然后把它插入到文档片段中。当你把这些工作都做完之后再使用 <code>appendChild()</code> 或者 <code>insertBefore()</code> 把这个文档片段插入到页面当中。这样就会减少页面重绘的次数。<br>
+</p>
+
+<blockquote>
+<p>
+这种方式理论上能提升浏览器性能。在现代浏览器上因为重绘做了优化，性能上有微小提升。在IE浏览器下使用了文档片段性能不如没使用。<br>
+</p>
+</blockquote>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-05-21 03:05 Sat</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-05-21 Sat 22:45</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
