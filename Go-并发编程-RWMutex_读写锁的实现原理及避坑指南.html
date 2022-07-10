@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-05-14 Sat 18:50 -->
+<!-- 2022-06-28 Tue 23:03 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>RWMutex 读写锁的实现原理及避坑指南</title>
@@ -37,6 +37,21 @@
 <li><a href="#org1b1b3ad">坑点3：释放未加锁的 RWMutex</a></li>
 </ul>
 </li>
+<li><a href="#org747b144">流行的 Go 开发项目中的坑</a>
+<ul>
+<li><a href="#org7c14eda">Docker</a>
+<ul>
+<li><a href="#orgc8793c3">issue 36840</a></li>
+</ul>
+</li>
+<li><a href="#org5fa1851">Kubernetes</a>
+<ul>
+<li><a href="#org1e929e8">issue 62464</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org15d8499">总结</a></li>
 </ul>
 </div>
 </div>
@@ -351,7 +366,7 @@ Go 标准库中的 <code>RWMutex</code> 设计是 Write-preferring 方案。一�
 </p>
 
 <p>
-我先介绍第一种情况。因为读写锁内部基于互斥锁实现对 writer 的并发访问，而互斥锁本身是有重入问题的，所以，writer 重入调用 <code>Lock</code> 的时候，就会出现死锁的现象。<br>
+先介绍第一种情况。因为读写锁内部基于互斥锁实现对 writer 的并发访问，而互斥锁本身是有重入问题的，所以，writer 重入调用 <code>Lock</code> 的时候，就会出现死锁的现象。<br>
 </p>
 
 <div class="org-src-container">
@@ -374,17 +389,156 @@ Go 标准库中的 <code>RWMutex</code> 设计是 Write-preferring 方案。一�
 } 
 </pre>
 </div>
+
+<p>
+第二种死锁的场景有点隐蔽。我们知道，有活跃 reader 的时候，writer 会等待，如果我们在 reader 的读操作时调用 writer 的写操作（它会调用 Lock 方法），那么，这个 reader 和 writer 就会形成互相依赖的死锁状态。Reader 想等待 writer 完成后再释放锁，而 writer 需要这个 reader 释放锁之后，才能不阻塞地继续执行。这是一个读写锁常见的死锁场景。<br>
+</p>
+
+<p>
+第三种死锁的场景更加隐蔽。<br>
+</p>
+
+<p>
+当一个 writer 请求锁的时候，如果已经有一些活跃的 reader，它会等待这些活跃的 reader 完成，才有可能获取到锁，但是，如果之后活跃的 reader 再依赖新的 reader 的话，这些新的 reader 就会等待 writer 释放锁之后才能继续执行，这就形成了一个环形依赖： <span class="underline">writer 依赖活跃的 reader -&gt; 活跃的 reader 依赖新来的 reader -&gt; 新来的 reader 依赖 writer</span> 。<br>
+</p>
+
+<p>
+这个死锁相当隐蔽，原因在于它和 RWMutex 的设计和实现有关。啥意思呢？我们来看一个计算阶乘 (n!) 的例子：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+        <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">mu</span> <span style="color: #df005f; font-weight: bold;">sync.RWMutex</span>
+
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">writer,&#31245;&#24494;&#31561;&#24453;&#65292;&#28982;&#21518;&#21046;&#36896;&#19968;&#20010;&#35843;&#29992;Lock&#30340;&#22330;&#26223;</span>
+        <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+                time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(200 * time.Millisecond)
+                mu.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+                fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Lock"</span>)
+                time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(100 * time.Millisecond)
+                mu.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+                fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Unlock"</span>)
+        }()
+
+        <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+                <span style="color: #d75fd7; font-weight: bold;">factorial</span>(&amp;mu, 10) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35745;&#31639;10&#30340;&#38454;&#20056;, 10!</span>
+        }()
+
+        <span style="color: #268bd2; font-weight: bold;">select</span> {}
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36882;&#24402;&#35843;&#29992;&#35745;&#31639;&#38454;&#20056;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">factorial</span>(<span style="color: #8787d7;">m</span> *<span style="color: #df005f; font-weight: bold;">sync.RWMutex</span>, <span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">int</span> {
+        <span style="color: #268bd2; font-weight: bold;">if</span> n &lt; 1 { <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#38454;&#20056;&#36864;&#20986;&#26465;&#20214; </span>
+                <span style="color: #268bd2; font-weight: bold;">return</span> 0
+        }
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"RLock"</span>)
+        m.<span style="color: #d75fd7; font-weight: bold;">RLock</span>()
+        <span style="color: #268bd2; font-weight: bold;">defer</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+                fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"RUnlock"</span>)
+                m.<span style="color: #d75fd7; font-weight: bold;">RUnlock</span>()
+        }()
+        time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(100 * time.Millisecond)
+        <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7; font-weight: bold;">factorial</span>(m, n-1) * n <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36882;&#24402;&#35843;&#29992;</span>
+} 
+</pre>
+</div>
+
+<p>
+factoria 方法是一个递归计算阶乘的方法，我们用它来模拟 reader。为了更容易地制造出死锁场景，我在这里加上了 sleep 的调用，延缓逻辑的执行。这个方法会调用读锁（第 27 行），在第 33 行递归地调用此方法，每次调用都会产生一次读锁的调用，所以可以不断地产生读锁的调用，而且必须等到新请求的读锁释放，这个读锁才能释放。<br>
+</p>
+
+<p>
+同时，我们使用另一个 goroutine 去调用 Lock 方法，来实现 writer，这个 writer 会等待 200 毫秒后才会调用 Lock，这样在调用 Lock 的时候，factoria 方法还在执行中不断调用 RLock。<br>
+</p>
+
+<p>
+这两个 goroutine 互相持有锁并等待，谁也不会退让一步，满足了“writer 依赖活跃的 reader -&gt; 活跃的 reader 依赖新来的 reader -&gt; 新来的 reader 依赖 writer”的死锁条件，所以就导致了死锁的产生。<br>
+</p>
+
+<p>
+所以，使用读写锁最需要注意的一点就是尽量避免重入，重入带来的死锁非常隐蔽，而且难以诊断。<br>
+</p>
 </div>
 </div>
 <div id="outline-container-org1b1b3ad" class="outline-3">
 <h3 id="org1b1b3ad">坑点3：释放未加锁的 RWMutex</h3>
+<div class="outline-text-3" id="text-org1b1b3ad">
+<p>
+和互斥锁一样，Lock 和 Unlock 的调用总是成对出现的，RLock 和 RUnlock 的调用也必须成对出现。Lock 和 RLock 多余的调用会导致锁没有被释放，可能会出现死锁，而 Unlock 和 RUnlock 多余的调用会导致 panic。在生产环境中出现 panic 是大忌，你总不希望半夜爬起来处理生产环境程序崩溃的问题吧？所以，在使用读写锁的时候，一定要注意，不遗漏不多余。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org747b144" class="outline-2">
+<h2 id="org747b144">流行的 Go 开发项目中的坑</h2>
+<div class="outline-text-2" id="text-org747b144">
+</div>
+<div id="outline-container-org7c14eda" class="outline-3">
+<h3 id="org7c14eda">Docker</h3>
+<div class="outline-text-3" id="text-org7c14eda">
+</div>
+<div id="outline-container-orgc8793c3" class="outline-4">
+<h4 id="orgc8793c3">issue 36840</h4>
+<div class="outline-text-4" id="text-orgc8793c3">
+<p>
+<a href="https://github.com/moby/moby/pull/36840/files">issue 36840</a> 修复的是错误地把 writer 当成 reader 的 Bug。 这个地方本来需要修改数据，需要调用的是写锁，结果用的却是读锁。或许是被它紧挨着的 findNode 方法调用迷惑了，认为这只是一个读操作。可实际上，代码后面还会有 changeNodeState 方法的调用，这是一个写操作。修复办法也很简单，只需要改成 Lock/Unlock 即可。<br>
+</p>
+
+<div class="div-center">
+	<img src="./images/Go-并发编程-Docker_issue36840.webp" />
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org5fa1851" class="outline-3">
+<h3 id="org5fa1851">Kubernetes</h3>
+<div class="outline-text-3" id="text-org5fa1851">
+</div>
+<div id="outline-container-org1e929e8" class="outline-4">
+<h4 id="org1e929e8">issue 62464</h4>
+<div class="outline-text-4" id="text-org1e929e8">
+<p>
+<a href="https://github.com/kubernetes/kubernetes/pull/62464">issue 62464</a> 就是读写锁第二种死锁的场景，这是一个典型的 reader 导致的死锁的例子。知道墨菲定律吧？“凡是可能出错的事，必定会出错”。你可能觉得我前面讲的 RWMutex 的坑绝对不会被人踩的，因为道理大家都懂，但是你看，Kubernetes 就踩了这个重入的坑。<br>
+</p>
+
+<p>
+这个 issue 在移除 pod 的时候可能会发生，原因就在于，GetCPUSetOrDefault 方法会请求读锁，同时，它还会调用 GetCPUSet 或 GetDefaultCPUSet 方法，这时又会请求读锁。如果期间有其它 goroutine 请求写锁的话，GetCPUSetOrDefault 方法调用 GetCPUSet 或 GetDefaultCPUSet 方法时就不会返回了，请求写锁的 goroutine 也不会返回，这就会形成死锁。<br>
+</p>
+
+<div class="div-center">
+	<img src="./images/Go-并发编程-Kubernetes_issue62464.webp" />
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org15d8499" class="outline-2">
+<h2 id="org15d8499">总结</h2>
+<div class="outline-text-2" id="text-org15d8499">
+<p>
+在开发过程中，一开始考虑共享资源并发访问问题的时候，我们就会想到互斥锁 Mutex。因为刚开始的时候，我们还并不太了解并发的情况，所以，就会使用最简单的同步原语来解决问题。等到系统成熟，真正到了需要性能优化的时候，我们就能静下心来分析并发场景的可能性，这个时候，我们就要考虑将 Mutex 修改为 RWMutex，来压榨系统的性能。<br>
+</p>
+
+<p>
+当然，如果一开始你的场景就非常明确了，比如我就要实现一个线程安全的 map，那么，一开始你就可以考虑使用读写锁。<br>
+</p>
+
+<p>
+正如前面提到的，如果你能意识到你要解决的问题是一个 readers-writers 问题，那么你就可以毫不犹豫地选择 RWMutex，不用考虑其它选择。那在使用 RWMutex 时，最需要注意的一点就是尽量避免重入，重入带来的死锁非常隐蔽，而且难以诊断。<br>
+</p>
+
+<p>
+另外我们也可以扩展 RWMutex，不过实现方法和互斥锁 Mutex 差不多，在技术上是一样的，都是通过 unsafe 来实现。<br>
+</p>
 </div>
 </div>
 </div>
 <div id="postamble" class="status">
 <p class="date">Date: 2022-05-14 15:05 Sat</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-05-14 Sat 18:50</p>
+<p class="date">Created: 2022-06-28 Tue 23:03</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

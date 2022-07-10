@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-06-29 Wed 09:53 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Go并发编程 - WaitGroup: 协同等待，任务编排</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">Go并发编程 - WaitGroup: 协同等待，任务编排</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orga9a7e2d">引言</a></li>
+<li><a href="#org8255ea8">WaitGroup 的基本用法</a></li>
+<li><a href="#orgaa5724e">WaitGroup 的实现</a></li>
+<li><a href="#orge6d89a6">使用 WaitGroup 时的常见错误</a>
+<ul>
+<li><a href="#orgde54e40">常见问题一：计数器设置为负值</a></li>
+<li><a href="#orgfb8a97a">常见问题二：不期望的 Add 时机</a></li>
+<li><a href="#org2155bfd">常见问题三：前一个 Wait 还没结束就重用 WaitGroup</a></li>
+</ul>
+</li>
+<li><a href="#orgc2925cd">noCopy: 辅助 vet 检查</a></li>
+<li><a href="#orgd120b8d">流行的 Go 开发项目中的坑</a></li>
+<li><a href="#org9ad886d">总结</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orga9a7e2d" class="outline-2">
+<h2 id="orga9a7e2d">引言</h2>
+<div class="outline-text-2" id="text-orga9a7e2d">
+<p>
+WaitGroup 很简单，就是 package sync 用来做任务编排的一个并发原语。它要解决的就是并发 - 等待的问题：现在有一个 goroutine A 在检查点（checkpoint）等待一组 goroutine 全部完成，如果在执行任务的这些 goroutine 还没全部完成，那么 goroutine A 就会阻塞在检查点，直到所有 goroutine 都完成后才能继续执行。<br>
+</p>
+
+<p>
+看一个使用 WaitGroup 的场景。<br>
+</p>
+
+<p>
+比如，要完成一个大的任务，需要使用并行的 goroutine 执行三个小任务，只有这三个小任务都完成，我们才能去执行后面的任务。如果通过轮询的方式定时询问三个小任务是否完成，会存在两个问题：一是，性能比较低，因为三个小任务可能早就完成了，却要等很长时间才被轮询到；二是，会有很多无谓的轮询，空耗 CPU 资源。<br>
+</p>
+
+<p>
+那么，这个时候使用 WaitGroup 并发原语就比较有效了，它可以阻塞等待的 goroutine。等到三个小任务都完成了，再即时唤醒它们。<br>
+</p>
+
+<p>
+其实，很多操作系统和编程语言都提供了类似的并发原语。比如，Linux 中的 barrier、Pthread（POSIX 线程）中的 barrier、C++ 中的 std::barrier、Java 中的 CyclicBarrier 和 CountDownLatch 等。由此可见，这个并发原语还是一个非常基础的并发类型。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8255ea8" class="outline-2">
+<h2 id="org8255ea8">WaitGroup 的基本用法</h2>
+<div class="outline-text-2" id="text-org8255ea8">
+<p>
+Go 标准库中的 WaitGroup 提供了三个方法，保持了 Go 简洁的风格。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">wg</span> *<span style="color: #df005f; font-weight: bold;">WaitGroup</span>) <span style="color: #d75fd7; font-weight: bold;">Add</span>(<span style="color: #8787d7;">delta</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">wg</span> *<span style="color: #df005f; font-weight: bold;">WaitGroup</span>) <span style="color: #d75fd7; font-weight: bold;">Done</span>()
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">wg</span> *<span style="color: #df005f; font-weight: bold;">WaitGroup</span>) <span style="color: #d75fd7; font-weight: bold;">Wait</span>()
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>Add，用来设置 WaitGroup 的计数值；<br></li>
+<li>Done，用来将 WaitGroup 的计数值减 1，其实就是调用了 Add(-1)；<br></li>
+<li>Wait，调用这个方法的 goroutine 会一直阻塞，直到 WaitGroup 的计数值变为 0；<br></li>
+</ul>
+
+<p>
+例子：使用之前实现的计数器 struct，启动 10 个 worker，分别对计数值加一，10 个 worker 都完成后，输出计数器的值。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#32447;&#31243;&#23433;&#20840;&#30340;&#35745;&#25968;&#22120;</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Counter</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    mu    <span style="color: #df005f; font-weight: bold;">sync.Mutex</span>
+    count <span style="color: #df005f; font-weight: bold;">uint64</span>
+}
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23545;&#35745;&#25968;&#20540;&#21152;&#19968;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">Counter</span>) <span style="color: #d75fd7; font-weight: bold;">Incr</span>() {
+    c.mu.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+    c.count++
+    c.mu.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+}
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#33719;&#21462;&#24403;&#21069;&#30340;&#35745;&#25968;&#20540;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">Counter</span>) <span style="color: #d75fd7; font-weight: bold;">Count</span>() <span style="color: #df005f; font-weight: bold;">uint64</span> {
+    c.mu.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+    <span style="color: #268bd2; font-weight: bold;">defer</span> c.mu.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+    <span style="color: #268bd2; font-weight: bold;">return</span> c.count
+}
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">sleep 1&#31186;&#65292;&#28982;&#21518;&#35745;&#25968;&#20540;&#21152;1</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">worker</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">Counter</span>, <span style="color: #8787d7;">wg</span> *<span style="color: #df005f; font-weight: bold;">sync.WaitGroup</span>) {
+    <span style="color: #268bd2; font-weight: bold;">defer</span> wg.<span style="color: #d75fd7; font-weight: bold;">Done</span>()
+    time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(time.Second)
+    c.<span style="color: #d75fd7; font-weight: bold;">Incr</span>()
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">counter</span> <span style="color: #df005f; font-weight: bold;">Counter</span>
+
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">wg</span> <span style="color: #df005f; font-weight: bold;">sync.WaitGroup</span>
+    wg.<span style="color: #d75fd7; font-weight: bold;">Add</span>(10) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">WaitGroup&#30340;&#20540;&#35774;&#32622;&#20026;10</span>
+
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := 0; i &lt; 10; i++ { <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21551;&#21160;10&#20010;goroutine&#25191;&#34892;&#21152;1&#20219;&#21153;</span>
+        <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">worker</span>(&amp;counter, &amp;wg)
+    }
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26816;&#26597;&#28857;&#65292;&#31561;&#24453;goroutine&#37117;&#23436;&#25104;&#20219;&#21153;</span>
+    wg.<span style="color: #d75fd7; font-weight: bold;">Wait</span>()
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36755;&#20986;&#24403;&#21069;&#35745;&#25968;&#22120;&#30340;&#20540;</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(counter.<span style="color: #d75fd7; font-weight: bold;">Count</span>())
+}   
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>第 28 行，声明了一个 WaitGroup 变量，初始值为零；<br></li>
+<li>第 29 行，把 WaitGroup 变量的计数值设置为 10。因为我们需要编排 10 个 goroutine(worker) 去执行任务，并且等待 goroutine 完成；<br></li>
+<li>第 35 行，调用 Wait 方法阻塞等待；<br></li>
+<li>第 32 行，启动了 goroutine，并把我们定义的 WaitGroup 指针当作参数传递进去。goroutine 完成后，需要调用 Done 方法，把 WaitGroup 的计数值减 1。等 10 个 goroutine 都调用了 Done 方法后，WaitGroup 的计数值降为 0，这时，第 35 行的主 goroutine 就不再阻塞，会继续执行，在第 37 行输出计数值；<br></li>
+</ul>
+
+<p>
+这就是使用 WaitGroup 编排这类任务的常用方式。而“这类任务”指的就是，需要启动多个 goroutine 执行任务，主 goroutine 需要等待子 goroutine 都完成后才继续执行。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgaa5724e" class="outline-2">
+<h2 id="orgaa5724e">WaitGroup 的实现</h2>
+<div class="outline-text-2" id="text-orgaa5724e">
+<p>
+WaitGroup 的数据结构包括了一个 noCopy 的辅助字段，一个 state1 记录 WaitGroup 状态的数组。<br>
+</p>
+
+<ul class="org-ul">
+<li>noCopy 的辅助字段，主要就是辅助 vet 工具检查是否通过 copy 赋值这个 WaitGroup 实例。我会在后面和你详细分析这个字段；<br></li>
+<li>state1，一个具有复合意义的字段，包含 WaitGroup 的计数、阻塞在检查点的 waiter 数和信号量。<br></li>
+</ul>
+
+<p>
+WaitGroup 的数据结构定义以及 state 信息的获取方法如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">WaitGroup</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36991;&#20813;&#22797;&#21046;&#20351;&#29992;&#30340;&#19968;&#20010;&#25216;&#24039;&#65292;&#21487;&#20197;&#21578;&#35785;vet&#24037;&#20855;&#36829;&#21453;&#20102;&#22797;&#21046;&#20351;&#29992;&#30340;&#35268;&#21017;</span>
+    noCopy <span style="color: #df005f; font-weight: bold;">noCopy</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">64bit(8bytes)&#30340;&#20540;&#20998;&#25104;&#20004;&#27573;&#65292;&#39640;32bit&#26159;&#35745;&#25968;&#20540;&#65292;&#20302;32bit&#26159;waiter&#30340;&#35745;&#25968;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21478;&#22806;32bit&#26159;&#29992;&#20316;&#20449;&#21495;&#37327;&#30340;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22240;&#20026;64bit&#20540;&#30340;&#21407;&#23376;&#25805;&#20316;&#38656;&#35201;64bit&#23545;&#40784;&#65292;&#20294;&#26159;32bit&#32534;&#35793;&#22120;&#19981;&#25903;&#25345;&#65292;&#25152;&#20197;&#25968;&#32452;&#20013;&#30340;&#20803;&#32032;&#22312;&#19981;&#21516;&#30340;&#26550;&#26500;&#20013;&#19981;&#19968;&#26679;&#65292;&#20855;&#20307;&#22788;&#29702;&#30475;&#19979;&#38754;&#30340;&#26041;&#27861;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#24635;&#20043;&#65292;&#20250;&#25214;&#21040;&#23545;&#40784;&#30340;&#37027;64bit&#20316;&#20026;state&#65292;&#20854;&#20313;&#30340;32bit&#20570;&#20449;&#21495;&#37327;</span>
+    state1 [3]<span style="color: #df005f; font-weight: bold;">uint32</span>
+}
+
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#24471;&#21040;state&#30340;&#22320;&#22336;&#21644;&#20449;&#21495;&#37327;&#30340;&#22320;&#22336;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">wg</span> *<span style="color: #df005f; font-weight: bold;">WaitGroup</span>) <span style="color: #d75fd7; font-weight: bold;">state</span>() (<span style="color: #8787d7;">statep</span> *<span style="color: #df005f; font-weight: bold;">uint64</span>, <span style="color: #8787d7;">semap</span> *<span style="color: #df005f; font-weight: bold;">uint32</span>) {
+    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #d75fd7; font-weight: bold;">uintptr</span>(unsafe.<span style="color: #d75fd7; font-weight: bold;">Pointer</span>(&amp;wg.state1))%8 == 0 {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#22320;&#22336;&#26159;64bit&#23545;&#40784;&#30340;&#65292;&#25968;&#32452;&#21069;&#20004;&#20010;&#20803;&#32032;&#20570;state&#65292;&#21518;&#19968;&#20010;&#20803;&#32032;&#20570;&#20449;&#21495;&#37327;</span>
+        <span style="color: #268bd2; font-weight: bold;">return</span> (*uint64)(unsafe.<span style="color: #d75fd7; font-weight: bold;">Pointer</span>(&amp;wg.state1)), &amp;wg.state1[2]
+    } <span style="color: #268bd2; font-weight: bold;">else</span> {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#22320;&#22336;&#26159;32bit&#23545;&#40784;&#30340;&#65292;&#25968;&#32452;&#21518;&#20004;&#20010;&#20803;&#32032;&#29992;&#26469;&#20570;state&#65292;&#23427;&#21487;&#20197;&#29992;&#26469;&#20570;64bit&#30340;&#21407;&#23376;&#25805;&#20316;&#65292;&#31532;&#19968;&#20010;&#20803;&#32032;32bit&#29992;&#26469;&#20570;&#20449;&#21495;&#37327;</span>
+        <span style="color: #268bd2; font-weight: bold;">return</span> (*uint64)(unsafe.<span style="color: #d75fd7; font-weight: bold;">Pointer</span>(&amp;wg.state1[1])), &amp;wg.state1[0]
+    }
+}
+</pre>
+</div>
+
+<p>
+因为对 64 位整数的原子操作要求整数的地址是 64 位对齐的，所以针对 64 位和 32 位环境的 state 字段的组成是不一样的。<br>
+</p>
+
+<p>
+在 64 位环境下，state1 的第一个元素是 waiter 数，第二个元素是 WaitGroup 的计数值，第三个元素是信号量。<br>
+</p>
+
+<div class="div-center">
+	<img src="./images/Go-并发编程-WaitGroup_64位获取state信息.webp" width="620px" />
+</div>
+
+<p>
+在 32 位环境下，如果 state1 不是 64 位对齐的地址，那么 state1 的第一个元素是信号量，后两个元素分别是 waiter 数和计数值。<br>
+</p>
+
+<div class="div-center">
+	<img src="./images/Go-并发编程-WaitGroup_32位获取state信息.webp" width="620px" />
+</div>
+
+<p>
+然后，我们继续深入源码，看一下 Add、Done 和 Wait 这三个方法的实现。<br>
+</p>
+
+<p>
+在查看这部分源码实现时，我们会发现，除了这些方法本身的实现外，还会有一些额外的代码，主要是 race 检查和异常检查的代码。其中，有几个检查非常关键，如果检查不通过，会出现 panic，这部分内容我会在下一小节分析 WaitGroup 的错误使用场景时介绍。现在，我们先专注在 Add、Wait 和 Done 本身的实现代码上。<br>
+</p>
+
+<p>
+Add 方法主要操作的是 state 的计数部分。你可以为计数值增加一个 delta 值，内部通过原子操作把这个值加到计数值上。需要注意的是，这个 delta 也可以是个负数，相当于为计数值减去一个值，Done 方法内部其实就是通过 Add(-1) 实现的。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">wg</span> *<span style="color: #df005f; font-weight: bold;">WaitGroup</span>) <span style="color: #d75fd7; font-weight: bold;">Add</span>(<span style="color: #8787d7;">delta</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
+    <span style="color: #8787d7;">statep</span>, <span style="color: #8787d7;">semap</span> := wg.<span style="color: #d75fd7; font-weight: bold;">state</span>()
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#39640;32bit&#26159;&#35745;&#25968;&#20540;v&#65292;&#25152;&#20197;&#25226;delta&#24038;&#31227;32&#65292;&#22686;&#21152;&#21040;&#35745;&#25968;&#19978;</span>
+    <span style="color: #8787d7;">state</span> := atomic.<span style="color: #d75fd7; font-weight: bold;">AddUint64</span>(statep, <span style="color: #d75fd7; font-weight: bold;">uint64</span>(delta)&lt;&lt;32)
+    <span style="color: #8787d7;">v</span> := <span style="color: #d75fd7; font-weight: bold;">int32</span>(state &gt;&gt; 32) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#24403;&#21069;&#35745;&#25968;&#20540;</span>
+    <span style="color: #8787d7;">w</span> := <span style="color: #d75fd7; font-weight: bold;">uint32</span>(state) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">waiter count</span>
+
+    <span style="color: #268bd2; font-weight: bold;">if</span> v &gt; 0 || w == 0 {
+        <span style="color: #268bd2; font-weight: bold;">return</span>
+    }
+
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#35745;&#25968;&#20540;v&#20026;0&#24182;&#19988;waiter&#30340;&#25968;&#37327;w&#19981;&#20026;0&#65292;&#37027;&#20040;state&#30340;&#20540;&#23601;&#26159;waiter&#30340;&#25968;&#37327;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23558;waiter&#30340;&#25968;&#37327;&#35774;&#32622;&#20026;0&#65292;&#22240;&#20026;&#35745;&#25968;&#20540;v&#20063;&#26159;0,&#25152;&#20197;&#23427;&#20204;&#20457;&#30340;&#32452;&#21512;*statep&#30452;&#25509;&#35774;&#32622;&#20026;0&#21363;&#21487;&#12290;&#27492;&#26102;&#38656;&#35201;&#24182;&#21796;&#37266;&#25152;&#26377;&#30340;waiter</span>
+    *statep = 0
+    <span style="color: #268bd2; font-weight: bold;">for</span> ; w != 0; w-- {
+        <span style="color: #d75fd7; font-weight: bold;">runtime_Semrelease</span>(semap, <span style="color: #d75fd7;">false</span>, 0)
+    }
+}
+
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Done&#26041;&#27861;&#23454;&#38469;&#23601;&#26159;&#35745;&#25968;&#22120;&#20943;1</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">wg</span> *<span style="color: #df005f; font-weight: bold;">WaitGroup</span>) <span style="color: #d75fd7; font-weight: bold;">Done</span>() {
+    wg.<span style="color: #d75fd7; font-weight: bold;">Add</span>(-1)
+}
+</pre>
+</div>
+
+<p>
+Wait 方法的实现逻辑是：不断检查 state 的值。如果其中的计数值变为了 0，那么说明所有的任务已完成，调用者不必再等待，直接返回。如果计数值大于 0，说明此时还有任务没完成，那么调用者就变成了等待者，需要加入 waiter 队列，并且阻塞住自己。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">wg</span> *<span style="color: #df005f; font-weight: bold;">WaitGroup</span>) <span style="color: #d75fd7; font-weight: bold;">Wait</span>() {
+    <span style="color: #8787d7;">statep</span>, <span style="color: #8787d7;">semap</span> := wg.<span style="color: #d75fd7; font-weight: bold;">state</span>()
+
+    <span style="color: #268bd2; font-weight: bold;">for</span> {
+        <span style="color: #8787d7;">state</span> := atomic.<span style="color: #d75fd7; font-weight: bold;">LoadUint64</span>(statep)
+        <span style="color: #8787d7;">v</span> := <span style="color: #d75fd7; font-weight: bold;">int32</span>(state &gt;&gt; 32) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#24403;&#21069;&#35745;&#25968;&#20540;</span>
+        <span style="color: #8787d7;">w</span> := <span style="color: #d75fd7; font-weight: bold;">uint32</span>(state) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">waiter&#30340;&#25968;&#37327;</span>
+        <span style="color: #268bd2; font-weight: bold;">if</span> v == 0 {
+            <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#35745;&#25968;&#20540;&#20026;0, &#35843;&#29992;&#36825;&#20010;&#26041;&#27861;&#30340;goroutine&#19981;&#24517;&#20877;&#31561;&#24453;&#65292;&#32487;&#32493;&#25191;&#34892;&#23427;&#21518;&#38754;&#30340;&#36923;&#36753;&#21363;&#21487;</span>
+            <span style="color: #268bd2; font-weight: bold;">return</span>
+        }
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21542;&#21017;&#25226;waiter&#25968;&#37327;&#21152;1&#12290;&#26399;&#38388;&#21487;&#33021;&#26377;&#24182;&#21457;&#35843;&#29992;Wait&#30340;&#24773;&#20917;&#65292;&#25152;&#20197;&#26368;&#22806;&#23618;&#20351;&#29992;&#20102;&#19968;&#20010;for&#24490;&#29615;</span>
+        <span style="color: #268bd2; font-weight: bold;">if</span> atomic.<span style="color: #d75fd7; font-weight: bold;">CompareAndSwapUint64</span>(statep, state, state+1) {
+            <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#38459;&#22622;&#20241;&#30496;&#31561;&#24453;</span>
+            <span style="color: #d75fd7; font-weight: bold;">runtime_Semacquire</span>(semap)
+            <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#34987;&#21796;&#37266;&#65292;&#19981;&#20877;&#38459;&#22622;&#65292;&#36820;&#22238;</span>
+            <span style="color: #268bd2; font-weight: bold;">return</span>
+        }
+    }
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orge6d89a6" class="outline-2">
+<h2 id="orge6d89a6">使用 WaitGroup 时的常见错误</h2>
+<div class="outline-text-2" id="text-orge6d89a6">
+<p>
+在分析 WaitGroup 的 Add、Done 和 Wait 方法的实现的时候，为避免干扰，省略了异常检查的代码。但是，这些异常检查非常有用。<br>
+</p>
+</div>
+<div id="outline-container-orgde54e40" class="outline-3">
+<h3 id="orgde54e40">常见问题一：计数器设置为负值</h3>
+<div class="outline-text-3" id="text-orgde54e40">
+<p>
+WaitGroup 的计数器的值必须大于等于 0。我们在更改这个计数值的时候，WaitGroup 会先做检查，如果计数值被设置为负数，就会导致 panic。<br>
+</p>
+
+<p>
+一般情况下，有两种方法会导致计数器设置为负数。<br>
+</p>
+
+<p>
+第一种方法是：调用 Add 的时候传递一个负数。如果你能保证当前的计数器加上这个负数后还是大于等于 0 的话，也没有问题，否则就会导致 panic。<br>
+</p>
+
+<p>
+比如下面这段代码，计数器的初始值为 10，当第一次传入 -10 的时候，计数值被设置为 0，不会有啥问题。但是，再紧接着传入 -1 以后，计数值就被设置为负数了，程序就会出现 panic。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">wg</span> <span style="color: #df005f; font-weight: bold;">sync.WaitGroup</span>
+    wg.<span style="color: #d75fd7; font-weight: bold;">Add</span>(10)
+
+    wg.<span style="color: #d75fd7; font-weight: bold;">Add</span>(-10)<span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#23558;-10&#20316;&#20026;&#21442;&#25968;&#35843;&#29992;Add&#65292;&#35745;&#25968;&#20540;&#34987;&#35774;&#32622;&#20026;0</span>
+
+    wg.<span style="color: #d75fd7; font-weight: bold;">Add</span>(-1)<span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#23558;-1&#20316;&#20026;&#21442;&#25968;&#35843;&#29992;Add&#65292;&#22914;&#26524;&#21152;&#19978;-1&#35745;&#25968;&#20540;&#23601;&#20250;&#21464;&#20026;&#36127;&#25968;&#12290;&#36825;&#26159;&#19981;&#23545;&#30340;&#65292;&#25152;&#20197;&#20250;&#35302;&#21457;panic</span>
+}
+</pre>
+</div>
+
+<p>
+第二个方法是：调用 Done 方法的次数过多，超过了 WaitGroup 的计数值。<br>
+</p>
+
+<p>
+使用 WaitGroup 的正确姿势是，预先确定好 WaitGroup 的计数值，然后调用相同次数的 Done 完成相应的任务。比如，在 WaitGroup 变量声明之后，就立即设置它的计数值，或者在 goroutine 启动之前增加 1，然后在 goroutine 中调用 Done。<br>
+</p>
+
+<p>
+如果你没有遵循这些规则，就很可能会导致 Done 方法调用的次数和计数值不一致，进而造成死锁（Done 调用次数比计数值少）或者 panic（Done 调用次数比计数值多）。<br>
+</p>
+
+<p>
+比如下面这个例子中，多调用了一次 Done 方法后，会导致计数值为负，所以程序运行到这一行会出现 panic。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">wg</span> <span style="color: #df005f; font-weight: bold;">sync.WaitGroup</span>
+    wg.<span style="color: #d75fd7; font-weight: bold;">Add</span>(1)
+
+    wg.<span style="color: #d75fd7; font-weight: bold;">Done</span>()
+
+    wg.<span style="color: #d75fd7; font-weight: bold;">Done</span>()
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgfb8a97a" class="outline-3">
+<h3 id="orgfb8a97a">常见问题二：不期望的 Add 时机</h3>
+<div class="outline-text-3" id="text-orgfb8a97a">
+<p>
+在使用 WaitGroup 的时候，一定要遵循的原则就是，等所有的 Add 方法调用之后再调用 Wait，否则就可能导致 panic 或者不期望的结果。<br>
+</p>
+
+<p>
+我们构造这样一个场景：只有部分的 Add/Done 执行完后，Wait 就返回。我们看一个例子：启动四个 goroutine，每个 goroutine 内部调用 Add(1) 然后调用 Done()，主 goroutine 调用 Wait 等待任务完成。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">wg</span> <span style="color: #df005f; font-weight: bold;">sync.WaitGroup</span>
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">dosomething</span>(100, &amp;wg) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21551;&#21160;&#31532;&#19968;&#20010;goroutine</span>
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">dosomething</span>(110, &amp;wg) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21551;&#21160;&#31532;&#20108;&#20010;goroutine</span>
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">dosomething</span>(120, &amp;wg) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21551;&#21160;&#31532;&#19977;&#20010;goroutine</span>
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">dosomething</span>(130, &amp;wg) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21551;&#21160;&#31532;&#22235;&#20010;goroutine</span>
+
+    wg.<span style="color: #d75fd7; font-weight: bold;">Wait</span>() <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20027;goroutine&#31561;&#24453;&#23436;&#25104;</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Done"</span>)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">dosomething</span>(<span style="color: #8787d7;">millisecs</span> <span style="color: #df005f; font-weight: bold;">time.Duration</span>, <span style="color: #8787d7;">wg</span> *<span style="color: #df005f; font-weight: bold;">sync.WaitGroup</span>) {
+    <span style="color: #8787d7;">duration</span> := millisecs * time.Millisecond
+    time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(duration) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25925;&#24847;sleep&#19968;&#27573;&#26102;&#38388;</span>
+
+    wg.<span style="color: #d75fd7; font-weight: bold;">Add</span>(1)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"&#21518;&#21488;&#25191;&#34892;, duration:"</span>, duration)
+    wg.<span style="color: #d75fd7; font-weight: bold;">Done</span>()
+}
+</pre>
+</div>
+
+<p>
+在这个例子中，我们原本设想的是，等四个 goroutine 都执行完毕后输出 Done 的信息，但是它的错误之处在于，将 WaitGroup.Add 方法的调用放在了子 gorotuine 中。等主 goorutine 调用 Wait 的时候，因为四个任务 goroutine 一开始都休眠，所以可能 WaitGroup 的 Add 方法还没有被调用，WaitGroup 的计数还是 0，所以它并没有等待四个子 goroutine 执行完毕才继续执行，而是立刻执行了下一步。<br>
+</p>
+
+<p>
+导致这个错误的原因是，没有遵循先完成所有的 Add 之后才 Wait。要解决这个问题，一个方法是，预先设置计数值：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">wg</span> <span style="color: #df005f; font-weight: bold;">sync.WaitGroup</span>
+    wg.<span style="color: #d75fd7; font-weight: bold;">Add</span>(4) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#39044;&#20808;&#35774;&#23450;WaitGroup&#30340;&#35745;&#25968;&#20540;</span>
+
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">dosomething</span>(100, &amp;wg) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21551;&#21160;&#31532;&#19968;&#20010;goroutine</span>
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">dosomething</span>(110, &amp;wg) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21551;&#21160;&#31532;&#20108;&#20010;goroutine</span>
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">dosomething</span>(120, &amp;wg) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21551;&#21160;&#31532;&#19977;&#20010;goroutine</span>
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">dosomething</span>(130, &amp;wg) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21551;&#21160;&#31532;&#22235;&#20010;goroutine</span>
+
+    wg.<span style="color: #d75fd7; font-weight: bold;">Wait</span>() <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20027;goroutine&#31561;&#24453;</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Done"</span>)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">dosomething</span>(<span style="color: #8787d7;">millisecs</span> <span style="color: #df005f; font-weight: bold;">time.Duration</span>, <span style="color: #8787d7;">wg</span> *<span style="color: #df005f; font-weight: bold;">sync.WaitGroup</span>) {
+    <span style="color: #8787d7;">duration</span> := millisecs * time.Millisecond
+    time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(duration)
+
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"&#21518;&#21488;&#25191;&#34892;, duration:"</span>, duration)
+    wg.<span style="color: #d75fd7; font-weight: bold;">Done</span>()
+}
+</pre>
+</div>
+
+<p>
+另一种方法是在启动子 goroutine 之前才调用 Add：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">wg</span> <span style="color: #df005f; font-weight: bold;">sync.WaitGroup</span>
+
+    <span style="color: #d75fd7; font-weight: bold;">dosomething</span>(100, &amp;wg) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35843;&#29992;&#26041;&#27861;&#65292;&#25226;&#35745;&#25968;&#20540;&#21152;1&#65292;&#24182;&#21551;&#21160;&#20219;&#21153;goroutine</span>
+    <span style="color: #d75fd7; font-weight: bold;">dosomething</span>(110, &amp;wg) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35843;&#29992;&#26041;&#27861;&#65292;&#25226;&#35745;&#25968;&#20540;&#21152;1&#65292;&#24182;&#21551;&#21160;&#20219;&#21153;goroutine</span>
+    <span style="color: #d75fd7; font-weight: bold;">dosomething</span>(120, &amp;wg) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35843;&#29992;&#26041;&#27861;&#65292;&#25226;&#35745;&#25968;&#20540;&#21152;1&#65292;&#24182;&#21551;&#21160;&#20219;&#21153;goroutine</span>
+    <span style="color: #d75fd7; font-weight: bold;">dosomething</span>(130, &amp;wg) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35843;&#29992;&#26041;&#27861;&#65292;&#25226;&#35745;&#25968;&#20540;&#21152;1&#65292;&#24182;&#21551;&#21160;&#20219;&#21153;goroutine</span>
+
+    wg.<span style="color: #d75fd7; font-weight: bold;">Wait</span>() <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20027;goroutine&#31561;&#24453;&#65292;&#20195;&#30721;&#36923;&#36753;&#20445;&#35777;&#20102;&#22235;&#27425;Add(1)&#37117;&#24050;&#32463;&#25191;&#34892;&#23436;&#20102;</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Done"</span>)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">dosomething</span>(<span style="color: #8787d7;">millisecs</span> <span style="color: #df005f; font-weight: bold;">time.Duration</span>, <span style="color: #8787d7;">wg</span> *<span style="color: #df005f; font-weight: bold;">sync.WaitGroup</span>) {
+    wg.<span style="color: #d75fd7; font-weight: bold;">Add</span>(1) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35745;&#25968;&#20540;&#21152;1&#65292;&#20877;&#21551;&#21160;goroutine</span>
+
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+        <span style="color: #8787d7;">duration</span> := millisecs * time.Millisecond
+        time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(duration)
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"&#21518;&#21488;&#25191;&#34892;, duration:"</span>, duration)
+        wg.<span style="color: #d75fd7; font-weight: bold;">Done</span>()
+    }()
+}
+</pre>
+</div>
+
+<p>
+可见，无论是怎么修复，都要保证所有的 Add 方法是在 Wait 方法之前被调用的。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2155bfd" class="outline-3">
+<h3 id="org2155bfd">常见问题三：前一个 Wait 还没结束就重用 WaitGroup</h3>
+<div class="outline-text-3" id="text-org2155bfd">
+<p>
+WaitGroup 是可以重用的。只要 WaitGroup 的计数值恢复到零值的状态，那么它就可以被看作是新创建的 WaitGroup，被重复使用。<br>
+</p>
+
+<p>
+但是，如果我们在 WaitGroup 的计数值还没有恢复到零值的时候就重用，就会导致程序 panic。我们看一个例子，初始设置 WaitGroup 的计数值为 1，启动一个 goroutine 先调用 Done 方法，接着就调用 Add 方法，Add 方法有可能和主 goroutine 并发执行。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">wg</span> <span style="color: #df005f; font-weight: bold;">sync.WaitGroup</span>
+    wg.<span style="color: #d75fd7; font-weight: bold;">Add</span>(1)
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+        time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(time.Millisecond)
+        wg.<span style="color: #d75fd7; font-weight: bold;">Done</span>() <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35745;&#25968;&#22120;&#20943;1</span>
+        wg.<span style="color: #d75fd7; font-weight: bold;">Add</span>(1) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35745;&#25968;&#20540;&#21152;1</span>
+    }()
+    wg.<span style="color: #d75fd7; font-weight: bold;">Wait</span>() <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20027;goroutine&#31561;&#24453;&#65292;&#26377;&#21487;&#33021;&#21644;&#31532;7&#34892;&#24182;&#21457;&#25191;&#34892;</span>
+}
+</pre>
+</div>
+
+<p>
+在这个例子中，第 6 行虽然让 WaitGroup 的计数恢复到 0，但是因为第 9 行有个 waiter 在等待，如果等待 Wait 的 goroutine，刚被唤醒就和 Add 调用（第 7 行）有并发执行的冲突，所以就会出现 panic。<br>
+</p>
+
+<p>
+总结一下：WaitGroup 虽然可以重用，但是是有一个前提的，那就是必须等到上一轮的 Wait 完成之后，才能重用 WaitGroup 执行下一轮的 Add/Wait，如果你在 Wait 还没执行完的时候就调用下一轮 Add 方法，就有可能出现 panic。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgc2925cd" class="outline-2">
+<h2 id="orgc2925cd">noCopy: 辅助 vet 检查</h2>
+<div class="outline-text-2" id="text-orgc2925cd">
+<p>
+WaitGroup 的数据结构中有一个 noCopy 字段。这个字段就是指示 vet 工具在做检查的时候，这个数据结构不能做值复制使用。更严谨地说，是不能在第一次使用之后复制使用 ( must not be copied after first use)。<br>
+</p>
+
+<p>
+我们在签名学习 Mutex 的时候用到了 vet 工具。vet 会对实现 Locker 接口的数据类型做静态检查，一旦代码中有复制使用这种数据类型的情况，就会发出警告。但是，WaitGroup 同步原语不就是 Add、Done 和 Wait 方法吗？vet 能检查出来吗？<br>
+</p>
+
+<p>
+其实是可以的。通过给 WaitGroup 添加一个 noCopy 字段，我们就可以为 WaitGroup 实现 Locker 接口，这样 vet 工具就可以做复制检查了。而且因为 noCopy 字段是未输出类型，所以 WaitGroup 不会暴露 Lock/Unlock 方法。<br>
+</p>
+
+<p>
+noCopy 字段的类型是 noCopy，它只是一个辅助的、用来帮助 vet 检查用的类型:<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">noCopy</span> <span style="color: #268bd2; font-weight: bold;">struct</span>{}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Lock is a no-op used by -copylocks checker from `go vet`.</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (*<span style="color: #df005f; font-weight: bold;">noCopy</span>) <span style="color: #d75fd7; font-weight: bold;">Lock</span>()   {}
+<span style="color: #268bd2; font-weight: bold;">func</span> (*<span style="color: #df005f; font-weight: bold;">noCopy</span>) <span style="color: #d75fd7; font-weight: bold;">Unlock</span>() {}
+</pre>
+</div>
+
+<p>
+如果你想要自己定义的数据结构不被复制使用，或者说，不能通过 vet 工具检查出复制使用的报警，就可以通过嵌入 noCopy 这个数据类型来实现。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd120b8d" class="outline-2">
+<h2 id="orgd120b8d">流行的 Go 开发项目中的坑</h2>
+<div class="outline-text-2" id="text-orgd120b8d">
+<p>
+首先是 Go 的 <a href="https://github.com/golang/go/issues/28123">issue 28123</a> ：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">TestStruct</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    Wait <span style="color: #df005f; font-weight: bold;">sync.WaitGroup</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">w</span> := <span style="color: #df005f; font-weight: bold;">sync.WaitGroup</span>{}
+    w.<span style="color: #d75fd7; font-weight: bold;">Add</span>(1)
+    <span style="color: #8787d7;">t</span> := &amp;<span style="color: #df005f; font-weight: bold;">TestStruct</span>{
+        <span style="color: #d75fd7;">Wait</span>: w,
+    }
+
+    t.Wait.<span style="color: #d75fd7; font-weight: bold;">Done</span>()
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Finished"</span>)
+}   
+</pre>
+</div>
+
+<p>
+这段代码最大的一个问题，就是第 9 行 copy 了 WaitGroup 的实例 w。虽然这段代码能执行成功，但确实是违反了 WaitGroup 使用之后不要复制的规则。在项目中，我们可以通过 vet 工具检查出这样的错误。<br>
+</p>
+
+<p>
+Docker <a href="https://github.com/moby/moby/issues/28161">issue 28161</a> 和 <a href="https://github.com/moby/moby/issues/27011">issue 27011</a> ，都是因为在重用 WaitGroup 的时候，没等前一次的 Wait 结束就 Add 导致的错误。Etcd <a href="https://github.com/etcd-io/etcd/issues/6534">issue 6534</a> 也是重用 WaitGroup 的 Bug，没有等前一个 Wait 结束就 Add。<br>
+</p>
+
+<p>
+Kubernetes <a href="https://github.com/kubernetes/kubernetes/pull/59574">issue 59574</a> 的 Bug 是忘记 Wait 之前增加计数了，这就属于我们通常认为几乎不可能出现的 Bug。<br>
+</p>
+
+<div class="div-center">
+	<img src="./images/Go-并发编程-Kubernetes_issue59574.webp" width="620px" />
+</div>
+
+<p>
+即使是开发 Go 语言的开发者自己，在使用 WaitGroup 的时候，也可能会犯错。比如 <a href="https://github.com/golang/go/issues/12813">issue 12813</a> ，因为 defer 的使用，Add 方法可能在 Done 之后才执行，导致计数负值的 panic。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9ad886d" class="outline-2">
+<h2 id="org9ad886d">总结</h2>
+<div class="outline-text-2" id="text-org9ad886d">
+<p>
+如何避免错误使用 WaitGroup 的情况？只需要尽量保证下面 5 点就可以了：<br>
+</p>
+
+<ul class="org-ul">
+<li>不重用 WaitGroup。新建一个 WaitGroup 不会带来多大的资源开销，重用反而更容易出错；<br></li>
+<li>保证所有的 Add 方法调用都在 Wait 之前；<br></li>
+<li>不传递负数给 Add 方法，只通过 Done 来给计数值减 1；<br></li>
+<li>不做多余的 Done 方法调用，保证 Add 的计数值和 Done 方法调用的数量是一样的；<br></li>
+<li>不遗漏 Done 方法的调用，否则会导致 Wait hang 住无法返回；<br></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-06-29 Wed 09:53</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

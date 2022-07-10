@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-07-08 Fri 02:08 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>单例模式</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">单例模式</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org6b47d9a">什么是单例模式</a>
+<ul>
+<li><a href="#org1357a83">饿汉模式</a></li>
+<li><a href="#org0dd7590">懒汉模式</a></li>
+</ul>
+</li>
+<li><a href="#org9b6b128">为什么单例模式要起名叫饿汉式和懒汉式？</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org6b47d9a" class="outline-2">
+<h2 id="org6b47d9a">什么是单例模式</h2>
+<div class="outline-text-2" id="text-org6b47d9a">
+<p>
+单例是一种创建型设计模式，让你能够保证一个类只有一个实例，并提供一个访问该实例的全局节点。<br>
+</p>
+
+<p>
+单例模式分为饿汉式与懒汉式：<br>
+</p>
+</div>
+<div id="outline-container-org1357a83" class="outline-3">
+<h3 id="org1357a83">饿汉模式</h3>
+<div class="outline-text-3" id="text-org1357a83">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">singleton &#39295;&#27721;&#24335;&#21333;&#20363;</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">singletonStruct</span> <span style="color: #268bd2; font-weight: bold;">struct</span>{}
+
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">singleton</span> *<span style="color: #df005f; font-weight: bold;">singletonStruct</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#19978;&#38754;&#31867;&#30340;&#20840;&#23616;&#21807;&#19968;&#23454;&#20363;</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">init</span>() {
+    singleton = &amp;<span style="color: #df005f; font-weight: bold;">singletonStruct</span>{}
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">GetSingletonInstance &#33719;&#21462;&#21333;&#20363;&#23454;&#20363;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">GetSingletonInstance</span>() *<span style="color: #df005f; font-weight: bold;">singletonStruct</span> {
+    <span style="color: #268bd2; font-weight: bold;">return</span> singleton
+} 
+</pre>
+</div>
+
+<p>
+代码中 <code>singletonStruct</code> 被设置为包外不可访问，其他类不能实例化此类，然后提供了一个获取单例实例的函数。 <span class="underline">饿汉模式在包加载的时候就对实例进行创建，实例在整个程序周期都存在。</span><br>
+</p>
+
+<ul class="org-ul">
+<li>它的好处是只在类加载的时候创建一次实例，不会存在多个线程创建多个实例的情况，避免了多线程同步的问题；<br></li>
+<li>它的缺点是即使这个单例没有用到也会被创建，而且在包加载之后就被创建，内存就被浪费了；<br></li>
+<li>这种实现方式适合单例占用内存比较小，在初始化时就会被用到的情况。但是，如果单例占用的内存比较大，或单例只是在某个特定场景下才会用到，使用饿汉模式就不合适了，这时候就需要用到懒汉模式进行延迟加载；<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org0dd7590" class="outline-3">
+<h3 id="org0dd7590">懒汉模式</h3>
+<div class="outline-text-3" id="text-org0dd7590">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">lazySingletonStruct &#25042;&#27721;&#24335;&#21333;&#20363;</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">lazySingletonStruct</span> <span style="color: #268bd2; font-weight: bold;">struct</span>{}
+
+<span style="color: #268bd2; font-weight: bold;">var</span> (
+    <span style="color: #8787d7;">lazySingleton</span> *<span style="color: #df005f; font-weight: bold;">lazySingletonStruct</span>
+    <span style="color: #8787d7;">once</span>          = &amp;<span style="color: #df005f; font-weight: bold;">sync.Once</span>{}
+)
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">GetLazySingletonInstance &#33719;&#21462;&#21333;&#20363;&#23454;&#20363;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">GetLazySingletonInstance</span>() *<span style="color: #df005f; font-weight: bold;">lazySingletonStruct</span> {
+    <span style="color: #268bd2; font-weight: bold;">if</span> lazySingleton == <span style="color: #d75fd7;">nil</span> {
+        once.<span style="color: #d75fd7; font-weight: bold;">Do</span>(<span style="color: #268bd2; font-weight: bold;">func</span>() {
+            lazySingleton = &amp;<span style="color: #df005f; font-weight: bold;">lazySingletonStruct</span>{}
+        })
+    }
+    <span style="color: #268bd2; font-weight: bold;">return</span> lazySingleton
+} 
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>好处：懒汉模式中单例是在需要的时候才去创建的，如果单例已经创建，再次调用获取接口将不会重新创建新的对象，而是直接返回之前创建的对象；<br></li>
+<li>适用于：如果某个单例使用的次数少，并且创建单例消耗的资源较多，那么就需要实现单例的按需创建，这个时候使用懒汉模式就是一个不错的选择；<br></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-org9b6b128" class="outline-2">
+<h2 id="org9b6b128">为什么单例模式要起名叫饿汉式和懒汉式？</h2>
+<div class="outline-text-2" id="text-org9b6b128">
+<p>
+因为发明这些词的人不会好好说话，整一些乱七八糟、不着边的词，以达到和不知道这些词的人区分开来，显得自己很厉害。<br>
+</p>
+
+<p>
+话说回来，为了记住这些词，我们可以联想记忆：<br>
+</p>
+
+<ul class="org-ul">
+<li>饿汉式：不管程序是否需要这个对象的实例，总是在类加载的时候就先创建好实例，理解起来就像不管一个人想不想吃东西都把吃的先买好，如同饿怕了一样。<br></li>
+<li>懒汉式：如果一个对象使用频率不高，占用内存还特别大，明显就不合适用饿汉式了，这时就需要一种懒加载的思想，当程序需要这个实例的时候才去创建对象，就如同一个人懒的饿到不行了才去吃东西。<br></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-07-08 Fri 02:08</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

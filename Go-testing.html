@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-06-28 Tue 19:04 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GO-TESTING</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">GO-TESTING</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org748d472">Introduction</a>
+<ul>
+<li><a href="#org640e598">Benchmarks</a></li>
+<li><a href="#org3cade44">Examples</a></li>
+<li><a href="#orgd93b86d">Subtests 和 Sub-benchmarks</a></li>
+<li><a href="#org98dabc7">Main</a></li>
+</ul>
+</li>
+<li><a href="#orgc83e911">Package Files</a></li>
+<li><a href="#orgd5fef81">func AllocsPerRun</a></li>
+<li><a href="#orga26b7e3">func CoverMode</a></li>
+<li><a href="#org7efaa08">func Coverage</a></li>
+<li><a href="#org80380f9">func Main</a></li>
+<li><a href="#org6f98ddd">func RegisterCover</a></li>
+<li><a href="#org58b061d">func RunBenchmarks</a></li>
+<li><a href="#orgc9e791c">func RunExamples</a></li>
+<li><a href="#org3e43886">func RunTests</a></li>
+<li><a href="#org62599a5">func Short</a></li>
+<li><a href="#org47f9bc5">func Verbose</a></li>
+<li><a href="#org8e2d45d">type B</a>
+<ul>
+<li><a href="#orgc020e4d">func (*B) Error</a></li>
+<li><a href="#orgc546f57">func (*B) Errorf</a></li>
+<li><a href="#org4db4906">func (*B) Fail</a></li>
+<li><a href="#org81d4bb7">func (*B) FailNow</a></li>
+<li><a href="#org2211ad7">func (*B) Failed</a></li>
+<li><a href="#orgefb01ae">func (*B) Fatal</a></li>
+<li><a href="#org1fc0d19">func (*B) Fatalf</a></li>
+<li><a href="#orgf6b1070">func (*B) Log</a></li>
+<li><a href="#org030342e">func (*B) Logf</a></li>
+<li><a href="#org2270bb5">func (*B) Name</a></li>
+<li><a href="#orge9d7880">func (*B) ReportAllocs</a></li>
+<li><a href="#orgc3d2a7d">func (*B) ResetTimer</a></li>
+<li><a href="#orgf00e405">func (*B) Run</a></li>
+<li><a href="#org1212beb">func (*B) RunParallel</a></li>
+<li><a href="#orga563220">func (*B) SetBytes</a></li>
+<li><a href="#orga7e3ea3">func (*B) SetParallelism</a></li>
+<li><a href="#org1dcf033">func (*B) Skip</a></li>
+<li><a href="#org11f2f85">func (*B) SkipNow</a></li>
+<li><a href="#orgfb95338">func (*B) Skipf</a></li>
+<li><a href="#org88b9c36">func (*B) Skipped</a></li>
+<li><a href="#org83be922">func (*B) StartTimer</a></li>
+<li><a href="#org5b9e130">func (*B) StopTimer</a></li>
+</ul>
+</li>
+<li><a href="#org29407e3">type BenchmarkResult</a>
+<ul>
+<li><a href="#org117b6cb">func Benchmark</a></li>
+<li><a href="#orgd96bc75">func (BenchmarkResult) AllocedBytesPerOp</a></li>
+<li><a href="#orgdeb595f">func (BenchmarkResult) AllocsPerOp</a></li>
+<li><a href="#org3592a10">func (BenchmarkResult) MemString</a></li>
+<li><a href="#orgba4fd93">func (BenchmarkResult) NsPerOp</a></li>
+<li><a href="#org0be8ffe">func (BenchmarkResult) String</a></li>
+</ul>
+</li>
+<li><a href="#org913f9c9">type Cover</a></li>
+<li><a href="#orge407fd3">type CoverBlock</a></li>
+<li><a href="#org95d6339">type InternalBenchmark</a></li>
+<li><a href="#org18893e8">type InternalExample</a></li>
+<li><a href="#orgd7393be">type InternalTest</a></li>
+<li><a href="#orgeffc7d2">type M</a>
+<ul>
+<li><a href="#org6d9c97c">func MainStart</a></li>
+<li><a href="#org5487a7d">func (*M) Run</a></li>
+</ul>
+</li>
+<li><a href="#org67c021a">type PB</a>
+<ul>
+<li><a href="#org2c41f7f">func (*PB) Next</a></li>
+</ul>
+</li>
+<li><a href="#org0604015">type T</a>
+<ul>
+<li><a href="#org6643434">func (*T) Error</a></li>
+<li><a href="#orgfd41fe9">func (*T) Errorf</a></li>
+<li><a href="#org2751803">func (*T) Fail</a></li>
+<li><a href="#orgf4f641a">func (*T) FailNow</a></li>
+<li><a href="#org1ea2723">func (*T) Failed</a></li>
+<li><a href="#org544004d">func (*T) Fatal</a></li>
+<li><a href="#orgd96dc06">func (*T) Fatalf</a></li>
+<li><a href="#org5063cb6">func (*T) Log</a></li>
+<li><a href="#org3bef711">func (*T) Logf</a></li>
+<li><a href="#orgd34507c">func (*T) Name</a></li>
+<li><a href="#orgb6abbfd">func (*T) Parallel</a></li>
+<li><a href="#org5fd57f2">func (*T) Run</a></li>
+<li><a href="#org5ce810d">func (*T) Skip</a></li>
+<li><a href="#orgbef32d2">func (*T) SkipNow</a></li>
+<li><a href="#org3cda7c5">func (*T) Skipf</a></li>
+<li><a href="#org5480386">func (*T) Skipped</a></li>
+</ul>
+</li>
+<li><a href="#org696a641">type TB</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org748d472" class="outline-2">
+<h2 id="org748d472">Introduction</h2>
+<div class="outline-text-2" id="text-org748d472">
+<p>
+testing 提供对 Go 包的自动化测试的支持。通过 `go test` 命令，能够自动执行如下形式的任何函数：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">TestXxx</span>(*<span style="color: #df005f; font-weight: bold;">testing.T</span>)
+</pre>
+</div>
+
+<p>
+其中 Xxx 可以是任何字母数字字符串（但第一个字母不能是 [a-z]），用于识别测试例程。<br>
+</p>
+
+<p>
+在这些函数中，使用 Error, Fail 或相关方法来发出失败信号。<br>
+</p>
+
+<p>
+要编写一个新的测试套件，需要创建一个名称以 _test.go 结尾的文件，该文件包含 `TestXxx` 函数，如上所述。 将该文件放在与被测试的包相同的包中。该文件将被排除在正常的程序包之外，但在运行 “go test” 命令时将被包含。 有关详细信息，请运行 “go help test” 和 “go help testflag” 了解。<br>
+</p>
+
+<p>
+如果有需要，可以调用 *T 和 *B 的 Skip 方法，跳过该测试或基准测试：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">TestTimeConsuming</span>(<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">testing.T</span>) {
+        <span style="color: #268bd2; font-weight: bold;">if</span> testing.<span style="color: #d75fd7; font-weight: bold;">Short</span>() {
+                t.<span style="color: #d75fd7; font-weight: bold;">Skip</span>(<span style="color: #2aa198;">"skipping test in short mode."</span>)
+        }
+        ...
+}
+</pre>
+</div>
+</div>
+<div id="outline-container-org640e598" class="outline-3">
+<h3 id="org640e598">Benchmarks</h3>
+<div class="outline-text-3" id="text-org640e598">
+<p>
+如下形式的函数：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">BenchmarkXxx</span>(*<span style="color: #df005f; font-weight: bold;">testing.B</span>)
+</pre>
+</div>
+
+<p>
+被认为是基准测试，通过 "go test" 命令，加上 -bench flag 来执行。多个基准测试按照顺序运行。<br>
+</p>
+
+<p>
+testing flags 的详细描述, 参见 <a href="https://github.com/golang/go/blob/master/cmd/go/#hdr-Description_of_testing_flags">https://github.com/golang/go/blob/master/cmd/go/#hdr-Description_of_testing_flags</a>.<br>
+</p>
+
+<p>
+基准测试函数样例看起来如下所示：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">BenchmarkHello</span>(<span style="color: #8787d7;">b</span> *<span style="color: #df005f; font-weight: bold;">testing.B</span>) {
+        <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := 0; i &lt; b.N; i++ {
+                fmt.<span style="color: #d75fd7; font-weight: bold;">Sprintf</span>(<span style="color: #2aa198;">"hello"</span>)
+        }
+}
+</pre>
+</div>
+
+<p>
+基准函数会运行目标代码 b.N 次。在基准执行期间，会调整 b.N 直到基准测试函数持续足够长的时间。输出<br>
+</p>
+
+<pre class="example">
+BenchmarkHello    10000000    282 ns/op
+</pre>
+
+<p>
+意味着循环执行了 10000000 次，每次循环花费 282 纳秒(ns)。<br>
+</p>
+
+<p>
+如果在运行前基准测试需要一些耗时的配置，则可以先重置定时器：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">BenchmarkBigLen</span>(<span style="color: #8787d7;">b</span> *<span style="color: #df005f; font-weight: bold;">testing.B</span>) {
+        <span style="color: #8787d7;">big</span> := <span style="color: #d75fd7; font-weight: bold;">NewBig</span>()
+        b.<span style="color: #d75fd7; font-weight: bold;">ResetTimer</span>()
+        <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := 0; i &lt; b.N; i++ {
+                big.<span style="color: #d75fd7; font-weight: bold;">Len</span>()
+        }
+}
+</pre>
+</div>
+
+<p>
+如果基准测试需要在并行设置中测试性能，则可以使用 RunParallel 辅助函数; 这样的基准测试一般与 go test -cpu 标志一起使用：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">BenchmarkTemplateParallel</span>(<span style="color: #8787d7;">b</span> *<span style="color: #df005f; font-weight: bold;">testing.B</span>) {
+        <span style="color: #8787d7;">templ</span> := template.<span style="color: #d75fd7; font-weight: bold;">Must</span>(template.<span style="color: #d75fd7; font-weight: bold;">New</span>(<span style="color: #2aa198;">"test"</span>).<span style="color: #d75fd7; font-weight: bold;">Parse</span>(<span style="color: #2aa198;">"Hello, {{.}}!"</span>))
+        b.<span style="color: #d75fd7; font-weight: bold;">RunParallel</span>(<span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">pb</span> *<span style="color: #df005f; font-weight: bold;">testing.PB</span>) {
+                <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">buf</span> <span style="color: #df005f; font-weight: bold;">bytes.Buffer</span>
+                <span style="color: #268bd2; font-weight: bold;">for</span> pb.<span style="color: #d75fd7; font-weight: bold;">Next</span>() {
+                        buf.<span style="color: #d75fd7; font-weight: bold;">Reset</span>()
+                        templ.<span style="color: #d75fd7; font-weight: bold;">Execute</span>(&amp;buf, <span style="color: #2aa198;">"World"</span>)
+                }
+        })
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org3cade44" class="outline-3">
+<h3 id="org3cade44">Examples</h3>
+<div class="outline-text-3" id="text-org3cade44">
+<p>
+该包还运行并验证示例代码。示例函数可以包括以 "Output：" 开头的行注释，并在运行测试时与函数的标准输出进行比较。 （比较时会忽略前导和尾随空格。）这些是一个 example 的例子：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ExampleHello</span>() {
+                fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"hello"</span>)
+                <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output: hello</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ExampleSalutations</span>() {
+                fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"hello, and"</span>)
+                fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"goodbye"</span>)
+                <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Output:</span>
+                <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">hello, and</span>
+                <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">goodbye</span>
+}
+</pre>
+</div>
+
+<p>
+"Unordered output:" 形式的注释，和 "Output:" 类似，但是能够以任意顺序匹配行：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ExamplePerm</span>() {
+        <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">_</span>, <span style="color: #8787d7;">value</span> := <span style="color: #268bd2; font-weight: bold;">range</span> <span style="color: #d75fd7; font-weight: bold;">Perm</span>(4) {
+                fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(value)
+        }
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Unordered output: 4</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">2</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">1</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">3</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">0</span>
+}
+</pre>
+</div>
+
+<p>
+没有输出注释的示例函数被编译但不执行。<br>
+</p>
+
+<p>
+example 声明的命名约定：包，函数 F，类型 T，类型 T 上的方法 M 依次是：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Example</span>() { ... }
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ExampleF</span>() { ... }
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ExampleT</span>() { ... }
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ExampleT_M</span>() { ... }
+</pre>
+</div>
+
+<p>
+可以为 包/类型/函数/方法 提供多个 example 函数，这通过在名称上附加一个不同的后缀来实现。后缀必须是以小写字母开头。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Example_suffix</span>() { ... }
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ExampleF_suffix</span>() { ... }
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ExampleT_suffix</span>() { ... }
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ExampleT_M_suffix</span>() { ... }
+</pre>
+</div>
+
+<p>
+当一个文件包含一个示例函数，同时至少一个其他函数，类型，变量或常量声明，或没有测试或基准函数时，这个测试文件作为示例存在，通常命名为 example_test.go<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd93b86d" class="outline-3">
+<h3 id="orgd93b86d">Subtests 和 Sub-benchmarks</h3>
+<div class="outline-text-3" id="text-orgd93b86d">
+<p>
+T 和 B 的 Run 方法允许定义子单元测试和子基准测试，而不必为每个子测试和子基准定义单独的函数。这使得可以使用 Table-Driven 的基准测试和创建层级测试。它还提供了一种共享通用 setup 和 tear-down 代码的方法：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">TestFoo</span>(<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">testing.T</span>) {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&lt;setup code&gt;</span>
+        t.<span style="color: #d75fd7; font-weight: bold;">Run</span>(<span style="color: #2aa198;">"A=1"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">testing.T</span>) { ... })
+        t.<span style="color: #d75fd7; font-weight: bold;">Run</span>(<span style="color: #2aa198;">"A=2"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">testing.T</span>) { ... })
+        t.<span style="color: #d75fd7; font-weight: bold;">Run</span>(<span style="color: #2aa198;">"B=1"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">testing.T</span>) { ... })
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&lt;tear-down code&gt;</span>
+}
+</pre>
+</div>
+
+<p>
+每个子测试和子基准测试都有一个唯一的名称：顶级测试的名称和传递给 Run 的名称的组合，以斜杠分隔，并具有用于消歧的可选尾随序列号。<br>
+</p>
+
+<p>
+-run 和 -bench 命令行标志的参数是与测试名称相匹配的非固定的正则表达式。对于具有多个斜杠分隔元素（例如子测试）的测试，该参数本身是斜杠分隔的，其中表达式依次匹配每个名称元素。因为它是非固定的，一个空的表达式匹配任何字符串。例如，使用 "匹配" 表示 "其名称包含"：<br>
+</p>
+
+<pre class="example">
+go test -run ''      # Run 所有测试。
+go test -run Foo     # Run 匹配 "Foo" 的顶层测试，例如 "TestFooBar"。
+go test -run Foo/A=  # 匹配顶层测试 "Foo"，运行其匹配 "A=" 的子测试。
+go test -run /A=1    # 运行所有匹配 "A=1" 的子测试。
+</pre>
+
+<p>
+子测试也可用于控制并行性。所有的子测试完成后，父测试才会完成。在这个例子中，所有的测试是相互并行运行的，当然也只是彼此之间，不包括定义在其他顶层测试的子测试：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">TestGroupedParallel</span>(<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">testing.T</span>) {
+        <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">_</span>, <span style="color: #8787d7;">tc</span> := <span style="color: #268bd2; font-weight: bold;">range</span> tests {
+                <span style="color: #8787d7;">tc</span> := tc <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">capture range variable</span>
+                t.<span style="color: #d75fd7; font-weight: bold;">Run</span>(tc.Name, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">testing.T</span>) {
+                        t.<span style="color: #d75fd7; font-weight: bold;">Parallel</span>()
+                        ...
+                })
+        }
+}
+</pre>
+</div>
+
+<p>
+在并行子测试完成之前，Run 方法不会返回，这提供了一种测试后清理的方法：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">TestTeardownParallel</span>(<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">testing.T</span>) {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">This Run will not return until the parallel tests finish.</span>
+        t.<span style="color: #d75fd7; font-weight: bold;">Run</span>(<span style="color: #2aa198;">"group"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">testing.T</span>) {
+                t.<span style="color: #d75fd7; font-weight: bold;">Run</span>(<span style="color: #2aa198;">"Test1"</span>, parallelTest1)
+                t.<span style="color: #d75fd7; font-weight: bold;">Run</span>(<span style="color: #2aa198;">"Test2"</span>, parallelTest2)
+                t.<span style="color: #d75fd7; font-weight: bold;">Run</span>(<span style="color: #2aa198;">"Test3"</span>, parallelTest3)
+        })
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&lt;tear-down code&gt;</span>
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org98dabc7" class="outline-3">
+<h3 id="org98dabc7">Main</h3>
+<div class="outline-text-3" id="text-org98dabc7">
+<p>
+测试程序有时需要在测试之前或之后进行额外的设置（setup）或拆卸（teardown）。有时, 测试还需要控制在主线程上运行的代码。为了支持这些和其他一些情况, 如果测试文件包含函数:<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">TestMain</span>(<span style="color: #8787d7;">m</span> *<span style="color: #df005f; font-weight: bold;">testing.M</span>)
+</pre>
+</div>
+
+<p>
+那么生成的测试将调用 TestMain(m)，而不是直接运行测试。TestMain 运行在主 goroutine 中, 可以在调用 m.Run 前后做任何设置和拆卸。应该使用 m.Run 的返回值作为参数调用 os.Exit。在调用 TestMain 时, flag.Parse 并没有被调用。所以，如果 TestMain 依赖于 command-line 标志 (包括 testing 包的标记), 则应该显示的调用 flag.Parse。<br>
+</p>
+
+<p>
+一个简单的 TestMain 的实现：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">TestMain</span>(<span style="color: #8787d7;">m</span> *<span style="color: #df005f; font-weight: bold;">testing.M</span>) {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">call flag.Parse() here if TestMain uses flags</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524; TestMain &#20351;&#29992;&#20102; flags&#65292;&#36825;&#37324;&#24212;&#35813;&#21152;&#19978; flag.Parse()</span>
+    os.<span style="color: #d75fd7; font-weight: bold;">Exit</span>(m.<span style="color: #d75fd7; font-weight: bold;">Run</span>())
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgc83e911" class="outline-2">
+<h2 id="orgc83e911">Package Files</h2>
+<div class="outline-text-2" id="text-orgc83e911">
+<p>
+allocs.go benchmark.go cover.go example.go match.go testing.go<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd5fef81" class="outline-2">
+<h2 id="orgd5fef81">func AllocsPerRun</h2>
+<div class="outline-text-2" id="text-orgd5fef81">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">AllocsPerRun</span>(<span style="color: #8787d7;">runs</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">f</span> <span style="color: #268bd2; font-weight: bold;">func</span>()) (<span style="color: #8787d7;">avg</span> <span style="color: #df005f; font-weight: bold;">float64</span>)
+</pre>
+</div>
+
+<p>
+AllocsPerRun 返回在调用 f 期间内存平均分配次数。虽然返回值的类型为 float64，但它始终是一个整数值。<br>
+</p>
+
+<p>
+要计算分配次数，该函数将首先作为热身运行一次。然后将测量并返回指定数量（runs 参数）运行的内存平均分配次数。<br>
+</p>
+
+<p>
+AllocsPerRun 在测量过程中将 GOMAXPROCS 设置为1，并在返回前将其还原。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-orga26b7e3" class="outline-2">
+<h2 id="orga26b7e3">func CoverMode</h2>
+<div class="outline-text-2" id="text-orga26b7e3">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">CoverMode</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+CoverMode reports what the test coverage mode is set to. The values are "set", "count", or "atomic". The return value will be empty if test coverage is not enabled.<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org7efaa08" class="outline-2">
+<h2 id="org7efaa08">func Coverage</h2>
+<div class="outline-text-2" id="text-org7efaa08">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Coverage</span>() <span style="color: #df005f; font-weight: bold;">float64</span>
+</pre>
+</div>
+
+<p>
+Coverage reports the current code coverage as a fraction in the range [0, 1]. If coverage is not enabled, Coverage returns 0.<br>
+</p>
+
+<p>
+When running a large set of sequential test cases, checking Coverage after each one can be useful for identifying which test cases exercise new code paths. It is not a replacement for the reports generated by 'go test -cover' and 'go tool cover'.<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org80380f9" class="outline-2">
+<h2 id="org80380f9">func Main</h2>
+<div class="outline-text-2" id="text-org80380f9">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Main</span>(<span style="color: #8787d7;">matchString</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">pat</span>, <span style="color: #8787d7;">str</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #df005f; font-weight: bold;">bool</span>, <span style="color: #df005f; font-weight: bold;">error</span>), <span style="color: #8787d7;">tests</span> []<span style="color: #df005f; font-weight: bold;">InternalTest</span>, <span style="color: #8787d7;">benchmarks</span> []<span style="color: #df005f; font-weight: bold;">InternalBenchmark</span>, <span style="color: #8787d7;">examples</span> []<span style="color: #df005f; font-weight: bold;">InternalExample</span>)
+</pre>
+</div>
+
+<p>
+Main is an internal function, part of the implementation of the "go test" command. It was exported because it is cross-package and predates "internal" packages. It is no longer used by "go test" but preserved, as much as possible, for other systems that simulate "go test" using Main, but Main sometimes cannot be updated as new functionality is added to the testing package. Systems simulating "go test" should be updated to use MainStart.<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org6f98ddd" class="outline-2">
+<h2 id="org6f98ddd">func RegisterCover</h2>
+<div class="outline-text-2" id="text-org6f98ddd">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">RegisterCover</span>(<span style="color: #8787d7;">c</span> <span style="color: #df005f; font-weight: bold;">Cover</span>)
+</pre>
+</div>
+
+<p>
+RegisterCover records the coverage data accumulators for the tests. NOTE: This function is internal to the testing infrastructure and may change. It is not covered (yet) by the Go 1 compatibility guidelines.<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org58b061d" class="outline-2">
+<h2 id="org58b061d">func RunBenchmarks</h2>
+<div class="outline-text-2" id="text-org58b061d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">RunBenchmarks</span>(<span style="color: #8787d7;">matchString</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">pat</span>, <span style="color: #8787d7;">str</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #df005f; font-weight: bold;">bool</span>, <span style="color: #df005f; font-weight: bold;">error</span>), <span style="color: #8787d7;">benchmarks</span> []<span style="color: #df005f; font-weight: bold;">InternalBenchmark</span>)
+</pre>
+</div>
+
+<p>
+An internal function but exported because it is cross-package; part of the implementation of the "go test" command.<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc9e791c" class="outline-2">
+<h2 id="orgc9e791c">func RunExamples</h2>
+<div class="outline-text-2" id="text-orgc9e791c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">RunExamples</span>(<span style="color: #8787d7;">matchString</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">pat</span>, <span style="color: #8787d7;">str</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #df005f; font-weight: bold;">bool</span>, <span style="color: #df005f; font-weight: bold;">error</span>), <span style="color: #8787d7;">examples</span> []<span style="color: #df005f; font-weight: bold;">InternalExample</span>) (<span style="color: #8787d7;">ok</span> <span style="color: #df005f; font-weight: bold;">bool</span>)
+</pre>
+</div>
+
+<p>
+An internal function but exported because it is cross-package; part of the implementation of the "go test" command.<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org3e43886" class="outline-2">
+<h2 id="org3e43886">func RunTests</h2>
+<div class="outline-text-2" id="text-org3e43886">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">RunTests</span>(<span style="color: #8787d7;">matchString</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">pat</span>, <span style="color: #8787d7;">str</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #df005f; font-weight: bold;">bool</span>, <span style="color: #df005f; font-weight: bold;">error</span>), <span style="color: #8787d7;">tests</span> []<span style="color: #df005f; font-weight: bold;">InternalTest</span>) (<span style="color: #8787d7;">ok</span> <span style="color: #df005f; font-weight: bold;">bool</span>)
+</pre>
+</div>
+
+<p>
+An internal function but exported because it is cross-package; part of the implementation of the "go test" command.<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org62599a5" class="outline-2">
+<h2 id="org62599a5">func Short</h2>
+<div class="outline-text-2" id="text-org62599a5">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Short</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+Short reports whether the -test.short flag is set.<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org47f9bc5" class="outline-2">
+<h2 id="org47f9bc5">func Verbose</h2>
+<div class="outline-text-2" id="text-org47f9bc5">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Verbose</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+Verbose reports whether the -test.v flag is set.<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8e2d45d" class="outline-2">
+<h2 id="org8e2d45d">type B</h2>
+<div class="outline-text-2" id="text-org8e2d45d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">B</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        N <span style="color: #df005f; font-weight: bold;">int</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">contains filtered or unexported fields</span>
+}
+</pre>
+</div>
+
+<p>
+B 是传递给基准测试函数的一种类型，它用于管理基准测试的计时行为，并指示应该迭代地运行测试多少次。<br>
+</p>
+
+<p>
+一个基准测试在它的基准测试函数返回时，又或者在它的基准测试函数调用 FailNow、Fatal、Fatalf、SkipNow、Skip 或者 Skipf 中的任意一个方法时，测试即宣告结束。至于其他报告方法，比如 Log 和 Error 的变种，则可以在其他 goroutine 中同时进行调用。<br>
+</p>
+
+<p>
+跟单元测试一样，基准测试会在执行的过程中积累日志，并在测试完毕时将日志转储到标准错误。但跟单元测试不一样的是，为了避免基准测试的结果受到日志打印操作的影响，基准测试总是会把日志打印出来。<br>
+</p>
+</div>
+<div id="outline-container-orgc020e4d" class="outline-3">
+<h3 id="orgc020e4d">func (*B) Error</h3>
+<div class="outline-text-3" id="text-orgc020e4d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">B</span>) <span style="color: #d75fd7; font-weight: bold;">Error</span>(<span style="color: #8787d7;">args</span> ...<span style="color: #268bd2; font-weight: bold;">interface</span>{})
+</pre>
+</div>
+
+<p>
+调用 Error 相当于在调用 Log 之后调用 Fail 。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc546f57" class="outline-3">
+<h3 id="orgc546f57">func (*B) Errorf</h3>
+<div class="outline-text-3" id="text-orgc546f57">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">B</span>) <span style="color: #d75fd7; font-weight: bold;">Errorf</span>(<span style="color: #8787d7;">format</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">args</span> ...<span style="color: #268bd2; font-weight: bold;">interface</span>{})
+</pre>
+</div>
+
+<p>
+调用 Errorf 相当于在调用 Logf 之后调用 Fail 。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4db4906" class="outline-3">
+<h3 id="org4db4906">func (*B) Fail</h3>
+<div class="outline-text-3" id="text-org4db4906">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">B</span>) <span style="color: #d75fd7; font-weight: bold;">Fail</span>()
+</pre>
+</div>
+
+<p>
+将当前的测试函数标识为“失败”，但仍然继续执行该函数。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org81d4bb7" class="outline-3">
+<h3 id="org81d4bb7">func (*B) FailNow</h3>
+<div class="outline-text-3" id="text-org81d4bb7">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">B</span>) <span style="color: #d75fd7; font-weight: bold;">FailNow</span>()
+</pre>
+</div>
+
+<p>
+将当前的测试函数标识为“失败”，并停止执行该函数。在此之后，测试过程将在下一个测试或者下一个基准测试中继续。 FailNow 必须在运行测试函数或者基准测试函数的 goroutine 中调用，而不能在测试期间创建的 goroutine 中调用。调用 FailNow 不会导致其他 goroutine 停止。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2211ad7" class="outline-3">
+<h3 id="org2211ad7">func (*B) Failed</h3>
+<div class="outline-text-3" id="text-org2211ad7">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">B</span>) <span style="color: #d75fd7; font-weight: bold;">Failed</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+Failed 用于报告测试函数是否已失败。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgefb01ae" class="outline-3">
+<h3 id="orgefb01ae">func (*B) Fatal</h3>
+<div class="outline-text-3" id="text-orgefb01ae">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">B</span>) <span style="color: #d75fd7; font-weight: bold;">Fatal</span>(<span style="color: #8787d7;">args</span> ...<span style="color: #268bd2; font-weight: bold;">interface</span>{})
+</pre>
+</div>
+
+<p>
+调用 Fatal 相当于在调用 Log 之后调用 FailNow 。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org1fc0d19" class="outline-3">
+<h3 id="org1fc0d19">func (*B) Fatalf</h3>
+<div class="outline-text-3" id="text-org1fc0d19">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">B</span>) <span style="color: #d75fd7; font-weight: bold;">Fatalf</span>(<span style="color: #8787d7;">format</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">args</span> ...<span style="color: #268bd2; font-weight: bold;">interface</span>{})
+</pre>
+</div>
+
+<p>
+调用 Fatalf 相当于在调用 Logf 之后调用 FailNow 。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf6b1070" class="outline-3">
+<h3 id="orgf6b1070">func (*B) Log</h3>
+<div class="outline-text-3" id="text-orgf6b1070">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">B</span>) <span style="color: #d75fd7; font-weight: bold;">Log</span>(<span style="color: #8787d7;">args</span> ...<span style="color: #268bd2; font-weight: bold;">interface</span>{})
+</pre>
+</div>
+
+<p>
+Log 使用与 Println 相同的格式化语法对它的参数进行格式化， 然后将格式化后的文本记录到错误日志里面：<br>
+</p>
+
+<p>
+对于测试来说， 格式化文本只会在测试失败或者设置了 -test.v 标志的情况下被打印出来； 对于基准测试来说， 为了避免 -test.v 标志的值对测试的性能产生影响， 格式化文本总会被打印出来。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org030342e" class="outline-3">
+<h3 id="org030342e">func (*B) Logf</h3>
+<div class="outline-text-3" id="text-org030342e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">B</span>) <span style="color: #d75fd7; font-weight: bold;">Logf</span>(<span style="color: #8787d7;">format</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">args</span> ...<span style="color: #268bd2; font-weight: bold;">interface</span>{})
+</pre>
+</div>
+
+<p>
+Log 使用与 Printf 相同的格式化语法对它的参数进行格式化， 然后将格式化后的文本记录到错误日志里面。 如果输入的格式化文本最末尾没有出现新行， 那么将一个新行添加到格式化后的文本末尾。<br>
+</p>
+
+<p>
+对于测试来说，Logf 产生的格式化文本只会在测试失败或者设置了 -test.v 标志的情况下被打印出来； 对于基准测试来说， 为了避免 -test.v 标志的值对测试的性能产生影响， Logf 产生的格式化文本总会被打印出来。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2270bb5" class="outline-3">
+<h3 id="org2270bb5">func (*B) Name</h3>
+<div class="outline-text-3" id="text-org2270bb5">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">B</span>) <span style="color: #d75fd7; font-weight: bold;">Name</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+返回正在运行的测试或者基准测试的名字。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge9d7880" class="outline-3">
+<h3 id="orge9d7880">func (*B) ReportAllocs</h3>
+<div class="outline-text-3" id="text-orge9d7880">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">b</span> *<span style="color: #df005f; font-weight: bold;">B</span>) <span style="color: #d75fd7; font-weight: bold;">ReportAllocs</span>()
+</pre>
+</div>
+
+<p>
+打开当前基准测试的内存统计功能，与使用 -test.benchmem 设置类似，但 ReportAllocs 只影响那些调用了该函数的基准测试。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc3d2a7d" class="outline-3">
+<h3 id="orgc3d2a7d">func (*B) ResetTimer</h3>
+<div class="outline-text-3" id="text-orgc3d2a7d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">b</span> *<span style="color: #df005f; font-weight: bold;">B</span>) <span style="color: #d75fd7; font-weight: bold;">ResetTimer</span>()
+</pre>
+</div>
+
+<p>
+对已经逝去的基准测试时间以及内存分配计数器进行清零。对于正在运行中的计时器，这个方法不会产生任何效果。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf00e405" class="outline-3">
+<h3 id="orgf00e405">func (*B) Run</h3>
+<div class="outline-text-3" id="text-orgf00e405">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">b</span> *<span style="color: #df005f; font-weight: bold;">B</span>) <span style="color: #d75fd7; font-weight: bold;">Run</span>(<span style="color: #8787d7;">name</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">f</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">b</span> *<span style="color: #df005f; font-weight: bold;">B</span>)) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+执行名字为 name 的子基准测试（subbenchmark）f ，并报告 f 在执行过程中是否出现了任何失败。<br>
+</p>
+
+<p>
+子基准测试跟其他普通的基准测试一样。一个调用了 Run 方法至少一次的基准测试将不会对其自身进行测量（measure），并且在 N 为 1 时， 这个基准测试将只会被执行一次。<br>
+</p>
+
+<p>
+Run 可以同时在多个 goroutine 中被调用，但这些调用必须发生在 b 的外部基准函数（outer benchmark function）返回之前。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org1212beb" class="outline-3">
+<h3 id="org1212beb">func (*B) RunParallel</h3>
+<div class="outline-text-3" id="text-org1212beb">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">b</span> *<span style="color: #df005f; font-weight: bold;">B</span>) <span style="color: #d75fd7; font-weight: bold;">RunParallel</span>(<span style="color: #8787d7;">body</span> <span style="color: #268bd2; font-weight: bold;">func</span>(*<span style="color: #df005f; font-weight: bold;">PB</span>))
+</pre>
+</div>
+
+<p>
+以并行的方式执行给定的基准测试。 RunParallel 会创建出多个 goroutine ，并将 b.N 分配给这些 goroutine 执行， 其中 goroutine 数量的默认值为 GOMAXPROCS 。用户如果想要增加非CPU受限（non-CPU-bound）基准测试的并行性， 那么可以在 RunParallel 之前调用 SetParallelism 。RunParallel 通常会与 -cpu 标志一同使用。<br>
+</p>
+
+<p>
+body 函数将在每个 goroutine 中执行，这个函数需要设置所有 goroutine 本地的状态， 并迭代直到 pb.Next 返回 false 值为止。因为 StartTimer 、 StopTimer 和 ResetTimer 这三个函数都带有全局作用，所以 body 函数不应该调用这些函数；除此之外，body 函数也不应该调用 Run 函数。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Parallel benchmark for text/template.Template.Execute on a single object.</span>
+testing.<span style="color: #d75fd7; font-weight: bold;">Benchmark</span>(<span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">b</span> *<span style="color: #df005f; font-weight: bold;">testing.B</span>) {
+        <span style="color: #8787d7;">templ</span> := template.<span style="color: #d75fd7; font-weight: bold;">Must</span>(template.<span style="color: #d75fd7; font-weight: bold;">New</span>(<span style="color: #2aa198;">"test"</span>).<span style="color: #d75fd7; font-weight: bold;">Parse</span>(<span style="color: #2aa198;">"Hello, {{.}}!"</span>))
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">RunParallel will create GOMAXPROCS goroutines</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">and distribute work among them.</span>
+        b.<span style="color: #d75fd7; font-weight: bold;">RunParallel</span>(<span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">pb</span> *<span style="color: #df005f; font-weight: bold;">testing.PB</span>) {
+                <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Each goroutine has its own bytes.Buffer.</span>
+                <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">buf</span> <span style="color: #df005f; font-weight: bold;">bytes.Buffer</span>
+                <span style="color: #268bd2; font-weight: bold;">for</span> pb.<span style="color: #d75fd7; font-weight: bold;">Next</span>() {
+                        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">The loop body is executed b.N times total across all goroutines.</span>
+                        buf.<span style="color: #d75fd7; font-weight: bold;">Reset</span>()
+                        templ.<span style="color: #d75fd7; font-weight: bold;">Execute</span>(&amp;buf, <span style="color: #2aa198;">"World"</span>)
+                }
+        })
+})
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orga563220" class="outline-3">
+<h3 id="orga563220">func (*B) SetBytes</h3>
+<div class="outline-text-3" id="text-orga563220">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">b</span> *<span style="color: #df005f; font-weight: bold;">B</span>) <span style="color: #d75fd7; font-weight: bold;">SetBytes</span>(<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int64</span>)
+</pre>
+</div>
+
+<p>
+记录在单个操作中处理的字节数量。在调用了这个方法之后，基准测试将会报告 ns/op 以及 MB/s 。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga7e3ea3" class="outline-3">
+<h3 id="orga7e3ea3">func (*B) SetParallelism</h3>
+<div class="outline-text-3" id="text-orga7e3ea3">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">b</span> *<span style="color: #df005f; font-weight: bold;">B</span>) <span style="color: #d75fd7; font-weight: bold;">SetParallelism</span>(<span style="color: #8787d7;">p</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+</pre>
+</div>
+
+<p>
+将 RunParallel 使用的 goroutine 数量设置为 p*GOMAXPROCS ，如果 p 小于 1 ，那么调用将不产生任何效果。<br>
+</p>
+
+<p>
+CPU受限（CPU-bound）的基准测试通常不需要调用这个方法。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org1dcf033" class="outline-3">
+<h3 id="org1dcf033">func (*B) Skip</h3>
+<div class="outline-text-3" id="text-org1dcf033">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">B</span>) <span style="color: #d75fd7; font-weight: bold;">Skip</span>(<span style="color: #8787d7;">args</span> ...<span style="color: #268bd2; font-weight: bold;">interface</span>{})
+</pre>
+</div>
+
+<p>
+调用 Skip 相当于在调用 Log 之后调用 SkipNow 。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org11f2f85" class="outline-3">
+<h3 id="org11f2f85">func (*B) SkipNow</h3>
+<div class="outline-text-3" id="text-org11f2f85">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">B</span>) <span style="color: #d75fd7; font-weight: bold;">SkipNow</span>()
+</pre>
+</div>
+
+<p>
+将当前测试标识为“被跳过”并停止执行该测试。 如果一个测试在失败（参考 Error 、 Errorf 和 Fail）之后被跳过了， 那么它还是会被判断为是“失败的”。<br>
+</p>
+
+<p>
+在停止当前测试之后， 测试过程将在下一个测试或者下一个基准测试中继续， 具体请参考 FailNow 。<br>
+</p>
+
+<p>
+SkipNow 必须在运行测试的 goroutine 中进行调用， 而不能在测试期间创建的 goroutine 中调用。 调用 SkipNow 不会导致其他 goroutine 停止。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgfb95338" class="outline-3">
+<h3 id="orgfb95338">func (*B) Skipf</h3>
+<div class="outline-text-3" id="text-orgfb95338">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">B</span>) <span style="color: #d75fd7; font-weight: bold;">Skipf</span>(<span style="color: #8787d7;">format</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">args</span> ...<span style="color: #268bd2; font-weight: bold;">interface</span>{})
+</pre>
+</div>
+
+<p>
+调用 Skipf 相当于在调用 Logf 之后调用 SkipNow 。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org88b9c36" class="outline-3">
+<h3 id="org88b9c36">func (*B) Skipped</h3>
+<div class="outline-text-3" id="text-org88b9c36">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">B</span>) <span style="color: #d75fd7; font-weight: bold;">Skipped</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+报告测试是否已被跳过。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org83be922" class="outline-3">
+<h3 id="org83be922">func (*B) StartTimer</h3>
+<div class="outline-text-3" id="text-org83be922">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">b</span> *<span style="color: #df005f; font-weight: bold;">B</span>) <span style="color: #d75fd7; font-weight: bold;">StartTimer</span>()
+</pre>
+</div>
+
+<p>
+开始对测试进行计时。 这个函数在基准测试开始时会自动被调用， 它也可以在调用 StopTimer 之后恢复进行计时。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5b9e130" class="outline-3">
+<h3 id="org5b9e130">func (*B) StopTimer</h3>
+<div class="outline-text-3" id="text-org5b9e130">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">b</span> *<span style="color: #df005f; font-weight: bold;">B</span>) <span style="color: #d75fd7; font-weight: bold;">StopTimer</span>()
+</pre>
+</div>
+
+<p>
+停止对测试进行计时。 当你需要执行一些复杂的初始化操作， 并且你不想对这些操作进行测量时， 就可以使用这个方法来暂时地停止计时。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org29407e3" class="outline-2">
+<h2 id="org29407e3">type BenchmarkResult</h2>
+<div class="outline-text-2" id="text-org29407e3">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">BenchmarkResult</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        N         <span style="color: #df005f; font-weight: bold;">int</span>           <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">The number of iterations.</span>
+        T         <span style="color: #df005f; font-weight: bold;">time.Duration</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">The total time taken.</span>
+        Bytes     <span style="color: #df005f; font-weight: bold;">int64</span>         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Bytes processed in one iteration.</span>
+        MemAllocs <span style="color: #df005f; font-weight: bold;">uint64</span>        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">The total number of memory allocations.</span>
+        MemBytes  <span style="color: #df005f; font-weight: bold;">uint64</span>        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">The total number of bytes allocated.</span>
+}
+</pre>
+</div>
+
+<p>
+基准测试运行的结果。<br>
+</p>
+</div>
+<div id="outline-container-org117b6cb" class="outline-3">
+<h3 id="org117b6cb">func Benchmark</h3>
+<div class="outline-text-3" id="text-org117b6cb">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Benchmark</span>(<span style="color: #8787d7;">f</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">b</span> *<span style="color: #df005f; font-weight: bold;">B</span>)) <span style="color: #df005f; font-weight: bold;">BenchmarkResult</span>
+</pre>
+</div>
+
+<p>
+测试单个函数。用于创建不使用 "go test" 命令的自定义基准测试。<br>
+</p>
+
+<p>
+如果 f 调用 Run，则结果将是运行其所有子基准的结果估计，该子基准在单个基准测试中不会顺序调用 Run。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd96bc75" class="outline-3">
+<h3 id="orgd96bc75">func (BenchmarkResult) AllocedBytesPerOp</h3>
+<div class="outline-text-3" id="text-orgd96bc75">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">BenchmarkResult</span>) <span style="color: #d75fd7; font-weight: bold;">AllocedBytesPerOp</span>() <span style="color: #df005f; font-weight: bold;">int64</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgdeb595f" class="outline-3">
+<h3 id="orgdeb595f">func (BenchmarkResult) AllocsPerOp</h3>
+<div class="outline-text-3" id="text-orgdeb595f">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">BenchmarkResult</span>) <span style="color: #d75fd7; font-weight: bold;">AllocsPerOp</span>() <span style="color: #df005f; font-weight: bold;">int64</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org3592a10" class="outline-3">
+<h3 id="org3592a10">func (BenchmarkResult) MemString</h3>
+<div class="outline-text-3" id="text-org3592a10">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">BenchmarkResult</span>) <span style="color: #d75fd7; font-weight: bold;">MemString</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgba4fd93" class="outline-3">
+<h3 id="orgba4fd93">func (BenchmarkResult) NsPerOp</h3>
+<div class="outline-text-3" id="text-orgba4fd93">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">BenchmarkResult</span>) <span style="color: #d75fd7; font-weight: bold;">NsPerOp</span>() <span style="color: #df005f; font-weight: bold;">int64</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org0be8ffe" class="outline-3">
+<h3 id="org0be8ffe">func (BenchmarkResult) String</h3>
+<div class="outline-text-3" id="text-org0be8ffe">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">BenchmarkResult</span>) <span style="color: #d75fd7; font-weight: bold;">String</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org913f9c9" class="outline-2">
+<h2 id="org913f9c9">type Cover</h2>
+<div class="outline-text-2" id="text-org913f9c9">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Cover</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        Mode            <span style="color: #df005f; font-weight: bold;">string</span>
+        Counters        <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>][]<span style="color: #df005f; font-weight: bold;">uint32</span>
+        Blocks          <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>][]<span style="color: #df005f; font-weight: bold;">CoverBlock</span>
+        CoveredPackages <span style="color: #df005f; font-weight: bold;">string</span>
+}
+</pre>
+</div>
+
+<p>
+Cover records information about test coverage checking. NOTE: This struct is internal to the testing infrastructure and may change. It is not covered (yet) by the Go 1 compatibility guidelines.<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge407fd3" class="outline-2">
+<h2 id="orge407fd3">type CoverBlock</h2>
+<div class="outline-text-2" id="text-orge407fd3">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">CoverBlock</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        Line0 <span style="color: #df005f; font-weight: bold;">uint32</span>
+        Col0  <span style="color: #df005f; font-weight: bold;">uint16</span>
+        Line1 <span style="color: #df005f; font-weight: bold;">uint32</span>
+        Col1  <span style="color: #df005f; font-weight: bold;">uint16</span>
+        Stmts <span style="color: #df005f; font-weight: bold;">uint16</span>
+}
+</pre>
+</div>
+
+<p>
+CoverBlock records the coverage data for a single basic block. NOTE: This struct is internal to the testing infrastructure and may change. It is not covered (yet) by the Go 1 compatibility guidelines.<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org95d6339" class="outline-2">
+<h2 id="org95d6339">type InternalBenchmark</h2>
+<div class="outline-text-2" id="text-org95d6339">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">InternalBenchmark</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        Name <span style="color: #df005f; font-weight: bold;">string</span>
+        F    <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">b</span> *<span style="color: #df005f; font-weight: bold;">B</span>)
+}
+</pre>
+</div>
+
+<p>
+An internal type but exported because it is cross-package; part of the implementation of the "go test" command.<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org18893e8" class="outline-2">
+<h2 id="org18893e8">type InternalExample</h2>
+<div class="outline-text-2" id="text-org18893e8">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">InternalExample</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        Name      <span style="color: #df005f; font-weight: bold;">string</span>
+        F         <span style="color: #268bd2; font-weight: bold;">func</span>()
+        Output    <span style="color: #df005f; font-weight: bold;">string</span>
+        Unordered <span style="color: #df005f; font-weight: bold;">bool</span>
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgd7393be" class="outline-2">
+<h2 id="orgd7393be">type InternalTest</h2>
+<div class="outline-text-2" id="text-orgd7393be">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">InternalTest</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        Name <span style="color: #df005f; font-weight: bold;">string</span>
+        F    <span style="color: #268bd2; font-weight: bold;">func</span>(*<span style="color: #df005f; font-weight: bold;">T</span>)
+}
+</pre>
+</div>
+
+<p>
+An internal type but exported because it is cross-package; part of the implementation of the "go test" command.<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgeffc7d2" class="outline-2">
+<h2 id="orgeffc7d2">type M</h2>
+<div class="outline-text-2" id="text-orgeffc7d2">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">M</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">contains filtered or unexported fields</span>
+}
+</pre>
+</div>
+
+<p>
+M 是传递给 TestMain 函数以运行实际测试的类型。<br>
+</p>
+</div>
+<div id="outline-container-org6d9c97c" class="outline-3">
+<h3 id="org6d9c97c">func MainStart</h3>
+<div class="outline-text-3" id="text-org6d9c97c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">MainStart</span>(<span style="color: #8787d7;">deps</span> <span style="color: #df005f; font-weight: bold;">testDeps</span>, <span style="color: #8787d7;">tests</span> []<span style="color: #df005f; font-weight: bold;">InternalTest</span>, <span style="color: #8787d7;">benchmarks</span> []<span style="color: #df005f; font-weight: bold;">InternalBenchmark</span>, <span style="color: #8787d7;">examples</span> []<span style="color: #df005f; font-weight: bold;">InternalExample</span>) *<span style="color: #df005f; font-weight: bold;">M</span>
+</pre>
+</div>
+
+<p>
+MainStart is meant for use by tests generated by 'go test'. It is not meant to be called directly and is not subject to the Go 1 compatibility document. It may change signature from release to release.<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5487a7d" class="outline-3">
+<h3 id="org5487a7d">func (*M) Run</h3>
+<div class="outline-text-3" id="text-org5487a7d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">m</span> *<span style="color: #df005f; font-weight: bold;">M</span>) <span style="color: #d75fd7; font-weight: bold;">Run</span>() <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+Run 运行这些测试。它返回要传递给 os.Exit 的退出代码。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org67c021a" class="outline-2">
+<h2 id="org67c021a">type PB</h2>
+<div class="outline-text-2" id="text-org67c021a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">PB</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">contains filtered or unexported fields</span>
+}
+</pre>
+</div>
+
+<p>
+PB 被 RunParallel 使用来运行并行基准测试。<br>
+</p>
+</div>
+<div id="outline-container-org2c41f7f" class="outline-3">
+<h3 id="org2c41f7f">func (*PB) Next</h3>
+<div class="outline-text-3" id="text-org2c41f7f">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">pb</span> *<span style="color: #df005f; font-weight: bold;">PB</span>) <span style="color: #d75fd7; font-weight: bold;">Next</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+Next 判断是否有更多的迭代要执行<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org0604015" class="outline-2">
+<h2 id="org0604015">type T</h2>
+<div class="outline-text-2" id="text-org0604015">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">T</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">contains filtered or unexported fields</span>
+}
+</pre>
+</div>
+
+<p>
+T 是传递给测试函数的一种类型，它用于管理测试状态并支持格式化测试日志。测试日志会在执行测试的过程中不断累积， 并在测试完成时转储至标准输出。<br>
+</p>
+
+<p>
+当一个测试的测试函数返回时， 又或者当一个测试函数调用 FailNow 、 Fatal 、 Fatalf 、 SkipNow 、 Skip 或者 Skipf 中的任意一个时， 该测试即宣告结束。 跟 Parallel 方法一样， 以上提到的这些方法只能在运行测试函数的 goroutine 中调用。<br>
+</p>
+
+<p>
+至于其他报告方法， 比如 Log 以及 Error 的变种， 则可以在多个 goroutine 中同时进行调用。<br>
+</p>
+</div>
+<div id="outline-container-org6643434" class="outline-3">
+<h3 id="org6643434">func (*T) Error</h3>
+<div class="outline-text-3" id="text-org6643434">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">T</span>) <span style="color: #d75fd7; font-weight: bold;">Error</span>(<span style="color: #8787d7;">args</span> ...<span style="color: #268bd2; font-weight: bold;">interface</span>{})
+</pre>
+</div>
+
+<p>
+调用 Error 相当于在调用 Log 之后调用 Fail 。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgfd41fe9" class="outline-3">
+<h3 id="orgfd41fe9">func (*T) Errorf</h3>
+<div class="outline-text-3" id="text-orgfd41fe9">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">T</span>) <span style="color: #d75fd7; font-weight: bold;">Errorf</span>(<span style="color: #8787d7;">format</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">args</span> ...<span style="color: #268bd2; font-weight: bold;">interface</span>{})
+</pre>
+</div>
+
+<p>
+调用 Errorf 相当于在调用 Logf 之后调用 Fail 。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2751803" class="outline-3">
+<h3 id="org2751803">func (*T) Fail</h3>
+<div class="outline-text-3" id="text-org2751803">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">T</span>) <span style="color: #d75fd7; font-weight: bold;">Fail</span>()
+</pre>
+</div>
+
+<p>
+将当前测试标识为失败，但是仍继续执行该测试。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf4f641a" class="outline-3">
+<h3 id="orgf4f641a">func (*T) FailNow</h3>
+<div class="outline-text-3" id="text-orgf4f641a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">T</span>) <span style="color: #d75fd7; font-weight: bold;">FailNow</span>()
+</pre>
+</div>
+
+<p>
+将当前测试标识为失败并停止执行该测试，在此之后，测试过程将在下一个测试或者下一个基准测试中继续。<br>
+</p>
+
+<p>
+FailNow 必须在运行测试函数或者基准测试函数的 goroutine 中调用，而不能在测试期间创建的 goroutine 中调用。调用 FailNow 不会导致其他 goroutine 停止。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org1ea2723" class="outline-3">
+<h3 id="org1ea2723">func (*T) Failed</h3>
+<div class="outline-text-3" id="text-org1ea2723">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">T</span>) <span style="color: #d75fd7; font-weight: bold;">Failed</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+Failed 用于报告测试函数是否已失败。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org544004d" class="outline-3">
+<h3 id="org544004d">func (*T) Fatal</h3>
+<div class="outline-text-3" id="text-org544004d">
+<div class="org-src-container">
+<pre class="src src-og">func (c *T) Fatal(args ...interface{})
+</pre>
+</div>
+
+<p>
+调用 Fatal 相当于在调用 Log 之后调用 FailNow 。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd96dc06" class="outline-3">
+<h3 id="orgd96dc06">func (*T) Fatalf</h3>
+<div class="outline-text-3" id="text-orgd96dc06">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">T</span>) <span style="color: #d75fd7; font-weight: bold;">Fatalf</span>(<span style="color: #8787d7;">format</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">args</span> ...<span style="color: #268bd2; font-weight: bold;">interface</span>{})
+</pre>
+</div>
+
+<p>
+调用 Fatalf 相当于在调用 Logf 之后调用 FailNow 。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5063cb6" class="outline-3">
+<h3 id="org5063cb6">func (*T) Log</h3>
+<div class="outline-text-3" id="text-org5063cb6">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">T</span>) <span style="color: #d75fd7; font-weight: bold;">Log</span>(<span style="color: #8787d7;">args</span> ...<span style="color: #268bd2; font-weight: bold;">interface</span>{})
+</pre>
+</div>
+
+<p>
+Log 使用与 Println 相同的格式化语法对它的参数进行格式化，然后将格式化后的文本记录到错误日志里面：<br>
+</p>
+
+<p>
+1）对于测试来说，格式化文本只会在测试失败或者设置了 -test.v 标志的情况下被打印出来； 2）对于基准测试来说，为了避免 -test.v 标志的值对测试的性能产生影响， 格式化文本总会被打印出来。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org3bef711" class="outline-3">
+<h3 id="org3bef711">func (*T) Logf</h3>
+<div class="outline-text-3" id="text-org3bef711">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">T</span>) <span style="color: #d75fd7; font-weight: bold;">Logf</span>(<span style="color: #8787d7;">format</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">args</span> ...<span style="color: #268bd2; font-weight: bold;">interface</span>{})
+</pre>
+</div>
+
+<p>
+Log 使用与 Printf 相同的格式化语法对它的参数进行格式化，然后将格式化后的文本记录到错误日志里面。 如果输入的格式化文本最末尾没有出现新行，那么将一个新行添加到格式化后的文本末尾。<br>
+</p>
+
+<p>
+1）对于测试来说，Logf 产生的格式化文本只会在测试失败或者设置了 -test.v 标志的情况下被打印出来； 2）对于基准测试来说，为了避免 -test.v 标志的值对测试的性能产生影响，Logf 产生的格式化文本总会被打印出来。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd34507c" class="outline-3">
+<h3 id="orgd34507c">func (*T) Name</h3>
+<div class="outline-text-3" id="text-orgd34507c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">T</span>) <span style="color: #d75fd7; font-weight: bold;">Name</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+返回正在运行的测试或基准测试的名字。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb6abbfd" class="outline-3">
+<h3 id="orgb6abbfd">func (*T) Parallel</h3>
+<div class="outline-text-3" id="text-orgb6abbfd">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">T</span>) <span style="color: #d75fd7; font-weight: bold;">Parallel</span>()
+</pre>
+</div>
+
+<p>
+Parallel 用于表示当前测试只会与其他带有 Parallel 方法的测试并行进行测试。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5fd57f2" class="outline-3">
+<h3 id="org5fd57f2">func (*T) Run</h3>
+<div class="outline-text-3" id="text-org5fd57f2">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">T</span>) <span style="color: #d75fd7; font-weight: bold;">Run</span>(<span style="color: #8787d7;">name</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">f</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">T</span>)) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+执行名字为 name 的子测试 f ，并报告 f 在执行过程中是否出现了任何失败。Run 将一直阻塞直到 f 的所有并行测试执行完毕。<br>
+</p>
+
+<p>
+Run 可以在多个 goroutine 里面同时进行调用，但这些调用必须发生在 t 的外层测试函数（outer test function）返回之前。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5ce810d" class="outline-3">
+<h3 id="org5ce810d">func (*T) Skip</h3>
+<div class="outline-text-3" id="text-org5ce810d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">T</span>) <span style="color: #d75fd7; font-weight: bold;">Skip</span>(<span style="color: #8787d7;">args</span> ...<span style="color: #268bd2; font-weight: bold;">interface</span>{})
+</pre>
+</div>
+
+<p>
+调用 Skip 相当于在调用 Log 之后调用 SkipNow 。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgbef32d2" class="outline-3">
+<h3 id="orgbef32d2">func (*T) SkipNow</h3>
+<div class="outline-text-3" id="text-orgbef32d2">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">T</span>) <span style="color: #d75fd7; font-weight: bold;">SkipNow</span>()
+</pre>
+</div>
+
+<p>
+将当前测试标识为“被跳过”并停止执行该测试。 如果一个测试在失败（参考 Error、Errorf 和 Fail）之后被跳过了， 那么它还是会被判断为是“失败的”。<br>
+</p>
+
+<p>
+在停止当前测试之后，测试过程将在下一个测试或者下一个基准测试中继续，具体请参考 FailNow 。<br>
+</p>
+
+<p>
+SkipNow 必须在运行测试的 goroutine 中进行调用，而不能在测试期间创建的 goroutine 中调用。 调用 SkipNow 不会导致其他 goroutine 停止。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org3cda7c5" class="outline-3">
+<h3 id="org3cda7c5">func (*T) Skipf</h3>
+<div class="outline-text-3" id="text-org3cda7c5">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">T</span>) <span style="color: #d75fd7; font-weight: bold;">Skipf</span>(<span style="color: #8787d7;">format</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">args</span> ...<span style="color: #268bd2; font-weight: bold;">interface</span>{})
+</pre>
+</div>
+
+<p>
+调用 Skipf 相当于在调用 Logf 之后调用 SkipNow 。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5480386" class="outline-3">
+<h3 id="org5480386">func (*T) Skipped</h3>
+<div class="outline-text-3" id="text-org5480386">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">T</span>) <span style="color: #d75fd7; font-weight: bold;">Skipped</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+Skipped 用于报告测试函数是否已被跳过。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org696a641" class="outline-2">
+<h2 id="org696a641">type TB</h2>
+<div class="outline-text-2" id="text-org696a641">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">TB</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+        <span style="color: #d75fd7; font-weight: bold;">Error</span>(<span style="color: #8787d7;">args</span> ...<span style="color: #268bd2; font-weight: bold;">interface</span>{})
+        <span style="color: #d75fd7; font-weight: bold;">Errorf</span>(<span style="color: #8787d7;">format</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">args</span> ...<span style="color: #268bd2; font-weight: bold;">interface</span>{})
+        <span style="color: #d75fd7; font-weight: bold;">Fail</span>()
+        <span style="color: #d75fd7; font-weight: bold;">FailNow</span>()
+        <span style="color: #d75fd7; font-weight: bold;">Failed</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+        <span style="color: #d75fd7; font-weight: bold;">Fatal</span>(<span style="color: #8787d7;">args</span> ...<span style="color: #268bd2; font-weight: bold;">interface</span>{})
+        <span style="color: #d75fd7; font-weight: bold;">Fatalf</span>(<span style="color: #8787d7;">format</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">args</span> ...<span style="color: #268bd2; font-weight: bold;">interface</span>{})
+        <span style="color: #d75fd7; font-weight: bold;">Log</span>(<span style="color: #8787d7;">args</span> ...<span style="color: #268bd2; font-weight: bold;">interface</span>{})
+        <span style="color: #d75fd7; font-weight: bold;">Logf</span>(<span style="color: #8787d7;">format</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">args</span> ...<span style="color: #268bd2; font-weight: bold;">interface</span>{})
+        <span style="color: #d75fd7; font-weight: bold;">Name</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+        <span style="color: #d75fd7; font-weight: bold;">Skip</span>(<span style="color: #8787d7;">args</span> ...<span style="color: #268bd2; font-weight: bold;">interface</span>{})
+        <span style="color: #d75fd7; font-weight: bold;">SkipNow</span>()
+        <span style="color: #d75fd7; font-weight: bold;">Skipf</span>(<span style="color: #8787d7;">format</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">args</span> ...<span style="color: #268bd2; font-weight: bold;">interface</span>{})
+        <span style="color: #d75fd7; font-weight: bold;">Skipped</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">contains filtered or unexported methods</span>
+}
+</pre>
+</div>
+<p>
+TB 是一个接口，类型 T 和 B 实现了该接口。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-06-28 Tue 19:04</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

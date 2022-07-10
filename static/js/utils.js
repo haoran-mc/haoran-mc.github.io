@@ -69,10 +69,10 @@ export function addPostambleLists() {
 				<li><a href="./Ideas.html">page - ideas</a></li>
 				<li><a href="./wiki.html">page - wiki</a></li>
 				<li><a href="./Lists.html">page - Lists</a></li>
-				<li><a href="./Go.html">page - go</a></li>
+				<li><a href="./Go.html">page - golang</a></li>
 		</ul>
 </div>
 `);
 		// <div id="footer-div-postamble"></div>
-		$('#postamble').prepend(`<div id="header-of-postamble">Haoran's Blog</div>`);
+		$('#postamble').prepend(`<div id="header-of-postamble">Haoran's Notes</div>`);
 }

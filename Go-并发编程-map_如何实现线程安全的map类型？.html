@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-06-29 Wed 17:23 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Go 并发编程 - map: 如何实现线程安全的MAP类型？</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">Go 并发编程 - map: 如何实现线程安全的MAP类型？</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org0fd8234">引言</a></li>
+<li><a href="#orgd83b064">map 的基本使用</a></li>
+<li><a href="#org1e7ab8b">使用 map 的 2 种常见错误</a>
+<ul>
+<li><a href="#orgd0ee7e5">常见错误一：未初始化</a></li>
+<li><a href="#org237195c">常见错误二：并发读写</a></li>
+</ul>
+</li>
+<li><a href="#org9e986a1">如何实现线程安全的 map 类型</a>
+<ul>
+<li><a href="#org7fda881">加读写锁：扩展 map，支持并发读写</a></li>
+<li><a href="#orgb429875">分片加锁：更高效的并发 map</a></li>
+</ul>
+</li>
+<li><a href="#org4d9ab37">应对特殊场景的 sync.Map</a></li>
+<li><a href="#org27008c7">sync.Map 的实现</a>
+<ul>
+<li><a href="#org6ec41a9">Store 方法</a></li>
+<li><a href="#org1956c4c">Load 方法</a></li>
+<li><a href="#org2a4c81e">Delete 方法</a></li>
+</ul>
+</li>
+<li><a href="#org0481f09">总结</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org0fd8234" class="outline-2">
+<h2 id="org0fd8234">引言</h2>
+<div class="outline-text-2" id="text-org0fd8234">
+<p>
+哈希表（Hash Table）这个数据结构，我们已经非常熟悉了。它实现的就是 key-value 之间的映射关系，主要提供的方法包括 Add、Lookup、Delete 等。因为这种数据结构是一个基础的数据结构，每个 key 都会有一个唯一的索引值，通过索引可以很快地找到对应的值，所以使用哈希表进行数据的插入和读取都是很快的。Go 语言本身就内建了这样一个数据结构，也就是 <b>map 数据类型</b> 。<br>
+</p>
+
+<p>
+今天呢，我们就先来学习 Go 语言内建的这个 map 类型，了解它的基本使用方法和使用陷阱，然后再学习如何实现线程安全的 map 类型，最后我还会给你介绍 Go 标准库中线程安全的 sync.Map 类型。学完了这节课，你可以学会几种可以并发访问的 map 类型。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd83b064" class="outline-2">
+<h2 id="orgd83b064">map 的基本使用</h2>
+<div class="outline-text-2" id="text-orgd83b064">
+<p>
+Go 内建的 map 类型如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">K</span>]<span style="color: #df005f; font-weight: bold;">V</span>
+</pre>
+</div>
+
+<p>
+其中，key 类型的 K 必须是可比较的（comparable），也就是可以通过 <code>= 和 !</code> 操作符进行比较；value 的值和类型无所谓，可以是任意的类型，或者为 nil。<br>
+</p>
+
+<p>
+在 Go 语言中，bool、整数、浮点数、复数、字符串、指针、Channel、接口都是可比较的，包含可比较元素的 struct 和数组，这俩也是可比较的，而 slice、map、函数值都是不可比较的。<br>
+</p>
+
+<p>
+那么，上面这些可比较的数据类型都可以作为 map 的 key 吗？显然不是。通常情况下，我们会选择内建的基本类型，比如整数、字符串做 key 的类型，因为这样最方便。<br>
+</p>
+
+<p>
+这里有一点需要注意，如果使用 struct 类型做 key 其实是有坑的，因为如果 struct 的某个字段值修改了，查询 map 时无法获取它 add 进去的值，如下面的例子：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">mapKey</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    key <span style="color: #df005f; font-weight: bold;">int</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">m</span> = <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">mapKey</span>]<span style="color: #df005f; font-weight: bold;">string</span>)
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">key</span> = <span style="color: #df005f; font-weight: bold;">mapKey</span>{10}
+
+
+    m[key] = <span style="color: #2aa198;">"hello"</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"m[key]=%s\n"</span>, m[key])
+
+
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20462;&#25913;key&#30340;&#23383;&#27573;&#30340;&#20540;&#21518;&#20877;&#27425;&#26597;&#35810;map&#65292;&#26080;&#27861;&#33719;&#21462;&#21018;&#25165;add&#36827;&#21435;&#30340;&#20540;</span>
+    key.key = 100
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"&#20877;&#27425;&#26597;&#35810;m[key]=%s\n"</span>, m[key])
+}
+</pre>
+</div>
+
+<p>
+那该怎么办呢？如果要使用 struct 作为 key，我们要保证 struct 对象在逻辑上是不可变的，这样才会保证 map 的逻辑没有问题。<br>
+</p>
+
+<p>
+以上就是选取 key 类型的注意点了。接下来，我们看一下使用 map[key]函数时需要注意的一个知识点。 <span class="underline">在 Go 中，map[key]函数返回结果可以是一个值，也可以是两个值</span> ，这是容易让人迷惑的地方。原因在于，如果获取一个不存在的 key 对应的值时，会返回零值。为了区分真正的零值和 key 不存在这两种情况，可以根据第二个返回值来区分，如下面的代码的第 6 行、第 7 行：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">m</span> = <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">int</span>)
+    m[<span style="color: #2aa198;">"a"</span>] = 0
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"a=%d; b=%d\n"</span>, m[<span style="color: #2aa198;">"a"</span>], m[<span style="color: #2aa198;">"b"</span>])
+
+    <span style="color: #8787d7;">av</span>, <span style="color: #8787d7;">aexisted</span> := m[<span style="color: #2aa198;">"a"</span>]
+    <span style="color: #8787d7;">bv</span>, <span style="color: #8787d7;">bexisted</span> := m[<span style="color: #2aa198;">"b"</span>]
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"a=%d, existed: %t; b=%d, existed: %t\n"</span>, av, aexisted, bv, bexisted)
+}
+</pre>
+</div>
+
+<p>
+map 是无序的，所以当遍历一个 map 对象的时候，迭代的元素的顺序是不确定的，无法保证两次遍历的顺序是一样的，也不能保证和插入的顺序一致。那怎么办呢？如果我们想要按照 key 的顺序获取 map 的值，需要先取出所有的 key 进行排序，然后按照这个排序的 key 依次获取对应的值。而如果我们想要保证元素有序，比如按照元素插入的顺序进行遍历，可以使用辅助的数据结构，比如 <a href="https://github.com/elliotchance/orderedmap">orderedmap</a>，来记录插入顺序。<br>
+</p>
+
+<p>
+好了，总结下关于 map 我们需要掌握的内容：map 的类型是 map[key]，key 类型的 K 必须是可比较的，通常情况下，我们会选择内建的基本类型，比如整数、字符串做 key 的类型。如果要使用 struct 作为 key，我们要保证 struct 对象在逻辑上是不可变的。在 Go 中，map[key]函数返回结果可以是一个值，也可以是两个值。map 是无序的，如果我们想要保证遍历 map 时元素有序，可以使用辅助的数据结构，比如orderedmap。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org1e7ab8b" class="outline-2">
+<h2 id="org1e7ab8b">使用 map 的 2 种常见错误</h2>
+<div class="outline-text-2" id="text-org1e7ab8b">
+<p>
+那接下来，我们来看使用 map 最常犯的两个错误，就是未初始化和并发读写。<br>
+</p>
+</div>
+<div id="outline-container-orgd0ee7e5" class="outline-3">
+<h3 id="orgd0ee7e5">常见错误一：未初始化</h3>
+<div class="outline-text-3" id="text-orgd0ee7e5">
+<p>
+和 slice 或者 Mutex、RWmutex 等 struct 类型不同，map 对象必须在使用之前初始化。如果不初始化就直接赋值的话，会出现 panic 异常，比如下面的例子，m 实例还没有初始化就直接进行操作会导致 panic（第 3 行）:<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+        <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">m</span> <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">int</span>]<span style="color: #df005f; font-weight: bold;">int</span>
+        m[100] = 100
+}
+</pre>
+</div>
+
+<p>
+解决办法就是在第 2 行初始化这个实例（m := make(map[int]int)）。从一个 nil 的 map 对象中获取值不会 panic，而是会得到零值，所以下面的代码不会报错:<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">m</span> <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">int</span>]<span style="color: #df005f; font-weight: bold;">int</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(m[100])
+}
+</pre>
+</div>
+
+<p>
+这个例子很简单，我们可以意识到 map 的初始化问题。但有时候 map 作为一个 struct 字段的时候，就很容易忘记初始化了。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Counter</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    Website      <span style="color: #df005f; font-weight: bold;">string</span>
+    Start        <span style="color: #df005f; font-weight: bold;">time.Time</span>
+    PageCounters <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">int</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">c</span> <span style="color: #df005f; font-weight: bold;">Counter</span>
+    c.Website = <span style="color: #2aa198;">"baidu.com"</span>
+
+
+    c.PageCounters[<span style="color: #2aa198;">"/"</span>]++
+}
+</pre>
+</div>
+
+<p>
+所以，关于初始化这一点，我再强调一下，目前还没有工具可以检查，我们只能记住“别忘记初始化”这一条规则。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org237195c" class="outline-3">
+<h3 id="org237195c">常见错误二：并发读写</h3>
+<div class="outline-text-3" id="text-org237195c">
+<p>
+对于 map 类型，另一个很容易犯的错误就是并发访问问题。这个易错点，相当令人讨厌，如果没有注意到并发问题，程序在运行的时候就有可能出现并发读写导致的 panic。<br>
+</p>
+
+<p>
+Go 内建的 map 对象不是线程（goroutine）安全的，并发读写的时候运行时会有检查，遇到并发问题就会导致 panic。<br>
+</p>
+
+<p>
+我们一起看一个并发访问 map 实例导致 panic 的例子：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">m</span> = <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">int</span>]<span style="color: #df005f; font-weight: bold;">int</span>,10) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21021;&#22987;&#21270;&#19968;&#20010;map</span>
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+        <span style="color: #268bd2; font-weight: bold;">for</span> {
+            m[1] = 1 <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#35774;&#32622;key</span>
+        }
+    }()
+
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+        <span style="color: #268bd2; font-weight: bold;">for</span> {
+            _ = m[2] <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#35775;&#38382;&#36825;&#20010;map</span>
+        }
+    }()
+    <span style="color: #268bd2; font-weight: bold;">select</span> {}
+}
+</pre>
+</div>
+
+<p>
+虽然这段代码看起来是读写 goroutine 各自操作不同的元素，貌似 map 也没有扩容的问题，但是运行时检测到同时对 map 对象有并发访问，就会直接 panic。panic 信息会告诉我们代码中哪一行有读写问题，根据这个错误信息你就能快速定位出来是哪一个 map 对象在哪里出的问题了。<br>
+</p>
+
+<p>
+这个错误非常常见，是几乎每个人都会踩到的坑。<br>
+</p>
+
+<p>
+这么多人都会踩的坑，有啥解决方案吗？肯定有，那接下来，我们就继续来看如何解决内建 map 的并发读写问题。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org9e986a1" class="outline-2">
+<h2 id="org9e986a1">如何实现线程安全的 map 类型</h2>
+<div class="outline-text-2" id="text-org9e986a1">
+<p>
+避免 map 并发读写 panic 的方式之一就是加锁，考虑到读写性能，可以使用读写锁提供性能。<br>
+</p>
+</div>
+<div id="outline-container-org7fda881" class="outline-3">
+<h3 id="org7fda881">加读写锁：扩展 map，支持并发读写</h3>
+<div class="outline-text-3" id="text-org7fda881">
+<p>
+这里以一个具体的 map 类型为例，来演示利用读写锁实现线程安全的 map[int]int 类型：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">RWMap</span> <span style="color: #268bd2; font-weight: bold;">struct</span> { <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#19968;&#20010;&#35835;&#20889;&#38145;&#20445;&#25252;&#30340;&#32447;&#31243;&#23433;&#20840;&#30340;map</span>
+    sync.RWMutex <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35835;&#20889;&#38145;&#20445;&#25252;&#19979;&#38754;&#30340;map&#23383;&#27573;</span>
+    m <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">int</span>]<span style="color: #df005f; font-weight: bold;">int</span>
+}
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26032;&#24314;&#19968;&#20010;RWMap</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">NewRWMap</span>(<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>) *<span style="color: #df005f; font-weight: bold;">RWMap</span> {
+    <span style="color: #268bd2; font-weight: bold;">return</span> &amp;<span style="color: #df005f; font-weight: bold;">RWMap</span>{
+        <span style="color: #d75fd7;">m</span>: <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">int</span>]<span style="color: #df005f; font-weight: bold;">int</span>, n),
+    }
+}
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">m</span> *<span style="color: #df005f; font-weight: bold;">RWMap</span>) <span style="color: #d75fd7; font-weight: bold;">Get</span>(<span style="color: #8787d7;">k</span> <span style="color: #df005f; font-weight: bold;">int</span>) (<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #df005f; font-weight: bold;">bool</span>) { <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#20174;map&#20013;&#35835;&#21462;&#19968;&#20010;&#20540;</span>
+    m.<span style="color: #d75fd7; font-weight: bold;">RLock</span>()
+    <span style="color: #268bd2; font-weight: bold;">defer</span> m.<span style="color: #d75fd7; font-weight: bold;">RUnlock</span>()
+    <span style="color: #8787d7;">v</span>, <span style="color: #8787d7;">existed</span> := m.m[k] <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22312;&#38145;&#30340;&#20445;&#25252;&#19979;&#20174;map&#20013;&#35835;&#21462;</span>
+    <span style="color: #268bd2; font-weight: bold;">return</span> v, existed
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">m</span> *<span style="color: #df005f; font-weight: bold;">RWMap</span>) <span style="color: #d75fd7; font-weight: bold;">Set</span>(<span style="color: #8787d7;">k</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">int</span>) { <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35774;&#32622;&#19968;&#20010;&#38190;&#20540;&#23545;</span>
+    m.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()              <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#38145;&#20445;&#25252;</span>
+    <span style="color: #268bd2; font-weight: bold;">defer</span> m.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+    m.m[k] = v
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">m</span> *<span style="color: #df005f; font-weight: bold;">RWMap</span>) <span style="color: #d75fd7; font-weight: bold;">Delete</span>(<span style="color: #8787d7;">k</span> <span style="color: #df005f; font-weight: bold;">int</span>) { <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#21024;&#38500;&#19968;&#20010;&#38190;</span>
+    m.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()                   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#38145;&#20445;&#25252;</span>
+    <span style="color: #268bd2; font-weight: bold;">defer</span> m.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+    <span style="color: #268bd2;">delete</span>(m.m, k)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">m</span> *<span style="color: #df005f; font-weight: bold;">RWMap</span>) <span style="color: #d75fd7; font-weight: bold;">Len</span>() <span style="color: #df005f; font-weight: bold;">int</span> { <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">map&#30340;&#38271;&#24230;</span>
+    m.<span style="color: #d75fd7; font-weight: bold;">RLock</span>()   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#38145;&#20445;&#25252;</span>
+    <span style="color: #268bd2; font-weight: bold;">defer</span> m.<span style="color: #d75fd7; font-weight: bold;">RUnlock</span>()
+    <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #268bd2;">len</span>(m.m)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">m</span> *<span style="color: #df005f; font-weight: bold;">RWMap</span>) <span style="color: #d75fd7; font-weight: bold;">Each</span>(<span style="color: #8787d7;">f</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">k</span>, <span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">bool</span>) { <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36941;&#21382;map</span>
+    m.<span style="color: #d75fd7; font-weight: bold;">RLock</span>()             <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#36941;&#21382;&#26399;&#38388;&#19968;&#30452;&#25345;&#26377;&#35835;&#38145;</span>
+    <span style="color: #268bd2; font-weight: bold;">defer</span> m.<span style="color: #d75fd7; font-weight: bold;">RUnlock</span>()
+
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">k</span>, <span style="color: #8787d7;">v</span> := <span style="color: #268bd2; font-weight: bold;">range</span> m.m {
+        <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #d75fd7;">!</span><span style="color: #d75fd7; font-weight: bold;">f</span>(k, v) {
+            <span style="color: #268bd2; font-weight: bold;">return</span>
+        }
+    }
+} 
+</pre>
+</div>
+
+<p>
+正如这段代码所示，对 map 对象的操作，无非就是增删改查和遍历等几种常见操作。我们可以把这些操作分为读和写两类，其中，查询和遍历可以看做读操作，增加、修改和删除可以看做写操作。如例子所示，我们可以通过读写锁对相应的操作进行保护。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb429875" class="outline-3">
+<h3 id="orgb429875">分片加锁：更高效的并发 map</h3>
+<div class="outline-text-3" id="text-orgb429875">
+<p>
+虽然使用读写锁可以提供线程安全的 map，但是在大量并发读写的情况下，锁的竞争会非常激烈。前面也提到过，锁是性能下降的万恶之源之一。<br>
+</p>
+
+<p>
+在并发编程中，我们的一条原则就是尽量减少锁的使用。一些单线程单进程的应用（比如 Redis 等），基本上不需要使用锁去解决并发线程访问的问题，所以可以取得很高的性能。但是对于 Go 开发的应用程序来说，并发是常用的一个特性，在这种情况下，我们能做的就是， <span class="underline">尽量减少锁的粒度和锁的持有时间</span> 。<br>
+</p>
+
+<p>
+你可以优化业务处理的代码，以此来减少锁的持有时间，比如将串行的操作变成并行的子任务执行。不过，这就是另外的故事了，今天我们还是主要讲对同步原语的优化，所以重点讲如何减少锁的粒度。<br>
+</p>
+
+<p>
+<span class="underline">减少锁的粒度常用的方法就是分片</span> （Shard），将一把锁分成几把锁，每个锁控制一个分片。Go 比较知名的分片并发 map 的实现是 <a href="https://github.com/orcaman/concurrent-map">orcaman/concurrent-map</a>。<br>
+</p>
+
+<p>
+它默认采用 32 个分片， <span class="underline">GetShard 是一个关键的方法，能够根据 key 计算出分片索引</span> 。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">SHARD_COUNT</span> = 32
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20998;&#25104;SHARD_COUNT&#20010;&#20998;&#29255;&#30340;map</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">ConcurrentMap</span> []*<span style="color: #df005f; font-weight: bold;">ConcurrentMapShared</span>
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36890;&#36807;RWMutex&#20445;&#25252;&#30340;&#32447;&#31243;&#23433;&#20840;&#30340;&#20998;&#29255;&#65292;&#21253;&#21547;&#19968;&#20010;map</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">ConcurrentMapShared</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    items        <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #268bd2; font-weight: bold;">interface</span>{}
+    sync.RWMutex <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Read Write mutex, guards access to internal map.</span>
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21019;&#24314;&#24182;&#21457;map</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">New</span>() <span style="color: #df005f; font-weight: bold;">ConcurrentMap</span> {
+    <span style="color: #8787d7;">m</span> := <span style="color: #268bd2;">make</span>(<span style="color: #df005f; font-weight: bold;">ConcurrentMap</span>, SHARD_COUNT)
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := 0; i &lt; SHARD_COUNT; i++ {
+        m[i] = &amp;<span style="color: #df005f; font-weight: bold;">ConcurrentMapShared</span>{<span style="color: #d75fd7;">items</span>: <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #268bd2; font-weight: bold;">interface</span>{})}
+    }
+    <span style="color: #268bd2; font-weight: bold;">return</span> m
+}
+
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26681;&#25454;key&#35745;&#31639;&#20998;&#29255;&#32034;&#24341;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">m</span> <span style="color: #df005f; font-weight: bold;">ConcurrentMap</span>) <span style="color: #d75fd7; font-weight: bold;">GetShard</span>(<span style="color: #8787d7;">key</span> <span style="color: #df005f; font-weight: bold;">string</span>) *<span style="color: #df005f; font-weight: bold;">ConcurrentMapShared</span> {
+    <span style="color: #268bd2; font-weight: bold;">return</span> m[<span style="color: #d75fd7; font-weight: bold;">uint</span>(<span style="color: #d75fd7; font-weight: bold;">fnv32</span>(key))%<span style="color: #d75fd7; font-weight: bold;">uint</span>(SHARD_COUNT)]
+} 
+</pre>
+</div>
+
+<p>
+增加或者查询的时候，首先根据分片索引得到分片对象，然后对分片对象加锁进行操作：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">m</span> <span style="color: #df005f; font-weight: bold;">ConcurrentMap</span>) <span style="color: #d75fd7; font-weight: bold;">Set</span>(<span style="color: #8787d7;">key</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">value</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}) {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26681;&#25454;key&#35745;&#31639;&#20986;&#23545;&#24212;&#30340;&#20998;&#29255;</span>
+    <span style="color: #8787d7;">shard</span> := m.<span style="color: #d75fd7; font-weight: bold;">GetShard</span>(key)
+    shard.<span style="color: #d75fd7; font-weight: bold;">Lock</span>() <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#23545;&#36825;&#20010;&#20998;&#29255;&#21152;&#38145;&#65292;&#25191;&#34892;&#19994;&#21153;&#25805;&#20316;</span>
+    shard.items[key] = value
+    shard.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">m</span> <span style="color: #df005f; font-weight: bold;">ConcurrentMap</span>) <span style="color: #d75fd7; font-weight: bold;">Get</span>(<span style="color: #8787d7;">key</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #268bd2; font-weight: bold;">interface</span>{}, <span style="color: #df005f; font-weight: bold;">bool</span>) {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26681;&#25454;key&#35745;&#31639;&#20986;&#23545;&#24212;&#30340;&#20998;&#29255;</span>
+    <span style="color: #8787d7;">shard</span> := m.<span style="color: #d75fd7; font-weight: bold;">GetShard</span>(key)
+    shard.<span style="color: #d75fd7; font-weight: bold;">RLock</span>()
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20174;&#36825;&#20010;&#20998;&#29255;&#35835;&#21462;key&#30340;&#20540;</span>
+    <span style="color: #8787d7;">val</span>, <span style="color: #8787d7;">ok</span> := shard.items[key]
+    shard.<span style="color: #d75fd7; font-weight: bold;">RUnlock</span>()
+    <span style="color: #268bd2; font-weight: bold;">return</span> val, ok
+}
+</pre>
+</div>
+
+<p>
+当然，除了 GetShard 方法，ConcurrentMap 还提供了很多其他的方法。这些方法都是通过计算相应的分片实现的，目的是保证把锁的粒度限制在分片上。<br>
+</p>
+
+<p>
+好了，到这里我们就学会了解决 map 并发 panic 的两个方法：加锁和分片。<br>
+</p>
+
+<p>
+<b>加锁和分片加锁这两种方案都比较常用，如果是追求更高的性能，显然是分片加锁更好，因为它可以降低锁的粒度，进而提高访问此 map 对象的吞吐。如果并发性能要求不是那么高的场景，简单加锁方式更简单。</b><br>
+</p>
+
+<p>
+接下来继续介绍 sync.Map，这是 Go 官方线程安全 map 的标准实现。虽然是官方标准，反而是不常用的，为什么呢？一句话来说就是 map 要解决的场景很难描述，很多时候在做抉择时根本就不知道该不该用它。但是呢，确实有一些特定的场景，我们需要用到 sync.Map 来实现，所以还是很有必要学习这个知识点。具体什么场景呢，我慢慢给你道来。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org4d9ab37" class="outline-2">
+<h2 id="org4d9ab37">应对特殊场景的 sync.Map</h2>
+<div class="outline-text-2" id="text-org4d9ab37">
+<p>
+Go 内建的 map 类型不是线程安全的，所以 Go 1.9 中增加了一个线程安全的 map，也就是 sync.Map。但是，我们一定要记住，这个 sync.Map 并不是用来替换内建的 map 类型的，它只能被应用在一些特殊的场景里。<br>
+</p>
+
+<p>
+那这些特殊的场景是啥呢？<a href="https://golang.org/pkg/sync/#Map">官方的文档</a> 中指出，在以下两个场景中使用 sync.Map，会比使用 map+RWMutex 的方式，性能要好得多：<br>
+</p>
+
+<ul class="org-ul">
+<li>只会增长的缓存系统中，一个 key 只写入一次而被读很多次；<br></li>
+<li>多个 goroutine 为不相交的键集读、写和重写键值对；<br></li>
+</ul>
+
+<p>
+这两个场景说得都比较笼统，而且，这些场景中还包含了一些特殊的情况。所以，官方建议你针对自己的场景做性能评测，如果确实能够显著提高性能，再使用 sync.Map。<br>
+</p>
+
+<p>
+这么来看，我们能用到 sync.Map 的场景确实不多。即使是 sync.Map 的作者 Bryan C. Mills，也很少使用 sync.Map，即便是在使用 sync.Map 的时候，也是需要临时查询它的 API，才能清楚记住它的功能。所以，我们可以把 sync.Map 看成一个生产环境中很少使用的同步原语。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org27008c7" class="outline-2">
+<h2 id="org27008c7">sync.Map 的实现</h2>
+<div class="outline-text-2" id="text-org27008c7">
+<p>
+那 sync.Map 是怎么实现的呢？它是如何解决并发问题提升性能的呢？其实 sync.Map 的实现有几个优化点，这里先列出来，我们后面慢慢分析。<br>
+</p>
+
+<ul class="org-ul">
+<li>空间换时间。通过冗余的两个数据结构（只读的 read 字段、可写的 dirty），来减少加锁对性能的影响。对只读字段（read）的操作不需要加锁。<br></li>
+<li>优先从 read 字段读取、更新、删除，因为对 read 字段的读取不需要锁。<br></li>
+<li>动态调整。miss 次数多了之后，将 dirty 数据提升为 read，避免总是从 dirty 中加锁读取。<br></li>
+<li>double-checking。加锁之后先还要再检查 read 字段，确定真的不存在才操作 dirty 字段。<br></li>
+<li>延迟删除。删除一个键值只是打标记，只有在提升 dirty 字段为 read 字段的时候才清理删除的数据。<br></li>
+</ul>
+
+<p>
+要理解 sync.Map 这些优化点，我们还是得深入到它的设计和实现上，去学习它的处理方式。<br>
+</p>
+
+<p>
+先看一下 map 的数据结构：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Map</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    mu <span style="color: #df005f; font-weight: bold;">Mutex</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22522;&#26412;&#19978;&#20320;&#21487;&#20197;&#25226;&#23427;&#30475;&#25104;&#19968;&#20010;&#23433;&#20840;&#30340;&#21482;&#35835;&#30340;map</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23427;&#21253;&#21547;&#30340;&#20803;&#32032;&#20854;&#23454;&#20063;&#26159;&#36890;&#36807;&#21407;&#23376;&#25805;&#20316;&#26356;&#26032;&#30340;&#65292;&#20294;&#26159;&#24050;&#21024;&#38500;&#30340;entry&#23601;&#38656;&#35201;&#21152;&#38145;&#25805;&#20316;&#20102;</span>
+    read <span style="color: #df005f; font-weight: bold;">atomic.Value</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">readOnly</span>
+
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21253;&#21547;&#38656;&#35201;&#21152;&#38145;&#25165;&#33021;&#35775;&#38382;&#30340;&#20803;&#32032;</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21253;&#25324;&#25152;&#26377;&#22312;read&#23383;&#27573;&#20013;&#20294;&#26410;&#34987;expunged&#65288;&#21024;&#38500;&#65289;&#30340;&#20803;&#32032;&#20197;&#21450;&#26032;&#21152;&#30340;&#20803;&#32032;</span>
+    dirty <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #268bd2; font-weight: bold;">interface</span>{}]*<span style="color: #df005f; font-weight: bold;">entry</span>
+
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35760;&#24405;&#20174;read&#20013;&#35835;&#21462;miss&#30340;&#27425;&#25968;&#65292;&#19968;&#26086;miss&#25968;&#21644;dirty&#38271;&#24230;&#19968;&#26679;&#20102;&#65292;&#23601;&#20250;&#25226;dirty&#25552;&#21319;&#20026;read&#65292;&#24182;&#25226;dirty&#32622;&#31354;</span>
+    misses <span style="color: #df005f; font-weight: bold;">int</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">readOnly</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    m       <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #268bd2; font-weight: bold;">interface</span>{}]*<span style="color: #df005f; font-weight: bold;">entry</span>
+    amended <span style="color: #df005f; font-weight: bold;">bool</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#24403;dirty&#20013;&#21253;&#21547;read&#27809;&#26377;&#30340;&#25968;&#25454;&#26102;&#20026;true&#65292;&#27604;&#22914;&#26032;&#22686;&#19968;&#26465;&#25968;&#25454;</span>
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">expunged&#26159;&#29992;&#26469;&#26631;&#35782;&#27492;&#39033;&#24050;&#32463;&#21024;&#25481;&#30340;&#25351;&#38024;</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#24403;map&#20013;&#30340;&#19968;&#20010;&#39033;&#30446;&#34987;&#21024;&#38500;&#20102;&#65292;&#21482;&#26159;&#25226;&#23427;&#30340;&#20540;&#26631;&#35760;&#20026;expunged&#65292;&#20197;&#21518;&#25165;&#26377;&#26426;&#20250;&#30495;&#27491;&#21024;&#38500;&#27492;&#39033;</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">expunged</span> = unsafe.<span style="color: #d75fd7; font-weight: bold;">Pointer</span>(<span style="color: #268bd2;">new</span>(<span style="color: #268bd2; font-weight: bold;">interface</span>{}))
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">entry&#20195;&#34920;&#19968;&#20010;&#20540;</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">entry</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    p <span style="color: #df005f; font-weight: bold;">unsafe.Pointer</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">*interface{}</span>
+}
+</pre>
+</div>
+
+<p>
+如果 dirty 字段非 nil 的话，map 的 read 字段和 dirty 字段会包含相同的非 expunged 的项，所以如果通过 read 字段更改了这个项的值，从 dirty 字段中也会读取到这个项的新值，因为本来它们指向的就是同一个地址。<br>
+</p>
+
+<p>
+dirty 包含重复项目的好处就是，一旦 miss 数达到阈值需要将 dirty 提升为 read 的话，只需简单地把 dirty 设置为 read 对象即可。不好的一点就是，当创建新的 dirty 对象的时候，需要逐条遍历 read，把非 expunged 的项复制到 dirty 对象中。<br>
+</p>
+
+<p>
+接下来，我们就深入到源码去看看 sync.map 的实现。在看这部分源码的过程中，我们只要重点关注 Store、Load 和 Delete 这 3 个核心的方法就可以了。<br>
+</p>
+
+<p>
+Store、Load 和 Delete 这三个核心函数的操作都是先从 read 字段中处理的，因为读取 read 字段的时候不用加锁。<br>
+</p>
+</div>
+<div id="outline-container-org6ec41a9" class="outline-3">
+<h3 id="org6ec41a9">Store 方法</h3>
+<div class="outline-text-3" id="text-org6ec41a9">
+<p>
+我们先来看 Store 方法，它是用来设置一个键值对，或者更新一个键值对的。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">m</span> *<span style="color: #df005f; font-weight: bold;">Map</span>) <span style="color: #d75fd7; font-weight: bold;">Store</span>(<span style="color: #8787d7;">key</span>, <span style="color: #8787d7;">value</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}) {
+    <span style="color: #8787d7;">read</span>, <span style="color: #8787d7;">_</span> := m.read.<span style="color: #d75fd7; font-weight: bold;">Load</span>().(<span style="color: #df005f; font-weight: bold;">readOnly</span>)
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;read&#23383;&#27573;&#21253;&#21547;&#36825;&#20010;&#39033;&#65292;&#35828;&#26126;&#26159;&#26356;&#26032;&#65292;cas&#26356;&#26032;&#39033;&#30446;&#30340;&#20540;&#21363;&#21487;</span>
+    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #8787d7;">e</span>, <span style="color: #8787d7;">ok</span> := read.m[key]; ok &amp;&amp; e.<span style="color: #d75fd7; font-weight: bold;">tryStore</span>(&amp;value) {
+        <span style="color: #268bd2; font-weight: bold;">return</span>
+    }
+
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">read&#20013;&#19981;&#23384;&#22312;&#65292;&#25110;&#32773;cas&#26356;&#26032;&#22833;&#36133;&#65292;&#23601;&#38656;&#35201;&#21152;&#38145;&#35775;&#38382;dirty&#20102;</span>
+    m.mu.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+    read, _ = m.read.<span style="color: #d75fd7; font-weight: bold;">Load</span>().(<span style="color: #df005f; font-weight: bold;">readOnly</span>)
+    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #8787d7;">e</span>, <span style="color: #8787d7;">ok</span> := read.m[key]; ok { <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21452;&#26816;&#26597;&#65292;&#30475;&#30475;read&#26159;&#21542;&#24050;&#32463;&#23384;&#22312;&#20102;</span>
+        <span style="color: #268bd2; font-weight: bold;">if</span> e.<span style="color: #d75fd7; font-weight: bold;">unexpungeLocked</span>() {
+            <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#27492;&#39033;&#30446;&#20808;&#21069;&#24050;&#32463;&#34987;&#21024;&#38500;&#20102;&#65292;&#36890;&#36807;&#23558;&#23427;&#30340;&#20540;&#35774;&#32622;&#20026;nil&#65292;&#26631;&#35760;&#20026;unexpunged</span>
+            m.dirty[key] = e
+        }
+        e.<span style="color: #d75fd7; font-weight: bold;">storeLocked</span>(&amp;value) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26356;&#26032;</span>
+    } <span style="color: #268bd2; font-weight: bold;">else</span> <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #8787d7;">e</span>, <span style="color: #8787d7;">ok</span> := m.dirty[key]; ok { <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;dirty&#20013;&#26377;&#27492;&#39033;</span>
+        e.<span style="color: #d75fd7; font-weight: bold;">storeLocked</span>(&amp;value) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#30452;&#25509;&#26356;&#26032;</span>
+    } <span style="color: #268bd2; font-weight: bold;">else</span> { <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21542;&#21017;&#23601;&#26159;&#19968;&#20010;&#26032;&#30340;key</span>
+        <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #d75fd7;">!</span>read.amended { <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;dirty&#20026;nil</span>
+            <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#38656;&#35201;&#21019;&#24314;dirty&#23545;&#35937;&#65292;&#24182;&#19988;&#26631;&#35760;read&#30340;amended&#20026;true,</span>
+            <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35828;&#26126;&#26377;&#20803;&#32032;&#23427;&#19981;&#21253;&#21547;&#32780;dirty&#21253;&#21547;</span>
+            m.<span style="color: #d75fd7; font-weight: bold;">dirtyLocked</span>()
+            m.read.<span style="color: #d75fd7; font-weight: bold;">Store</span>(<span style="color: #df005f; font-weight: bold;">readOnly</span>{<span style="color: #d75fd7;">m</span>: read.m, <span style="color: #d75fd7;">amended</span>: <span style="color: #d75fd7;">true</span>})
+        }
+        m.dirty[key] = <span style="color: #d75fd7; font-weight: bold;">newEntry</span>(value) <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#23558;&#26032;&#20540;&#22686;&#21152;&#21040;dirty&#23545;&#35937;&#20013;</span>
+    }
+    m.mu.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+}
+</pre>
+</div>
+
+<p>
+可以看出，Store 既可以是新增元素，也可以是更新元素。如果运气好的话，更新的是已存在的未被删除的元素，直接更新即可，不会用到锁。如果运气不好，需要更新（重用）删除的对象、更新还未提升的 dirty 中的对象，或者新增加元素的时候就会使用到了锁，这个时候，性能就会下降。<br>
+</p>
+
+<p>
+所以从这一点来看，sync.Map 适合那些只会增长的缓存系统，可以进行更新，但是不要删除，并且不要频繁地增加新元素。<br>
+</p>
+
+<p>
+新加的元素需要放入到 dirty 中，如果 dirty 为 nil，那么需要从 read 字段中复制出来一个 dirty 对象：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">m</span> *<span style="color: #df005f; font-weight: bold;">Map</span>) <span style="color: #d75fd7; font-weight: bold;">dirtyLocked</span>() {
+    <span style="color: #268bd2; font-weight: bold;">if</span> m.dirty != <span style="color: #d75fd7;">nil</span> { <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;dirty&#23383;&#27573;&#24050;&#32463;&#23384;&#22312;&#65292;&#19981;&#38656;&#35201;&#21019;&#24314;&#20102;</span>
+        <span style="color: #268bd2; font-weight: bold;">return</span>
+    }
+
+    <span style="color: #8787d7;">read</span>, <span style="color: #8787d7;">_</span> := m.read.<span style="color: #d75fd7; font-weight: bold;">Load</span>().(<span style="color: #df005f; font-weight: bold;">readOnly</span>) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#33719;&#21462;read&#23383;&#27573;</span>
+    m.dirty = <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #268bd2; font-weight: bold;">interface</span>{}]*<span style="color: #df005f; font-weight: bold;">entry</span>, <span style="color: #268bd2;">len</span>(read.m))
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">k</span>, <span style="color: #8787d7;">e</span> := <span style="color: #268bd2; font-weight: bold;">range</span> read.m { <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36941;&#21382;read&#23383;&#27573;</span>
+        <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #d75fd7;">!</span>e.<span style="color: #d75fd7; font-weight: bold;">tryExpungeLocked</span>() { <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25226;&#38750;punged&#30340;&#38190;&#20540;&#23545;&#22797;&#21046;&#21040;dirty&#20013;</span>
+            m.dirty[k] = e
+        }
+    }
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org1956c4c" class="outline-3">
+<h3 id="org1956c4c">Load 方法</h3>
+<div class="outline-text-3" id="text-org1956c4c">
+<p>
+Load 方法用来读取一个 key 对应的值。它也是从 read 开始处理，一开始并不需要锁。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">m</span> *<span style="color: #df005f; font-weight: bold;">Map</span>) <span style="color: #d75fd7; font-weight: bold;">Load</span>(<span style="color: #8787d7;">key</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}) (<span style="color: #8787d7;">value</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}, <span style="color: #8787d7;">ok</span> <span style="color: #df005f; font-weight: bold;">bool</span>) {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#39318;&#20808;&#20174;read&#22788;&#29702;</span>
+    <span style="color: #8787d7;">read</span>, <span style="color: #8787d7;">_</span> := m.read.<span style="color: #d75fd7; font-weight: bold;">Load</span>().(<span style="color: #df005f; font-weight: bold;">readOnly</span>)
+    <span style="color: #8787d7;">e</span>, <span style="color: #8787d7;">ok</span> := read.m[key]
+    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #d75fd7;">!</span>ok &amp;&amp; read.amended { <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#19981;&#23384;&#22312;&#24182;&#19988;dirty&#19981;&#20026;nil(&#26377;&#26032;&#30340;&#20803;&#32032;)</span>
+        m.mu.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21452;&#26816;&#26597;&#65292;&#30475;&#30475;read&#20013;&#29616;&#22312;&#26159;&#21542;&#23384;&#22312;&#27492;key</span>
+        read, _ = m.read.<span style="color: #d75fd7; font-weight: bold;">Load</span>().(<span style="color: #df005f; font-weight: bold;">readOnly</span>)
+        e, ok = read.m[key]
+        <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #d75fd7;">!</span>ok &amp;&amp; read.amended {<span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#20381;&#28982;&#19981;&#23384;&#22312;&#65292;&#24182;&#19988;dirty&#19981;&#20026;nil</span>
+            e, ok = m.dirty[key]<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20174;dirty&#20013;&#35835;&#21462;</span>
+            <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#19981;&#31649;dirty&#20013;&#23384;&#19981;&#23384;&#22312;&#65292;miss&#25968;&#37117;&#21152;1</span>
+            m.<span style="color: #d75fd7; font-weight: bold;">missLocked</span>()
+        }
+        m.mu.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+    }
+    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #d75fd7;">!</span>ok {
+        <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">nil</span>, <span style="color: #d75fd7;">false</span>
+    }
+    <span style="color: #268bd2; font-weight: bold;">return</span> e.<span style="color: #d75fd7; font-weight: bold;">load</span>() <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;&#35835;&#21462;&#30340;&#23545;&#35937;&#65292;e&#26082;&#21487;&#33021;&#26159;&#20174;read&#20013;&#33719;&#24471;&#30340;&#65292;&#20063;&#21487;&#33021;&#26159;&#20174;dirty&#20013;&#33719;&#24471;&#30340;</span>
+}
+</pre>
+</div>
+
+<p>
+如果幸运的话，我们从 read 中读取到了这个 key 对应的值，那么就不需要加锁了，性能会非常好。但是，如果请求的 key 不存在或者是新加的，就需要加锁从 dirty 中读取。所以，读取不存在的 key 会因为加锁而导致性能下降，读取还没有提升的新值的情况下也会因为加锁性能下降。<br>
+</p>
+
+<p>
+其中，missLocked 增加 miss 的时候，如果 miss 数等于 dirty 长度，会将 dirty 提升为 read，并将 dirty 置空。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">m</span> *<span style="color: #df005f; font-weight: bold;">Map</span>) <span style="color: #d75fd7; font-weight: bold;">missLocked</span>() {
+    m.misses++ <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">misses&#35745;&#25968;&#21152;&#19968;</span>
+    <span style="color: #268bd2; font-weight: bold;">if</span> m.misses &lt; <span style="color: #268bd2;">len</span>(m.dirty) { <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#27809;&#36798;&#21040;&#38408;&#20540;(dirty&#23383;&#27573;&#30340;&#38271;&#24230;),&#36820;&#22238;</span>
+        <span style="color: #268bd2; font-weight: bold;">return</span>
+    }
+    m.read.<span style="color: #d75fd7; font-weight: bold;">Store</span>(<span style="color: #df005f; font-weight: bold;">readOnly</span>{<span style="color: #d75fd7;">m</span>: m.dirty}) <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#25226;dirty&#23383;&#27573;&#30340;&#20869;&#23384;&#25552;&#21319;&#20026;read&#23383;&#27573;</span>
+    m.dirty = <span style="color: #d75fd7;">nil</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#28165;&#31354;dirty</span>
+    m.misses = 0  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">misses&#25968;&#37325;&#32622;&#20026;0</span>
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org2a4c81e" class="outline-3">
+<h3 id="org2a4c81e">Delete 方法</h3>
+<div class="outline-text-3" id="text-org2a4c81e">
+<p>
+sync.map 的第 3 个核心方法是 Delete 方法。在 Go 1.15 中欧长坤提供了一个 LoadAndDelete 的实现（<a href="https://github.com/golang/go/issues/33762">go#issue 33762</a>），所以 Delete 方法的核心改在了对 LoadAndDelete 中实现了。<br>
+</p>
+
+<p>
+同样地，Delete 方法是先从 read 操作开始，原因我们已经知道了，因为不需要锁。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">m</span> *<span style="color: #df005f; font-weight: bold;">Map</span>) <span style="color: #d75fd7; font-weight: bold;">LoadAndDelete</span>(<span style="color: #8787d7;">key</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}) (<span style="color: #8787d7;">value</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}, <span style="color: #8787d7;">loaded</span> <span style="color: #df005f; font-weight: bold;">bool</span>) {
+    <span style="color: #8787d7;">read</span>, <span style="color: #8787d7;">_</span> := m.read.<span style="color: #d75fd7; font-weight: bold;">Load</span>().(<span style="color: #df005f; font-weight: bold;">readOnly</span>)
+    <span style="color: #8787d7;">e</span>, <span style="color: #8787d7;">ok</span> := read.m[key]
+    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #d75fd7;">!</span>ok &amp;&amp; read.amended {
+        m.mu.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21452;&#26816;&#26597;</span>
+        read, _ = m.read.<span style="color: #d75fd7; font-weight: bold;">Load</span>().(<span style="color: #df005f; font-weight: bold;">readOnly</span>)
+        e, ok = read.m[key]
+        <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #d75fd7;">!</span>ok &amp;&amp; read.amended {
+            e, ok = m.dirty[key]
+            <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36825;&#19968;&#34892;&#38271;&#22372;&#22312;1.15&#20013;&#23454;&#29616;&#30340;&#26102;&#20505;&#24536;&#35760;&#21152;&#19978;&#20102;&#65292;&#23548;&#33268;&#22312;&#29305;&#27530;&#30340;&#22330;&#26223;&#19979;&#26377;&#20123;key&#24635;&#26159;&#27809;&#26377;&#34987;&#22238;&#25910;</span>
+            <span style="color: #268bd2;">delete</span>(m.dirty, key)
+            <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">miss&#25968;&#21152;1</span>
+            m.<span style="color: #d75fd7; font-weight: bold;">missLocked</span>()
+        }
+        m.mu.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+    }
+    <span style="color: #268bd2; font-weight: bold;">if</span> ok {
+        <span style="color: #268bd2; font-weight: bold;">return</span> e.<span style="color: #268bd2;">delete</span>()
+    }
+    <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">nil</span>, <span style="color: #d75fd7;">false</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">m</span> *<span style="color: #df005f; font-weight: bold;">Map</span>) <span style="color: #d75fd7; font-weight: bold;">Delete</span>(<span style="color: #8787d7;">key</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}) {
+    m.<span style="color: #d75fd7; font-weight: bold;">LoadAndDelete</span>(key)
+}
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">e</span> *<span style="color: #df005f; font-weight: bold;">entry</span>) <span style="color: #268bd2;">delete</span>() (<span style="color: #8787d7;">value</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}, <span style="color: #8787d7;">ok</span> <span style="color: #df005f; font-weight: bold;">bool</span>) {
+    <span style="color: #268bd2; font-weight: bold;">for</span> {
+        <span style="color: #8787d7;">p</span> := atomic.<span style="color: #d75fd7; font-weight: bold;">LoadPointer</span>(&amp;e.p)
+        <span style="color: #268bd2; font-weight: bold;">if</span> p == <span style="color: #d75fd7;">nil</span> || p == expunged {
+            <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">nil</span>, <span style="color: #d75fd7;">false</span>
+        }
+        <span style="color: #268bd2; font-weight: bold;">if</span> atomic.<span style="color: #d75fd7; font-weight: bold;">CompareAndSwapPointer</span>(&amp;e.p, p, <span style="color: #d75fd7;">nil</span>) {
+            <span style="color: #268bd2; font-weight: bold;">return</span> *(*<span style="color: #268bd2; font-weight: bold;">interface</span>{})(p), <span style="color: #d75fd7;">true</span>
+        }
+    }
+}
+</pre>
+</div>
+
+<p>
+如果 read 中不存在，那么就需要从 dirty 中寻找这个项目。最终，如果项目存在就删除（将它的值标记为 nil）。如果项目不为 nil 或者没有被标记为 expunged，那么还可以把它的值返回。<br>
+</p>
+
+<p>
+最后，我补充一点，sync.map 还有一些 LoadAndDelete、LoadOrStore、Range 等辅助方法，但是没有 Len 这样查询 sync.Map 的包含项目数量的方法，并且官方也不准备提供。如果你想得到 sync.Map 的项目数量的话，你可能不得不通过 Range 逐个计数。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org0481f09" class="outline-2">
+<h2 id="org0481f09">总结</h2>
+<div class="outline-text-2" id="text-org0481f09">
+<p>
+Go 内置的 map 类型使用起来很方便，但是它有一个非常致命的缺陷，那就是它存在着并发问题，所以如果有多个 goroutine 同时并发访问这个 map，就会导致程序崩溃。所以 Go 官方 Blog 很早就提供了一种加锁的<a href="https://go.dev/blog/maps#TOC_6.">方法</a>，还有后来提供了适用特定场景的线程安全的 sync.Map，还有第三方实现的分片式的 map，这些方法都可以应用于并发访问的场景。<br>
+</p>
+
+<p>
+这里我给你的建议，也是 Go 开发者给的建议，就是通过性能测试，看看某种线程安全的 map 实现是否满足你的需求。<br>
+</p>
+
+<p>
+当然还有一些扩展其它功能的 map 实现，比如带有过期功能的<a href="https://github.com/zekroTJA/timedmap">timedmap</a>、使用红黑树实现的 key 有序的 <a href="https://godoc.org/github.com/emirpasic/gods/maps/treemap">treemap</a> 等，因为和并发问题没有关系，就不详细介绍了。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-06-29 Wed 17:23</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

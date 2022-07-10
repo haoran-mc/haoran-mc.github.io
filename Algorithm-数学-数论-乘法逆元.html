@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-11-06 Sat 19:23 -->
+<!-- 2022-06-09 Thu 11:42 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>乘法逆元</title>
@@ -34,7 +34,7 @@
 });
 </script>
 <script type="text/javascript"
-        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+        src="static/MathJax/MathJax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 </head>
 <body>
 <div id="content">
@@ -43,51 +43,50 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgf8b70f2">乘法逆元证明</a></li>
-<li><a href="#orgb56d598">求解逆元</a>
+<li><a href="#org14de1aa">乘法逆元证明</a></li>
+<li><a href="#org9c3ddd4">求解逆元</a>
 <ul>
-<li><a href="#orge0e7ebe">费马小定理</a>
+<li><a href="#orga586f79">费马小定理</a>
 <ul>
-<li><a href="#org457e4e3">使用费马小定理求解逆元</a></li>
+<li><a href="#orgf7ec39e">使用费马小定理求解逆元</a></li>
 </ul>
 </li>
-<li><a href="#orgdc55d07">扩展欧几里得算法求逆元</a>
+<li><a href="#orgbe930a3">扩展欧几里得算法求逆元</a>
 <ul>
-<li><a href="#orgd9c5312">解方程 ax + by = gcd(a, b)</a></li>
-<li><a href="#org49b946d">逆元的求解</a></li>
+<li><a href="#org31148a4">解方程 ax + by = gcd(a, b)</a></li>
+<li><a href="#org58ba0c0">逆元的求解</a></li>
 </ul>
 </li>
-<li><a href="#orga9dcdfa">递推打表求乘法逆元</a></li>
-<li><a href="#org458fe4b">公式计算逆元</a></li>
-<li><a href="#org28964c1">逆元刷题总结</a></li>
+<li><a href="#org1872b75">递推打表求乘法逆元</a></li>
+<li><a href="#org023c543">公式计算逆元</a></li>
+<li><a href="#org4a64dec">逆元刷题总结</a></li>
 </ul>
 </li>
-<li><a href="#orgc954aa3">求解二元一次方程组</a></li>
+<li><a href="#org48cf166">求解二元一次方程组</a></li>
 </ul>
 </div>
 </div>
 
-
-<div id="outline-container-orgf8b70f2" class="outline-2">
-<h2 id="orgf8b70f2">乘法逆元证明</h2>
-<div class="outline-text-2" id="text-orgf8b70f2">
+<div id="outline-container-org14de1aa" class="outline-2">
+<h2 id="org14de1aa">乘法逆元证明</h2>
+<div class="outline-text-2" id="text-org14de1aa">
 <p>
 (a + b) % p  = (a % p + b % p) % p<br>
 (a - b) % p  = (a % p - b % p) % p<br>
 (a * b) % p  = (a % p * b % p) % p<br>
-(a / b) % p != (a % p / b % p) % p<br>
+<span class="underline">(a / b) % p != (a % p / b % p) % p</span><br>
 </p>
 
 <blockquote>
 <p>
-数学家们无法忍受除法求模时不能满足分配律，于是定义了*乘法逆元*<br>
+数学家们无法忍受除法求模时不能满足分配律，于是定义了 <b>乘法逆元</b><br>
 </p>
 </blockquote>
 
 <dl class="org-dl">
-<dt>定义</dt><dd>若在 <code>(mod p)</code> 的意义下，对于一个整数a，有 \(a \times x \equiv 1(mod p)\)，即 \((a \times x - 1) \% p = 0\) 那么这个整数x即为a的乘法逆元，同时a也为x的乘法逆元。<br></dd>
-<dt>充要条件</dt><dd>a存在模p的乘法逆元的充要条件是 <b>gcd(a, p) = 1</b> , 即a与p互质<br></dd>
-<dt>应用</dt><dd>求 (a / b) % p 等同于 a * (b的逆元) % p<br></dd>
+<dt>定义</dt><dd>若在 <code>(mod p)</code> 的意义下，对于一个整数 \(a\)，有 \(a \cdot x \equiv 1(mod p)\)，即 \((a \times x - 1) \% p = 0\) 那么这个整数 x 即为 a 的乘法逆元，同时 a 也为 x 的乘法逆元；<br></dd>
+<dt>充要条件</dt><dd>a 存在模 p 的乘法逆元的充要条件是 <b>gcd(a, p) = 1</b> , 即 a 与 p 互质；<br></dd>
+<dt>应用</dt><dd>求 (a / b) % p 等同于 a * (b的逆元) % p；<br></dd>
 </dl>
 
 <br/>
@@ -97,41 +96,56 @@
 <br/>
 
 <p>
-真的会一直存在 \((a / b) \% p = a \times (b的逆元) \% p\) 吗？<br>
+真的会一直存在 \((a / b) \% p = (a \cdot b的逆元) \% p\) 吗？<br>
 </p>
 
 <p>
-证明: 假设b的逆元是\(x\)，有 \(b \times x \equiv 1(mod p)\)，假设 \((a / b) \% p = z\)<br>
+证明:<br>
 </p>
 
 <ul class="org-ul">
-<li>\((a / b) \% p = z\)<br></li>
-<li>\(a \% p = (z \times b) \% p\) (两边同乘 \(b\))<br></li>
-<li>\(a \% p \times x = (z \times b) \% p \times x\) (两边同乘 \(x\))<br></li>
-<li>\(a \times x \% p = (z \times b \times x) \% p\) (模运算符优先级与乘相同)<br></li>
-<li>而\(b \times x \equiv 1(mod p)\)<br></li>
-<li>\(a \times x \% p = (z \times (b \times x)) \% p\)<br></li>
-<li>\(a \times x \% p = {(z \% p) \times [(b \times x) \% p]} \% p\)<br></li>
-<li>\(a \times x \% p = [(z \% p) \times 1] \% p\) (乘法取模满足分配律)<br></li>
-<li>\(a \times x \% p = z \% p\)<br></li>
-<li>\(a \times x \equiv z(mod p)\)<br></li>
-<li>所以\((a / b) \% p = a \times x \% p = z\)<br></li>
+<li>假设1：\((a / b) \% p = z\)；<br></li>
+<li>假设2：\(b\) 的逆元是\(x\)，根据定义有 \(b \cdot x \equiv 1(mod p)\)；<br></li>
 </ul>
+
 <p>
-所以\((a / b) \% p = a \times (b的逆元) \% p\)<br>
+若想证明 \((a / b) \% p = (a \cdot inv(b)) \% p\)（我们用 inv(b) 表示 b 的逆元），即要证明 \((a \cdot x) \% p = z\)；<br>
+</p>
+
+<ul class="org-ul">
+<li>\((a / b) \% p = z\)，两边同乘 \(b\)<br></li>
+<li>\(a \% p = (z \cdot b) \% p\)，两边同乘 \(x\)<br></li>
+<li>\((a \% p) \cdot x = ((z \cdot b) \% p) \cdot x \Rightarrow a \% p \cdot x = (z \cdot b) \% p \cdot x\)<br></li>
+<li>由于模运算优先级与乘运算优先级相等，则有 \(a \cdot x \% p = z \cdot b \cdot x \% p \Rightarrow (a \cdot x) \% p = (z \cdot b \cdot x) \% p\)<br></li>
+<li>由于乘法取模满足分配律，则有 \((a \cdot x) \% p = (z \cdot b \cdot x) \% p\) <br>
+<ul class="org-ul">
+<li>\(\Rightarrow (a \cdot x) \% p = (z \cdot (b \cdot x)) \% p\)<br></li>
+<li>\(\Rightarrow (a \cdot x) \% p = [(z \% p) \cdot ((b \cdot x) \% p)] \% p\)<br></li>
+</ul></li>
+<li>而 \(x\) 是 \(b\) 的乘法逆元，根据定义有 \(b \cdot x \equiv 1(mod p)\)<br></li>
+<li>所以 \((a \cdot x) \% p = [(z \% p) \cdot 1] \% p\)<br>
+<ul class="org-ul">
+<li>\(\Rightarrow (a \cdot x) \% p = z \% p\)<br></li>
+</ul></li>
+<li>根据假设1，\(z < p\)<br></li>
+<li>所以 \((a \cdot x) \% p = z\)<br></li>
+</ul>
+
+<p>
+得证：\((a / b) \% p = (a \cdot inv(b)) \% p\)<br>
 </p>
 </div>
 </div>
-<div id="outline-container-orgb56d598" class="outline-2">
-<h2 id="orgb56d598">求解逆元</h2>
-<div class="outline-text-2" id="text-orgb56d598">
+<div id="outline-container-org9c3ddd4" class="outline-2">
+<h2 id="org9c3ddd4">求解逆元</h2>
+<div class="outline-text-2" id="text-org9c3ddd4">
 <p>
 求解逆元的方法有很多，费马小定理(p 为质数)，扩展欧几里得算法，线性递推&#x2026;&#x2026;<br>
 </p>
 </div>
-<div id="outline-container-orge0e7ebe" class="outline-3">
-<h3 id="orge0e7ebe">费马小定理</h3>
-<div class="outline-text-3" id="text-orge0e7ebe">
+<div id="outline-container-orga586f79" class="outline-3">
+<h3 id="orga586f79">费马小定理</h3>
+<div class="outline-text-3" id="text-orga586f79">
 <p>
 <b>费马小定理</b> ：假如a是一个整数，p是一个质数，那么<br>
 </p>
@@ -143,9 +157,9 @@
 <li value="证明">略<br></li>
 </ol>
 </div>
-<div id="outline-container-org457e4e3" class="outline-4">
-<h4 id="org457e4e3">使用费马小定理求解逆元</h4>
-<div class="outline-text-4" id="text-org457e4e3">
+<div id="outline-container-orgf7ec39e" class="outline-4">
+<h4 id="orgf7ec39e">使用费马小定理求解逆元</h4>
+<div class="outline-text-4" id="text-orgf7ec39e">
 <p>
 使用费马小定理求解逆元时，要求\(p\)为质数，且\(b\)不能为\(p\)的倍数，所以使用费马小定理的第二条：如果\(b\)不是\(p\)的倍数，\(b^{p - 1} \equiv 1(mod p)\)，所以\(b \times b^{p - 2} \equiv 1(mod p)\)，\(b^{p - 2}\)是\(b\)的逆元。那么使用快速幂求出\(b^{p - 2}\)即求出在 \((mod p)\) 的意义下，\(b\) 的乘法逆元<br>
 输入\(119\)，求出结果为\(19326\)，所以当求\(1 / 119) \% 99991\)时，可以转化为\((1 \times 19326) \% 99991\)<br>
@@ -153,13 +167,13 @@
 </div>
 </div>
 </div>
-<div id="outline-container-orgdc55d07" class="outline-3">
-<h3 id="orgdc55d07">扩展欧几里得算法求逆元</h3>
-<div class="outline-text-3" id="text-orgdc55d07">
+<div id="outline-container-orgbe930a3" class="outline-3">
+<h3 id="orgbe930a3">扩展欧几里得算法求逆元</h3>
+<div class="outline-text-3" id="text-orgbe930a3">
 </div>
-<div id="outline-container-orgd9c5312" class="outline-4">
-<h4 id="orgd9c5312">解方程 ax + by = gcd(a, b)</h4>
-<div class="outline-text-4" id="text-orgd9c5312">
+<div id="outline-container-org31148a4" class="outline-4">
+<h4 id="org31148a4">解方程 ax + by = gcd(a, b)</h4>
+<div class="outline-text-4" id="text-org31148a4">
 <p>
 在欧几里得算法中通过定理 \(gcd(a, b) = gcd(b, a \% b)\)，我们使用递归求得 \(a\) 与 \(b\) 的最大公约数，在递归边界当\(b = 0\)时，\(a = gcd(a, b)\)，此时显然有\(a \times 1 + b \times 0 = gcd\)。对于这样的一个式子，我们能否对它进行推广呢？<br>
 </p>
@@ -177,9 +191,9 @@
 </ul>
 </div>
 </div>
-<div id="outline-container-org49b946d" class="outline-4">
-<h4 id="org49b946d">逆元的求解</h4>
-<div class="outline-text-4" id="text-org49b946d">
+<div id="outline-container-org58ba0c0" class="outline-4">
+<h4 id="org58ba0c0">逆元的求解</h4>
+<div class="outline-text-4" id="text-org58ba0c0">
 <ul class="org-ul">
 <li>由定义知，求 \(a\) 模 \(m\) 的逆元，就是求解同余式 \(ax \equiv 1(mod m)\)<br></li>
 <li>\(ax \equiv 1(mod m)\)<br></li>
@@ -192,9 +206,9 @@
 </div>
 </div>
 </div>
-<div id="outline-container-orga9dcdfa" class="outline-3">
-<h3 id="orga9dcdfa">递推打表求乘法逆元</h3>
-<div class="outline-text-3" id="text-orga9dcdfa">
+<div id="outline-container-org1872b75" class="outline-3">
+<h3 id="org1872b75">递推打表求乘法逆元</h3>
+<div class="outline-text-3" id="text-org1872b75">
 <dl class="org-dl">
 <dt>目的</dt><dd>得到在(mod m)的意义下的[2, n)区间内每个数分别对应的逆元<br></dd>
 </dl>
@@ -227,9 +241,9 @@
 </ul>
 </div>
 </div>
-<div id="outline-container-org458fe4b" class="outline-3">
-<h3 id="org458fe4b">公式计算逆元</h3>
-<div class="outline-text-3" id="text-org458fe4b">
+<div id="outline-container-org023c543" class="outline-3">
+<h3 id="org023c543">公式计算逆元</h3>
+<div class="outline-text-3" id="text-org023c543">
 <p>
 最常见的就是扩展欧几里得，如果是素数，还可以用费马小定理。<br>
 但是你会发现费马小定理和扩展欧几里得算法求逆元是有局限性的，它们都会要求与互素<br>
@@ -252,9 +266,9 @@
 </p>
 </div>
 </div>
-<div id="outline-container-org28964c1" class="outline-3">
-<h3 id="org28964c1">逆元刷题总结</h3>
-<div class="outline-text-3" id="text-org28964c1">
+<div id="outline-container-org4a64dec" class="outline-3">
+<h3 id="org4a64dec">逆元刷题总结</h3>
+<div class="outline-text-3" id="text-org4a64dec">
 <p>
 (a + b) % p  = (a % p + b % p) % p<br>
 (a - b) % p  = (a % p - b % p) % p<br>
@@ -286,8 +300,8 @@
 </div>
 </div>
 </div>
-<div id="outline-container-orgc954aa3" class="outline-2">
-<h2 id="orgc954aa3">求解二元一次方程组</h2>
+<div id="outline-container-org48cf166" class="outline-2">
+<h2 id="org48cf166">求解二元一次方程组</h2>
 </div>
 </div>
 </body>

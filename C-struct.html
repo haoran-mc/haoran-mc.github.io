@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-06-13 Mon 20:11 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HOME</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">HOME</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgabff44f">struct</a>
+<ul>
+<li><a href="#orgc23b55e">struct与typedef</a></li>
+<li><a href="#org06d57fb">构造函数</a></li>
+<li><a href="#org5379a09">结构体中二分查找</a>
+<ul>
+<li><a href="#org587395f">结构体中查找</a></li>
+<li><a href="#org2cac4b5">vector与结构体</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgabff44f" class="outline-2">
+<h2 id="orgabff44f">struct</h2>
+<div class="outline-text-2" id="text-orgabff44f">
+</div>
+<div id="outline-container-orgc23b55e" class="outline-3">
+<h3 id="orgc23b55e"><a href="C-C++-struct%E4%B8%8Etypedef.html">struct与typedef</a></h3>
+</div>
+<div id="outline-container-org06d57fb" class="outline-3">
+<h3 id="org06d57fb"><a href="C-C++-struct%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0.html">构造函数</a></h3>
+</div>
+<div id="outline-container-org5379a09" class="outline-3">
+<h3 id="org5379a09">结构体中二分查找</h3>
+<div class="outline-text-3" id="text-org5379a09">
+<p>
+<a id="orga0d7254"></a><br>
+</p>
+</div>
+<div id="outline-container-org587395f" class="outline-4">
+<h4 id="org587395f">结构体中查找</h4>
+<div class="outline-text-4" id="text-org587395f">
+<div class="org-src-container">
+<pre class="src src-C++"><span style="color: #d75fd7;">#include</span> <span style="color: #2aa198;">&lt;iostream&gt;</span>
+<span style="color: #268bd2; font-weight: bold;">using</span> <span style="color: #268bd2; font-weight: bold;">namespace</span> <span style="color: #d75fd7;">std</span>;
+<span style="color: #268bd2; font-weight: bold;">struct</span> <span style="color: #df005f; font-weight: bold;">Node</span>{
+    <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">A</span>;
+    <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">B</span>;
+    <span style="color: #d75fd7; font-weight: bold;">MY</span>(){}
+    <span style="color: #d75fd7; font-weight: bold;">MY</span>(<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">A</span>,<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">B</span>): A(_A), B(_B) {}
+    <span style="color: #df005f; font-weight: bold;">bool</span> <span style="color: #268bd2; font-weight: bold;">operator</span><span style="color: #d75fd7; font-weight: bold;">&lt;</span>(<span style="color: #268bd2; font-weight: bold;">const</span> <span style="color: #df005f; font-weight: bold;">Node</span> <span style="color: #8787d7;">x</span>)<span style="color: #268bd2; font-weight: bold;">const</span>{ <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#23450;&#20041;&#27604;&#36739;&#26041;&#24335;&#65292;&#36825;&#19968;&#27493;&#24456;&#37325;&#35201;</span>
+        <span style="color: #268bd2; font-weight: bold;">return</span> A &lt; x.A;
+    }
+};
+
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #d75fd7; font-weight: bold;">main</span>(){
+    <span style="color: #df005f; font-weight: bold;">Node</span> <span style="color: #8787d7;">x</span>[10];
+    <span style="color: #268bd2; font-weight: bold;">for</span>(<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">i</span> = 0; i &lt; 10; i++){
+        m[i] = Node(i + 1, 2 * i);
+        cout &lt;&lt; m[i].A &lt;&lt; <span style="color: #2aa198;">"  "</span>&lt;&lt; m[i].B &lt;&lt; endl;
+    }
+    cout &lt;&lt; <span style="color: #2aa198;">"&#35831;&#36755;&#20837;&#20320;&#38656;&#35201;&#26597;&#25214;&#30340;&#25968;&#23383;a:"</span> &lt;&lt; endl;
+    <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">num</span>;
+    cin &gt;&gt; num;
+    sort(x, x + 10);<span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#36827;&#34892;&#20108;&#20998;&#20043;&#21069;&#38656;&#35201;&#25490;&#24207;</span>
+    <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#38656;&#35201;&#25226;&#25105;&#20204;&#26597;&#25214;&#30340;&#25968;&#23553;&#35013;&#25104;&#19968;&#20010;&#32467;&#26500;&#20307;&#25165;&#33021;&#36827;&#34892;&#26597;&#25214;&#12290;</span>
+    <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">position</span> = lower_bound(x, x + 10, Node(num, 0)) - m;
+    cout &lt;&lt; <span style="color: #2aa198;">"&#26597;&#21040;&#20301;&#32622;&#20026;&#65306;"</span> &lt;&lt; position &lt;&lt; endl;
+    <span style="color: #268bd2; font-weight: bold;">return</span> 0;
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org2cac4b5" class="outline-4">
+<h4 id="org2cac4b5">vector与结构体</h4>
+<div class="outline-text-4" id="text-org2cac4b5">
+<div class="org-src-container">
+<pre class="src src-C++"><span style="color: #d75fd7;">#include</span> <span style="color: #2aa198;">&lt;iostream&gt;</span>
+<span style="color: #268bd2; font-weight: bold;">using</span> <span style="color: #268bd2; font-weight: bold;">namespace</span> <span style="color: #d75fd7;">std</span>;
+<span style="color: #268bd2; font-weight: bold;">struct</span> <span style="color: #df005f; font-weight: bold;">Node</span>{
+    <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">A</span>;
+    <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">B</span>;
+    <span style="color: #d75fd7; font-weight: bold;">MY</span>(){}
+    <span style="color: #d75fd7; font-weight: bold;">MY</span>(<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">A</span>,<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">B</span>): A(_A), B(_B) {}
+    <span style="color: #df005f; font-weight: bold;">bool</span> <span style="color: #268bd2; font-weight: bold;">operator</span><span style="color: #d75fd7; font-weight: bold;">&lt;</span>(<span style="color: #268bd2; font-weight: bold;">const</span> <span style="color: #df005f; font-weight: bold;">Node</span> <span style="color: #8787d7;">x</span>)<span style="color: #268bd2; font-weight: bold;">const</span>{ <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#23450;&#20041;&#27604;&#36739;&#26041;&#24335;&#65292;&#36825;&#19968;&#27493;&#24456;&#37325;&#35201;</span>
+        <span style="color: #268bd2; font-weight: bold;">return</span> A &lt; x.A;
+    }
+};
+
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #d75fd7; font-weight: bold;">main</span>(){
+    <span style="color: #df005f; font-weight: bold;">vector</span>&lt;<span style="color: #df005f; font-weight: bold;">Node</span>&gt; <span style="color: #8787d7;">vec</span>;
+    <span style="color: #268bd2; font-weight: bold;">for</span>(<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">i</span> = 0; i &lt; 10; i++){
+        vec.push_back(Node(i+1, 2*i));
+        cout &lt;&lt; vec[i].A &lt;&lt; <span style="color: #2aa198;">"  "</span> &lt;&lt; vec[i].B &lt;&lt; endl;
+    }
+    cout &lt;&lt; <span style="color: #2aa198;">"&#35831;&#36755;&#20837;&#20320;&#38656;&#35201;&#26597;&#25214;&#30340;&#25968;&#23383;a:"</span> &lt;&lt; endl;
+    <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">num</span>;
+    cin &gt;&gt; num;
+    sort(vec.begin(), ve.end());<span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#36827;&#34892;&#20108;&#20998;&#20043;&#21069;&#38656;&#35201;&#25490;&#24207;</span>
+    <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#38656;&#35201;&#25226;&#25105;&#20204;&#26597;&#25214;&#30340;&#25968;&#23553;&#35013;&#25104;&#19968;&#20010;&#32467;&#26500;&#20307;&#25165;&#33021;&#36827;&#34892;&#26597;&#25214;&#12290;</span>
+    <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">position</span> = lower_bound(vec.begin(), vec.end(), Node(num, 0)) - ve.begin();
+    cout &lt;&lt; <span style="color: #2aa198;">"&#26597;&#21040;&#20301;&#32622;&#20026;&#65306;"</span> &lt;&lt; position &lt;&lt; endl;
+    <span style="color: #268bd2; font-weight: bold;">return</span> 0;
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-06-13 Mon 20:11</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

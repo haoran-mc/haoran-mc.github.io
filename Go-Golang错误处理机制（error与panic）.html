@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-07-06 Wed 01:57 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Golang错误处理机制（error与panic）</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">Golang错误处理机制（error与panic）</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgf62dcf2">panic 与 error</a>
+<ul>
+<li><a href="#org829248a">error</a></li>
+<li><a href="#org3083422">panic</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgf62dcf2" class="outline-2">
+<h2 id="orgf62dcf2">panic 与 error</h2>
+<div class="outline-text-2" id="text-orgf62dcf2">
+<p>
+在Go语言中，错误或异常分为error和panic两种，error一般是程序员可预知的，会进行合适的处理，例如检测输入是否合法等。而panic是程序员无法预知的异常，例如空指针或数组越界等。<br>
+</p>
+</div>
+<div id="outline-container-org829248a" class="outline-3">
+<h3 id="org829248a">error</h3>
+<div class="outline-text-3" id="text-org829248a">
+<p>
+Go 提供了两种创建 <code>error</code> 的方法，分别是： <code>erors.New</code> 、 <code>fmt.Errorf</code> 。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"errors"</span>
+    <span style="color: #2aa198;">"fmt"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">res1</span>, <span style="color: #8787d7;">err1</span> := <span style="color: #d75fd7; font-weight: bold;">div</span>(1, 1)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(res1, err1)
+
+    <span style="color: #8787d7;">res2</span>, <span style="color: #8787d7;">err2</span> := <span style="color: #d75fd7; font-weight: bold;">div</span>(1, 0)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(res2, err2)
+
+    <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;&#19968;&#20010;error</span>
+    <span style="color: #8787d7;">e</span> := fmt.<span style="color: #d75fd7; font-weight: bold;">Errorf</span>(<span style="color: #2aa198;">"&#33258;&#23450;&#20041;error"</span>)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(e)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">div</span>(<span style="color: #8787d7;">n</span>, <span style="color: #8787d7;">m</span> <span style="color: #df005f; font-weight: bold;">int</span>) (<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #df005f; font-weight: bold;">error</span>) {
+    <span style="color: #268bd2; font-weight: bold;">if</span> m == 0 {
+        <span style="color: #268bd2; font-weight: bold;">return</span> 0, errors.<span style="color: #d75fd7; font-weight: bold;">New</span>(<span style="color: #2aa198;">"0&#19981;&#33021;&#20316;&#20026;&#20998;&#27597;"</span>)
+    }
+    <span style="color: #268bd2; font-weight: bold;">return</span> m / n, <span style="color: #d75fd7;">nil</span>
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org3083422" class="outline-3">
+<h3 id="org3083422">panic</h3>
+<div class="outline-text-3" id="text-org3083422">
+<p>
+一般在没有 <code>recover</code> 的情况下 <code>panic</code> 会导致程序崩溃， <code>panic</code> ， <code>defer</code> 和 <code>recover</code> 经常同时出现，用于异常处理，下面是 <code>panic</code> 异常处理的示例。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#27880;&#20876;&#25429;&#33719;panic&#30340;&#20989;&#25968;,&#24517;&#39035;&#20808;&#27880;&#20876;&#65292;&#33509;&#22312;panic&#20043;&#21518;&#21017;&#26080;&#25928;</span>
+    <span style="color: #268bd2; font-weight: bold;">defer</span> <span style="color: #d75fd7; font-weight: bold;">doPanic</span>()
+    <span style="color: #8787d7;">n</span> := 0
+    <span style="color: #8787d7;">res</span> := 1 / n
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(res) <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">panic &#20043;&#21518;&#30340;&#20195;&#30721;&#19981;&#20250;&#25191;&#34892;</span>
+}
+
+<span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#24403;&#25429;&#33719;&#21040;panic&#26102;&#35302;&#21457;&#27492;&#20989;&#25968;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">doPanic</span>() {
+    <span style="color: #8787d7;">err</span> := <span style="color: #268bd2;">recover</span>()
+    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"&#25429;&#33719;&#21040;panic"</span>)
+    }
+}
+</pre>
+</div>
+
+<p>
+注意在 Go 语言中， <code>recover</code> 只在 <code>defer</code> 调用的函数中有效，并且 <code>defer</code> 要在 <code>panic</code> 之前先注册，否则不能捕获异常。当 <code>panic</code> 被捕获到后，被注册的函数将获得程序控制权。<br>
+</p>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-07-06 Wed 01:57</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

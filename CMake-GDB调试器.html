@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-04-11 Mon 14:46 -->
+<!-- 2022-07-02 Sat 23:29 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GDB 调试器</title>
@@ -26,7 +26,7 @@
 <li><a href="#orge981021">GDB 命令速查</a></li>
 <li><a href="#org5b48fe3">启动调试</a>
 <ul>
-<li><a href="#org687d699">前言</a></li>
+<li><a href="#org3d611d4">前言</a></li>
 <li><a href="#org3e0553b">哪类程序可被调试</a>
 <ul>
 <li><a href="#orgbd0f36a">gdb filename</a></li>
@@ -55,11 +55,11 @@
 </li>
 </ul>
 </li>
-<li><a href="#org0c48893">断点设置</a>
+<li><a href="#org5612c50">断点设置</a>
 <ul>
 <li><a href="#org584a8ab">为何要设置断点</a></li>
 <li><a href="#org0c8a626">查看已设置的断点</a></li>
-<li><a href="#orgd524996">断点设置</a>
+<li><a href="#org05c021a">断点设置</a>
 <ul>
 <li><a href="#org4a2784c">根据行号设置断点</a></li>
 <li><a href="#org5eeb153">根据函数名设置断点</a></li>
@@ -76,8 +76,8 @@
 </li>
 <li><a href="#org9477b4a">变量查看</a>
 <ul>
-<li><a href="#org3fad9ff">前言</a></li>
-<li><a href="#org870e231">准备工作</a></li>
+<li><a href="#org7f09e6b">前言</a></li>
+<li><a href="#orgf167692">准备工作</a></li>
 <li><a href="#orgfbfcb11">普通变量查看</a>
 <ul>
 <li><a href="#org12dc0ce">打印基本类型变量，数组，字符数组</a></li>
@@ -92,7 +92,7 @@
 </li>
 <li><a href="#orge377651">单步调试</a>
 <ul>
-<li><a href="#org4fd18ef">前言</a></li>
+<li><a href="#orgbd8dd37">前言</a></li>
 <li><a href="#orgf5bfd26">准备</a></li>
 <li><a href="#org27a85db">列出源码 - list</a></li>
 <li><a href="#orge309932">单步执行 - next</a></li>
@@ -104,7 +104,7 @@
 </li>
 <li><a href="#orgedfc0ff">源码查看</a>
 <ul>
-<li><a href="#org4f44a43">准备工作</a></li>
+<li><a href="#orge06789e">准备工作</a></li>
 <li><a href="#org68da4b1">列出源码</a></li>
 <li><a href="#orgd06b477">指定源码路径</a>
 <ul>
@@ -219,16 +219,18 @@ Tips：<br>
 </blockquote>
 </div>
 </div>
-
 <div id="outline-container-orge981021" class="outline-2">
 <h2 id="orge981021">GDB 命令速查</h2>
 <div class="outline-text-2" id="text-orge981021">
 <dl class="org-dl">
+<dt>where</dt><dd>查看当前位置<br></dd>
 <dt>info files</dt><dd>查看正在调试的目标和文件的名称<br></dd>
 <dt>info functions</dt><dd>所有函数名<br></dd>
-<dt>info breakpoints</dt><dd>查看断点,可以后接参数 n 表示查看某个断点号<br></dd>
+<dt>info breakpoints</dt><dd>查看断点，可以后接参数 n 表示查看某个断点号<br></dd>
 <dt>info args</dt><dd>打印当前函数的参数名及其值<br></dd>
 <dt>info locals</dt><dd>打印出当前函数中所有局部变量及其值<br></dd>
+<dt>info variables</dt><dd>查看全局和静态变量<br></dd>
+<dt>x</dt><dd>查看内存变量<br></dd>
 <dt>break &lt;function&gt;</dt><dd>在进入指定函数时停住<br></dd>
 <dt>break &lt;linenum&gt;</dt><dd>在指定行号停住<br></dd>
 <dt>break +offset</dt><dd>在当前行号的前面的 offset 行停住<br></dd>
@@ -236,7 +238,7 @@ Tips：<br>
 <dt>break filename:function</dt><dd>在指定文件的 function 函数的入口处停住<br></dd>
 <dt>break filename:linenum</dt><dd>在指定文件的 linenum 行停住<br></dd>
 <dt>break *address</dt><dd>在程序运行的内存地址处停住<br></dd>
-<dt>break</dt><dd>break 命令没有参数时，表示在吓一条指令处停住<br></dd>
+<dt>break</dt><dd>break 命令没有参数时，表示在下一条指令处停住<br></dd>
 <dt>break if &lt;condition&gt;</dt><dd>在条件成立时停住，比如：break if i=100<br></dd>
 </dl>
 </div>
@@ -245,9 +247,9 @@ Tips：<br>
 <h2 id="org5b48fe3">启动调试</h2>
 <div class="outline-text-2" id="text-org5b48fe3">
 </div>
-<div id="outline-container-org687d699" class="outline-3">
-<h3 id="org687d699">前言</h3>
-<div class="outline-text-3" id="text-org687d699">
+<div id="outline-container-org3d611d4" class="outline-3">
+<h3 id="org3d611d4">前言</h3>
+<div class="outline-text-3" id="text-org3d611d4">
 <p>
 GDB（GNU Debugger）是 UNIX 及 UNIX-like 下的强大调试工具，可以调试 ada, c, c++, asm, minimal, d, fortran, objective-c, go, java,pascal 等语言。本文以 C 程序为例，介绍 GDB 启动调试的多种方式。<br>
 </p>
@@ -495,16 +497,16 @@ gdb hello --pid 20829
 <pre class="src src-bash">$ gdb
 (gdb) file hello
 Reading symbols from hello...done.
-(gdb)attach 20829
+(gdb) attach 20829
 </pre>
 </div>
 </div>
 </div>
 </div>
 </div>
-<div id="outline-container-org0c48893" class="outline-2">
-<h2 id="org0c48893">断点设置</h2>
-<div class="outline-text-2" id="text-org0c48893">
+<div id="outline-container-org5612c50" class="outline-2">
+<h2 id="org5612c50">断点设置</h2>
+<div class="outline-text-2" id="text-org5612c50">
 </div>
 <div id="outline-container-org584a8ab" class="outline-3">
 <h3 id="org584a8ab">为何要设置断点</h3>
@@ -522,9 +524,9 @@ Reading symbols from hello...done.
 </p>
 </div>
 </div>
-<div id="outline-container-orgd524996" class="outline-3">
-<h3 id="orgd524996">断点设置</h3>
-<div class="outline-text-3" id="text-orgd524996">
+<div id="outline-container-org05c021a" class="outline-3">
+<h3 id="org05c021a">断点设置</h3>
+<div class="outline-text-3" id="text-org05c021a">
 <p>
 设置断点的方式有很多，借助下面实例（setpoints.c）来介绍：<br>
 </p>
@@ -792,17 +794,17 @@ delete bnum               <span style="color: #008787; background-color: #262626
 <h2 id="org9477b4a">变量查看</h2>
 <div class="outline-text-2" id="text-org9477b4a">
 </div>
-<div id="outline-container-org3fad9ff" class="outline-3">
-<h3 id="org3fad9ff">前言</h3>
-<div class="outline-text-3" id="text-org3fad9ff">
+<div id="outline-container-org7f09e6b" class="outline-3">
+<h3 id="org7f09e6b">前言</h3>
+<div class="outline-text-3" id="text-org7f09e6b">
 <p>
 在启动调试以及设置断点之后，就到了我们非常关键的一步-查看变量。GDB 调试最大的目的之一就是走查代码，查看运行结果是否符合预期。既然如此，我们就不得不了解一些查看各种类型变量的方法，以帮助我们进一步定位问题。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org870e231" class="outline-3">
-<h3 id="org870e231">准备工作</h3>
-<div class="outline-text-3" id="text-org870e231">
+<div id="outline-container-orgf167692" class="outline-3">
+<h3 id="orgf167692">准备工作</h3>
+<div class="outline-text-3" id="text-orgf167692">
 <div class="org-src-container">
 <pre class="src src-c"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">checkvars.c</span>
 <span style="color: #d75fd7;">#include</span> <span style="color: #2aa198;">&lt;stdio.h&gt;</span>
@@ -1103,9 +1105,9 @@ rbp            0x7ffffffedde0   0x7ffffffedde0
 <h2 id="orge377651">单步调试</h2>
 <div class="outline-text-2" id="text-orge377651">
 </div>
-<div id="outline-container-org4fd18ef" class="outline-3">
-<h3 id="org4fd18ef">前言</h3>
-<div class="outline-text-3" id="text-org4fd18ef">
+<div id="outline-container-orgbd8dd37" class="outline-3">
+<h3 id="orgbd8dd37">前言</h3>
+<div class="outline-text-3" id="text-orgbd8dd37">
 <p>
 在启动调试设置断点观察之后，没有我们想要的信息怎么办呢？这个时候，就需要单步执行或者跳过当前断点继续执行等等。而本文所说的单步调试并非仅仅指单步执行，而是指在你的控制之下，按要求执行语句。<br>
 </p>
@@ -1585,9 +1587,9 @@ Breakpoint 1, main () at step.c:27
 <h2 id="orgedfc0ff">源码查看</h2>
 <div class="outline-text-2" id="text-orgedfc0ff">
 </div>
-<div id="outline-container-org4f44a43" class="outline-3">
-<h3 id="org4f44a43">准备工作</h3>
-<div class="outline-text-3" id="text-org4f44a43">
+<div id="outline-container-orge06789e" class="outline-3">
+<h3 id="orge06789e">准备工作</h3>
+<div class="outline-text-3" id="text-orge06789e">
 <div class="org-src-container">
 <pre class="src src-c"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">main.c</span>
 <span style="color: #d75fd7;">#include</span> <span style="color: #2aa198;">&lt;stdio.h&gt;</span>

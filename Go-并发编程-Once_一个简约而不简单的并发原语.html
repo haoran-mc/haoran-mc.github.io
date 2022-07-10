@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-06-29 Wed 15:38 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GO 并发编程 - Once: 一个简约而不简单的并发原语</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">GO 并发编程 - Once: 一个简约而不简单的并发原语</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orga065c59">Once 初始化单例对象</a></li>
+<li><a href="#org4da1f17">Once 的使用场景</a></li>
+<li><a href="#org5c4fcae">如何实现一个 Once？</a></li>
+<li><a href="#orgcd01766">使用 Once 可能出现的 2 种错误</a>
+<ul>
+<li><a href="#orge6a1537">第一种错误：死锁</a></li>
+<li><a href="#orgd5e7194">第二种错误：未初始化</a></li>
+</ul>
+</li>
+<li><a href="#org81db2d7">Once 的踩坑案例</a></li>
+<li><a href="#orgdaea363">总结</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orga065c59" class="outline-2">
+<h2 id="orga065c59">Once 初始化单例对象</h2>
+<div class="outline-text-2" id="text-orga065c59">
+<p>
+<span class="underline">Once 可以用来执行且仅仅执行一次动作，常常用于单例对象的初始化场景。</span><br>
+</p>
+
+<p>
+那么，我们就从对单例对象进行初始化这件事儿说起。<br>
+</p>
+
+<p>
+初始化单例资源有很多方法，比如定义 package 级别的变量，这样程序在启动的时候就可以初始化：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> abc
+
+<span style="color: #268bd2; font-weight: bold;">import</span> time
+
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">startTime</span> = time.<span style="color: #d75fd7; font-weight: bold;">Now</span>()
+</pre>
+</div>
+
+<p>
+或者在 init 函数中进行初始化：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> abc
+
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">startTime</span> <span style="color: #df005f; font-weight: bold;">time.Time</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">init</span>() {
+    startTime = time.<span style="color: #d75fd7; font-weight: bold;">Now</span>()
+}
+</pre>
+</div>
+
+<p>
+又或者在 main 函数开始执行的时候，执行一个初始化的函数：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> abc
+
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">startTime</span> <span style="color: #df005f; font-weight: bold;">time.Tim</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">initApp</span>() {
+    startTime = time.<span style="color: #d75fd7; font-weight: bold;">Now</span>()
+}
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #d75fd7; font-weight: bold;">initApp</span>()
+}
+</pre>
+</div>
+
+<p>
+这三种方法都是线程安全的，并且后两种方法还可以根据传入的参数实现定制化的初始化操作。<br>
+</p>
+
+<p>
+但是很多时候我们是要延迟进行初始化的，所以有时候单例资源的初始化，我们会使用下面的方法：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"net"</span>
+    <span style="color: #2aa198;">"sync"</span>
+    <span style="color: #2aa198;">"time"</span>
+)
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20351;&#29992;&#20114;&#26021;&#38145;&#20445;&#35777;&#32447;&#31243;(goroutine)&#23433;&#20840;</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">connMu</span> <span style="color: #df005f; font-weight: bold;">sync.Mutex</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">conn</span> <span style="color: #df005f; font-weight: bold;">net.Conn</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">getConn</span>() <span style="color: #df005f; font-weight: bold;">net.Conn</span> {
+    connMu.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+    <span style="color: #268bd2; font-weight: bold;">defer</span> connMu.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;&#24050;&#21019;&#24314;&#22909;&#30340;&#36830;&#25509;</span>
+    <span style="color: #268bd2; font-weight: bold;">if</span> conn != <span style="color: #d75fd7;">nil</span> {
+        <span style="color: #268bd2; font-weight: bold;">return</span> conn
+    }
+
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21019;&#24314;&#36830;&#25509;</span>
+    conn, _ = net.<span style="color: #d75fd7; font-weight: bold;">DialTimeout</span>(<span style="color: #2aa198;">"tcp"</span>, <span style="color: #2aa198;">"baidu.com:80"</span>, 10*time.Second)
+    <span style="color: #268bd2; font-weight: bold;">return</span> conn
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20351;&#29992;&#36830;&#25509;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">conn</span> := <span style="color: #d75fd7; font-weight: bold;">getConn</span>()
+    <span style="color: #268bd2; font-weight: bold;">if</span> conn == <span style="color: #d75fd7;">nil</span> {
+        <span style="color: #268bd2;">panic</span>(<span style="color: #2aa198;">"conn is nil"</span>)
+    }
+}
+</pre>
+</div>
+
+<p>
+这种方式虽然实现起来简单，但是有性能问题。一旦连接创建好，每次请求的时候还是得竞争锁才能读取到这个连接，这是比较浪费资源的，因为连接如果创建好之后，其实就不需要锁的保护了。怎么办呢？<br>
+</p>
+
+<p>
+这个时候就可以使用这一讲要介绍的 Once 并发原语了。接下来我会详细介绍 Once 的使用、实现和易错场景。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4da1f17" class="outline-2">
+<h2 id="org4da1f17">Once 的使用场景</h2>
+<div class="outline-text-2" id="text-org4da1f17">
+<p>
+sync.Once 只暴露了一个方法 Do，你可以多次调用 Do 方法，但是只有第一次调用 Do 方法时 f 参数才会执行，这里的 f 是一个无参数无返回值的函数。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">o</span> *<span style="color: #df005f; font-weight: bold;">Once</span>) <span style="color: #d75fd7; font-weight: bold;">Do</span>(<span style="color: #8787d7;">f</span> <span style="color: #268bd2; font-weight: bold;">func</span>())
+</pre>
+</div>
+
+<p>
+因为当且仅当第一次调用 Do 方法的时候参数 f 才会执行，即使第二次、第三次、第 n 次调用时 f 参数的值不一样，也不会被执行，比如下面的例子，虽然 f1 和 f2 是不同的函数，但是第二个函数 f2 就不会执行。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"sync"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">once</span> <span style="color: #df005f; font-weight: bold;">sync.Once</span>
+
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#31532;&#19968;&#20010;&#21021;&#22987;&#21270;&#20989;&#25968;</span>
+    <span style="color: #8787d7;">f1</span> := <span style="color: #268bd2; font-weight: bold;">func</span>() {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"in f1"</span>)
+    }
+    once.<span style="color: #d75fd7; font-weight: bold;">Do</span>(f1) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25171;&#21360;&#20986; in f1</span>
+
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#31532;&#20108;&#20010;&#21021;&#22987;&#21270;&#20989;&#25968;</span>
+    <span style="color: #8787d7;">f2</span> := <span style="color: #268bd2; font-weight: bold;">func</span>() {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"in f2"</span>)
+    }
+    once.<span style="color: #d75fd7; font-weight: bold;">Do</span>(f2) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26080;&#36755;&#20986;</span>
+}
+</pre>
+</div>
+
+<p>
+因为这里的 f 参数是一个无参数无返回的函数，所以你可能会通过闭包的方式引用外面的参数，比如：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">addr</span> = <span style="color: #2aa198;">"baidu.com"</span>
+
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">conn</span> <span style="color: #df005f; font-weight: bold;">net.Conn</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>
+
+once.<span style="color: #d75fd7; font-weight: bold;">Do</span>(<span style="color: #268bd2; font-weight: bold;">func</span>() {
+    conn, err = net.<span style="color: #d75fd7; font-weight: bold;">Dial</span>(<span style="color: #2aa198;">"tcp"</span>, addr)
+})
+</pre>
+</div>
+
+<p>
+而且在实际的使用中，绝大多数情况下，你会使用闭包的方式去初始化外部的一个资源。<br>
+</p>
+
+<p>
+你看，Once 的使用场景很明确，所以，在标准库内部实现中也常常能看到 Once 的身影。<br>
+</p>
+
+<p>
+比如标准库内部 <a href="https://github.com/golang/go/blob/f0e97546962736fe4aa73b7c7ed590f0134515e1/src/cmd/go/internal/cache/default.go">cache</a> 的实现上，就使用了 Once 初始化 Cache 资源，包括 defaultDir 值的获取：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Default</span>() *<span style="color: #df005f; font-weight: bold;">Cache</span> { <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#33719;&#21462;&#40664;&#35748;&#30340;Cache</span>
+    defaultOnce.<span style="color: #d75fd7; font-weight: bold;">Do</span>(initDefaultCache) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21021;&#22987;&#21270;cache</span>
+    <span style="color: #268bd2; font-weight: bold;">return</span> defaultCache
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23450;&#20041;&#19968;&#20010;&#20840;&#23616;&#30340;cache&#21464;&#37327;&#65292;&#20351;&#29992;Once&#21021;&#22987;&#21270;&#65292;&#25152;&#20197;&#20063;&#23450;&#20041;&#20102;&#19968;&#20010;Once&#21464;&#37327;</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> (
+    <span style="color: #8787d7;">defaultOnce</span>  <span style="color: #df005f; font-weight: bold;">sync.Once</span>
+    <span style="color: #8787d7;">defaultCache</span> *<span style="color: #df005f; font-weight: bold;">Cache</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">initDefaultCache</span>() { <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#21021;&#22987;&#21270;cache,&#20063;&#23601;&#26159;Once.Do&#20351;&#29992;&#30340;f&#20989;&#25968;</span>
+    ......
+        defaultCache = c
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20854;&#23427;&#19968;&#20123;Once&#21021;&#22987;&#21270;&#30340;&#21464;&#37327;&#65292;&#27604;&#22914;defaultDir</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> (
+    <span style="color: #8787d7;">defaultDirOnce</span> <span style="color: #df005f; font-weight: bold;">sync.Once</span>
+    <span style="color: #8787d7;">defaultDir</span>     <span style="color: #df005f; font-weight: bold;">string</span>
+    <span style="color: #8787d7;">defaultDirErr</span>  <span style="color: #df005f; font-weight: bold;">error</span>
+)   
+</pre>
+</div>
+
+<p>
+还有一些测试的时候初始化测试的资源（<a href="https://github.com/golang/go/blob/50bd1c4d4eb4fac8ddeb5f063c099daccfb71b26/src/time/export_windows_test.go">export_windows_test</a>）：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#27979;&#35797;window&#31995;&#32479;&#35843;&#29992;&#26102;&#21306;&#30456;&#20851;&#20989;&#25968;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ForceAusFromTZIForTesting</span>() {
+    <span style="color: #d75fd7; font-weight: bold;">ResetLocalOnceForTest</span>()
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20351;&#29992;Once&#25191;&#34892;&#19968;&#27425;&#21021;&#22987;&#21270;</span>
+    localOnce.<span style="color: #d75fd7; font-weight: bold;">Do</span>(<span style="color: #268bd2; font-weight: bold;">func</span>() { <span style="color: #d75fd7; font-weight: bold;">initLocalFromTZI</span>(&amp;aus) })
+}
+</pre>
+</div>
+
+<p>
+除此之外，还有保证只调用一次 copyenv 的 envOnce，strings 包下的 Replacer，time 包中的<a href="https://github.com/golang/go/blob/b71eafbcece175db33acfb205e9090ca99a8f984/src/time/export_test.go#L12">测试</a>，Go 拉取库时的 <a href="https://github.com/golang/go/blob/8535008765b4fcd5c7dc3fb2b73a856af4d51f9b/src/cmd/go/internal/modfetch/proxy.go#L103">proxy</a>，net.pipe，crc64，Regexp，……，数不胜数。我给你重点介绍一下很值得我们学习的 math/big/sqrt.go 中实现的一个数据结构，它通过 Once 封装了一个只初始化一次的值：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20540;&#26159;3.0&#25110;&#32773;0.0&#30340;&#19968;&#20010;&#25968;&#25454;&#32467;&#26500;</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">threeOnce</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    sync.Once
+    v *<span style="color: #df005f; font-weight: bold;">Float</span>
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;&#27492;&#25968;&#25454;&#32467;&#26500;&#30340;&#20540;&#65292;&#22914;&#26524;&#36824;&#27809;&#26377;&#21021;&#22987;&#21270;&#20026;3.0&#65292;&#21017;&#21021;&#22987;&#21270;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">three</span>() *<span style="color: #df005f; font-weight: bold;">Float</span> {
+    threeOnce.<span style="color: #d75fd7; font-weight: bold;">Do</span>(<span style="color: #268bd2; font-weight: bold;">func</span>() { <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20351;&#29992;Once&#21021;&#22987;&#21270;</span>
+        threeOnce.v = <span style="color: #d75fd7; font-weight: bold;">NewFloat</span>(3.0)
+    })
+    <span style="color: #268bd2; font-weight: bold;">return</span> threeOnce.v
+}
+</pre>
+</div>
+
+<p>
+它将 sync.Once 和 *Float 封装成一个对象，提供了只初始化一次的值 v。 你看它的 three 方法的实现，虽然每次都调用 threeOnce.Do 方法，但是参数只会被调用一次。<br>
+</p>
+
+<p>
+当你使用 Once 的时候，你也可以尝试采用这种结构，将值和 Once 封装成一个新的数据结构，提供只初始化一次的值。<br>
+</p>
+
+<p>
+总结一下 Once 并发原语解决的问题和使用场景： <span class="underline">Once 常常用来初始化单例资源，或者并发访问只需初始化一次的共享资源，或者在测试的时候初始化一次测试资源。</span><br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5c4fcae" class="outline-2">
+<h2 id="org5c4fcae">如何实现一个 Once？</h2>
+<div class="outline-text-2" id="text-org5c4fcae">
+<p>
+很多人认为实现一个 Once 一样的并发原语很简单，只需使用一个 flag 标记是否初始化过即可，最多是用 atomic 原子操作这个 flag，比如下面的实现：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Once</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    done <span style="color: #df005f; font-weight: bold;">uint32</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">o</span> *<span style="color: #df005f; font-weight: bold;">Once</span>) <span style="color: #d75fd7; font-weight: bold;">Do</span>(<span style="color: #8787d7;">f</span> <span style="color: #268bd2; font-weight: bold;">func</span>()) {
+    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #d75fd7;">!</span>atomic.<span style="color: #d75fd7; font-weight: bold;">CompareAndSwapUint32</span>(&amp;o.done, 0, 1) {
+        <span style="color: #268bd2; font-weight: bold;">return</span>
+    }
+    <span style="color: #d75fd7; font-weight: bold;">f</span>()
+}
+</pre>
+</div>
+
+<p>
+这确实是一种实现方式，但是，这个实现有一个很大的问题，就是如果参数 f 执行很慢的话，后续调用 Do 方法的 goroutine 虽然看到 done 已经设置为执行过了，但是获取某些初始化资源的时候可能会得到空的资源，因为 f 还没有执行完。<br>
+</p>
+
+<p>
+所以， <b>一个正确的 Once 实现要使用一个互斥锁，这样初始化的时候如果有并发的 goroutine，就会进入doSlow 方法</b> 。互斥锁的机制保证只有一个 goroutine 进行初始化，同时利用 <b>双检查的机制</b> （double-checking），再次判断 o.done 是否为 0，如果为 0，则是第一次执行，执行完毕后，就将 o.done 设置为 1，然后释放锁。<br>
+</p>
+
+<p>
+即使此时有多个 goroutine 同时进入了 doSlow 方法，因为双检查的机制，后续的 goroutine 会看到 o.done 的值为 1，也不会再次执行 f。<br>
+</p>
+
+<p>
+这样既保证了并发的 goroutine 会等待 f 完成，而且还不会多次执行 f。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Once</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    done <span style="color: #df005f; font-weight: bold;">uint32</span>
+    m    <span style="color: #df005f; font-weight: bold;">Mutex</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">o</span> *<span style="color: #df005f; font-weight: bold;">Once</span>) <span style="color: #d75fd7; font-weight: bold;">Do</span>(<span style="color: #8787d7;">f</span> <span style="color: #268bd2; font-weight: bold;">func</span>()) {
+    <span style="color: #268bd2; font-weight: bold;">if</span> atomic.<span style="color: #d75fd7; font-weight: bold;">LoadUint32</span>(&amp;o.done) == 0 {
+        o.<span style="color: #d75fd7; font-weight: bold;">doSlow</span>(f)
+    }
+}
+
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">o</span> *<span style="color: #df005f; font-weight: bold;">Once</span>) <span style="color: #d75fd7; font-weight: bold;">doSlow</span>(<span style="color: #8787d7;">f</span> <span style="color: #268bd2; font-weight: bold;">func</span>()) {
+    o.m.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+    <span style="color: #268bd2; font-weight: bold;">defer</span> o.m.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21452;&#26816;&#26597;</span>
+    <span style="color: #268bd2; font-weight: bold;">if</span> o.done == 0 {
+        <span style="color: #268bd2; font-weight: bold;">defer</span> atomic.<span style="color: #d75fd7; font-weight: bold;">StoreUint32</span>(&amp;o.done, 1)
+        <span style="color: #d75fd7; font-weight: bold;">f</span>()
+    }
+}
+</pre>
+</div>
+
+<p>
+好了，到这里我们就了解了 Once 的使用场景，很明确，同时呢，也感受到 Once 的实现也是相对简单的。在实践中，其实很少会出现错误使用 Once 的情况，但是就像墨菲定律说的，凡是可能出错的事就一定会出错。使用 Once 也有可能出现两种错误场景，尽管非常罕见。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgcd01766" class="outline-2">
+<h2 id="orgcd01766">使用 Once 可能出现的 2 种错误</h2>
+<div class="outline-text-2" id="text-orgcd01766">
+</div>
+<div id="outline-container-orge6a1537" class="outline-3">
+<h3 id="orge6a1537">第一种错误：死锁</h3>
+<div class="outline-text-3" id="text-orge6a1537">
+<p>
+你已经知道了 Do 方法会执行一次 f，但是如果 f 中再次调用这个 Once 的 Do 方法的话，就会导致死锁的情况出现。这还不是无限递归的情况，而是的的确确的 Lock 的递归调用导致的死锁<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">once</span> <span style="color: #df005f; font-weight: bold;">sync.Once</span>
+    once.<span style="color: #d75fd7; font-weight: bold;">Do</span>(<span style="color: #268bd2; font-weight: bold;">func</span>() {
+        once.<span style="color: #d75fd7; font-weight: bold;">Do</span>(<span style="color: #268bd2; font-weight: bold;">func</span>() {
+            fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"&#21021;&#22987;&#21270;"</span>)
+        })
+    })
+}
+</pre>
+</div>
+
+<p>
+当然，想要避免这种情况的出现，就不要在 f 参数中调用当前的这个 Once，不管是直接的还是间接的。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd5e7194" class="outline-3">
+<h3 id="orgd5e7194">第二种错误：未初始化</h3>
+<div class="outline-text-3" id="text-orgd5e7194">
+<p>
+如果 f 方法执行的时候 panic，或者 f 执行初始化资源的时候失败了，这个时候，Once 还是会认为初次执行已经成功了，即使再次调用 Do 方法，也不会再次执行 f。<br>
+</p>
+
+<p>
+比如下面的例子，由于一些防火墙的原因，googleConn 并没有被正确的初始化，后面如果想当然认为既然执行了 Do 方法 googleConn 就已经初始化的话，会抛出空指针的错误：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">once</span> <span style="color: #df005f; font-weight: bold;">sync.Once</span>
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">googleConn</span> <span style="color: #df005f; font-weight: bold;">net.Conn</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21040;Google&#32593;&#31449;&#30340;&#19968;&#20010;&#36830;&#25509;</span>
+
+    once.<span style="color: #d75fd7; font-weight: bold;">Do</span>(<span style="color: #268bd2; font-weight: bold;">func</span>() {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#24314;&#31435;&#21040;google.com&#30340;&#36830;&#25509;&#65292;&#26377;&#21487;&#33021;&#22240;&#20026;&#32593;&#32476;&#30340;&#21407;&#22240;&#65292;googleConn&#24182;&#27809;&#26377;&#24314;&#31435;&#25104;&#21151;&#65292;&#27492;&#26102;&#23427;&#30340;&#20540;&#20026;nil</span>
+        googleConn, _ = net.<span style="color: #d75fd7; font-weight: bold;">Dial</span>(<span style="color: #2aa198;">"tcp"</span>, <span style="color: #2aa198;">"google.com:80"</span>)
+    })
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21457;&#36865;http&#35831;&#27714;</span>
+    googleConn.<span style="color: #d75fd7; font-weight: bold;">Write</span>([]<span style="color: #d75fd7; font-weight: bold;">byte</span>(<span style="color: #2aa198;">"GET / HTTP/1.1\r\nHost: google.com\r\n Accept: */*\r\n\r\n"</span>))
+    io.<span style="color: #d75fd7; font-weight: bold;">Copy</span>(os.Stdout, googleConn)
+}
+</pre>
+</div>
+
+<p>
+既然执行过 Once.Do 方法也可能因为函数执行失败的原因未初始化资源，并且以后也没机会再次初始化资源，那么这种初始化未完成的问题该怎么解决呢？<br>
+</p>
+
+<p>
+这里我们可以 <b>自己实现一个类似 Once 的并发原语</b> ，既可以返回当前调用 Do 方法是否正确完成，还可以在初始化失败后调用 Do 方法再次尝试初始化，直到初始化成功才不再初始化了。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#19968;&#20010;&#21151;&#33021;&#26356;&#21152;&#24378;&#22823;&#30340;Once</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Once</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    m    <span style="color: #df005f; font-weight: bold;">sync.Mutex</span>
+    done <span style="color: #df005f; font-weight: bold;">uint32</span>
+}
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20256;&#20837;&#30340;&#20989;&#25968;f&#26377;&#36820;&#22238;&#20540;error&#65292;&#22914;&#26524;&#21021;&#22987;&#21270;&#22833;&#36133;&#65292;&#38656;&#35201;&#36820;&#22238;&#22833;&#36133;&#30340;error</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Do&#26041;&#27861;&#20250;&#25226;&#36825;&#20010;error&#36820;&#22238;&#32473;&#35843;&#29992;&#32773;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">o</span> *<span style="color: #df005f; font-weight: bold;">Once</span>) <span style="color: #d75fd7; font-weight: bold;">Do</span>(<span style="color: #8787d7;">f</span> <span style="color: #268bd2; font-weight: bold;">func</span>() <span style="color: #df005f; font-weight: bold;">error</span>) <span style="color: #df005f; font-weight: bold;">error</span> {
+    <span style="color: #268bd2; font-weight: bold;">if</span> atomic.<span style="color: #d75fd7; font-weight: bold;">LoadUint32</span>(&amp;o.done) == 1 { <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">fast path</span>
+        <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">nil</span>
+    }
+    <span style="color: #268bd2; font-weight: bold;">return</span> o.<span style="color: #d75fd7; font-weight: bold;">slowDo</span>(f)
+}
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#36824;&#27809;&#26377;&#21021;&#22987;&#21270;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">o</span> *<span style="color: #df005f; font-weight: bold;">Once</span>) <span style="color: #d75fd7; font-weight: bold;">slowDo</span>(<span style="color: #8787d7;">f</span> <span style="color: #268bd2; font-weight: bold;">func</span>() <span style="color: #df005f; font-weight: bold;">error</span>) <span style="color: #df005f; font-weight: bold;">error</span> {
+    o.m.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+    <span style="color: #268bd2; font-weight: bold;">defer</span> o.m.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>
+    <span style="color: #268bd2; font-weight: bold;">if</span> o.done == 0 { <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21452;&#26816;&#26597;&#65292;&#36824;&#27809;&#26377;&#21021;&#22987;&#21270;</span>
+        err = <span style="color: #d75fd7; font-weight: bold;">f</span>()
+        <span style="color: #268bd2; font-weight: bold;">if</span> err == <span style="color: #d75fd7;">nil</span> { <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21021;&#22987;&#21270;&#25104;&#21151;&#25165;&#23558;&#26631;&#35760;&#32622;&#20026;&#24050;&#21021;&#22987;&#21270;</span>
+            atomic.<span style="color: #d75fd7; font-weight: bold;">StoreUint32</span>(&amp;o.done, 1)
+        }
+    }
+    <span style="color: #268bd2; font-weight: bold;">return</span> err
+} 
+</pre>
+</div>
+
+<p>
+我们所做的改变就是 Do 方法和参数 f 函数都会返回 error，如果 f 执行失败，会把这个错误信息返回。<br>
+</p>
+
+<p>
+对 slowDo 方法也做了调整，如果 f 调用失败，我们不会更改 done 字段的值，这样后续的 goroutine 还会继续调用 f。如果 f 执行成功，才会修改 done 的值为 1。<br>
+</p>
+
+<p>
+可以说，真是一顿操作猛如虎，我们使用 Once 有点得心应手的感觉了。等等，还有个问题，我们怎么查询是否初始化过呢？<br>
+</p>
+
+<p>
+目前的 Once 实现可以保证你调用任意次数的 once.Do 方法，它只会执行这个方法一次。但是，有时候我们需要打一个标记。如果初始化后我们就去执行其它的操作，标准库的 Once 并不会告诉你是否初始化完成了，只是让你放心大胆地去执行 Do 方法，所以， <b>你还需要一个辅助变量，自己去检查是否初始化过了</b> ，比如通过下面的代码中的 inited 字段：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">AnimalStore</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    once   <span style="color: #df005f; font-weight: bold;">sync.Once</span>;
+    inited <span style="color: #df005f; font-weight: bold;">uint32</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">a</span> *<span style="color: #df005f; font-weight: bold;">AnimalStore</span>) <span style="color: #d75fd7; font-weight: bold;">Init</span>() { <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21487;&#20197;&#34987;&#24182;&#21457;&#35843;&#29992;</span>
+    a.once.<span style="color: #d75fd7; font-weight: bold;">Do</span>(<span style="color: #268bd2; font-weight: bold;">func</span>() {
+        <span style="color: #d75fd7; font-weight: bold;">longOperationSetupDbOpenFilesQueuesEtc</span>()
+        atomic.<span style="color: #d75fd7; font-weight: bold;">StoreUint32</span>(&amp;a.inited, 1)
+    })
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">a</span> *<span style="color: #df005f; font-weight: bold;">AnimalStore</span>) <span style="color: #d75fd7; font-weight: bold;">CountOfCats</span>() (<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #df005f; font-weight: bold;">error</span>) { <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21478;&#22806;&#19968;&#20010;goroutine</span>
+    <span style="color: #268bd2; font-weight: bold;">if</span> atomic.<span style="color: #d75fd7; font-weight: bold;">LoadUint32</span>(&amp;a.inited) == 0 { <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21021;&#22987;&#21270;&#21518;&#25165;&#20250;&#25191;&#34892;&#30495;&#27491;&#30340;&#19994;&#21153;&#36923;&#36753;</span>
+        <span style="color: #268bd2; font-weight: bold;">return</span> 0, NotYetInitedError
+    }
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Real operation</span>
+}
+</pre>
+</div>
+
+<p>
+当然，通过这段代码，我们可以解决这类问题，但是，如果官方的 Once 类型有 Done 这样一个方法的话，我们就可以直接使用了。这是有人在 Go 代码库中提出的一个 issue(<a href="https://github.com/golang/go/issues/41690">#41690</a>)。对于这类问题，一般都会被建议采用其它类型，或者自己去扩展。我们可以尝试扩展这个并发原语：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Once &#26159;&#19968;&#20010;&#25193;&#23637;&#30340;sync.Once&#31867;&#22411;&#65292;&#25552;&#20379;&#20102;&#19968;&#20010;Done&#26041;&#27861;</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Once</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    sync.Once
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Done &#36820;&#22238;&#27492;Once&#26159;&#21542;&#25191;&#34892;&#36807;</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#25191;&#34892;&#36807;&#21017;&#36820;&#22238;true</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#27809;&#26377;&#25191;&#34892;&#36807;&#25110;&#32773;&#27491;&#22312;&#25191;&#34892;&#65292;&#36820;&#22238;false</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">o</span> *<span style="color: #df005f; font-weight: bold;">Once</span>) <span style="color: #d75fd7; font-weight: bold;">Done</span>() <span style="color: #df005f; font-weight: bold;">bool</span> {
+    <span style="color: #268bd2; font-weight: bold;">return</span> atomic.<span style="color: #d75fd7; font-weight: bold;">LoadUint32</span>((*uint32)(unsafe.<span style="color: #d75fd7; font-weight: bold;">Pointer</span>(&amp;o.Once))) == 1
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">flag</span> <span style="color: #df005f; font-weight: bold;">Once</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(flag.<span style="color: #d75fd7; font-weight: bold;">Done</span>()) <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">false</span>
+
+    flag.<span style="color: #d75fd7; font-weight: bold;">Do</span>(<span style="color: #268bd2; font-weight: bold;">func</span>() {
+        time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(time.Second)
+    })
+
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(flag.<span style="color: #d75fd7; font-weight: bold;">Done</span>()) <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">true</span>
+} 
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org81db2d7" class="outline-2">
+<h2 id="org81db2d7">Once 的踩坑案例</h2>
+<div class="outline-text-2" id="text-org81db2d7">
+<p>
+没有！使用 Once 真的不容易犯错，想犯错都很困难，因为很少有人会傻傻地在初始化函数 f 中递归调用 f，这种死锁的现象几乎不会发生。另外如果函数初始化不成功，我们一般会 panic，或者在使用的时候做检查，会及早发现这个问题，在初始化函数中加强代码。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgdaea363" class="outline-2">
+<h2 id="orgdaea363">总结</h2>
+<div class="outline-text-2" id="text-orgdaea363">
+<p>
+今天我们一起学习了 Once，我们常常使用它来实现单例模式。<br>
+</p>
+
+<p>
+单例是 23 种设计模式之一，也是常常引起争议的设计模式之一，甚至有人把它归为反模式。为什么说它是反模式呢，我拿标准库中的单例模式给你介绍下。<br>
+</p>
+
+<p>
+因为 Go 没有 immutable 类型，导致我们声明的全局变量都是可变的，别的地方或者第三方库可以随意更改这些变量。比如 package io 中定义了几个全局变量，比如 io.EOF：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">EOF</span> = errors.<span style="color: #d75fd7; font-weight: bold;">New</span>(<span style="color: #2aa198;">"EOF"</span>)
+</pre>
+</div>
+
+<p>
+因为它是一个 package 级别的变量，我们可以在程序中偷偷把它改了，这会导致一些依赖 io.EOF 这个变量做判断的代码出错。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">io.EOF = errors.<span style="color: #d75fd7; font-weight: bold;">New</span>(<span style="color: #2aa198;">"&#25105;&#20204;&#33258;&#24049;&#23450;&#20041;&#30340;EOF"</span>)
+</pre>
+</div>
+
+<p>
+从我个人的角度来说，一些单例（全局变量）的确很方便，比如 Buffer 池或者连接池，所以有时候我们也不要谈虎色变。虽然有人把单例模式称之为反模式，但毕竟只能代表一部分开发者的观点，否则也不会把它列在 23 种设计模式中了。<br>
+</p>
+
+<p>
+如果你真的担心这个 package 级别的变量被人修改，你可以不把它们暴露出来，而是提供一个只读的 GetXXX 的方法，这样别人就不会进行修改了。<br>
+</p>
+
+<p>
+而且，Once 不只应用于单例模式，一些变量在也需要在使用的时候做延迟初始化，所以也是可以使用 Once 处理这些场景的。<br>
+</p>
+
+<p>
+总而言之，Once 的应用场景还是很广泛的。一旦你遇到只需要初始化一次的场景，首先想到的就应该是 Once 并发原语。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-06-29 Wed 15:38</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

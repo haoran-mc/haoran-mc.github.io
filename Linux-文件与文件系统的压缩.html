@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-06-23 Thu 12:35 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>文件与文件系统的压缩</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">文件与文件系统的压缩</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org8105aa2">Linux 系统常见的压缩命令</a>
+<ul>
+<li><a href="#org1be64e2">gzip，zcat/zmore/zless/zgrep</a></li>
+<li><a href="#orgc563857">bzip2，bzcat/bzmore/bzless/bzgrep</a></li>
+<li><a href="#orgeedb1e2">xz，xzcat/xzmore/xzless/xzgrep</a></li>
+</ul>
+</li>
+<li><a href="#orgc0673fc">打包命令：tar</a>
+<ul>
+<li><a href="#org542fc16">仅解开单一文件</a></li>
+<li><a href="#orgfa95837">打包目录，但不包含某些文件</a></li>
+<li><a href="#org9f38dfb">仅备份比某个时刻还要新的文件</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org8105aa2" class="outline-2">
+<h2 id="org8105aa2">Linux 系统常见的压缩命令<a id="org2cd6d98"></a></h2>
+<div class="outline-text-2" id="text-org8105aa2">
+<pre class="example">
+*.Z compress 程序压缩的文件；
+*.zip zip 程序压缩的文件；
+*.gz gzip 程序压缩的文件；
+*.bz2 bzip2 程序压缩的文件；
+*.xz xz 程序压缩的文件；
+*.tar tar 程序打包的数据，并没有压缩过；
+*.tar.gz tar 程序打包的文件，其中并且经过 gzip 的压缩；
+*.tar.bz2 tar 程序打包的文件，其中并且经过 bzip2 的压缩；
+*.tar.xz tar 程序打包的文件，其中并且经过 xz 的压缩；
+</pre>
+</div>
+<div id="outline-container-org1be64e2" class="outline-3">
+<h3 id="org1be64e2">gzip，zcat/zmore/zless/zgrep</h3>
+<div class="outline-text-3" id="text-org1be64e2">
+<pre class="example">
+gzip [-cdtv#] 文件名
+
+-c: 将压缩的数据输出到屏幕上，可通过数据流重定向来处理；
+-d: 解压缩的参数；
+-t: 可以用来检验一个压缩文件的一致性，看看文件有无错误；
+-v: 可以显示出源文件/压缩文件的压缩比等信息；
+-#: #是数字，代表压缩等级，-1最快，但是压缩比最差，-9最慢，但是压缩比最好，默认是-6；
+</pre>
+
+<p>
+当你使用 gzip 进行压缩时，在默认的状态下原本的文件会被压缩成为 .gz 后缀的文件，源文件就不再存在了。<br>
+</p>
+
+<p>
+此外，使用 gzip 压缩的文件在 Windows 系统中，竟然可以被 WinRAR 或 7zip 这些软件解压缩，很好用。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc563857" class="outline-3">
+<h3 id="orgc563857">bzip2，bzcat/bzmore/bzless/bzgrep</h3>
+<div class="outline-text-3" id="text-orgc563857">
+<p>
+bzip2 是为了替换 gzip 并提供更佳的压缩比而来的。<br>
+</p>
+
+<pre class="example">
+bzip [-cdkzv#] 文件名
+
+-c: 将压缩的过程产生的数据输出到屏幕上；
+-d: 解压缩的参数；
+-k: 保留原始文件，而不会删除原始文件；
+-z: 压缩的参数（默认值，可以不加）；
+-v: 可以显示出源文件/压缩文件的压缩比等信息；
+-#: 与 gzip 同样的，都是计算压缩比的参数，-9最佳，-1最快；
+</pre>
+
+<p>
+bzip2 连选项与参数都跟 gzip 一模一样，只是扩展名由 .gz 变成 .bz2 而已，其他的用法都大同小异。你也可以发现到 bzip2 的压缩率确实比 gzip 要好些，不过，对于大容量文件来说，bzip2 压缩时间会花比较久，至少比 gzip 要久的多。毕竟要有更多可用容量，就得要花费相对应的时间。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgeedb1e2" class="outline-3">
+<h3 id="orgeedb1e2">xz，xzcat/xzmore/xzless/xzgrep</h3>
+<div class="outline-text-3" id="text-orgeedb1e2">
+<p>
+虽然 bzip2 已经具有很棒的压缩比，不过显然某些自由软件开发者还不满足，因此后来还推出了 xz 这个压缩比更高的软件。<br>
+</p>
+
+<pre class="example">
+xz [-dtlkc#] 文件名
+
+-d: 解压缩；
+-t: 测试压缩文件的完整性，看有没有错误；
+-l: 列出压缩文件的相关信息；
+-k: 保留原本的文件不删除；
+-c: 同样的，就是将数据在屏幕上输出的意思；
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgc0673fc" class="outline-2">
+<h2 id="orgc0673fc">打包命令：tar<a id="org272c4db"></a></h2>
+<div class="outline-text-2" id="text-orgc0673fc">
+<pre class="example">
+tar [-z|-j|-J] [cv] [-f 待建立的新文件名] filename...  &lt;== 打包与压缩
+tar [-z|-j|-J] [tv] [-f 既有的 tar 文件名]             &lt;== 查看文件名
+tar [-z|-j|-J] [xv] [-f 既有的 tar 文件名] [-C 目录]   &lt;== 解压缩
+
+-c: 建立打包文件，可搭配 -v 来查看过程中被打包的文件名（filename）；
+-t: 查看打包文件的内容含有哪些文件名，重点在查看【文件名】；
+-x: 解包或解压缩的功能，可以搭配 -C 在特定目录解压，特别留意 -c -t -x 不可同时出现在一串命令行中；
+
+-z: 通过 gzip 的支持进行压缩/解压缩；此时文件名最好为 *.tar.gz；
+-j: 通过 bzip2 的支持进行压缩/解压缩；此时文件名最好为 *tar.bz2；
+-J: 通过 xz 的支持进行压缩/解压缩；此时文件名最好为 *.tar.xz，特别留意 -z -j -J 不可同时出现在一串命令行中
+
+-v: 在压缩/解压缩的过程中，将正在处理的文件名显示出来；
+-f filename: -f 后面要立刻接要被处理的文件名，建议 -f 单独写一个选项；
+-C dirname: 这个选项用在解压缩，若要在特定目录解压缩，可以使用这个选项；
+-p: 保留备份数据的原本权限与属性，常用于备份（-c）重要的配置文件；
+-P: 保留绝对路径，亦即运行备份数据中含有根目录存在之意；
+--exclude=FILE: 在压缩的过程中，不用将 FILE 打包；
+</pre>
+
+<p>
+最简单的 tar 的使用：<br>
+</p>
+
+<ul class="org-ul">
+<li>压缩：tar -jcv -f filename.tar.bz2<br></li>
+<li>查询：tar -jtv -f filename.tar.bz2<br></li>
+<li>解压缩：tar -jxv -f filename.tar.bz2<br></li>
+</ul>
+</div>
+<div id="outline-container-org542fc16" class="outline-3">
+<h3 id="org542fc16">仅解开单一文件</h3>
+<div class="outline-text-3" id="text-org542fc16">
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#39318;&#20808;&#25214;&#21040;&#35201;&#35299;&#24320;&#30340;&#25991;&#20214;</span>
+$ tar -jtv -f /root/tec.tar.bz2 | grep <span style="color: #2aa198;">'shadow'</span>
+
+<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#35299;&#24320;&#25991;&#20214;</span>
+$ tar -jxv -f /root/etc.tar.bz2 etc/shadow
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgfa95837" class="outline-3">
+<h3 id="orgfa95837">打包目录，但不包含某些文件</h3>
+<div class="outline-text-3" id="text-orgfa95837">
+<div class="org-src-container">
+<pre class="src src-bash">$ tar -jcv -f /root/system.tar.bz2 --exclude=/root/etc* <span style="color: #2aa198;">\</span>
+&gt; --exclude=root/system.tar.bz2 /etc /root
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org9f38dfb" class="outline-3">
+<h3 id="org9f38dfb">仅备份比某个时刻还要新的文件</h3>
+<div class="outline-text-3" id="text-org9f38dfb">
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#39318;&#20808;&#25214;&#21040;&#27604; /etc/passwd &#36824;&#35201;&#26032;&#30340;&#25991;&#20214;</span>
+$ find /etc -newer /etc/passwd
+
+$ tar -jcv -f /root/etc.newer.then.passwd.tar.bz2 <span style="color: #2aa198;">\</span>
+&gt; --newer-mtime=<span style="color: #2aa198;">"2015/06/17"</span> /etc/*
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-06-23 Thu 12:35</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

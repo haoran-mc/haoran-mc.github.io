@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-04-15 Fri 01:38 -->
+<!-- 2022-06-28 Tue 14:36 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Strings, bytes, runes and characters in Go</title>
@@ -34,7 +34,7 @@
 });
 </script>
 <script type="text/javascript"
-        src="static/MathJax/cdn.bootcdn.net/ajax/libs/mathjax/3.1.2/es5/tex-mml-chtml.min.js"></script>
+        src="static/MathJax/MathJax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 </head>
 <body>
 <div id="content">
@@ -44,8 +44,8 @@
 <div id="text-table-of-contents">
 <ul>
 <li><a href="#org4bc53ec">为什么读取不到字符串下标n的值？</a></li>
-<li><a href="#org5bcd976">介绍</a></li>
-<li><a href="#org0d5cb5c">什么是string？</a></li>
+<li><a href="#org571671a">前言</a></li>
+<li><a href="#org192a24b">什么是 string？</a></li>
 <li><a href="#org5d59d59">看一个例子：打印 string</a></li>
 <li><a href="#orgf27a138">UTF-8和字符串文字</a></li>
 <li><a href="#org6bf27b0">code point、字符和runes之间的关系</a></li>
@@ -67,9 +67,9 @@ Note. 本文主要参考 <a href="https://blog.golang.org/strings">官方介绍�
 
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">testString</span>() {
-        <span style="color: #8787d7;">s</span> := <span style="color: #2aa198;">"&#25105;&#26159;&#20013;&#22269;&#20154;"</span>
-        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#38169;&#35823;&#29992;&#27861;&#65306;&#35835;&#21462;&#8220;&#25105;&#8221;</span>
-        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"%c"</span>,s[0]) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36755;&#20986;&#65306;&#230;</span>
+    <span style="color: #8787d7;">s</span> := <span style="color: #2aa198;">"&#25105;&#26159;&#20013;&#22269;&#20154;"</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#38169;&#35823;&#29992;&#27861;&#65306;&#35835;&#21462;&#8220;&#25105;&#8221;</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"%c"</span>,s[0]) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36755;&#20986;&#65306;&#230;</span>
 }
 </pre>
 </div>
@@ -79,11 +79,15 @@ Note. 本文主要参考 <a href="https://blog.golang.org/strings">官方介绍�
 </p>
 </div>
 </div>
-<div id="outline-container-org5bcd976" class="outline-2">
-<h2 id="org5bcd976">介绍</h2>
-<div class="outline-text-2" id="text-org5bcd976">
+<div id="outline-container-org571671a" class="outline-2">
+<h2 id="org571671a">前言</h2>
+<div class="outline-text-2" id="text-org571671a">
 <p>
 在介绍 string 类型前，希望能先阅读 <a href="http://blog.golang.org/slices">Arrays, slices (and strings): The mechanics of 'append'</a>  了解下 golang 的 slices。这篇 blog 用了大量示例来说明 slice 实现背后的机制。在此背景下，本文再来讨论 golang 的字符串。刚开始读者可能觉得字符串看起来太过简单，以至于不值得用一篇博客来介绍。但是要使用它们，不仅需要理解它们的原理，还需要理解字节，字符和 rune 之间的区别，Unicode 和 UTF-8，字符串和字符串文字的区别，以及其他更微妙的区别。<br>
+</p>
+
+<p>
+<a href="Wiki-字符编码笔记：ASCII，Unicode和UTF-8.html">字符编码笔记：ASCII，Unicode和UTF-8</a><br>
 </p>
 
 <p>
@@ -95,9 +99,9 @@ Note. 本文主要参考 <a href="https://blog.golang.org/strings">官方介绍�
 </p>
 </div>
 </div>
-<div id="outline-container-org0d5cb5c" class="outline-2">
-<h2 id="org0d5cb5c">什么是string？</h2>
-<div class="outline-text-2" id="text-org0d5cb5c">
+<div id="outline-container-org192a24b" class="outline-2">
+<h2 id="org192a24b">什么是 string？</h2>
+<div class="outline-text-2" id="text-org192a24b">
 <p>
 我们先从一些基础开始。<br>
 </p>
@@ -435,15 +439,22 @@ U+4EBA '人' 起始于字位置 12
 <h2 id="orgf191842">总结</h2>
 <div class="outline-text-2" id="text-orgf191842">
 <p>
-最后，对字符串类型做一个总结，希望能够帮助大家能够了解golang的字符串，并且能够在开发过程中正确处理它。<br>
+最后，对字符串类型做一个总结，希望能够帮助大家能够了解 golang 的字符串，并且能够在开发过程中正确处理它。<br>
 </p>
 
 <ul class="org-ul">
-<li>golang 的 string 是以 UTF-8 编码的，而 UTF-8 是一种 1-4 字节的可变长字符集，每个字符可用 1-4 字节来表示<br></li>
-<li>使用下标方式 s[i] 访问字符串 s，s[i] 是 UTF-8 编码后的一个字节（uint8），即按字节遍历<br></li>
-<li>使用 <code>for i,v := range s</code> 方式访问 s，i 是字符串下标编号，v 是对应的字符值（int32=rune），即按字符遍历<br></li>
-<li>使用 fmt.Printf 打印时，%c 占位符打印的是字符，%+v 占位符打印的是这个类型自身，如 <code>fmt.Printf(“%+v”, s[i])</code> 打印的就是字节一个十进制的无符号整数 s[i]<br></li>
-<li>如果希望以随机方式访问字符串 s 的每个字符，可以先转为 []rune 数组，再以下标访问<br></li>
+<li>golang 的 string 实际上是一个 <span class="underline">只读的字节 slice</span> ，这个 slice 通过 UTF-8 编码<br>
+<ul class="org-ul">
+<li>UTF-8 是一种 1~4 字节的可变长字符集，每个字符可用 1~4 字节来表示；<br></li>
+<li>即这个字节 slice 中，某些字节单独为 ASCII 码字符；某些字节与相邻的一些字节一起表示一个字符；<br></li>
+</ul></li>
+<li>读取的方式不同，读取到的内容也不同：<br>
+<ul class="org-ul">
+<li>使用下标方式 <code>s[i]</code> 访问字符串 s，得到的是 ASCII 编码后的字符；<br></li>
+<li>使用 <code>for i, v := range s</code> 方式访问 s，i 是字符串下标编号，v 是对应的字符值（int32=rune），即按字符遍历<br></li>
+<li>使用 <code>fmt.Printf</code> 打印时， <code>%c</code> 占位符打印的是字符， <code>%+v</code> 占位符打印的是这个类型自身，如 <code>fmt.Printf(“%+v”, s[i])</code> 打印的就是字节一个十进制的无符号整数 <code>s[i]</code> ；<br></li>
+<li>如果希望以随机方式访问字符串 s 的每个字符，可以先转为 <code>[]rune</code> 数组，再以下标访问；<br></li>
+</ul></li>
 </ul>
 </div>
 </div>
@@ -451,7 +462,7 @@ U+4EBA '人' 起始于字位置 12
 <div id="postamble" class="status">
 <p class="date">Date: 2022-04-14 23:04 Thu</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-04-15 Fri 01:38</p>
+<p class="date">Created: 2022-06-28 Tue 14:36</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

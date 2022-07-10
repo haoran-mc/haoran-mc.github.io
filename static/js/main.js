@@ -103,7 +103,23 @@ $(window).scroll(() => scrollToTop($('#top-btn')[0]));
 // CODELINE
 window.onload = () => {
 		const src_container = document.getElementsByClassName('org-src-container');
-		const src = document.getElementsByClassName('src');
+
+		var src = document.getElementsByClassName('src-haoran');   // 肯定没有这个语言
+		var src_go = document.getElementsByClassName('src-go');
+		var src_c = document.getElementsByClassName('src-C');
+		var src_cpp = document.getElementsByClassName('src-C++');
+		var src_py = document.getElementsByClassName('src-python');
+
+		src = Array.from(src);   // 变成数组处理
+		src_go = Array.from(src_go);
+		src_c = Array.from(src_c);
+		src_cpp = Array.from(src_cpp);
+		src_py = Array.from(src_py);
+
+		src = src.concat(src_go);   // 给这些语言添加 codeline
+		src = src.concat(src_c);
+		src = src.concat(src_cpp);
+		src = src.concat(src_py);
 
 		for (let i=0, len=src.length|0; i<len; i=i+1|0) {
 				let lines = src[i].innerHTML.split('\n').length - 1;
@@ -195,7 +211,7 @@ if (isCurPage('Ideas')) {
 // Card PAGE
 // ---------------------------------
 if (isCurPage('wiki')
-		|| isCurPage('Math')
+		|| isCurPage('Math-wiki')
 		|| isCurPage('Editor-Vim-notes')
 		|| isCurPage('Poem')
 		|| isCurPage('Go-wiki')

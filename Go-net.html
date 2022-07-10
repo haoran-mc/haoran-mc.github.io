@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-02-10 Thu 02:23 -->
+<!-- 2022-06-24 Fri 21:18 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>NET</title>
@@ -17,13 +17,3212 @@
 <body>
 <div id="content">
 <h1 class="title">NET</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org4893f0e">Introduction</a></li>
+<li><a href="#orgaeb307c">Constants</a></li>
+<li><a href="#orgc674243">Variables</a></li>
+<li><a href="#orgc1343fb">type ParseError</a>
+<ul>
+<li><a href="#org05a2771">func (*ParseError) Error</a></li>
+</ul>
+</li>
+<li><a href="#org9f447f2">type Error</a></li>
+<li><a href="#orga305773">type UnknownNetworkError</a>
+<ul>
+<li><a href="#org6c360f2">func (UnknownNetworkError) Error</a></li>
+<li><a href="#org633e07e">func (UnknownNetworkError) Temporary</a></li>
+<li><a href="#org1dd8ba3">func (UnknownNetworkError) Timeout</a></li>
+</ul>
+</li>
+<li><a href="#org883ae50">type InvalidAddrError</a>
+<ul>
+<li><a href="#org5096734">func (InvalidAddrError) Error</a></li>
+<li><a href="#orgce652fe">func (InvalidAddrError) Temporary</a></li>
+<li><a href="#org21c8844">func (InvalidAddrError) Timeout</a></li>
+</ul>
+</li>
+<li><a href="#org9a844ac">type DNSConfigError</a>
+<ul>
+<li><a href="#org1e4e840">func (*DNSConfigError) Error</a></li>
+<li><a href="#orgcbb4c7c">func (*DNSConfigError) Temporary</a></li>
+<li><a href="#orge67032e">func (*DNSConfigError) Timeout</a></li>
+</ul>
+</li>
+<li><a href="#orge944299">type DNSError</a>
+<ul>
+<li><a href="#org0f62ebd">func (*DNSError) Error</a></li>
+<li><a href="#org24092e4">func (*DNSError) Temporary</a></li>
+<li><a href="#org6f7ba41">func (*DNSError) Timeout</a></li>
+</ul>
+</li>
+<li><a href="#org38bc2de">type AddrError</a>
+<ul>
+<li><a href="#org9db5977">func (*AddrError) Error</a></li>
+<li><a href="#orgd9182b4">func (*AddrError) Temporary</a></li>
+<li><a href="#org0d870cb">func (*AddrError) Timeout</a></li>
+</ul>
+</li>
+<li><a href="#org251b568">type OpError</a>
+<ul>
+<li><a href="#org6aa6a97">func (*OpError) Error</a></li>
+<li><a href="#org541dc58">func (*OpError) Temporary</a></li>
+<li><a href="#org1e8d90a">func (*OpError) Timeout</a></li>
+</ul>
+</li>
+<li><a href="#org2a1c457">func SplitHostPort</a></li>
+<li><a href="#org2f2f7dc">func JoinHostPort</a></li>
+<li><a href="#orgb76b1f3">type HardwareAddr</a>
+<ul>
+<li><a href="#org46d7b9b">func ParseMAC</a></li>
+<li><a href="#org656f240">func (HardwareAddr) String</a></li>
+</ul>
+</li>
+<li><a href="#org44b13cf">type Flags</a>
+<ul>
+<li><a href="#org5a75c50">func (Flags) String</a></li>
+</ul>
+</li>
+<li><a href="#orgb878a96">type Interface</a>
+<ul>
+<li><a href="#orgf67064e">func InterfaceByIndex</a></li>
+<li><a href="#org1c8966a">func InterfaceByName</a></li>
+<li><a href="#org99e904d">func (*Interface) Addrs</a></li>
+<li><a href="#org806f8c4">func (*Interface) MulticastAddrs</a></li>
+</ul>
+</li>
+<li><a href="#org1a3d58c">func Interfaces</a></li>
+<li><a href="#orgbdbdbd2">func InterfaceAddrs</a></li>
+<li><a href="#org77f43a3">type IP</a>
+<ul>
+<li><a href="#org18788b8">func IPv4</a></li>
+<li><a href="#org9c49682">func ParseIP</a></li>
+<li><a href="#orgaa9b26e">func (IP) IsGlobalUnicast</a></li>
+<li><a href="#orgad5ee2e">func (IP) IsLinkLocalUnicast</a></li>
+<li><a href="#org82fb737">func (IP) IsInterfaceLocalMulticast</a></li>
+<li><a href="#org2247b12">func (IP) IsLinkLocalMulticast</a></li>
+<li><a href="#org36324cb">func (IP) IsMulticast</a></li>
+<li><a href="#orgd6f91c0">func (IP) IsLoopback</a></li>
+<li><a href="#orgc615025">func (IP) IsUnspecified</a></li>
+<li><a href="#orga3109de">func (IP) DefaultMask</a></li>
+<li><a href="#org5631259">func (IP) Equal</a></li>
+<li><a href="#org6afa43d">func (IP) To16</a></li>
+<li><a href="#org92dcc34">func (IP) To4</a></li>
+<li><a href="#orgb8c2f26">func (IP) Mask</a></li>
+<li><a href="#orge741144">func (IP) String</a></li>
+<li><a href="#org76c8f84">func (IP) MarshalText</a></li>
+<li><a href="#org782e029">func (*IP) UnmarshalText</a></li>
+</ul>
+</li>
+<li><a href="#org27732c1">type IPMask</a>
+<ul>
+<li><a href="#org4877427">func IPv4Mask</a></li>
+<li><a href="#org589d626">func CIDRMask</a></li>
+<li><a href="#orge344836">func (IPMask) Size</a></li>
+<li><a href="#org81b8816">func (IPMask) String</a></li>
+</ul>
+</li>
+<li><a href="#org52d3c55">type IPNet</a>
+<ul>
+<li><a href="#org9ed7737">func ParseCIDR</a></li>
+<li><a href="#org7256640">func (*IPNet) Contains</a></li>
+<li><a href="#orga271fcb">func (*IPNet) Network</a></li>
+<li><a href="#org55ef42e">func (*IPNet) String</a></li>
+</ul>
+</li>
+<li><a href="#orgae9bf3a">type Addr</a></li>
+<li><a href="#org02b82e6">type Conn</a>
+<ul>
+<li><a href="#org2113546">func Dial</a></li>
+<li><a href="#org504da8e">func DialTimeout</a></li>
+<li><a href="#orgd9c2bb7">func Pipe</a></li>
+</ul>
+</li>
+<li><a href="#orgc3f9459">type PacketConn</a>
+<ul>
+<li><a href="#orgeb39867">func ListenPacket</a></li>
+</ul>
+</li>
+<li><a href="#org9477d19">type Dialer</a>
+<ul>
+<li><a href="#org57ed911">func (*Dialer) Dial</a></li>
+</ul>
+</li>
+<li><a href="#org7847356">type Listener</a>
+<ul>
+<li><a href="#org61b0616">func Listen</a></li>
+</ul>
+</li>
+<li><a href="#org2356bcd">type IPAddr</a>
+<ul>
+<li><a href="#orge0b6649">func ResolveIPAddr</a></li>
+<li><a href="#orgea661fa">func (*IPAddr) Network</a></li>
+<li><a href="#org7f6d27d">func (*IPAddr) String</a></li>
+</ul>
+</li>
+<li><a href="#orgc322fdf">type TCPAddr</a>
+<ul>
+<li><a href="#orgd3614b0">func ResolveTCPAddr</a></li>
+<li><a href="#org5659ccc">func (*TCPAddr) Network</a></li>
+<li><a href="#org27d3ac7">func (*TCPAddr) String</a></li>
+</ul>
+</li>
+<li><a href="#org4155c71">type UDPAddr</a>
+<ul>
+<li><a href="#org62b72f9">func ResolveUDPAddr</a></li>
+<li><a href="#org9bdb96c">func (*UDPAddr) Network</a></li>
+<li><a href="#org9614966">func (*UDPAddr) String</a></li>
+</ul>
+</li>
+<li><a href="#org0c0f0ab">type UnixAddr</a>
+<ul>
+<li><a href="#org125ab61">func ResolveUnixAddr</a></li>
+<li><a href="#org6bd4593">func (*UnixAddr) Network</a></li>
+<li><a href="#orgdd5030c">func (*UnixAddr) String</a></li>
+</ul>
+</li>
+<li><a href="#org40c887c">type IPConn</a>
+<ul>
+<li><a href="#org9c82aea">func DialIP</a></li>
+<li><a href="#org793714f">func ListenIP</a></li>
+<li><a href="#orgebd7d39">func (*IPConn) LocalAddr</a></li>
+<li><a href="#org91fe958">func (*IPConn) RemoteAddr</a></li>
+<li><a href="#orga060146">func (*IPConn) SetReadBuffer</a></li>
+<li><a href="#orgb68fa47">func (*IPConn) SetWriteBuffer</a></li>
+<li><a href="#orgeda7bb2">func (*IPConn) SetDeadline</a></li>
+<li><a href="#orgc0df6bf">func (*IPConn) SetReadDeadline</a></li>
+<li><a href="#org1fe211c">func (*IPConn) SetWriteDeadline</a></li>
+<li><a href="#org329bda4">func (*IPConn) Read</a></li>
+<li><a href="#orgcb1c8c5">func (*IPConn) ReadFrom</a></li>
+<li><a href="#orgf3b3ad1">func (*IPConn) ReadFromIP</a></li>
+<li><a href="#org52c43a4">func (*IPConn) ReadMsgIP</a></li>
+<li><a href="#org5b4f510">func (*IPConn) Write</a></li>
+<li><a href="#orgc327e1e">func (*IPConn) WriteTo</a></li>
+<li><a href="#org0f5a928">func (*IPConn) WriteToIP</a></li>
+<li><a href="#org050d076">func (*IPConn) WriteMsgIP</a></li>
+<li><a href="#orga289bc3">func (*IPConn) Close</a></li>
+<li><a href="#org5b8f965">func (*IPConn) File</a></li>
+</ul>
+</li>
+<li><a href="#org154eb9d">type TCPConn</a>
+<ul>
+<li><a href="#org9a188de">func DialTCP</a></li>
+<li><a href="#orgdc74be7">func (*TCPConn) LocalAddr</a></li>
+<li><a href="#org46b8e51">func (*TCPConn) RemoteAddr</a></li>
+<li><a href="#org25b44d6">func (*TCPConn) SetReadBuffer</a></li>
+<li><a href="#org9659ef8">func (*TCPConn) SetWriteBuffer</a></li>
+<li><a href="#org411f2fd">func (*TCPConn) SetDeadline</a></li>
+<li><a href="#orge69caaa">func (*TCPConn) SetReadDeadline</a></li>
+<li><a href="#org7758208">func (*TCPConn) SetWriteDeadline</a></li>
+<li><a href="#org19e41f5">func (*TCPConn) SetKeepAlive</a></li>
+<li><a href="#org9ee4845">func (*TCPConn) SetKeepAlivePeriod</a></li>
+<li><a href="#orga7b2296">func (*TCPConn) SetLinger</a></li>
+<li><a href="#org706fe9c">func (*TCPConn) SetNoDelay</a></li>
+<li><a href="#org4449585">func (*TCPConn) Read</a></li>
+<li><a href="#orga0bcfaa">func (*TCPConn) Write</a></li>
+<li><a href="#org9dd09e2">func (*TCPConn) ReadFrom</a></li>
+<li><a href="#org8d1e669">func (*TCPConn) Close</a></li>
+<li><a href="#orgf222890">func (*TCPConn) CloseRead</a></li>
+<li><a href="#org3b35603">func (*TCPConn) CloseWrite</a></li>
+<li><a href="#orgd959120">func (*TCPConn) File</a></li>
+</ul>
+</li>
+<li><a href="#org4293674">type UDPConn</a>
+<ul>
+<li><a href="#org1190587">func DialUDP</a></li>
+<li><a href="#orga40982a">func ListenUDP</a></li>
+<li><a href="#org6382ecb">func ListenMulticastUDP</a></li>
+<li><a href="#org3682af8">func (*UDPConn) LocalAddr</a></li>
+<li><a href="#org8fb5b1e">func (*UDPConn) RemoteAddr</a></li>
+<li><a href="#org6c3833c">func (*UDPConn) SetReadBuffer</a></li>
+<li><a href="#org382c509">func (*UDPConn) SetWriteBuffer</a></li>
+<li><a href="#orgc4f6ea8">func (*UDPConn) SetDeadline</a></li>
+<li><a href="#org2d98a31">func (*UDPConn) SetReadDeadline</a></li>
+<li><a href="#orgdaead31">func (*UDPConn) SetWriteDeadline</a></li>
+<li><a href="#org9091a48">func (*UDPConn) Read</a></li>
+<li><a href="#orgf7d22eb">func (*UDPConn) ReadFrom</a></li>
+<li><a href="#orgd18a884">func (*UDPConn) ReadFromUDP</a></li>
+<li><a href="#org334f1db">func (*UDPConn) ReadMsgUDP</a></li>
+<li><a href="#org5307e12">func (*UDPConn) Write</a></li>
+<li><a href="#orgece0015">func (*UDPConn) WriteTo</a></li>
+<li><a href="#org56ca1ee">func (*UDPConn) WriteToUDP</a></li>
+<li><a href="#org36e15b6">func (*UDPConn) WriteMsgUDP</a></li>
+<li><a href="#org27c7278">func (*UDPConn) Close</a></li>
+<li><a href="#org1c27848">func (*UDPConn) File</a></li>
+</ul>
+</li>
+<li><a href="#org35019e1">type UnixConn</a>
+<ul>
+<li><a href="#org9f10759">func DialUnix</a></li>
+<li><a href="#orgecd28a5">func ListenUnixgram</a></li>
+<li><a href="#orgc982d11">func (*UnixConn) LocalAddr</a></li>
+<li><a href="#orgb3ae1b5">func (*UnixConn) RemoteAddr</a></li>
+<li><a href="#org02505e9">func (*UnixConn) SetReadBuffer</a></li>
+<li><a href="#org9132fb8">func (*UnixConn) SetWriteBuffer</a></li>
+<li><a href="#orgabf7e95">func (*UnixConn) SetDeadline</a></li>
+<li><a href="#org5a0b1e2">func (*UnixConn) SetReadDeadline</a></li>
+<li><a href="#org5908740">func (*UnixConn) SetWriteDeadline</a></li>
+<li><a href="#org47f622a">func (*UnixConn) Read</a></li>
+<li><a href="#org4281604">func (*UnixConn) ReadFrom</a></li>
+<li><a href="#orgf2c73bf">func (*UnixConn) ReadFromUnix</a></li>
+<li><a href="#org899493e">func (*UnixConn) ReadMsgUnix</a></li>
+<li><a href="#org425c0f1">func (*UnixConn) Write</a></li>
+<li><a href="#org4d3b50d">func (*UnixConn) WriteTo</a></li>
+<li><a href="#org341ae95">func (*UnixConn) WriteToUnix</a></li>
+<li><a href="#orga1d9f4f">func (*UnixConn) WriteMsgUnix</a></li>
+<li><a href="#org8a6eafe">func (*UnixConn) Close</a></li>
+<li><a href="#org620c06d">func (*UnixConn) CloseRead</a></li>
+<li><a href="#orgaf8a608">func (*UnixConn) CloseWrite</a></li>
+<li><a href="#org90fd2b1">func (*UnixConn) File</a></li>
+</ul>
+</li>
+<li><a href="#org467e955">type TCPListener</a>
+<ul>
+<li><a href="#org1c64f5c">func ListenTCP</a></li>
+<li><a href="#org99b8e47">func (*TCPListener) Addr</a></li>
+<li><a href="#org95a04aa">func (*TCPListener) SetDeadline</a></li>
+<li><a href="#orge3dc849">func (*TCPListener) Accept</a></li>
+<li><a href="#orgc94694d">func (*TCPListener) AcceptTCP</a></li>
+<li><a href="#org4c45f01">func (*TCPListener) Close</a></li>
+<li><a href="#org21b117b">func (*TCPListener) File</a></li>
+</ul>
+</li>
+<li><a href="#org6e8e567">type UnixListener</a>
+<ul>
+<li><a href="#orge6d7a42">func ListenUnix</a></li>
+<li><a href="#org7299a4a">func (*UnixListener) Addr</a></li>
+<li><a href="#orgb1d20a7">func (*UnixListener) SetDeadline</a></li>
+<li><a href="#org7820ffc">func (*UnixListener) Accept</a></li>
+<li><a href="#org4c6c343">func (*UnixListener) AcceptUnix</a></li>
+<li><a href="#org3d9fc72">func (*UnixListener) Close</a></li>
+<li><a href="#orgbc6aeb3">func (*UnixListener) File</a></li>
+</ul>
+</li>
+<li><a href="#orgd97ffb7">func FileConn</a></li>
+<li><a href="#orge12dfc7">func FilePacketConn</a></li>
+<li><a href="#org9c0f6ca">func FileListener</a></li>
+<li><a href="#orgd50bf33">type MX</a></li>
+<li><a href="#org48ef1bd">type NS</a></li>
+<li><a href="#orgf72725c">type SRV</a></li>
+<li><a href="#orgff0189d">func LookupPort</a></li>
+<li><a href="#org63bf722">func LookupCNAME</a></li>
+<li><a href="#orgeb0cb39">func LookupHost</a></li>
+<li><a href="#org64238dc">func LookupIP</a></li>
+<li><a href="#orgc72afac">func LookupAddr</a></li>
+<li><a href="#org729294f">func LookupMX</a></li>
+<li><a href="#org67c68e5">func LookupNS</a></li>
+<li><a href="#orgdddd4f5">func LookupSRV</a></li>
+<li><a href="#orgba87039">func LookupTXT</a></li>
+<li><a href="#org8284e0b">Bugs</a></li>
+</ul>
+</div>
+</div>
 
+<div id="outline-container-org4893f0e" class="outline-2">
+<h2 id="org4893f0e">Introduction</h2>
+<div class="outline-text-2" id="text-org4893f0e">
+<p>
+net包提供了可移植的网络I/O接口，包括TCP/IP、UDP、域名解析和Unix域socket。<br>
+</p>
+
+<p>
+虽然本包提供了对网络原语的访问，大部分使用者只需要Dial、Listen和Accept函数提供的基本接口；以及相关的Conn和Listener接口。crypto/tls包提供了相同的接口和类似的Dial和Listen函数。<br>
+</p>
+
+<p>
+Dial函数和服务端建立连接：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">conn</span>, <span style="color: #8787d7;">err</span> := net.<span style="color: #d75fd7; font-weight: bold;">Dial</span>(<span style="color: #2aa198;">"tcp"</span>, <span style="color: #2aa198;">"google.com:80"</span>)
+<span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">handle error</span>
+}
+fmt.<span style="color: #d75fd7; font-weight: bold;">Fprintf</span>(conn, <span style="color: #2aa198;">"GET / HTTP/1.0\r\n\r\n"</span>)
+<span style="color: #8787d7;">status</span>, <span style="color: #8787d7;">err</span> := bufio.<span style="color: #d75fd7; font-weight: bold;">NewReader</span>(conn).<span style="color: #d75fd7; font-weight: bold;">ReadString</span>(<span style="color: #2aa198;">'\n'</span>)
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">...</span>
+</pre>
+</div>
+
+<p>
+Listen函数创建的服务端：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">ln</span>, <span style="color: #8787d7;">err</span> := net.<span style="color: #d75fd7; font-weight: bold;">Listen</span>(<span style="color: #2aa198;">"tcp"</span>, <span style="color: #2aa198;">":8080"</span>)
+<span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">handle error</span>
+}
+<span style="color: #268bd2; font-weight: bold;">for</span> {
+    <span style="color: #8787d7;">conn</span>, <span style="color: #8787d7;">err</span> := ln.<span style="color: #d75fd7; font-weight: bold;">Accept</span>()
+    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">handle error</span>
+        <span style="color: #268bd2; font-weight: bold;">continue</span>
+    }
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">handleConnection</span>(conn)
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgaeb307c" class="outline-2">
+<h2 id="orgaeb307c">Constants</h2>
+<div class="outline-text-2" id="text-orgaeb307c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">const</span> (
+        <span style="color: #d75fd7;">IPv4len</span> = 4
+        <span style="color: #d75fd7;">IPv6len</span> = 16
+)   
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgc674243" class="outline-2">
+<h2 id="orgc674243">Variables</h2>
+<div class="outline-text-2" id="text-orgc674243">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> (
+        <span style="color: #8787d7;">IPv4bcast</span>     = <span style="color: #d75fd7; font-weight: bold;">IPv4</span>(255, 255, 255, 255) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#24191;&#25773;&#22320;&#22336;</span>
+        <span style="color: #8787d7;">IPv4allsys</span>    = <span style="color: #d75fd7; font-weight: bold;">IPv4</span>(224, 0, 0, 1)       <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25152;&#26377;&#20027;&#26426;&#21644;&#36335;&#30001;&#22120;</span>
+        <span style="color: #8787d7;">IPv4allrouter</span> = <span style="color: #d75fd7; font-weight: bold;">IPv4</span>(224, 0, 0, 2)       <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25152;&#26377;&#36335;&#30001;&#22120;</span>
+        <span style="color: #8787d7;">IPv4zero</span>      = <span style="color: #d75fd7; font-weight: bold;">IPv4</span>(0, 0, 0, 0)         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26412;&#22320;&#22320;&#22336;&#65292;&#21482;&#33021;&#20316;&#20026;&#28304;&#22320;&#22336;&#65288;&#26366;&#29992;&#20316;&#24191;&#25773;&#22320;&#22336;&#65289;</span>
+)
+</pre>
+</div>
+
+<p>
+常用的IPv4地址。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> (
+        <span style="color: #8787d7;">IPv6zero</span>                   = <span style="color: #df005f; font-weight: bold;">IP</span>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+        <span style="color: #8787d7;">IPv6unspecified</span>            = <span style="color: #df005f; font-weight: bold;">IP</span>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+        <span style="color: #8787d7;">IPv6loopback</span>               = <span style="color: #df005f; font-weight: bold;">IP</span>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}
+        <span style="color: #8787d7;">IPv6interfacelocalallnodes</span> = <span style="color: #df005f; font-weight: bold;">IP</span>{0xff, 0x01, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x01}
+        <span style="color: #8787d7;">IPv6linklocalallnodes</span>      = <span style="color: #df005f; font-weight: bold;">IP</span>{0xff, 0x02, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x01}
+        <span style="color: #8787d7;">IPv6linklocalallrouters</span>    = <span style="color: #df005f; font-weight: bold;">IP</span>{0xff, 0x02, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x02}
+)
+</pre>
+</div>
+
+<p>
+常用的IPv6地址。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> (
+        <span style="color: #8787d7;">ErrWriteToConnected</span> = errors.<span style="color: #d75fd7; font-weight: bold;">New</span>(<span style="color: #2aa198;">"use of WriteTo with pre-connected connection"</span>)
+)
+</pre>
+</div>
+
+<p>
+很多OpError类型的错误会包含本错误。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc1343fb" class="outline-2">
+<h2 id="orgc1343fb">type ParseError</h2>
+<div class="outline-text-2" id="text-orgc1343fb">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">ParseError</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        Type <span style="color: #df005f; font-weight: bold;">string</span>
+        Text <span style="color: #df005f; font-weight: bold;">string</span>
+}
+</pre>
+</div>
+
+<p>
+ParseError代表一个格式错误的字符串，Type为期望的格式。<br>
+</p>
+</div>
+<div id="outline-container-org05a2771" class="outline-3">
+<h3 id="org05a2771">func (*ParseError) Error</h3>
+<div class="outline-text-3" id="text-org05a2771">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">e</span> *<span style="color: #df005f; font-weight: bold;">ParseError</span>) <span style="color: #d75fd7; font-weight: bold;">Error</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org9f447f2" class="outline-2">
+<h2 id="org9f447f2">type Error</h2>
+<div class="outline-text-2" id="text-org9f447f2">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Error</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+        error
+        <span style="color: #d75fd7; font-weight: bold;">Timeout</span>() <span style="color: #df005f; font-weight: bold;">bool</span>   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#38169;&#35823;&#26159;&#21542;&#20026;&#36229;&#26102;&#65311;</span>
+        <span style="color: #d75fd7; font-weight: bold;">Temporary</span>() <span style="color: #df005f; font-weight: bold;">bool</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#38169;&#35823;&#26159;&#21542;&#26159;&#20020;&#26102;&#30340;&#65311;</span>
+}
+</pre>
+</div>
+
+<p>
+Error代表一个网络错误。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga305773" class="outline-2">
+<h2 id="orga305773">type UnknownNetworkError</h2>
+<div class="outline-text-2" id="text-orga305773">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">UnknownNetworkError</span> <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+</div>
+<div id="outline-container-org6c360f2" class="outline-3">
+<h3 id="org6c360f2">func (UnknownNetworkError) Error</h3>
+<div class="outline-text-3" id="text-org6c360f2">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">e</span> <span style="color: #df005f; font-weight: bold;">UnknownNetworkError</span>) <span style="color: #d75fd7; font-weight: bold;">Error</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org633e07e" class="outline-3">
+<h3 id="org633e07e">func (UnknownNetworkError) Temporary</h3>
+<div class="outline-text-3" id="text-org633e07e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">e</span> <span style="color: #df005f; font-weight: bold;">UnknownNetworkError</span>) <span style="color: #d75fd7; font-weight: bold;">Temporary</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org1dd8ba3" class="outline-3">
+<h3 id="org1dd8ba3">func (UnknownNetworkError) Timeout</h3>
+<div class="outline-text-3" id="text-org1dd8ba3">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">e</span> <span style="color: #df005f; font-weight: bold;">UnknownNetworkError</span>) <span style="color: #d75fd7; font-weight: bold;">Timeout</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org883ae50" class="outline-2">
+<h2 id="org883ae50">type InvalidAddrError</h2>
+<div class="outline-text-2" id="text-org883ae50">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">InvalidAddrError</span> <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+</div>
+<div id="outline-container-org5096734" class="outline-3">
+<h3 id="org5096734">func (InvalidAddrError) Error</h3>
+<div class="outline-text-3" id="text-org5096734">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">e</span> <span style="color: #df005f; font-weight: bold;">InvalidAddrError</span>) <span style="color: #d75fd7; font-weight: bold;">Error</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgce652fe" class="outline-3">
+<h3 id="orgce652fe">func (InvalidAddrError) Temporary</h3>
+<div class="outline-text-3" id="text-orgce652fe">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">e</span> <span style="color: #df005f; font-weight: bold;">InvalidAddrError</span>) <span style="color: #d75fd7; font-weight: bold;">Temporary</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org21c8844" class="outline-3">
+<h3 id="org21c8844">func (InvalidAddrError) Timeout</h3>
+<div class="outline-text-3" id="text-org21c8844">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">e</span> <span style="color: #df005f; font-weight: bold;">InvalidAddrError</span>) <span style="color: #d75fd7; font-weight: bold;">Timeout</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org9a844ac" class="outline-2">
+<h2 id="org9a844ac">type DNSConfigError</h2>
+<div class="outline-text-2" id="text-org9a844ac">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">DNSConfigError</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        Err <span style="color: #df005f; font-weight: bold;">error</span>
+}
+</pre>
+</div>
+
+<p>
+DNSConfigError代表读取主机DNS配置时出现的错误。<br>
+</p>
+</div>
+<div id="outline-container-org1e4e840" class="outline-3">
+<h3 id="org1e4e840">func (*DNSConfigError) Error</h3>
+<div class="outline-text-3" id="text-org1e4e840">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">e</span> *<span style="color: #df005f; font-weight: bold;">DNSConfigError</span>) <span style="color: #d75fd7; font-weight: bold;">Error</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgcbb4c7c" class="outline-3">
+<h3 id="orgcbb4c7c">func (*DNSConfigError) Temporary</h3>
+<div class="outline-text-3" id="text-orgcbb4c7c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">e</span> *<span style="color: #df005f; font-weight: bold;">DNSConfigError</span>) <span style="color: #d75fd7; font-weight: bold;">Temporary</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orge67032e" class="outline-3">
+<h3 id="orge67032e">func (*DNSConfigError) Timeout</h3>
+<div class="outline-text-3" id="text-orge67032e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">e</span> *<span style="color: #df005f; font-weight: bold;">DNSConfigError</span>) <span style="color: #d75fd7; font-weight: bold;">Timeout</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orge944299" class="outline-2">
+<h2 id="orge944299">type DNSError</h2>
+<div class="outline-text-2" id="text-orge944299">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">DNSError</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        Err       <span style="color: #df005f; font-weight: bold;">string</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#38169;&#35823;&#30340;&#25551;&#36848;</span>
+        Name      <span style="color: #df005f; font-weight: bold;">string</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26597;&#35810;&#30340;&#21517;&#31216;</span>
+        Server    <span style="color: #df005f; font-weight: bold;">string</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20351;&#29992;&#30340;&#26381;&#21153;&#22120;</span>
+        IsTimeout <span style="color: #df005f; font-weight: bold;">bool</span>
+}
+</pre>
+</div>
+
+<p>
+DNSError代表DNS查询的错误。<br>
+</p>
+</div>
+<div id="outline-container-org0f62ebd" class="outline-3">
+<h3 id="org0f62ebd">func (*DNSError) Error</h3>
+<div class="outline-text-3" id="text-org0f62ebd">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">e</span> *<span style="color: #df005f; font-weight: bold;">DNSError</span>) <span style="color: #d75fd7; font-weight: bold;">Error</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org24092e4" class="outline-3">
+<h3 id="org24092e4">func (*DNSError) Temporary</h3>
+<div class="outline-text-3" id="text-org24092e4">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">e</span> *<span style="color: #df005f; font-weight: bold;">DNSError</span>) <span style="color: #d75fd7; font-weight: bold;">Temporary</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org6f7ba41" class="outline-3">
+<h3 id="org6f7ba41">func (*DNSError) Timeout</h3>
+<div class="outline-text-3" id="text-org6f7ba41">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">e</span> *<span style="color: #df005f; font-weight: bold;">DNSError</span>) <span style="color: #d75fd7; font-weight: bold;">Timeout</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org38bc2de" class="outline-2">
+<h2 id="org38bc2de">type AddrError</h2>
+<div class="outline-text-2" id="text-org38bc2de">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">AddrError</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        Err  <span style="color: #df005f; font-weight: bold;">string</span>
+        Addr <span style="color: #df005f; font-weight: bold;">string</span>
+}
+</pre>
+</div>
+</div>
+<div id="outline-container-org9db5977" class="outline-3">
+<h3 id="org9db5977">func (*AddrError) Error</h3>
+<div class="outline-text-3" id="text-org9db5977">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">e</span> *<span style="color: #df005f; font-weight: bold;">AddrError</span>) <span style="color: #d75fd7; font-weight: bold;">Error</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgd9182b4" class="outline-3">
+<h3 id="orgd9182b4">func (*AddrError) Temporary</h3>
+<div class="outline-text-3" id="text-orgd9182b4">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">e</span> *<span style="color: #df005f; font-weight: bold;">AddrError</span>) <span style="color: #d75fd7; font-weight: bold;">Temporary</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org0d870cb" class="outline-3">
+<h3 id="org0d870cb">func (*AddrError) Timeout</h3>
+<div class="outline-text-3" id="text-org0d870cb">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">e</span> *<span style="color: #df005f; font-weight: bold;">AddrError</span>) <span style="color: #d75fd7; font-weight: bold;">Timeout</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org251b568" class="outline-2">
+<h2 id="org251b568">type OpError</h2>
+<div class="outline-text-2" id="text-org251b568">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">OpError</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Op&#26159;&#20986;&#29616;&#38169;&#35823;&#30340;&#25805;&#20316;&#65292;&#22914;"read"&#25110;"write"</span>
+        Op  <span style="color: #df005f; font-weight: bold;">string</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Net&#26159;&#38169;&#35823;&#25152;&#22312;&#30340;&#32593;&#32476;&#31867;&#22411;&#65292;&#22914;"tcp"&#25110;"udp6"</span>
+        Net <span style="color: #df005f; font-weight: bold;">string</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Addr&#26159;&#20986;&#29616;&#38169;&#35823;&#30340;&#32593;&#32476;&#22320;&#22336;</span>
+        Addr <span style="color: #df005f; font-weight: bold;">Addr</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Err&#26159;&#25805;&#20316;&#20013;&#20986;&#29616;&#30340;&#38169;&#35823;</span>
+        Err <span style="color: #df005f; font-weight: bold;">error</span>
+}
+</pre>
+</div>
+
+<p>
+OpError是经常被net包的函数返回的错误类型。它描述了该错误的操作、网络类型和网络地址。<br>
+</p>
+</div>
+<div id="outline-container-org6aa6a97" class="outline-3">
+<h3 id="org6aa6a97">func (*OpError) Error</h3>
+<div class="outline-text-3" id="text-org6aa6a97">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">e</span> *<span style="color: #df005f; font-weight: bold;">OpError</span>) <span style="color: #d75fd7; font-weight: bold;">Error</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org541dc58" class="outline-3">
+<h3 id="org541dc58">func (*OpError) Temporary</h3>
+<div class="outline-text-3" id="text-org541dc58">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">e</span> *<span style="color: #df005f; font-weight: bold;">OpError</span>) <span style="color: #d75fd7; font-weight: bold;">Temporary</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org1e8d90a" class="outline-3">
+<h3 id="org1e8d90a">func (*OpError) Timeout</h3>
+<div class="outline-text-3" id="text-org1e8d90a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">e</span> *<span style="color: #df005f; font-weight: bold;">OpError</span>) <span style="color: #d75fd7; font-weight: bold;">Timeout</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org2a1c457" class="outline-2">
+<h2 id="org2a1c457">func SplitHostPort</h2>
+<div class="outline-text-2" id="text-org2a1c457">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">SplitHostPort</span>(<span style="color: #8787d7;">hostport</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #8787d7;">host</span>, <span style="color: #8787d7;">port</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+函数将格式为"host:port"、"[host]:port"或"[ipv6-host%zone]:port"的网络地址分割为host或ipv6-host%zone和port两个部分。Ipv6的文字地址或者主机名必须用方括号括起来，如"[::1]:80"、"[ipv6-host]:http"、"[ipv6-host%zone]:80"。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2f2f7dc" class="outline-2">
+<h2 id="org2f2f7dc">func JoinHostPort</h2>
+<div class="outline-text-2" id="text-org2f2f7dc">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">JoinHostPort</span>(<span style="color: #8787d7;">host</span>, <span style="color: #8787d7;">port</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+<p>
+函数将host和port合并为一个网络地址。一般格式为"host:port"；如果host含有冒号或百分号，格式为"[host]:port"。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgb76b1f3" class="outline-2">
+<h2 id="orgb76b1f3">type HardwareAddr</h2>
+<div class="outline-text-2" id="text-orgb76b1f3">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">HardwareAddr</span> []<span style="color: #df005f; font-weight: bold;">byte</span>
+</pre>
+</div>
+
+<p>
+HardwareAddr类型代表一个硬件地址（MAC地址）。<br>
+</p>
+</div>
+<div id="outline-container-org46d7b9b" class="outline-3">
+<h3 id="org46d7b9b">func ParseMAC</h3>
+<div class="outline-text-3" id="text-org46d7b9b">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ParseMAC</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #8787d7;">hw</span> <span style="color: #df005f; font-weight: bold;">HardwareAddr</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+ParseMAC函数使用如下格式解析一个IEEE 802 MAC-48、EUI-48或EUI-64硬件地址：<br>
+</p>
+
+<pre class="example">
+01:23:45:67:89:ab
+01:23:45:67:89:ab:cd:ef
+01-23-45-67-89-ab
+01-23-45-67-89-ab-cd-ef
+0123.4567.89ab
+0123.4567.89ab.cdef
+</pre>
+</div>
+</div>
+<div id="outline-container-org656f240" class="outline-3">
+<h3 id="org656f240">func (HardwareAddr) String</h3>
+<div class="outline-text-3" id="text-org656f240">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">a</span> <span style="color: #df005f; font-weight: bold;">HardwareAddr</span>) <span style="color: #d75fd7; font-weight: bold;">String</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org44b13cf" class="outline-2">
+<h2 id="org44b13cf">type Flags</h2>
+<div class="outline-text-2" id="text-org44b13cf">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Flags</span> <span style="color: #df005f; font-weight: bold;">uint</span>
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">const</span> (
+        <span style="color: #d75fd7;">FlagUp</span>           <span style="color: #df005f; font-weight: bold;">Flags</span> = 1 &lt;&lt; <span style="color: #d75fd7;">iota</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25509;&#21475;&#22312;&#27963;&#21160;&#29366;&#24577;</span>
+        <span style="color: #d75fd7;">FlagBroadcast</span>                      <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25509;&#21475;&#25903;&#25345;&#24191;&#25773;</span>
+        <span style="color: #d75fd7;">FlagLoopback</span>                       <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25509;&#21475;&#26159;&#29615;&#22238;&#30340;</span>
+        <span style="color: #d75fd7;">FlagPointToPoint</span>                   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25509;&#21475;&#26159;&#28857;&#23545;&#28857;&#30340;</span>
+        <span style="color: #d75fd7;">FlagMulticast</span>                      <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25509;&#21475;&#25903;&#25345;&#32452;&#25773;</span>
+)
+</pre>
+</div>
+</div>
+<div id="outline-container-org5a75c50" class="outline-3">
+<h3 id="org5a75c50">func (Flags) String</h3>
+<div class="outline-text-3" id="text-org5a75c50">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">f</span> <span style="color: #df005f; font-weight: bold;">Flags</span>) <span style="color: #d75fd7; font-weight: bold;">String</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb878a96" class="outline-2">
+<h2 id="orgb878a96">type Interface</h2>
+<div class="outline-text-2" id="text-orgb878a96">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Interface</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        Index        <span style="color: #df005f; font-weight: bold;">int</span>          <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#32034;&#24341;&#65292;&gt;=1&#30340;&#25972;&#25968;</span>
+        MTU          <span style="color: #df005f; font-weight: bold;">int</span>          <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26368;&#22823;&#20256;&#36755;&#21333;&#20803;</span>
+        Name         <span style="color: #df005f; font-weight: bold;">string</span>       <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25509;&#21475;&#21517;&#65292;&#20363;&#22914;"en0"&#12289;"lo0"&#12289;"eth0.100"</span>
+        HardwareAddr <span style="color: #df005f; font-weight: bold;">HardwareAddr</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#30828;&#20214;&#22320;&#22336;&#65292;IEEE MAC-48&#12289;EUI-48&#25110;EUI-64&#26684;&#24335;</span>
+        Flags        <span style="color: #df005f; font-weight: bold;">Flags</span>        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25509;&#21475;&#30340;&#23646;&#24615;&#65292;&#20363;&#22914;FlagUp&#12289;FlagLoopback&#12289;FlagMulticast</span>
+}
+</pre>
+</div>
+
+<p>
+Interface类型代表一个网络接口（系统与网络的一个接点）。包含接口索引到名字的映射，也包含接口的设备信息。<br>
+</p>
+</div>
+<div id="outline-container-orgf67064e" class="outline-3">
+<h3 id="orgf67064e">func InterfaceByIndex</h3>
+<div class="outline-text-3" id="text-orgf67064e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">InterfaceByIndex</span>(<span style="color: #8787d7;">index</span> <span style="color: #df005f; font-weight: bold;">int</span>) (*<span style="color: #df005f; font-weight: bold;">Interface</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+InterfaceByIndex返回指定索引的网络接口。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org1c8966a" class="outline-3">
+<h3 id="org1c8966a">func InterfaceByName</h3>
+<div class="outline-text-3" id="text-org1c8966a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">InterfaceByName</span>(<span style="color: #8787d7;">name</span> <span style="color: #df005f; font-weight: bold;">string</span>) (*<span style="color: #df005f; font-weight: bold;">Interface</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+InterfaceByName返回指定名字的网络接口。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org99e904d" class="outline-3">
+<h3 id="org99e904d">func (*Interface) Addrs</h3>
+<div class="outline-text-3" id="text-org99e904d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">ifi</span> *<span style="color: #df005f; font-weight: bold;">Interface</span>) <span style="color: #d75fd7; font-weight: bold;">Addrs</span>() ([]<span style="color: #df005f; font-weight: bold;">Addr</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+Addrs方法返回网络接口ifi的一或多个接口地址。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org806f8c4" class="outline-3">
+<h3 id="org806f8c4">func (*Interface) MulticastAddrs</h3>
+<div class="outline-text-3" id="text-org806f8c4">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">ifi</span> *<span style="color: #df005f; font-weight: bold;">Interface</span>) <span style="color: #d75fd7; font-weight: bold;">MulticastAddrs</span>() ([]<span style="color: #df005f; font-weight: bold;">Addr</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+MulticastAddrs返回网络接口ifi加入的多播组地址。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org1a3d58c" class="outline-2">
+<h2 id="org1a3d58c">func Interfaces</h2>
+<div class="outline-text-2" id="text-org1a3d58c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Interfaces</span>() ([]<span style="color: #df005f; font-weight: bold;">Interface</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+Interfaces返回该系统的网络接口列表。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgbdbdbd2" class="outline-2">
+<h2 id="orgbdbdbd2">func InterfaceAddrs</h2>
+<div class="outline-text-2" id="text-orgbdbdbd2">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">InterfaceAddrs</span>() ([]<span style="color: #df005f; font-weight: bold;">Addr</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+InterfaceAddrs返回该系统的网络接口的地址列表。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org77f43a3" class="outline-2">
+<h2 id="org77f43a3">type IP</h2>
+<div class="outline-text-2" id="text-org77f43a3">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">IP</span> []<span style="color: #df005f; font-weight: bold;">byte</span>
+</pre>
+</div>
+
+<p>
+IP类型是代表单个IP地址的[]byte切片。本包的函数都可以接受4字节（IPv4）和16字节（IPv6）的切片作为输入。<br>
+</p>
+
+<p>
+注意，IP地址是IPv4地址还是IPv6地址是语义上的属性，而不取决于切片的长度：16字节的切片也可以是IPv4地址。<br>
+</p>
+</div>
+<div id="outline-container-org18788b8" class="outline-3">
+<h3 id="org18788b8">func IPv4</h3>
+<div class="outline-text-3" id="text-org18788b8">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">IPv4</span>(<span style="color: #8787d7;">a</span>, <span style="color: #8787d7;">b</span>, <span style="color: #8787d7;">c</span>, <span style="color: #8787d7;">d</span> <span style="color: #df005f; font-weight: bold;">byte</span>) <span style="color: #df005f; font-weight: bold;">IP</span>
+</pre>
+</div>
+<p>
+IPv4返回包含一个IPv4地址a.b.c.d的IP地址（16字节格式）。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9c49682" class="outline-3">
+<h3 id="org9c49682">func ParseIP</h3>
+<div class="outline-text-3" id="text-org9c49682">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ParseIP</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">IP</span>
+</pre>
+</div>
+<p>
+ParseIP将s解析为IP地址，并返回该地址。如果s不是合法的IP地址文本表示，ParseIP会返回nil。<br>
+</p>
+
+<p>
+字符串可以是小数点分隔的IPv4格式（如"74.125.19.99"）或IPv6格式（如"2001:4860:0:2001::68"）格式。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgaa9b26e" class="outline-3">
+<h3 id="orgaa9b26e">func (IP) IsGlobalUnicast</h3>
+<div class="outline-text-3" id="text-orgaa9b26e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">ip</span> <span style="color: #df005f; font-weight: bold;">IP</span>) <span style="color: #d75fd7; font-weight: bold;">IsGlobalUnicast</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+<p>
+如果ip是全局单播地址，则返回真。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgad5ee2e" class="outline-3">
+<h3 id="orgad5ee2e">func (IP) IsLinkLocalUnicast</h3>
+<div class="outline-text-3" id="text-orgad5ee2e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">ip</span> <span style="color: #df005f; font-weight: bold;">IP</span>) <span style="color: #d75fd7; font-weight: bold;">IsLinkLocalUnicast</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+<p>
+如果ip是链路本地单播地址，则返回真。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org82fb737" class="outline-3">
+<h3 id="org82fb737">func (IP) IsInterfaceLocalMulticast</h3>
+<div class="outline-text-3" id="text-org82fb737">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">ip</span> <span style="color: #df005f; font-weight: bold;">IP</span>) <span style="color: #d75fd7; font-weight: bold;">IsInterfaceLocalMulticast</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+<p>
+如果ip是接口本地组播地址，则返回真。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2247b12" class="outline-3">
+<h3 id="org2247b12">func (IP) IsLinkLocalMulticast</h3>
+<div class="outline-text-3" id="text-org2247b12">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">ip</span> <span style="color: #df005f; font-weight: bold;">IP</span>) <span style="color: #d75fd7; font-weight: bold;">IsLinkLocalMulticast</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+<p>
+如果ip是链路本地组播地址，则返回真。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org36324cb" class="outline-3">
+<h3 id="org36324cb">func (IP) IsMulticast</h3>
+<div class="outline-text-3" id="text-org36324cb">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">ip</span> <span style="color: #df005f; font-weight: bold;">IP</span>) <span style="color: #d75fd7; font-weight: bold;">IsMulticast</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+<p>
+如果ip是组播地址，则返回真。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd6f91c0" class="outline-3">
+<h3 id="orgd6f91c0">func (IP) IsLoopback</h3>
+<div class="outline-text-3" id="text-orgd6f91c0">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">ip</span> <span style="color: #df005f; font-weight: bold;">IP</span>) <span style="color: #d75fd7; font-weight: bold;">IsLoopback</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+<p>
+如果ip是环回地址，则返回真。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc615025" class="outline-3">
+<h3 id="orgc615025">func (IP) IsUnspecified</h3>
+<div class="outline-text-3" id="text-orgc615025">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">ip</span> <span style="color: #df005f; font-weight: bold;">IP</span>) <span style="color: #d75fd7; font-weight: bold;">IsUnspecified</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+<p>
+如果ip是未指定地址，则返回真。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga3109de" class="outline-3">
+<h3 id="orga3109de">func (IP) DefaultMask</h3>
+<div class="outline-text-3" id="text-orga3109de">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">ip</span> <span style="color: #df005f; font-weight: bold;">IP</span>) <span style="color: #d75fd7; font-weight: bold;">DefaultMask</span>() <span style="color: #df005f; font-weight: bold;">IPMask</span>
+</pre>
+</div>
+<p>
+函数返回IP地址ip的默认子网掩码。只有IPv4有默认子网掩码；如果ip不是合法的IPv4地址，会返回nil。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5631259" class="outline-3">
+<h3 id="org5631259">func (IP) Equal</h3>
+<div class="outline-text-3" id="text-org5631259">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">ip</span> <span style="color: #df005f; font-weight: bold;">IP</span>) <span style="color: #d75fd7; font-weight: bold;">Equal</span>(<span style="color: #8787d7;">x</span> <span style="color: #df005f; font-weight: bold;">IP</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+<p>
+如果ip和x代表同一个IP地址，Equal会返回真。代表同一地址的IPv4地址和IPv6地址也被认为是相等的。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org6afa43d" class="outline-3">
+<h3 id="org6afa43d">func (IP) To16</h3>
+<div class="outline-text-3" id="text-org6afa43d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">ip</span> <span style="color: #df005f; font-weight: bold;">IP</span>) <span style="color: #d75fd7; font-weight: bold;">To16</span>() <span style="color: #df005f; font-weight: bold;">IP</span>
+</pre>
+</div>
+<p>
+To16将一个IP地址转换为16字节表示。如果ip不是一个IP地址（长度错误），To16会返回nil。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org92dcc34" class="outline-3">
+<h3 id="org92dcc34">func (IP) To4</h3>
+<div class="outline-text-3" id="text-org92dcc34">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">ip</span> <span style="color: #df005f; font-weight: bold;">IP</span>) <span style="color: #d75fd7; font-weight: bold;">To4</span>() <span style="color: #df005f; font-weight: bold;">IP</span>
+</pre>
+</div>
+<p>
+To4将一个IPv4地址转换为4字节表示。如果ip不是IPv4地址，To4会返回nil。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb8c2f26" class="outline-3">
+<h3 id="orgb8c2f26">func (IP) Mask</h3>
+<div class="outline-text-3" id="text-orgb8c2f26">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">ip</span> <span style="color: #df005f; font-weight: bold;">IP</span>) <span style="color: #d75fd7; font-weight: bold;">Mask</span>(<span style="color: #8787d7;">mask</span> <span style="color: #df005f; font-weight: bold;">IPMask</span>) <span style="color: #df005f; font-weight: bold;">IP</span>
+</pre>
+</div>
+<p>
+Mask方法认为mask为ip的子网掩码，返回ip的网络地址部分的ip。（主机地址部分都置0）<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge741144" class="outline-3">
+<h3 id="orge741144">func (IP) String</h3>
+<div class="outline-text-3" id="text-orge741144">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">ip</span> <span style="color: #df005f; font-weight: bold;">IP</span>) <span style="color: #d75fd7; font-weight: bold;">String</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+<p>
+String返回IP地址ip的字符串表示。如果ip是IPv4地址，返回值的格式为点分隔的，如"74.125.19.99"；否则表示为IPv6格式，如"2001:4860:0:2001::68"。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org76c8f84" class="outline-3">
+<h3 id="org76c8f84">func (IP) MarshalText</h3>
+<div class="outline-text-3" id="text-org76c8f84">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">ip</span> <span style="color: #df005f; font-weight: bold;">IP</span>) <span style="color: #d75fd7; font-weight: bold;">MarshalText</span>() ([]<span style="color: #df005f; font-weight: bold;">byte</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+MarshalText实现了encoding.TextMarshaler接口，返回值和String方法一样。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org782e029" class="outline-3">
+<h3 id="org782e029">func (*IP) UnmarshalText</h3>
+<div class="outline-text-3" id="text-org782e029">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">ip</span> *<span style="color: #df005f; font-weight: bold;">IP</span>) <span style="color: #d75fd7; font-weight: bold;">UnmarshalText</span>(<span style="color: #8787d7;">text</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+UnmarshalText实现了encoding.TextUnmarshaler接口。IP地址字符串应该是ParseIP函数可以接受的格式。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org27732c1" class="outline-2">
+<h2 id="org27732c1">type IPMask</h2>
+<div class="outline-text-2" id="text-org27732c1">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">IPMask</span> []<span style="color: #df005f; font-weight: bold;">byte</span>
+</pre>
+</div>
+
+<p>
+IPMask代表一个IP地址的掩码。<br>
+</p>
+</div>
+<div id="outline-container-org4877427" class="outline-3">
+<h3 id="org4877427">func IPv4Mask</h3>
+<div class="outline-text-3" id="text-org4877427">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">IPv4Mask</span>(<span style="color: #8787d7;">a</span>, <span style="color: #8787d7;">b</span>, <span style="color: #8787d7;">c</span>, <span style="color: #8787d7;">d</span> <span style="color: #df005f; font-weight: bold;">byte</span>) <span style="color: #df005f; font-weight: bold;">IPMask</span>
+</pre>
+</div>
+<p>
+IPv4Mask返回一个4字节格式的IPv4掩码a.b.c.d。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org589d626" class="outline-3">
+<h3 id="org589d626">func CIDRMask</h3>
+<div class="outline-text-3" id="text-org589d626">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">CIDRMask</span>(<span style="color: #8787d7;">ones</span>, <span style="color: #8787d7;">bits</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">IPMask</span>
+</pre>
+</div>
+<p>
+CIDRMask返回一个IPMask类型值，该返回值总共有bits个字位，其中前ones个字位都是1，其余字位都是0。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge344836" class="outline-3">
+<h3 id="orge344836">func (IPMask) Size</h3>
+<div class="outline-text-3" id="text-orge344836">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">m</span> <span style="color: #df005f; font-weight: bold;">IPMask</span>) <span style="color: #d75fd7; font-weight: bold;">Size</span>() (<span style="color: #8787d7;">ones</span>, <span style="color: #8787d7;">bits</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+</pre>
+</div>
+<p>
+Size返回m的前导的1字位数和总字位数。如果m不是规范的子网掩码（字位：/^1+0+$/），将返会(0, 0)。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org81b8816" class="outline-3">
+<h3 id="org81b8816">func (IPMask) String</h3>
+<div class="outline-text-3" id="text-org81b8816">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">m</span> <span style="color: #df005f; font-weight: bold;">IPMask</span>) <span style="color: #d75fd7; font-weight: bold;">String</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+<p>
+String返回m的十六进制格式，没有标点。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org52d3c55" class="outline-2">
+<h2 id="org52d3c55">type IPNet</h2>
+<div class="outline-text-2" id="text-org52d3c55">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">IPNet</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        IP   <span style="color: #df005f; font-weight: bold;">IP</span>     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#32593;&#32476;&#22320;&#22336;</span>
+        Mask <span style="color: #df005f; font-weight: bold;">IPMask</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23376;&#32593;&#25513;&#30721;</span>
+}
+</pre>
+</div>
+
+<p>
+IPNet表示一个IP网络。<br>
+</p>
+</div>
+<div id="outline-container-org9ed7737" class="outline-3">
+<h3 id="org9ed7737">func ParseCIDR</h3>
+<div class="outline-text-3" id="text-org9ed7737">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ParseCIDR</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #df005f; font-weight: bold;">IP</span>, *<span style="color: #df005f; font-weight: bold;">IPNet</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+ParseCIDR将s作为一个CIDR（无类型域间路由）的IP地址和掩码字符串，如"192.168.100.1/24"或"2001:DB8::/48"，解析并返回IP地址和IP网络，参见RFC 4632和RFC 4291。<br>
+</p>
+
+<p>
+本函数会返回IP地址和该IP所在的网络和掩码。例如，ParseCIDR("192.168.100.1/16")会返回IP地址192.168.100.1和IP网络192.168.0.0/16。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org7256640" class="outline-3">
+<h3 id="org7256640">func (*IPNet) Contains</h3>
+<div class="outline-text-3" id="text-org7256640">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">n</span> *<span style="color: #df005f; font-weight: bold;">IPNet</span>) <span style="color: #d75fd7; font-weight: bold;">Contains</span>(<span style="color: #8787d7;">ip</span> <span style="color: #df005f; font-weight: bold;">IP</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+<p>
+Contains报告该网络是否包含地址ip。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga271fcb" class="outline-3">
+<h3 id="orga271fcb">func (*IPNet) Network</h3>
+<div class="outline-text-3" id="text-orga271fcb">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">n</span> *<span style="color: #df005f; font-weight: bold;">IPNet</span>) <span style="color: #d75fd7; font-weight: bold;">Network</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+<p>
+Network返回网络类型名："ip+net"，注意该类型名是不合法的。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org55ef42e" class="outline-3">
+<h3 id="org55ef42e">func (*IPNet) String</h3>
+<div class="outline-text-3" id="text-org55ef42e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">n</span> *<span style="color: #df005f; font-weight: bold;">IPNet</span>) <span style="color: #d75fd7; font-weight: bold;">String</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+<p>
+String返回n的CIDR表示，如"192.168.100.1/24"或"2001:DB8::/48"，参见RFC 4632和RFC 4291。如果n的Mask字段不是规范格式，它会返回一个包含n.IP.String()、斜线、n.Mask.String()（此时表示为无标点十六进制格式）的字符串，如"192.168.100.1/c000ff00"。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgae9bf3a" class="outline-2">
+<h2 id="orgae9bf3a">type Addr</h2>
+<div class="outline-text-2" id="text-orgae9bf3a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Addr</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+        <span style="color: #d75fd7; font-weight: bold;">Network</span>() <span style="color: #df005f; font-weight: bold;">string</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#32593;&#32476;&#21517;</span>
+        <span style="color: #d75fd7; font-weight: bold;">String</span>() <span style="color: #df005f; font-weight: bold;">string</span>  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23383;&#31526;&#20018;&#26684;&#24335;&#30340;&#22320;&#22336;</span>
+}
+</pre>
+</div>
+
+<p>
+Addr代表一个网络终端地址。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org02b82e6" class="outline-2">
+<h2 id="org02b82e6">type Conn</h2>
+<div class="outline-text-2" id="text-org02b82e6">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Conn</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Read&#20174;&#36830;&#25509;&#20013;&#35835;&#21462;&#25968;&#25454;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Read&#26041;&#27861;&#21487;&#33021;&#20250;&#22312;&#36229;&#36807;&#26576;&#20010;&#22266;&#23450;&#26102;&#38388;&#38480;&#21046;&#21518;&#36229;&#26102;&#36820;&#22238;&#38169;&#35823;&#65292;&#35813;&#38169;&#35823;&#30340;Timeout()&#26041;&#27861;&#36820;&#22238;&#30495;</span>
+        <span style="color: #d75fd7; font-weight: bold;">Read</span>(<span style="color: #8787d7;">b</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Write&#20174;&#36830;&#25509;&#20013;&#20889;&#20837;&#25968;&#25454;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Write&#26041;&#27861;&#21487;&#33021;&#20250;&#22312;&#36229;&#36807;&#26576;&#20010;&#22266;&#23450;&#26102;&#38388;&#38480;&#21046;&#21518;&#36229;&#26102;&#36820;&#22238;&#38169;&#35823;&#65292;&#35813;&#38169;&#35823;&#30340;Timeout()&#26041;&#27861;&#36820;&#22238;&#30495;</span>
+        <span style="color: #d75fd7; font-weight: bold;">Write</span>(<span style="color: #8787d7;">b</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Close&#26041;&#27861;&#20851;&#38381;&#35813;&#36830;&#25509;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#24182;&#20250;&#23548;&#33268;&#20219;&#20309;&#38459;&#22622;&#20013;&#30340;Read&#25110;Write&#26041;&#27861;&#19981;&#20877;&#38459;&#22622;&#24182;&#36820;&#22238;&#38169;&#35823;</span>
+        <span style="color: #d75fd7; font-weight: bold;">Close</span>() <span style="color: #df005f; font-weight: bold;">error</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;&#26412;&#22320;&#32593;&#32476;&#22320;&#22336;</span>
+        <span style="color: #d75fd7; font-weight: bold;">LocalAddr</span>() <span style="color: #df005f; font-weight: bold;">Addr</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;&#36828;&#31471;&#32593;&#32476;&#22320;&#22336;</span>
+        <span style="color: #d75fd7; font-weight: bold;">RemoteAddr</span>() <span style="color: #df005f; font-weight: bold;">Addr</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35774;&#23450;&#35813;&#36830;&#25509;&#30340;&#35835;&#20889;deadline&#65292;&#31561;&#20215;&#20110;&#21516;&#26102;&#35843;&#29992;SetReadDeadline&#21644;SetWriteDeadline</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">deadline&#26159;&#19968;&#20010;&#32477;&#23545;&#26102;&#38388;&#65292;&#36229;&#36807;&#35813;&#26102;&#38388;&#21518;I/O&#25805;&#20316;&#23601;&#20250;&#30452;&#25509;&#22240;&#36229;&#26102;&#22833;&#36133;&#36820;&#22238;&#32780;&#19981;&#20250;&#38459;&#22622;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">deadline&#23545;&#20043;&#21518;&#30340;&#25152;&#26377;I/O&#25805;&#20316;&#37117;&#36215;&#25928;&#65292;&#32780;&#19981;&#20165;&#20165;&#26159;&#19979;&#19968;&#27425;&#30340;&#35835;&#25110;&#20889;&#25805;&#20316;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21442;&#25968;t&#20026;&#38646;&#20540;&#34920;&#31034;&#19981;&#35774;&#32622;&#26399;&#38480;</span>
+        <span style="color: #d75fd7; font-weight: bold;">SetDeadline</span>(<span style="color: #8787d7;">t</span> <span style="color: #df005f; font-weight: bold;">time.Time</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35774;&#23450;&#35813;&#36830;&#25509;&#30340;&#35835;&#25805;&#20316;deadline&#65292;&#21442;&#25968;t&#20026;&#38646;&#20540;&#34920;&#31034;&#19981;&#35774;&#32622;&#26399;&#38480;</span>
+        <span style="color: #d75fd7; font-weight: bold;">SetReadDeadline</span>(<span style="color: #8787d7;">t</span> <span style="color: #df005f; font-weight: bold;">time.Time</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35774;&#23450;&#35813;&#36830;&#25509;&#30340;&#20889;&#25805;&#20316;deadline&#65292;&#21442;&#25968;t&#20026;&#38646;&#20540;&#34920;&#31034;&#19981;&#35774;&#32622;&#26399;&#38480;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21363;&#20351;&#20889;&#20837;&#36229;&#26102;&#65292;&#36820;&#22238;&#20540;n&#20063;&#21487;&#33021;&gt;0&#65292;&#35828;&#26126;&#25104;&#21151;&#20889;&#20837;&#20102;&#37096;&#20998;&#25968;&#25454;</span>
+        <span style="color: #d75fd7; font-weight: bold;">SetWriteDeadline</span>(<span style="color: #8787d7;">t</span> <span style="color: #df005f; font-weight: bold;">time.Time</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+}
+</pre>
+</div>
+
+<p>
+Conn接口代表通用的面向流的网络连接。多个线程可能会同时调用同一个Conn的方法。<br>
+</p>
+</div>
+<div id="outline-container-org2113546" class="outline-3">
+<h3 id="org2113546">func Dial</h3>
+<div class="outline-text-3" id="text-org2113546">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Dial</span>(<span style="color: #8787d7;">network</span>, <span style="color: #8787d7;">address</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #df005f; font-weight: bold;">Conn</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+在网络network上连接地址address，并返回一个Conn接口。可用的网络类型有：<br>
+</p>
+
+<p>
+"tcp"、"tcp4"、"tcp6"、"udp"、"udp4"、"udp6"、"ip"、"ip4"、"ip6"、"unix"、"unixgram"、"unixpacket"<br>
+</p>
+
+<p>
+对TCP和UDP网络，地址格式是host:port或[host]:port，参见函数JoinHostPort和SplitHostPort。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #d75fd7; font-weight: bold;">Dial</span>(<span style="color: #2aa198;">"tcp"</span>, <span style="color: #2aa198;">"12.34.56.78:80"</span>)
+<span style="color: #d75fd7; font-weight: bold;">Dial</span>(<span style="color: #2aa198;">"tcp"</span>, <span style="color: #2aa198;">"google.com:http"</span>)
+<span style="color: #d75fd7; font-weight: bold;">Dial</span>(<span style="color: #2aa198;">"tcp"</span>, <span style="color: #2aa198;">"[2001:db8::1]:http"</span>)
+<span style="color: #d75fd7; font-weight: bold;">Dial</span>(<span style="color: #2aa198;">"tcp"</span>, <span style="color: #2aa198;">"[fe80::1%lo0]:80"</span>)
+</pre>
+</div>
+
+<p>
+对IP网络，network必须是"ip"、"ip4"、"ip6"后跟冒号和协议号或者协议名，地址必须是IP地址字面值。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #d75fd7; font-weight: bold;">Dial</span>(<span style="color: #2aa198;">"ip4:1"</span>, <span style="color: #2aa198;">"127.0.0.1"</span>)
+<span style="color: #d75fd7; font-weight: bold;">Dial</span>(<span style="color: #2aa198;">"ip6:ospf"</span>, <span style="color: #2aa198;">"::1"</span>)
+</pre>
+</div>
+
+<p>
+对Unix网络，地址必须是文件系统路径。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org504da8e" class="outline-3">
+<h3 id="org504da8e">func DialTimeout</h3>
+<div class="outline-text-3" id="text-org504da8e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">DialTimeout</span>(<span style="color: #8787d7;">network</span>, <span style="color: #8787d7;">address</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">timeout</span> <span style="color: #df005f; font-weight: bold;">time.Duration</span>) (<span style="color: #df005f; font-weight: bold;">Conn</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+DialTimeout类似Dial但采用了超时。timeout参数如果必要可包含名称解析。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd9c2bb7" class="outline-3">
+<h3 id="orgd9c2bb7">func Pipe</h3>
+<div class="outline-text-3" id="text-orgd9c2bb7">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Pipe</span>() (<span style="color: #df005f; font-weight: bold;">Conn</span>, <span style="color: #df005f; font-weight: bold;">Conn</span>)
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgc3f9459" class="outline-2">
+<h2 id="orgc3f9459">type PacketConn</h2>
+<div class="outline-text-2" id="text-orgc3f9459">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">PacketConn</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">ReadFrom&#26041;&#27861;&#20174;&#36830;&#25509;&#35835;&#21462;&#19968;&#20010;&#25968;&#25454;&#21253;&#65292;&#24182;&#23558;&#26377;&#25928;&#20449;&#24687;&#20889;&#20837;b</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">ReadFrom&#26041;&#27861;&#21487;&#33021;&#20250;&#22312;&#36229;&#36807;&#26576;&#20010;&#22266;&#23450;&#26102;&#38388;&#38480;&#21046;&#21518;&#36229;&#26102;&#36820;&#22238;&#38169;&#35823;&#65292;&#35813;&#38169;&#35823;&#30340;Timeout()&#26041;&#27861;&#36820;&#22238;&#30495;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;&#20889;&#20837;&#30340;&#23383;&#33410;&#25968;&#21644;&#35813;&#25968;&#25454;&#21253;&#30340;&#26469;&#28304;&#22320;&#22336;</span>
+        <span style="color: #d75fd7; font-weight: bold;">ReadFrom</span>(<span style="color: #8787d7;">b</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">addr</span> <span style="color: #df005f; font-weight: bold;">Addr</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">WriteTo&#26041;&#27861;&#23558;&#26377;&#25928;&#25968;&#25454;b&#20889;&#20837;&#19968;&#20010;&#25968;&#25454;&#21253;&#21457;&#36865;&#32473;addr</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">WriteTo&#26041;&#27861;&#21487;&#33021;&#20250;&#22312;&#36229;&#36807;&#26576;&#20010;&#22266;&#23450;&#26102;&#38388;&#38480;&#21046;&#21518;&#36229;&#26102;&#36820;&#22238;&#38169;&#35823;&#65292;&#35813;&#38169;&#35823;&#30340;Timeout()&#26041;&#27861;&#36820;&#22238;&#30495;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22312;&#38754;&#21521;&#25968;&#25454;&#21253;&#30340;&#36830;&#25509;&#20013;&#65292;&#20889;&#20837;&#36229;&#26102;&#38750;&#24120;&#32597;&#35265;</span>
+        <span style="color: #d75fd7; font-weight: bold;">WriteTo</span>(<span style="color: #8787d7;">b</span> []<span style="color: #df005f; font-weight: bold;">byte</span>, <span style="color: #8787d7;">addr</span> <span style="color: #df005f; font-weight: bold;">Addr</span>) (<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Close&#26041;&#27861;&#20851;&#38381;&#35813;&#36830;&#25509;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20250;&#23548;&#33268;&#20219;&#20309;&#38459;&#22622;&#20013;&#30340;ReadFrom&#25110;WriteTo&#26041;&#27861;&#19981;&#20877;&#38459;&#22622;&#24182;&#36820;&#22238;&#38169;&#35823;</span>
+        <span style="color: #d75fd7; font-weight: bold;">Close</span>() <span style="color: #df005f; font-weight: bold;">error</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;&#26412;&#22320;&#32593;&#32476;&#22320;&#22336;</span>
+        <span style="color: #d75fd7; font-weight: bold;">LocalAddr</span>() <span style="color: #df005f; font-weight: bold;">Addr</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35774;&#23450;&#35813;&#36830;&#25509;&#30340;&#35835;&#20889;deadline</span>
+        <span style="color: #d75fd7; font-weight: bold;">SetDeadline</span>(<span style="color: #8787d7;">t</span> <span style="color: #df005f; font-weight: bold;">time.Time</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35774;&#23450;&#35813;&#36830;&#25509;&#30340;&#35835;&#25805;&#20316;deadline&#65292;&#21442;&#25968;t&#20026;&#38646;&#20540;&#34920;&#31034;&#19981;&#35774;&#32622;&#26399;&#38480;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#26102;&#38388;&#21040;&#36798;deadline&#65292;&#35835;&#25805;&#20316;&#23601;&#20250;&#30452;&#25509;&#22240;&#36229;&#26102;&#22833;&#36133;&#36820;&#22238;&#32780;&#19981;&#20250;&#38459;&#22622;</span>
+        <span style="color: #d75fd7; font-weight: bold;">SetReadDeadline</span>(<span style="color: #8787d7;">t</span> <span style="color: #df005f; font-weight: bold;">time.Time</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35774;&#23450;&#35813;&#36830;&#25509;&#30340;&#20889;&#25805;&#20316;deadline&#65292;&#21442;&#25968;t&#20026;&#38646;&#20540;&#34920;&#31034;&#19981;&#35774;&#32622;&#26399;&#38480;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#26102;&#38388;&#21040;&#36798;deadline&#65292;&#20889;&#25805;&#20316;&#23601;&#20250;&#30452;&#25509;&#22240;&#36229;&#26102;&#22833;&#36133;&#36820;&#22238;&#32780;&#19981;&#20250;&#38459;&#22622;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21363;&#20351;&#20889;&#20837;&#36229;&#26102;&#65292;&#36820;&#22238;&#20540;n&#20063;&#21487;&#33021;&gt;0&#65292;&#35828;&#26126;&#25104;&#21151;&#20889;&#20837;&#20102;&#37096;&#20998;&#25968;&#25454;</span>
+        <span style="color: #d75fd7; font-weight: bold;">SetWriteDeadline</span>(<span style="color: #8787d7;">t</span> <span style="color: #df005f; font-weight: bold;">time.Time</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+}
+</pre>
+</div>
+
+<p>
+PacketConn接口代表通用的面向数据包的网络连接。多个线程可能会同时调用同一个Conn的方法。<br>
+</p>
+</div>
+<div id="outline-container-orgeb39867" class="outline-3">
+<h3 id="orgeb39867">func ListenPacket</h3>
+<div class="outline-text-3" id="text-orgeb39867">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ListenPacket</span>(<span style="color: #8787d7;">net</span>, <span style="color: #8787d7;">laddr</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #df005f; font-weight: bold;">PacketConn</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+ListenPacket函数监听本地网络地址laddr。网络类型net必须是面向数据包的网络类型：<br>
+</p>
+
+<p>
+"ip"、"ip4"、"ip6"、"udp"、"udp4"、"udp6"、或"unixgram"。laddr的格式参见Dial函数。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org9477d19" class="outline-2">
+<h2 id="org9477d19">type Dialer</h2>
+<div class="outline-text-2" id="text-org9477d19">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Dialer</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Timeout&#26159;dial&#25805;&#20316;&#31561;&#24453;&#36830;&#25509;&#24314;&#31435;&#30340;&#26368;&#22823;&#26102;&#38271;&#65292;&#40664;&#35748;&#20540;&#20195;&#34920;&#27809;&#26377;&#36229;&#26102;&#12290;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;Deadline&#23383;&#27573;&#20063;&#34987;&#35774;&#32622;&#20102;&#65292;dial&#25805;&#20316;&#20063;&#21487;&#33021;&#26356;&#26089;&#22833;&#36133;&#12290;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#19981;&#31649;&#26377;&#27809;&#26377;&#35774;&#32622;&#36229;&#26102;&#65292;&#25805;&#20316;&#31995;&#32479;&#37117;&#21487;&#33021;&#24378;&#21046;&#25191;&#34892;&#23427;&#30340;&#36229;&#26102;&#35774;&#32622;&#12290;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20363;&#22914;&#65292;TCP&#65288;&#31995;&#32479;&#65289;&#36229;&#26102;&#19968;&#33324;&#22312;3&#20998;&#38047;&#24038;&#21491;&#12290;</span>
+        Timeout <span style="color: #df005f; font-weight: bold;">time.Duration</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Deadline&#26159;&#19968;&#20010;&#20855;&#20307;&#30340;&#26102;&#38388;&#28857;&#26399;&#38480;&#65292;&#36229;&#36807;&#35813;&#26399;&#38480;&#21518;&#65292;dial&#25805;&#20316;&#23601;&#20250;&#22833;&#36133;&#12290;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;Timeout&#23383;&#27573;&#20063;&#34987;&#35774;&#32622;&#20102;&#65292;dial&#25805;&#20316;&#20063;&#21487;&#33021;&#26356;&#26089;&#22833;&#36133;&#12290;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#38646;&#20540;&#34920;&#31034;&#27809;&#26377;&#26399;&#38480;&#65292;&#21363;&#36981;&#23432;&#25805;&#20316;&#31995;&#32479;&#30340;&#36229;&#26102;&#35774;&#32622;&#12290;</span>
+        Deadline <span style="color: #df005f; font-weight: bold;">time.Time</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">LocalAddr&#26159;dial&#19968;&#20010;&#22320;&#22336;&#26102;&#20351;&#29992;&#30340;&#26412;&#22320;&#22320;&#22336;&#12290;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35813;&#22320;&#22336;&#24517;&#39035;&#26159;&#19982;dial&#30340;&#32593;&#32476;&#30456;&#23481;&#30340;&#31867;&#22411;&#12290;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#20026;nil&#65292;&#23558;&#20250;&#33258;&#21160;&#36873;&#25321;&#19968;&#20010;&#26412;&#22320;&#22320;&#22336;&#12290;</span>
+        LocalAddr <span style="color: #df005f; font-weight: bold;">Addr</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">DualStack&#20801;&#35768;&#21333;&#27425;dial&#25805;&#20316;&#22312;&#32593;&#32476;&#31867;&#22411;&#20026;"tcp"&#65292;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#19988;&#30446;&#30340;&#22320;&#26159;&#19968;&#20010;&#20027;&#26426;&#21517;&#30340;DNS&#35760;&#24405;&#20855;&#26377;&#22810;&#20010;&#22320;&#22336;&#26102;&#65292;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23581;&#35797;&#24314;&#31435;&#22810;&#20010;IPv4&#21644;IPv6&#36830;&#25509;&#65292;&#24182;&#36820;&#22238;&#31532;&#19968;&#20010;&#24314;&#31435;&#30340;&#36830;&#25509;&#12290;</span>
+        DualStack <span style="color: #df005f; font-weight: bold;">bool</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">KeepAlive&#25351;&#23450;&#19968;&#20010;&#27963;&#21160;&#30340;&#32593;&#32476;&#36830;&#25509;&#30340;&#29983;&#21629;&#21608;&#26399;&#65307;&#22914;&#26524;&#20026;0&#65292;&#20250;&#31105;&#27490;keep-alive&#12290;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#19981;&#25903;&#25345;keep-alive&#30340;&#32593;&#32476;&#36830;&#25509;&#20250;&#24573;&#30053;&#26412;&#23383;&#27573;&#12290;</span>
+        KeepAlive <span style="color: #df005f; font-weight: bold;">time.Duration</span>
+}
+</pre>
+</div>
+
+<p>
+Dialer类型包含与某个地址建立连接时的参数。<br>
+</p>
+
+<p>
+每一个字段的零值都等价于没有该字段。因此调用Dialer零值的Dial方法等价于调用Dial函数。<br>
+</p>
+</div>
+<div id="outline-container-org57ed911" class="outline-3">
+<h3 id="org57ed911">func (*Dialer) Dial</h3>
+<div class="outline-text-3" id="text-org57ed911">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">d</span> *<span style="color: #df005f; font-weight: bold;">Dialer</span>) <span style="color: #d75fd7; font-weight: bold;">Dial</span>(<span style="color: #8787d7;">network</span>, <span style="color: #8787d7;">address</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #df005f; font-weight: bold;">Conn</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+Dial在指定的网络上连接指定的地址。参见Dial函数获取网络和地址参数的描述。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org7847356" class="outline-2">
+<h2 id="org7847356">type Listener</h2>
+<div class="outline-text-2" id="text-org7847356">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Listener</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Addr&#36820;&#22238;&#35813;&#25509;&#21475;&#30340;&#32593;&#32476;&#22320;&#22336;</span>
+    <span style="color: #d75fd7; font-weight: bold;">Addr</span>() <span style="color: #df005f; font-weight: bold;">Addr</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Accept&#31561;&#24453;&#24182;&#36820;&#22238;&#19979;&#19968;&#20010;&#36830;&#25509;&#21040;&#35813;&#25509;&#21475;&#30340;&#36830;&#25509;</span>
+    <span style="color: #d75fd7; font-weight: bold;">Accept</span>() (<span style="color: #8787d7;">c</span> <span style="color: #df005f; font-weight: bold;">Conn</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Close&#20851;&#38381;&#35813;&#25509;&#21475;&#65292;&#24182;&#20351;&#20219;&#20309;&#38459;&#22622;&#30340;Accept&#25805;&#20316;&#37117;&#20250;&#19981;&#20877;&#38459;&#22622;&#24182;&#36820;&#22238;&#38169;&#35823;&#12290;</span>
+    <span style="color: #d75fd7; font-weight: bold;">Close</span>() <span style="color: #df005f; font-weight: bold;">error</span>
+}
+</pre>
+</div>
+
+<p>
+Listener是一个用于面向流的网络协议的公用的网络监听器接口。多个线程可能会同时调用一个Listener的方法。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Listen on TCP port 2000 on all interfaces.</span>
+<span style="color: #8787d7;">l</span>, <span style="color: #8787d7;">err</span> := net.<span style="color: #d75fd7; font-weight: bold;">Listen</span>(<span style="color: #2aa198;">"tcp"</span>, <span style="color: #2aa198;">":2000"</span>)
+<span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
+    log.<span style="color: #d75fd7; font-weight: bold;">Fatal</span>(err)
+}
+<span style="color: #268bd2; font-weight: bold;">defer</span> l.<span style="color: #d75fd7; font-weight: bold;">Close</span>()
+<span style="color: #268bd2; font-weight: bold;">for</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Wait for a connection.</span>
+    <span style="color: #8787d7;">conn</span>, <span style="color: #8787d7;">err</span> := l.<span style="color: #d75fd7; font-weight: bold;">Accept</span>()
+    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
+        log.<span style="color: #d75fd7; font-weight: bold;">Fatal</span>(err)
+    }
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Handle the connection in a new goroutine.</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">The loop then returns to accepting, so that</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">multiple connections may be served concurrently.</span>
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> <span style="color: #df005f; font-weight: bold;">net.Conn</span>) {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Echo all incoming data.</span>
+        io.<span style="color: #d75fd7; font-weight: bold;">Copy</span>(c, c)
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Shut down the connection.</span>
+        c.<span style="color: #d75fd7; font-weight: bold;">Close</span>()
+    }(conn)
+}
+</pre>
+</div>
+</div>
+<div id="outline-container-org61b0616" class="outline-3">
+<h3 id="org61b0616">func Listen</h3>
+<div class="outline-text-3" id="text-org61b0616">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Listen</span>(<span style="color: #8787d7;">net</span>, <span style="color: #8787d7;">laddr</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #df005f; font-weight: bold;">Listener</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+返回在一个本地网络地址laddr上监听的Listener。网络类型参数net必须是面向流的网络：<br>
+</p>
+
+<p>
+"tcp"、"tcp4"、"tcp6"、"unix"或"unixpacket"。参见Dial函数获取laddr的语法。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org2356bcd" class="outline-2">
+<h2 id="org2356bcd">type IPAddr</h2>
+<div class="outline-text-2" id="text-org2356bcd">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">IPAddr</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        IP   <span style="color: #df005f; font-weight: bold;">IP</span>
+        Zone <span style="color: #df005f; font-weight: bold;">string</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">IPv6&#33539;&#22260;&#23547;&#22336;&#22495;</span>
+}
+</pre>
+</div>
+
+<p>
+IPAddr代表一个IP终端的地址。<br>
+</p>
+</div>
+<div id="outline-container-orge0b6649" class="outline-3">
+<h3 id="orge0b6649">func ResolveIPAddr</h3>
+<div class="outline-text-3" id="text-orge0b6649">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ResolveIPAddr</span>(<span style="color: #8787d7;">net</span>, <span style="color: #8787d7;">addr</span> <span style="color: #df005f; font-weight: bold;">string</span>) (*<span style="color: #df005f; font-weight: bold;">IPAddr</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+ResolveIPAddr将addr作为一个格式为"host"或"ipv6-host%zone"的IP地址来解析。 函数会在参数net指定的网络类型上解析，net必须是"ip"、"ip4"或"ip6"。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgea661fa" class="outline-3">
+<h3 id="orgea661fa">func (*IPAddr) Network</h3>
+<div class="outline-text-3" id="text-orgea661fa">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">a</span> *<span style="color: #df005f; font-weight: bold;">IPAddr</span>) <span style="color: #d75fd7; font-weight: bold;">Network</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+<p>
+Network返回地址的网络类型："ip"。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org7f6d27d" class="outline-3">
+<h3 id="org7f6d27d">func (*IPAddr) String</h3>
+<div class="outline-text-3" id="text-org7f6d27d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">a</span> *<span style="color: #df005f; font-weight: bold;">IPAddr</span>) <span style="color: #d75fd7; font-weight: bold;">String</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgc322fdf" class="outline-2">
+<h2 id="orgc322fdf">type TCPAddr</h2>
+<div class="outline-text-2" id="text-orgc322fdf">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">TCPAddr</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    IP   <span style="color: #df005f; font-weight: bold;">IP</span>
+    Port <span style="color: #df005f; font-weight: bold;">int</span>
+    Zone <span style="color: #df005f; font-weight: bold;">string</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">IPv6&#33539;&#22260;&#23547;&#22336;&#22495;</span>
+}
+</pre>
+</div>
+
+<p>
+TCPAddr代表一个TCP终端地址。<br>
+</p>
+</div>
+<div id="outline-container-orgd3614b0" class="outline-3">
+<h3 id="orgd3614b0">func ResolveTCPAddr</h3>
+<div class="outline-text-3" id="text-orgd3614b0">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ResolveTCPAddr</span>(<span style="color: #8787d7;">net</span>, <span style="color: #8787d7;">addr</span> <span style="color: #df005f; font-weight: bold;">string</span>) (*<span style="color: #df005f; font-weight: bold;">TCPAddr</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+ResolveTCPAddr将addr作为TCP地址解析并返回。参数addr格式为"host:port"或"[ipv6-host%zone]:port"，解析得到网络名和端口名；net必须是"tcp"、"tcp4"或"tcp6"。<br>
+</p>
+
+<p>
+IPv6地址字面值/名称必须用方括号包起来，如"[::1]:80"、"[ipv6-host]:http"或"[ipv6-host%zone]:80"。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5659ccc" class="outline-3">
+<h3 id="org5659ccc">func (*TCPAddr) Network</h3>
+<div class="outline-text-3" id="text-org5659ccc">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">a</span> *<span style="color: #df005f; font-weight: bold;">TCPAddr</span>) <span style="color: #d75fd7; font-weight: bold;">Network</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+<p>
+返回地址的网络类型，"tcp"。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org27d3ac7" class="outline-3">
+<h3 id="org27d3ac7">func (*TCPAddr) String</h3>
+<div class="outline-text-3" id="text-org27d3ac7">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">a</span> *<span style="color: #df005f; font-weight: bold;">TCPAddr</span>) <span style="color: #d75fd7; font-weight: bold;">String</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org4155c71" class="outline-2">
+<h2 id="org4155c71">type UDPAddr</h2>
+<div class="outline-text-2" id="text-org4155c71">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">UDPAddr</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        IP   <span style="color: #df005f; font-weight: bold;">IP</span>
+        Port <span style="color: #df005f; font-weight: bold;">int</span>
+        Zone <span style="color: #df005f; font-weight: bold;">string</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">IPv6&#33539;&#22260;&#23547;&#22336;&#22495;</span>
+}
+</pre>
+</div>
+
+<p>
+UDPAddr代表一个UDP终端地址。<br>
+</p>
+</div>
+<div id="outline-container-org62b72f9" class="outline-3">
+<h3 id="org62b72f9">func ResolveUDPAddr</h3>
+<div class="outline-text-3" id="text-org62b72f9">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ResolveUDPAddr</span>(<span style="color: #8787d7;">net</span>, <span style="color: #8787d7;">addr</span> <span style="color: #df005f; font-weight: bold;">string</span>) (*<span style="color: #df005f; font-weight: bold;">UDPAddr</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+ResolveTCPAddr将addr作为TCP地址解析并返回。参数addr格式为"host:port"或"[ipv6-host%zone]:port"，解析得到网络名和端口名；net必须是"udp"、"udp4"或"udp6"。<br>
+</p>
+
+<p>
+IPv6地址字面值/名称必须用方括号包起来，如"[::1]:80"、"[ipv6-host]:http"或"[ipv6-host%zone]:80"。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9bdb96c" class="outline-3">
+<h3 id="org9bdb96c">func (*UDPAddr) Network</h3>
+<div class="outline-text-3" id="text-org9bdb96c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">a</span> *<span style="color: #df005f; font-weight: bold;">UDPAddr</span>) <span style="color: #d75fd7; font-weight: bold;">Network</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+<p>
+返回地址的网络类型，"udp"。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9614966" class="outline-3">
+<h3 id="org9614966">func (*UDPAddr) String</h3>
+<div class="outline-text-3" id="text-org9614966">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">a</span> *<span style="color: #df005f; font-weight: bold;">UDPAddr</span>) <span style="color: #d75fd7; font-weight: bold;">String</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org0c0f0ab" class="outline-2">
+<h2 id="org0c0f0ab">type UnixAddr</h2>
+<div class="outline-text-2" id="text-org0c0f0ab">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">UnixAddr</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        Name <span style="color: #df005f; font-weight: bold;">string</span>
+        Net  <span style="color: #df005f; font-weight: bold;">string</span>
+}
+</pre>
+</div>
+
+<p>
+UnixAddr代表一个Unix域socket终端地址。<br>
+</p>
+</div>
+<div id="outline-container-org125ab61" class="outline-3">
+<h3 id="org125ab61">func ResolveUnixAddr</h3>
+<div class="outline-text-3" id="text-org125ab61">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ResolveUnixAddr</span>(<span style="color: #8787d7;">net</span>, <span style="color: #8787d7;">addr</span> <span style="color: #df005f; font-weight: bold;">string</span>) (*<span style="color: #df005f; font-weight: bold;">UnixAddr</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+ResolveUnixAddr将addr作为Unix域socket地址解析，参数net指定网络类型："unix"、"unixgram"或"unixpacket"。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org6bd4593" class="outline-3">
+<h3 id="org6bd4593">func (*UnixAddr) Network</h3>
+<div class="outline-text-3" id="text-org6bd4593">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">a</span> *<span style="color: #df005f; font-weight: bold;">UnixAddr</span>) <span style="color: #d75fd7; font-weight: bold;">Network</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+<p>
+返回地址的网络类型，"unix"，"unixgram"或"unixpacket"。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgdd5030c" class="outline-3">
+<h3 id="orgdd5030c">func (*UnixAddr) String</h3>
+<div class="outline-text-3" id="text-orgdd5030c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">a</span> *<span style="color: #df005f; font-weight: bold;">UnixAddr</span>) <span style="color: #d75fd7; font-weight: bold;">String</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org40c887c" class="outline-2">
+<h2 id="org40c887c">type IPConn</h2>
+<div class="outline-text-2" id="text-org40c887c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">IPConn</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20869;&#21547;&#38544;&#34255;&#25110;&#38750;&#23548;&#20986;&#23383;&#27573;</span>
+}
+</pre>
+</div>
+
+<p>
+IPConn类型代表IP网络连接，实现了Conn和PacketConn接口。<br>
+</p>
+</div>
+<div id="outline-container-org9c82aea" class="outline-3">
+<h3 id="org9c82aea">func DialIP</h3>
+<div class="outline-text-3" id="text-org9c82aea">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">DialIP</span>(<span style="color: #8787d7;">netProto</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">laddr</span>, <span style="color: #8787d7;">raddr</span> *<span style="color: #df005f; font-weight: bold;">IPAddr</span>) (*<span style="color: #df005f; font-weight: bold;">IPConn</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+DialIP在网络协议netProto上连接本地地址laddr和远端地址raddr，netProto必须是"ip"、"ip4"或"ip6"后跟冒号和协议名或协议号。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org793714f" class="outline-3">
+<h3 id="org793714f">func ListenIP</h3>
+<div class="outline-text-3" id="text-org793714f">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ListenIP</span>(<span style="color: #8787d7;">netProto</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">laddr</span> *<span style="color: #df005f; font-weight: bold;">IPAddr</span>) (*<span style="color: #df005f; font-weight: bold;">IPConn</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+ListenIP创建一个接收目的地是本地地址laddr的IP数据包的网络连接，返回的*IPConn的ReadFrom和WriteTo方法可以用来发送和接收IP数据包。（每个包都可获取来源址或者设置目标地址）<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgebd7d39" class="outline-3">
+<h3 id="orgebd7d39">func (*IPConn) LocalAddr</h3>
+<div class="outline-text-3" id="text-orgebd7d39">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">IPConn</span>) <span style="color: #d75fd7; font-weight: bold;">LocalAddr</span>() <span style="color: #df005f; font-weight: bold;">Addr</span>
+</pre>
+</div>
+<p>
+LocalAddr返回本地网络地址<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org91fe958" class="outline-3">
+<h3 id="org91fe958">func (*IPConn) RemoteAddr</h3>
+<div class="outline-text-3" id="text-org91fe958">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">IPConn</span>) <span style="color: #d75fd7; font-weight: bold;">RemoteAddr</span>() <span style="color: #df005f; font-weight: bold;">Addr</span>
+</pre>
+</div>
+<p>
+RemoteAddr返回远端网络地址<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga060146" class="outline-3">
+<h3 id="orga060146">func (*IPConn) SetReadBuffer</h3>
+<div class="outline-text-3" id="text-orga060146">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">IPConn</span>) <span style="color: #d75fd7; font-weight: bold;">SetReadBuffer</span>(<span style="color: #8787d7;">bytes</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+SetReadBuffer设置该连接的系统接收缓冲<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb68fa47" class="outline-3">
+<h3 id="orgb68fa47">func (*IPConn) SetWriteBuffer</h3>
+<div class="outline-text-3" id="text-orgb68fa47">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">IPConn</span>) <span style="color: #d75fd7; font-weight: bold;">SetWriteBuffer</span>(<span style="color: #8787d7;">bytes</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+SetWriteBuffer设置该连接的系统发送缓冲<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgeda7bb2" class="outline-3">
+<h3 id="orgeda7bb2">func (*IPConn) SetDeadline</h3>
+<div class="outline-text-3" id="text-orgeda7bb2">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">IPConn</span>) <span style="color: #d75fd7; font-weight: bold;">SetDeadline</span>(<span style="color: #8787d7;">t</span> <span style="color: #df005f; font-weight: bold;">time.Time</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+SetDeadline设置读写操作绝对期限，实现了Conn接口的SetDeadline方法<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc0df6bf" class="outline-3">
+<h3 id="orgc0df6bf">func (*IPConn) SetReadDeadline</h3>
+<div class="outline-text-3" id="text-orgc0df6bf">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">IPConn</span>) <span style="color: #d75fd7; font-weight: bold;">SetReadDeadline</span>(<span style="color: #8787d7;">t</span> <span style="color: #df005f; font-weight: bold;">time.Time</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+SetReadDeadline设置读操作绝对期限，实现了Conn接口的SetReadDeadline方法<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org1fe211c" class="outline-3">
+<h3 id="org1fe211c">func (*IPConn) SetWriteDeadline</h3>
+<div class="outline-text-3" id="text-org1fe211c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">IPConn</span>) <span style="color: #d75fd7; font-weight: bold;">SetWriteDeadline</span>(<span style="color: #8787d7;">t</span> <span style="color: #df005f; font-weight: bold;">time.Time</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+SetWriteDeadline设置写操作绝对期限，实现了Conn接口的SetWriteDeadline方法<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org329bda4" class="outline-3">
+<h3 id="org329bda4">func (*IPConn) Read</h3>
+<div class="outline-text-3" id="text-org329bda4">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">IPConn</span>) <span style="color: #d75fd7; font-weight: bold;">Read</span>(<span style="color: #8787d7;">b</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+Read实现Conn接口Read方法<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgcb1c8c5" class="outline-3">
+<h3 id="orgcb1c8c5">func (*IPConn) ReadFrom</h3>
+<div class="outline-text-3" id="text-orgcb1c8c5">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">IPConn</span>) <span style="color: #d75fd7; font-weight: bold;">ReadFrom</span>(<span style="color: #8787d7;">b</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #df005f; font-weight: bold;">Addr</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+ReadFrom实现PacketConn接口ReadFrom方法。注意本方法有bug，应避免使用。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf3b3ad1" class="outline-3">
+<h3 id="orgf3b3ad1">func (*IPConn) ReadFromIP</h3>
+<div class="outline-text-3" id="text-orgf3b3ad1">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">IPConn</span>) <span style="color: #d75fd7; font-weight: bold;">ReadFromIP</span>(<span style="color: #8787d7;">b</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #df005f; font-weight: bold;">int</span>, *<span style="color: #df005f; font-weight: bold;">IPAddr</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+ReadFromIP从c读取一个IP数据包，将有效负载拷贝到b，返回拷贝字节数和数据包来源地址。<br>
+</p>
+
+<p>
+ReadFromIP方法会在超过一个固定的时间点之后超时，并返回一个错误。注意本方法有bug，应避免使用。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org52c43a4" class="outline-3">
+<h3 id="org52c43a4">func (*IPConn) ReadMsgIP</h3>
+<div class="outline-text-3" id="text-org52c43a4">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">IPConn</span>) <span style="color: #d75fd7; font-weight: bold;">ReadMsgIP</span>(<span style="color: #8787d7;">b</span>, <span style="color: #8787d7;">oob</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #8787d7;">n</span>, <span style="color: #8787d7;">oobn</span>, <span style="color: #8787d7;">flags</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">IPAddr</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+ReadMsgIP从c读取一个数据包，将有效负载拷贝进b，相关的带外数据拷贝进oob，返回拷贝进b的字节数，拷贝进oob的字节数，数据包的flag，数据包来源地址和可能的错误。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5b4f510" class="outline-3">
+<h3 id="org5b4f510">func (*IPConn) Write</h3>
+<div class="outline-text-3" id="text-org5b4f510">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">IPConn</span>) <span style="color: #d75fd7; font-weight: bold;">Write</span>(<span style="color: #8787d7;">b</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+Write实现Conn接口Write方法<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc327e1e" class="outline-3">
+<h3 id="orgc327e1e">func (*IPConn) WriteTo</h3>
+<div class="outline-text-3" id="text-orgc327e1e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">IPConn</span>) <span style="color: #d75fd7; font-weight: bold;">WriteTo</span>(<span style="color: #8787d7;">b</span> []<span style="color: #df005f; font-weight: bold;">byte</span>, <span style="color: #8787d7;">addr</span> <span style="color: #df005f; font-weight: bold;">Addr</span>) (<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+WriteTo实现PacketConn接口WriteTo方法<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org0f5a928" class="outline-3">
+<h3 id="org0f5a928">func (*IPConn) WriteToIP</h3>
+<div class="outline-text-3" id="text-org0f5a928">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">IPConn</span>) <span style="color: #d75fd7; font-weight: bold;">WriteToIP</span>(<span style="color: #8787d7;">b</span> []<span style="color: #df005f; font-weight: bold;">byte</span>, <span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">IPAddr</span>) (<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+WriteToIP通过c向地址addr发送一个数据包，b为包的有效负载，返回写入的字节。<br>
+</p>
+
+<p>
+WriteToIP方法会在超过一个固定的时间点之后超时，并返回一个错误。在面向数据包的连接上，写入超时是十分罕见的。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org050d076" class="outline-3">
+<h3 id="org050d076">func (*IPConn) WriteMsgIP</h3>
+<div class="outline-text-3" id="text-org050d076">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">IPConn</span>) <span style="color: #d75fd7; font-weight: bold;">WriteMsgIP</span>(<span style="color: #8787d7;">b</span>, <span style="color: #8787d7;">oob</span> []<span style="color: #df005f; font-weight: bold;">byte</span>, <span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">IPAddr</span>) (<span style="color: #8787d7;">n</span>, <span style="color: #8787d7;">oobn</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+WriteMsgIP通过c向地址addr发送一个数据包，b和oob分别为包有效负载和对应的带外数据，返回写入的字节数（包数据、带外数据）和可能的错误。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga289bc3" class="outline-3">
+<h3 id="orga289bc3">func (*IPConn) Close</h3>
+<div class="outline-text-3" id="text-orga289bc3">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">IPConn</span>) <span style="color: #d75fd7; font-weight: bold;">Close</span>() <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+Close关闭连接<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5b8f965" class="outline-3">
+<h3 id="org5b8f965">func (*IPConn) File</h3>
+<div class="outline-text-3" id="text-org5b8f965">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">IPConn</span>) <span style="color: #d75fd7; font-weight: bold;">File</span>() (<span style="color: #8787d7;">f</span> *<span style="color: #df005f; font-weight: bold;">os.File</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+File方法设置下层的os.File为阻塞模式并返回其副本。<br>
+</p>
+
+<p>
+使用者有责任在用完后关闭f。关闭c不影响f，关闭f也不影响c。返回的os.File类型文件描述符和原本的网络连接是不同的。试图使用该副本修改本体的属性可能会（也可能不会）得到期望的效果。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org154eb9d" class="outline-2">
+<h2 id="org154eb9d">type TCPConn</h2>
+<div class="outline-text-2" id="text-org154eb9d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">TCPConn</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20869;&#21547;&#38544;&#34255;&#25110;&#38750;&#23548;&#20986;&#23383;&#27573;</span>
+}
+</pre>
+</div>
+
+<p>
+TCPConn 代表一个 TCP 网络连接，实现了Conn接口。<br>
+</p>
+</div>
+<div id="outline-container-org9a188de" class="outline-3">
+<h3 id="org9a188de">func DialTCP</h3>
+<div class="outline-text-3" id="text-org9a188de">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">DialTCP</span>(<span style="color: #8787d7;">net</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">laddr</span>, <span style="color: #8787d7;">raddr</span> *<span style="color: #df005f; font-weight: bold;">TCPAddr</span>) (*<span style="color: #df005f; font-weight: bold;">TCPConn</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+DialTCP在网络协议net上连接本地地址laddr和远端地址raddr。net必须是"tcp"、"tcp4"、"tcp6"；如果laddr不是nil，将使用它作为本地地址，否则自动选择一个本地地址。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgdc74be7" class="outline-3">
+<h3 id="orgdc74be7">func (*TCPConn) LocalAddr</h3>
+<div class="outline-text-3" id="text-orgdc74be7">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">TCPConn</span>) <span style="color: #d75fd7; font-weight: bold;">LocalAddr</span>() <span style="color: #df005f; font-weight: bold;">Addr</span>
+</pre>
+</div>
+<p>
+LocalAddr返回本地网络地址<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org46b8e51" class="outline-3">
+<h3 id="org46b8e51">func (*TCPConn) RemoteAddr</h3>
+<div class="outline-text-3" id="text-org46b8e51">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">TCPConn</span>) <span style="color: #d75fd7; font-weight: bold;">RemoteAddr</span>() <span style="color: #df005f; font-weight: bold;">Addr</span>
+</pre>
+</div>
+<p>
+RemoteAddr返回远端网络地址<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org25b44d6" class="outline-3">
+<h3 id="org25b44d6">func (*TCPConn) SetReadBuffer</h3>
+<div class="outline-text-3" id="text-org25b44d6">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">TCPConn</span>) <span style="color: #d75fd7; font-weight: bold;">SetReadBuffer</span>(<span style="color: #8787d7;">bytes</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+SetReadBuffer设置该连接的系统接收缓冲<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9659ef8" class="outline-3">
+<h3 id="org9659ef8">func (*TCPConn) SetWriteBuffer</h3>
+<div class="outline-text-3" id="text-org9659ef8">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">TCPConn</span>) <span style="color: #d75fd7; font-weight: bold;">SetWriteBuffer</span>(<span style="color: #8787d7;">bytes</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+SetWriteBuffer设置该连接的系统发送缓冲<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org411f2fd" class="outline-3">
+<h3 id="org411f2fd">func (*TCPConn) SetDeadline</h3>
+<div class="outline-text-3" id="text-org411f2fd">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">TCPConn</span>) <span style="color: #d75fd7; font-weight: bold;">SetDeadline</span>(<span style="color: #8787d7;">t</span> <span style="color: #df005f; font-weight: bold;">time.Time</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+SetDeadline设置读写操作期限，实现了Conn接口的SetDeadline方法<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge69caaa" class="outline-3">
+<h3 id="orge69caaa">func (*TCPConn) SetReadDeadline</h3>
+<div class="outline-text-3" id="text-orge69caaa">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">TCPConn</span>) <span style="color: #d75fd7; font-weight: bold;">SetReadDeadline</span>(<span style="color: #8787d7;">t</span> <span style="color: #df005f; font-weight: bold;">time.Time</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+SetReadDeadline设置读操作期限，实现了Conn接口的SetReadDeadline方法<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org7758208" class="outline-3">
+<h3 id="org7758208">func (*TCPConn) SetWriteDeadline</h3>
+<div class="outline-text-3" id="text-org7758208">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">TCPConn</span>) <span style="color: #d75fd7; font-weight: bold;">SetWriteDeadline</span>(<span style="color: #8787d7;">t</span> <span style="color: #df005f; font-weight: bold;">time.Time</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+SetWriteDeadline设置写操作期限，实现了Conn接口的SetWriteDeadline方法<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org19e41f5" class="outline-3">
+<h3 id="org19e41f5">func (*TCPConn) SetKeepAlive</h3>
+<div class="outline-text-3" id="text-org19e41f5">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">TCPConn</span>) <span style="color: #d75fd7; font-weight: bold;">SetKeepAlive</span>(<span style="color: #8787d7;">keepalive</span> <span style="color: #df005f; font-weight: bold;">bool</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+SetKeepAlive设置操作系统是否应该在该连接中发送keepalive信息<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9ee4845" class="outline-3">
+<h3 id="org9ee4845">func (*TCPConn) SetKeepAlivePeriod</h3>
+<div class="outline-text-3" id="text-org9ee4845">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">TCPConn</span>) <span style="color: #d75fd7; font-weight: bold;">SetKeepAlivePeriod</span>(<span style="color: #8787d7;">d</span> <span style="color: #df005f; font-weight: bold;">time.Duration</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+SetKeepAlivePeriod设置keepalive的周期，超出会断开<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga7b2296" class="outline-3">
+<h3 id="orga7b2296">func (*TCPConn) SetLinger</h3>
+<div class="outline-text-3" id="text-orga7b2296">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">TCPConn</span>) <span style="color: #d75fd7; font-weight: bold;">SetLinger</span>(<span style="color: #8787d7;">sec</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+SetLinger设定当连接中仍有数据等待发送或接受时的Close方法的行为。<br>
+</p>
+
+<p>
+如果sec &lt; 0（默认），Close方法立即返回，操作系统停止后台数据发送；如果 sec == 0，Close立刻返回，操作系统丢弃任何未发送或未接收的数据；如果sec &gt; 0，Close方法阻塞最多sec秒，等待数据发送或者接收，在一些操作系统中，在超时后，任何未发送的数据会被丢弃。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org706fe9c" class="outline-3">
+<h3 id="org706fe9c">func (*TCPConn) SetNoDelay</h3>
+<div class="outline-text-3" id="text-org706fe9c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">TCPConn</span>) <span style="color: #d75fd7; font-weight: bold;">SetNoDelay</span>(<span style="color: #8787d7;">noDelay</span> <span style="color: #df005f; font-weight: bold;">bool</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+SetNoDelay设定操作系统是否应该延迟数据包传递，以便发送更少的数据包（Nagle's算法）。默认为真，即数据应该在Write方法后立刻发送。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4449585" class="outline-3">
+<h3 id="org4449585">func (*TCPConn) Read</h3>
+<div class="outline-text-3" id="text-org4449585">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">TCPConn</span>) <span style="color: #d75fd7; font-weight: bold;">Read</span>(<span style="color: #8787d7;">b</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+Read实现了Conn接口Read方法<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga0bcfaa" class="outline-3">
+<h3 id="orga0bcfaa">func (*TCPConn) Write</h3>
+<div class="outline-text-3" id="text-orga0bcfaa">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">TCPConn</span>) <span style="color: #d75fd7; font-weight: bold;">Write</span>(<span style="color: #8787d7;">b</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+Write实现了Conn接口Write方法<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9dd09e2" class="outline-3">
+<h3 id="org9dd09e2">func (*TCPConn) ReadFrom</h3>
+<div class="outline-text-3" id="text-org9dd09e2">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">TCPConn</span>) <span style="color: #d75fd7; font-weight: bold;">ReadFrom</span>(<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">io.Reader</span>) (<span style="color: #df005f; font-weight: bold;">int64</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+ReadFrom实现了io.ReaderFrom接口的ReadFrom方法<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8d1e669" class="outline-3">
+<h3 id="org8d1e669">func (*TCPConn) Close</h3>
+<div class="outline-text-3" id="text-org8d1e669">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">TCPConn</span>) <span style="color: #d75fd7; font-weight: bold;">Close</span>() <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+Close关闭连接<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf222890" class="outline-3">
+<h3 id="orgf222890">func (*TCPConn) CloseRead</h3>
+<div class="outline-text-3" id="text-orgf222890">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">TCPConn</span>) <span style="color: #d75fd7; font-weight: bold;">CloseRead</span>() <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+CloseRead关闭TCP连接的读取侧（以后不能读取），应尽量使用Close方法。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org3b35603" class="outline-3">
+<h3 id="org3b35603">func (*TCPConn) CloseWrite</h3>
+<div class="outline-text-3" id="text-org3b35603">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">TCPConn</span>) <span style="color: #d75fd7; font-weight: bold;">CloseWrite</span>() <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+CloseWrite关闭TCP连接的写入侧（以后不能写入），应尽量使用Close方法。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd959120" class="outline-3">
+<h3 id="orgd959120">func (*TCPConn) File</h3>
+<div class="outline-text-3" id="text-orgd959120">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">TCPConn</span>) <span style="color: #d75fd7; font-weight: bold;">File</span>() (<span style="color: #8787d7;">f</span> *<span style="color: #df005f; font-weight: bold;">os.File</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+File方法设置下层的os.File为阻塞模式并返回其副本。<br>
+</p>
+
+<p>
+使用者有责任在用完后关闭f。关闭c不影响f，关闭f也不影响c。返回的os.File类型文件描述符和原本的网络连接是不同的。试图使用该副本修改本体的属性可能会（也可能不会）得到期望的效果。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org4293674" class="outline-2">
+<h2 id="org4293674">type UDPConn</h2>
+<div class="outline-text-2" id="text-org4293674">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">UDPConn</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20869;&#21547;&#38544;&#34255;&#25110;&#38750;&#23548;&#20986;&#23383;&#27573;</span>
+}
+</pre>
+</div>
+
+<p>
+UDPConn代表一个UDP网络连接，实现了Conn和PacketConn接口。<br>
+</p>
+</div>
+<div id="outline-container-org1190587" class="outline-3">
+<h3 id="org1190587">func DialUDP</h3>
+<div class="outline-text-3" id="text-org1190587">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">DialUDP</span>(<span style="color: #8787d7;">net</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">laddr</span>, <span style="color: #8787d7;">raddr</span> *<span style="color: #df005f; font-weight: bold;">UDPAddr</span>) (*<span style="color: #df005f; font-weight: bold;">UDPConn</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+DialTCP在网络协议net上连接本地地址laddr和远端地址raddr。net必须是"udp"、"udp4"、"udp6"；如果laddr不是nil，将使用它作为本地地址，否则自动选择一个本地地址。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga40982a" class="outline-3">
+<h3 id="orga40982a">func ListenUDP</h3>
+<div class="outline-text-3" id="text-orga40982a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ListenUDP</span>(<span style="color: #8787d7;">net</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">laddr</span> *<span style="color: #df005f; font-weight: bold;">UDPAddr</span>) (*<span style="color: #df005f; font-weight: bold;">UDPConn</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+ListenUDP创建一个接收目的地是本地地址laddr的UDP数据包的网络连接。net必须是"udp"、"udp4"、"udp6"；如果laddr端口为0，函数将选择一个当前可用的端口，可以用Listener的Addr方法获得该端口。返回的*UDPConn的ReadFrom和WriteTo方法可以用来发送和接收UDP数据包（每个包都可获得来源地址或设置目标地址）。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org6382ecb" class="outline-3">
+<h3 id="org6382ecb">func ListenMulticastUDP</h3>
+<div class="outline-text-3" id="text-org6382ecb">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ListenMulticastUDP</span>(<span style="color: #8787d7;">net</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">ifi</span> *<span style="color: #df005f; font-weight: bold;">Interface</span>, <span style="color: #8787d7;">gaddr</span> *<span style="color: #df005f; font-weight: bold;">UDPAddr</span>) (*<span style="color: #df005f; font-weight: bold;">UDPConn</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+ListenMulticastUDP接收目的地是ifi接口上的组地址gaddr的UDP数据包。它指定了使用的接口，如果ifi是nil，将使用默认接口。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org3682af8" class="outline-3">
+<h3 id="org3682af8">func (*UDPConn) LocalAddr</h3>
+<div class="outline-text-3" id="text-org3682af8">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UDPConn</span>) <span style="color: #d75fd7; font-weight: bold;">LocalAddr</span>() <span style="color: #df005f; font-weight: bold;">Addr</span>
+</pre>
+</div>
+<p>
+LocalAddr返回本地网络地址<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8fb5b1e" class="outline-3">
+<h3 id="org8fb5b1e">func (*UDPConn) RemoteAddr</h3>
+<div class="outline-text-3" id="text-org8fb5b1e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UDPConn</span>) <span style="color: #d75fd7; font-weight: bold;">RemoteAddr</span>() <span style="color: #df005f; font-weight: bold;">Addr</span>
+</pre>
+</div>
+<p>
+RemoteAddr返回远端网络地址<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org6c3833c" class="outline-3">
+<h3 id="org6c3833c">func (*UDPConn) SetReadBuffer</h3>
+<div class="outline-text-3" id="text-org6c3833c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UDPConn</span>) <span style="color: #d75fd7; font-weight: bold;">SetReadBuffer</span>(<span style="color: #8787d7;">bytes</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+SetReadBuffer设置该连接的系统接收缓冲<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org382c509" class="outline-3">
+<h3 id="org382c509">func (*UDPConn) SetWriteBuffer</h3>
+<div class="outline-text-3" id="text-org382c509">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UDPConn</span>) <span style="color: #d75fd7; font-weight: bold;">SetWriteBuffer</span>(<span style="color: #8787d7;">bytes</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+SetWriteBuffer设置该连接的系统发送缓冲<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc4f6ea8" class="outline-3">
+<h3 id="orgc4f6ea8">func (*UDPConn) SetDeadline</h3>
+<div class="outline-text-3" id="text-orgc4f6ea8">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UDPConn</span>) <span style="color: #d75fd7; font-weight: bold;">SetDeadline</span>(<span style="color: #8787d7;">t</span> <span style="color: #df005f; font-weight: bold;">time.Time</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+SetDeadline设置读写操作期限，实现了Conn接口的SetDeadline方法<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2d98a31" class="outline-3">
+<h3 id="org2d98a31">func (*UDPConn) SetReadDeadline</h3>
+<div class="outline-text-3" id="text-org2d98a31">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UDPConn</span>) <span style="color: #d75fd7; font-weight: bold;">SetReadDeadline</span>(<span style="color: #8787d7;">t</span> <span style="color: #df005f; font-weight: bold;">time.Time</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+SetReadDeadline设置读操作期限，实现了Conn接口的SetReadDeadline方法<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgdaead31" class="outline-3">
+<h3 id="orgdaead31">func (*UDPConn) SetWriteDeadline</h3>
+<div class="outline-text-3" id="text-orgdaead31">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UDPConn</span>) <span style="color: #d75fd7; font-weight: bold;">SetWriteDeadline</span>(<span style="color: #8787d7;">t</span> <span style="color: #df005f; font-weight: bold;">time.Time</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+SetWriteDeadline设置写操作期限，实现了Conn接口的SetWriteDeadline方法<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9091a48" class="outline-3">
+<h3 id="org9091a48">func (*UDPConn) Read</h3>
+<div class="outline-text-3" id="text-org9091a48">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UDPConn</span>) <span style="color: #d75fd7; font-weight: bold;">Read</span>(<span style="color: #8787d7;">b</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+Read实现Conn接口Read方法<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf7d22eb" class="outline-3">
+<h3 id="orgf7d22eb">func (*UDPConn) ReadFrom</h3>
+<div class="outline-text-3" id="text-orgf7d22eb">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UDPConn</span>) <span style="color: #d75fd7; font-weight: bold;">ReadFrom</span>(<span style="color: #8787d7;">b</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #df005f; font-weight: bold;">Addr</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+ReadFrom实现PacketConn接口ReadFrom方法<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd18a884" class="outline-3">
+<h3 id="orgd18a884">func (*UDPConn) ReadFromUDP</h3>
+<div class="outline-text-3" id="text-orgd18a884">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UDPConn</span>) <span style="color: #d75fd7; font-weight: bold;">ReadFromUDP</span>(<span style="color: #8787d7;">b</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">UDPAddr</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+ReadFromUDP从c读取一个UDP数据包，将有效负载拷贝到b，返回拷贝字节数和数据包来源地址。<br>
+</p>
+
+<p>
+ReadFromUDP方法会在超过一个固定的时间点之后超时，并返回一个错误。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org334f1db" class="outline-3">
+<h3 id="org334f1db">func (*UDPConn) ReadMsgUDP</h3>
+<div class="outline-text-3" id="text-org334f1db">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UDPConn</span>) <span style="color: #d75fd7; font-weight: bold;">ReadMsgUDP</span>(<span style="color: #8787d7;">b</span>, <span style="color: #8787d7;">oob</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #8787d7;">n</span>, <span style="color: #8787d7;">oobn</span>, <span style="color: #8787d7;">flags</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">UDPAddr</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+ReadMsgUDP从c读取一个数据包，将有效负载拷贝进b，相关的带外数据拷贝进oob，返回拷贝进b的字节数，拷贝进oob的字节数，数据包的flag，数据包来源地址和可能的错误。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5307e12" class="outline-3">
+<h3 id="org5307e12">func (*UDPConn) Write</h3>
+<div class="outline-text-3" id="text-org5307e12">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UDPConn</span>) <span style="color: #d75fd7; font-weight: bold;">Write</span>(<span style="color: #8787d7;">b</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+Write实现Conn接口Write方法<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgece0015" class="outline-3">
+<h3 id="orgece0015">func (*UDPConn) WriteTo</h3>
+<div class="outline-text-3" id="text-orgece0015">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UDPConn</span>) <span style="color: #d75fd7; font-weight: bold;">WriteTo</span>(<span style="color: #8787d7;">b</span> []<span style="color: #df005f; font-weight: bold;">byte</span>, <span style="color: #8787d7;">addr</span> <span style="color: #df005f; font-weight: bold;">Addr</span>) (<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+WriteTo实现PacketConn接口WriteTo方法<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org56ca1ee" class="outline-3">
+<h3 id="org56ca1ee">func (*UDPConn) WriteToUDP</h3>
+<div class="outline-text-3" id="text-org56ca1ee">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UDPConn</span>) <span style="color: #d75fd7; font-weight: bold;">WriteToUDP</span>(<span style="color: #8787d7;">b</span> []<span style="color: #df005f; font-weight: bold;">byte</span>, <span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">UDPAddr</span>) (<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+WriteToUDP通过c向地址addr发送一个数据包，b为包的有效负载，返回写入的字节。<br>
+</p>
+
+<p>
+WriteToUDP方法会在超过一个固定的时间点之后超时，并返回一个错误。在面向数据包的连接上，写入超时是十分罕见的。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org36e15b6" class="outline-3">
+<h3 id="org36e15b6">func (*UDPConn) WriteMsgUDP</h3>
+<div class="outline-text-3" id="text-org36e15b6">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UDPConn</span>) <span style="color: #d75fd7; font-weight: bold;">WriteMsgUDP</span>(<span style="color: #8787d7;">b</span>, <span style="color: #8787d7;">oob</span> []<span style="color: #df005f; font-weight: bold;">byte</span>, <span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">UDPAddr</span>) (<span style="color: #8787d7;">n</span>, <span style="color: #8787d7;">oobn</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+WriteMsgUDP通过c向地址addr发送一个数据包，b和oob分别为包有效负载和对应的带外数据，返回写入的字节数（包数据、带外数据）和可能的错误。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org27c7278" class="outline-3">
+<h3 id="org27c7278">func (*UDPConn) Close</h3>
+<div class="outline-text-3" id="text-org27c7278">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UDPConn</span>) <span style="color: #d75fd7; font-weight: bold;">Close</span>() <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+Close关闭连接<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org1c27848" class="outline-3">
+<h3 id="org1c27848">func (*UDPConn) File</h3>
+<div class="outline-text-3" id="text-org1c27848">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UDPConn</span>) <span style="color: #d75fd7; font-weight: bold;">File</span>() (<span style="color: #8787d7;">f</span> *<span style="color: #df005f; font-weight: bold;">os.File</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+File方法设置下层的os.File为阻塞模式并返回其副本。<br>
+</p>
+
+<p>
+使用者有责任在用完后关闭f。关闭c不影响f，关闭f也不影响c。返回的os.File类型文件描述符和原本的网络连接是不同的。试图使用该副本修改本体的属性可能会（也可能不会）得到期望的效果。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org35019e1" class="outline-2">
+<h2 id="org35019e1">type UnixConn</h2>
+<div class="outline-text-2" id="text-org35019e1">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">UnixConn</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20869;&#21547;&#38544;&#34255;&#25110;&#38750;&#23548;&#20986;&#23383;&#27573;</span>
+}
+</pre>
+</div>
+
+<p>
+UnixConn代表Unix域socket连接，实现了Conn和PacketConn接口。<br>
+</p>
+</div>
+<div id="outline-container-org9f10759" class="outline-3">
+<h3 id="org9f10759">func DialUnix</h3>
+<div class="outline-text-3" id="text-org9f10759">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">DialUnix</span>(<span style="color: #8787d7;">net</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">laddr</span>, <span style="color: #8787d7;">raddr</span> *<span style="color: #df005f; font-weight: bold;">UnixAddr</span>) (*<span style="color: #df005f; font-weight: bold;">UnixConn</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+DialUnix在网络协议net上连接本地地址laddr和远端地址raddr。net必须是"unix"、"unixgram"、"unixpacket"，如果laddr不是nil将使用它作为本地地址，否则自动选择一个本地地址。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgecd28a5" class="outline-3">
+<h3 id="orgecd28a5">func ListenUnixgram</h3>
+<div class="outline-text-3" id="text-orgecd28a5">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ListenUnixgram</span>(<span style="color: #8787d7;">net</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">laddr</span> *<span style="color: #df005f; font-weight: bold;">UnixAddr</span>) (*<span style="color: #df005f; font-weight: bold;">UnixConn</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+ListenUnixgram接收目的地是本地地址laddr的Unix datagram网络连接。net必须是"unixgram"，返回的*UnixConn的ReadFrom和WriteTo方法可以用来发送和接收数据包（每个包都可获取来源址或者设置目标地址）。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc982d11" class="outline-3">
+<h3 id="orgc982d11">func (*UnixConn) LocalAddr</h3>
+<div class="outline-text-3" id="text-orgc982d11">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UnixConn</span>) <span style="color: #d75fd7; font-weight: bold;">LocalAddr</span>() <span style="color: #df005f; font-weight: bold;">Addr</span>
+</pre>
+</div>
+<p>
+LocalAddr返回本地网络地址<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb3ae1b5" class="outline-3">
+<h3 id="orgb3ae1b5">func (*UnixConn) RemoteAddr</h3>
+<div class="outline-text-3" id="text-orgb3ae1b5">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UnixConn</span>) <span style="color: #d75fd7; font-weight: bold;">RemoteAddr</span>() <span style="color: #df005f; font-weight: bold;">Addr</span>
+</pre>
+</div>
+<p>
+RemoteAddr返回远端网络地址<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org02505e9" class="outline-3">
+<h3 id="org02505e9">func (*UnixConn) SetReadBuffer</h3>
+<div class="outline-text-3" id="text-org02505e9">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UnixConn</span>) <span style="color: #d75fd7; font-weight: bold;">SetReadBuffer</span>(<span style="color: #8787d7;">bytes</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+SetReadBuffer设置该连接的系统接收缓冲<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9132fb8" class="outline-3">
+<h3 id="org9132fb8">func (*UnixConn) SetWriteBuffer</h3>
+<div class="outline-text-3" id="text-org9132fb8">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UnixConn</span>) <span style="color: #d75fd7; font-weight: bold;">SetWriteBuffer</span>(<span style="color: #8787d7;">bytes</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+SetWriteBuffer设置该连接的系统发送缓冲<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgabf7e95" class="outline-3">
+<h3 id="orgabf7e95">func (*UnixConn) SetDeadline</h3>
+<div class="outline-text-3" id="text-orgabf7e95">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UnixConn</span>) <span style="color: #d75fd7; font-weight: bold;">SetDeadline</span>(<span style="color: #8787d7;">t</span> <span style="color: #df005f; font-weight: bold;">time.Time</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+SetDeadline设置读写操作期限，实现了Conn接口的SetDeadline方法<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5a0b1e2" class="outline-3">
+<h3 id="org5a0b1e2">func (*UnixConn) SetReadDeadline</h3>
+<div class="outline-text-3" id="text-org5a0b1e2">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UnixConn</span>) <span style="color: #d75fd7; font-weight: bold;">SetReadDeadline</span>(<span style="color: #8787d7;">t</span> <span style="color: #df005f; font-weight: bold;">time.Time</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+SetReadDeadline设置读操作期限，实现了Conn接口的SetReadDeadline方法<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5908740" class="outline-3">
+<h3 id="org5908740">func (*UnixConn) SetWriteDeadline</h3>
+<div class="outline-text-3" id="text-org5908740">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UnixConn</span>) <span style="color: #d75fd7; font-weight: bold;">SetWriteDeadline</span>(<span style="color: #8787d7;">t</span> <span style="color: #df005f; font-weight: bold;">time.Time</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org47f622a" class="outline-3">
+<h3 id="org47f622a">func (*UnixConn) Read</h3>
+<div class="outline-text-3" id="text-org47f622a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UnixConn</span>) <span style="color: #d75fd7; font-weight: bold;">Read</span>(<span style="color: #8787d7;">b</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+Read实现了Conn接口Read方法<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4281604" class="outline-3">
+<h3 id="org4281604">func (*UnixConn) ReadFrom</h3>
+<div class="outline-text-3" id="text-org4281604">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UnixConn</span>) <span style="color: #d75fd7; font-weight: bold;">ReadFrom</span>(<span style="color: #8787d7;">b</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #df005f; font-weight: bold;">Addr</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+ReadFrom实现PacketConn接口ReadFrom方法<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf2c73bf" class="outline-3">
+<h3 id="orgf2c73bf">func (*UnixConn) ReadFromUnix</h3>
+<div class="outline-text-3" id="text-orgf2c73bf">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UnixConn</span>) <span style="color: #d75fd7; font-weight: bold;">ReadFromUnix</span>(<span style="color: #8787d7;">b</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">UnixAddr</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+ReadFromUnix从c读取一个UDP数据包，将有效负载拷贝到b，返回拷贝字节数和数据包来源地址。<br>
+</p>
+
+<p>
+ReadFromUnix方法会在超过一个固定的时间点之后超时，并返回一个错误。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org899493e" class="outline-3">
+<h3 id="org899493e">func (*UnixConn) ReadMsgUnix</h3>
+<div class="outline-text-3" id="text-org899493e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UnixConn</span>) <span style="color: #d75fd7; font-weight: bold;">ReadMsgUnix</span>(<span style="color: #8787d7;">b</span>, <span style="color: #8787d7;">oob</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #8787d7;">n</span>, <span style="color: #8787d7;">oobn</span>, <span style="color: #8787d7;">flags</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">UnixAddr</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+ReadMsgUnix从c读取一个数据包，将有效负载拷贝进b，相关的带外数据拷贝进oob，返回拷贝进b的字节数，拷贝进oob的字节数，数据包的flag，数据包来源地址和可能的错误。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org425c0f1" class="outline-3">
+<h3 id="org425c0f1">func (*UnixConn) Write</h3>
+<div class="outline-text-3" id="text-org425c0f1">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UnixConn</span>) <span style="color: #d75fd7; font-weight: bold;">Write</span>(<span style="color: #8787d7;">b</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+Write实现了Conn接口Write方法<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4d3b50d" class="outline-3">
+<h3 id="org4d3b50d">func (*UnixConn) WriteTo</h3>
+<div class="outline-text-3" id="text-org4d3b50d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UnixConn</span>) <span style="color: #d75fd7; font-weight: bold;">WriteTo</span>(<span style="color: #8787d7;">b</span> []<span style="color: #df005f; font-weight: bold;">byte</span>, <span style="color: #8787d7;">addr</span> <span style="color: #df005f; font-weight: bold;">Addr</span>) (<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+WriteTo实现PacketConn接口WriteTo方法<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org341ae95" class="outline-3">
+<h3 id="org341ae95">func (*UnixConn) WriteToUnix</h3>
+<div class="outline-text-3" id="text-org341ae95">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UnixConn</span>) <span style="color: #d75fd7; font-weight: bold;">WriteToUnix</span>(<span style="color: #8787d7;">b</span> []<span style="color: #df005f; font-weight: bold;">byte</span>, <span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">UnixAddr</span>) (<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+WriteToUnix通过c向地址addr发送一个数据包，b为包的有效负载，返回写入的字节。<br>
+</p>
+
+<p>
+WriteToUnix方法会在超过一个固定的时间点之后超时，并返回一个错误。在面向数据包的连接上，写入超时是十分罕见的。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga1d9f4f" class="outline-3">
+<h3 id="orga1d9f4f">func (*UnixConn) WriteMsgUnix</h3>
+<div class="outline-text-3" id="text-orga1d9f4f">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UnixConn</span>) <span style="color: #d75fd7; font-weight: bold;">WriteMsgUnix</span>(<span style="color: #8787d7;">b</span>, <span style="color: #8787d7;">oob</span> []<span style="color: #df005f; font-weight: bold;">byte</span>, <span style="color: #8787d7;">addr</span> *<span style="color: #df005f; font-weight: bold;">UnixAddr</span>) (<span style="color: #8787d7;">n</span>, <span style="color: #8787d7;">oobn</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+WriteMsgUnix通过c向地址addr发送一个数据包，b和oob分别为包有效负载和对应的带外数据，返回写入的字节数（包数据、带外数据）和可能的错误。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8a6eafe" class="outline-3">
+<h3 id="org8a6eafe">func (*UnixConn) Close</h3>
+<div class="outline-text-3" id="text-org8a6eafe">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UnixConn</span>) <span style="color: #d75fd7; font-weight: bold;">Close</span>() <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+Close关闭连接<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org620c06d" class="outline-3">
+<h3 id="org620c06d">func (*UnixConn) CloseRead</h3>
+<div class="outline-text-3" id="text-org620c06d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UnixConn</span>) <span style="color: #d75fd7; font-weight: bold;">CloseRead</span>() <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+CloseRead关闭TCP连接的读取侧（以后不能读取），应尽量使用Close方法<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgaf8a608" class="outline-3">
+<h3 id="orgaf8a608">func (*UnixConn) CloseWrite</h3>
+<div class="outline-text-3" id="text-orgaf8a608">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UnixConn</span>) <span style="color: #d75fd7; font-weight: bold;">CloseWrite</span>() <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+CloseWrite关闭TCP连接的写入侧（以后不能写入），应尽量使用Close方法<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org90fd2b1" class="outline-3">
+<h3 id="org90fd2b1">func (*UnixConn) File</h3>
+<div class="outline-text-3" id="text-org90fd2b1">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">UnixConn</span>) <span style="color: #d75fd7; font-weight: bold;">File</span>() (<span style="color: #8787d7;">f</span> *<span style="color: #df005f; font-weight: bold;">os.File</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+File方法设置下层的os.File为阻塞模式并返回其副本。<br>
+</p>
+
+<p>
+使用者有责任在用完后关闭f。关闭c不影响f，关闭f也不影响c。返回的os.File类型文件描述符和原本的网络连接是不同的。试图使用该副本修改本体的属性可能会（也可能不会）得到期望的效果。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org467e955" class="outline-2">
+<h2 id="org467e955">type TCPListener</h2>
+<div class="outline-text-2" id="text-org467e955">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">TCPListener</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20869;&#21547;&#38544;&#34255;&#25110;&#38750;&#23548;&#20986;&#23383;&#27573;</span>
+}
+</pre>
+</div>
+
+<p>
+TCPListener代表一个TCP网络的监听者。使用者应尽量使用Listener接口而不是假设（网络连接为）TCP。<br>
+</p>
+</div>
+<div id="outline-container-org1c64f5c" class="outline-3">
+<h3 id="org1c64f5c">func ListenTCP</h3>
+<div class="outline-text-3" id="text-org1c64f5c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ListenTCP</span>(<span style="color: #8787d7;">net</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">laddr</span> *<span style="color: #df005f; font-weight: bold;">TCPAddr</span>) (*<span style="color: #df005f; font-weight: bold;">TCPListener</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+ListenTCP在本地TCP地址laddr上声明并返回一个*TCPListener，net参数必须是"tcp"、"tcp4"、"tcp6"，如果laddr的端口字段为0，函数将选择一个当前可用的端口，可以用Listener的Addr方法获得该端口。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org99b8e47" class="outline-3">
+<h3 id="org99b8e47">func (*TCPListener) Addr</h3>
+<div class="outline-text-3" id="text-org99b8e47">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">l</span> *<span style="color: #df005f; font-weight: bold;">TCPListener</span>) <span style="color: #d75fd7; font-weight: bold;">Addr</span>() <span style="color: #df005f; font-weight: bold;">Addr</span>
+</pre>
+</div>
+
+<p>
+Addr返回l监听的的网络地址，一个*TCPAddr。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org95a04aa" class="outline-3">
+<h3 id="org95a04aa">func (*TCPListener) SetDeadline</h3>
+<div class="outline-text-3" id="text-org95a04aa">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">l</span> *<span style="color: #df005f; font-weight: bold;">TCPListener</span>) <span style="color: #d75fd7; font-weight: bold;">SetDeadline</span>(<span style="color: #8787d7;">t</span> <span style="color: #df005f; font-weight: bold;">time.Time</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+设置监听器执行的期限，t为Time零值则会关闭期限限制。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge3dc849" class="outline-3">
+<h3 id="orge3dc849">func (*TCPListener) Accept</h3>
+<div class="outline-text-3" id="text-orge3dc849">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">l</span> *<span style="color: #df005f; font-weight: bold;">TCPListener</span>) <span style="color: #d75fd7; font-weight: bold;">Accept</span>() (<span style="color: #df005f; font-weight: bold;">Conn</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+Accept用于实现Listener接口的Accept方法；他会等待下一个呼叫，并返回一个该呼叫的Conn接口。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc94694d" class="outline-3">
+<h3 id="orgc94694d">func (*TCPListener) AcceptTCP</h3>
+<div class="outline-text-3" id="text-orgc94694d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">l</span> *<span style="color: #df005f; font-weight: bold;">TCPListener</span>) <span style="color: #d75fd7; font-weight: bold;">AcceptTCP</span>() (*<span style="color: #df005f; font-weight: bold;">TCPConn</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+AcceptTCP接收下一个呼叫，并返回一个新的*TCPConn。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4c45f01" class="outline-3">
+<h3 id="org4c45f01">func (*TCPListener) Close</h3>
+<div class="outline-text-3" id="text-org4c45f01">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">l</span> *<span style="color: #df005f; font-weight: bold;">TCPListener</span>) <span style="color: #d75fd7; font-weight: bold;">Close</span>() <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+
+<p>
+Close停止监听TCP地址，已经接收的连接不受影响。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org21b117b" class="outline-3">
+<h3 id="org21b117b">func (*TCPListener) File</h3>
+<div class="outline-text-3" id="text-org21b117b">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">l</span> *<span style="color: #df005f; font-weight: bold;">TCPListener</span>) <span style="color: #d75fd7; font-weight: bold;">File</span>() (<span style="color: #8787d7;">f</span> *<span style="color: #df005f; font-weight: bold;">os.File</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+File方法返回下层的os.File的副本，并将该副本设置为阻塞模式。<br>
+</p>
+
+<p>
+使用者有责任在用完后关闭f。关闭c不影响f，关闭f也不影响c。返回的os.File类型文件描述符和原本的网络连接是不同的。试图使用该副本修改本体的属性可能会（也可能不会）得到期望的效果。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org6e8e567" class="outline-2">
+<h2 id="org6e8e567">type UnixListener</h2>
+<div class="outline-text-2" id="text-org6e8e567">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">UnixListener</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20869;&#21547;&#38544;&#34255;&#25110;&#38750;&#23548;&#20986;&#23383;&#27573;</span>
+}
+</pre>
+</div>
+
+<p>
+UnixListener代表一个Unix域scoket的监听者。使用者应尽量使用Listener接口而不是假设（网络连接为）Unix域scoket。<br>
+</p>
+</div>
+<div id="outline-container-orge6d7a42" class="outline-3">
+<h3 id="orge6d7a42">func ListenUnix</h3>
+<div class="outline-text-3" id="text-orge6d7a42">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ListenUnix</span>(<span style="color: #8787d7;">net</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">laddr</span> *<span style="color: #df005f; font-weight: bold;">UnixAddr</span>) (*<span style="color: #df005f; font-weight: bold;">UnixListener</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+ListenTCP在Unix域scoket地址laddr上声明并返回一个*UnixListener，net参数必须是"unix"或"unixpacket"。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org7299a4a" class="outline-3">
+<h3 id="org7299a4a">func (*UnixListener) Addr</h3>
+<div class="outline-text-3" id="text-org7299a4a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">l</span> *<span style="color: #df005f; font-weight: bold;">UnixListener</span>) <span style="color: #d75fd7; font-weight: bold;">Addr</span>() <span style="color: #df005f; font-weight: bold;">Addr</span>
+</pre>
+</div>
+<p>
+Addr返回l的监听的Unix域socket地址<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb1d20a7" class="outline-3">
+<h3 id="orgb1d20a7">func (*UnixListener) SetDeadline</h3>
+<div class="outline-text-3" id="text-orgb1d20a7">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">l</span> *<span style="color: #df005f; font-weight: bold;">UnixListener</span>) <span style="color: #d75fd7; font-weight: bold;">SetDeadline</span>(<span style="color: #8787d7;">t</span> <span style="color: #df005f; font-weight: bold;">time.Time</span>) (<span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+设置监听器执行的期限，t为Time零值则会关闭期限限制<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org7820ffc" class="outline-3">
+<h3 id="org7820ffc">func (*UnixListener) Accept</h3>
+<div class="outline-text-3" id="text-org7820ffc">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">l</span> *<span style="color: #df005f; font-weight: bold;">UnixListener</span>) <span style="color: #d75fd7; font-weight: bold;">Accept</span>() (<span style="color: #8787d7;">c</span> <span style="color: #df005f; font-weight: bold;">Conn</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+Accept用于实现Listener接口的Accept方法；他会等待下一个呼叫，并返回一个该呼叫的Conn接口。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4c6c343" class="outline-3">
+<h3 id="org4c6c343">func (*UnixListener) AcceptUnix</h3>
+<div class="outline-text-3" id="text-org4c6c343">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">l</span> *<span style="color: #df005f; font-weight: bold;">UnixListener</span>) <span style="color: #d75fd7; font-weight: bold;">AcceptUnix</span>() (*<span style="color: #df005f; font-weight: bold;">UnixConn</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+AcceptUnix接收下一个呼叫，并返回一个新的*UnixConn。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org3d9fc72" class="outline-3">
+<h3 id="org3d9fc72">func (*UnixListener) Close</h3>
+<div class="outline-text-3" id="text-org3d9fc72">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">l</span> *<span style="color: #df005f; font-weight: bold;">UnixListener</span>) <span style="color: #d75fd7; font-weight: bold;">Close</span>() <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+<p>
+Close停止监听Unix域socket地址，已经接收的连接不受影响。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgbc6aeb3" class="outline-3">
+<h3 id="orgbc6aeb3">func (*UnixListener) File</h3>
+<div class="outline-text-3" id="text-orgbc6aeb3">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">l</span> *<span style="color: #df005f; font-weight: bold;">UnixListener</span>) <span style="color: #d75fd7; font-weight: bold;">File</span>() (<span style="color: #8787d7;">f</span> *<span style="color: #df005f; font-weight: bold;">os.File</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+File方法返回下层的os.File的副本，并将该副本设置为阻塞模式。<br>
+</p>
+
+<p>
+使用者有责任在用完后关闭f。关闭c不影响f，关闭f也不影响c。返回的os.File类型文件描述符和原本的网络连接是不同的。试图使用该副本修改本体的属性可能会（也可能不会）得到期望的效果。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgd97ffb7" class="outline-2">
+<h2 id="orgd97ffb7">func FileConn</h2>
+<div class="outline-text-2" id="text-orgd97ffb7">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">FileConn</span>(<span style="color: #8787d7;">f</span> *<span style="color: #df005f; font-weight: bold;">os.File</span>) (<span style="color: #8787d7;">c</span> <span style="color: #df005f; font-weight: bold;">Conn</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+FileConn返回一个下层为文件f的网络连接的拷贝。调用者有责任在结束程序前关闭f。关闭c不会影响f，关闭f也不会影响c。本函数与各种实现了Conn接口的类型的File方法是对应的。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge12dfc7" class="outline-2">
+<h2 id="orge12dfc7">func FilePacketConn</h2>
+<div class="outline-text-2" id="text-orge12dfc7">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">FilePacketConn</span>(<span style="color: #8787d7;">f</span> *<span style="color: #df005f; font-weight: bold;">os.File</span>) (<span style="color: #8787d7;">c</span> <span style="color: #df005f; font-weight: bold;">PacketConn</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+FilePacketConn函数返回一个下层为文件f的数据包网络连接的拷贝。调用者有责任在结束程序前关闭f。关闭c不会影响f，关闭f也不会影响c。本函数与各种实现了PacketConn接口的类型的File方法是对应的。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9c0f6ca" class="outline-2">
+<h2 id="org9c0f6ca">func FileListener</h2>
+<div class="outline-text-2" id="text-org9c0f6ca">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">FileListener</span>(<span style="color: #8787d7;">f</span> *<span style="color: #df005f; font-weight: bold;">os.File</span>) (<span style="color: #8787d7;">l</span> <span style="color: #df005f; font-weight: bold;">Listener</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+FileListener返回一个下层为文件f的网络监听器的拷贝。调用者有责任在使用结束后改变l。关闭l不会影响f，关闭f也不会影响l。本函数与各种实现了Listener接口的类型的File方法是对应的。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd50bf33" class="outline-2">
+<h2 id="orgd50bf33">type MX</h2>
+<div class="outline-text-2" id="text-orgd50bf33">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">MX</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        Host <span style="color: #df005f; font-weight: bold;">string</span>
+        Pref <span style="color: #df005f; font-weight: bold;">uint16</span>
+}
+</pre>
+</div>
+
+<p>
+MX代表一条DNS MX记录（邮件交换记录），根据收信人的地址后缀来定位邮件服务器。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org48ef1bd" class="outline-2">
+<h2 id="org48ef1bd">type NS</h2>
+<div class="outline-text-2" id="text-org48ef1bd">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">NS</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        Host <span style="color: #df005f; font-weight: bold;">string</span>
+}
+</pre>
+</div>
+
+<p>
+NS代表一条DNS NS记录（域名服务器记录），指定该域名由哪个DNS服务器来进行解析。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf72725c" class="outline-2">
+<h2 id="orgf72725c">type SRV</h2>
+<div class="outline-text-2" id="text-orgf72725c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">SRV</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        Target   <span style="color: #df005f; font-weight: bold;">string</span>
+        Port     <span style="color: #df005f; font-weight: bold;">uint16</span>
+        Priority <span style="color: #df005f; font-weight: bold;">uint16</span>
+        Weight   <span style="color: #df005f; font-weight: bold;">uint16</span>
+}
+</pre>
+</div>
+
+<p>
+SRV代表一条DNS SRV记录（资源记录），记录某个服务由哪台计算机提供。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgff0189d" class="outline-2">
+<h2 id="orgff0189d">func LookupPort</h2>
+<div class="outline-text-2" id="text-orgff0189d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">LookupPort</span>(<span style="color: #8787d7;">network</span>, <span style="color: #8787d7;">service</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #8787d7;">port</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+LookupPort函数查询指定网络和服务的（默认）端口。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org63bf722" class="outline-2">
+<h2 id="org63bf722">func LookupCNAME</h2>
+<div class="outline-text-2" id="text-org63bf722">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">LookupCNAME</span>(<span style="color: #8787d7;">name</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #8787d7;">cname</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+LookupCNAME函数查询name的规范DNS名（但该域名未必可以访问）。如果调用者不关心规范名可以直接调用LookupHost或者LookupIP；这两个函数都会在查询时考虑到规范名。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgeb0cb39" class="outline-2">
+<h2 id="orgeb0cb39">func LookupHost</h2>
+<div class="outline-text-2" id="text-orgeb0cb39">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">LookupHost</span>(<span style="color: #8787d7;">host</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #8787d7;">addrs</span> []<span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+LookupHost函数查询主机的网络地址序列。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org64238dc" class="outline-2">
+<h2 id="org64238dc">func LookupIP</h2>
+<div class="outline-text-2" id="text-org64238dc">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">LookupIP</span>(<span style="color: #8787d7;">host</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #8787d7;">addrs</span> []<span style="color: #df005f; font-weight: bold;">IP</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+LookupIP函数查询主机的ipv4和ipv6地址序列。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc72afac" class="outline-2">
+<h2 id="orgc72afac">func LookupAddr</h2>
+<div class="outline-text-2" id="text-orgc72afac">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">LookupAddr</span>(<span style="color: #8787d7;">addr</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #8787d7;">name</span> []<span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+LookupAddr查询某个地址，返回映射到该地址的主机名序列，本函数和LookupHost不互为反函数。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org729294f" class="outline-2">
+<h2 id="org729294f">func LookupMX</h2>
+<div class="outline-text-2" id="text-org729294f">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">LookupMX</span>(<span style="color: #8787d7;">name</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #8787d7;">mx</span> []*<span style="color: #df005f; font-weight: bold;">MX</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+LookupMX函数返回指定主机的按Pref字段排好序的DNS MX记录。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org67c68e5" class="outline-2">
+<h2 id="org67c68e5">func LookupNS</h2>
+<div class="outline-text-2" id="text-org67c68e5">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">LookupNS</span>(<span style="color: #8787d7;">name</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #8787d7;">ns</span> []*<span style="color: #df005f; font-weight: bold;">NS</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+LookupNS函数返回指定主机的DNS NS记录。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgdddd4f5" class="outline-2">
+<h2 id="orgdddd4f5">func LookupSRV</h2>
+<div class="outline-text-2" id="text-orgdddd4f5">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">LookupSRV</span>(<span style="color: #8787d7;">service</span>, <span style="color: #8787d7;">proto</span>, <span style="color: #8787d7;">name</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #8787d7;">cname</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">addrs</span> []*<span style="color: #df005f; font-weight: bold;">SRV</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+LookupSRV函数尝试执行指定服务、协议、主机的SRV查询。协议proto为"tcp" 或"udp"。返回的记录按Priority字段排序，同一优先度按Weight字段随机排序。<br>
+</p>
+
+<p>
+LookupSRV函数按照RFC 2782的规定构建用于查询的DNS名。也就是说，它会查询_service._proto.name。为了适应将服务的SRV记录发布在非规范名下的情况，如果service和proto参数都是空字符串，函数会直接查询name。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgba87039" class="outline-2">
+<h2 id="orgba87039">func LookupTXT</h2>
+<div class="outline-text-2" id="text-orgba87039">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">LookupTXT</span>(<span style="color: #8787d7;">name</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #8787d7;">txt</span> []<span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+<p>
+LookupTXT函数返回指定主机的DNS TXT记录。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8284e0b" class="outline-2">
+<h2 id="org8284e0b">Bugs</h2>
+<div class="outline-text-2" id="text-org8284e0b">
+<p>
+☞在任何POSIX平台上，从"ip4"网络使用ReadFrom或ReadFromIP方法读取数据时，即使有足够的空间，都可能不会返回完整的IPv4数据包，包括数据包的头域。即使Read或ReadMsgIP方法可以返回完整的数据包，也有可能出现这种情况。因为对go 1的兼容性要求，这个情况无法被修正。因此，当必须获取完整数据包时，建议你不要使用这两个方法，请使用Read或ReadMsgIP代替。<br>
+</p>
+
+<p>
+☞在OpenBSD系统中，在"tcp"网络监听时不会同时监听IPv4和IPv6连接。 因为该系统中IPv4通信不会导入IPv6套接字中。请使用两个独立的监听，如果有必要的话。<br>
+</p>
+</div>
+</div>
 </div>
 <div id="postamble" class="status">
 <p class="date">Date: 2022-02-02 15:02 Wed</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-02-10 Thu 02:23</p>
-<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+<p class="date">Created: 2022-06-24 Fri 21:18</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>

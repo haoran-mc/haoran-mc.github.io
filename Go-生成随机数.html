@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-06-08 Wed 21:13 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Go生成随机数</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">Go生成随机数</h1>
+<p>
+Go 的 math/rand 包提供了生成随机数的 API，重要的 API 如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35813;&#20989;&#25968;&#35774;&#32622;&#38543;&#26426;&#31181;&#23376;</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#33509;&#19981;&#35843;&#29992;&#27492;&#20989;&#25968;&#35774;&#32622;&#38543;&#26426;&#31181;&#23376;&#65292;&#21017;&#40664;&#35748;&#30340;&#31181;&#23376;&#20540;&#20026;1&#65292;&#30001;&#20110;&#38543;&#26426;&#31639;&#27861;&#26159;&#22266;&#23450;&#30340;&#65292;</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#27599;&#27425;&#37117;&#20197;1&#20316;&#20026;&#38543;&#26426;&#31181;&#23376;&#24320;&#22987;&#20135;&#29983;&#38543;&#26426;&#25968;&#65292;&#21017;&#32467;&#26524;&#37117;&#26159;&#19968;&#26679;&#30340;&#65292;&#22240;&#27492;&#19968;&#33324;</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#37117;&#38656;&#35201;&#35843;&#29992;&#27492;&#20989;&#25968;&#26469;&#35774;&#32622;&#38543;&#26426;&#31181;&#23376;&#65292;&#36890;&#24120;&#30340;&#20570;&#27861;&#26159;&#20197;&#24403;&#21069;&#26102;&#38388;&#20316;&#20026;&#38543;&#26426;&#31181;&#23376;</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20197;&#20445;&#35777;&#27599;&#27425;&#38543;&#26426;&#31181;&#23376;&#37117;&#19981;&#21516;&#65292;&#20174;&#32780;&#20135;&#29983;&#30340;&#38543;&#26426;&#25968;&#20063;&#19981;&#21516;</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35813;&#20989;&#25968;&#21327;&#31243;&#23433;&#20840;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Seed</span>(<span style="color: #8787d7;">seed</span> <span style="color: #df005f; font-weight: bold;">int64</span>)
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20197;&#19979;&#20989;&#25968;&#29992;&#26469;&#29983;&#25104;&#30456;&#24212;&#25968;&#25454;&#31867;&#22411;&#30340;&#38543;&#26426;&#25968;&#65292;&#24102; n &#30340;&#29256;&#26412;&#21017;&#29983;&#25104; [0, n) &#30340;&#38543;&#26426;&#25968;&#12290;</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#27880;&#24847;&#29983;&#25104;&#30340;&#38543;&#26426;&#25968;&#37117;&#26159;&#38750;&#36127;&#25968;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Float32</span>() <span style="color: #df005f; font-weight: bold;">float32</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Float64</span>() <span style="color: #df005f; font-weight: bold;">float64</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Int</span>() <span style="color: #df005f; font-weight: bold;">int</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Int31</span>() <span style="color: #df005f; font-weight: bold;">int32</span>  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#27880;&#24847;&#35813;&#20989;&#25968;&#21482;&#36820;&#22238;int32&#34920;&#31034;&#33539;&#22260;&#20869;&#30340;&#38750;&#36127;&#25968;&#65292;&#20301;&#25968;&#20026;31&#65292;&#22240;&#27492;&#35813;&#20989;&#25968;&#21483;&#20570;Int31</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Int31n</span>(<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int32</span>) <span style="color: #df005f; font-weight: bold;">int32</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Int63</span>() <span style="color: #df005f; font-weight: bold;">int64</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Int63n</span>(<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int64</span>) <span style="color: #df005f; font-weight: bold;">int64</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Intn</span>(<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">int</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Uint32</span>() <span style="color: #df005f; font-weight: bold;">uint32</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Uint64</span>() <span style="color: #df005f; font-weight: bold;">uint64</span>
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21478;&#22806;&#65292;rand&#21253;&#36824;&#25552;&#20379;&#20102;&#19968;&#20010;&#31867;&#65292;&#25509;&#21475;&#21644;&#19978;&#38754;&#30340;&#22823;&#33268;&#30456;&#21516;&#65306;</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Rand</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">...</span>
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21019;&#24314;&#19968;&#20010;&#20197;seed&#20026;&#31181;&#23376;&#30340;&#28304;&#65292;&#27880;&#24847;&#35813;&#28304;&#19981;&#26159;&#21327;&#31243;&#23433;&#20840;&#30340;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">NewSource</span>(<span style="color: #8787d7;">seed</span> <span style="color: #df005f; font-weight: bold;">int64</span>) <span style="color: #df005f; font-weight: bold;">Source</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20197;src&#20026;&#28304;&#21019;&#24314;&#38543;&#26426;&#23545;&#35937;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">New</span>(<span style="color: #8787d7;">src</span> <span style="color: #df005f; font-weight: bold;">Source</span>) *<span style="color: #df005f; font-weight: bold;">Rand</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35774;&#32622;&#25110;&#37325;&#32622;&#31181;&#23376;&#65292;&#27880;&#24847;&#35813;&#20989;&#25968;&#19981;&#26159;&#21327;&#31243;&#23433;&#20840;&#30340;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Rand</span>) <span style="color: #d75fd7; font-weight: bold;">Seed</span>(<span style="color: #8787d7;">seed</span> <span style="color: #df005f; font-weight: bold;">int64</span>)
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#19979;&#38754;&#30340;&#20989;&#25968;&#21644;&#20840;&#23616;&#29256;&#26412;&#30340;&#20989;&#25968;&#21151;&#33021;&#19968;&#26679;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Rand</span>) <span style="color: #d75fd7; font-weight: bold;">Float32</span>() <span style="color: #df005f; font-weight: bold;">float32</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Rand</span>) <span style="color: #d75fd7; font-weight: bold;">Float64</span>() <span style="color: #df005f; font-weight: bold;">float64</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Rand</span>) <span style="color: #d75fd7; font-weight: bold;">Int</span>() <span style="color: #df005f; font-weight: bold;">int</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Rand</span>) <span style="color: #d75fd7; font-weight: bold;">Int31</span>() <span style="color: #df005f; font-weight: bold;">int32</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Rand</span>) <span style="color: #d75fd7; font-weight: bold;">Int31n</span>(<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int32</span>) <span style="color: #df005f; font-weight: bold;">int32</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Rand</span>) <span style="color: #d75fd7; font-weight: bold;">Int63</span>() <span style="color: #df005f; font-weight: bold;">int64</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Rand</span>) <span style="color: #d75fd7; font-weight: bold;">Int63n</span>(<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int64</span>) <span style="color: #df005f; font-weight: bold;">int64</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Rand</span>) <span style="color: #d75fd7; font-weight: bold;">Intn</span>(<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">int</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Rand</span>) <span style="color: #d75fd7; font-weight: bold;">Uint32</span>() <span style="color: #df005f; font-weight: bold;">uint32</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Rand</span>) <span style="color: #d75fd7; font-weight: bold;">Uint64</span>() <span style="color: #df005f; font-weight: bold;">uint64</span>
+</pre>
+</div>
+
+<p>
+生成随机数时，以当前时间作为随机种子是个很好的选择，可以用 time 包生成当前时间：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;&#24403;&#21069;&#26102;&#38388;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Now</span>() <span style="color: #df005f; font-weight: bold;">Time</span>
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20026;&#20102;&#23558;Time&#31867;&#22411;&#36716;&#25442;&#20026;int64&#31867;&#22411;&#20197;&#20316;&#20026;&#38543;&#26426;&#31181;&#23376;</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21487;&#20197;&#20351;&#29992;&#22914;&#19979;&#20004;&#20010;&#20989;&#25968;&#65306;</span>
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;&#20174;1970&#24180;1&#26376;1&#26085;&#21040;t&#30340;&#31186;&#25968;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">t</span> <span style="color: #df005f; font-weight: bold;">Time</span>) <span style="color: #d75fd7; font-weight: bold;">Unix</span>() <span style="color: #df005f; font-weight: bold;">int64</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36820;&#22238;&#20174;1970&#24180;1&#26376;1&#26085;&#21040;t&#30340;&#32435;&#31186;&#25968;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">t</span> <span style="color: #df005f; font-weight: bold;">Time</span>) <span style="color: #d75fd7; font-weight: bold;">UnixNano</span>() <span style="color: #df005f; font-weight: bold;">int64</span>
+</pre>
+</div>
+
+<p>
+例子：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"math/rand"</span>
+    <span style="color: #2aa198;">"time"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+
+    <span style="color: #008787; background-color: #262626;">//</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20840;&#23616;&#20989;&#25968;</span>
+    <span style="color: #008787; background-color: #262626;">//</span>
+
+    rand.<span style="color: #d75fd7; font-weight: bold;">Seed</span>(time.<span style="color: #d75fd7; font-weight: bold;">Now</span>().<span style="color: #d75fd7; font-weight: bold;">Unix</span>())
+
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(rand.<span style="color: #d75fd7; font-weight: bold;">Int</span>())       <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">int&#38543;&#26426;&#20540;&#65292;&#36820;&#22238;&#20540;&#20026;int</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(rand.<span style="color: #d75fd7; font-weight: bold;">Intn</span>(100))   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">[0,100)&#30340;&#38543;&#26426;&#20540;&#65292;&#36820;&#22238;&#20540;&#20026;int</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(rand.<span style="color: #d75fd7; font-weight: bold;">Int31</span>())     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">31&#20301;int&#38543;&#26426;&#20540;&#65292;&#36820;&#22238;&#20540;&#20026;int32</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(rand.<span style="color: #d75fd7; font-weight: bold;">Int31n</span>(100)) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">[0,100)&#30340;&#38543;&#26426;&#20540;&#65292;&#36820;&#22238;&#20540;&#20026;int32</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(rand.<span style="color: #d75fd7; font-weight: bold;">Float32</span>())   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">32&#20301;float&#38543;&#26426;&#20540;&#65292;&#36820;&#22238;&#20540;&#20026;float32</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(rand.<span style="color: #d75fd7; font-weight: bold;">Float64</span>())   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">64&#20301;float&#38543;&#26426;&#20540;&#65292;&#36820;&#22238;&#20540;&#20026;float64</span>
+
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#35201;&#20135;&#29983;&#36127;&#25968;&#21040;&#27491;&#25968;&#30340;&#38543;&#26426;&#20540;&#65292;&#21482;&#38656;&#35201;&#23558;&#29983;&#25104;&#30340;&#38543;&#26426;&#25968;&#20943;&#21435;&#30456;&#24212;&#25968;&#20540;&#21363;&#21487;</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(rand.<span style="color: #d75fd7; font-weight: bold;">Intn</span>(100) - 50) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">[-50, 50)&#30340;&#38543;&#26426;&#20540;</span>
+
+    <span style="color: #008787; background-color: #262626;">//</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Rand&#23545;&#35937;</span>
+    <span style="color: #008787; background-color: #262626;">//</span>
+
+    <span style="color: #8787d7;">r</span> := rand.<span style="color: #d75fd7; font-weight: bold;">New</span>(rand.<span style="color: #d75fd7; font-weight: bold;">NewSource</span>(time.<span style="color: #d75fd7; font-weight: bold;">Now</span>().<span style="color: #d75fd7; font-weight: bold;">Unix</span>()))
+
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(r.<span style="color: #d75fd7; font-weight: bold;">Int</span>())       <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">int&#38543;&#26426;&#20540;&#65292;&#36820;&#22238;&#20540;&#20026;int</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(r.<span style="color: #d75fd7; font-weight: bold;">Intn</span>(100))   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">[0,100)&#30340;&#38543;&#26426;&#20540;&#65292;&#36820;&#22238;&#20540;&#20026;int</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(r.<span style="color: #d75fd7; font-weight: bold;">Int31</span>())     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">31&#20301;int&#38543;&#26426;&#20540;&#65292;&#36820;&#22238;&#20540;&#20026;int32</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(r.<span style="color: #d75fd7; font-weight: bold;">Int31n</span>(100)) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">[0,100)&#30340;&#38543;&#26426;&#20540;&#65292;&#36820;&#22238;&#20540;&#20026;int32</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(r.<span style="color: #d75fd7; font-weight: bold;">Float32</span>())   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">32&#20301;float&#38543;&#26426;&#20540;&#65292;&#36820;&#22238;&#20540;&#20026;float32</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(r.<span style="color: #d75fd7; font-weight: bold;">Float64</span>())   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">64&#20301;float&#38543;&#26426;&#20540;&#65292;&#36820;&#22238;&#20540;&#20026;float64</span>
+
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#35201;&#20135;&#29983;&#36127;&#25968;&#21040;&#27491;&#25968;&#30340;&#38543;&#26426;&#20540;&#65292;&#21482;&#38656;&#35201;&#23558;&#29983;&#25104;&#30340;&#38543;&#26426;&#25968;&#20943;&#21435;&#30456;&#24212;&#25968;&#20540;&#21363;&#21487;</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(r.<span style="color: #d75fd7; font-weight: bold;">Intn</span>(100) - 50) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">[-50, 50)&#30340;&#38543;&#26426;&#20540;</span>
+}
+</pre>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-06-08 Wed 21:13</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

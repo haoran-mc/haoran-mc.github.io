@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-06-29 Wed 23:10 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Go 并发编程 - Context: 信息穿透上下文</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">Go 并发编程 - Context: 信息穿透上下文</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgcfdbe91">引言</a></li>
+<li><a href="#orge6f29e8">Context 的来历</a></li>
+<li><a href="#orgcb6419d">Context 基本使用方法</a></li>
+<li><a href="#org8fee2f2">创建特殊用途 Context 的方法</a>
+<ul>
+<li><a href="#org64ffab1">WithValue</a></li>
+<li><a href="#org58f3e08">WithCancel</a></li>
+<li><a href="#org79b0698">WithTimeout</a></li>
+<li><a href="#org173be79">WithDeadline</a></li>
+</ul>
+</li>
+<li><a href="#org9ccb4da">总结</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgcfdbe91" class="outline-2">
+<h2 id="orgcfdbe91">引言</h2>
+<div class="outline-text-2" id="text-orgcfdbe91">
+<p>
+假设有一天你进入办公室，突然同事们都围住你，然后大喊“小王小王你最帅”，此时你可能一头雾水，只能尴尬地笑笑。为啥呢？因为你缺少上下文的信息，不知道之前发生了什么。<br>
+</p>
+
+<p>
+但是，如果同事告诉你，由于你业绩突出，一天之内就把云服务化的主要架构写好了，因此被评为 9 月份的工作之星，总经理还特意给你发 1 万元的奖金，那么，你心里就很清楚了，原来同事恭喜你，是因为你的工作被表扬了，还获得了奖金。同事告诉你的这些前因后果，就是上下文信息，他把上下文传递给你，你接收后，就可以获取之前不了解的信息。<br>
+</p>
+
+<p>
+你看，上下文（Context）就是这么重要。在我们的开发场景中，上下文也是不可或缺的，缺少了它，我们就不能获取完整的程序信息。那到底啥是上下文呢？其实，这就是指，在 API 之间或者方法调用之间，所传递的除了业务参数之外的额外信息。<br>
+</p>
+
+<p>
+比如，服务端接收到客户端的 HTTP 请求之后，可以把客户端的 IP 地址和端口、客户端的身份信息、请求接收的时间、Trace ID 等信息放入到上下文中，这个上下文可以在后端的方法调用中传递，后端的业务方法除了利用正常的参数做一些业务处理（如订单处理）之外，还可以从上下文读取到消息请求的时间、Trace  ID 等信息，把服务处理的时间推送到 Trace 服务中。Trace 服务可以把同一 Trace ID 的不同方法的调用顺序和调用时间展示成流程图，方便跟踪。<br>
+</p>
+
+<p>
+不过，Go 标准库中的 Context 功能还不止于此，它还提供了超时（Timeout）和取消（Cancel）的机制。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge6f29e8" class="outline-2">
+<h2 id="orge6f29e8">Context 的来历</h2>
+<div class="outline-text-2" id="text-orge6f29e8">
+<p>
+Go 在 1.7 的版本中才正式把 Context 加入到标准库中。在这之前，很多 Web 框架在定义自己的 handler 时，都会传递一个自定义的 Context，把客户端的信息和客户端的请求信息放入到 Context 中。Go 最初提供了 golang.org/x/net/context 库用来提供上下文信息，最终还是在 Go1.7 中把此库提升到标准库 context 包中。<br>
+</p>
+
+<p>
+为啥呢？这是因为，在 Go1.7 之前，有很多库都依赖 golang.org/x/net/context 中的 Context 实现，这就导致 Go 1.7 发布之后，出现了标准库 Context 和 golang.org/x/net/context 并存的状况。新的代码使用标准库 Context 的时候，没有办法使用这个标准库的 Context 去调用旧有的使用 x/net/context 实现的方法。<br>
+</p>
+
+<p>
+所以，在 Go1.9 中，还专门实现了一个叫做 type alias 的新特性，然后把 x/net/context 中的 Context 定义成标准库 Context 的别名，以解决新旧 Context 类型冲突问题，可以看一下下面这段代码：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">+build go1.9</span>
+<span style="color: #268bd2; font-weight: bold;">package</span> context
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"context"</span>
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Context</span> = <span style="color: #df005f; font-weight: bold;">context.Context</span>
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">CancelFunc</span> = <span style="color: #df005f; font-weight: bold;">context.CancelFunc</span>
+</pre>
+</div>
+
+<p>
+Go 标准库的 Context 不仅提供了上下文传递的信息，还提供了 cancel、timeout 等其它信息，这些信息貌似和 context 这个包名没关系，但是还是得到了广泛的应用。所以，你看，context 包中的 Context 不仅仅传递上下文信息，还有 timeout 等其它功能，是不是“名不副实”呢？<br>
+</p>
+
+<p>
+其实，这也是这个 Context 的一个问题，比较容易误导人，Go 布道师 Dave Cheney 还专门写了一篇文章讲述这个问题：<a href="https://dave.cheney.net/2017/08/20/context-isnt-for-cancellation">Context isn’t for cancellation</a> 。<br>
+</p>
+
+<p>
+同时，也有一些批评者针对 Context 提出了批评：<a href="https://faiface.github.io/post/context-should-go-away-go2/">Context should go away for Go 2</a>，这篇文章把 Context 比作病毒，病毒会传染，结果把所有的方法都传染上了病毒（加上 Context 参数），绝对是视觉污染。<br>
+</p>
+
+<p>
+Go 的开发者也注意到了“关于 Context，存在一些争议”这件事儿，所以，Go 核心开发者 Ian Lance Taylor 专门开了一个 <a href="https://github.com/golang/go/issues/28342">issue 28342</a>，用来记录当前的 Context 的问题：<br>
+</p>
+
+<ul class="org-ul">
+<li>Context 包名导致使用的时候重复 ctx context.Context；<br></li>
+<li>Context.WithValue 可以接受任何类型的值，非类型安全；<br></li>
+<li>Context 包名容易误导人，实际上，Context 最主要的功能是取消 goroutine 的执行；<br></li>
+<li>Context 漫天飞，函数污染；<br></li>
+</ul>
+
+<p>
+尽管有很多的争议，但是，在很多场景下，使用 Context 其实会很方便，所以现在它已经在 Go 生态圈中传播开来了，包括很多的 Web 应用框架，都切换成了标准库的 Context。标准库中的 database/sql、os/exec、net、net/http 等包中都使用到了 Context。而且，如果我们遇到了下面的一些场景，也可以考虑使用 Context：<br>
+</p>
+
+<ul class="org-ul">
+<li>上下文信息传递 （request-scoped），比如处理 http 请求、在请求处理链路上传递信息；<br></li>
+<li>控制子 goroutine 的运行；<br></li>
+<li>超时控制的方法调用；<br></li>
+<li>可以取消的方法调用。<br></li>
+</ul>
+
+<p>
+所以，我们需要掌握 Context 的具体用法，这样才能在不影响主要业务流程实现的时候，实现一些通用的信息传递，或者是能够和其它 goroutine 协同工作，提供 timeout、cancel 等机制。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgcb6419d" class="outline-2">
+<h2 id="orgcb6419d">Context 基本使用方法</h2>
+<div class="outline-text-2" id="text-orgcb6419d">
+<p>
+包 context 定义了 Context 接口，Context 的具体实现包括 4 个方法，分别是 Deadline、Done、Err 和 Value，如下所示：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Context</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
+    <span style="color: #d75fd7; font-weight: bold;">Deadline</span>() (<span style="color: #8787d7;">deadline</span> <span style="color: #df005f; font-weight: bold;">time.Time</span>, <span style="color: #8787d7;">ok</span> <span style="color: #df005f; font-weight: bold;">bool</span>)
+    <span style="color: #d75fd7; font-weight: bold;">Done</span>() &lt;-<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #268bd2; font-weight: bold;">struct</span>{}
+    <span style="color: #d75fd7; font-weight: bold;">Err</span>() <span style="color: #df005f; font-weight: bold;">error</span>
+    <span style="color: #d75fd7; font-weight: bold;">Value</span>(<span style="color: #8787d7;">key</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}) <span style="color: #268bd2; font-weight: bold;">interface</span>{}
+}
+</pre>
+</div>
+
+<ul class="org-ul">
+<li><b>Deadline</b> 方法会返回这个 Context 被取消的截止日期。如果没有设置截止日期，ok 的值是 false。后续每次调用这个对象的 Deadline 方法时，都会返回和第一次调用相同的结果。<br></li>
+<li><p>
+<b>Done</b> 方法返回一个 Channel 对象。在 Context 被取消时，此 Channel 会被 close，如果没被取消，可能会返回 nil。后续的 Done 调用总是返回相同的结果。当 Done 被 close 的时候，你可以通过 ctx.Err 获取错误信息。Done 这个方法名其实起得并不好，因为名字太过笼统，不能明确反映 Done 被 close 的原因，因为 cancel、timeout、deadline 都可能导致 Done 被 close，不过，目前还没有一个更合适的方法名称。<br>
+</p>
+
+<p>
+关于 Done 方法，你必须要记住的知识点就是：如果 Done 没有被 close，Err 方法返回 nil；如果 Done 被 close，Err 方法会返回 Done 被 close 的原因。<br>
+</p></li>
+
+<li><b>Value</b> 返回此 ctx 中和指定的 key 相关联的 value。<br></li>
+</ul>
+
+<p>
+Context 中实现了 2 个常用的生成顶层 Context 的方法。<br>
+</p>
+
+<ul class="org-ul">
+<li>context.Background()：返回一个非 nil 的、空的 Context，没有任何值，不会被 cancel，不会超时，没有截止日期。一般用在主函数、初始化、测试以及创建根 Context 的时候。<br></li>
+<li>context.TODO()：返回一个非 nil 的、空的 Context，没有任何值，不会被 cancel，不会超时，没有截止日期。当你不清楚是否该用 Context，或者目前还不知道要传递一些什么上下文信息的时候，就可以使用这个方法。<br></li>
+</ul>
+
+<p>
+官方文档是这么讲的，你可能会觉得像没说一样，因为界限并不是很明显。其实，你根本不用费脑子去考虑，可以直接使用 context.Background。事实上，它们两个底层的实现是一模一样的：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> (
+    <span style="color: #8787d7;">background</span> = <span style="color: #268bd2;">new</span>(<span style="color: #df005f; font-weight: bold;">emptyCtx</span>)
+    <span style="color: #8787d7;">todo</span>       = <span style="color: #268bd2;">new</span>(<span style="color: #df005f; font-weight: bold;">emptyCtx</span>)
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Background</span>() <span style="color: #df005f; font-weight: bold;">Context</span> {
+    <span style="color: #268bd2; font-weight: bold;">return</span> background
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">TODO</span>() <span style="color: #df005f; font-weight: bold;">Context</span> {
+    <span style="color: #268bd2; font-weight: bold;">return</span> todo
+}
+</pre>
+</div>
+
+<p>
+在使用 Context 的时候，有一些约定俗成的规则：<br>
+</p>
+
+<ol class="org-ol">
+<li>一般函数使用 Context 的时候，会把这个参数放在第一个参数的位置。<br></li>
+<li>从来不把 nil 当做 Context 类型的参数值，可以使用 context.Background() 创建一个空的上下文对象，也不要使用 nil。<br></li>
+<li>Context 只用来临时做函数之间的上下文透传，不能持久化 Context 或者把 Context 长久保存。把 Context 持久化到数据库、本地文件或者全局变量、缓存中都是错误的用法。<br></li>
+<li>key 的类型不应该是字符串类型或者其它内建类型，否则容易在包之间使用 Context 时候产生冲突。使用 WithValue 时，key 的类型应该是自己定义的类型。<br></li>
+<li>常常使用 struct{}作为底层类型定义 key 的类型。对于 exported key 的静态类型，常常是接口或者指针。这样可以尽量减少内存分配。<br></li>
+</ol>
+
+<p>
+其实官方的文档也是比较搞笑的，文档中强调 key 的类型不要使用 string，结果接下来的例子中就是用 string 类型作为 key 的类型。你自己把握住这个要点就好，如果你能保证别人使用你的 Context 时不会和你定义的 key 冲突，那么 key 的类型就比较随意，因为你自己保证了不同包的 key 不会冲突，否则建议你尽量采用保守的 unexported 的类型。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8fee2f2" class="outline-2">
+<h2 id="org8fee2f2">创建特殊用途 Context 的方法</h2>
+<div class="outline-text-2" id="text-org8fee2f2">
+<p>
+接下来介绍标准库中几种创建特殊用途 Context 的方法：WithValue、WithCancel、WithTimeout 和 WithDeadline，包括它们的功能以及实现方式。<br>
+</p>
+</div>
+<div id="outline-container-org64ffab1" class="outline-3">
+<h3 id="org64ffab1">WithValue</h3>
+<div class="outline-text-3" id="text-org64ffab1">
+<p>
+WithValue 基于 parent Context 生成一个新的 Context，保存了一个 key-value 键值对。它常常用来传递上下文。<br>
+</p>
+
+<p>
+WithValue 方法其实是创建了一个类型为 valueCtx 的 Context，它的类型定义如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">valueCtx</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    Context
+    key, val <span style="color: #268bd2; font-weight: bold;">interface</span>{}
+}
+</pre>
+</div>
+
+<p>
+它持有一个 key-value 键值对，还持有 parent 的 Context。它覆盖了 Value 方法，优先从自己的存储中检查这个 key，不存在的话会从 parent 中继续检查。<br>
+</p>
+
+<p>
+Go 标准库实现的 Context 还实现了链式查找。如果不存在，还会向 parent Context 去查找，如果 parent 还是 valueCtx 的话，还是遵循相同的原则：valueCtx 会嵌入 parent，所以还是会查找 parent 的 Value 方法的。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">ctx = context.<span style="color: #d75fd7; font-weight: bold;">TODO</span>()
+ctx = context.<span style="color: #d75fd7; font-weight: bold;">WithValue</span>(ctx, <span style="color: #2aa198;">"key1"</span>, <span style="color: #2aa198;">"0001"</span>)
+ctx = context.<span style="color: #d75fd7; font-weight: bold;">WithValue</span>(ctx, <span style="color: #2aa198;">"key2"</span>, <span style="color: #2aa198;">"0001"</span>)
+ctx = context.<span style="color: #d75fd7; font-weight: bold;">WithValue</span>(ctx, <span style="color: #2aa198;">"key3"</span>, <span style="color: #2aa198;">"0001"</span>)
+ctx = context.<span style="color: #d75fd7; font-weight: bold;">WithValue</span>(ctx, <span style="color: #2aa198;">"key4"</span>, <span style="color: #2aa198;">"0004"</span>)
+
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(ctx.<span style="color: #d75fd7; font-weight: bold;">Value</span>(<span style="color: #2aa198;">"key1"</span>))
+</pre>
+</div>
+
+<div class="div-center">
+	<img src="./images/Go-并发编程-Context_WithValue.webp" width="650px" />
+</div>
+</div>
+</div>
+<div id="outline-container-org58f3e08" class="outline-3">
+<h3 id="org58f3e08">WithCancel</h3>
+<div class="outline-text-3" id="text-org58f3e08">
+<p>
+WithCancel 方法返回 parent 的副本，只是副本中的 Done Channel 是新建的对象，它的类型是 cancelCtx。<br>
+</p>
+
+<p>
+我们常常在一些需要主动取消长时间的任务时，创建这种类型的 Context，然后把这个 Context 传给长时间执行任务的 goroutine。当需要中止任务时，我们就可以 cancel 这个 Context，这样长时间执行任务的 goroutine，就可以通过检查这个 Context，知道 Context 已经被取消了。<br>
+</p>
+
+<p>
+WithCancel 返回值中的第二个值是一个 cancel 函数。其实，这个返回值的名称（cancel）和类型（Cancel）也非常迷惑人。<br>
+</p>
+
+<p>
+记住，不是只有你想中途放弃，才去调用 cancel，只要你的任务正常完成了，就需要调用 cancel，这样，这个 Context 才能释放它的资源（通知它的 children 处理 cancel，从它的 parent 中把自己移除，甚至释放相关的 goroutine）。很多同学在使用这个方法的时候，都会忘记调用 cancel，切记切记，而且一定尽早释放。<br>
+</p>
+
+<p>
+我们来看下 WithCancel 方法的实现代码：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">WithCancel</span>(<span style="color: #8787d7;">parent</span> <span style="color: #df005f; font-weight: bold;">Context</span>) (<span style="color: #8787d7;">ctx</span> <span style="color: #df005f; font-weight: bold;">Context</span>, <span style="color: #8787d7;">cancel</span> <span style="color: #df005f; font-weight: bold;">CancelFunc</span>) {
+    <span style="color: #8787d7;">c</span> := <span style="color: #d75fd7; font-weight: bold;">newCancelCtx</span>(parent)
+    <span style="color: #d75fd7; font-weight: bold;">propagateCancel</span>(parent, &amp;c)<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25226;c&#26397;&#19978;&#20256;&#25773;</span>
+    <span style="color: #268bd2; font-weight: bold;">return</span> &amp;c, <span style="color: #268bd2; font-weight: bold;">func</span>() { c.<span style="color: #d75fd7; font-weight: bold;">cancel</span>(<span style="color: #d75fd7;">true</span>, Canceled) }
+}
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">newCancelCtx returns an initialized cancelCtx.</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">newCancelCtx</span>(<span style="color: #8787d7;">parent</span> <span style="color: #df005f; font-weight: bold;">Context</span>) <span style="color: #df005f; font-weight: bold;">cancelCtx</span> {
+    <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #df005f; font-weight: bold;">cancelCtx</span>{<span style="color: #d75fd7;">Context</span>: parent}
+}
+</pre>
+</div>
+
+<p>
+代码中调用的 propagateCancel 方法会顺着 parent 路径往上找，直到找到一个 cancelCtx，或者为 nil。如果不为空，就把自己加入到这个 cancelCtx 的 child，以便这个 cancelCtx 被取消的时候通知自己。如果为空，会新起一个 goroutine，由它来监听 parent 的 Done 是否已关闭。<br>
+</p>
+
+<p>
+当这个 cancelCtx 的 cancel 函数被调用的时候，或者 parent 的 Done 被 close 的时候，这个 cancelCtx 的 Done 才会被 close。<br>
+</p>
+
+<p>
+cancel 是向下传递的，如果一个 WithCancel 生成的 Context 被 cancel 时，如果它的子 Context（也有可能是孙，或者更低，依赖子的类型）也是 cancelCtx 类型的，就会被 cancel，但是不会向上传递。parent Context 不会因为子 Context 被 cancel 而 cancel。<br>
+</p>
+
+<p>
+cancelCtx 被取消时，它的 Err 字段就是下面这个 Canceled 错误：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">Canceled</span> = errors.<span style="color: #d75fd7; font-weight: bold;">New</span>(<span style="color: #2aa198;">"context canceled"</span>)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org79b0698" class="outline-3">
+<h3 id="org79b0698">WithTimeout</h3>
+<div class="outline-text-3" id="text-org79b0698">
+<p>
+WithTimeout 其实是和 WithDeadline 一样，只不过一个参数是超时时间，一个参数是截止时间。超时时间加上当前时间，其实就是截止时间，因此，WithTimeout 的实现是：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">WithTimeout</span>(<span style="color: #8787d7;">parent</span> <span style="color: #df005f; font-weight: bold;">Context</span>, <span style="color: #8787d7;">timeout</span> <span style="color: #df005f; font-weight: bold;">time.Duration</span>) (<span style="color: #df005f; font-weight: bold;">Context</span>, <span style="color: #df005f; font-weight: bold;">CancelFunc</span>) {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#24403;&#21069;&#26102;&#38388;+timeout&#23601;&#26159;deadline</span>
+    <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7; font-weight: bold;">WithDeadline</span>(parent, time.<span style="color: #d75fd7; font-weight: bold;">Now</span>().<span style="color: #d75fd7; font-weight: bold;">Add</span>(timeout))
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org173be79" class="outline-3">
+<h3 id="org173be79">WithDeadline</h3>
+<div class="outline-text-3" id="text-org173be79">
+<p>
+WithDeadline 会返回一个 parent 的副本，并且设置了一个不晚于参数 d 的截止时间，类型为 timerCtx（或者是 cancelCtx）。<br>
+</p>
+
+<p>
+如果它的截止时间晚于 parent 的截止时间，那么就以 parent 的截止时间为准，并返回一个类型为 cancelCtx 的 Context，因为 parent 的截止时间到了，就会取消这个 cancelCtx。<br>
+</p>
+
+<p>
+如果当前时间已经超过了截止时间，就直接返回一个已经被 cancel 的 timerCtx。否则就会启动一个定时器，到截止时间取消这个 timerCtx。<br>
+</p>
+
+<p>
+综合起来，timerCtx 的 Done 被 Close 掉，主要是由下面的某个事件触发的：<br>
+</p>
+
+<ul class="org-ul">
+<li>截止时间到了；<br></li>
+<li>cancel 函数被调用；<br></li>
+<li>parent 的 Done 被 close；<br></li>
+</ul>
+
+<p>
+下面的代码是 WithDeadline 方法的实现：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">WithDeadline</span>(<span style="color: #8787d7;">parent</span> <span style="color: #df005f; font-weight: bold;">Context</span>, <span style="color: #8787d7;">d</span> <span style="color: #df005f; font-weight: bold;">time.Time</span>) (<span style="color: #df005f; font-weight: bold;">Context</span>, <span style="color: #df005f; font-weight: bold;">CancelFunc</span>) {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;parent&#30340;&#25130;&#27490;&#26102;&#38388;&#26356;&#26089;&#65292;&#30452;&#25509;&#36820;&#22238;&#19968;&#20010;cancelCtx&#21363;&#21487;</span>
+    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #8787d7;">cur</span>, <span style="color: #8787d7;">ok</span> := parent.<span style="color: #d75fd7; font-weight: bold;">Deadline</span>(); ok &amp;&amp; cur.<span style="color: #d75fd7; font-weight: bold;">Before</span>(d) {
+        <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7; font-weight: bold;">WithCancel</span>(parent)
+    }
+    <span style="color: #8787d7;">c</span> := &amp;<span style="color: #df005f; font-weight: bold;">timerCtx</span>{
+        <span style="color: #d75fd7;">cancelCtx</span>: <span style="color: #d75fd7; font-weight: bold;">newCancelCtx</span>(parent),
+        <span style="color: #d75fd7;">deadline</span>:  d,
+    }
+    <span style="color: #d75fd7; font-weight: bold;">propagateCancel</span>(parent, c) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21516;cancelCtx&#30340;&#22788;&#29702;&#36923;&#36753;</span>
+    <span style="color: #8787d7;">dur</span> := time.<span style="color: #d75fd7; font-weight: bold;">Until</span>(d)
+    <span style="color: #268bd2; font-weight: bold;">if</span> dur &lt;= 0 { <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#24403;&#21069;&#26102;&#38388;&#24050;&#32463;&#36229;&#36807;&#20102;&#25130;&#27490;&#26102;&#38388;&#65292;&#30452;&#25509;cancel</span>
+        c.<span style="color: #d75fd7; font-weight: bold;">cancel</span>(<span style="color: #d75fd7;">true</span>, DeadlineExceeded)
+        <span style="color: #268bd2; font-weight: bold;">return</span> c, <span style="color: #268bd2; font-weight: bold;">func</span>() { c.<span style="color: #d75fd7; font-weight: bold;">cancel</span>(<span style="color: #d75fd7;">false</span>, Canceled) }
+    }
+    c.mu.<span style="color: #d75fd7; font-weight: bold;">Lock</span>()
+    <span style="color: #268bd2; font-weight: bold;">defer</span> c.mu.<span style="color: #d75fd7; font-weight: bold;">Unlock</span>()
+    <span style="color: #268bd2; font-weight: bold;">if</span> c.err == <span style="color: #d75fd7;">nil</span> {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35774;&#32622;&#19968;&#20010;&#23450;&#26102;&#22120;&#65292;&#21040;&#25130;&#27490;&#26102;&#38388;&#21518;&#21462;&#28040;</span>
+        c.timer = time.<span style="color: #d75fd7; font-weight: bold;">AfterFunc</span>(dur, <span style="color: #268bd2; font-weight: bold;">func</span>() {
+            c.<span style="color: #d75fd7; font-weight: bold;">cancel</span>(<span style="color: #d75fd7;">true</span>, DeadlineExceeded)
+        })
+    }
+    <span style="color: #268bd2; font-weight: bold;">return</span> c, <span style="color: #268bd2; font-weight: bold;">func</span>() { c.<span style="color: #d75fd7; font-weight: bold;">cancel</span>(<span style="color: #d75fd7;">true</span>, Canceled) }
+}
+</pre>
+</div>
+
+<p>
+和 cancelCtx 一样，WithDeadline（WithTimeout）返回的 cancel 一定要调用，并且要尽可能早地被调用，这样才能尽早释放资源，不要单纯地依赖截止时间被动取消。正确的使用姿势是啥呢？我们来看一个例子。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">slowOperationWithTimeout</span>(<span style="color: #8787d7;">ctx</span> <span style="color: #df005f; font-weight: bold;">context.Context</span>) (<span style="color: #df005f; font-weight: bold;">Result</span>, <span style="color: #df005f; font-weight: bold;">error</span>) {
+    <span style="color: #8787d7;">ctx</span>, <span style="color: #8787d7;">cancel</span> := context.<span style="color: #d75fd7; font-weight: bold;">WithTimeout</span>(ctx, 100*time.Millisecond)
+    <span style="color: #268bd2; font-weight: bold;">defer</span> <span style="color: #d75fd7; font-weight: bold;">cancel</span>() <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#19968;&#26086;&#24930;&#25805;&#20316;&#23436;&#25104;&#23601;&#31435;&#39532;&#35843;&#29992;cancel</span>
+    <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7; font-weight: bold;">slowOperation</span>(ctx)
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org9ccb4da" class="outline-2">
+<h2 id="org9ccb4da">总结</h2>
+<div class="outline-text-2" id="text-org9ccb4da">
+<p>
+我们经常使用 Context 来取消一个 goroutine 的运行，这是 Context 最常用的场景之一，Context 也被称为 goroutine 生命周期范围（goroutine-scoped）的 Context，把 Context 传递给 goroutine。但是，goroutine 需要尝试检查 Context 的 Done 是否关闭了：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">ctx</span>, <span style="color: #8787d7;">cancel</span> := context.<span style="color: #d75fd7; font-weight: bold;">WithCancel</span>(context.<span style="color: #d75fd7; font-weight: bold;">Background</span>())
+
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+        <span style="color: #268bd2; font-weight: bold;">defer</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+            fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"goroutine exit"</span>)
+        }()
+
+        <span style="color: #268bd2; font-weight: bold;">for</span> {
+            <span style="color: #268bd2; font-weight: bold;">select</span> {
+            <span style="color: #268bd2; font-weight: bold;">case</span> &lt;-ctx.<span style="color: #d75fd7; font-weight: bold;">Done</span>():
+                <span style="color: #268bd2; font-weight: bold;">return</span>
+            <span style="color: #268bd2; font-weight: bold;">default</span>:
+                time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(time.Second)
+            }
+        }
+    }()
+
+    time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(time.Second)
+    <span style="color: #d75fd7; font-weight: bold;">cancel</span>()
+    time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(2 * time.Second)
+}
+</pre>
+</div>
+
+<p>
+如果你要为 Context 实现一个带超时功能的调用，比如访问远程的一个微服务，超时并不意味着你会通知远程微服务已经取消了这次调用，大概率的实现只是避免客户端的长时间等待，远程的服务器依然还执行着你的请求。<br>
+</p>
+
+<p>
+所以，有时候，Context 并不会减少对服务器的请求负担。如果在 Context 被 cancel 的时候，你能关闭和服务器的连接，中断和数据库服务器的通讯、停止对本地文件的读写，那么，这样的超时处理，同时能减少对服务调用的压力，但是这依赖于你对超时的底层处理机制。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-06-29 Wed 23:10</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

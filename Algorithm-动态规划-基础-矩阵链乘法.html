@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-06-05 Sun 19:23 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>矩阵链乘法</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="static/MathJax/MathJax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">矩阵链乘法</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org43b0ab2">什么是矩阵</a></li>
+<li><a href="#org275149d">什么是矩阵连乘问题</a></li>
+<li><a href="#org96fb158">矩阵连乘的特点</a></li>
+<li><a href="#orgf036121">矩阵连乘复杂度分析</a></li>
+<li><a href="#org6512b01">矩阵连乘的计算次数与计算顺序的关系</a></li>
+<li><a href="#org2570563">矩阵连乘问题</a></li>
+<li><a href="#org9314fe7">使用动态规划算法解决矩阵连乘</a>
+<ul>
+<li><a href="#org47e80f1">1. 找出最优子结构</a></li>
+<li><a href="#orga4b7881">2. 找出最优子结构的递推式</a></li>
+<li><a href="#org1ed0d7d">3. 核心代码</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org43b0ab2" class="outline-2">
+<h2 id="org43b0ab2">什么是矩阵</h2>
+<div class="outline-text-2" id="text-org43b0ab2">
+<p>
+首先，要了解什么是矩阵连乘问题，自然要知道什么是矩阵。再数学中，矩阵（Matrix）是一个按照长方阵列排列的复数或实数集合。例如：一个 \(n \times m\) 的矩阵 \(A=[a[i,j]]\) 就是像下面一样的一个有着 \(n\) 行 \(m\) 列的二维数组：<br>
+</p>
+
+<p>
+\[A = \left[\begin{matrix}
+	a[1,1] & a[1,2] & \cdots & a[1,m-1] & a[1,m]\\
+	a[2,1] & a[2,2] & \cdots & a[2,m-1] & a[2,m]\\
+	\vdots & \vdots &        & \vdots   & \vdots\\
+	a[n,1] & a[n,2] & \cdots & a[n,m-1] & a[n,m]\\
+	\end{matrix}\right]\]<br>
+</p>
+
+<p>
+具体例子：下面就是一个普通的 \(4 \times 5\) 的矩阵：<br>
+</p>
+
+<p>
+\[\left[\begin{matrix}
+	12 & 8 &  9 &  7 &  6\\
+	7 & 6 & 89 & 56 &  2\\
+	5 & 5 &  6 &  9 & 10\\
+	8 & 6 &  0 & -8 & -1\\
+	\end{matrix}\right]\]<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org275149d" class="outline-2">
+<h2 id="org275149d">什么是矩阵连乘问题</h2>
+<div class="outline-text-2" id="text-org275149d">
+<p>
+一个 \(p \times q\) 的矩阵 A 和一个 \(q \times r\) 的矩阵 B 的乘积是一个新的 \(p \times r\) 的矩阵 C，计算公式如下：<br>
+</p>
+
+<p>
+\[c[i, j] = \sum_{k=1}^q a[i, k] \cdot b[k, j] \quad (1 \leq i \leq p, q \leq j \leq r)\]<br>
+</p>
+
+<div class="div-center">
+	<img src="./images/矩阵乘法.png" />
+</div>
+</div>
+</div>
+<div id="outline-container-org96fb158" class="outline-2">
+<h2 id="org96fb158">矩阵连乘的特点</h2>
+<div class="outline-text-2" id="text-org96fb158">
+<ul class="org-ul">
+<li>如果存在两个矩阵 A 和 B，如果 AB 能够计算乘积，但BA不一定能够计算乘积；<br></li>
+<li>即使存在两个矩阵 A 和 B，满足 AB、BA 都能够相乘，但最后得出来的矩阵却很有可能是不一样的；<br></li>
+<li>矩阵连乘可以被递归成如下形式： \(A_1A_2A_3 \cdots A_{s-1}A_s = A_1(A_2(A_3 \cdots (A_{s-1}A_s)))\) ；<br></li>
+<li>矩阵连乘无论按照什么样的乘积顺序，最后计算出来的矩阵虽然“样子”不一样，但是计算出来的值却无论如何都是一样的；<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgf036121" class="outline-2">
+<h2 id="orgf036121">矩阵连乘复杂度分析</h2>
+<div class="outline-text-2" id="text-orgf036121">
+<p>
+假设有一个 \(p \times q\) 的矩阵 A 和 \(q \times r\) 的矩阵 B，则他们的乘积矩阵 C = AB 安装如下方式计算：<br>
+</p>
+
+<p>
+\[c[i, j] = \sum_{k=1}^q a[i, k] \cdot b[k, j] \quad (1 \leq i \leq p, q \leq j \leq r)\]<br>
+</p>
+
+<p>
+矩阵 C 的规模应该为 \(p \times r\)，则矩阵 C 应该一共有 \(p \times r\) 个实体并且每个实体需要 \(q\) 次的计算才能够算出来，因此，为了计算矩阵 C 的值，我们一共需要执行 \(p \times q \times r\) 这么多次计算。<br>
+</p>
+
+<p>
+因此，我们可以近似的认为矩阵连乘的复杂度就是矩阵连乘所需要的总次数，即 \(O(p \times q \times r)\)<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org6512b01" class="outline-2">
+<h2 id="org6512b01">矩阵连乘的计算次数与计算顺序的关系</h2>
+<div class="outline-text-2" id="text-org6512b01">
+<p>
+假设有一个 \(p \times q\) 规模的矩阵 A，一个 \(q \times r\) 规模的矩阵 B，并且我们现在再加上一个规模为 \(r \times s\) 的矩阵 C，那么这三个矩阵的乘积ABC有两种计算顺序：<br>
+</p>
+
+<ul class="org-ul">
+<li>(AB)C<br></li>
+<li>A(BC)<br></li>
+</ul>
+
+<p>
+虽然这两种计算顺序的结果都是一样的，但是计算次数不一定相同。<br>
+</p>
+
+<ul class="org-ul">
+<li><p>
+对于第一种计算顺序来说，总共需要的计算次数为：<br>
+</p>
+
+<p>
+因为 AB 共需要计算 \(p \times q \times r\) 次，并且生成一个规模为 \(p \times r\) 的中间矩阵，这个中间矩阵再与矩阵 C 相乘，又需要计算 \(p \times r \times s\) 次，并且生成一个规模为 \(p \times s\) 的矩阵，这个矩阵也就是最后的结果，因此按照第一种计算顺序计算，一共需要的计算次数为：<br>
+</p>
+
+<p>
+\[mult[(AB)C] = pqr + prs\]<br>
+</p></li>
+
+<li><p>
+同理，对于第二种计算顺序来说，总共需要的计算次数为：<br>
+</p>
+
+<p>
+\[mult[A(BC)] = qrs + pqs\]<br>
+</p></li>
+</ul>
+
+<p>
+假设 \(p = 5, q = 4, r = 6, s = 2\)，则：<br>
+</p>
+
+<ul class="org-ul">
+<li>\(mult[A(BC)] = qrs + pqs = 180\)<br></li>
+<li>\(mult[(AB)C] = pqr + prs = 88\)<br></li>
+</ul>
+
+<p>
+<span class="underline">所以，矩阵连乘计算顺序的不同，结果是相同的，但是计算次数是不一定相同的。</span><br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2570563" class="outline-2">
+<h2 id="org2570563">矩阵连乘问题</h2>
+<div class="outline-text-2" id="text-org2570563">
+<blockquote>
+<p>
+问题描述：<br>
+</p>
+
+<p>
+给你一系列的矩阵 A1, A2, A3, &#x2026;&#x2026;, An 和一系列的整数 P1, P2, P3, &#x2026;&#x2026;, Pn，每个矩阵 Ai 的规模为 Pi-1 * pi。<br>
+</p>
+
+<p>
+现在，请你计算这些矩阵连乘所需要的最少的计算次数是多少？<br>
+</p>
+</blockquote>
+
+<p>
+当然可以使用暴力求解，但是时间复杂度太高。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9314fe7" class="outline-2">
+<h2 id="org9314fe7">使用动态规划算法解决矩阵连乘</h2>
+<div class="outline-text-2" id="text-org9314fe7">
+</div>
+<div id="outline-container-org47e80f1" class="outline-3">
+<h3 id="org47e80f1">1. 找出最优子结构</h3>
+<div class="outline-text-3" id="text-org47e80f1">
+<p>
+无论是以一个什么样的顺序来计算的，最后一步都是把最后生成的两个中间矩阵相乘：<br>
+</p>
+
+<p>
+\[A_{i..j} = (A_i \cdots A_k)(A_{k+1} \cdots A_j) = A_{i..k} \cdot A_{k+1..j}\]<br>
+</p>
+
+<p>
+两个问题：<br>
+</p>
+
+<ul class="org-ul">
+<li>我们应该在乘积序列中的哪一个地方使用大括号把该序列分成两个子序列呢？即 k 的值到底应该设为多少？（可以暴力列举出所有合法的 K 值）<br></li>
+<li>对于分割出来的两个子乘积序列 \(A_{i..k}\) 和 \(A_{k+1..j}\)，我们又该如何对他们再进行一步划分呢；<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orga4b7881" class="outline-3">
+<h3 id="orga4b7881">2. 找出最优子结构的递推式</h3>
+<div class="outline-text-3" id="text-orga4b7881">
+<p>
+定义：\(m[i, j]\) 的值为计算 \(A_{i..j}\) 所需要的最少计算次数，因此，这个最少计算次数的问题可以用下面的递归式来描述：<br>
+</p>
+
+<p>
+\[m[i, j] = \begin{cases}
+	 0,  & \text{i = j}\\
+	 min_{i \leq k < j}(m[i,k] + m[k+1,j] + p_{i-1}p_kp_j), & \text{i < j}
+	 \end{cases}\]<br>
+</p>
+
+<p>
+当 \(i < j\) 时，\(A_{i..j}\) 的最少乘积次数 = \(A_{i..k}\) 所需要的最少乘积次数 + \(A_{k+1..j}\) 所需要的最少乘积次数 + 两个临时矩阵乘积所需要的次数；<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org1ed0d7d" class="outline-3">
+<h3 id="org1ed0d7d">3. 核心代码</h3>
+<div class="outline-text-3" id="text-org1ed0d7d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">const</span> <span style="color: #d75fd7;">maxn</span> = 10;
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">p</span> [maxn]<span style="color: #df005f; font-weight: bold;">int</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">dp</span> [maxn][maxn]<span style="color: #df005f; font-weight: bold;">int</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">min</span>(<span style="color: #8787d7;">a</span>, <span style="color: #8787d7;">b</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">int</span> {
+    <span style="color: #268bd2; font-weight: bold;">if</span> a &lt; b {
+        <span style="color: #268bd2; font-weight: bold;">return</span> a
+    } <span style="color: #268bd2; font-weight: bold;">else</span> {
+        <span style="color: #268bd2; font-weight: bold;">return</span> b
+    }
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Scanf</span>(<span style="color: #2aa198;">"%d"</span>, &amp;n)
+
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := 1; i &lt;= n+1; i++ {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Scanf</span>(<span style="color: #2aa198;">"%d"</span>, &amp;p[i])
+    }
+
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">r</span> := 2; r &lt;= n; r++ {
+        <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">l</span> := r; l &gt;= 1; l-- {
+            <span style="color: #268bd2; font-weight: bold;">if</span> l == r {
+                dp[l][r] = 0
+            } <span style="color: #268bd2; font-weight: bold;">else</span> {
+                dp[l][r] = 0x3f3f3f3f
+            }
+            <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">k</span> := l; k &lt; r; k++ {
+                dp[l][r] = <span style="color: #d75fd7; font-weight: bold;">min</span>(dp[l][r], dp[l][k] + dp[k+1][r] + p[l] * p[k+1] * p[r+1])
+            }
+        }
+    }
+
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(dp[1][n])
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-06-05 Sun 19:23</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

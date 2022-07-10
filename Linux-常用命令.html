@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-06-03 Fri 12:50 -->
+<!-- 2022-06-23 Thu 12:43 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LINUX常用命令</title>
@@ -21,298 +21,564 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
+<li><a href="#org9682755">date 显示日期与时间</a></li>
+<li><a href="#org244d449">cal 显示日历</a></li>
+<li><a href="#orgd913017">bc 简单好用的计算器</a></li>
+<li><a href="#orgcfa4448">chgrp 修改文件所属用户组</a></li>
+<li><a href="#orga30c5e2">chown 文件拥有者</a></li>
+<li><a href="#org5aa0063">chmod 修改文件权限</a></li>
+<li><a href="#orge77cd95">cd 切换目录</a></li>
+<li><a href="#orgf69de6d">pwd 查看当前所在目录</a></li>
+<li><a href="#org99f01f5">mkdir 创建空目录</a></li>
+<li><a href="#orgb62a643">rmdir 删除空的文件夹</a></li>
 <li><a href="#org7419e4f">ls 文件与目录的查看</a></li>
 <li><a href="#org184a312">cp 复制文件/文件夹</a></li>
 <li><a href="#org6189f1f">rm 删除文件/文件夹</a></li>
-<li><a href="#orgb62a643">rmdir 删除空的文件夹</a></li>
 <li><a href="#orgc8a7c14">mv 移动文件/文件夹</a></li>
-<li><a href="#orgf69de6d">pwd 查看当前所在目录</a></li>
-<li><a href="#orgc46b79a">touch 修改文件时间或者创建新文件</a></li>
-<li><a href="#org99f01f5">mkdir 创建空目录</a></li>
 <li><a href="#org3175c94">cat 查看文件内容</a></li>
+<li><a href="#org0dc6825">tac 反向查看文件内容</a></li>
+<li><a href="#org3c5f227">nl 添加行号打印</a></li>
 <li><a href="#orgbaf14bd">more 翻页查看文件内容</a></li>
 <li><a href="#org4573ac9">less 比more更高级的可翻页查看文件内容</a></li>
-<li><a href="#org317da2f">head 数据截取</a></li>
-<li><a href="#orgf0c6f2e">tail 与head反向，从后面开始截取</a></li>
+<li><a href="#org4738eab">head 截取前几行</a></li>
+<li><a href="#org4972459">tail 截取后几行</a></li>
+<li><a href="#orgb10335d">od 查看非纯文本文件</a></li>
+<li><a href="#orgc46b79a">touch 修改文件时间或者创建新文件</a></li>
+<li><a href="#orgef2755d">umask 指定用户建立新文件的权限默认值</a></li>
+<li><a href="#orgf723fea">file 观察文件类型</a></li>
+<li><a href="#org844de66">which 查找执行文件</a></li>
+<li><a href="#org308429c">whereis 查找文件</a></li>
+<li><a href="#org563ba75">locate/updatedb 查找符合条件的文档</a></li>
+<li><a href="#org156653e">find 指定目录下查找文件</a></li>
+<li><a href="#orgd3d61ad">gzip bzip2 xz 压缩</a></li>
+<li><a href="#org3cd2146">tar 打包、压缩</a></li>
+<li><a href="#orgee9d611">type 查询命令是否为 bash shell 内置命令</a></li>
 <li><a href="#org044f857">read 从标准输入读取数值</a></li>
-<li><a href="#orgfe66834">type 查询命令是否为 bash shell 的内置命令</a></li>
+<li><a href="#org56596ab">declare 变量的声明</a></li>
 <li><a href="#orgdfe60a9">ulimit 文件系统及程序的限制关系</a></li>
 <li><a href="#orgb384b6a">alias 命令别名</a></li>
 <li><a href="#org8a938f8">history 历史命令</a></li>
+<li><a href="#org43680fb">stty 查看与设置中断按键</a></li>
+<li><a href="#org2771803">set 设置整个命令输出/输入的环境</a></li>
+<li><a href="#orgd3cb747">cut 选取命令</a></li>
+<li><a href="#orgfd44f48">grep 查找命令</a></li>
+<li><a href="#org328368b">sort 排序命令</a></li>
+<li><a href="#org010bc46">wc 统计字数</a></li>
+<li><a href="#orgcd29b12">uniq 去重命令</a></li>
+<li><a href="#orgf0b5f29">tee 双向重定向</a></li>
+<li><a href="#org85d5074">tr 转换或删除字符</a></li>
+<li><a href="#orgdc7aa88">col 过滤控制字符</a></li>
+<li><a href="#orgb02ad88">join 将文件中指定栏位内容相同的行连接起来</a></li>
+<li><a href="#orgb666f28">paste 合并文件的列</a></li>
+<li><a href="#org8115463">expand 制表符转换为空白字符</a></li>
+<li><a href="#org525dd23">split 划分命令</a></li>
+<li><a href="#orgaf2a7bd">xargs 参数代换</a></li>
+<li><a href="#orgac76261">sed 数据替换、删除、新增、选取特定行</a></li>
+<li><a href="#org81638da">printf 格式化打印</a></li>
+<li><a href="#orgae347ed">awk 好用的数据处理工具</a></li>
+<li><a href="#org33a5546">diff 比较文件的差异（逐行）</a></li>
+<li><a href="#org7322779">cmp 比较文件的差异（逐字节）</a></li>
+<li><a href="#org8d026dd">patch 修补文件</a></li>
+<li><a href="#orgc453426">pr 文件打印设置</a></li>
+<li><a href="#org290fb10">uname 显示电脑及操作系统的相关信息</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org7419e4f" class="outline-2">
-<h2 id="org7419e4f">ls 文件与目录的查看</h2>
-<div class="outline-text-2" id="text-org7419e4f">
-<ul class="org-ul">
-<li>ls 文件与目录的查看<br>
-<ul class="org-ul">
-<li>ls 文件名/目录名(可以多个) 查看对应文件(查看属性而不是内容)或对应文件夹 如果没有文件名/目录名，则默认查看当前文件夹<br></li>
-<li>-a 全部的文件<br></li>
-<li>-h 将文件容量以人类较易读的方式列出来<br></li>
-<li>-l 详细信息显示 包括文件的属性和权限等数据<br></li>
-<li>-S 以文件容量大小排序，而不是文件名<br></li>
-<li>-t 以时间排序<br></li>
-<li>-r 将排序结果反向输出<br></li>
-<li>&#x2013;color=never 不要根据文件特性给予颜色显示  &#x2013;color=always 显示颜色  &#x2013;color=auto 让系统自行依据设置来判断是否给予颜色<br></li>
-<li>-F 根据文件、目录等信息，给予附加数据结构，例如：* 代表可执行文件  / 代表目录   = 代表socket文件  | 代表FIFO文件<br></li>
-<li>常用缩写 ll<br></li>
-</ul></li>
-</ul>
+<div id="outline-container-org9682755" class="outline-2">
+<h2 id="org9682755">date 显示日期与时间</h2>
+<div class="outline-text-2" id="text-org9682755">
+<p>
+<a href="Linux-首次登录与在线求助.html#orgb5e795b">首次登录与在线求助::date</a><br>
+</p>
 </div>
 </div>
-<div id="outline-container-org184a312" class="outline-2">
-<h2 id="org184a312">cp 复制文件/文件夹</h2>
-<div class="outline-text-2" id="text-org184a312">
-<ul class="org-ul">
-<li>cp 复制文件/文件夹<br>
-<ul class="org-ul">
-<li>cp 源文件 目标文件<br></li>
-<li>-p 连同文件的属性（权限、用户、时间）一起复制过去，而非使用默认属性（备份常用）<br></li>
-<li>在默认条件中，cp的源文件与目标文件的权限是不同的，目标文件的拥有者通常是命令操作者本身<br></li>
-<li>如果需要复制源文件，则需要有对源文件的r权限<br></li>
-<li>-r 递归复制，用于目录的复制<br></li>
-</ul></li>
-</ul>
+<div id="outline-container-org244d449" class="outline-2">
+<h2 id="org244d449">cal 显示日历</h2>
+<div class="outline-text-2" id="text-org244d449">
+<p>
+<a href="Linux-首次登录与在线求助.html#orge954d58">首次登录与在线求助::cal</a><br>
+</p>
 </div>
 </div>
-<div id="outline-container-org6189f1f" class="outline-2">
-<h2 id="org6189f1f">rm 删除文件/文件夹</h2>
-<div class="outline-text-2" id="text-org6189f1f">
-<ul class="org-ul">
-<li>rm 删除文件/文件夹<br>
-<ul class="org-ul">
-<li>rm [-fir] 文件/目录<br></li>
-<li>-f 强制删除，忽略不存在的文件，不会出现警告信息<br></li>
-<li>-i 交互模式，在删除前会询问使用者是否操作<br></li>
-<li>-r 递归删除，用于删除含有文件的目录，一般目录非空时不允许删除<br></li>
-</ul></li>
-</ul>
+<div id="outline-container-orgd913017" class="outline-2">
+<h2 id="orgd913017">bc 简单好用的计算器</h2>
+<div class="outline-text-2" id="text-orgd913017">
+<p>
+<a href="Linux-首次登录与在线求助.html#orge501b3e">首次登录与在线求助::bc</a><br>
+</p>
 </div>
 </div>
-<div id="outline-container-orgb62a643" class="outline-2">
-<h2 id="orgb62a643">rmdir 删除空的文件夹</h2>
-<div class="outline-text-2" id="text-orgb62a643">
-<ul class="org-ul">
-<li>rmdir 删除空的文件夹<br></li>
-</ul>
+<div id="outline-container-orgcfa4448" class="outline-2">
+<h2 id="orgcfa4448">chgrp 修改文件所属用户组</h2>
+<div class="outline-text-2" id="text-orgcfa4448">
+<p>
+<a href="Linux-文件权限与目录配置.html#org124c6a4">文件权限与目录配置::chgrp</a><br>
+</p>
 </div>
 </div>
-<div id="outline-container-orgc8a7c14" class="outline-2">
-<h2 id="orgc8a7c14">mv 移动文件/文件夹</h2>
-<div class="outline-text-2" id="text-orgc8a7c14">
-<ul class="org-ul">
-<li>mv 移动文件/文件夹<br>
-<ul class="org-ul">
-<li>mv [-fiu] 源文件 目标文件<br></li>
-<li>-f 强制移动，如果目标文件已存在，不会询问而直接覆盖<br></li>
-<li>-i 若目标文件已经存在，就会询问是否覆盖<br></li>
-<li>-u 若目标文件已经存在，且源文件更新，才会更新<br></li>
-<li>cp 和 mv 命令都涉及目标文件，如果目标文件是一个文件夹，则源文件会以原来的名字存在目标文件夹，如果目标文件是一个文件名，则源文件会以目标文件名保存<br></li>
-</ul></li>
-</ul>
+<div id="outline-container-orga30c5e2" class="outline-2">
+<h2 id="orga30c5e2">chown 文件拥有者</h2>
+<div class="outline-text-2" id="text-orga30c5e2">
+<p>
+<a href="Linux-文件权限与目录配置.html#orgcc5edbe">文件权限与目录配置::chown</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5aa0063" class="outline-2">
+<h2 id="org5aa0063">chmod 修改文件权限</h2>
+<div class="outline-text-2" id="text-org5aa0063">
+<p>
+<a href="Linux-文件权限与目录配置.html#org31c1cbc">文件权限与目录配置::chmod</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge77cd95" class="outline-2">
+<h2 id="orge77cd95">cd 切换目录</h2>
+<div class="outline-text-2" id="text-orge77cd95">
+<p>
+<a href="Linux-文件与目录管理.html#org90b1eb6">文件与目录管理::cd</a><br>
+</p>
 </div>
 </div>
 <div id="outline-container-orgf69de6d" class="outline-2">
 <h2 id="orgf69de6d">pwd 查看当前所在目录</h2>
 <div class="outline-text-2" id="text-orgf69de6d">
-<ul class="org-ul">
-<li>pwd 查看当前所在目录<br></li>
-</ul>
-</div>
-</div>
-<div id="outline-container-orgc46b79a" class="outline-2">
-<h2 id="orgc46b79a">touch 修改文件时间或者创建新文件</h2>
-<div class="outline-text-2" id="text-orgc46b79a">
-<ul class="org-ul">
-<li>touch 修改文件时间或者创建新文件<br>
-<ul class="org-ul">
-<li>文件有三个时间，修改时间、状态时间、读取时间<br></li>
-<li>当文件内容修改时，修改时间(mtime, modification time)会更新; 当文件状态更新时，状态时间(ctime, status time)会更新; 当文件内容被读取时，读取时间(atime, access time)会更新<br></li>
-<li>touch [-acdmt] 文件<br></li>
-<li>在默认情况下，如果touch后面指定的文件存在，则改文件的三个时间都会更新为目前的时间 如果该文件不存在，则会主动创建一个该名字的文件<br></li>
-<li>我们经常使用这个命令来创建新文件<br></li>
-</ul></li>
-</ul>
+<p>
+<a href="Linux-文件与目录管理.html#orgb4c8d76">文件与目录管理::pwd</a><br>
+</p>
 </div>
 </div>
 <div id="outline-container-org99f01f5" class="outline-2">
 <h2 id="org99f01f5">mkdir 创建空目录</h2>
 <div class="outline-text-2" id="text-org99f01f5">
-<ul class="org-ul">
-<li>mkdir 创建空目录<br></li>
-</ul>
+<p>
+<a href="Linux-文件与目录管理.html#org88f76fa">文件与目录管理::mkdir</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb62a643" class="outline-2">
+<h2 id="orgb62a643">rmdir 删除空的文件夹</h2>
+<div class="outline-text-2" id="text-orgb62a643">
+<p>
+<a href="Linux-文件与目录管理.html#org1526415">文件与目录管理::rmdir</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-org7419e4f" class="outline-2">
+<h2 id="org7419e4f">ls 文件与目录的查看</h2>
+<div class="outline-text-2" id="text-org7419e4f">
+<p>
+<a href="Linux-文件与目录管理.html#org2237ee1">文件与目录管理::ls</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-org184a312" class="outline-2">
+<h2 id="org184a312">cp 复制文件/文件夹</h2>
+<div class="outline-text-2" id="text-org184a312">
+<p>
+<a href="Linux-文件与目录管理.html#org4d1e37d">文件与目录管理::cp</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-org6189f1f" class="outline-2">
+<h2 id="org6189f1f">rm 删除文件/文件夹</h2>
+<div class="outline-text-2" id="text-org6189f1f">
+<p>
+<a href="Linux-文件与目录管理.html#org09344e7">文件与目录管理::rm</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc8a7c14" class="outline-2">
+<h2 id="orgc8a7c14">mv 移动文件/文件夹</h2>
+<div class="outline-text-2" id="text-orgc8a7c14">
+<p>
+<a href="Linux-文件与目录管理.html#org6d0ab0c">文件与目录管理::mv</a><br>
+</p>
 </div>
 </div>
 <div id="outline-container-org3175c94" class="outline-2">
 <h2 id="org3175c94">cat 查看文件内容</h2>
 <div class="outline-text-2" id="text-org3175c94">
-<ul class="org-ul">
-<li>cat 直接查看文件内容<br>
-<ul class="org-ul">
-<li>cat 文件名<br></li>
-<li>-n 打印出行号<br></li>
-</ul></li>
-</ul>
+<p>
+<a href="Linux-文件与目录管理.html#orgc4f4779">文件与目录管理::cat</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-org0dc6825" class="outline-2">
+<h2 id="org0dc6825">tac 反向查看文件内容</h2>
+<div class="outline-text-2" id="text-org0dc6825">
+<p>
+<a href="Linux-文件与目录管理.html#org237c6b5">文件与目录管理::tac</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-org3c5f227" class="outline-2">
+<h2 id="org3c5f227">nl 添加行号打印</h2>
+<div class="outline-text-2" id="text-org3c5f227">
+<p>
+<a href="Linux-文件与目录管理.html#org8da6d8f">文件与目录管理::nl</a><br>
+</p>
 </div>
 </div>
 <div id="outline-container-orgbaf14bd" class="outline-2">
 <h2 id="orgbaf14bd">more 翻页查看文件内容</h2>
 <div class="outline-text-2" id="text-orgbaf14bd">
-<ul class="org-ul">
-<li>more 可翻页查看文件内容<br>
-<ul class="org-ul">
-<li>最后一行会显示目前显示的百分比，而且还可以在最后一行输入一些有用的命令<br></li>
-<li>空格键 代表向下翻一页<br></li>
-<li>Enter 代表向下翻一行<br></li>
-<li>/字符串  代表在这个显示的内容中, 向下查找字符串这个关键词<br></li>
-<li>:f   立即显示出文件名以及目前显示的行数<br></li>
-<li>q    结束命令<br></li>
-<li>b 或 [ctrl]-b 代表向回翻页，不过这个操作只对文件有用，对管道无用<br></li>
-</ul></li>
-</ul>
+<p>
+<a href="Linux-文件与目录管理.html#orga9ef3e3">文件与目录管理::more</a><br>
+</p>
 </div>
 </div>
 <div id="outline-container-org4573ac9" class="outline-2">
 <h2 id="org4573ac9">less 比more更高级的可翻页查看文件内容</h2>
 <div class="outline-text-2" id="text-org4573ac9">
-<ul class="org-ul">
-<li>less 比more更高级的可翻页查看文件内容<br>
-<ul class="org-ul">
-<li>空格键  向下翻动一页<br></li>
-<li>[pagedowm] 向下翻动一页<br></li>
-<li>[pageup] 向上翻动一页<br></li>
-<li>/字符串 向下查找字符串的功能<br></li>
-<li>?字符串 向上查找字符串<br></li>
-<li>n 重复前一个查找<br></li>
-<li>N 反向重复前一个查找<br></li>
-<li>g 前进到这个文件内容的第一行<br></li>
-<li>G 前进到这个文件内容的最后一行<br></li>
-<li>q 结束命令<br></li>
-</ul></li>
-</ul>
+<p>
+<a href="Linux-文件与目录管理.html#org42477b9">文件与目录管理::less</a><br>
+</p>
 </div>
 </div>
-<div id="outline-container-org317da2f" class="outline-2">
-<h2 id="org317da2f">head 数据截取</h2>
-<div class="outline-text-2" id="text-org317da2f">
-<ul class="org-ul">
-<li>head 数据截取<br>
-<ul class="org-ul">
-<li>head [-n number] 文件名<br></li>
-<li>如果number前面没有-字符, 截取前number行数据   如果number前面有-字符, 表示不截取后number行数据，其余截取<br></li>
-<li>如果没有-n参数，默认前十行<br></li>
-</ul></li>
-</ul>
+<div id="outline-container-org4738eab" class="outline-2">
+<h2 id="org4738eab">head 截取前几行</h2>
+<div class="outline-text-2" id="text-org4738eab">
+<p>
+<a href="Linux-文件与目录管理.html#org8c1431c">文件与目录管理::head</a><br>
+</p>
 </div>
 </div>
-<div id="outline-container-orgf0c6f2e" class="outline-2">
-<h2 id="orgf0c6f2e">tail 与head反向，从后面开始截取</h2>
-<div class="outline-text-2" id="text-orgf0c6f2e">
-<ul class="org-ul">
-<li>tail 与head反向，从后面开始截取<br>
-<ul class="org-ul">
-<li>tail [-n number] 文件名<br></li>
-<li>如果number前面没有+字符, 截取后number行数据   如果number前面有+字符, 表示从number行开始截取<br></li>
-<li>如果没有-n参数，默认后十行<br></li>
-</ul></li>
-</ul>
+<div id="outline-container-org4972459" class="outline-2">
+<h2 id="org4972459">tail 截取后几行</h2>
+<div class="outline-text-2" id="text-org4972459">
+<p>
+<a href="Linux-文件与目录管理.html#orgaf7ebf7">文件与目录管理::tail</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb10335d" class="outline-2">
+<h2 id="orgb10335d">od 查看非纯文本文件</h2>
+<div class="outline-text-2" id="text-orgb10335d">
+<p>
+<a href="Linux-文件与目录管理.html#org7b20eaf">文件与目录管理::od</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc46b79a" class="outline-2">
+<h2 id="orgc46b79a">touch 修改文件时间或者创建新文件</h2>
+<div class="outline-text-2" id="text-orgc46b79a">
+<p>
+<a href="Linux-文件与目录管理.html#orgdf83b29">文件与目录管理::touch</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgef2755d" class="outline-2">
+<h2 id="orgef2755d">umask 指定用户建立新文件的权限默认值</h2>
+<div class="outline-text-2" id="text-orgef2755d">
+<p>
+<a href="Linux-文件与目录管理.html#org34d58e9">文件与目录管理::umask</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf723fea" class="outline-2">
+<h2 id="orgf723fea">file 观察文件类型</h2>
+<div class="outline-text-2" id="text-orgf723fea">
+<p>
+<a href="Linux-文件与目录管理.html#org820e32c">文件与目录管理::file</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-org844de66" class="outline-2">
+<h2 id="org844de66">which 查找执行文件</h2>
+<div class="outline-text-2" id="text-org844de66">
+<p>
+<a href="Linux-文件与目录管理.html#orgdf1991a">文件与目录管理::which</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-org308429c" class="outline-2">
+<h2 id="org308429c">whereis 查找文件</h2>
+<div class="outline-text-2" id="text-org308429c">
+<p>
+<a href="Linux-文件与目录管理.html#orgcda03c8">文件与目录管理::whereis</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-org563ba75" class="outline-2">
+<h2 id="org563ba75">locate/updatedb 查找符合条件的文档</h2>
+<div class="outline-text-2" id="text-org563ba75">
+<p>
+<a href="Linux-文件与目录管理.html#org1953a61">文件与目录管理::locate/updatedb</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-org156653e" class="outline-2">
+<h2 id="org156653e">find 指定目录下查找文件</h2>
+<div class="outline-text-2" id="text-org156653e">
+<p>
+<a href="Linux-文件与目录管理.html#org46549e5">文件与目录管理::find</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd3d61ad" class="outline-2">
+<h2 id="orgd3d61ad">gzip bzip2 xz 压缩</h2>
+<div class="outline-text-2" id="text-orgd3d61ad">
+<p>
+<a href="Linux-文件与文件系统的压缩.html#org2cd6d98">文件与文件系统的压缩::压缩</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-org3cd2146" class="outline-2">
+<h2 id="org3cd2146">tar 打包、压缩</h2>
+<div class="outline-text-2" id="text-org3cd2146">
+<p>
+<a href="Linux-文件与文件系统的压缩.html#org272c4db">文件与文件系统的压缩::tar</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgee9d611" class="outline-2">
+<h2 id="orgee9d611">type 查询命令是否为 bash shell 内置命令</h2>
+<div class="outline-text-2" id="text-orgee9d611">
+<p>
+<a href="Linux-bash.html#org625be94">Linux-bash::type</a><br>
+</p>
 </div>
 </div>
 <div id="outline-container-org044f857" class="outline-2">
 <h2 id="org044f857">read 从标准输入读取数值</h2>
 <div class="outline-text-2" id="text-org044f857">
-<dl class="org-dl">
-<dt>-p</dt><dd>提示信息<br></dd>
-<dt>-a</dt><dd>将输入的数据进行空格分隔成数组<br></dd>
-<dt>-d</dt><dd>设置结束符<br></dd>
-<dt>-t</dt><dd>时间限制<br></dd>
-<dt>-n</dt><dd>设置输入的长度<br></dd>
-</dl>
-</div>
-</div>
-<div id="outline-container-orgfe66834" class="outline-2">
-<h2 id="orgfe66834">type 查询命令是否为 bash shell 的内置命令</h2>
-<div class="outline-text-2" id="text-orgfe66834">
 <p>
-<a id="orgcc4098e"></a>查询命令是来自于外部（非 bash 所提供的命令）或是内置在 bash 中的。<br>
+<a href="Linux-bash.html#orgba454ff">Linux-bash::read</a><br>
 </p>
-
-<div class="org-src-container">
-<pre class="src src-bash"><span style="color: #268bd2;">type</span> [-tpa] name
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#19981;&#21152;&#20219;&#20309;&#36873;&#39033;&#21644;&#21442;&#25968;&#26102;&#65292;type &#20250;&#26174;&#31034;&#20986; name &#26159;&#22806;&#37096;&#21629;&#20196;&#36824;&#26159; bash &#20869;&#32622;&#21629;&#20196;</span>
-</pre>
 </div>
-
-<ul class="org-ul">
-<li>t：当加入 -t 参数时，type 将 name 以下面这些字眼显示出它的意义：<br>
-<ul class="org-ul">
-<li>file：表示为外部命令<br></li>
-<li>alias：表示该命令为命令别名所设置的名称<br></li>
-<li>builtin：表示该命令为 bash 内置的命令功能<br></li>
-</ul></li>
-<li>p：如果后面接的 name 为外部命令时，才会显示完整的文件名；<br></li>
-<li>a：会由 PATH 变量定义的路径中，将所有含 name 的命令都列出来，包含 alias；<br></li>
-</ul>
+</div>
+<div id="outline-container-org56596ab" class="outline-2">
+<h2 id="org56596ab">declare 变量的声明</h2>
+<div class="outline-text-2" id="text-org56596ab">
+<p>
+<a href="Linux-bash.html#orgd6f4d49">Linux-bash::declare</a><br>
+</p>
 </div>
 </div>
 <div id="outline-container-orgdfe60a9" class="outline-2">
 <h2 id="orgdfe60a9">ulimit 文件系统及程序的限制关系</h2>
 <div class="outline-text-2" id="text-orgdfe60a9">
 <p>
-<a id="orgca4e228"></a>想象一个状况：我的 Linux 主机里面同时登陆了十个人，这十个人同时开启了 100 个文件，每个文件的大小约为 10MB。<br>
-</p>
-
-<p>
-10*100*10 = 10000MB = 10GB，想要满足上面的情况，我的 Linux 主机的内存需要有 10GB&#x2026;&#x2026;，显然我的主机没有那么多的内存，操作系统会挂掉的。<br>
-</p>
-
-<p>
-为了预防这种情况的发生，我们的 bash 可以限制用户的某些系统资源，包括可以开启的文件数量，可以使用的 CPU 时间，可以使用的内存总量等，该如何设置呢？使用 ulimit：<br>
-</p>
-
-<div class="org-src-container">
-<pre class="src src-bash">$ ulimit [-SHacdfltu] [&#37197;&#39069;]
-</pre>
-</div>
-
-<ul class="org-ul">
-<li>-H：hard limit ，严格的设置，必定不能超过这个设置的数值；<br></li>
-<li>-S：soft limit ，警告的设置，可以超过这个设置值，但是若超过则有警告讯息。<br>
-<ul class="org-ul">
-<li>在设置上，通常 soft 会比 hard 小，举例来说，soft 可设置为 80 而 hard 设置为 100，那么你可以使用到 90 （因为没有超过 100），但介于 80~100 之间时，系统会有警告讯息通知你！<br></li>
-</ul></li>
-<li>-a：后面不接任何选项与参数，可列出所有的限制额度；<br></li>
-<li>-c：当某些程序发生错误时，系统可能会将该程序在内存中的信息写成文件（除错用），<br>
-<ul class="org-ul">
-<li>这种文件就被称为核心文件（core file）。此为限制每个核心文件的最大容量。<br></li>
-</ul></li>
-<li>-f：此 shell 可以创建的最大文件大小（一般可能设置为 2GB）单位为 KBytes<br></li>
-<li>-d：程序可使用的最大断裂内存（segment）容量；<br></li>
-<li>-l：可用于锁定 （lock） 的内存量<br></li>
-<li>-t：可使用的最大 CPU 时间 （单位为秒）<br></li>
-<li>-u：单一使用者可以使用的最大程序（process）数量。<br></li>
-</ul>
-
-<p>
-想要复原 ulimit 的设置最简单的方法就是登出再登陆，否则就是得要重新以 ulimit 设置才行！ 不过，要注意的是，一般身份使用者如果以 ulimit 设置了 -f 的文件大小， 那么他“只能继续减小文件大小，不能增加文件大小！”<br>
+<a href="Linux-bash.html#org668bd12">Linux-bash::ulimit</a><br>
 </p>
 </div>
 </div>
 <div id="outline-container-orgb384b6a" class="outline-2">
 <h2 id="orgb384b6a">alias 命令别名</h2>
+<div class="outline-text-2" id="text-orgb384b6a">
+<p>
+<a href="Linux-bash.html#org4958f36">Linux-bash::alias</a><br>
+</p>
 </div>
-
+</div>
 <div id="outline-container-org8a938f8" class="outline-2">
 <h2 id="org8a938f8">history 历史命令</h2>
+<div class="outline-text-2" id="text-org8a938f8">
+<p>
+<a href="Linux-bash.html#org9c62486">Linux-bash::history</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-org43680fb" class="outline-2">
+<h2 id="org43680fb">stty 查看与设置中断按键</h2>
+<div class="outline-text-2" id="text-org43680fb">
+<p>
+<a href="Linux-bash.html#orgbf513e5">Linux-bash::stty</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2771803" class="outline-2">
+<h2 id="org2771803">set 设置整个命令输出/输入的环境</h2>
+<div class="outline-text-2" id="text-org2771803">
+<p>
+<a href="Linux-bash.html#org4a187bd">Linux-bash::set</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd3cb747" class="outline-2">
+<h2 id="orgd3cb747">cut 选取命令</h2>
+<div class="outline-text-2" id="text-orgd3cb747">
+<p>
+<a href="Linux-bash.html#org9d07411">Linux-bash::cut</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgfd44f48" class="outline-2">
+<h2 id="orgfd44f48">grep 查找命令</h2>
+<div class="outline-text-2" id="text-orgfd44f48">
+<p>
+<a href="Linux-bash.html#org4b66a3b">Linux-bash::grep</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-org328368b" class="outline-2">
+<h2 id="org328368b">sort 排序命令</h2>
+<div class="outline-text-2" id="text-org328368b">
+<p>
+<a href="Linux-bash.html#org256bdee">Linux-bash::sort</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-org010bc46" class="outline-2">
+<h2 id="org010bc46">wc 统计字数</h2>
+<div class="outline-text-2" id="text-org010bc46">
+<p>
+<a href="Linux-bash.html#org38b1b24">Linux-bash::wc</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgcd29b12" class="outline-2">
+<h2 id="orgcd29b12">uniq 去重命令</h2>
+<div class="outline-text-2" id="text-orgcd29b12">
+<p>
+<a href="Linux-bash.html#org279467d">Linux-bash::uniq</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf0b5f29" class="outline-2">
+<h2 id="orgf0b5f29">tee 双向重定向</h2>
+<div class="outline-text-2" id="text-orgf0b5f29">
+<p>
+<a href="Linux-bash.html#org94ff101">Linux-bash::tee</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-org85d5074" class="outline-2">
+<h2 id="org85d5074">tr 转换或删除字符</h2>
+<div class="outline-text-2" id="text-org85d5074">
+<p>
+<a href="Linux-bash.html#org39fd114">Linux-bash::tr</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgdc7aa88" class="outline-2">
+<h2 id="orgdc7aa88">col 过滤控制字符</h2>
+<div class="outline-text-2" id="text-orgdc7aa88">
+<p>
+<a href="Linux-bash.html#org4b08f8b">Linux-bash::col</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb02ad88" class="outline-2">
+<h2 id="orgb02ad88">join 将文件中指定栏位内容相同的行连接起来</h2>
+<div class="outline-text-2" id="text-orgb02ad88">
+<p>
+<a href="Linux-bash.html#orgede80b5">Linux-bash::join</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb666f28" class="outline-2">
+<h2 id="orgb666f28">paste 合并文件的列</h2>
+<div class="outline-text-2" id="text-orgb666f28">
+<p>
+<a href="Linux-bash.html#orgefffa3d">Linux-bash::paste</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8115463" class="outline-2">
+<h2 id="org8115463">expand 制表符转换为空白字符</h2>
+<div class="outline-text-2" id="text-org8115463">
+<p>
+<a href="Linux-bash.html#org7e5875d">Linux-bash::expand</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-org525dd23" class="outline-2">
+<h2 id="org525dd23">split 划分命令</h2>
+<div class="outline-text-2" id="text-org525dd23">
+<p>
+<a href="Linux-bash.html#org1dedc67">Linux-bash::split</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgaf2a7bd" class="outline-2">
+<h2 id="orgaf2a7bd">xargs 参数代换</h2>
+<div class="outline-text-2" id="text-orgaf2a7bd">
+<p>
+<a href="Linux-bash.html#orgeaf01a3">Linux-bash::xargs</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgac76261" class="outline-2">
+<h2 id="orgac76261">sed 数据替换、删除、新增、选取特定行</h2>
+<div class="outline-text-2" id="text-orgac76261">
+<p>
+<a href="Linux-正则表达式与文件格式化处理.html#org8b528cd">正则表达式与文件格式话处理::sed</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-org81638da" class="outline-2">
+<h2 id="org81638da">printf 格式化打印</h2>
+<div class="outline-text-2" id="text-org81638da">
+<p>
+<a href="Linux-正则表达式与文件格式化处理.html#org463c9c2">正则表达式与文件格式话处理::printf</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgae347ed" class="outline-2">
+<h2 id="orgae347ed">awk 好用的数据处理工具</h2>
+<div class="outline-text-2" id="text-orgae347ed">
+<p>
+<a href="Linux-正则表达式与文件格式化处理.html#orgeb064d4">正则表达式与文件格式话处理::awk</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-org33a5546" class="outline-2">
+<h2 id="org33a5546">diff 比较文件的差异（逐行）</h2>
+<div class="outline-text-2" id="text-org33a5546">
+<p>
+<a href="Linux-正则表达式与文件格式化处理.html#orgc8d15d1">正则表达式与文件格式话处理::diff</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-org7322779" class="outline-2">
+<h2 id="org7322779">cmp 比较文件的差异（逐字节）</h2>
+<div class="outline-text-2" id="text-org7322779">
+<p>
+<a href="Linux-正则表达式与文件格式化处理.html#orgacd0389">正则表达式与文件格式话处理::cmp</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8d026dd" class="outline-2">
+<h2 id="org8d026dd">patch 修补文件</h2>
+<div class="outline-text-2" id="text-org8d026dd">
+<p>
+<a href="Linux-正则表达式与文件格式化处理.html#orgee05753">正则表达式与文件格式话处理::patch</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc453426" class="outline-2">
+<h2 id="orgc453426">pr 文件打印设置</h2>
+<div class="outline-text-2" id="text-orgc453426">
+<p>
+<a href="Linux-正则表达式与文件格式化处理.html#org8b528cd">正则表达式与文件格式话处理::sed</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-org290fb10" class="outline-2">
+<h2 id="org290fb10">uname 显示电脑及操作系统的相关信息</h2>
+<div class="outline-text-2" id="text-org290fb10">
+<pre class="example">
+uname [-amnrsv][--help][--version]
+
+-a、all: 显示全部的信息；
+-m、machine: 显示电脑类型；
+-n、nodename: 显示在网络上的主机名称；
+-r、release: 显示操作系统的发行编号；
+-s、sysname: 显示操作系统名称；
+-v: 显示操作系统的版本；
+--help: 显示帮助；
+--version: 显示版本信息；
+</pre>
+</div>
 </div>
 </div>
 <div id="postamble" class="status">
 <p class="date">Date: 2021-07-05 20:07 一</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-06-03 Fri 12:50</p>
+<p class="date">Created: 2022-06-23 Thu 12:43</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

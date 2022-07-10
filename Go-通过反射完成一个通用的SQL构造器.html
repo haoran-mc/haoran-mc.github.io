@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-07-06 Wed 01:16 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GO-通过反射完成一个通用的SQL构造器</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">GO-通过反射完成一个通用的SQL构造器</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org3f9f076">引言</a></li>
+<li><a href="#org4d6023b">什么是反射、反射的背景</a></li>
+<li><a href="#orgb7afd2f">为什么需要反射</a></li>
+<li><a href="#orgeb1a049">Go 语言的反射包</a>
+<ul>
+<li><a href="#org09dba66">reflect.Type 和 reflect.Value</a></li>
+<li><a href="#orgab19cb8">Go 语言反射的三法则</a></li>
+<li><a href="#org7a81e9f">reflect.Kind</a></li>
+<li><a href="#org475e70b">反射获取结构体字段的方法</a></li>
+<li><a href="#org129e00d">reflect.Value 转换成实际值</a></li>
+</ul>
+</li>
+<li><a href="#orgfd3e625">用反射搞一个 SQL 生成器</a></li>
+<li><a href="#org6f865ab">总结</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org3f9f076" class="outline-2">
+<h2 id="org3f9f076">引言</h2>
+<div class="outline-text-2" id="text-org3f9f076">
+<p>
+原文：<a href="https://juejin.cn/post/7025523426060140551">实战演示Go反射的使用方法和应用场景</a> <br>
+</p>
+
+<p>
+今天来聊一个平时用的不多，但是很多框架或者基础库会用到的语言特性&#x2013;反射，反射并不是Go语言独有的能力，其他编程语言都有。这篇文章的目标是简单地给大家梳理一下反射的应用场景和使用方法。<br>
+</p>
+
+<p>
+我们平时写代码能接触到与反射联系比较紧密的一个东西是结构体字段的标签，这个我准备放在后面的文章再梳理。<br>
+</p>
+
+<p>
+我准备通过用反射搞一个通用的 SQL 构造器的例子，带大家掌握反射这个知识点。这个是看了国外一个博主写的例子，觉得思路很好，我又对其进行了改进，让构造器的实现更丰富了些。<br>
+</p>
+
+<blockquote>
+<p>
+本文的思路参考自：<a href="https://golangbot.com/reflection/">golangbot.com/reflection/</a>，本文内容并非只是对原文的简单翻译，具体看下面的内容吧~！<br>
+</p>
+</blockquote>
+</div>
+</div>
+<div id="outline-container-org4d6023b" class="outline-2">
+<h2 id="org4d6023b">什么是反射、反射的背景</h2>
+<div class="outline-text-2" id="text-org4d6023b">
+<p>
+历史背景：<br>
+</p>
+
+<p>
+早期计算机的原生汇编语言本质上就具有反射特性。因为它是由定义编程指令作为数据，如动态修改指令或对它们进行分析等等的反射功能是很平常的。编程发展到如C语言等高抽象层次的语言时，这种实践消失了，带有反射特性的高级编程语言要到更晚的时候才出现。<br>
+</p>
+
+<p>
+定义：<br>
+</p>
+
+<blockquote>
+<p>
+reflect（反射），在计算机学中是指计算机程序在运行时（runtime）可以访问、检测和修改它本身状态或行为的一种能力。用比喻来说，反射就是程序在运行的时候能够“观察”并且修改自己的行为。<br>
+</p>
+</blockquote>
+</div>
+</div>
+<div id="outline-container-orgb7afd2f" class="outline-2">
+<h2 id="orgb7afd2f">为什么需要反射</h2>
+<div class="outline-text-2" id="text-orgb7afd2f">
+<p>
+强类型语言在编译期间会对对象（变量）作类型，接口，字段，方法等做合法性检测，反射技术则允许将对需要调用的对象的信息检查工作从编译期间推迟到运行期间再现场执行。这样一来，可以在编译期间先不明确目标对象的接口名称、字段（fields，即对象的成员变量）、可用方法，然后在运行根据目标对象自身的信息决定如何处理。它还允许根据判断结果进行实例化新对象和相关方法的调用。<br>
+</p>
+
+<p>
+反射主要用途就是使给定的程序动态地适应不同的运行情况。利用面向对象建模中的多态性也可以简化编写分别适用于多种不同情形的功能代码，但是 <span class="underline">反射可以解决多态性并不适用的更普遍情形，从而更大程度地避免硬编码（即把代码的细节“写死”，缺乏灵活性）的代码风格</span> 。<br>
+</p>
+
+<p>
+<span class="underline">反射并不是语言必须实现的，是为了更灵活的编码。</span><br>
+</p>
+
+<p>
+看一个简单的程序：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (  
+    <span style="color: #2aa198;">"fmt"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {  
+    <span style="color: #8787d7;">i</span> := 10
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%d %T"</span>, i, i)
+}
+</pre>
+</div>
+
+<p>
+在上面的程序里， 变量 <code>i</code> 的类型在编译时是已知的，我们在下一行打印了它的值和类型。<br>
+</p>
+
+<p>
+<b>现在让我们理解一下 ”在运行时知道变量的类型的必要“。</b> 假设我们要编写一个简单的函数，它将一个结构体作为参数，并使用这个参数创建一个 SQL 插入语句。<br>
+</p>
+
+<p>
+考虑一下下面这个程序：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (  
+    <span style="color: #2aa198;">"fmt"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">order</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {  
+    ordId      <span style="color: #df005f; font-weight: bold;">int</span>
+    customerId <span style="color: #df005f; font-weight: bold;">int</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {  
+    <span style="color: #8787d7;">o</span> := <span style="color: #df005f; font-weight: bold;">order</span>{
+        <span style="color: #d75fd7;">ordId</span>:      1234,
+        <span style="color: #d75fd7;">customerId</span>: 567,
+    }
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(o)
+}
+</pre>
+</div>
+
+<p>
+我们需要写一个接收上面定义的结构体 <code>o</code> 作为参数，返回类似 <code>INSERT INTO order VALUES(1234, 567)</code> 这样的 SQL 语句。这个函数定义写来很容易，比如像下面这样。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (  
+    <span style="color: #2aa198;">"fmt"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">order</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {  
+    ordId      <span style="color: #df005f; font-weight: bold;">int</span>
+    customerId <span style="color: #df005f; font-weight: bold;">int</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">createQuery</span>(<span style="color: #8787d7;">o</span> <span style="color: #df005f; font-weight: bold;">order</span>) <span style="color: #df005f; font-weight: bold;">string</span> {  
+    <span style="color: #8787d7;">i</span> := fmt.<span style="color: #d75fd7; font-weight: bold;">Sprintf</span>(<span style="color: #2aa198;">"INSERT INTO order VALUES(%d, %d)"</span>, o.ordId, o.customerId)
+    <span style="color: #268bd2; font-weight: bold;">return</span> i
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {  
+    <span style="color: #8787d7;">o</span> := <span style="color: #df005f; font-weight: bold;">order</span>{
+        <span style="color: #d75fd7;">ordId</span>:      1234,
+        <span style="color: #d75fd7;">customerId</span>: 567,
+    }
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #d75fd7; font-weight: bold;">createQuery</span>(o))
+}
+</pre>
+</div>
+
+<p>
+上面例子的 <code>createQuery</code> 使用参数 <code>o</code> 的 <code>ordId</code> 和 <code>customerId</code> 字段创建 SQL。<br>
+</p>
+
+<p>
+现在让我们将我们的 SQL 创建函数定义地更抽象些，下面还是用程序附带说明举一个案例，比如我们想泛化我们的 SQL 创建函数使其适用于任何结构体。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">order</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {  
+    ordId      <span style="color: #df005f; font-weight: bold;">int</span>
+    customerId <span style="color: #df005f; font-weight: bold;">int</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">employee</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {  
+    name <span style="color: #df005f; font-weight: bold;">string</span>
+    id <span style="color: #df005f; font-weight: bold;">int</span>
+    address <span style="color: #df005f; font-weight: bold;">string</span>
+    salary <span style="color: #df005f; font-weight: bold;">int</span>
+    country <span style="color: #df005f; font-weight: bold;">string</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">createQuery</span>(<span style="color: #8787d7;">q</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}) <span style="color: #df005f; font-weight: bold;">string</span> {  
+}
+</pre>
+</div>
+
+
+<p>
+现在我们的目标是，改造 <code>createQuery</code> 函数，让它能接受任何结构作为参数并基于结构字段创建 <code>INSERT</code> 语句。比如如果传给 <code>createQuery</code> 的参数不再是 <code>order</code> 类型的结构体，而是 <code>employee</code> 类型的结构体时<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">e</span> := <span style="color: #df005f; font-weight: bold;">employee</span>{
+    <span style="color: #d75fd7;">name</span>: <span style="color: #2aa198;">"Naveen"</span>,
+    <span style="color: #d75fd7;">id</span>: 565,
+    <span style="color: #d75fd7;">address</span>: <span style="color: #2aa198;">"Science Park Road, Singapore"</span>,
+    <span style="color: #d75fd7;">salary</span>: 90000,
+    <span style="color: #d75fd7;">country</span>: <span style="color: #2aa198;">"Singapore"</span>,
+}
+</pre>
+</div>
+
+<p>
+那它应该返回的 <code>INSERT</code> 语句应该是：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">INSERT</span> <span style="color: #268bd2; font-weight: bold;">INTO</span> employee (<span style="color: #268bd2; font-weight: bold;">name</span>, id, address, salary, country) 
+<span style="color: #268bd2; font-weight: bold;">VALUES</span>("Naveen", 565, "Science Park Road, Singapore", 90000, "Singapore")  
+</pre>
+</div>
+
+<p>
+由于 <code>createQuery</code> 函数要适用于任何结构体，因此它需要一个 <code>interface{}</code> 类型的参数。为了说明问题，简单起见，我们假定 <code>createQuery</code> 函数只处理包含 <code>string</code> 和 <code>int</code> 类型字段的结构体。<br>
+</p>
+
+<p>
+编写这个 <code>createQuery</code> 函数的唯一方法是检查在运行时传递给它的参数的类型，找到它的字段，然后创建SQL。这里就是需要反射发挥用的地方啦。在后续步骤中，我们将学习如何使用 Go 语言的反射包来实现这一点。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgeb1a049" class="outline-2">
+<h2 id="orgeb1a049">Go 语言的反射包</h2>
+<div class="outline-text-2" id="text-orgeb1a049">
+<p>
+Go 语言自带的 <code>reflect</code> 包实现了在运行时进行反射的功能，这个包可以帮助识别一个 <code>interface{}</code> 类型变量其底层的具体类型和值。我们的 <code>createQuery</code> 函数接收到一个 <code>interface{}</code> 类型的实参后，需要根据这个实参的底层类型和值去创建并返回 <code>INSERT</code> 语句，这正是反射包的作用所在。<br>
+</p>
+
+<p>
+在开始编写我们的通用 SQL 生成器函数之前，我们需要先了解一下 <code>reflect</code> 包中我们会用到的几个类型和方法，接下来我们先逐个学习一下。<br>
+</p>
+</div>
+<div id="outline-container-org09dba66" class="outline-3">
+<h3 id="org09dba66">reflect.Type 和 reflect.Value</h3>
+<div class="outline-text-3" id="text-org09dba66">
+<p>
+经过反射后 <code>interface{}</code> 类型的变量的底层具体类型由 <code>reflect.Type</code> 表示，底层值由 <code>reflect.Value</code> 表示。 <code>reflect</code> 包里有两个函数 <code>reflect.TypeOf()</code> 和 <code>reflect.ValueOf()</code> 分别能将 <code>interface{}</code> 类型的变量转换为 <code>reflect.Type</code> 和 <code>reflect.Value</code> 。这两种类型是创建我们的 SQL 生成器函数的基础。<br>
+</p>
+
+<p>
+让我们写一个简单的例子来理解这两种类型：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (  
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"reflect"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">order</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {  
+    ordId      <span style="color: #df005f; font-weight: bold;">int</span>
+    customerId <span style="color: #df005f; font-weight: bold;">int</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">createQuery</span>(<span style="color: #8787d7;">q</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}) {  
+    <span style="color: #8787d7;">t</span> := reflect.<span style="color: #d75fd7; font-weight: bold;">TypeOf</span>(q)
+    <span style="color: #8787d7;">v</span> := reflect.<span style="color: #d75fd7; font-weight: bold;">ValueOf</span>(q)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Type "</span>, t)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Value "</span>, v)
+
+
+}
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {  
+    <span style="color: #8787d7;">o</span> := <span style="color: #df005f; font-weight: bold;">order</span>{
+        <span style="color: #d75fd7;">ordId</span>:      456,
+        <span style="color: #d75fd7;">customerId</span>: 56,
+    }
+    <span style="color: #d75fd7; font-weight: bold;">createQuery</span>(o)
+
+}
+</pre>
+</div>
+
+<p>
+上面的程序会输出：<br>
+</p>
+
+<pre class="example">
+Type  main.order  
+Value  {456 56}
+</pre>
+
+<p>
+上面的程序里 <code>createQuery</code> 函数接收一个 <code>interface{}</code> 类型的实参，然后把实参传给了 <code>reflect.Typeof</code> 和 <code>reflect.Valueof</code> 函数的调用。从输出，我们可以看到程序输出了 <code>interface{}</code> 类型实参对应的底层具体类型和值。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgab19cb8" class="outline-3">
+<h3 id="orgab19cb8">Go 语言反射的三法则</h3>
+<div class="outline-text-3" id="text-orgab19cb8">
+<p>
+这里插播一下反射的三法则，他们是：<br>
+</p>
+
+<ol class="org-ol">
+<li>从接口值可以反射出反射对象；<br></li>
+<li>从反射对象可反射出接口值；<br></li>
+<li>要修改反射对象，其值必须可设置；<br></li>
+</ol>
+
+<p>
+反射的第一条法则是，我们能够吧 Go 中的接口类型变量转换成反射对象，上面提到的 <code>reflect.TypeOf</code> 和 <code>reflect.ValueOf</code> 就是完成的这种转换。第二条指的是我们能把反射类型的变量再转换回到接口类型，最后一条则是与反射值是否可以被更改有关。<br>
+</p>
+
+<p>
+下面我们接着继续了解完成我们的SQL生成器需要的反射知识。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org7a81e9f" class="outline-3">
+<h3 id="org7a81e9f">reflect.Kind</h3>
+<div class="outline-text-3" id="text-org7a81e9f">
+<p>
+<code>reflect</code> 包中还有一个非常重要的类型， <code>reflect.Kind</code> 。<br>
+</p>
+
+<p>
+<code>reflect.Kind</code> 和 <code>reflect.Type</code> 类型可能看起来很相似，从命名上也是，Kind 和 Type 在英文的一些 Phrase 是可以互转使用的，不过在反射这块它们有挺大区别，从下面的程序中可以清楚地看到。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+<span style="color: #268bd2; font-weight: bold;">import</span> (  
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"reflect"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">order</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {  
+    ordId      <span style="color: #df005f; font-weight: bold;">int</span>
+    customerId <span style="color: #df005f; font-weight: bold;">int</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">createQuery</span>(<span style="color: #8787d7;">q</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}) {  
+    <span style="color: #8787d7;">t</span> := reflect.<span style="color: #d75fd7; font-weight: bold;">TypeOf</span>(q)
+    <span style="color: #8787d7;">k</span> := t.<span style="color: #d75fd7; font-weight: bold;">Kind</span>()
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Type "</span>, t)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Kind "</span>, k)
+
+
+}
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {  
+    <span style="color: #8787d7;">o</span> := <span style="color: #df005f; font-weight: bold;">order</span>{
+        <span style="color: #d75fd7;">ordId</span>:      456,
+        <span style="color: #d75fd7;">customerId</span>: 56,
+    }
+    <span style="color: #d75fd7; font-weight: bold;">createQuery</span>(o)
+}
+</pre>
+</div>
+
+<pre class="example">
+Type  main.order  
+Kind  struct 
+</pre>
+
+<p>
+通过输出让我们清楚了两者之间的区别。 <code>reflect.Type</code> 表示接口的实际类型，即本例中 <code>main.order</code> 而 Kind 表示类型的所属的种类，即 main.order 是一个「struct」类型，类似的类型 map[string]string 的 Kind 就该是「map」。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org475e70b" class="outline-3">
+<h3 id="org475e70b">反射获取结构体字段的方法</h3>
+<div class="outline-text-3" id="text-org475e70b">
+<p>
+我们可以通过 <code>reflect.StructField</code> 类型的方法来获取结构体下字段的类型属性。 <code>reflect.StructField</code> 可以通过 <code>reflect.Type</code> 提供的下面两种方式拿到。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#33719;&#21462;&#19968;&#20010;&#32467;&#26500;&#20307;&#20869;&#30340;&#23383;&#27573;&#25968;&#37327;</span>
+<span style="color: #d75fd7; font-weight: bold;">NumField</span>() <span style="color: #df005f; font-weight: bold;">int</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26681;&#25454; index &#33719;&#21462;&#32467;&#26500;&#20307;&#20869;&#23383;&#27573;&#30340;&#31867;&#22411;&#23545;&#35937;</span>
+<span style="color: #d75fd7; font-weight: bold;">Field</span>(i <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">StructField</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26681;&#25454;&#23383;&#27573;&#21517;&#33719;&#21462;&#32467;&#26500;&#20307;&#20869;&#23383;&#27573;&#30340;&#31867;&#22411;&#23545;&#35937;</span>
+<span style="color: #d75fd7; font-weight: bold;">FieldByName</span>(name <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #df005f; font-weight: bold;">StructField</span>, <span style="color: #df005f; font-weight: bold;">bool</span>)
+</pre>
+</div>
+
+<p>
+<code>reflect.structField</code> 是一个 struct 类型，通过它我们又能在反射里知道字段的基本类型、Tag、是否已导出等属性。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">StructField</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    Name <span style="color: #df005f; font-weight: bold;">string</span>
+    Type      <span style="color: #df005f; font-weight: bold;">Type</span>      <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">field type</span>
+    Tag       <span style="color: #df005f; font-weight: bold;">StructTag</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">field tag string</span>
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">......</span>
+}
+</pre>
+</div>
+
+<p>
+与 <code>reflect.Type</code> 提供的获取 <code>Field</code> 信息的方法相对应， <code>reflect.Value</code> 也提供了获取 <code>Field</code> 值的方法。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">Field</span>(<span style="color: #8787d7;">i</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">Value</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">...</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">v</span> <span style="color: #df005f; font-weight: bold;">Value</span>) <span style="color: #d75fd7; font-weight: bold;">FieldByName</span>(<span style="color: #8787d7;">name</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">Value</span> {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">...</span>
+}
+</pre>
+</div>
+
+<p>
+这块需要注意，不然容易迷惑。下面我们尝试一下通过反射拿到 <code>order</code> 结构体类型的字段名和值<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"reflect"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">order</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    ordId      <span style="color: #df005f; font-weight: bold;">int</span>
+    customerId <span style="color: #df005f; font-weight: bold;">int</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">createQuery</span>(<span style="color: #8787d7;">q</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}) {
+    <span style="color: #8787d7;">t</span> := reflect.<span style="color: #d75fd7; font-weight: bold;">TypeOf</span>(q)
+    <span style="color: #268bd2; font-weight: bold;">if</span> t.<span style="color: #d75fd7; font-weight: bold;">Kind</span>() != reflect.Struct {
+        <span style="color: #268bd2;">panic</span>(<span style="color: #2aa198;">"unsupported argument type!"</span>)
+    }
+    <span style="color: #8787d7;">v</span> := reflect.<span style="color: #d75fd7; font-weight: bold;">ValueOf</span>(q)
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span>:=0; i &lt; t.<span style="color: #d75fd7; font-weight: bold;">NumField</span>(); i++ {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"FieldName:"</span>, t.<span style="color: #d75fd7; font-weight: bold;">Field</span>(i).Name, <span style="color: #2aa198;">"FiledType:"</span>, t.<span style="color: #d75fd7; font-weight: bold;">Field</span>(i).Type,
+            <span style="color: #2aa198;">"FiledValue:"</span>, v.<span style="color: #d75fd7; font-weight: bold;">Field</span>(i))
+    }
+
+}
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">o</span> := <span style="color: #df005f; font-weight: bold;">order</span>{
+        <span style="color: #d75fd7;">ordId</span>:      456,
+        <span style="color: #d75fd7;">customerId</span>: 56,
+    }
+    <span style="color: #d75fd7; font-weight: bold;">createQuery</span>(o)
+
+}
+</pre>
+</div>
+
+<p>
+上面的程序会输出：<br>
+</p>
+
+<pre class="example">
+FieldName: ordId FiledType: int FiledValue: 456
+FieldName: customerId FiledType: int FiledValue: 56
+</pre>
+
+<p>
+除了获取结构体字段名称和值之外，还能获取结构体字段的Tag，这个放在后面的文章我再总结吧，不然篇幅就太长了。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org129e00d" class="outline-3">
+<h3 id="org129e00d">reflect.Value 转换成实际值</h3>
+<div class="outline-text-3" id="text-org129e00d">
+<p>
+现在离完成我们的SQL生成器还差最后一步，即还需要把 <code>reflect.Value</code> 转换成实际类型的值， <code>reflect.Value</code> 实现了一系列 <code>Int()</code> ， <code>String()</code> ， <code>Float()</code> 这样的方法来完成其到实际类型值的转换。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgfd3e625" class="outline-2">
+<h2 id="orgfd3e625">用反射搞一个 SQL 生成器</h2>
+<div class="outline-text-2" id="text-orgfd3e625">
+<p>
+上面我们已经了解完写这个SQL生成器函数前所有的必备知识点啦，接下来就把他们串起来，加工完成 <code>createQuery</code> 函数。<br>
+</p>
+
+<p>
+这个 SQL 生成器完整的实现和测试代码如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"reflect"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">order</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    ordId      <span style="color: #df005f; font-weight: bold;">int</span>
+    customerId <span style="color: #df005f; font-weight: bold;">int</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">employee</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    name    <span style="color: #df005f; font-weight: bold;">string</span>
+    id      <span style="color: #df005f; font-weight: bold;">int</span>
+    address <span style="color: #df005f; font-weight: bold;">string</span>
+    salary  <span style="color: #df005f; font-weight: bold;">int</span>
+    country <span style="color: #df005f; font-weight: bold;">string</span>
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">createQuery</span>(<span style="color: #8787d7;">q</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}) <span style="color: #df005f; font-weight: bold;">string</span> {
+    <span style="color: #8787d7;">t</span> := reflect.<span style="color: #d75fd7; font-weight: bold;">TypeOf</span>(q)
+    <span style="color: #8787d7;">v</span> := reflect.<span style="color: #d75fd7; font-weight: bold;">ValueOf</span>(q)
+    <span style="color: #268bd2; font-weight: bold;">if</span> v.<span style="color: #d75fd7; font-weight: bold;">Kind</span>() != reflect.Struct {
+        <span style="color: #268bd2;">panic</span>(<span style="color: #2aa198;">"unsupported argument type!"</span>)
+    }
+    <span style="color: #8787d7;">tableName</span> := t.<span style="color: #d75fd7; font-weight: bold;">Name</span>() <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36890;&#36807;&#32467;&#26500;&#20307;&#31867;&#22411;&#25552;&#21462;&#20986;SQL&#30340;&#34920;&#21517;</span>
+    <span style="color: #8787d7;">sql</span> := fmt.<span style="color: #d75fd7; font-weight: bold;">Sprintf</span>(<span style="color: #2aa198;">"INSERT INTO %s "</span>, tableName)
+    <span style="color: #8787d7;">columns</span> := <span style="color: #2aa198;">"("</span>
+    <span style="color: #8787d7;">values</span> := <span style="color: #2aa198;">"VALUES ("</span>
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := 0; i &lt; v.<span style="color: #d75fd7; font-weight: bold;">NumField</span>(); i++ {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#27880;&#24847;reflect.Value &#20063;&#23454;&#29616;&#20102;NumField,Kind&#36825;&#20123;&#26041;&#27861;</span>
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36825;&#37324;&#30340;v.Field(i).Kind()&#31561;&#20215;&#20110;t.Field(i).Type.Kind()</span>
+        <span style="color: #268bd2; font-weight: bold;">switch</span> v.<span style="color: #d75fd7; font-weight: bold;">Field</span>(i).<span style="color: #d75fd7; font-weight: bold;">Kind</span>() {
+        <span style="color: #268bd2; font-weight: bold;">case</span> reflect.Int:
+            <span style="color: #268bd2; font-weight: bold;">if</span> i == 0 {
+                columns += fmt.<span style="color: #d75fd7; font-weight: bold;">Sprintf</span>(<span style="color: #2aa198;">"%s"</span>, t.<span style="color: #d75fd7; font-weight: bold;">Field</span>(i).Name)
+                values += fmt.<span style="color: #d75fd7; font-weight: bold;">Sprintf</span>(<span style="color: #2aa198;">"%d"</span>, v.<span style="color: #d75fd7; font-weight: bold;">Field</span>(i).<span style="color: #d75fd7; font-weight: bold;">Int</span>())
+            } <span style="color: #268bd2; font-weight: bold;">else</span> {
+                columns += fmt.<span style="color: #d75fd7; font-weight: bold;">Sprintf</span>(<span style="color: #2aa198;">", %s"</span>, t.<span style="color: #d75fd7; font-weight: bold;">Field</span>(i).Name)
+                values += fmt.<span style="color: #d75fd7; font-weight: bold;">Sprintf</span>(<span style="color: #2aa198;">", %d"</span>, v.<span style="color: #d75fd7; font-weight: bold;">Field</span>(i).<span style="color: #d75fd7; font-weight: bold;">Int</span>())
+            }
+        <span style="color: #268bd2; font-weight: bold;">case</span> reflect.String:
+            <span style="color: #268bd2; font-weight: bold;">if</span> i == 0 {
+                columns += fmt.<span style="color: #d75fd7; font-weight: bold;">Sprintf</span>(<span style="color: #2aa198;">"%s"</span>, t.<span style="color: #d75fd7; font-weight: bold;">Field</span>(i).Name)
+                values += fmt.<span style="color: #d75fd7; font-weight: bold;">Sprintf</span>(<span style="color: #2aa198;">"'%s'"</span>, v.<span style="color: #d75fd7; font-weight: bold;">Field</span>(i).<span style="color: #d75fd7; font-weight: bold;">String</span>())
+            } <span style="color: #268bd2; font-weight: bold;">else</span> {
+                columns += fmt.<span style="color: #d75fd7; font-weight: bold;">Sprintf</span>(<span style="color: #2aa198;">", %s"</span>, t.<span style="color: #d75fd7; font-weight: bold;">Field</span>(i).Name)
+                values += fmt.<span style="color: #d75fd7; font-weight: bold;">Sprintf</span>(<span style="color: #2aa198;">", '%s'"</span>, v.<span style="color: #d75fd7; font-weight: bold;">Field</span>(i).<span style="color: #d75fd7; font-weight: bold;">String</span>())
+            }
+        }
+    }
+    columns += <span style="color: #2aa198;">"); "</span>
+    values += <span style="color: #2aa198;">"); "</span>
+    sql += columns + values
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(sql)
+    <span style="color: #268bd2; font-weight: bold;">return</span> sql
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">o</span> := <span style="color: #df005f; font-weight: bold;">order</span>{
+        <span style="color: #d75fd7;">ordId</span>:      456,
+        <span style="color: #d75fd7;">customerId</span>: 56,
+    }
+    <span style="color: #d75fd7; font-weight: bold;">createQuery</span>(o)
+
+    <span style="color: #8787d7;">e</span> := <span style="color: #df005f; font-weight: bold;">employee</span>{
+        <span style="color: #d75fd7;">name</span>:    <span style="color: #2aa198;">"Naveen"</span>,
+        <span style="color: #d75fd7;">id</span>:      565,
+        <span style="color: #d75fd7;">address</span>: <span style="color: #2aa198;">"Coimbatore"</span>,
+        <span style="color: #d75fd7;">salary</span>:  90000,
+        <span style="color: #d75fd7;">country</span>: <span style="color: #2aa198;">"India"</span>,
+    }
+    <span style="color: #d75fd7; font-weight: bold;">createQuery</span>(e)
+}
+</pre>
+</div>
+
+<p>
+同学们可以把代码拿到本地运行一下，上面的例子会根据传递给函数不同的结构体实参，输出对应的标准 SQL 插入语句：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">INSERT</span> <span style="color: #268bd2; font-weight: bold;">INTO</span> <span style="color: #268bd2; font-weight: bold;">order</span> (ordId, customerId); <span style="color: #268bd2; font-weight: bold;">VALUES</span> (456, 56); 
+<span style="color: #268bd2; font-weight: bold;">INSERT</span> <span style="color: #268bd2; font-weight: bold;">INTO</span> employee (<span style="color: #268bd2; font-weight: bold;">name</span>, id, address, salary, country); <span style="color: #268bd2; font-weight: bold;">VALUES</span> (<span style="color: #2aa198;">'Naveen'</span>, 565, <span style="color: #2aa198;">'Coimbatore'</span>, 90000, <span style="color: #2aa198;">'India'</span>); 
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org6f865ab" class="outline-2">
+<h2 id="org6f865ab">总结</h2>
+<div class="outline-text-2" id="text-org6f865ab">
+<p>
+这篇文章通过利用反射完成一个实际应用来教会大家 Go 语言反射的基本使用方法，虽然反射看起来挺强大，但使用反射编写清晰且可维护的代码非常困难，应尽可能避免，仅在绝对必要时才使用。<br>
+</p>
+
+<p>
+我的看法是如果是要写业务代码，根本不需要使用反射，如果要写类似 encoding/json，gorm 这些样的库倒是可以利用反射的强大功能简化库使用者的编码难度。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-07-06 Wed 01:16</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-06-04 Sat 18:18 -->
+<!-- 2022-06-11 Sat 12:10 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LINUX-认识与学习BASH</title>
@@ -34,7 +34,7 @@
 });
 </script>
 <script type="text/javascript"
-        src="static/MathJax/cdn.bootcdn.net/ajax/libs/mathjax/3.1.2/es5/tex-mml-chtml.min.js"></script>
+        src="static/MathJax/MathJax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 </head>
 <body>
 <div id="content">
@@ -61,7 +61,7 @@
 </li>
 </ul>
 </li>
-<li><a href="#org64d0e8b">与文件系统及程序的限制关系（ulimit）</a></li>
+<li><a href="#orgfea4882">与文件系统及程序的限制关系（ulimit）</a></li>
 </ul>
 </li>
 <li><a href="#org426ec9c">命令别名与历史命令</a>
@@ -124,10 +124,33 @@
 </li>
 <li><a href="#org3361f58">管道命令（pipe）</a>
 <ul>
-<li><a href="#orge8c6ef7">选取命令：cut、grep</a></li>
-<li><a href="#org463a7db">排序命令：sort、wc、uniq</a></li>
-<li><a href="#orgac53fec">双向重定向：tee</a></li>
-<li><a href="#org656194c">字符转换命令：tr、col、join、paste、expand</a></li>
+<li><a href="#orge8c6ef7">选取命令：cut、grep</a>
+<ul>
+<li><a href="#org2c1ff7b">cut</a></li>
+<li><a href="#orgc9237f3">grep</a></li>
+</ul>
+</li>
+<li><a href="#org463a7db">排序命令：sort、wc、uniq</a>
+<ul>
+<li><a href="#orgf646439">sort</a></li>
+<li><a href="#org4a35f3a">wc</a></li>
+<li><a href="#orga5281bc">uniq</a></li>
+</ul>
+</li>
+<li><a href="#orgac53fec">双向重定向：tee</a>
+<ul>
+<li><a href="#org828cdc4">tee</a></li>
+</ul>
+</li>
+<li><a href="#org656194c">字符转换命令：tr、col、join、paste、expand</a>
+<ul>
+<li><a href="#org82d0067">tr</a></li>
+<li><a href="#org38a24ff">col</a></li>
+<li><a href="#org5ca6d0a">join</a></li>
+<li><a href="#orgbed2492">paste</a></li>
+<li><a href="#org2d2c5c6">expand</a></li>
+</ul>
+</li>
 <li><a href="#org3008d6e">划分命令：split</a></li>
 <li><a href="#org8bb79c2">参数代换：xargs</a></li>
 <li><a href="#org63e0997">关于减号【-】的用途</a></li>
@@ -286,11 +309,46 @@ CentOS 默认的 PS1 内容：
 </div>
 </div>
 </div>
-<div id="outline-container-org64d0e8b" class="outline-3">
-<h3 id="org64d0e8b">与文件系统及程序的限制关系（ulimit）</h3>
-<div class="outline-text-3" id="text-org64d0e8b">
+<div id="outline-container-orgfea4882" class="outline-3">
+<h3 id="orgfea4882">与文件系统及程序的限制关系（ulimit）<a id="org5497e83"></a></h3>
+<div class="outline-text-3" id="text-orgfea4882">
 <p>
-<a href="Linux-常用命令.html#orgca4e228">常用命令：ulimit</a><br>
+<a id="org2faacd4"></a>想象一个状况：我的 Linux 主机里面同时登陆了十个人，这十个人同时开启了 100 个文件，每个文件的大小约为 10MB。<br>
+</p>
+
+<p>
+10*100*10 = 10000MB = 10GB，想要满足上面的情况，我的 Linux 主机的内存需要有 10GB&#x2026;&#x2026;，显然我的主机没有那么多的内存，操作系统会挂掉的。<br>
+</p>
+
+<p>
+为了预防这种情况的发生，我们的 bash 可以限制用户的某些系统资源，包括可以开启的文件数量，可以使用的 CPU 时间，可以使用的内存总量等，该如何设置呢？使用 ulimit：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">$ ulimit [-SHacdfltu] [&#37197;&#39069;]
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>-H：hard limit ，严格的设置，必定不能超过这个设置的数值；<br></li>
+<li>-S：soft limit ，警告的设置，可以超过这个设置值，但是若超过则有警告讯息。<br>
+<ul class="org-ul">
+<li>在设置上，通常 soft 会比 hard 小，举例来说，soft 可设置为 80 而 hard 设置为 100，那么你可以使用到 90 （因为没有超过 100），但介于 80~100 之间时，系统会有警告讯息通知你！<br></li>
+</ul></li>
+<li>-a：后面不接任何选项与参数，可列出所有的限制额度；<br></li>
+<li>-c：当某些程序发生错误时，系统可能会将该程序在内存中的信息写成文件（除错用），<br>
+<ul class="org-ul">
+<li>这种文件就被称为核心文件（core file）。此为限制每个核心文件的最大容量。<br></li>
+</ul></li>
+<li>-f：此 shell 可以创建的最大文件大小（一般可能设置为 2GB）单位为 KBytes<br></li>
+<li>-d：程序可使用的最大断裂内存（segment）容量；<br></li>
+<li>-l：可用于锁定 （lock） 的内存量<br></li>
+<li>-t：可使用的最大 CPU 时间 （单位为秒）<br></li>
+<li>-u：单一使用者可以使用的最大程序（process）数量。<br></li>
+</ul>
+
+<p>
+想要复原 ulimit 的设置最简单的方法就是登出再登陆，否则就是得要重新以 ulimit 设置才行！ 不过，要注意的是，一般身份使用者如果以 ulimit 设置了 -f 的文件大小， 那么他“只能继续减小文件大小，不能增加文件大小！”<br>
 </p>
 </div>
 </div>
@@ -925,15 +983,56 @@ $ ls /tmp/abc &amp;&amp; touch /tmp/abc/hehe
 </div>
 <div id="outline-container-orge8c6ef7" class="outline-3">
 <h3 id="orge8c6ef7">选取命令：cut、grep</h3>
+<div class="outline-text-3" id="text-orge8c6ef7">
+</div>
+<div id="outline-container-org2c1ff7b" class="outline-4">
+<h4 id="org2c1ff7b">cut<a id="org9181459"></a></h4>
+</div>
+<div id="outline-container-orgc9237f3" class="outline-4">
+<h4 id="orgc9237f3">grep<a id="org2d765e3"></a></h4>
+</div>
 </div>
 <div id="outline-container-org463a7db" class="outline-3">
 <h3 id="org463a7db">排序命令：sort、wc、uniq</h3>
+<div class="outline-text-3" id="text-org463a7db">
+</div>
+<div id="outline-container-orgf646439" class="outline-4">
+<h4 id="orgf646439">sort<a id="org6f0ee84"></a></h4>
+</div>
+<div id="outline-container-org4a35f3a" class="outline-4">
+<h4 id="org4a35f3a">wc<a id="orgd037239"></a></h4>
+</div>
+<div id="outline-container-orga5281bc" class="outline-4">
+<h4 id="orga5281bc">uniq<a id="org946c086"></a></h4>
+</div>
 </div>
 <div id="outline-container-orgac53fec" class="outline-3">
 <h3 id="orgac53fec">双向重定向：tee</h3>
+<div class="outline-text-3" id="text-orgac53fec">
+</div>
+<div id="outline-container-org828cdc4" class="outline-4">
+<h4 id="org828cdc4">tee<a id="org412dab6"></a></h4>
+</div>
 </div>
 <div id="outline-container-org656194c" class="outline-3">
 <h3 id="org656194c">字符转换命令：tr、col、join、paste、expand</h3>
+<div class="outline-text-3" id="text-org656194c">
+</div>
+<div id="outline-container-org82d0067" class="outline-4">
+<h4 id="org82d0067">tr<a id="orgee1860c"></a></h4>
+</div>
+<div id="outline-container-org38a24ff" class="outline-4">
+<h4 id="org38a24ff">col<a id="orga035c1d"></a></h4>
+</div>
+<div id="outline-container-org5ca6d0a" class="outline-4">
+<h4 id="org5ca6d0a">join<a id="org5653433"></a></h4>
+</div>
+<div id="outline-container-orgbed2492" class="outline-4">
+<h4 id="orgbed2492">paste<a id="org3b18562"></a></h4>
+</div>
+<div id="outline-container-org2d2c5c6" class="outline-4">
+<h4 id="org2d2c5c6">expand<a id="orga3268d0"></a></h4>
+</div>
 </div>
 <div id="outline-container-org3008d6e" class="outline-3">
 <h3 id="org3008d6e">划分命令：split</h3>
@@ -948,7 +1047,7 @@ $ ls /tmp/abc &amp;&amp; touch /tmp/abc/hehe
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-06-04 Sat 18:18</p>
+<p class="date">Created: 2022-06-11 Sat 12:10</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

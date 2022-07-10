@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-10-27 Wed 22:16 -->
+<!-- 2022-06-05 Sun 21:05 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>线性DP</title>
@@ -34,7 +34,7 @@
 });
 </script>
 <script type="text/javascript"
-        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+        src="static/MathJax/MathJax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 </head>
 <body>
 <div id="content">
@@ -43,22 +43,22 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgcda4a6c">数字三角形</a></li>
-<li><a href="#orgae9772d">最长上升子序列</a>
+<li><a href="#org0bd52aa">数字三角形</a></li>
+<li><a href="#orgea2e91f">最长上升子序列</a>
 <ul>
-<li><a href="#orgd783d1f">使用二分</a></li>
+<li><a href="#orgae0b698">使用二分</a></li>
 </ul>
 </li>
-<li><a href="#orgc6e6645">最长公共子序列</a></li>
-<li><a href="#org01380fd">编辑距离</a></li>
+<li><a href="#orgbbd3442">最长公共子序列</a></li>
+<li><a href="#orgfaee46a">编辑距离</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgcda4a6c" class="outline-2">
-<h2 id="orgcda4a6c">数字三角形</h2>
-<div class="outline-text-2" id="text-orgcda4a6c">
-<pre class="example" id="org0942e9e">
+<div id="outline-container-org0bd52aa" class="outline-2">
+<h2 id="org0bd52aa">数字三角形</h2>
+<div class="outline-text-2" id="text-org0bd52aa">
+<pre class="example">
 .       7
 .     3   8
 .   8   1   0
@@ -79,14 +79,14 @@
 </p>
 </div>
 </div>
-<div id="outline-container-orgae9772d" class="outline-2">
-<h2 id="orgae9772d">最长上升子序列</h2>
-<div class="outline-text-2" id="text-orgae9772d">
+<div id="outline-container-orgea2e91f" class="outline-2">
+<h2 id="orgea2e91f">最长上升子序列</h2>
+<div class="outline-text-2" id="text-orgea2e91f">
 <p>
 给一个长度为 \(N\) 的数列，求数值严格单调递增的子序列的长度最长是多少。<br>
 </p>
 
-<pre class="example" id="org7627c02">
+<pre class="example">
 7
 3 1 2 1 8 5 6
 </pre>
@@ -107,9 +107,9 @@
 如果要求以 \(8\) 也就是 \(a_5\) 结尾的子串的最长上升子序列的长度，那就遍历前面所有的数，如果满足 \(a_i < a_5\ (i < 5)\) 那么就 \(dp[5] = max(dp[i] + 1)\)。<br>
 </p>
 </div>
-<div id="outline-container-orgd783d1f" class="outline-3">
-<h3 id="orgd783d1f">使用二分</h3>
-<div class="outline-text-3" id="text-orgd783d1f">
+<div id="outline-container-orgae0b698" class="outline-3">
+<h3 id="orgae0b698">使用二分</h3>
+<div class="outline-text-3" id="text-orgae0b698">
 <p>
 同样设 \(dp[i]\) 表示以第 \(i\) 个数字结尾的最长上升子序列的长度。<br>
 </p>
@@ -118,7 +118,7 @@
 对于上面简单的求法，发现在求的过程中有冗余。<br>
 </p>
 
-<pre class="example" id="orge5184cc">
+<pre class="example">
 7
 3 1 2 1 8 5 6
 </pre>
@@ -170,9 +170,9 @@
 </div>
 </div>
 
-<div id="outline-container-orgc6e6645" class="outline-2">
-<h2 id="orgc6e6645">最长公共子序列</h2>
-<div class="outline-text-2" id="text-orgc6e6645">
+<div id="outline-container-orgbbd3442" class="outline-2">
+<h2 id="orgbbd3442">最长公共子序列</h2>
+<div class="outline-text-2" id="text-orgbbd3442">
 <p>
 子序列允许不连续。<br>
 </p>
@@ -221,38 +221,38 @@
 这时发现状态 \(2\) 一定会包含在状态 \(3\) 与状态 \(4\) 中，所以可以不考虑状态 \(2\) 的转移。<br>
 </p>
 
-<pre class="example" id="org3d6f85d">
+<pre class="example">
 求最大值时，虽然我们不能划分成恰好不重不漏的子集，只要不遗漏就可以，允许重复。
 </pre>
 
 <div class="org-src-container">
-<pre class="src src-cpp"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cstdio&gt;</span>
-<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;algorithm&gt;</span>
-<span style="color: #BD93F9;">using</span> <span style="color: #BD93F9;">namespace</span> <span style="color: #009F9F;">std</span>;
-<span style="color: #BD93F9;">const</span> <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">maxn</span> = <span style="color: #009F9F;">1e3</span> + <span style="color: #009F9F;">5</span>;
-<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">n</span>, <span style="color: #AFAFAF;">m</span>;
-<span style="color: #AFAFAF;">char</span> <span style="color: #AFAFAF;">a</span>[maxn], <span style="color: #AFAFAF;">b</span>[maxn];
-<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">dp</span>[maxn][maxn];
+<pre class="src src-cpp"><span style="color: #d75fd7;">#include</span> <span style="color: #2aa198;">&lt;cstdio&gt;</span>
+<span style="color: #d75fd7;">#include</span> <span style="color: #2aa198;">&lt;algorithm&gt;</span>
+<span style="color: #268bd2; font-weight: bold;">using</span> <span style="color: #268bd2; font-weight: bold;">namespace</span> <span style="color: #d75fd7;">std</span>;
+<span style="color: #268bd2; font-weight: bold;">const</span> <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">maxn</span> = 1e3 + 5;
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">n</span>, <span style="color: #8787d7;">m</span>;
+<span style="color: #df005f; font-weight: bold;">char</span> <span style="color: #8787d7;">a</span>[maxn], <span style="color: #8787d7;">b</span>[maxn];
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">dp</span>[maxn][maxn];
 
-<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
-    scanf(<span style="color: #FC9F4E;">"%d %d"</span>, &amp;n, &amp;m);
-    scanf(<span style="color: #FC9F4E;">"%s %s"</span>, a + <span style="color: #009F9F;">1</span>, b + <span style="color: #009F9F;">1</span>);
-    <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">1</span>; i &lt;= n; ++ i)
-        <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">j</span> = <span style="color: #009F9F;">1</span>; j &lt;= m; ++ j) {
-            dp[i][j] = max(dp[i - <span style="color: #009F9F;">1</span>][j], dp[i][j - <span style="color: #009F9F;">1</span>]);
-            <span style="color: #BD93F9;">if</span> (a[i] == b[j])
-                dp[i][j] = max(dp[i][j], dp[i - <span style="color: #009F9F;">1</span>][j - <span style="color: #009F9F;">1</span>] + <span style="color: #009F9F;">1</span>);
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    scanf(<span style="color: #2aa198;">"%d %d"</span>, &amp;n, &amp;m);
+    scanf(<span style="color: #2aa198;">"%s %s"</span>, a + 1, b + 1);
+    <span style="color: #268bd2; font-weight: bold;">for</span> (<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">i</span> = 1; i &lt;= n; ++ i)
+        <span style="color: #268bd2; font-weight: bold;">for</span> (<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">j</span> = 1; j &lt;= m; ++ j) {
+            dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]);
+            <span style="color: #268bd2; font-weight: bold;">if</span> (a[i] == b[j])
+                dp[i][j] = max(dp[i][j], dp[i - 1][j - 1] + 1);
         }
-    printf(<span style="color: #FC9F4E;">"%d\n"</span>, dp[n][m]);
-    <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">0</span>;
+    printf(<span style="color: #2aa198;">"%d\n"</span>, dp[n][m]);
+    <span style="color: #268bd2; font-weight: bold;">return</span> 0;
 }
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org01380fd" class="outline-2">
-<h2 id="org01380fd">编辑距离</h2>
-<div class="outline-text-2" id="text-org01380fd">
+<div id="outline-container-orgfaee46a" class="outline-2">
+<h2 id="orgfaee46a">编辑距离</h2>
+<div class="outline-text-2" id="text-orgfaee46a">
 <p>
 给出两个字符串 \(A, B\)，将 \(A\) 经过若干次操作变成 \(B\)，可进行的操作有："删除"，"插入"，"替换"，问将 \(A\) 变为 \(B\) 至少需要进行多少次操作。<br>
 </p>
@@ -298,33 +298,33 @@
 </ol>
 
 <div class="org-src-container">
-<pre class="src src-cpp"><span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;cstdio&gt;</span>
-<span style="color: #009F9F;">#include</span> <span style="color: #FC9F4E;">&lt;algorithm&gt;</span>
-<span style="color: #BD93F9;">using</span> <span style="color: #BD93F9;">namespace</span> <span style="color: #009F9F;">std</span>;
-<span style="color: #BD93F9;">const</span> <span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">maxn</span> = <span style="color: #009F9F;">1e3</span> + <span style="color: #009F9F;">5</span>;
-<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">n</span>, <span style="color: #AFAFAF;">m</span>;
-<span style="color: #AFAFAF;">char</span> <span style="color: #AFAFAF;">a</span>[maxn], <span style="color: #AFAFAF;">b</span>[maxn];
-<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">dp</span>[maxn][maxn];
+<pre class="src src-cpp"><span style="color: #d75fd7;">#include</span> <span style="color: #2aa198;">&lt;cstdio&gt;</span>
+<span style="color: #d75fd7;">#include</span> <span style="color: #2aa198;">&lt;algorithm&gt;</span>
+<span style="color: #268bd2; font-weight: bold;">using</span> <span style="color: #268bd2; font-weight: bold;">namespace</span> <span style="color: #d75fd7;">std</span>;
+<span style="color: #268bd2; font-weight: bold;">const</span> <span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">maxn</span> = 1e3 + 5;
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">n</span>, <span style="color: #8787d7;">m</span>;
+<span style="color: #df005f; font-weight: bold;">char</span> <span style="color: #8787d7;">a</span>[maxn], <span style="color: #8787d7;">b</span>[maxn];
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">dp</span>[maxn][maxn];
 
-<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">main</span>() {
-    scanf(<span style="color: #FC9F4E;">"%d %s"</span>, &amp;n, a + <span style="color: #009F9F;">1</span>);
-    scanf(<span style="color: #FC9F4E;">"%d %s"</span>, &amp;m, b + <span style="color: #009F9F;">1</span>);
-    <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#21021;&#22987;&#21270;</span>
-    <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">1</span>; i &lt;= n; ++ i)
-        dp[i][<span style="color: #009F9F;">0</span>] = i;   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#23558;a&#30340;&#21069;i&#20010;&#23383;&#31526;&#19982;b&#30340;&#21069;0&#20010;&#23383;&#31526;&#21305;&#37197;&#65292;&#21024;i&#27425;</span>
-    <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">j</span> = <span style="color: #009F9F;">1</span>; j &lt;= m; ++ j)
-        dp[<span style="color: #009F9F;">0</span>][j] = j;   <span style="color: #7c7c7c; font-style: italic;">// </span><span style="color: #7c7c7c; font-style: italic;">&#23558;a&#30340;&#21069;0&#20010;&#23383;&#31526;&#19982;b&#30340;&#21069;j&#20010;&#23383;&#31526;&#21305;&#37197;&#65292;&#22686;j&#27425;</span>
+<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    scanf(<span style="color: #2aa198;">"%d %s"</span>, &amp;n, a + 1);
+    scanf(<span style="color: #2aa198;">"%d %s"</span>, &amp;m, b + 1);
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21021;&#22987;&#21270;</span>
+    <span style="color: #268bd2; font-weight: bold;">for</span> (<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">i</span> = 1; i &lt;= n; ++ i)
+        dp[i][0] = i;   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23558;a&#30340;&#21069;i&#20010;&#23383;&#31526;&#19982;b&#30340;&#21069;0&#20010;&#23383;&#31526;&#21305;&#37197;&#65292;&#21024;i&#27425;</span>
+    <span style="color: #268bd2; font-weight: bold;">for</span> (<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">j</span> = 1; j &lt;= m; ++ j)
+        dp[0][j] = j;   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23558;a&#30340;&#21069;0&#20010;&#23383;&#31526;&#19982;b&#30340;&#21069;j&#20010;&#23383;&#31526;&#21305;&#37197;&#65292;&#22686;j&#27425;</span>
 
-    <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">i</span> = <span style="color: #009F9F;">1</span>; i &lt;= n; ++ i)
-        <span style="color: #BD93F9;">for</span> (<span style="color: #AFAFAF;">int</span> <span style="color: #AFAFAF;">j</span> = <span style="color: #009F9F;">1</span>; j &lt;= m; ++ j) {
-            dp[i][j] = min(dp[i - <span style="color: #009F9F;">1</span>][j] + <span style="color: #009F9F;">1</span>, dp[i][j - <span style="color: #009F9F;">1</span>] + <span style="color: #009F9F;">1</span>);
-            <span style="color: #BD93F9;">if</span> (a[i] == b[j])
-                dp[i][j] = min(dp[i][j], dp[i - <span style="color: #009F9F;">1</span>][j - <span style="color: #009F9F;">1</span>]);
-            <span style="color: #BD93F9;">else</span>
-                dp[i][j] = min(dp[i][j], dp[i - <span style="color: #009F9F;">1</span>][j - <span style="color: #009F9F;">1</span>] + <span style="color: #009F9F;">1</span>);
+    <span style="color: #268bd2; font-weight: bold;">for</span> (<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">i</span> = 1; i &lt;= n; ++ i)
+        <span style="color: #268bd2; font-weight: bold;">for</span> (<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #8787d7;">j</span> = 1; j &lt;= m; ++ j) {
+            dp[i][j] = min(dp[i - 1][j] + 1, dp[i][j - 1] + 1);
+            <span style="color: #268bd2; font-weight: bold;">if</span> (a[i] == b[j])
+                dp[i][j] = min(dp[i][j], dp[i - 1][j - 1]);
+            <span style="color: #268bd2; font-weight: bold;">else</span>
+                dp[i][j] = min(dp[i][j], dp[i - 1][j - 1] + 1);
         }
-    printf(<span style="color: #FC9F4E;">"%d\n"</span>, dp[n][m]);
-    <span style="color: #BD93F9;">return</span> <span style="color: #009F9F;">0</span>;
+    printf(<span style="color: #2aa198;">"%d\n"</span>, dp[n][m]);
+    <span style="color: #268bd2; font-weight: bold;">return</span> 0;
 }
 </pre>
 </div>
@@ -334,8 +334,8 @@
 <div id="postamble" class="status">
 <p class="date">Date: 2021-10-25 09:10 Mon</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2021-10-27 Wed 22:16</p>
-<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+<p class="date">Created: 2022-06-05 Sun 21:05</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>

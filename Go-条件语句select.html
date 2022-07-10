@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-02-14 Mon 00:24 -->
+<!-- 2022-06-23 Thu 20:43 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>条件语句SELECT</title>
@@ -21,30 +21,31 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org399aa06">select 语句</a></li>
-<li><a href="#org19cb259">基本用法：</a></li>
-<li><a href="#org108e8a3">执行步骤：</a></li>
-<li><a href="#org6b45498">案例分析：</a>
+<li><a href="#orgcc3cb32">select 语句</a></li>
+<li><a href="#org2ea86b0">基本用法：</a></li>
+<li><a href="#org8f6ec22">执行步骤：</a></li>
+<li><a href="#orgc9736bf">案例分析：</a>
 <ul>
-<li><a href="#orgc2ac527">案例一</a></li>
-<li><a href="#orgc15cbf5">案例二</a></li>
-<li><a href="#org06bb9f2">案例三</a></li>
+<li><a href="#orgac3b36c">案例一</a></li>
+<li><a href="#org0d09c41">案例二</a></li>
+<li><a href="#org52d2208">案例三</a></li>
 </ul>
 </li>
-<li><a href="#org9788827">select 的典型用法</a>
+<li><a href="#org6d09bf8">select 的典型用法</a>
 <ul>
-<li><a href="#org97c720a">超时判断</a></li>
-<li><a href="#orge501c5b">退出</a></li>
-<li><a href="#orgca20d52">判断 channel 是否阻塞</a></li>
+<li><a href="#org23b66de">永久阻塞</a></li>
+<li><a href="#orgc132c64">超时判断</a></li>
+<li><a href="#orgf57611d">退出</a></li>
+<li><a href="#orgdfa48f0">判断 channel 是否阻塞</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org399aa06" class="outline-2">
-<h2 id="org399aa06">select 语句</h2>
-<div class="outline-text-2" id="text-org399aa06">
+<div id="outline-container-orgcc3cb32" class="outline-2">
+<h2 id="orgcc3cb32">select 语句</h2>
+<div class="outline-text-2" id="text-orgcc3cb32">
 <p>
 首先看一下官方文档的描述：<br>
 </p>
@@ -64,15 +65,15 @@ A "select" statement chooses which of a set of possible send or receive operatio
 </p>
 </div>
 </div>
-<div id="outline-container-org19cb259" class="outline-2">
-<h2 id="org19cb259">基本用法：</h2>
-<div class="outline-text-2" id="text-org19cb259">
+<div id="outline-container-org2ea86b0" class="outline-2">
+<h2 id="org2ea86b0">基本用法：</h2>
+<div class="outline-text-2" id="text-org2ea86b0">
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">select&#22522;&#26412;&#29992;&#27861;</span>
 <span style="color: #268bd2; font-weight: bold;">select</span> {
 <span style="color: #268bd2; font-weight: bold;">case</span> &lt;- chan1:
     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524; chan1 &#25104;&#21151;&#35835;&#21040;&#25968;&#25454;&#65292;&#21017;&#36827;&#34892;&#35813; case &#22788;&#29702;&#35821;&#21477;</span>
-<span style="color: #268bd2; font-weight: bold;">case</span> chan2 &lt;- <span style="color: #d75fd7;">1</span>:
+<span style="color: #268bd2; font-weight: bold;">case</span> chan2 &lt;- 1:
     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#25104;&#21151;&#21521; chan2 &#20889;&#20837;&#25968;&#25454;&#65292;&#21017;&#36827;&#34892;&#35813; case &#22788;&#29702;&#35821;&#21477;</span>
 <span style="color: #268bd2; font-weight: bold;">default</span>:
     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#22312;&#24403;&#21069;&#26102;&#21051;&#19978;&#38754;&#37117;&#27809;&#26377;&#25104;&#21151;&#65292;&#21017;&#31435;&#21363;&#36827;&#20837; default &#22788;&#29702;&#27969;&#31243;&#65292;&#19981;&#20250;&#31561;&#24453;</span>
@@ -80,9 +81,9 @@ A "select" statement chooses which of a set of possible send or receive operatio
 </div>
 </div>
 </div>
-<div id="outline-container-org108e8a3" class="outline-2">
-<h2 id="org108e8a3">执行步骤：</h2>
-<div class="outline-text-2" id="text-org108e8a3">
+<div id="outline-container-org8f6ec22" class="outline-2">
+<h2 id="org8f6ec22">执行步骤：</h2>
+<div class="outline-text-2" id="text-org8f6ec22">
 <p>
 官方的执行步骤：<br>
 </p>
@@ -128,13 +129,13 @@ Execution of a "select" statement proceeds in several steps:<br>
 </blockquote>
 </div>
 </div>
-<div id="outline-container-org6b45498" class="outline-2">
-<h2 id="org6b45498">案例分析：</h2>
-<div class="outline-text-2" id="text-org6b45498">
+<div id="outline-container-orgc9736bf" class="outline-2">
+<h2 id="orgc9736bf">案例分析：</h2>
+<div class="outline-text-2" id="text-orgc9736bf">
 </div>
-<div id="outline-container-orgc2ac527" class="outline-3">
-<h3 id="orgc2ac527">案例一</h3>
-<div class="outline-text-3" id="text-orgc2ac527">
+<div id="outline-container-orgac3b36c" class="outline-3">
+<h3 id="orgac3b36c">案例一</h3>
+<div class="outline-text-3" id="text-orgac3b36c">
 <p>
 如果有一个或多个 IO 操作可以完成，则 Go 运行时系统会随机的选择一个执行，否则的话，如果有 <code>default</code> 分支，则执行 <code>default</code> 分支语句，如果连 <code>default</code> 都没有，则 <code>select</code> 语句会一直阻塞，直到至少有一个 IO 操作可以进行。<br>
 </p>
@@ -154,18 +155,18 @@ Execution of a "select" statement proceeds in several steps:<br>
     <span style="color: #8787d7;">ch2</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>)
 
     <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
-        time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(<span style="color: #d75fd7;">4</span> * time.Second)
+        time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(4 * time.Second)
         <span style="color: #268bd2;">close</span>(ch0)
     }()
 
     <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
-        time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(<span style="color: #d75fd7;">3</span> * time.Second)
-        ch1 &lt;- <span style="color: #d75fd7;">3</span>
+        time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(3 * time.Second)
+        ch1 &lt;- 3
     }()
 
     <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
-        time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(<span style="color: #d75fd7;">3</span> * time.Second)
-        ch2 &lt;- <span style="color: #d75fd7;">5</span>
+        time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(3 * time.Second)
+        ch2 &lt;- 5
     }()
 
     fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Blocking on read..."</span>)
@@ -187,7 +188,7 @@ Execution of a "select" statement proceeds in several steps:<br>
 运行上述代码，由于程序从运行到结束未到 3s，所以程序会走 <code>default</code> 。<br>
 </p>
 
-<pre class="example" id="org10c6907">
+<pre class="example">
 Blocking on read...
 default go...
 </pre>
@@ -211,18 +212,18 @@ default go...
     <span style="color: #8787d7;">ch2</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>)
 
     <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
-        time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(<span style="color: #d75fd7;">4</span> * time.Second)
+        time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(4 * time.Second)
         <span style="color: #268bd2;">close</span>(ch0)
     }()
 
     <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
-        time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(<span style="color: #d75fd7;">3</span> * time.Second)
-        ch1 &lt;- <span style="color: #d75fd7;">3</span>
+        time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(3 * time.Second)
+        ch1 &lt;- 3
     }()
 
     <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
-        time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(<span style="color: #d75fd7;">3</span> * time.Second)
-        ch2 &lt;- <span style="color: #d75fd7;">5</span>
+        time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(3 * time.Second)
+        ch2 &lt;- 5
     }()
 
     fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Blocking on read..."</span>)
@@ -242,7 +243,7 @@ default go...
 这时， <code>select</code> 语句会阻塞，直到检测到一个可以执行的 IO 操作为止。这里会先等待睡眠中的 <code>goroutine</code> ，此时两个 <code>channel</code> 都满足条件，系统会随机选择一个 <code>case</code> 继续操作。<br>
 </p>
 
-<pre class="example" id="orge2dbac6">
+<pre class="example">
 Blocking on read...
 ch2 case...
 </pre>
@@ -266,18 +267,18 @@ ch2 case...
     <span style="color: #8787d7;">ch2</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>)
 
     <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
-        time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(<span style="color: #d75fd7;">4</span> * time.Second)
+        time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(4 * time.Second)
         <span style="color: #268bd2;">close</span>(ch0)
     }()
 
     <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
-        time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(<span style="color: #d75fd7;">5</span> * time.Second)
-        ch1 &lt;- <span style="color: #d75fd7;">3</span>
+        time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(5 * time.Second)
+        ch1 &lt;- 3
     }()
 
     <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
-        time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(<span style="color: #d75fd7;">5</span> * time.Second)
-        ch2 &lt;- <span style="color: #d75fd7;">5</span>
+        time.<span style="color: #d75fd7; font-weight: bold;">Sleep</span>(5 * time.Second)
+        ch2 &lt;- 5
     }()
 
     fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Blocking on read..."</span>)
@@ -297,15 +298,15 @@ ch2 case...
 此时会先执行到上面的 <code>goroutine</code> ， <code>select</code> 执行的就是 <code>ch0</code> 的 <code>case</code> 。<br>
 </p>
 
-<pre class="example" id="orgcd11ac6">
+<pre class="example">
 Blocking on read...
 Unblocked 4.002915493s later.
 </pre>
 </div>
 </div>
-<div id="outline-container-orgc15cbf5" class="outline-3">
-<h3 id="orgc15cbf5">案例二</h3>
-<div class="outline-text-3" id="text-orgc15cbf5">
+<div id="outline-container-org0d09c41" class="outline-3">
+<h3 id="org0d09c41">案例二</h3>
+<div class="outline-text-3" id="text-org0d09c41">
 <p>
 所有 <code>channel</code> 表达式都会被求值，所有被发送的表达式都会被求值，求值顺序：自上而下、自左而右。<br>
 </p>
@@ -318,13 +319,13 @@ Unblocked 4.002915493s later.
 <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">ch1</span> <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #8787d7;">int</span>
 <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">ch2</span> <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #8787d7;">int</span>
 <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">chs</span> = []<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>{ch1, ch2}
-<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">numbers</span> = []<span style="color: #df005f; font-weight: bold;">int</span>{<span style="color: #d75fd7;">1</span>, <span style="color: #d75fd7;">2</span>, <span style="color: #d75fd7;">3</span>, <span style="color: #d75fd7;">4</span>, <span style="color: #d75fd7;">5</span>}
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">numbers</span> = []<span style="color: #df005f; font-weight: bold;">int</span>{1, 2, 3, 4, 5}
 
 <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
     <span style="color: #268bd2; font-weight: bold;">select</span> {
-    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #d75fd7; font-weight: bold;">getChan</span>(<span style="color: #d75fd7;">0</span>) &lt;- <span style="color: #d75fd7; font-weight: bold;">getNumber</span>(<span style="color: #d75fd7;">2</span>):
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #d75fd7; font-weight: bold;">getChan</span>(0) &lt;- <span style="color: #d75fd7; font-weight: bold;">getNumber</span>(2):
         fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"1th case is selected."</span>)
-    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #d75fd7; font-weight: bold;">getChan</span>(<span style="color: #d75fd7;">1</span>) &lt;- <span style="color: #d75fd7; font-weight: bold;">getNumber</span>(<span style="color: #d75fd7;">3</span>):
+    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #d75fd7; font-weight: bold;">getChan</span>(1) &lt;- <span style="color: #d75fd7; font-weight: bold;">getNumber</span>(3):
         fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"2th case is selected."</span>)
     <span style="color: #268bd2; font-weight: bold;">default</span>:
         fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"default!."</span>)
@@ -347,7 +348,7 @@ Unblocked 4.002915493s later.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #d75fd7; font-weight: bold;">getChan</span>(<span style="color: #d75fd7;">0</span>) &lt;- <span style="color: #d75fd7; font-weight: bold;">getNumber</span>(<span style="color: #d75fd7;">2</span>):
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #d75fd7; font-weight: bold;">getChan</span>(0) &lt;- <span style="color: #d75fd7; font-weight: bold;">getNumber</span>(2):
 </pre>
 </div>
 
@@ -355,7 +356,7 @@ Unblocked 4.002915493s later.
 系统会从左到右先执行 <code>getChan</code> 函数打印 <code>chs[0]</code> ，然后执行 <code>getNumber</code> 函数打印 <code>numbers[2]</code> 。同样，从上到下分别执行所有 <code>case</code> 的语句。所以，程序执行的结果为：<br>
 </p>
 
-<pre class="example" id="org8fdf429">
+<pre class="example">
 chs[0]
 numbers[2]
 chs[1]
@@ -364,9 +365,9 @@ default!.
 </pre>
 </div>
 </div>
-<div id="outline-container-org06bb9f2" class="outline-3">
-<h3 id="org06bb9f2">案例三</h3>
-<div class="outline-text-3" id="text-org06bb9f2">
+<div id="outline-container-org52d2208" class="outline-3">
+<h3 id="org52d2208">案例三</h3>
+<div class="outline-text-3" id="text-org52d2208">
 <p>
 使用 <code>break</code> 关键字结束 <code>select</code> 。<br>
 </p>
@@ -377,11 +378,11 @@ default!.
 <span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
 
 <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #8787d7;">ch1</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #d75fd7;">1</span>)
-    <span style="color: #8787d7;">ch2</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #d75fd7;">1</span>)
+    <span style="color: #8787d7;">ch1</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>, 1)
+    <span style="color: #8787d7;">ch2</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>, 1)
 
-    ch1 &lt;- <span style="color: #d75fd7;">3</span>
-    ch2 &lt;- <span style="color: #d75fd7;">5</span>
+    ch1 &lt;- 3
+    ch2 &lt;- 5
 
     <span style="color: #268bd2; font-weight: bold;">select</span> {
     <span style="color: #268bd2; font-weight: bold;">case</span> &lt;-ch1:
@@ -400,7 +401,7 @@ default!.
 很明显， <code>ch1</code> 和 <code>ch2</code> 两个通道都可以读取到值，所以系统会随机选择一个 <code>case</code> 执行。我们发现选择执行 <code>ch1</code> 的 <code>case</code> 时，由于有 <code>break</code> 关键字只执行了一句：<br>
 </p>
 
-<pre class="example" id="org515b822">
+<pre class="example">
 ch1 selected.
 </pre>
 
@@ -408,7 +409,7 @@ ch1 selected.
 但是，当系统选择 <code>ch2</code> 的 <code>case</code> 时，打印结果为：<br>
 </p>
 
-<pre class="example" id="org50a04be">
+<pre class="example">
 ch2 selected.
 ch2 selected without break
 </pre>
@@ -419,13 +420,28 @@ ch2 selected without break
 </div>
 </div>
 </div>
-<div id="outline-container-org9788827" class="outline-2">
-<h2 id="org9788827">select 的典型用法</h2>
-<div class="outline-text-2" id="text-org9788827">
+<div id="outline-container-org6d09bf8" class="outline-2">
+<h2 id="org6d09bf8">select 的典型用法</h2>
+<div class="outline-text-2" id="text-org6d09bf8">
 </div>
-<div id="outline-container-org97c720a" class="outline-3">
-<h3 id="org97c720a">超时判断</h3>
-<div class="outline-text-3" id="text-org97c720a">
+<div id="outline-container-org23b66de" class="outline-3">
+<h3 id="org23b66de">永久阻塞</h3>
+<div class="outline-text-3" id="text-org23b66de">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+    <span style="color: #268bd2; font-weight: bold;">select</span>{}
+}
+</pre>
+</div>
+
+<p>
+这样，当前 goroutine 将不会结束。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc132c64" class="outline-3">
+<h3 id="orgc132c64">超时判断</h3>
+<div class="outline-text-3" id="text-orgc132c64">
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#27604;&#22914;&#22312;&#19979;&#38754;&#30340;&#22330;&#26223;&#20013;&#65292;&#20351;&#29992;&#20840;&#23616; resChan &#26469;&#25509;&#21463; response</span>
 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#26102;&#38388;&#36229;&#36807;3S&#65292;resChan&#20013;&#36824;&#27809;&#26377;&#25968;&#25454;&#36820;&#22238;&#65292;&#21017;&#31532;&#20108;&#26465;case&#23558;&#25191;&#34892;</span>
@@ -435,7 +451,7 @@ ch2 selected without break
     <span style="color: #268bd2; font-weight: bold;">select</span> {
     <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #8787d7;">data</span> := &lt;- resChan:
         fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(data)
-    <span style="color: #268bd2; font-weight: bold;">case</span> &lt;- time.<span style="color: #d75fd7; font-weight: bold;">After</span>(time.Second * <span style="color: #d75fd7;">3</span>):
+    <span style="color: #268bd2; font-weight: bold;">case</span> &lt;- time.<span style="color: #d75fd7; font-weight: bold;">After</span>(time.Second * 3):
         fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"request time out"</span>)
     }
 }
@@ -443,42 +459,53 @@ ch2 selected without break
 </div>
 </div>
 </div>
-<div id="outline-container-orge501c5b" class="outline-3">
-<h3 id="orge501c5b">退出</h3>
-<div class="outline-text-3" id="text-orge501c5b">
+<div id="outline-container-orgf57611d" class="outline-3">
+<h3 id="orgf57611d">退出</h3>
+<div class="outline-text-3" id="text-orgf57611d">
+<p>
+在 <code>fibonacci</code> 函数中，一个死循环中包含一个 <code>select</code> ，也就是意味着，每次当 <code>c</code> 通道的事件被接收一次，此时通道就允许发送一个新事件，对应的 <code>case</code> 代码块就运行一次，直到 <code>quit</code> 有了新的事件，此时退出死循环。<br>
+</p>
+
+<p>
+在 <code>main</code> 函数中启动了一个独立的 goroutine 来运行匿名函数，这个匿名函数接收 10 次 <code>c</code> 通道的事件，导致 <code>fibonacci</code> 函数的第一个 <code>case</code> 条件触发了 10 次，然后，匿名函数向 <code>quit</code> 通道发送了一个事件，从而结束掉 <code>fibonacci</code> 的死循环，此时 <code>main</code> 函数也结束了。<br>
+</p>
+
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#20027;&#32447;&#31243;&#65288;&#21327;&#31243;&#65289;&#20013;&#22914;&#19979;&#65306;</span>
-<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">shouldQuit</span> = <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #268bd2; font-weight: bold;">struct</span>{})
-
-fun <span style="color: #df005f; font-weight: bold;">main</span>() {
-    {
-        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">loop</span>
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">fibonacci</span>(<span style="color: #8787d7;">c</span>, <span style="color: #8787d7;">quit</span> <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
+    <span style="color: #8787d7;">x</span>, <span style="color: #8787d7;">y</span> := 0, 1
+    <span style="color: #268bd2; font-weight: bold;">for</span> {
+        <span style="color: #268bd2; font-weight: bold;">select</span> {
+        <span style="color: #268bd2; font-weight: bold;">case</span> c &lt;- x:
+            x, y = y, x+y
+        <span style="color: #268bd2; font-weight: bold;">case</span> &lt;-quit:
+            fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"quit"</span>)
+            <span style="color: #268bd2; font-weight: bold;">return</span>
+        }
     }
-
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">...out of the loop</span>
-    <span style="color: #268bd2; font-weight: bold;">select</span> {
-    <span style="color: #268bd2; font-weight: bold;">case</span> &lt;- c.shouldQuit:
-        <span style="color: #d75fd7; font-weight: bold;">cleanUp</span>()
-        <span style="color: #268bd2; font-weight: bold;">return</span>
-    <span style="color: #268bd2; font-weight: bold;">default</span>:
-    }
-    <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">...</span>
 }
 
-<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20877;&#21478;&#22806;&#19968;&#20010;&#21327;&#31243;&#20013;&#65292;&#22914;&#26524;&#36816;&#34892;&#36935;&#21040;&#38750;&#27861;&#25805;&#20316;&#25110;&#19981;&#21487;&#22788;&#29702;&#30340;&#38169;&#35823;</span>
-<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23601;&#21521; shouldQuit &#21457;&#36865;&#25968;&#25454;&#36890;&#30693;&#31243;&#24207;&#20572;&#27490;&#36816;&#34892;</span>
-<span style="color: #268bd2;">close</span>(shouldQuit)
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">c</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+    <span style="color: #8787d7;">quit</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+        <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := 0; i &lt; 10; i++ {
+            fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(&lt;-c)
+        }
+        quit &lt;- 0
+    }()
+    <span style="color: #d75fd7; font-weight: bold;">fibonacci</span>(c, quit)
+}
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orgca20d52" class="outline-3">
-<h3 id="orgca20d52">判断 channel 是否阻塞</h3>
-<div class="outline-text-3" id="text-orgca20d52">
+<div id="outline-container-orgdfa48f0" class="outline-3">
+<h3 id="orgdfa48f0">判断 channel 是否阻塞</h3>
+<div class="outline-text-3" id="text-orgdfa48f0">
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22312;&#26576;&#20123;&#24773;&#20917;&#19979;&#26159;&#23384;&#22312;&#19981;&#24076;&#26395; channel &#32531;&#23384;&#28385;&#20102;&#30340;&#38656;&#27714;&#30340;&#65292;&#21487;&#20197;&#29992;&#22914;&#19979;&#26041;&#27861;&#21028;&#26029;</span>
-<span style="color: #8787d7;">ch</span> := <span style="color: #268bd2;">make</span> (<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #d75fd7;">5</span>)
-<span style="color: #8787d7;">data</span> := <span style="color: #d75fd7;">0</span>
+<span style="color: #8787d7;">ch</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>, 5)
+<span style="color: #8787d7;">data</span> := 0
 <span style="color: #268bd2; font-weight: bold;">select</span> {
 <span style="color: #268bd2; font-weight: bold;">case</span> ch &lt;- data:
 <span style="color: #268bd2; font-weight: bold;">default</span>:
@@ -493,8 +520,8 @@ fun <span style="color: #df005f; font-weight: bold;">main</span>() {
 <div id="postamble" class="status">
 <p class="date">Date: 2022-02-07 23:02 Mon</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-02-14 Mon 00:24</p>
-<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+<p class="date">Created: 2022-06-23 Thu 20:43</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>

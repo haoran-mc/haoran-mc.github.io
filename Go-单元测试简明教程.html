@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-07-05 Tue 11:38 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>单元测试简明教程</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">单元测试简明教程</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org00d86a6">1. 如何写好单元测试</a></li>
+<li><a href="#org52b4635">2. 一个简单的例子</a></li>
+<li><a href="#orgfefc44a">3. 子测试（Subtests）</a></li>
+<li><a href="#orgd788822">4. 帮助函数（helpers）</a></li>
+<li><a href="#orgc34148c">5. setup 和 teardown</a></li>
+<li><a href="#orgc171438">6 网络测试（Network）</a>
+<ul>
+<li><a href="#org06e79d8">6.1 TCP/HTTP</a></li>
+<li><a href="#org9f44b71">6.2 httptest</a></li>
+</ul>
+</li>
+<li><a href="#org0f82202">7. Benchmark 基准测试</a></li>
+<li><a href="#orgfa6e500">参考</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org00d86a6" class="outline-2">
+<h2 id="org00d86a6">1. 如何写好单元测试</h2>
+<div class="outline-text-2" id="text-org00d86a6">
+<p>
+单元测试(Unit Tests, UT) 是一个优秀项目不可或缺的一部分，特别是在一些频繁变动和多人合作开发的项目中尤为重要。你或多或少都会有因为自己的提交，导致应用挂掉或服务宕机的经历。如果这个时候你的修改导致测试用例失败，你再重新审视自己的修改，发现之前的修改还有一些特殊场景没有包含，恭喜你减少了一次上库失误。也会有这样的情况，项目很大，启动环境很复杂，你优化了一个函数的性能，或是添加了某个新的特性，如果部署在正式环境上之后再进行测试，成本太高。对于这种场景，几个小小的测试用例或许就能够覆盖大部分的测试场景。而且在开发过程中，效率最高的莫过于所见即所得了，单元测试也能够帮助你做到这一点，试想一下，假如你一口气写完一千行代码，debug 的过程也不会轻松，如果在这个过程中，对于一些逻辑较为复杂的函数，同时添加一些测试用例，即时确保正确性，最后集成的时候，会是另外一番体验。<br>
+</p>
+
+<p>
+如何写好单元测试呢？<br>
+</p>
+
+<p>
+首先，学会写测试用例。比如如何测试单个函数/方法；比如如何做基准测试；比如如何写出简洁精炼的测试代码；再比如遇到数据库访问等的方法调用时，如何 <code>mock</code> 。<br>
+</p>
+
+<p>
+然后，写可测试的代码。高内聚，低耦合是软件工程的原则，同样，对测试而言，函数/方法写法不同，测试难度也是不一样的。职责单一，参数类型简单，与其他函数耦合度低的函数往往更容易测试。我们经常会说，“这种代码没法测试”，这种时候，就得思考函数的写法可不可以改得更好一些。为了代码可测试而重构是值得的。<br>
+</p>
+
+<p>
+接下来将介绍如何使用 Go 语言的标准库 <code>testing</code> 进行单元测试。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org52b4635" class="outline-2">
+<h2 id="org52b4635">2. 一个简单的例子</h2>
+<div class="outline-text-2" id="text-org52b4635">
+<p>
+Go 语言推荐测试文件和源代码文件放在一块，测试文件以 <code>_test.go</code> 结尾。比如，当前 package 有 <code>calc.go</code> 一个文件，我们想测试 <code>calc.go</code> 中的 <code>Add</code> 和 <code>Mul</code> 函数，那么应该新建 <code>calc_test.go</code> 作为测试文件。<br>
+</p>
+
+<pre class="example">
+example/
+	 |--calc.go
+	 |--calc_test.go
+</pre>
+
+<p>
+假如 <code>calc.go</code> 的代码如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Add</span>(<span style="color: #8787d7;">a</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">b</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">int</span> {
+    <span style="color: #268bd2; font-weight: bold;">return</span> a + b
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Mul</span>(<span style="color: #8787d7;">a</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">b</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">int</span> {
+    <span style="color: #268bd2; font-weight: bold;">return</span> a * b
+}
+</pre>
+</div>
+
+<p>
+那么 <code>calc_test.go</code> 中的测试用例可以这么写：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"testing"</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">TestAdd</span>(<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">testing.T</span>) {
+    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #8787d7;">ans</span> := <span style="color: #d75fd7; font-weight: bold;">Add</span>(1, 2); ans != 3 {
+        t.<span style="color: #d75fd7; font-weight: bold;">Errorf</span>(<span style="color: #2aa198;">"1 + 2 expected be 3, but %d got"</span>, ans)
+    }
+
+    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #8787d7;">ans</span> := <span style="color: #d75fd7; font-weight: bold;">Add</span>(-10, -20); ans != -30 {
+        t.<span style="color: #d75fd7; font-weight: bold;">Errorf</span>(<span style="color: #2aa198;">"-10 + -20 expected be -30, but %d got"</span>, ans)
+    }
+}
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>测试用例名称一般命名为 <code>Test</code> 加上待测试的方法名；<br></li>
+<li>测试用的参数有且只有一个，在这里是 <code>t *testing.T</code> ；<br></li>
+<li>基准测试（benchmark）的参数是 <code>*testing.B</code> ， <code>TestMain</code> 的参数是 <code>*testing.M</code> 类型；<br></li>
+</ul>
+
+<p>
+运行 <code>go test</code> ，该 package 下所有的测试用例都会被执行。<br>
+</p>
+
+<pre class="example">
+$ go test
+ok      example 0.009s
+</pre>
+
+<p>
+或 <code>go test -v</code> ， <code>-v</code> 参数会显示每个用例的测试结果，另外 <code>-cover</code> 参数可以查看覆盖率。<br>
+</p>
+
+<pre class="example">
+$ go test -v
+=== RUN   TestAdd
+--- PASS: TestAdd (0.00s)
+=== RUN   TestMul
+--- PASS: TestMul (0.00s)
+PASS
+ok      example 0.007s
+</pre>
+
+<p>
+如果只想运行其中的一个用例，例如 <code>TestAdd</code> ，可以用 <code>-run</code> 参数指定，该参数支持通配符 <code>*</code> ，和部分正则表达式，例如 <code>^</code> 、 <code>$</code> 。<br>
+</p>
+
+<pre class="example">
+$ go test -run TestAdd -v
+=== RUN   TestAdd
+--- PASS: TestAdd (0.00s)
+PASS
+ok      example 0.007s
+</pre>
+</div>
+</div>
+<div id="outline-container-orgfefc44a" class="outline-2">
+<h2 id="orgfefc44a">3. 子测试（Subtests）</h2>
+<div class="outline-text-2" id="text-orgfefc44a">
+<p>
+子测试是 Go 语言内置支持的，可以在某个测试用例中，根据测试场景使用 <code>t.Run</code> 创建不同的子测试用例：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">calc_test.go</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">TestMul</span>(<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">testing.T</span>) {
+    t.<span style="color: #d75fd7; font-weight: bold;">Run</span>(<span style="color: #2aa198;">"pos"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">testing.T</span>) {
+        <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #d75fd7; font-weight: bold;">Mul</span>(2, 3) != 6 {
+            t.<span style="color: #d75fd7; font-weight: bold;">Fatal</span>(<span style="color: #2aa198;">"fail"</span>)
+        }
+
+    })
+    t.<span style="color: #d75fd7; font-weight: bold;">Run</span>(<span style="color: #2aa198;">"neg"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">testing.T</span>) {
+        <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #d75fd7; font-weight: bold;">Mul</span>(2, -3) != -6 {
+            t.<span style="color: #d75fd7; font-weight: bold;">Fatal</span>(<span style="color: #2aa198;">"fail"</span>)
+        }
+    })
+}
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>之前的例子测试失败时使用 <code>t.Error/t.Errorf</code> ，这个例子中使用 <code>t.Fatal/t.Fatalf</code> ，区别在于前者遇错不停，还会继续执行其他的测试用例，后者遇错即停。<br></li>
+</ul>
+
+<p>
+运行某个测试用例的子测试：<br>
+</p>
+
+<pre class="example">
+$ go test -run TestMul/pos -v
+=== RUN   TestMul
+=== RUN   TestMul/pos
+--- PASS: TestMul (0.00s)
+		--- PASS: TestMul/pos (0.00s)
+PASS
+ok      example 0.008s
+</pre>
+
+<p>
+对于多个子测试的场景，更推荐如下的写法（table-driven tests）：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">//  </span><span style="color: #008787; background-color: #262626;">calc_test.go</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">TestMul</span>(<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">testing.T</span>) {
+    <span style="color: #8787d7;">cases</span> := []<span style="color: #268bd2; font-weight: bold;">struct</span> {
+        Name           <span style="color: #df005f; font-weight: bold;">string</span>
+        A, B, Expected <span style="color: #df005f; font-weight: bold;">int</span>
+    }{
+        {<span style="color: #2aa198;">"pos"</span>, 2, 3, 6},
+        {<span style="color: #2aa198;">"neg"</span>, 2, -3, -6},
+        {<span style="color: #2aa198;">"zero"</span>, 2, 0, 0},
+    }
+
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">_</span>, <span style="color: #8787d7;">c</span> := <span style="color: #268bd2; font-weight: bold;">range</span> cases {
+        t.<span style="color: #d75fd7; font-weight: bold;">Run</span>(c.Name, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">testing.T</span>) {
+            <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #8787d7;">ans</span> := <span style="color: #d75fd7; font-weight: bold;">Mul</span>(c.A, c.B); ans != c.Expected {
+                t.<span style="color: #d75fd7; font-weight: bold;">Fatalf</span>(<span style="color: #2aa198;">"%d * %d expected %d, but %d got"</span>,
+                    c.A, c.B, c.Expected, ans)
+            }
+        })
+    }
+}
+</pre>
+</div>
+
+<p>
+所有用例的数据组织在切片 <code>cases</code> 中，看起来就像一张表，借助循环创建子测试。这样写的好处有：<br>
+</p>
+
+<ul class="org-ul">
+<li>新增用例非常简单，只需给 cases 新增一条测试数据即可；<br></li>
+<li>测试代码可读性好，直观地能够看到每个子测试的参数和期待的返回值；<br></li>
+<li>用例失败时，报错信息的格式比较统一，测试报告易于阅读；<br></li>
+</ul>
+
+<p>
+如果数据量较大，或是一些二进制数据，推荐使用相对路径从文件中读取；<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd788822" class="outline-2">
+<h2 id="orgd788822">4. 帮助函数（helpers）</h2>
+<div class="outline-text-2" id="text-orgd788822">
+<p>
+对一些重复的逻辑，抽取出来作为公共的帮助函数（helpers），可以增加测试代码的可读性和可维护性。 借助帮助函数，可以让测试用例的主逻辑看起来更清晰。<br>
+</p>
+
+<p>
+例如，我们可以将创建子测试的逻辑抽取出来：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">calc_test.go</span>
+<span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"testing"</span>
+
+<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">calcCase</span> <span style="color: #268bd2; font-weight: bold;">struct</span>{ A, B, Expected <span style="color: #df005f; font-weight: bold;">int</span> }
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">createMulTestCase</span>(<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">testing.T</span>, <span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">calcCase</span>) {
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">t.Helper()</span>
+    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #8787d7;">ans</span> := <span style="color: #d75fd7; font-weight: bold;">Mul</span>(c.A, c.B); ans != c.Expected {
+        t.<span style="color: #d75fd7; font-weight: bold;">Fatalf</span>(<span style="color: #2aa198;">"%d * %d expected %d, but %d got"</span>,
+            c.A, c.B, c.Expected, ans)
+    }
+
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">TestMul</span>(<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">testing.T</span>) {
+    <span style="color: #d75fd7; font-weight: bold;">createMulTestCase</span>(t, &amp;<span style="color: #df005f; font-weight: bold;">calcCase</span>{2, 3, 6})
+    <span style="color: #d75fd7; font-weight: bold;">createMulTestCase</span>(t, &amp;<span style="color: #df005f; font-weight: bold;">calcCase</span>{2, -3, -6})
+    <span style="color: #d75fd7; font-weight: bold;">createMulTestCase</span>(t, &amp;<span style="color: #df005f; font-weight: bold;">calcCase</span>{2, 0, 1}) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">wrong case</span>
+}
+</pre>
+</div>
+
+<p>
+在这里，我们故意创建了一个错误的测试用例，运行 <code>go test</code> ，用例失败，会报告错误发生的文件和行号信息：<br>
+</p>
+
+<pre class="example">
+$ go test
+--- FAIL: TestMul (0.00s)
+		calc_test.go:11: 2 * 0 expected 1, but 0 got
+FAIL
+exit status 1
+FAIL    example 0.007s
+</pre>
+
+<p>
+可以看到，错误发生在第11行，也就是帮助函数 <code>createMulTestCase</code> 内部。18, 19, 20行都调用了该方法，我们第一时间并不能够确定是哪一行发生了错误。有些帮助函数还可能在不同的函数中被调用，报错信息都在同一处，不方便问题定位。因此，Go 语言在 1.9 版本中引入了 <code>t.Helper()</code> ，用于标注该函数是帮助函数，报错时将输出帮助函数调用者的信息，而不是帮助函数的内部信息。<br>
+</p>
+
+<p>
+修改 <code>createMulTestCase</code> ，调用 <code>t.Helper()</code><br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">createMulTestCase</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">calcCase</span>, <span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">testing.T</span>) {
+    t.<span style="color: #d75fd7; font-weight: bold;">Helper</span>()
+    t.<span style="color: #d75fd7; font-weight: bold;">Run</span>(c.Name, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">testing.T</span>) {
+        <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #8787d7;">ans</span> := <span style="color: #d75fd7; font-weight: bold;">Mul</span>(c.A, c.B); ans != c.Expected {
+            t.<span style="color: #d75fd7; font-weight: bold;">Fatalf</span>(<span style="color: #2aa198;">"%d * %d expected %d, but %d got"</span>,
+                c.A, c.B, c.Expected, ans)
+        }
+    })
+}
+</pre>
+</div>
+
+<p>
+运行 <code>go test</code> ，报错信息如下，可以非常清晰地知道，错误发生在第 20 行。<br>
+</p>
+
+<pre class="example">
+$ go test
+--- FAIL: TestMul (0.00s)
+		calc_test.go:20: 2 * 0 expected 1, but 0 got
+FAIL
+exit status 1
+FAIL    example 0.006s
+</pre>
+
+<p>
+关于 <code>helper</code> 函数的 2 个建议：<br>
+</p>
+
+<ul class="org-ul">
+<li>不要返回错误， 帮助函数内部直接使用 <code>t.Error</code> 或 <code>t.Fatal</code> 即可，在用例主逻辑中不会因为太多的错误处理代码，影响可读性；<br></li>
+<li>调用 <code>t.Helper()</code> 让报错信息更准确，有助于定位；<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgc34148c" class="outline-2">
+<h2 id="orgc34148c">5. setup 和 teardown</h2>
+<div class="outline-text-2" id="text-orgc34148c">
+<p>
+如果在同一个测试文件中，每一个测试用例运行前后的逻辑是相同的，一般会写在 setup 和 teardown 函数中。例如执行前需要实例化待测试的对象，如果这个对象比较复杂，很适合将这一部分逻辑提取出来；执行后，可能会做一些资源回收类的工作，例如关闭网络连接，释放文件等。标准库 <code>testing</code> 提供了这样的机制：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">setup</span>() {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Before all tests"</span>)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">teardown</span>() {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"After all tests"</span>)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Test1</span>(<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">testing.T</span>) {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"I'm test1"</span>)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Test2</span>(<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">testing.T</span>) {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"I'm test2"</span>)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">TestMain</span>(<span style="color: #8787d7;">m</span> *<span style="color: #df005f; font-weight: bold;">testing.M</span>) {
+    <span style="color: #d75fd7; font-weight: bold;">setup</span>()
+    <span style="color: #8787d7;">code</span> := m.<span style="color: #d75fd7; font-weight: bold;">Run</span>()
+    <span style="color: #d75fd7; font-weight: bold;">teardown</span>()
+    os.<span style="color: #d75fd7; font-weight: bold;">Exit</span>(code)
+}
+</pre>
+</div>
+
+
+<ul class="org-ul">
+<li>在这个测试文件中，包含有2个测试用例， <code>Test1</code> 和 <code>Test2</code> ；<br></li>
+<li>如果测试文件中包含函数 <code>TestMain</code> ，那么生成的测试将调用 <code>TestMain(m)</code> ，而不是直接运行测试；<br></li>
+<li>调用 <code>m.Run()</code> 触发所有测试用例的执行，并使用 <code>os.Exit()</code> 处理返回的状态码，如果不为0，说明有用例失败；<br></li>
+<li>因此可以在调用 <code>m.Run()</code> 前后做一些额外的准备（setup）和回收（teardown）工作；<br></li>
+</ul>
+
+<p>
+执行 <code>go test</code> ，将会输出：<br>
+</p>
+
+<pre class="example">
+$ go test
+Before all tests
+I'm test1
+I'm test2
+PASS
+After all tests
+ok      example 0.006s
+</pre>
+</div>
+</div>
+<div id="outline-container-orgc171438" class="outline-2">
+<h2 id="orgc171438">6 网络测试（Network）</h2>
+<div class="outline-text-2" id="text-orgc171438">
+</div>
+<div id="outline-container-org06e79d8" class="outline-3">
+<h3 id="org06e79d8">6.1 TCP/HTTP</h3>
+<div class="outline-text-3" id="text-org06e79d8">
+<p>
+假设需要测试某个 API 接口的 handler 能够正常工作，例如 helloHandler<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">helloHandler</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">http.Request</span>) {
+    w.<span style="color: #d75fd7; font-weight: bold;">Write</span>([]<span style="color: #d75fd7; font-weight: bold;">byte</span>(<span style="color: #2aa198;">"hello world"</span>))
+}
+</pre>
+</div>
+
+<p>
+那我们可以创建真实的网络连接进行测试：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">test code</span>
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"io/ioutil"</span>
+    <span style="color: #2aa198;">"net"</span>
+    <span style="color: #2aa198;">"net/http"</span>
+    <span style="color: #2aa198;">"testing"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">handleError</span>(<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">testing.T</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>) {
+    t.<span style="color: #d75fd7; font-weight: bold;">Helper</span>()
+    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
+        t.<span style="color: #d75fd7; font-weight: bold;">Fatal</span>(<span style="color: #2aa198;">"failed"</span>, err)
+    }
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">TestConn</span>(<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">testing.T</span>) {
+    <span style="color: #8787d7;">ln</span>, <span style="color: #8787d7;">err</span> := net.<span style="color: #d75fd7; font-weight: bold;">Listen</span>(<span style="color: #2aa198;">"tcp"</span>, <span style="color: #2aa198;">"127.0.0.1:0"</span>)
+    <span style="color: #d75fd7; font-weight: bold;">handleError</span>(t, err)
+    <span style="color: #268bd2; font-weight: bold;">defer</span> ln.<span style="color: #d75fd7; font-weight: bold;">Close</span>()
+
+    http.<span style="color: #d75fd7; font-weight: bold;">HandleFunc</span>(<span style="color: #2aa198;">"/hello"</span>, helloHandler)
+    <span style="color: #268bd2; font-weight: bold;">go</span> http.<span style="color: #d75fd7; font-weight: bold;">Serve</span>(ln, <span style="color: #d75fd7;">nil</span>)
+
+    <span style="color: #8787d7;">resp</span>, <span style="color: #8787d7;">err</span> := http.<span style="color: #d75fd7; font-weight: bold;">Get</span>(<span style="color: #2aa198;">"http://"</span> + ln.<span style="color: #d75fd7; font-weight: bold;">Addr</span>().<span style="color: #d75fd7; font-weight: bold;">String</span>() + <span style="color: #2aa198;">"/hello"</span>)
+    <span style="color: #d75fd7; font-weight: bold;">handleError</span>(t, err)
+
+    <span style="color: #268bd2; font-weight: bold;">defer</span> resp.Body.<span style="color: #d75fd7; font-weight: bold;">Close</span>()
+    <span style="color: #8787d7;">body</span>, <span style="color: #8787d7;">err</span> := ioutil.<span style="color: #d75fd7; font-weight: bold;">ReadAll</span>(resp.Body)
+    <span style="color: #d75fd7; font-weight: bold;">handleError</span>(t, err)
+
+    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #d75fd7; font-weight: bold;">string</span>(body) != <span style="color: #2aa198;">"hello world"</span> {
+        t.<span style="color: #d75fd7; font-weight: bold;">Fatal</span>(<span style="color: #2aa198;">"expected hello world, but got"</span>, <span style="color: #d75fd7; font-weight: bold;">string</span>(body))
+    }
+}
+</pre>
+</div>
+
+<ul class="org-ul">
+<li><code>net.Listen("tcp", "127.0.0.1:0")</code> ：监听一个未被占用的端口，并返回 Listener；<br></li>
+<li>调用 <code>http.Serve(ln, nil)</code> 启动 http 服务；<br></li>
+<li>使用 <code>http.Get</code> 发起一个 Get 请求，检查返回值是否正确；<br></li>
+<li>尽量不对 <code>http</code> 和 <code>net</code> 库使用 mock，这样可以覆盖较为真实的场景；<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org9f44b71" class="outline-3">
+<h3 id="org9f44b71">6.2 httptest</h3>
+<div class="outline-text-3" id="text-org9f44b71">
+<p>
+针对 http 开发的场景，使用标准库 <code>net/http/httptest</code> 进行测试更为高效。<br>
+</p>
+
+<p>
+上述的测试用例改写如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">test code</span>
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"io/ioutil"</span>
+    <span style="color: #2aa198;">"net/http"</span>
+    <span style="color: #2aa198;">"net/http/httptest"</span>
+    <span style="color: #2aa198;">"testing"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">TestConn</span>(<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">testing.T</span>) {
+    <span style="color: #8787d7;">req</span> := httptest.<span style="color: #d75fd7; font-weight: bold;">NewRequest</span>(<span style="color: #2aa198;">"GET"</span>, <span style="color: #2aa198;">"http://example.com/foo"</span>, <span style="color: #d75fd7;">nil</span>)
+    <span style="color: #8787d7;">w</span> := httptest.<span style="color: #d75fd7; font-weight: bold;">NewRecorder</span>()
+    <span style="color: #d75fd7; font-weight: bold;">helloHandler</span>(w, req)
+    <span style="color: #8787d7;">bytes</span>, <span style="color: #8787d7;">_</span> := ioutil.<span style="color: #d75fd7; font-weight: bold;">ReadAll</span>(w.<span style="color: #d75fd7; font-weight: bold;">Result</span>().Body)
+
+    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #d75fd7; font-weight: bold;">string</span>(bytes) != <span style="color: #2aa198;">"hello world"</span> {
+        t.<span style="color: #d75fd7; font-weight: bold;">Fatal</span>(<span style="color: #2aa198;">"expected hello world, but got"</span>, <span style="color: #d75fd7; font-weight: bold;">string</span>(bytes))
+    }
+}
+</pre>
+</div>
+
+<p>
+使用 httptest 模拟请求对象（req）和响应对象（w），达到了相同的目的。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org0f82202" class="outline-2">
+<h2 id="org0f82202">7. Benchmark 基准测试</h2>
+<div class="outline-text-2" id="text-org0f82202">
+<p>
+基准测试用例的定义如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">BenchmarkName</span>(<span style="color: #8787d7;">b</span> *<span style="color: #df005f; font-weight: bold;">testing.B</span>){
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">...</span>
+}
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>函数名必须以 <code>Benchmark</code> 开头，后面一般跟待测试的函数名；<br></li>
+<li>参数为 <code>b *testing.B</code> ；<br></li>
+<li>执行基准测试时，需要添加 <code>-bench</code> 参数；<br></li>
+</ul>
+
+<p>
+例如：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">BenchmarkHello</span>(<span style="color: #8787d7;">b</span> *<span style="color: #df005f; font-weight: bold;">testing.B</span>) {
+        <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := 0; i &lt; b.N; i++ {
+                fmt.<span style="color: #d75fd7; font-weight: bold;">Sprintf</span>(<span style="color: #2aa198;">"hello"</span>)
+        }
+}
+</pre>
+</div>
+
+<pre class="example">
+$ go test -benchmem -bench .
+...
+BenchmarkHello-16   15991854   71.6 ns/op   5 B/op   1 allocs/op
+...
+</pre>
+
+<p>
+基准测试报告每一列值对应的含义如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">BenchmarkResult</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+    N         <span style="color: #df005f; font-weight: bold;">int</span>           <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36845;&#20195;&#27425;&#25968;</span>
+    T         <span style="color: #df005f; font-weight: bold;">time.Duration</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22522;&#20934;&#27979;&#35797;&#33457;&#36153;&#30340;&#26102;&#38388;</span>
+    Bytes     <span style="color: #df005f; font-weight: bold;">int64</span>         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#19968;&#27425;&#36845;&#20195;&#22788;&#29702;&#30340;&#23383;&#33410;&#25968;</span>
+    MemAllocs <span style="color: #df005f; font-weight: bold;">uint64</span>        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#24635;&#30340;&#20998;&#37197;&#20869;&#23384;&#30340;&#27425;&#25968;</span>
+    MemBytes  <span style="color: #df005f; font-weight: bold;">uint64</span>        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#24635;&#30340;&#20998;&#37197;&#20869;&#23384;&#30340;&#23383;&#33410;&#25968;</span>
+}
+</pre>
+</div>
+
+<p>
+如果在运行前基准测试需要一些耗时的配置，则可以使用 <code>b.ResetTimer()</code> 先重置定时器，例如：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">BenchmarkHello</span>(<span style="color: #8787d7;">b</span> *<span style="color: #df005f; font-weight: bold;">testing.B</span>) {
+    ... <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#32791;&#26102;&#25805;&#20316;</span>
+        b.<span style="color: #d75fd7; font-weight: bold;">ResetTimer</span>()
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := 0; i &lt; b.N; i++ {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Sprintf</span>(<span style="color: #2aa198;">"hello"</span>)
+    }
+}
+</pre>
+</div>
+
+<p>
+使用 <code>RunParallel</code> 测试并发性能<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">BenchmarkParallel</span>(<span style="color: #8787d7;">b</span> *<span style="color: #df005f; font-weight: bold;">testing.B</span>) {
+    <span style="color: #8787d7;">templ</span> := template.<span style="color: #d75fd7; font-weight: bold;">Must</span>(template.<span style="color: #d75fd7; font-weight: bold;">New</span>(<span style="color: #2aa198;">"test"</span>).<span style="color: #d75fd7; font-weight: bold;">Parse</span>(<span style="color: #2aa198;">"Hello, {{.}}!"</span>))
+    b.<span style="color: #d75fd7; font-weight: bold;">RunParallel</span>(<span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">pb</span> *<span style="color: #df005f; font-weight: bold;">testing.PB</span>) {
+        <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">buf</span> <span style="color: #df005f; font-weight: bold;">bytes.Buffer</span>
+        <span style="color: #268bd2; font-weight: bold;">for</span> pb.<span style="color: #d75fd7; font-weight: bold;">Next</span>() {
+            <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25152;&#26377; goroutine &#19968;&#36215;&#65292;&#24490;&#29615;&#19968;&#20849;&#25191;&#34892; b.N &#27425;</span>
+            buf.<span style="color: #d75fd7; font-weight: bold;">Reset</span>()
+            templ.<span style="color: #d75fd7; font-weight: bold;">Execute</span>(&amp;buf, <span style="color: #2aa198;">"World"</span>)
+        }
+    })
+}
+</pre>
+</div>
+
+<pre class="example">
+$ go test -benchmem -bench .
+...
+BenchmarkParallel-16   3325430     375 ns/op   272 B/op   8 allocs/op
+...
+</pre>
+</div>
+</div>
+<div id="outline-container-orgfa6e500" class="outline-2">
+<h2 id="orgfa6e500">参考</h2>
+<div class="outline-text-2" id="text-orgfa6e500">
+<div class="reference">
+	<ul style="list-style: none;">
+		<li><a href="https://geektutu.com/post/quick-go-test.html" target="_blank">Go Test 单元测试简明教程</a></li>
+	</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-07-05 Tue 11:38</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

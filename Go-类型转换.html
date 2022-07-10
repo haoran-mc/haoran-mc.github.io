@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-05-11 Wed 16:37 -->
+<!-- 2022-07-08 Fri 15:57 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GO 类型转换</title>
@@ -31,12 +31,17 @@
 <li><a href="#org3b293aa">类型断言</a></li>
 <li><a href="#org7882ac9">与 string 类型相关的转换</a>
 <ul>
-<li><a href="#orgcbc2468">string 到 int</a></li>
-<li><a href="#org5dd23e8">string 到 int64</a></li>
-<li><a href="#org645a4f1">int 到 string</a></li>
-<li><a href="#org7f88887">int64 到 string</a></li>
-<li><a href="#orgec7570c">float 到 string</a></li>
-<li><a href="#org3a6913a">string 到 float</a></li>
+<li><a href="#orgcdcdf78">string &amp; int</a></li>
+<li><a href="#org2ad666f">string &amp; int64</a></li>
+<li><a href="#orgc6e133d">string &amp; float</a></li>
+<li><a href="#org550b556">string &amp; []byte</a>
+<ul>
+<li><a href="#orgdc8730a">标准转换</a></li>
+<li><a href="#orgd876414">强转换</a></li>
+<li><a href="#orgf9878f4">关于 stirng 与 []byte 转换的问题</a></li>
+<li><a href="#orga17b8b3">取舍场景</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -244,31 +249,20 @@ Golang 的类型转换和 C/C++、Java 等语言的类型转换有点区别：<b
 <a href="Go-strconv.html">strconv</a> 包提供了关于 string 与其他类型的转换方法。<br>
 </p>
 </div>
-<div id="outline-container-orgcbc2468" class="outline-3">
-<h3 id="orgcbc2468">string 到 int</h3>
-<div class="outline-text-3" id="text-orgcbc2468">
+<div id="outline-container-orgcdcdf78" class="outline-3">
+<h3 id="orgcdcdf78">string &amp; int</h3>
+<div class="outline-text-3" id="text-orgcdcdf78">
+<ul class="org-ul">
+<li><p>
+string 到 int<br>
+</p>
 <div class="org-src-container">
 <pre class="src src-go">int, err: = strconv.<span style="color: #d75fd7; font-weight: bold;">Atoi</span>(string)
 </pre>
-</div>
-</div>
-</div>
-<div id="outline-container-org5dd23e8" class="outline-3">
-<h3 id="org5dd23e8">string 到 int64</h3>
-<div class="outline-text-3" id="text-org5dd23e8">
-<div class="org-src-container">
-<pre class="src src-go"><span style="color: #8787d7;">int64</span>, <span style="color: #8787d7;">err</span> := strconv.<span style="color: #d75fd7; font-weight: bold;">ParseInt</span>(string, 10, 64)
-</pre>
-</div>
-
-<p>
-第三个参数位大小表示期望转换的结果类型，其值可以为0, 8, 16, 32和64，分别对应 int, int8, int16, int32和int64<br>
+</div></li>
+<li><p>
+int 到 string<br>
 </p>
-</div>
-</div>
-<div id="outline-container-org645a4f1" class="outline-3">
-<h3 id="org645a4f1">int 到 string</h3>
-<div class="outline-text-3" id="text-org645a4f1">
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #8787d7;">string</span> := strconv.<span style="color: #d75fd7; font-weight: bold;">Itoa</span>(int)
 </pre>
@@ -276,35 +270,167 @@ Golang 的类型转换和 C/C++、Java 等语言的类型转换有点区别：<b
 
 <p>
 等价于 <code>string := strconv.FormatInt(int64(int), 10)</code><br>
+</p></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org2ad666f" class="outline-3">
+<h3 id="org2ad666f">string &amp; int64</h3>
+<div class="outline-text-3" id="text-org2ad666f">
+<ul class="org-ul">
+<li><p>
+string 到 int64<br>
 </p>
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">int64</span>, <span style="color: #8787d7;">err</span> := strconv.<span style="color: #d75fd7; font-weight: bold;">ParseInt</span>(string, 10, 64)
+</pre>
 </div>
-</div>
-<div id="outline-container-org7f88887" class="outline-3">
-<h3 id="org7f88887">int64 到 string</h3>
-<div class="outline-text-3" id="text-org7f88887">
+
+<p>
+第三个参数位大小表示期望转换的结果类型，其值可以为0, 8, 16, 32和64，分别对应 int, int8, int16, int32和int64<br>
+</p></li>
+<li><p>
+int64 到 string<br>
+</p>
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #8787d7;">string</span> := strconv.<span style="color: #d75fd7; font-weight: bold;">FormatInt</span>(int64, 10)
 </pre>
+</div></li>
+</ul>
 </div>
 </div>
-</div>
-<div id="outline-container-orgec7570c" class="outline-3">
-<h3 id="orgec7570c">float 到 string</h3>
-<div class="outline-text-3" id="text-orgec7570c">
+<div id="outline-container-orgc6e133d" class="outline-3">
+<h3 id="orgc6e133d">string &amp; float</h3>
+<div class="outline-text-3" id="text-orgc6e133d">
+<ul class="org-ul">
+<li><p>
+float 到 string<br>
+</p>
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #8787d7;">string</span> := strconv.<span style="color: #d75fd7; font-weight: bold;">FormatFloat</span>(float32, <span style="color: #2aa198;">'E'</span>, -1, 32)
 <span style="color: #8787d7;">string</span> := strconv.<span style="color: #d75fd7; font-weight: bold;">FormatFloat</span>(float64, <span style="color: #2aa198;">'E'</span>, -1, 64)
 </pre>
-</div>
-</div>
-</div>
-<div id="outline-container-org3a6913a" class="outline-3">
-<h3 id="org3a6913a">string 到 float</h3>
-<div class="outline-text-3" id="text-org3a6913a">
+</div></li>
+<li><p>
+string 到 float<br>
+</p>
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #8787d7;">float</span>, <span style="color: #8787d7;">err</span> := strconv.<span style="color: #d75fd7; font-weight: bold;">ParseFloat</span>(string, 64)
 <span style="color: #8787d7;">float</span>, <span style="color: #8787d7;">err</span> := strconv.<span style="color: #d75fd7; font-weight: bold;">ParseFloat</span>(string, 32)
 </pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org550b556" class="outline-3">
+<h3 id="org550b556">string &amp; []byte</h3>
+<div class="outline-text-3" id="text-org550b556">
+</div>
+<div id="outline-container-orgdc8730a" class="outline-4">
+<h4 id="orgdc8730a">标准转换</h4>
+<div class="outline-text-4" id="text-orgdc8730a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">string to []byte</span>
+<span style="color: #8787d7;">s1</span> := <span style="color: #2aa198;">"hello"</span>
+<span style="color: #8787d7;">b</span> := []<span style="color: #d75fd7; font-weight: bold;">byte</span>(s1)
+
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">[]byte to string</span>
+<span style="color: #8787d7;">s2</span> := <span style="color: #d75fd7; font-weight: bold;">string</span>(b) 
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgd876414" class="outline-4">
+<h4 id="orgd876414">强转换</h4>
+<div class="outline-text-4" id="text-orgd876414">
+<p>
+通过 <code>unsafe</code> 和 <code>reflect</code> 包，可以实现另外一种转换方式，我们将之称为强转换（也常常被人称作黑魔法）。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">String2Bytes</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>) []<span style="color: #df005f; font-weight: bold;">byte</span> {
+    <span style="color: #8787d7;">sh</span> := (*reflect.StringHeader)(unsafe.<span style="color: #d75fd7; font-weight: bold;">Pointer</span>(&amp;s))
+    <span style="color: #8787d7;">bh</span> := <span style="color: #df005f; font-weight: bold;">reflect.SliceHeader</span>{
+        <span style="color: #d75fd7;">Data</span>: sh.Data,
+        <span style="color: #d75fd7;">Len</span>:  sh.Len,
+        <span style="color: #d75fd7;">Cap</span>:  sh.Len,
+    }
+    <span style="color: #268bd2; font-weight: bold;">return</span> *(*[]<span style="color: #df005f; font-weight: bold;">byte</span>)(unsafe.<span style="color: #d75fd7; font-weight: bold;">Pointer</span>(&amp;bh))
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">Bytes2String</span>(<span style="color: #8787d7;">b</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) <span style="color: #df005f; font-weight: bold;">string</span> {
+    <span style="color: #268bd2; font-weight: bold;">return</span> *(*string)(unsafe.<span style="color: #d75fd7; font-weight: bold;">Pointer</span>(&amp;b))
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgf9878f4" class="outline-4">
+<h4 id="orgf9878f4">关于 stirng 与 []byte 转换的问题</h4>
+<div class="outline-text-4" id="text-orgf9878f4">
+<ul class="org-ul">
+<li><p>
+Q1. 为啥强转换性能会比标准转换好？<br>
+</p>
+
+<p>
+对于标准转换，无论是从 <code>[]byte</code> 转 <code>string</code> 还是 <code>string</code> 转 <code>[]byte</code> 都会涉及底层数组的拷贝。而强转换是直接替换指针的指向，从而使得 <code>string</code> 和 <code>[]byte</code> 指向同一个底层数组。这样，当然后者的性能会更好。<br>
+</p></li>
+
+<li><p>
+Q2. 为啥在测试中，当数据较大时，标准转换方式会有一次分配内存的操作，从而导致其性能更差，而强转换方式却不受影响？<br>
+</p>
+
+<p>
+标准转换时，当数据长度大于32个字节时，需要通过 <code>mallocgc</code> 申请新的内存，之后再进行数据拷贝工作。而强转换只是更改指针指向。所以，当转换数据较大时，两者性能差距会愈加明显。<br>
+</p></li>
+
+<li><p>
+Q3. 既然强转换方式性能这么好，为啥 go 语言提供给我们使用的是标准转换方式？<br>
+</p>
+
+<p>
+首先，我们需要知道 Go 是一门类型安全的语言，而安全的代价就是性能的妥协。但是，性能的对比是相对的，这点性能的妥协对于现在的机器而言微乎其微。另外强转换的方式，会给我们的程序带来极大的安全隐患。<br>
+</p>
+
+<p>
+如下示例<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">a</span> := <span style="color: #2aa198;">"hello"</span>
+<span style="color: #8787d7;">b</span> := <span style="color: #d75fd7; font-weight: bold;">String2Bytes</span>(a)
+b[0] = <span style="color: #2aa198;">'H'</span>
+</pre>
+</div>
+
+<p>
+<code>a</code> 是 <code>string</code> 类型，前面我们讲到它的值是不可修改的。通过强转换将 <code>a</code> 的底层数组赋给 <code>b</code> ，而 <code>b</code> 是一个 <code>[]byte</code> 类型，它的值是可以修改的，所以这时对底层数组的值进行修改，将会造成严重的错误（通过 defer + recover 也不能捕获）。<br>
+</p>
+
+<pre class="example">
+unexpected fault address 0x10b6139
+fatal error: fault
+[signal SIGBUS: bus error code=0x2 addr=0x10b6139 pc=0x1088f2c]
+</pre></li>
+
+<li><p>
+Q4. 为啥 <code>string</code> 要设计为不可修改的？<br>
+</p>
+
+<p>
+我认为有必要思考一下该问题。 <code>string</code> 不可修改，意味它是只读属性，这样的好处就是：在并发场景下，我们可以在不加锁的控制下，多次使用同一字符串，在保证高效共享的情况下而不用担心安全问题。<br>
+</p></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orga17b8b3" class="outline-4">
+<h4 id="orga17b8b3">取舍场景</h4>
+<div class="outline-text-4" id="text-orga17b8b3">
+<ul class="org-ul">
+<li>在你不确定安全隐患的条件下，尽量采用标准方式进行数据转换。<br></li>
+<li>当程序对运行性能有高要求，同时满足对数据仅仅只有读操作的条件，且存在频繁转换（例如消息转发场景），可以使用强转换。<br></li>
+</ul>
 </div>
 </div>
 </div>

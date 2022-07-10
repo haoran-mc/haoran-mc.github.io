@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-02-10 Thu 01:29 -->
+<!-- 2022-07-01 Fri 11:48 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>闭包、递归</title>
@@ -21,16 +21,16 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org8d6a250">闭包详解</a></li>
-<li><a href="#org5a85c4d">Go 的闭包</a></li>
-<li><a href="#org6b7e48d">递归</a>
+<li><a href="#org44c1bfd">闭包详解</a></li>
+<li><a href="#orgff963fa">Go 的闭包</a></li>
+<li><a href="#org9446c63">递归</a>
 <ul>
-<li><a href="#org95f9798">数字阶乘</a></li>
-<li><a href="#org0cf44ac">斐波那契数列</a>
+<li><a href="#org36076bd">数字阶乘</a></li>
+<li><a href="#org293d425">斐波那契数列</a>
 <ul>
-<li><a href="#org295bc72">常见写法</a></li>
-<li><a href="#org2ecafb5">使用函数变量</a></li>
-<li><a href="#org8c40794">使用闭包</a></li>
+<li><a href="#orgf31e882">常见写法</a></li>
+<li><a href="#org94cb1df">使用函数变量</a></li>
+<li><a href="#org796d863">使用闭包</a></li>
 </ul>
 </li>
 </ul>
@@ -39,9 +39,9 @@
 </div>
 </div>
 
-<div id="outline-container-org8d6a250" class="outline-2">
-<h2 id="org8d6a250">闭包详解</h2>
-<div class="outline-text-2" id="text-org8d6a250">
+<div id="outline-container-org44c1bfd" class="outline-2">
+<h2 id="org44c1bfd">闭包详解</h2>
+<div class="outline-text-2" id="text-org44c1bfd">
 <p>
 闭包的应该都听过，但到底什么是闭包呢？<br>
 </p>
@@ -63,37 +63,37 @@
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go">&lt;<span style="color: #d75fd7;">!</span>DOCTYPE <span style="color: #df005f; font-weight: bold;">html</span>&gt;
-&lt;html <span style="color: #df005f; font-weight: bold;">lang</span>=<span style="color: #2aa198;">"zh"</span>&gt;
-    &lt;head&gt;
-        &lt;title&gt;&#38381;&#21253;&lt;/title&gt;
-    &lt;/head&gt;
-    &lt;body&gt;
-    &lt;/body&gt;
-&lt;/html&gt;
-&lt;script <span style="color: #df005f; font-weight: bold;">src</span>=<span style="color: #2aa198;">"http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"</span> <span style="color: #268bd2; font-weight: bold;">type</span>=<span style="color: #2aa198;">"text/javascript"</span>&gt;&lt;/script&gt;
-&lt;script&gt;
-    function <span style="color: #df005f; font-weight: bold;">a</span>() {
-            <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">i</span> = <span style="color: #d75fd7;">0</span>;
-            function <span style="color: #df005f; font-weight: bold;">b</span>() {
-                    console.<span style="color: #d75fd7; font-weight: bold;">log</span>( ++ i);
-                    document.<span style="color: #d75fd7; font-weight: bold;">write</span>(<span style="color: #2aa198;">"&lt;h1&gt;"</span> + i + <span style="color: #2aa198;">"&lt;/h1&gt;"</span>);
-                }
-            <span style="color: #268bd2; font-weight: bold;">return</span> b;
+<pre class="src src-html">&lt;<span style="color: #268bd2; font-weight: bold;">!DOCTYPE</span> html&gt;
+&lt;<span style="color: #d75fd7; font-weight: bold;">html</span> <span style="color: #8787d7;">lang</span>=<span style="color: #2aa198;">"zh"</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">head</span>&gt;
+    &lt;<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;<span style="font-weight: bold; text-decoration: underline;">&#38381;&#21253;</span>&lt;/<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;
+  &lt;/<span style="color: #d75fd7; font-weight: bold;">head</span>&gt;
+  &lt;<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
+  &lt;/<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
+&lt;/<span style="color: #d75fd7; font-weight: bold;">html</span>&gt;
+&lt;<span style="color: #d75fd7; font-weight: bold;">script</span> <span style="color: #8787d7;">src</span>=<span style="color: #2aa198;">"http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"text/javascript"</span>&gt;&lt;/<span style="color: #d75fd7; font-weight: bold;">script</span>&gt;
+&lt;<span style="color: #d75fd7; font-weight: bold;">script</span>&gt;
+  function a() {
+      var i = 0;
+      function b() {
+          console.log( ++ i);
+          document.write("&lt;<span style="color: #d75fd7; font-weight: bold;">h1</span>&gt;<span style="font-weight: bold; text-decoration: underline;">" + i + "</span>&lt;/<span style="color: #d75fd7; font-weight: bold;">h1</span>&gt;");
         }
+      return b;
+    }
 
-    <span style="color: #d75fd7; font-weight: bold;">$</span>(<span style="color: #d75fd7; font-weight: bold;">function</span>() {
-            <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">c1</span> = <span style="color: #d75fd7; font-weight: bold;">a</span>();
-            <span style="color: #d75fd7; font-weight: bold;">c1</span>();
-            <span style="color: #d75fd7; font-weight: bold;">c1</span>();
-            <span style="color: #d75fd7; font-weight: bold;">c1</span>();
-            <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">a();   // &#19981;&#20250;&#26377;&#20449;&#24687;&#36755;&#20986;</span>
-            document.<span style="color: #d75fd7; font-weight: bold;">write</span>(<span style="color: #2aa198;">"&lt;h1&gt;=============&lt;/h1&gt;"</span>);
-            <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">c2</span> = <span style="color: #d75fd7; font-weight: bold;">a</span>();
-            <span style="color: #d75fd7; font-weight: bold;">c2</span>();
-            <span style="color: #d75fd7; font-weight: bold;">c2</span>();
-        });
-&lt;/script&gt;
+  $(function() {
+      var c1 = a();
+      c1();
+      c1();
+      c1();
+      // a();   // &#19981;&#20250;&#26377;&#20449;&#24687;&#36755;&#20986;
+      document.write("&lt;<span style="color: #d75fd7; font-weight: bold;">h1</span>&gt;<span style="font-weight: bold; text-decoration: underline;">=============</span>&lt;/<span style="color: #d75fd7; font-weight: bold;">h1</span>&gt;");
+      var c2 = a();
+      c2();
+      c2();
+    });
+&lt;/<span style="color: #d75fd7; font-weight: bold;">script</span>&gt;
 </pre>
 </div>
 
@@ -118,9 +118,9 @@
 </p>
 </div>
 </div>
-<div id="outline-container-org5a85c4d" class="outline-2">
-<h2 id="org5a85c4d">Go 的闭包</h2>
-<div class="outline-text-2" id="text-org5a85c4d">
+<div id="outline-container-orgff963fa" class="outline-2">
+<h2 id="orgff963fa">Go 的闭包</h2>
+<div class="outline-text-2" id="text-orgff963fa">
 <p>
 Go语言是支持闭包的，这里只是简单地讲一下在Go语言中闭包是如何实现的。 下面我来将之前的JavaScript的闭包例子用Go来实现。<br>
 </p>
@@ -133,7 +133,7 @@ Go语言是支持闭包的，这里只是简单地讲一下在Go语言中闭包�
 )
 
 <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">a</span>() <span style="color: #268bd2; font-weight: bold;">func</span>() <span style="color: #df005f; font-weight: bold;">int</span> {
-    <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">0</span>
+    <span style="color: #8787d7;">i</span> := 0
     <span style="color: #8787d7;">b</span> := <span style="color: #268bd2; font-weight: bold;">func</span>() <span style="color: #df005f; font-weight: bold;">int</span> {
         i++
         fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(i)
@@ -159,7 +159,7 @@ Go语言是支持闭包的，这里只是简单地讲一下在Go语言中闭包�
 输出结果：<br>
 </p>
 
-<pre class="example" id="orgdde289c">
+<pre class="example">
 1
 2
 3
@@ -181,7 +181,7 @@ Go语言是支持闭包的，这里只是简单地讲一下在Go语言中闭包�
 <span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
 
 <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">test</span>() <span style="color: #268bd2; font-weight: bold;">func</span>() {
-    <span style="color: #8787d7;">x</span> := <span style="color: #d75fd7;">100</span>
+    <span style="color: #8787d7;">x</span> := 100
     fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"x (%p) = %d\n"</span>, &amp;x, x)
 
     <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
@@ -200,7 +200,7 @@ Go语言是支持闭包的，这里只是简单地讲一下在Go语言中闭包�
 输出:<br>
 </p>
 
-<pre class="example" id="orgad3e3f1">
+<pre class="example">
 x (0xc42007c008) = 100
 x (0xc42007c008) = 100
 </pre>
@@ -232,16 +232,16 @@ x (0xc42007c008) = 100
 }
 
 <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #8787d7;">tmp1</span> := <span style="color: #d75fd7; font-weight: bold;">add</span>(<span style="color: #d75fd7;">10</span>)
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #d75fd7; font-weight: bold;">tmp1</span>(<span style="color: #d75fd7;">1</span>), <span style="color: #d75fd7; font-weight: bold;">tmp1</span>(<span style="color: #d75fd7;">2</span>))
+    <span style="color: #8787d7;">tmp1</span> := <span style="color: #d75fd7; font-weight: bold;">add</span>(10)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #d75fd7; font-weight: bold;">tmp1</span>(1), <span style="color: #d75fd7; font-weight: bold;">tmp1</span>(2))
     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#27492;&#26102;tmp1&#21644;tmp2&#19981;&#26159;&#19968;&#20010;&#23454;&#20307;&#20102;</span>
-    <span style="color: #8787d7;">tmp2</span> := <span style="color: #d75fd7; font-weight: bold;">add</span>(<span style="color: #d75fd7;">100</span>)
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #d75fd7; font-weight: bold;">tmp2</span>(<span style="color: #d75fd7;">1</span>), <span style="color: #d75fd7; font-weight: bold;">tmp2</span>(<span style="color: #d75fd7;">2</span>))
+    <span style="color: #8787d7;">tmp2</span> := <span style="color: #d75fd7; font-weight: bold;">add</span>(100)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #d75fd7; font-weight: bold;">tmp2</span>(1), <span style="color: #d75fd7; font-weight: bold;">tmp2</span>(2))
 }
 </pre>
 </div>
 
-<pre class="example" id="org56df64c">
+<pre class="example">
 11 13
 101 103
 </pre>
@@ -273,24 +273,24 @@ x (0xc42007c008) = 100
 }
 
 <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #8787d7;">f1</span>, <span style="color: #8787d7;">f2</span> := <span style="color: #d75fd7; font-weight: bold;">test01</span>(<span style="color: #d75fd7;">10</span>)
+    <span style="color: #8787d7;">f1</span>, <span style="color: #8787d7;">f2</span> := <span style="color: #d75fd7; font-weight: bold;">test01</span>(10)
     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">base&#19968;&#30452;&#26159;&#27809;&#26377;&#28040;</span>
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #d75fd7; font-weight: bold;">f1</span>(<span style="color: #d75fd7;">1</span>), <span style="color: #d75fd7; font-weight: bold;">f2</span>(<span style="color: #d75fd7;">2</span>))
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #d75fd7; font-weight: bold;">f1</span>(1), <span style="color: #d75fd7; font-weight: bold;">f2</span>(2))
     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#27492;&#26102;base&#26159;9</span>
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #d75fd7; font-weight: bold;">f1</span>(<span style="color: #d75fd7;">3</span>), <span style="color: #d75fd7; font-weight: bold;">f2</span>(<span style="color: #d75fd7;">4</span>))
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #d75fd7; font-weight: bold;">f1</span>(3), <span style="color: #d75fd7; font-weight: bold;">f2</span>(4))
 }
 </pre>
 </div>
 
-<pre class="example" id="org6420d19">
+<pre class="example">
 11 9
 12 8
 </pre>
 </div>
 </div>
-<div id="outline-container-org6b7e48d" class="outline-2">
-<h2 id="org6b7e48d">递归</h2>
-<div class="outline-text-2" id="text-org6b7e48d">
+<div id="outline-container-org9446c63" class="outline-2">
+<h2 id="org9446c63">递归</h2>
+<div class="outline-text-2" id="text-org9446c63">
 <p>
 递归，就是在运行的过程中调用自己。 一个函数调用自己，就叫做递归函数。<br>
 </p>
@@ -304,9 +304,9 @@ x (0xc42007c008) = 100
 <li>不能无限制地调用本身，须有个出口，化简为非递归状况处理。<br></li>
 </ol>
 </div>
-<div id="outline-container-org95f9798" class="outline-3">
-<h3 id="org95f9798">数字阶乘</h3>
-<div class="outline-text-3" id="text-org95f9798">
+<div id="outline-container-org36076bd" class="outline-3">
+<h3 id="org36076bd">数字阶乘</h3>
+<div class="outline-text-3" id="text-org36076bd">
 <p>
 一个正整数的阶乘（factorial）是所有小于及等于该数的正整数的积，并且0的阶乘为1。自然数n的阶乘写作n!。1808年，基斯顿·卡曼引进这个表示法。<br>
 </p>
@@ -317,14 +317,14 @@ x (0xc42007c008) = 100
 <span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
 
 <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">factorial</span>(<span style="color: #8787d7;">i</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">int</span> {
-    <span style="color: #268bd2; font-weight: bold;">if</span> i &lt;= <span style="color: #d75fd7;">1</span> {
-        <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">1</span>
+    <span style="color: #268bd2; font-weight: bold;">if</span> i &lt;= 1 {
+        <span style="color: #268bd2; font-weight: bold;">return</span> 1
     }
-    <span style="color: #268bd2; font-weight: bold;">return</span> i * <span style="color: #d75fd7; font-weight: bold;">factorial</span>(i-<span style="color: #d75fd7;">1</span>)
+    <span style="color: #268bd2; font-weight: bold;">return</span> i * <span style="color: #d75fd7; font-weight: bold;">factorial</span>(i-1)
 }
 
 <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">i</span> <span style="color: #df005f; font-weight: bold;">int</span> = <span style="color: #d75fd7;">7</span>
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">i</span> <span style="color: #df005f; font-weight: bold;">int</span> = 7
     fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"Factorial of %d is %d\n"</span>, i, <span style="color: #d75fd7; font-weight: bold;">factorial</span>(i))
 }
 </pre>
@@ -334,19 +334,19 @@ x (0xc42007c008) = 100
 输出结果：<br>
 </p>
 
-<pre class="example" id="orgaadcef5">
+<pre class="example">
 Factorial of 7 is 5040
 </pre>
 </div>
 </div>
 
-<div id="outline-container-org0cf44ac" class="outline-3">
-<h3 id="org0cf44ac">斐波那契数列</h3>
-<div class="outline-text-3" id="text-org0cf44ac">
+<div id="outline-container-org293d425" class="outline-3">
+<h3 id="org293d425">斐波那契数列</h3>
+<div class="outline-text-3" id="text-org293d425">
 </div>
-<div id="outline-container-org295bc72" class="outline-4">
-<h4 id="org295bc72">常见写法</h4>
-<div class="outline-text-4" id="text-org295bc72">
+<div id="outline-container-orgf31e882" class="outline-4">
+<h4 id="orgf31e882">常见写法</h4>
+<div class="outline-text-4" id="text-orgf31e882">
 <p>
 这个数列从第3项开始，每一项都等于前两项之和。<br>
 </p>
@@ -357,11 +357,11 @@ Factorial of 7 is 5040
 <span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
 
 <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">fibonacci</span>(<span style="color: #8787d7;">num</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
-    <span style="color: #8787d7;">b1</span> := <span style="color: #d75fd7;">1</span>
-    <span style="color: #8787d7;">b2</span> := <span style="color: #d75fd7;">0</span>
-    <span style="color: #8787d7;">bc</span> := <span style="color: #d75fd7;">0</span>
+    <span style="color: #8787d7;">b1</span> := 1
+    <span style="color: #8787d7;">b2</span> := 0
+    <span style="color: #8787d7;">bc</span> := 0
 
-    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; num; i++ {
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := 0; i &lt; num; i++ {
         bc = b1 + b2
         b1 = b2
         b2 = bc
@@ -370,12 +370,12 @@ Factorial of 7 is 5040
 }
 
 <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #d75fd7; font-weight: bold;">fibonacci</span>(<span style="color: #d75fd7;">10</span>)
+    <span style="color: #d75fd7; font-weight: bold;">fibonacci</span>(10)
 }
 </pre>
 </div>
 
-<pre class="example" id="org6d47640">
+<pre class="example">
 1
 1
 2
@@ -389,25 +389,25 @@ Factorial of 7 is 5040
 </pre>
 </div>
 </div>
-<div id="outline-container-org2ecafb5" class="outline-4">
-<h4 id="org2ecafb5">使用函数变量</h4>
-<div class="outline-text-4" id="text-org2ecafb5">
+<div id="outline-container-org94cb1df" class="outline-4">
+<h4 id="org94cb1df">使用函数变量</h4>
+<div class="outline-text-4" id="text-org94cb1df">
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
 
 <span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
 
 <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #8787d7;">b1</span> := <span style="color: #d75fd7;">1</span>
-    <span style="color: #8787d7;">b2</span> := <span style="color: #d75fd7;">0</span>
-    <span style="color: #8787d7;">bc</span> := <span style="color: #d75fd7;">0</span>
+    <span style="color: #8787d7;">b1</span> := 1
+    <span style="color: #8787d7;">b2</span> := 0
+    <span style="color: #8787d7;">bc</span> := 0
     <span style="color: #8787d7;">fibonacci</span> := <span style="color: #268bd2; font-weight: bold;">func</span>() {
         bc = b1 + b2
         b1 = b2
         b2 = bc
         fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(bc)
     }
-    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; <span style="color: #d75fd7;">10</span>; i++ {
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := 0; i &lt; 10; i++ {
         <span style="color: #d75fd7; font-weight: bold;">fibonacci</span>()
     }
 }
@@ -415,18 +415,18 @@ Factorial of 7 is 5040
 </div>
 </div>
 </div>
-<div id="outline-container-org8c40794" class="outline-4">
-<h4 id="org8c40794">使用闭包</h4>
-<div class="outline-text-4" id="text-org8c40794">
+<div id="outline-container-org796d863" class="outline-4">
+<h4 id="org796d863">使用闭包</h4>
+<div class="outline-text-4" id="text-org796d863">
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
 
 <span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
 
 <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">fibonacci</span>() <span style="color: #268bd2; font-weight: bold;">func</span>() <span style="color: #df005f; font-weight: bold;">int</span> {
-    <span style="color: #8787d7;">b1</span> := <span style="color: #d75fd7;">1</span>
-    <span style="color: #8787d7;">b2</span> := <span style="color: #d75fd7;">0</span>
-    <span style="color: #8787d7;">bc</span> := <span style="color: #d75fd7;">0</span>
+    <span style="color: #8787d7;">b1</span> := 1
+    <span style="color: #8787d7;">b2</span> := 0
+    <span style="color: #8787d7;">bc</span> := 0
     <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #268bd2; font-weight: bold;">func</span>() <span style="color: #df005f; font-weight: bold;">int</span> {
         bc = b1 + b2
         b1 = b2
@@ -437,7 +437,7 @@ Factorial of 7 is 5040
 
 <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
     <span style="color: #8787d7;">fn</span> := <span style="color: #d75fd7; font-weight: bold;">fibonacci</span>()
-    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; <span style="color: #d75fd7;">10</span>; i++ {
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := 0; i &lt; 10; i++ {
         fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #d75fd7; font-weight: bold;">fn</span>())
     }
 }
@@ -451,8 +451,8 @@ Factorial of 7 is 5040
 <div id="postamble" class="status">
 <p class="date">Date: 2022-02-09 23:02 Wed</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-02-10 Thu 01:29</p>
-<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+<p class="date">Created: 2022-07-01 Fri 11:48</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>

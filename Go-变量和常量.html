@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-05-11 Wed 11:22 -->
+<!-- 2022-07-06 Wed 16:25 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>变量和常量</title>
@@ -26,15 +26,8 @@
 <li><a href="#orgcce6b9c">变量的来历</a></li>
 <li><a href="#orgd6e7dc2">变量类型</a></li>
 <li><a href="#orgd556c01">变量声明</a></li>
-<li><a href="#org28ebee4">标准声明</a></li>
-<li><a href="#orgdbb08cb">批量声明</a></li>
-<li><a href="#org5c51b5d">变量的初始化</a>
-<ul>
-<li><a href="#org9d45231">类型推导</a></li>
-<li><a href="#orgc1a03bf">短变量声明</a></li>
+<li><a href="#org5c51b5d">变量的初始化</a></li>
 <li><a href="#org842c6da">匿名变量</a></li>
-</ul>
-</li>
 </ul>
 </li>
 <li><a href="#org23e700e">常量</a>
@@ -71,11 +64,11 @@
 <h3 id="orgd6e7dc2">变量类型</h3>
 <div class="outline-text-3" id="text-orgd6e7dc2">
 <p>
-变量（Variable）的功能是存储数据。不同的变量保存的数据类型可能会不一样。经过半个多世纪的发展，编程语言已经基本形成了一套固定的类型，常见变量的数据类型有：整型、浮点型、布尔型等。<br>
+变量（Variable）的功能是存储数据。不同的变量保存的数据类型可能会不一样。经过半个多世纪的发展，编程语言已经基本形成了一套固定的类型，常见变量的 <a href="Go-内建变量类型.html">数据类型</a> 有：整型、浮点型、布尔型等。<br>
 </p>
 
 <p>
-Go语言中的每一个变量都有自己的类型，并且变量必须经过声明才能开始使用。<br>
+Go 语言中的每一个变量都有自己的类型，并且变量必须经过声明才能开始使用。<br>
 </p>
 </div>
 </div>
@@ -83,23 +76,13 @@ Go语言中的每一个变量都有自己的类型，并且变量必须经过声
 <h3 id="orgd556c01">变量声明</h3>
 <div class="outline-text-3" id="text-orgd556c01">
 <p>
-Go语言中的变量需要声明后才能使用，同一作用域内不支持重复声明。并且Go语言的变量声明后必须使用。<br>
-</p>
-</div>
-</div>
-<div id="outline-container-org28ebee4" class="outline-3">
-<h3 id="org28ebee4">标准声明</h3>
-<div class="outline-text-3" id="text-org28ebee4">
-<p>
-Go语言的变量声明格式为：<br>
+Go 语言中的变量需要声明后才能使用，同一作用域内不支持重复声明。并且Go语言的变量声明后必须使用。<br>
 </p>
 
-<div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">&#21464;&#37327;&#21517;</span> <span style="color: #df005f; font-weight: bold;">&#21464;&#37327;&#31867;&#22411;</span>
-</pre>
-</div>
-<p>
-变量声明以关键字var开头，变量类型放在变量的后面，行尾无需分号。 举个例子：<br>
+<ul class="org-ul">
+<li><p>
+标准声明<br>
+变量声明以关键字 <code>var</code> 开头，变量类型放在变量的后面，行尾无需分号：<br>
 </p>
 
 <div class="org-src-container">
@@ -107,14 +90,13 @@ Go语言的变量声明格式为：<br>
 <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">age</span> <span style="color: #df005f; font-weight: bold;">int</span>
 <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">isOk</span> <span style="color: #df005f; font-weight: bold;">bool</span>
 </pre>
-</div>
-</div>
-</div>
-<div id="outline-container-orgdbb08cb" class="outline-3">
-<h3 id="orgdbb08cb">批量声明</h3>
-<div class="outline-text-3" id="text-orgdbb08cb">
+</div></li>
+<li><p>
+批量声明<br>
+</p>
+
 <p>
-每声明一个变量就需要写var关键字会比较繁琐，go语言中还支持批量变量声明：<br>
+每声明一个变量就需要写 <code>var</code> 关键字会比较繁琐，go 语言中还支持批量变量声明：<br>
 </p>
 
 <div class="org-src-container">
@@ -125,92 +107,52 @@ Go语言的变量声明格式为：<br>
     <span style="color: #8787d7;">d</span> <span style="color: #df005f; font-weight: bold;">float32</span>
 )
 </pre>
-</div>
+</div></li>
+</ul>
 </div>
 </div>
 <div id="outline-container-org5c51b5d" class="outline-3">
 <h3 id="org5c51b5d">变量的初始化</h3>
 <div class="outline-text-3" id="text-org5c51b5d">
 <p>
-Go语言在声明变量的时候，会自动对变量对应的内存区域进行初始化操作。每个变量会被初始化成其类型的默认值，例如： 整型和浮点型变量的默认值为0。 字符串变量的默认值为空字符串。 布尔型变量默认为false。 切片、函数、指针变量的默认为nil。<br>
-</p>
-
-<p>
-当然我们也可在声明变量的时候为其指定初始值。变量初始化的标准格式如下：<br>
+Go 语言在声明变量的时候，会自动对变量对应的内存区域进行初始化操作。每个变量会被初始化成其类型的默认值，例如：整型和浮点型变量的默认值为 <code>0</code> 。字符串变量的默认值为空字符串 <code>""</code> 。布尔型变量默认为 <code>false</code> 。切片、函数、指针变量的默认为 <code>nil</code> 。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">&#21464;&#37327;&#21517;</span> <span style="color: #df005f; font-weight: bold;">&#31867;&#22411;</span> = &#34920;&#36798;&#24335;
-</pre>
-</div>
-<p>
-举个例子：<br>
-</p>
-
-<div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">name</span> <span style="color: #df005f; font-weight: bold;">string</span> = <span style="color: #2aa198;">"pprof.cn"</span>
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21487;&#22312;&#22768;&#26126;&#21464;&#37327;&#30340;&#26102;&#20505;&#20026;&#20854;&#25351;&#23450;&#21021;&#22987;&#20540;&#12290;&#21464;&#37327;&#21021;&#22987;&#21270;&#30340;&#26631;&#20934;&#26684;&#24335;&#22914;&#19979;&#65306;</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">name</span> <span style="color: #df005f; font-weight: bold;">string</span> = <span style="color: #2aa198;">"pprof.cn"</span>
 <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">sex</span> <span style="color: #df005f; font-weight: bold;">int</span> = 1
-</pre>
-</div>
 
-<p>
-或者一次初始化多个变量<br>
-</p>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#19968;&#27425;&#21021;&#22987;&#21270;&#22810;&#20010;&#21464;&#37327;</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">name</span>, <span style="color: #8787d7;">sex</span> = <span style="color: #2aa198;">"pprof.cn"</span>, 1
 
-<div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">name</span>, <span style="color: #8787d7;">sex</span> = <span style="color: #2aa198;">"pprof.cn"</span>, 1
-</pre>
-</div>
-</div>
-<div id="outline-container-org9d45231" class="outline-4">
-<h4 id="org9d45231">类型推导</h4>
-<div class="outline-text-4" id="text-org9d45231">
-<p>
-有时候我们会将变量的类型省略，这个时候编译器会根据等号右边的值来推导变量的类型完成初始化。<br>
-</p>
-
-<div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">name</span> = <span style="color: #2aa198;">"pprof.cn"</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#31867;&#22411;&#25512;&#23548;&#65292;&#23558;&#21464;&#37327;&#30340;&#31867;&#22411;&#30465;&#30053;&#65292;&#32534;&#35793;&#22120;&#20250;&#26356;&#20855;&#31561;&#21495;&#21491;&#36793;&#30340;&#20540;&#26469;&#25512;&#23548;&#21464;&#37327;&#30340;&#31867;&#22411;&#26469;&#23436;&#25104;&#21021;&#22987;&#21270;</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">name</span> = <span style="color: #2aa198;">"pprof.cn"</span>
 <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">sex</span> = 1
-</pre>
-</div>
-</div>
-</div>
-<div id="outline-container-orgc1a03bf" class="outline-4">
-<h4 id="orgc1a03bf">短变量声明</h4>
-<div class="outline-text-4" id="text-orgc1a03bf">
-<p>
-在函数内部，可以使用更简略的 <code>:=</code> 方式声明并初始化变量。<br>
-</p>
 
-<div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#30701;&#21464;&#37327;&#22768;&#26126;&#65292;&#22312;&#20989;&#25968;&#20869;&#37096;&#65292;&#21487;&#20197;&#20351;&#29992;&#26356;&#31616;&#30053;&#30340; := &#26041;&#24335;&#22768;&#26126;&#24182;&#21021;&#22987;&#21270;&#21464;&#37327;</span>
+<span style="color: #8787d7;">n</span> := 10
 
-<span style="color: #268bd2; font-weight: bold;">import</span> (
-    <span style="color: #2aa198;">"fmt"</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22810;&#20010;&#21464;&#37327;&#21487;&#20197;&#29992;&#23567;&#25324;&#21495; () &#32479;&#19968;&#23450;&#20041;</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> (
+    <span style="color: #8787d7;">a</span> <span style="color: #df005f; font-weight: bold;">int</span>    = 1
+    <span style="color: #8787d7;">b</span> <span style="color: #df005f; font-weight: bold;">int</span>    = 2
+    <span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span> = <span style="color: #2aa198;">"hello go"</span>
 )
-<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20840;&#23616;&#21464;&#37327;m</span>
-<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">m</span> = 100
-
-<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #8787d7;">n</span> := 10
-    <span style="color: #8787d7;">m</span> := 200 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#27492;&#22788;&#22768;&#26126;&#23616;&#37096;&#21464;&#37327;m</span>
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(m, n)
-}
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org842c6da" class="outline-4">
-<h4 id="org842c6da">匿名变量</h4>
-<div class="outline-text-4" id="text-org842c6da">
+<div id="outline-container-org842c6da" class="outline-3">
+<h3 id="org842c6da">匿名变量</h3>
+<div class="outline-text-3" id="text-org842c6da">
 <p>
-在使用多重赋值时，如果想要忽略某个值，可以使用匿名变量（anonymous variable）。 匿名变量用一个下划线 <code>_</code> 表示，例如：<br>
+在使用多重赋值时，如果想要忽略某个值，可以使用匿名变量（anonymous variable）。匿名变量用一个下划线 <code>_</code> 表示，例如：<br>
 </p>
 
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">foo</span>() (<span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #df005f; font-weight: bold;">string</span>) {
-    <span style="color: #268bd2; font-weight: bold;">return</span> 10, <span style="color: #2aa198;">"Q1mi"</span>
+    <span style="color: #268bd2; font-weight: bold;">return</span> 10, <span style="color: #2aa198;">"haoran"</span>
 }
 <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
     <span style="color: #8787d7;">x</span>, <span style="color: #8787d7;">_</span> := <span style="color: #d75fd7; font-weight: bold;">foo</span>()
@@ -230,11 +172,10 @@ Go语言在声明变量的时候，会自动对变量对应的内存区域进行
 </p>
 
 <ul class="org-ul">
-<li>函数外的每个语句都必须以关键字开始（var、const、func等）<br></li>
+<li><span class="underline">函数外的每个语句都必须以关键字开始（var、const、func等）</span><br></li>
 <li><code>:=</code> 不能使用在函数外。<br></li>
 <li><code>_</code> 多用于占位，表示忽略值。<br></li>
 </ul>
-</div>
 </div>
 </div>
 </div>
@@ -420,10 +361,10 @@ Go语言在声明变量的时候，会自动对变量对应的内存区域进行
 <pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Stereotype</span> <span style="color: #df005f; font-weight: bold;">int</span>
 
 <span style="color: #268bd2; font-weight: bold;">const</span> (
-        <span style="color: #d75fd7;">TypicalNoob</span> <span style="color: #df005f; font-weight: bold;">Stereotype</span> = <span style="color: #d75fd7;">iota</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">0</span>
-        <span style="color: #d75fd7;">TypicalHipster</span>                <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">1</span>
-        <span style="color: #d75fd7;">TypicalUnixWizard</span>             <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">2</span>
-        <span style="color: #d75fd7;">TypicalStartupFounder</span>         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">3</span>
+    <span style="color: #d75fd7;">TypicalNoob</span> <span style="color: #df005f; font-weight: bold;">Stereotype</span> = <span style="color: #d75fd7;">iota</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">0</span>
+    <span style="color: #d75fd7;">TypicalHipster</span>                <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">1</span>
+    <span style="color: #d75fd7;">TypicalUnixWizard</span>             <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">2</span>
+    <span style="color: #d75fd7;">TypicalStartupFounder</span>         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">3</span>
 )
 </pre>
 </div>
@@ -438,8 +379,8 @@ Go语言在声明变量的时候，会自动对变量对应的内存区域进行
 }
 
 <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-        <span style="color: #8787d7;">n</span> := TypicalHipster
-        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #d75fd7; font-weight: bold;">CountAllTheThings</span>(n))
+    <span style="color: #8787d7;">n</span> := TypicalHipster
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #d75fd7; font-weight: bold;">CountAllTheThings</span>(n))
 }
 
 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">output:</span>
@@ -453,23 +394,23 @@ Go语言在声明变量的时候，会自动对变量对应的内存区域进行
 
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">SoSayethThe</span>(<span style="color: #8787d7;">character</span> <span style="color: #df005f; font-weight: bold;">Stereotype</span>) <span style="color: #df005f; font-weight: bold;">string</span> {
-        <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>
-        <span style="color: #268bd2; font-weight: bold;">switch</span> character {
-        <span style="color: #268bd2; font-weight: bold;">case</span> TypicalNoob:
-                s = <span style="color: #2aa198;">"I'm a confused ninja rockstar."</span>
-        <span style="color: #268bd2; font-weight: bold;">case</span> TypicalHipster:
-                s = <span style="color: #2aa198;">"Everything was better we programmed uphill and barefoot in the snow on the SUTX 5918"</span>
-        <span style="color: #268bd2; font-weight: bold;">case</span> TypicalUnixWizard:
-                s = <span style="color: #2aa198;">"sudo grep awk sed %!#?!!1!"</span>
-        <span style="color: #268bd2; font-weight: bold;">case</span> TypicalStartupFounder:
-                s = <span style="color: #2aa198;">"exploit compelling convergence to syndicate geo-targeted solutions"</span>
-        }
-        <span style="color: #268bd2; font-weight: bold;">return</span> s
+    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>
+    <span style="color: #268bd2; font-weight: bold;">switch</span> character {
+    <span style="color: #268bd2; font-weight: bold;">case</span> TypicalNoob:
+        s = <span style="color: #2aa198;">"I'm a confused ninja rockstar."</span>
+    <span style="color: #268bd2; font-weight: bold;">case</span> TypicalHipster:
+        s = <span style="color: #2aa198;">"Everything was better we programmed uphill and barefoot in the snow on the SUTX 5918"</span>
+    <span style="color: #268bd2; font-weight: bold;">case</span> TypicalUnixWizard:
+        s = <span style="color: #2aa198;">"sudo grep awk sed %!#?!!1!"</span>
+    <span style="color: #268bd2; font-weight: bold;">case</span> TypicalStartupFounder:
+        s = <span style="color: #2aa198;">"exploit compelling convergence to syndicate geo-targeted solutions"</span>
+    }
+    <span style="color: #268bd2; font-weight: bold;">return</span> s
 }
 
 <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-        <span style="color: #8787d7;">i</span> := 2
-        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #d75fd7; font-weight: bold;">SoSayethThe</span>(i))
+    <span style="color: #8787d7;">i</span> := 2
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #d75fd7; font-weight: bold;">SoSayethThe</span>(i))
 }
 
 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">output:</span>
@@ -483,7 +424,7 @@ Go语言在声明变量的时候，会自动对变量对应的内存区域进行
 
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #d75fd7; font-weight: bold;">SoSayethThe</span>(0))
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #d75fd7; font-weight: bold;">SoSayethThe</span>(0))
 }
 
 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">output:</span>
@@ -501,7 +442,7 @@ Go语言在声明变量的时候，会自动对变量对应的内存区域进行
 <div id="postamble" class="status">
 <p class="date">Date: 2022-02-09 21:02 Wed</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-05-11 Wed 11:22</p>
+<p class="date">Created: 2022-07-06 Wed 16:25</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

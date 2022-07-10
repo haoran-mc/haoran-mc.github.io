@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-06-23 Thu 20:05 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>输入输出</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">输入输出</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgc922904">fmt</a>
+<ul>
+<li><a href="#org03aafdc">Scan</a></li>
+<li><a href="#org0c6abb1">Scanf、Scanln</a></li>
+</ul>
+</li>
+<li><a href="#org1812f1e">bufio</a>
+<ul>
+<li><a href="#org607e528">Reader</a>
+<ul>
+<li><a href="#orge530686">创建 Reader 对象</a></li>
+<li><a href="#org98dc146">Read</a></li>
+<li><a href="#orgb31920f">ReadByte</a></li>
+<li><a href="#org80846c5">ReadBytes</a></li>
+<li><a href="#org2f6f90e">ReadLine</a></li>
+<li><a href="#org54ecf50">ReadRune</a></li>
+<li><a href="#org792e9ed">ReadSlice</a></li>
+<li><a href="#orgf0582fb">ReadString</a></li>
+</ul>
+</li>
+<li><a href="#org9d6db73">Scanner</a>
+<ul>
+<li><a href="#org3885bdc">Split、Scan、Bytes、Text、Err</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgc922904" class="outline-2">
+<h2 id="orgc922904">fmt</h2>
+<div class="outline-text-2" id="text-orgc922904">
+</div>
+<div id="outline-container-org03aafdc" class="outline-3">
+<h3 id="org03aafdc">Scan</h3>
+</div>
+<div id="outline-container-org0c6abb1" class="outline-3">
+<h3 id="org0c6abb1">Scanf、Scanln</h3>
+<div class="outline-text-3" id="text-org0c6abb1">
+<p>
+我们如何读取用户的键盘输入呢？从键盘和标准输入 <code>os.Stdin</code> 读取输入，最简单的办法是使用 <code>fmt</code> 包提供的 Scan 和 Sscan 开头的函数：<br>
+</p>
+
+<p>
+最方便的方法是使用 <code>fmt.Scanf</code> ，它是 <code>fmt.Printf</code> 的镜像。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20174;&#25511;&#21046;&#21488;&#35835;&#21462;&#36755;&#20837;:</span>
+<span style="color: #268bd2; font-weight: bold;">package</span> main
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">var</span> (
+    <span style="color: #8787d7;">firstName</span>, <span style="color: #8787d7;">lastName</span>, <span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>
+    <span style="color: #8787d7;">i</span> <span style="color: #df005f; font-weight: bold;">int</span>
+    <span style="color: #8787d7;">f</span> <span style="color: #df005f; font-weight: bold;">float32</span>
+    <span style="color: #8787d7;">input</span> = <span style="color: #2aa198;">"56.12 / 5212 / Go"</span>
+    <span style="color: #8787d7;">format</span> = <span style="color: #2aa198;">"%f / %d / %s"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"Please enter your full name: "</span>)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Scanln</span>(&amp;firstName, &amp;lastName)
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">fmt.Scanf("%s %s", &amp;firstName, &amp;lastName)</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"Hi %s %s!\n"</span>, firstName, lastName) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Hi Chris Naegels</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Sscanf</span>(input, format, &amp;f, &amp;i, &amp;s)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"From the string we read: "</span>, f, i, s)
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36755;&#20986;&#32467;&#26524;: From the string we read: 56.12 5212 Go</span>
+}
+</pre>
+</div>
+
+<p>
+<code>Scanln</code> 扫描来自标准输入的文本，将空格分隔的值依次存放到后续的参数内，直到碰到换行。 <code>Scanf</code> 与其类似，除了 <code>Scanf</code> 的第一个参数用作格式字符串，用来决定如何读取。 <code>Sscan</code> 和以 <code>Sscan</code> 开头的函数则是从字符串读取，除此之外，与 <code>Scanf</code> 相同。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org1812f1e" class="outline-2">
+<h2 id="org1812f1e">bufio</h2>
+<div class="outline-text-2" id="text-org1812f1e">
+<p>
+还可以使用 <code>bufio</code> 包提供的缓冲读取（buffered reader）来读取数据。 <code>bufio</code> 包是对 io 的封装，可以操作文件等内容，同样可以用来接收键盘的输入，此时对象不是文件等，而是 <code>os.Stdin</code> ，也就是标准输入设备。<br>
+</p>
+
+<p>
+~bufio 包含了 Reader、Writer、Scanner 等对象，封装了很多对 io 内容的处理方法，但应对键盘输入来说，使用 Reader 对象（或 Scanner 对象）即可。<br>
+</p>
+</div>
+<div id="outline-container-org607e528" class="outline-3">
+<h3 id="org607e528">Reader</h3>
+<div class="outline-text-3" id="text-org607e528">
+</div>
+<div id="outline-container-orge530686" class="outline-4">
+<h4 id="orge530686">创建 Reader 对象</h4>
+<div class="outline-text-4" id="text-orge530686">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">reader</span> := bufio.<span style="color: #d75fd7; font-weight: bold;">NewReader</span>(os.Stdin)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org98dc146" class="outline-4">
+<h4 id="org98dc146">Read</h4>
+<div class="outline-text-4" id="text-org98dc146">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">b</span> *<span style="color: #df005f; font-weight: bold;">Reader</span>) <span style="color: #d75fd7; font-weight: bold;">Read</span>(<span style="color: #8787d7;">p</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">n</span>, <span style="color: #8787d7;">err</span> := reader.<span style="color: #d75fd7; font-weight: bold;">Read</span>(recv)
+</pre>
+</div>
+
+<p>
+这里不会阻塞等待键盘的输入，而是直接返回了，所以无法接收键盘输入。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb31920f" class="outline-4">
+<h4 id="orgb31920f">ReadByte</h4>
+<div class="outline-text-4" id="text-orgb31920f">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">b</span> * Reader) <span style="color: #d75fd7; font-weight: bold;">ReadByte</span>() (<span style="color: #8787d7;">c</span> <span style="color: #df005f; font-weight: bold;">byte</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+用来接收一个 <code>byte</code> 类型，会阻塞等待键盘输入。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"bufio"</span>
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"os"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">reader</span> := bufio.<span style="color: #d75fd7; font-weight: bold;">NewReader</span>(os.Stdin)
+
+    <span style="color: #8787d7;">n</span>, <span style="color: #8787d7;">err</span> := reader.<span style="color: #d75fd7; font-weight: bold;">ReadByte</span>() <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">a</span>
+
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"n = "</span>, n)             <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">n =  97</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"string ="</span>, <span style="color: #d75fd7; font-weight: bold;">string</span>(n)) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">string = a</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"err = "</span>, err)         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">err =  &lt;nil&gt;</span>
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org80846c5" class="outline-4">
+<h4 id="org80846c5">ReadBytes</h4>
+<div class="outline-text-4" id="text-org80846c5">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">b</span> *<span style="color: #df005f; font-weight: bold;">Reader</span>) <span style="color: #d75fd7; font-weight: bold;">ReadBytes</span>(<span style="color: #8787d7;">delim</span> <span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #8787d7;">line</span> []<span style="color: #df005f; font-weight: bold;">byte</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+该方法的输入参数是一个 <code>byte</code> 字符，当输入遇到该字符时，会停止接收并返回该停止字符及前面的内容。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"bufio"</span>
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"os"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">reader</span> := bufio.<span style="color: #d75fd7; font-weight: bold;">NewReader</span>(os.Stdin)
+
+    <span style="color: #8787d7;">n</span>, <span style="color: #8787d7;">err</span> := reader.<span style="color: #d75fd7; font-weight: bold;">ReadBytes</span>(<span style="color: #2aa198;">'\n'</span>)
+
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"n = "</span>, n)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"string ="</span>, <span style="color: #d75fd7; font-weight: bold;">string</span>(n))
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"err = "</span>, err)
+}   
+</pre>
+</div>
+
+<blockquote>
+<p>
+Reader 可以接收包含空格内容的字符串，而不进行分隔，这是 <code>bufio.Reader</code> 和 <code>fmt</code> 系一大不同。<br>
+</p>
+</blockquote>
+</div>
+</div>
+<div id="outline-container-org2f6f90e" class="outline-4">
+<h4 id="org2f6f90e">ReadLine</h4>
+<div class="outline-text-4" id="text-org2f6f90e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">b</span> *<span style="color: #df005f; font-weight: bold;">Reader</span>) <span style="color: #d75fd7; font-weight: bold;">ReadLine</span>() (<span style="color: #8787d7;">line</span> []<span style="color: #df005f; font-weight: bold;">byte</span>, <span style="color: #8787d7;">isPrefix</span> <span style="color: #df005f; font-weight: bold;">bool</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<blockquote>
+<p>
+ReadLine 是一个低水平的行数据读取原语。官方也建议使用 <code>ReadBytes('\n')</code> 或 <code>ReadString('\n')</code> 代替，或者使用 Scanner。<br>
+</p>
+</blockquote>
+</div>
+</div>
+<div id="outline-container-org54ecf50" class="outline-4">
+<h4 id="org54ecf50">ReadRune</h4>
+<div class="outline-text-4" id="text-org54ecf50">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">b</span> *<span style="color: #df005f; font-weight: bold;">Reader</span>) <span style="color: #d75fd7; font-weight: bold;">ReadRune</span>() (<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">rune</span>, <span style="color: #8787d7;">size</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+<code>rune</code> 用来处理 unicode 或 utf-8 字符，该函数可以接收该类字符，返回接收字符的 <code>rune</code> 值、size 大小（即字节数）以及 error。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"bufio"</span>
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"os"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">reader</span> := bufio.<span style="color: #d75fd7; font-weight: bold;">NewReader</span>(os.Stdin)
+
+    <span style="color: #8787d7;">r</span>, <span style="color: #8787d7;">size</span>, <span style="color: #8787d7;">err</span> := reader.<span style="color: #d75fd7; font-weight: bold;">ReadRune</span>()  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#40857;</span>
+
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"r = "</span>, r)             <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">r =  40857</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"string ="</span>, <span style="color: #d75fd7; font-weight: bold;">string</span>(r)) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">string = &#40857;</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"size ="</span>, size)        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">size = 3</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"err = "</span>, err)         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">err =  &lt;nil&gt;</span>
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org792e9ed" class="outline-4">
+<h4 id="org792e9ed">ReadSlice</h4>
+<div class="outline-text-4" id="text-org792e9ed">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">b</span> *<span style="color: #df005f; font-weight: bold;">Reader</span>) <span style="color: #d75fd7; font-weight: bold;">ReadSlice</span>(<span style="color: #8787d7;">delim</span> <span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #8787d7;">line</span> []<span style="color: #df005f; font-weight: bold;">byte</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<blockquote>
+<p>
+调用者应尽量使用 <code>ReadBytes</code> 或 <code>ReadString</code> 替代本方法。<br>
+</p>
+</blockquote>
+</div>
+</div>
+<div id="outline-container-orgf0582fb" class="outline-4">
+<h4 id="orgf0582fb">ReadString</h4>
+<div class="outline-text-4" id="text-orgf0582fb">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">b</span> *<span style="color: #df005f; font-weight: bold;">Reader</span>) <span style="color: #d75fd7; font-weight: bold;">ReadString</span>(<span style="color: #8787d7;">delim</span> <span style="color: #df005f; font-weight: bold;">byte</span>) (<span style="color: #8787d7;">line</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+<code>ReadString</code> 读取直到第一次遇到 delim 字节，返回一个包含已读取的数据和 delim 字节的字符串。如果 <code>ReadString</code> 方法在读取到 delim 之前遇到了错误，它会返回在错误之前读取的数据以及该错误（一般是 <code>io.EOF</code> ）。当且仅当 <code>ReadString</code> 方法返回的切片不以 delim 结尾时，会返回一个非 <code>nil</code> 的错误。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> (
+    <span style="color: #2aa198;">"bufio"</span>
+    <span style="color: #2aa198;">"fmt"</span>
+    <span style="color: #2aa198;">"os"</span>
+)
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">reader</span> := bufio.<span style="color: #d75fd7; font-weight: bold;">NewReader</span>(os.Stdin)
+
+    <span style="color: #8787d7;">line</span>, <span style="color: #8787d7;">err</span> := reader.<span style="color: #d75fd7; font-weight: bold;">ReadString</span>(<span style="color: #2aa198;">'\n'</span>)
+
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"line = "</span>, line)
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"err = "</span>, err)
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org9d6db73" class="outline-3">
+<h3 id="org9d6db73">Scanner</h3>
+<div class="outline-text-3" id="text-org9d6db73">
+<p>
+<code>bufio.Reader</code> 结构体中所有读取数据的方法，都包含了 <code>delim</code> 分隔符，这个用起来很不方便，所以 <code>Google</code> 对此在 go1.1 版本中加入了 <code>bufio.Scanner</code> 结构体，用于读取数据。<br>
+</p>
+
+<p>
+<code>Scanner</code> 类型提供了方便的读取数据的接口，如从换行符分隔的文本里读取每一行。<br>
+</p>
+
+<p>
+<code>Scanner.Scan</code> 方法默认是以换行符 <code>\n</code> ，作为分隔符。如果你想指定分隔符，Go 语言提供了四种方法， <code>ScanBytes</code> （返回单个字节作为一个 token）， <code>ScanLines</code> （返回一行文本）， <code>ScanRunes</code> （返回单个 UTF-8 编码的 rune 作为一个 token）和 <code>ScanWords</code> （返回通过“空格”分词的单词）。除了这几个预定的，我们也可以自定义分割函数。<br>
+</p>
+</div>
+<div id="outline-container-org3885bdc" class="outline-4">
+<h4 id="org3885bdc">Split、Scan、Bytes、Text、Err</h4>
+<div class="outline-text-4" id="text-org3885bdc">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Scan &#26041;&#27861;&#31614;&#21517;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">s</span> *<span style="color: #df005f; font-weight: bold;">Scanner</span>) <span style="color: #d75fd7; font-weight: bold;">Scan</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">input</span> := <span style="color: #2aa198;">"hello world"</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25110;&#32773;&#26631;&#20934;&#36755;&#20837; bufio.NewScanner(os.Stdin)</span>
+<span style="color: #8787d7;">scanner</span> := bufio.<span style="color: #d75fd7; font-weight: bold;">NewScanner</span>(strings.<span style="color: #d75fd7; font-weight: bold;">NewReader</span>(input))
+scanner.<span style="color: #d75fd7; font-weight: bold;">Split</span>(bufio.ScanWords)   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20174;&#22235;&#31181;&#20998;&#21106;&#26041;&#27861;&#20013;&#36873;&#25321;&#19968;&#31181;</span>
+<span style="color: #268bd2; font-weight: bold;">for</span> scanner.<span style="color: #d75fd7; font-weight: bold;">Scan</span>() {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(scanner.<span style="color: #d75fd7; font-weight: bold;">Text</span>())   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20063;&#21487;&#20197;&#36890;&#36807; Bytes &#30340;&#26041;&#27861;&#33719;&#24471;</span>
+}
+<span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #8787d7;">err</span> := scanner.<span style="color: #d75fd7; font-weight: bold;">Err</span>(); err != <span style="color: #d75fd7;">nil</span> {
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Fprintln</span>(os.Stderr, <span style="color: #2aa198;">"reading input:"</span>, err)
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-02-13 20:02 Sun</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-06-23 Thu 20:05</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

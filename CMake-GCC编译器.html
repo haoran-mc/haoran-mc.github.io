@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-03-31 Thu 21:24 -->
+<!-- 2022-06-15 Wed 00:08 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GCC编译器</title>
@@ -22,7 +22,7 @@
 <div id="text-table-of-contents">
 <ul>
 <li><a href="#org1181577">GCC编译器</a></li>
-<li><a href="#orgb390b52">编译过程</a></li>
+<li><a href="#orgea2c0ce">🌟编译过程</a></li>
 <li><a href="#org233feb8">编译参数</a>
 <ul>
 <li><a href="#org6c2bd63">-g     编译带调试信息的可执行文件</a></li>
@@ -34,6 +34,7 @@
 <li><a href="#org2b1670e">-std=c++11    设置编译标准</a></li>
 <li><a href="#org0bd8a0b">-o     指定输出文件名</a></li>
 <li><a href="#org60fd2d3">-D     定义宏</a></li>
+<li><a href="#org4bc0fdc">其他常用参数</a></li>
 </ul>
 </li>
 <li><a href="#orgc805ad7">[实战]g++命令行编译</a>
@@ -80,13 +81,13 @@
 </p>
 <ul class="org-ul">
 <li>使用 gcc 指令编译 C 代码<br></li>
-<li>使用 g++指令编译 C++ 代码<br></li>
+<li>使用 g++ 指令编译 C++ 代码<br></li>
 </ul>
 </div>
 </div>
-<div id="outline-container-orgb390b52" class="outline-2">
-<h2 id="orgb390b52">编译过程</h2>
-<div class="outline-text-2" id="text-orgb390b52">
+<div id="outline-container-orgea2c0ce" class="outline-2">
+<h2 id="orgea2c0ce">🌟编译过程</h2>
+<div class="outline-text-2" id="text-orgea2c0ce">
 <ol class="org-ol">
 <li><p>
 预处理（Pre-Processing <code>.i文件</code> ）<br>
@@ -94,6 +95,10 @@
 <ul class="org-ul">
 <li><code>-E</code> 选项指示编译器仅对输入文件进行预处理<br></li>
 </ul>
+
+<p>
+在此阶段，编译器会将代码中的头文件 &lt;stdio.h&gt; 等编译进来<br>
+</p>
 
 <div class="org-src-container">
 <pre class="src src-bash">g++ -E test.cpp -o test.i   <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">.i&#25991;&#20214;</span>
@@ -106,6 +111,10 @@
 <li><code>-S</code> 编译选项告诉 g++ 在为 C++ 代码产生了汇编语言文件后停止编译<br></li>
 <li>g++ 产生的汇编语言文件的缺省扩展名是 .s<br></li>
 </ul>
+
+<p>
+在这个阶段，g++ 首先要检查代码的规范性、是否有语法错误等，以确定代码实际要做的工作，在检查无误后，g++ 把代码翻译成汇编语言<br>
+</p>
 
 <div class="org-src-container">
 <pre class="src src-bash">g++ -S test.i -o test.s
@@ -129,6 +138,14 @@
 <ul class="org-ul">
 <li><code>-o</code> 编译选项来为将产生的可执行文件用指定的文件名<br></li>
 </ul>
+
+<p>
+在源程序中没有 printf 等函数的实现，于是前往步骤 2 时包含进来的 &lt;stdio.h&gt; 文件，发现其中有 printf 函数的声明，但没有函数的实现；<br>
+</p>
+
+<p>
+Linux 系统把 printf 函数的实现都放在了 libc.so.6 的库文件中，在没有参数指定时，g++ 到系统默认的路径 /usr/lib 下查找库文件，将函数链接到 libc.so.6 库函数中去，这样就有了 printf 函数的实现部分，把程序中一些函数的实现部分链接起来，这就是链接阶段的工作；<br>
+</p>
 
 <div class="org-src-container">
 <pre class="src src-bash">g++  test.o  -o  test
@@ -199,6 +216,10 @@ g++ -L/home/bing/mytestlibfolder -lmytest test.cpp
 g++ -I/myinclude test.cpp
 </pre>
 </div>
+
+<p>
+在 include 语句中， <code>&lt;&gt;</code> 表示在默认路径 /usr/include 中搜索头文件，引号 <code>""</code> 表示在指定的目录中搜索。<br>
+</p>
 </div>
 </div>
 <div id="outline-container-org28afce9" class="outline-3">
@@ -276,6 +297,17 @@ g++ test.cpp -o test
 </p>
 </div>
 </div>
+<div id="outline-container-org4bc0fdc" class="outline-3">
+<h3 id="org4bc0fdc">其他常用参数</h3>
+<div class="outline-text-3" id="text-org4bc0fdc">
+<dl class="org-dl">
+<dt>-c</dt><dd>跳过连接步骤，编译成目标（.o）文件；<br></dd>
+<dt>-m</dt><dd>根据给定的 CPU 类型优化代码；<br></dd>
+<dt>-S</dt><dd>跳过汇编和连接阶段，并保留编译产生的汇编代码（.s文件）；<br></dd>
+<dt>-v</dt><dd>产生尽可能多的输出信息；<br></dd>
+</dl>
+</div>
+</div>
 </div>
 <div id="outline-container-orgc805ad7" class="outline-2">
 <h2 id="orgc805ad7">[实战]g++命令行编译</h2>
@@ -336,18 +368,18 @@ g++ main.cpp src/Swap.cpp -Iinclude -std=c++11 -O2 -Wall -o b.out
 <div class="outline-text-4" id="text-org19bbea5">
 <div class="org-src-container">
 <pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#36827;&#20837;src&#30446;&#24405;&#19979;</span>
-$<span style="color: #8787d7;">cd</span> src
+$ cd src
 
 <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#27719;&#32534;&#65292;&#29983;&#25104;Swap.o&#25991;&#20214;</span>
-g++ swap.cpp -c -I../include
+$ g++ swap.cpp -c -I../include
 <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#29983;&#25104;&#38745;&#24577;&#24211;libSwap.a</span>
-ar rs libSwap.a Swap.o
+$ ar rs libSwap.a Swap.o
 
 <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#22238;&#21040;&#19978;&#32423;&#30446;&#24405;</span>
-$<span style="color: #8787d7;">cd</span> ..
+$ cd ..
 
 <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#38142;&#25509;&#65292;&#29983;&#25104;&#21487;&#25191;&#34892;&#25991;&#20214;:staticmain</span>
-g++ main.cpp -Iinclude -Lsrc -lSwap -o staticmain
+$ g++ main.cpp -Iinclude -Lsrc -lSwap -o staticmain
 </pre>
 </div>
 </div>
@@ -357,19 +389,19 @@ g++ main.cpp -Iinclude -Lsrc -lSwap -o staticmain
 <div class="outline-text-4" id="text-orgc20d2df">
 <div class="org-src-container">
 <pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#36827;&#20837;src&#30446;&#24405;&#19979;</span>
-$<span style="color: #8787d7;">cd</span> src
+$ cd src
 
 <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#29983;&#25104;&#21160;&#24577;&#24211;libSwap.so</span>
-g++ Swap.cpp -I../include -fPIC -shared -o libSwap.so
+$ g++ Swap.cpp -I../include -fPIC -shared -o libSwap.so
 <span style="color: #008787; background-color: #262626;">## </span><span style="color: #008787; background-color: #262626;">&#19978;&#38754;&#21629;&#20196;&#31561;&#20215;&#20110;&#20197;&#19979;&#20004;&#26465;&#21629;&#20196;</span>
 <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">gcc Swap.cpp -I../include -c -fPIC</span>
 <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">gcc -shared -o libSwap.so Swap.o</span>
 
 <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#22238;&#21040;&#19978;&#32423;&#30446;&#24405;</span>
-$<span style="color: #8787d7;">cd</span> ..
+$ cd ..
 
 <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#38142;&#25509;&#65292;&#29983;&#25104;&#21487;&#25191;&#34892;&#25991;&#20214;:sharemain</span>
-g++ main.cpp -Iinclude -Lsrc -lSwap -o sharemain
+$ g++ main.cpp -Iinclude -Lsrc -lSwap -o sharemain
 </pre>
 </div>
 </div>
@@ -380,6 +412,7 @@ g++ main.cpp -Iinclude -Lsrc -lSwap -o sharemain
 <p>
 最终目录结构：2 directories, 8 files<br>
 </p>
+
 <pre class="example">
 # 最终目录结构
 .

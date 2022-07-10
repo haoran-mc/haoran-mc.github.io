@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-06-08 Wed 21:15 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>math/big</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">math/big</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org9fc156e">Introduction</a></li>
+<li><a href="#org2886e2f">Constants</a></li>
+<li><a href="#orgd416c57">type Word</a></li>
+<li><a href="#orge50f9a8">type Int</a>
+<ul>
+<li><a href="#orgdc9ac4a">func NewInt</a></li>
+<li><a href="#org8c70d1e">func (*Int) Int64</a></li>
+<li><a href="#org0fa9080">func (*Int) Uint64</a></li>
+<li><a href="#org0b54fb7">func (*Int) Bytes</a></li>
+<li><a href="#org5fcda0a">func (*Int) String</a></li>
+<li><a href="#org6997857">func (*Int) BitLen</a></li>
+<li><a href="#org0e60759">func (*Int) Bits</a></li>
+<li><a href="#orgda9f524">func (*Int) Bit</a></li>
+<li><a href="#org8297508">func (*Int) SetInt64</a></li>
+<li><a href="#orgdb0bad1">func (*Int) SetUint64</a></li>
+<li><a href="#orgcad3fd5">func (*Int) SetBytes</a></li>
+<li><a href="#org2d772d3">func (*Int) SetString</a></li>
+<li><a href="#org81e8d7c">func (*Int) SetBits</a></li>
+<li><a href="#org86fe3ce">func (*Int) SetBit</a></li>
+<li><a href="#org424268d">func (*Int) MulRange</a></li>
+<li><a href="#org03c0aa1">func (*Int) Binomial</a></li>
+<li><a href="#org029795b">func (*Int) Rand</a></li>
+<li><a href="#org4dbff72">func (*Int) ProbablyPrime</a></li>
+<li><a href="#org0672007">func (*Int) Sign</a></li>
+<li><a href="#orge7aea1b">func (*Int) Cmp</a></li>
+<li><a href="#orgdfd9466">func (*Int) Not</a></li>
+<li><a href="#orgff71218">func (*Int) And</a></li>
+<li><a href="#org0ab26e8">func (*Int) Or</a></li>
+<li><a href="#orgeda7cd4">func (*Int) Xor</a></li>
+<li><a href="#org4748e3c">func (*Int) AndNot</a></li>
+<li><a href="#org73941d2">func (*Int) Lsh</a></li>
+<li><a href="#org6a85509">func (*Int) Rsh</a></li>
+<li><a href="#org2624632">func (*Int) Abs</a></li>
+<li><a href="#orge448055">func (*Int) Neg</a></li>
+<li><a href="#org6d21961">func (*Int) Set</a></li>
+<li><a href="#orgd017f21">func (*Int) Add</a></li>
+<li><a href="#orgec4212c">func (*Int) Sub</a></li>
+<li><a href="#orge6d00b9">func (*Int) Mul</a></li>
+<li><a href="#org7997cce">func (*Int) Div</a></li>
+<li><a href="#org764e7e9">func (*Int) Mod</a></li>
+<li><a href="#org359af81">func (*Int) DivMod</a></li>
+<li><a href="#orge0128bf">func (*Int) Quo</a></li>
+<li><a href="#org67fc5d7">func (*Int) Rem</a></li>
+<li><a href="#orgce868b4">func (*Int) QuoRem</a></li>
+<li><a href="#org1242bed">func (*Int) ModInverse</a></li>
+<li><a href="#org1efdf9c">func (*Int) Exp</a></li>
+<li><a href="#orgf56f349">func (*Int) GCD</a></li>
+<li><a href="#org581da8e">func (*Int) Format</a></li>
+<li><a href="#orgddd88bb">func (*Int) Scan</a></li>
+<li><a href="#orgfad9a1e">func (*Int) GobEncode</a></li>
+<li><a href="#orgf62a4ac">func (*Int) GobDecode</a></li>
+<li><a href="#orgb748153">func (*Int) MarshalJSON</a></li>
+<li><a href="#orge9e11e8">func (*Int) UnmarshalJSON</a></li>
+<li><a href="#orgd07156c">func (*Int) MarshalText</a></li>
+<li><a href="#orgfb4a066">func (*Int) UnmarshalText</a></li>
+</ul>
+</li>
+<li><a href="#org0f282cd">type Rat</a>
+<ul>
+<li><a href="#orgc246527">func NewRat</a></li>
+<li><a href="#org688c13e">func (*Rat) Num</a></li>
+<li><a href="#org508951f">func (*Rat) Denom</a></li>
+<li><a href="#orgaac2c0f">func (*Rat) Float64</a></li>
+<li><a href="#org52c8d92">func (*Rat) RatString</a></li>
+<li><a href="#orgc787c62">func (*Rat) FloatString</a></li>
+<li><a href="#orgabb905e">func (*Rat) String</a></li>
+<li><a href="#org557af3e">func (*Rat) IsInt</a></li>
+<li><a href="#orgfeb189a">func (*Rat) SetInt64</a></li>
+<li><a href="#org1d2887c">func (*Rat) SetFrac64</a></li>
+<li><a href="#org9b4f8b2">func (*Rat) SetFloat64</a></li>
+<li><a href="#org1a021c1">func (*Rat) SetInt</a></li>
+<li><a href="#org3768f4a">func (*Rat) SetFrac</a></li>
+<li><a href="#org822a61b">func (*Rat) SetString</a></li>
+<li><a href="#org4ca20f3">func (*Rat) Sign</a></li>
+<li><a href="#org466d3ba">func (*Rat) Cmp</a></li>
+<li><a href="#org14e7701">func (*Rat) Abs</a></li>
+<li><a href="#org14738d2">func (*Rat) Neg</a></li>
+<li><a href="#orgca994f2">func (*Rat) Inv</a></li>
+<li><a href="#org87bd02e">func (*Rat) Set</a></li>
+<li><a href="#orgec07cc1">func (*Rat) Add</a></li>
+<li><a href="#org3661aaa">func (*Rat) Sub</a></li>
+<li><a href="#org3f8ae21">func (*Rat) Mul</a></li>
+<li><a href="#org2c47c69">func (*Rat) Quo</a></li>
+<li><a href="#orgeb6def3">func (*Rat) Scan</a></li>
+<li><a href="#orgcacceb0">func (*Rat) GobEncode</a></li>
+<li><a href="#orga0de520">func (*Rat) GobDecode</a></li>
+<li><a href="#org90e74a5">func (*Rat) MarshalText</a></li>
+<li><a href="#orgcee8714">func (*Rat) UnmarshalText</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org9fc156e" class="outline-2">
+<h2 id="org9fc156e">Introduction</h2>
+<div class="outline-text-2" id="text-org9fc156e">
+<p>
+big包实现了大数字的多精度计算。 支持如下数字类型：<br>
+</p>
+
+<ul class="org-ul">
+<li>Int	有符号整数<br></li>
+<li>Rat	有理数<br></li>
+</ul>
+
+<p>
+方法一般为如下格式：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">Op</span>(<span style="color: #8787d7;">x</span>, <span style="color: #8787d7;">y</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) *<span style="color: #df005f; font-weight: bold;">Int</span>    (similar <span style="color: #268bd2; font-weight: bold;">for</span> *Rat)
+</pre>
+</div>
+
+<p>
+该方法实现了操作z = x Op y：计算并将结果写入z。如果结果是操作数之一，可能会重写该参数（重用其内存）；为了实现链式的计算，计算结果同时会作为返回值。方法返回一个结果而不是让*Int/*Rat调用方法获取另一个操作数。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2886e2f" class="outline-2">
+<h2 id="org2886e2f">Constants</h2>
+<div class="outline-text-2" id="text-org2886e2f">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">const</span> <span style="color: #d75fd7;">MaxBase</span> = <span style="color: #2aa198;">'z'</span> - <span style="color: #2aa198;">'a'</span> + 10 + 1 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">= hexValue('z') + 1</span>
+</pre>
+</div>
+
+<p>
+MaxBase是字符串转换函数接受的最大进制。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd416c57" class="outline-2">
+<h2 id="orgd416c57">type Word</h2>
+<div class="outline-text-2" id="text-orgd416c57">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Word</span> <span style="color: #df005f; font-weight: bold;">uintptr</span>
+</pre>
+</div>
+
+<p>
+Word代表一个多精度无符号整数的单个数字。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge50f9a8" class="outline-2">
+<h2 id="orge50f9a8">type Int</h2>
+<div class="outline-text-2" id="text-orge50f9a8">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Int</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20869;&#21547;&#38544;&#34255;&#25110;&#38750;&#23548;&#20986;&#23383;&#27573;</span>
+}
+</pre>
+</div>
+
+<p>
+Int类型代表多精度的整数，零值代表数字0。<br>
+</p>
+</div>
+<div id="outline-container-orgdc9ac4a" class="outline-3">
+<h3 id="orgdc9ac4a">func NewInt</h3>
+<div class="outline-text-3" id="text-orgdc9ac4a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">NewInt</span>(<span style="color: #8787d7;">x</span> <span style="color: #df005f; font-weight: bold;">int64</span>) *<span style="color: #df005f; font-weight: bold;">Int</span>
+</pre>
+</div>
+
+<p>
+创建一个值为x的*Int。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8c70d1e" class="outline-3">
+<h3 id="org8c70d1e">func (*Int) Int64</h3>
+<div class="outline-text-3" id="text-org8c70d1e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">Int64</span>() <span style="color: #df005f; font-weight: bold;">int64</span>
+</pre>
+</div>
+
+<p>
+返回x的int64表示，如果不能用int64表示，结果是未定义的。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org0fa9080" class="outline-3">
+<h3 id="org0fa9080">func (*Int) Uint64</h3>
+<div class="outline-text-3" id="text-org0fa9080">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">Uint64</span>() <span style="color: #df005f; font-weight: bold;">uint64</span>
+</pre>
+</div>
+
+<p>
+返回x的uint64表示，如果不能用uint64表示，结果是未定义的。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org0b54fb7" class="outline-3">
+<h3 id="org0b54fb7">func (*Int) Bytes</h3>
+<div class="outline-text-3" id="text-org0b54fb7">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">Bytes</span>() []<span style="color: #df005f; font-weight: bold;">byte</span>
+</pre>
+</div>
+
+<p>
+返回x的绝对值的大端在前的字节切片表示。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5fcda0a" class="outline-3">
+<h3 id="org5fcda0a">func (*Int) String</h3>
+<div class="outline-text-3" id="text-org5fcda0a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">String</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org6997857" class="outline-3">
+<h3 id="org6997857">func (*Int) BitLen</h3>
+<div class="outline-text-3" id="text-org6997857">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">BitLen</span>() <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+返回x的绝对值的字位数，0的字位数为0。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org0e60759" class="outline-3">
+<h3 id="org0e60759">func (*Int) Bits</h3>
+<div class="outline-text-3" id="text-org0e60759">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">Bits</span>() []<span style="color: #df005f; font-weight: bold;">Word</span>
+</pre>
+</div>
+
+<p>
+提供了对x的数据不检查而快速的访问，返回构成x的绝对值的小端在前的word切片。该切片与x的底层是同一个数组，本函数用于支持在包外实现缺少的低水平功能，否则不应被使用。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgda9f524" class="outline-3">
+<h3 id="orgda9f524">func (*Int) Bit</h3>
+<div class="outline-text-3" id="text-orgda9f524">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">Bit</span>(<span style="color: #8787d7;">i</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">uint</span>
+</pre>
+</div>
+
+<p>
+返回第i个字位的值，即返回(x&gt;&gt;i)&amp;1。i必须不小于0。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8297508" class="outline-3">
+<h3 id="org8297508">func (*Int) SetInt64</h3>
+<div class="outline-text-3" id="text-org8297508">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">SetInt64</span>(<span style="color: #8787d7;">x</span> <span style="color: #df005f; font-weight: bold;">int64</span>) *<span style="color: #df005f; font-weight: bold;">Int</span>
+</pre>
+</div>
+
+<p>
+将z设为x并返回z。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgdb0bad1" class="outline-3">
+<h3 id="orgdb0bad1">func (*Int) SetUint64</h3>
+<div class="outline-text-3" id="text-orgdb0bad1">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">SetUint64</span>(<span style="color: #8787d7;">x</span> <span style="color: #df005f; font-weight: bold;">uint64</span>) *<span style="color: #df005f; font-weight: bold;">Int</span>
+</pre>
+</div>
+
+<p>
+将z设为x并返回z。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgcad3fd5" class="outline-3">
+<h3 id="orgcad3fd5">func (*Int) SetBytes</h3>
+<div class="outline-text-3" id="text-orgcad3fd5">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">SetBytes</span>(<span style="color: #8787d7;">buf</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) *<span style="color: #df005f; font-weight: bold;">Int</span>
+</pre>
+</div>
+
+<p>
+将buf视为一个大端在前的无符号整数，将z设为该值，并返回z。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2d772d3" class="outline-3">
+<h3 id="org2d772d3">func (*Int) SetString</h3>
+<div class="outline-text-3" id="text-org2d772d3">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">SetString</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">base</span> <span style="color: #df005f; font-weight: bold;">int</span>) (*<span style="color: #df005f; font-weight: bold;">Int</span>, <span style="color: #df005f; font-weight: bold;">bool</span>)
+</pre>
+</div>
+
+<p>
+将z设为s代表的值（base为基数）。返回z并用一个bool来表明成功与否。如果失败，z的值是不确定的，但返回值为nil。基数必须是0或者2到MaxBase之间的整数。如果基数为0，字符串的前缀决定实际的转换基数："0x"、"0X"表示十六进制；"0b"、"0B"表示二进制；"0"表示八进制；否则为十进制。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">i</span> := <span style="color: #268bd2;">new</span>(<span style="color: #df005f; font-weight: bold;">big.Int</span>)
+i.<span style="color: #d75fd7; font-weight: bold;">SetString</span>(<span style="color: #2aa198;">"644"</span>, 8) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">octal</span>
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(i)
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">420</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org81e8d7c" class="outline-3">
+<h3 id="org81e8d7c">func (*Int) SetBits</h3>
+<div class="outline-text-3" id="text-org81e8d7c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">SetBits</span>(<span style="color: #8787d7;">abs</span> []<span style="color: #df005f; font-weight: bold;">Word</span>) *<span style="color: #df005f; font-weight: bold;">Int</span>
+</pre>
+</div>
+
+<p>
+提供了对z的数据不检查而快速的操作，将abs视为小端在前的word切片并直接赋给z，返回z。会将z的底层设置为abs的同一底层数组，本函数用于支持在包外实现缺少的低水平功能，否则不应被使用。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org86fe3ce" class="outline-3">
+<h3 id="org86fe3ce">func (*Int) SetBit</h3>
+<div class="outline-text-3" id="text-org86fe3ce">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">SetBit</span>(<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Int</span>, <span style="color: #8787d7;">i</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">b</span> <span style="color: #df005f; font-weight: bold;">uint</span>) *<span style="color: #df005f; font-weight: bold;">Int</span>
+</pre>
+</div>
+
+<p>
+将z设为x并设置z的第i位为b，返回z。如b为1，z = x | (1 &lt;&lt; i)；如b为0，z = x &amp; ^(1 &lt;&lt; i)；否则会panic。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org424268d" class="outline-3">
+<h3 id="org424268d">func (*Int) MulRange</h3>
+<div class="outline-text-3" id="text-org424268d">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">MulRange</span>(<span style="color: #8787d7;">a</span>, <span style="color: #8787d7;">b</span> <span style="color: #df005f; font-weight: bold;">int64</span>) *<span style="color: #df005f; font-weight: bold;">Int</span>
+</pre>
+</div>
+
+<p>
+将z设置为区间[a, b]内所有整数的乘积A(a, b)，并返回z。如果a&gt;b会将z设为1并返回。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org03c0aa1" class="outline-3">
+<h3 id="org03c0aa1">func (*Int) Binomial</h3>
+<div class="outline-text-3" id="text-org03c0aa1">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">Binomial</span>(<span style="color: #8787d7;">n</span>, <span style="color: #8787d7;">k</span> <span style="color: #df005f; font-weight: bold;">int64</span>) *<span style="color: #df005f; font-weight: bold;">Int</span>
+</pre>
+</div>
+
+<p>
+将z设为k次二项式展开第n项的系数C(n, k)，并返回z。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org029795b" class="outline-3">
+<h3 id="org029795b">func (*Int) Rand</h3>
+<div class="outline-text-3" id="text-org029795b">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">Rand</span>(<span style="color: #8787d7;">rnd</span> *<span style="color: #df005f; font-weight: bold;">rand.Rand</span>, <span style="color: #8787d7;">n</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) *<span style="color: #df005f; font-weight: bold;">Int</span>
+</pre>
+</div>
+
+<p>
+将z设为一个范围在[0, n)的伪随机值，并返回z。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4dbff72" class="outline-3">
+<h3 id="org4dbff72">func (*Int) ProbablyPrime</h3>
+<div class="outline-text-3" id="text-org4dbff72">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">ProbablyPrime</span>(<span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+对x进行n次Miller-Rabin质数检测。如果方法返回真则x是质数的几率为1-(1/4)**n；否则x不是质数。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org0672007" class="outline-3">
+<h3 id="org0672007">func (*Int) Sign</h3>
+<div class="outline-text-3" id="text-org0672007">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">Sign</span>() <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+返回x的正负号。x&lt;0时返回-1；x&gt;0时返回+1；否则返回0。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge7aea1b" class="outline-3">
+<h3 id="orge7aea1b">func (*Int) Cmp</h3>
+<div class="outline-text-3" id="text-orge7aea1b">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">Cmp</span>(<span style="color: #8787d7;">y</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) (<span style="color: #8787d7;">r</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+</pre>
+</div>
+
+<p>
+比较x和y的大小。x&lt;y时返回-1；x&gt;y时返回+1；否则返回0。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgdfd9466" class="outline-3">
+<h3 id="orgdfd9466">func (*Int) Not</h3>
+<div class="outline-text-3" id="text-orgdfd9466">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">Not</span>(<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) *<span style="color: #df005f; font-weight: bold;">Int</span>
+</pre>
+</div>
+
+<p>
+将z设为^x并返回z（按位取反）。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgff71218" class="outline-3">
+<h3 id="orgff71218">func (*Int) And</h3>
+<div class="outline-text-3" id="text-orgff71218">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">And</span>(<span style="color: #8787d7;">x</span>, <span style="color: #8787d7;">y</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) *<span style="color: #df005f; font-weight: bold;">Int</span>
+</pre>
+</div>
+
+<p>
+将z设为x &amp; y并返回z（按位且）。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org0ab26e8" class="outline-3">
+<h3 id="org0ab26e8">func (*Int) Or</h3>
+<div class="outline-text-3" id="text-org0ab26e8">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">Or</span>(<span style="color: #8787d7;">x</span>, <span style="color: #8787d7;">y</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) *<span style="color: #df005f; font-weight: bold;">Int</span>
+</pre>
+</div>
+
+<p>
+将z设为x | y并返回z（按位或）。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgeda7cd4" class="outline-3">
+<h3 id="orgeda7cd4">func (*Int) Xor</h3>
+<div class="outline-text-3" id="text-orgeda7cd4">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">Xor</span>(<span style="color: #8787d7;">x</span>, <span style="color: #8787d7;">y</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) *<span style="color: #df005f; font-weight: bold;">Int</span>
+</pre>
+</div>
+
+<p>
+将z设为x ^ y并返回z（按位异或）。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org4748e3c" class="outline-3">
+<h3 id="org4748e3c">func (*Int) AndNot</h3>
+<div class="outline-text-3" id="text-org4748e3c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">AndNot</span>(<span style="color: #8787d7;">x</span>, <span style="color: #8787d7;">y</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) *<span style="color: #df005f; font-weight: bold;">Int</span>
+</pre>
+</div>
+
+<p>
+将z设为x &amp; (^y)并返回z（按位减）。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org73941d2" class="outline-3">
+<h3 id="org73941d2">func (*Int) Lsh</h3>
+<div class="outline-text-3" id="text-org73941d2">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">Lsh</span>(<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Int</span>, <span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">uint</span>) *<span style="color: #df005f; font-weight: bold;">Int</span>
+</pre>
+</div>
+
+<p>
+将z设为x &lt;&lt; n并返回z（左位移运算）。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org6a85509" class="outline-3">
+<h3 id="org6a85509">func (*Int) Rsh</h3>
+<div class="outline-text-3" id="text-org6a85509">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">Rsh</span>(<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Int</span>, <span style="color: #8787d7;">n</span> <span style="color: #df005f; font-weight: bold;">uint</span>) *<span style="color: #df005f; font-weight: bold;">Int</span>
+</pre>
+</div>
+
+<p>
+将z设为x &gt;&gt; n并返回z（右位移运算）。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2624632" class="outline-3">
+<h3 id="org2624632">func (*Int) Abs</h3>
+<div class="outline-text-3" id="text-org2624632">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">Abs</span>(<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) *<span style="color: #df005f; font-weight: bold;">Int</span>
+</pre>
+</div>
+
+<p>
+将z设为|x|并返回z。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge448055" class="outline-3">
+<h3 id="orge448055">func (*Int) Neg</h3>
+<div class="outline-text-3" id="text-orge448055">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">Neg</span>(<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) *<span style="color: #df005f; font-weight: bold;">Int</span>
+</pre>
+</div>
+
+<p>
+将z设为-x并返回z。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org6d21961" class="outline-3">
+<h3 id="org6d21961">func (*Int) Set</h3>
+<div class="outline-text-3" id="text-org6d21961">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">Set</span>(<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) *<span style="color: #df005f; font-weight: bold;">Int</span>
+</pre>
+</div>
+
+<p>
+将z设为x（生成一个拷贝）并返回z<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd017f21" class="outline-3">
+<h3 id="orgd017f21">func (*Int) Add</h3>
+<div class="outline-text-3" id="text-orgd017f21">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">Add</span>(<span style="color: #8787d7;">x</span>, <span style="color: #8787d7;">y</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) *<span style="color: #df005f; font-weight: bold;">Int</span>
+</pre>
+</div>
+
+<p>
+将z设为x + y并返回z。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgec4212c" class="outline-3">
+<h3 id="orgec4212c">func (*Int) Sub</h3>
+<div class="outline-text-3" id="text-orgec4212c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">Sub</span>(<span style="color: #8787d7;">x</span>, <span style="color: #8787d7;">y</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) *<span style="color: #df005f; font-weight: bold;">Int</span>
+</pre>
+</div>
+
+<p>
+将z设为x - y并返回z。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge6d00b9" class="outline-3">
+<h3 id="orge6d00b9">func (*Int) Mul</h3>
+<div class="outline-text-3" id="text-orge6d00b9">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">Mul</span>(<span style="color: #8787d7;">x</span>, <span style="color: #8787d7;">y</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) *<span style="color: #df005f; font-weight: bold;">Int</span>
+</pre>
+</div>
+
+<p>
+将z设为x * y并返回z。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org7997cce" class="outline-3">
+<h3 id="org7997cce">func (*Int) Div</h3>
+<div class="outline-text-3" id="text-org7997cce">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">Div</span>(<span style="color: #8787d7;">x</span>, <span style="color: #8787d7;">y</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) *<span style="color: #df005f; font-weight: bold;">Int</span>
+</pre>
+</div>
+
+<p>
+如果y != 0会将z设为x/y并返回z；如果y==0会panic。函数采用欧几里德除法（和Go不同），参见DivMod。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org764e7e9" class="outline-3">
+<h3 id="org764e7e9">func (*Int) Mod</h3>
+<div class="outline-text-3" id="text-org764e7e9">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">Mod</span>(<span style="color: #8787d7;">x</span>, <span style="color: #8787d7;">y</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) *<span style="color: #df005f; font-weight: bold;">Int</span>
+</pre>
+</div>
+
+<p>
+如果y != 0会将z设为x%y并返回z；如果y==0会panic。函数采用欧几里德除法（和Go不同），参见DivMod。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org359af81" class="outline-3">
+<h3 id="org359af81">func (*Int) DivMod</h3>
+<div class="outline-text-3" id="text-org359af81">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">DivMod</span>(<span style="color: #8787d7;">x</span>, <span style="color: #8787d7;">y</span>, <span style="color: #8787d7;">m</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) (*<span style="color: #df005f; font-weight: bold;">Int</span>, *<span style="color: #df005f; font-weight: bold;">Int</span>)
+</pre>
+</div>
+
+<p>
+如果y != 0将z设为x/y，将m设为x%y并返回(z, m)；如果y == 0会panic。采用欧几里德除法（和Go不同）<br>
+</p>
+
+<p>
+DivMod方法实现了欧几里德带余除法：<br>
+</p>
+
+<pre class="example">
+q = x div y  满足
+m = x - y*q  且 0 &lt;= m &lt; |q|
+</pre>
+</div>
+</div>
+<div id="outline-container-orge0128bf" class="outline-3">
+<h3 id="orge0128bf">func (*Int) Quo</h3>
+<div class="outline-text-3" id="text-orge0128bf">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">Quo</span>(<span style="color: #8787d7;">x</span>, <span style="color: #8787d7;">y</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) *<span style="color: #df005f; font-weight: bold;">Int</span>
+</pre>
+</div>
+
+<p>
+如果y != 0会将z设为x/y并返回z；如果y==0会panic。函数采用截断除法（和Go相同），参见QuoRem。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org67fc5d7" class="outline-3">
+<h3 id="org67fc5d7">func (*Int) Rem</h3>
+<div class="outline-text-3" id="text-org67fc5d7">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">Rem</span>(<span style="color: #8787d7;">x</span>, <span style="color: #8787d7;">y</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) *<span style="color: #df005f; font-weight: bold;">Int</span>
+</pre>
+</div>
+
+<p>
+如果y != 0会将z设为x%y并返回z；如果y==0会panic。函数采用截断除法（和Go相同），参见QuoRem。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgce868b4" class="outline-3">
+<h3 id="orgce868b4">func (*Int) QuoRem</h3>
+<div class="outline-text-3" id="text-orgce868b4">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">QuoRem</span>(<span style="color: #8787d7;">x</span>, <span style="color: #8787d7;">y</span>, <span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) (*<span style="color: #df005f; font-weight: bold;">Int</span>, *<span style="color: #df005f; font-weight: bold;">Int</span>)
+</pre>
+</div>
+
+<p>
+如果y != 0将z设为x/y，将r设为x%y并返回(z, r)；如果y == 0会panic。函数采用截断除法（和Go相同）<br>
+</p>
+
+<p>
+QuoRem方法实现了截断带余除法：<br>
+</p>
+
+<pre class="example">
+q = x/y      返回值向零的方向截断
+r = x - y*q
+</pre>
+</div>
+</div>
+<div id="outline-container-org1242bed" class="outline-3">
+<h3 id="org1242bed">func (*Int) ModInverse</h3>
+<div class="outline-text-3" id="text-org1242bed">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">ModInverse</span>(<span style="color: #8787d7;">g</span>, <span style="color: #8787d7;">p</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) *<span style="color: #df005f; font-weight: bold;">Int</span>
+</pre>
+</div>
+
+<p>
+将z设为g相对p的模逆（即z、g满足(z * g) % p == 1）。返回值z大于0小于p。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org1efdf9c" class="outline-3">
+<h3 id="org1efdf9c">func (*Int) Exp</h3>
+<div class="outline-text-3" id="text-org1efdf9c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">Exp</span>(<span style="color: #8787d7;">x</span>, <span style="color: #8787d7;">y</span>, <span style="color: #8787d7;">m</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) *<span style="color: #df005f; font-weight: bold;">Int</span>
+</pre>
+</div>
+
+<p>
+将z设为x**y mod |m|并返回z；如果y &lt;= 0，返回1；如果m <code>= nil 或 m =</code> 0，z设为x**y。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf56f349" class="outline-3">
+<h3 id="orgf56f349">func (*Int) GCD</h3>
+<div class="outline-text-3" id="text-orgf56f349">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">GCD</span>(<span style="color: #8787d7;">x</span>, <span style="color: #8787d7;">y</span>, <span style="color: #8787d7;">a</span>, <span style="color: #8787d7;">b</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) *<span style="color: #df005f; font-weight: bold;">Int</span>
+</pre>
+</div>
+
+<p>
+将z设为a和b的最大公约数并返回z。a或b为nil时会panic；a和b都&gt;0时设置z为最大公约数；如果任一个&lt;=0方法就会设置z = x = y = 0。如果x和y都不是nil，会将x和y设置为满足a*x + b*y==z。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org581da8e" class="outline-3">
+<h3 id="org581da8e">func (*Int) Format</h3>
+<div class="outline-text-3" id="text-org581da8e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">Format</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">fmt.State</span>, <span style="color: #8787d7;">ch</span> <span style="color: #df005f; font-weight: bold;">rune</span>)
+</pre>
+</div>
+
+<p>
+Format方法实现了fmt.Formatter接口。本方法接受格式'b'（二进制）、'o'（八进制）、'd'（十进制）、'x'（小写十六进制）、'X'（大写十六进制）。<br>
+</p>
+
+<p>
+方法支持全套fmt包对整数类型的动作：包括用于符号控制的'+'、'-'、' '；用于十六进制和八进制前导0的'#'；"%#x"和"%#X"会设置前导的"0x"或"0X"；指定最小数字精度；输出字段宽度；空格或'0'的补位；左右对齐。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgddd88bb" class="outline-3">
+<h3 id="orgddd88bb">func (*Int) Scan</h3>
+<div class="outline-text-3" id="text-orgddd88bb">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">Scan</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">fmt.ScanState</span>, <span style="color: #8787d7;">ch</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+
+<p>
+Scan实现了fmt.Scanner接口，将z设为读取的数字。方法可以接受接受格式'b'（二进制）、'o'（八进制）、'd'（十进制）、'x'（小写十六进制）、'X'（大写十六进制）。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">The Scan function is rarely used directly;</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">the fmt package recognizes it as an implementation of fmt.Scanner.</span>
+<span style="color: #8787d7;">i</span> := <span style="color: #268bd2;">new</span>(<span style="color: #df005f; font-weight: bold;">big.Int</span>)
+<span style="color: #8787d7;">_</span>, <span style="color: #8787d7;">err</span> := fmt.<span style="color: #d75fd7; font-weight: bold;">Sscan</span>(<span style="color: #2aa198;">"18446744073709551617"</span>, i)
+<span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
+        log.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"error scanning value:"</span>, err)
+} <span style="color: #268bd2; font-weight: bold;">else</span> {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(i)
+}
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">18446744073709551617</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgfad9a1e" class="outline-3">
+<h3 id="orgfad9a1e">func (*Int) GobEncode</h3>
+<div class="outline-text-3" id="text-orgfad9a1e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">GobEncode</span>() ([]<span style="color: #df005f; font-weight: bold;">byte</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+本方法实现了gob.GobEncoder接口。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf62a4ac" class="outline-3">
+<h3 id="orgf62a4ac">func (*Int) GobDecode</h3>
+<div class="outline-text-3" id="text-orgf62a4ac">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">GobDecode</span>(<span style="color: #8787d7;">buf</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+
+<p>
+本方法实现了gob.GobDecoder接口。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb748153" class="outline-3">
+<h3 id="orgb748153">func (*Int) MarshalJSON</h3>
+<div class="outline-text-3" id="text-orgb748153">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">MarshalJSON</span>() ([]<span style="color: #df005f; font-weight: bold;">byte</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+本方法实现了json.Marshaler接口。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge9e11e8" class="outline-3">
+<h3 id="orge9e11e8">func (*Int) UnmarshalJSON</h3>
+<div class="outline-text-3" id="text-orge9e11e8">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">UnmarshalJSON</span>(<span style="color: #8787d7;">text</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+
+<p>
+本方法实现了json.Unmarshaler接口。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd07156c" class="outline-3">
+<h3 id="orgd07156c">func (*Int) MarshalText</h3>
+<div class="outline-text-3" id="text-orgd07156c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">MarshalText</span>() (<span style="color: #8787d7;">text</span> []<span style="color: #df005f; font-weight: bold;">byte</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+本方法实现了encoding.TextMarshaler接口。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgfb4a066" class="outline-3">
+<h3 id="orgfb4a066">func (*Int) UnmarshalText</h3>
+<div class="outline-text-3" id="text-orgfb4a066">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) <span style="color: #d75fd7; font-weight: bold;">UnmarshalText</span>(<span style="color: #8787d7;">text</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+
+<p>
+本方法实现了encoding.TextUnmarshaler接口。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org0f282cd" class="outline-2">
+<h2 id="org0f282cd">type Rat</h2>
+<div class="outline-text-2" id="text-org0f282cd">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Rat</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
+        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20869;&#21547;&#38544;&#34255;&#25110;&#38750;&#23548;&#20986;&#23383;&#27573;</span>
+}
+</pre>
+</div>
+
+<p>
+Rat类型代表一个任意精度的有理数（底层采用分数表示），Rat的零值代表数字0。<br>
+</p>
+</div>
+<div id="outline-container-orgc246527" class="outline-3">
+<h3 id="orgc246527">func NewRat</h3>
+<div class="outline-text-3" id="text-orgc246527">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">NewRat</span>(<span style="color: #8787d7;">a</span>, <span style="color: #8787d7;">b</span> <span style="color: #df005f; font-weight: bold;">int64</span>) *<span style="color: #df005f; font-weight: bold;">Rat</span>
+</pre>
+</div>
+
+<p>
+NewRat函数使用分子a和分母b创建一个Rat。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org688c13e" class="outline-3">
+<h3 id="org688c13e">func (*Rat) Num</h3>
+<div class="outline-text-3" id="text-org688c13e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) <span style="color: #d75fd7; font-weight: bold;">Num</span>() *<span style="color: #df005f; font-weight: bold;">Int</span>
+</pre>
+</div>
+
+<p>
+返回x的分子，分子可能&lt;=0。返回的是x分子的指针，因此对返回值的操作可能改变x，反之亦然。x的符号与分子的符号是绑定的。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org508951f" class="outline-3">
+<h3 id="org508951f">func (*Rat) Denom</h3>
+<div class="outline-text-3" id="text-org508951f">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) <span style="color: #d75fd7; font-weight: bold;">Denom</span>() *<span style="color: #df005f; font-weight: bold;">Int</span>
+</pre>
+</div>
+
+<p>
+返回x的分母，分母总是&gt;0。返回的是x分母的指针，因此对返回值的操作可能改变x，反之亦然。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgaac2c0f" class="outline-3">
+<h3 id="orgaac2c0f">func (*Rat) Float64</h3>
+<div class="outline-text-3" id="text-orgaac2c0f">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) <span style="color: #d75fd7; font-weight: bold;">Float64</span>() (<span style="color: #8787d7;">f</span> <span style="color: #df005f; font-weight: bold;">float64</span>, <span style="color: #8787d7;">exact</span> <span style="color: #df005f; font-weight: bold;">bool</span>)
+</pre>
+</div>
+
+<p>
+返回最接近x的值的float64值，exact用于说明f是否精确的表示了x。  如果x的量级太大或太小不能被float64类型表示，返回无穷和false；f的符号始终与x的符号一致，即使f==0。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org52c8d92" class="outline-3">
+<h3 id="org52c8d92">func (*Rat) RatString</h3>
+<div class="outline-text-3" id="text-org52c8d92">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) <span style="color: #d75fd7; font-weight: bold;">RatString</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+返回z的字符串表示，如果分母不等于1，格式为"a/b"；否则格式为"a"。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgc787c62" class="outline-3">
+<h3 id="orgc787c62">func (*Rat) FloatString</h3>
+<div class="outline-text-3" id="text-orgc787c62">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) <span style="color: #d75fd7; font-weight: bold;">FloatString</span>(<span style="color: #8787d7;">prec</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+返回z的字符串表示为精度为prec的十进制浮点数，最后一位会进行四舍五入。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgabb905e" class="outline-3">
+<h3 id="orgabb905e">func (*Rat) String</h3>
+<div class="outline-text-3" id="text-orgabb905e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) <span style="color: #d75fd7; font-weight: bold;">String</span>() <span style="color: #df005f; font-weight: bold;">string</span>
+</pre>
+</div>
+
+<p>
+返回z的字符串表示，格式为"a/b"（即使分母等于1）。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org557af3e" class="outline-3">
+<h3 id="org557af3e">func (*Rat) IsInt</h3>
+<div class="outline-text-3" id="text-org557af3e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) <span style="color: #d75fd7; font-weight: bold;">IsInt</span>() <span style="color: #df005f; font-weight: bold;">bool</span>
+</pre>
+</div>
+
+<p>
+返回x的分母是否为1（即x为整数）。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgfeb189a" class="outline-3">
+<h3 id="orgfeb189a">func (*Rat) SetInt64</h3>
+<div class="outline-text-3" id="text-orgfeb189a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) <span style="color: #d75fd7; font-weight: bold;">SetInt64</span>(<span style="color: #8787d7;">x</span> <span style="color: #df005f; font-weight: bold;">int64</span>) *<span style="color: #df005f; font-weight: bold;">Rat</span>
+</pre>
+</div>
+
+<p>
+将z设为x，并返回z。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org1d2887c" class="outline-3">
+<h3 id="org1d2887c">func (*Rat) SetFrac64</h3>
+<div class="outline-text-3" id="text-org1d2887c">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) <span style="color: #d75fd7; font-weight: bold;">SetFrac64</span>(<span style="color: #8787d7;">a</span>, <span style="color: #8787d7;">b</span> <span style="color: #df005f; font-weight: bold;">int64</span>) *<span style="color: #df005f; font-weight: bold;">Rat</span>
+</pre>
+</div>
+
+<p>
+将z设为a/b，并返回z。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9b4f8b2" class="outline-3">
+<h3 id="org9b4f8b2">func (*Rat) SetFloat64</h3>
+<div class="outline-text-3" id="text-org9b4f8b2">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) <span style="color: #d75fd7; font-weight: bold;">SetFloat64</span>(<span style="color: #8787d7;">f</span> <span style="color: #df005f; font-weight: bold;">float64</span>) *<span style="color: #df005f; font-weight: bold;">Rat</span>
+</pre>
+</div>
+
+<p>
+将z设为f的精确值并返回z。如果f不是有穷数（即f为+Inf、+Inf或NaN）时会返回nil。。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org1a021c1" class="outline-3">
+<h3 id="org1a021c1">func (*Rat) SetInt</h3>
+<div class="outline-text-3" id="text-org1a021c1">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) <span style="color: #d75fd7; font-weight: bold;">SetInt</span>(<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) *<span style="color: #df005f; font-weight: bold;">Rat</span>
+</pre>
+</div>
+
+<p>
+将z设为x（生成一个拷贝）并返回z。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org3768f4a" class="outline-3">
+<h3 id="org3768f4a">func (*Rat) SetFrac</h3>
+<div class="outline-text-3" id="text-org3768f4a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) <span style="color: #d75fd7; font-weight: bold;">SetFrac</span>(<span style="color: #8787d7;">a</span>, <span style="color: #8787d7;">b</span> *<span style="color: #df005f; font-weight: bold;">Int</span>) *<span style="color: #df005f; font-weight: bold;">Rat</span>
+</pre>
+</div>
+
+<p>
+将z设为a/b，并返回z。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org822a61b" class="outline-3">
+<h3 id="org822a61b">func (*Rat) SetString</h3>
+<div class="outline-text-3" id="text-org822a61b">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) <span style="color: #d75fd7; font-weight: bold;">SetString</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>) (*<span style="color: #df005f; font-weight: bold;">Rat</span>, <span style="color: #df005f; font-weight: bold;">bool</span>)
+</pre>
+</div>
+
+<p>
+将z设为字符串代表的值，返回z并用一个bool表明是否成功。字符串s的格式可以是形如"a/b"的分数格式，也可以是浮点数后跟可选的指数的科学计数法格式。如果操作失败，z的值是不确定的，但返回值为nil。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">r</span> := <span style="color: #268bd2;">new</span>(<span style="color: #df005f; font-weight: bold;">big.Rat</span>)
+r.<span style="color: #d75fd7; font-weight: bold;">SetString</span>(<span style="color: #2aa198;">"355/113"</span>)
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(r.<span style="color: #d75fd7; font-weight: bold;">FloatString</span>(3))
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">3.142</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org4ca20f3" class="outline-3">
+<h3 id="org4ca20f3">func (*Rat) Sign</h3>
+<div class="outline-text-3" id="text-org4ca20f3">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) <span style="color: #d75fd7; font-weight: bold;">Sign</span>() <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+返回x的正负号。如x &lt; 0返回-1；如x &gt; 0返回+1；否则返回0。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org466d3ba" class="outline-3">
+<h3 id="org466d3ba">func (*Rat) Cmp</h3>
+<div class="outline-text-3" id="text-org466d3ba">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) <span style="color: #d75fd7; font-weight: bold;">Cmp</span>(<span style="color: #8787d7;">y</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) <span style="color: #df005f; font-weight: bold;">int</span>
+</pre>
+</div>
+
+<p>
+比较x和y的大小。如x &lt; y返回-1；如x &gt; y返回+1；否则返回0。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org14e7701" class="outline-3">
+<h3 id="org14e7701">func (*Rat) Abs</h3>
+<div class="outline-text-3" id="text-org14e7701">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) <span style="color: #d75fd7; font-weight: bold;">Abs</span>(<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) *<span style="color: #df005f; font-weight: bold;">Rat</span>
+</pre>
+</div>
+
+<p>
+将z设为|x|并返回z。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org14738d2" class="outline-3">
+<h3 id="org14738d2">func (*Rat) Neg</h3>
+<div class="outline-text-3" id="text-org14738d2">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) <span style="color: #d75fd7; font-weight: bold;">Neg</span>(<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) *<span style="color: #df005f; font-weight: bold;">Rat</span>
+</pre>
+</div>
+
+<p>
+将z设为-x并返回z。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgca994f2" class="outline-3">
+<h3 id="orgca994f2">func (*Rat) Inv</h3>
+<div class="outline-text-3" id="text-orgca994f2">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) <span style="color: #d75fd7; font-weight: bold;">Inv</span>(<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) *<span style="color: #df005f; font-weight: bold;">Rat</span>
+</pre>
+</div>
+
+<p>
+将z设为1/x并返回z。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org87bd02e" class="outline-3">
+<h3 id="org87bd02e">func (*Rat) Set</h3>
+<div class="outline-text-3" id="text-org87bd02e">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) <span style="color: #d75fd7; font-weight: bold;">Set</span>(<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) *<span style="color: #df005f; font-weight: bold;">Rat</span>
+</pre>
+</div>
+
+<p>
+将z设为x（生成一个拷贝）并返回z。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgec07cc1" class="outline-3">
+<h3 id="orgec07cc1">func (*Rat) Add</h3>
+<div class="outline-text-3" id="text-orgec07cc1">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) <span style="color: #d75fd7; font-weight: bold;">Add</span>(<span style="color: #8787d7;">x</span>, <span style="color: #8787d7;">y</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) *<span style="color: #df005f; font-weight: bold;">Rat</span>
+</pre>
+</div>
+
+<p>
+将z设为x + y并返回z。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org3661aaa" class="outline-3">
+<h3 id="org3661aaa">func (*Rat) Sub</h3>
+<div class="outline-text-3" id="text-org3661aaa">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) <span style="color: #d75fd7; font-weight: bold;">Sub</span>(<span style="color: #8787d7;">x</span>, <span style="color: #8787d7;">y</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) *<span style="color: #df005f; font-weight: bold;">Rat</span>
+</pre>
+</div>
+
+<p>
+将z设为x - y并返回z。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org3f8ae21" class="outline-3">
+<h3 id="org3f8ae21">func (*Rat) Mul</h3>
+<div class="outline-text-3" id="text-org3f8ae21">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) <span style="color: #d75fd7; font-weight: bold;">Mul</span>(<span style="color: #8787d7;">x</span>, <span style="color: #8787d7;">y</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) *<span style="color: #df005f; font-weight: bold;">Rat</span>
+</pre>
+</div>
+
+<p>
+将z设为x * y并返回z。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2c47c69" class="outline-3">
+<h3 id="org2c47c69">func (*Rat) Quo</h3>
+<div class="outline-text-3" id="text-org2c47c69">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) <span style="color: #d75fd7; font-weight: bold;">Quo</span>(<span style="color: #8787d7;">x</span>, <span style="color: #8787d7;">y</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) *<span style="color: #df005f; font-weight: bold;">Rat</span>
+</pre>
+</div>
+
+<p>
+如果y != 0会将z设为x/y并返回z；如果y==0会panic。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgeb6def3" class="outline-3">
+<h3 id="orgeb6def3">func (*Rat) Scan</h3>
+<div class="outline-text-3" id="text-orgeb6def3">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) <span style="color: #d75fd7; font-weight: bold;">Scan</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">fmt.ScanState</span>, <span style="color: #8787d7;">ch</span> <span style="color: #df005f; font-weight: bold;">rune</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+
+<p>
+本方法实现了fmt.Scanner接口，将z设为读取到的数字。接受格式'e'、'E'、'f'、'F'、'g'、'G'、'v'；它们都是等价的。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">The Scan function is rarely used directly;</span>
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">the fmt package recognizes it as an implementation of fmt.Scanner.</span>
+<span style="color: #8787d7;">r</span> := <span style="color: #268bd2;">new</span>(<span style="color: #df005f; font-weight: bold;">big.Rat</span>)
+<span style="color: #8787d7;">_</span>, <span style="color: #8787d7;">err</span> := fmt.<span style="color: #d75fd7; font-weight: bold;">Sscan</span>(<span style="color: #2aa198;">"1.5000"</span>, r)
+<span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
+        log.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"error scanning value:"</span>, err)
+} <span style="color: #268bd2; font-weight: bold;">else</span> {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(r)
+}
+<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">3/2</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgcacceb0" class="outline-3">
+<h3 id="orgcacceb0">func (*Rat) GobEncode</h3>
+<div class="outline-text-3" id="text-orgcacceb0">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) <span style="color: #d75fd7; font-weight: bold;">GobEncode</span>() ([]<span style="color: #df005f; font-weight: bold;">byte</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+本方法实现了gob.GobEncoder接口。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga0de520" class="outline-3">
+<h3 id="orga0de520">func (*Rat) GobDecode</h3>
+<div class="outline-text-3" id="text-orga0de520">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">z</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) <span style="color: #d75fd7; font-weight: bold;">GobDecode</span>(<span style="color: #8787d7;">buf</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+
+<p>
+本方法实现了gob.GobDecoder接口。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org90e74a5" class="outline-3">
+<h3 id="org90e74a5">func (*Rat) MarshalText</h3>
+<div class="outline-text-3" id="text-org90e74a5">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) <span style="color: #d75fd7; font-weight: bold;">MarshalText</span>() (<span style="color: #8787d7;">text</span> []<span style="color: #df005f; font-weight: bold;">byte</span>, <span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>)
+</pre>
+</div>
+
+<p>
+本方法实现了encoding.TextMarshaler接口。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgcee8714" class="outline-3">
+<h3 id="orgcee8714">func (*Rat) UnmarshalText</h3>
+<div class="outline-text-3" id="text-orgcee8714">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Rat</span>) <span style="color: #d75fd7; font-weight: bold;">UnmarshalText</span>(<span style="color: #8787d7;">text</span> []<span style="color: #df005f; font-weight: bold;">byte</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+</pre>
+</div>
+
+<p>
+本方法实现了encoding.TextUnmarshaler接口。<br>
+</p>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-06-08 Wed 21:15</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
