@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-07-15 Fri 21:48 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cookie 与 Session</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">Cookie 与 Session</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgce64026">常用的本地存储</a></li>
+<li><a href="#org0b952d1">Cookie 与 Session 的区别</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgce64026" class="outline-2">
+<h2 id="orgce64026">常用的本地存储</h2>
+<div class="outline-text-2" id="text-orgce64026">
+<img src="./images/浏览器本地存储.png"/>
+
+<p>
+以上的 <code>indexedDB</code> 、 <code>Local Storage</code> 、 <code>Session Storage</code> 、 <code>Cookies</code> ，就是常用的本地存储。<br>
+</p>
+
+<p>
+1、cookie<br>
+</p>
+
+<p>
+HTTP cookie，通常直接叫做cookie，是客户端用来存储数据的一种选项，它既可以在客户端设置也可以在服务器端设置。cookie会跟随任意HTTP请求一起发送。<br>
+</p>
+
+<p>
+2、web存储机制<br>
+</p>
+
+<p>
+web storage，包括两种：sessionStorage 和 localStorage，前者严格用于一个浏览器会话中存储数据，因为数据在浏览器关闭后会立即删除；后者则用于跨会话持久化地存储数据。<br>
+</p>
+
+<p>
+3、indexedDB<br>
+</p>
+
+<p>
+indexed Database API，简称为indexedDB，是在浏览器中保存结构化数据的一种「数据库」。它类似SQL数据库的结构化数据存储机制，代替了废弃已久的web SQL Database API，它能够在客户端存储大量的结构化数据，并且使用索引高效检索的API。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org0b952d1" class="outline-2">
+<h2 id="org0b952d1">Cookie 与 Session 的区别</h2>
+<div class="outline-text-2" id="text-org0b952d1">
+<ol class="org-ol">
+<li>由于 HTTP 协议是无状态的协议，所以服务端需要记录用户的状态时，就需要用某种机制来识具体的用户，这个机制就是 Session。<br>
+<ul class="org-ul">
+<li>典型的场景比如购物车，当你点击下单按钮时，由于 HTTP 协议无状态，所以并不知道是哪个用户操作的，所以服务端要为特定的用户创建了特定的 Session，用于标识这个用户，并且跟踪用户，这样才知道购物车里面有几本书（李太白：《TCP/IP网络编程》、《计算机组成与设计：硬件 / 软件接口》、《程序员的自我修养：链接、装载和库》、《深入理解计算机系统》）。<br></li>
+<li><span class="underline">这个 Session 是保存在服务端的，有一个唯一标识。</span> <span class="underline">在服务端保存 Session 的方法很多，内存、数据库、文件都有。</span> 集群的时候也要考虑 Session 的转移，在大型的网站，一般会有专门的 Session 服务器集群，用来保存用户会话，这个时候 Session 信息都是放在内存的，使用一些缓存服务比如 Memcached 之类的来放 Session。<br></li>
+</ul></li>
+<li>思考一下服务端如何识别特定的客户？这个时候 Cookie 就登场了。 <span class="underline">每次 HTTP 请求的时候，客户端都会发送相应的 Cookie 信息到服务端。</span> <br>
+<ul class="org-ul">
+<li>实际上大多数的应用都是 <span class="underline">用 Cookie 来实现 Session 跟踪</span> 的，第一次创建 Session 的时候，服务端会在 HTTP 协议中告诉客户端，需要在 Cookie 里面记录一个 Session ID，以后每次请求把这个会话 ID 发送到服务器，我就知道你是谁了。有人问，如果客户端的浏览器禁用了 Cookie 怎么办？一般这种情况下，会使用一种叫做URL重写的技术来进行会话跟踪，即每次 HTTP 交互，URL后面都会被附加上一个诸如 sid=xxxxx 这样的参数，服务端据此来识别用户。<br></li>
+<li>Cookie 其实还可以用在一些方便用户的场景下，设想你某次登陆过一个网站，下次登录的时候不想再次输入账号了，怎么办？这个信息可以写到 Cookie 里面，访问网站的时候，网站页面的脚本可以读取这个信息，就自动帮你把用户名给填了，能够方便一下用户。这也是 Cookie 名称的由来，给用户的一点甜头。<br></li>
+</ul></li>
+</ol>
+
+<p>
+所以，总结一下：<br>
+</p>
+
+<ul class="org-ul">
+<li>Session 是在服务端保存的一个数据结构，用来跟踪用户的状态，这个数据可以保存在集群、数据库、文件中；<br></li>
+<li>Cookie 是客户端保存用户信息的一种机制，用来记录用户的一些信息，也是实现 Session 的一种方式；<br></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2021-12-29 11:12 Wed</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-07-15 Fri 21:48</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
