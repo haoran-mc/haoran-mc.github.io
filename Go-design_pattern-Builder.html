@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-07-09 Sat 16:09 -->
+<!-- 2022-08-15 Mon 11:32 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>建造者模式</title>
@@ -21,23 +21,23 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orga94d45e">模式动机</a></li>
-<li><a href="#org6e9f7ed">go 实现</a>
+<li><a href="#org3e34f82">模式动机</a></li>
+<li><a href="#org5b4d917">go 实现</a>
 <ul>
-<li><a href="#org3feb70a">构造者实现</a></li>
-<li><a href="#org5d0a7e9">自参考函数</a></li>
+<li><a href="#orgfcbb5af">构造者实现</a></li>
+<li><a href="#org171af25">自参考函数</a></li>
 </ul>
 </li>
-<li><a href="#orgaddb710">模式分析</a></li>
-<li><a href="#orgdb98df9">建造者模式的优缺点</a></li>
-<li><a href="#orgafa1a61">适用环境</a></li>
+<li><a href="#orgf901112">模式分析</a></li>
+<li><a href="#orgb949ca6">建造者模式的优缺点</a></li>
+<li><a href="#org09e6b0b">适用环境</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orga94d45e" class="outline-2">
-<h2 id="orga94d45e">模式动机</h2>
-<div class="outline-text-2" id="text-orga94d45e">
+<div id="outline-container-org3e34f82" class="outline-2">
+<h2 id="org3e34f82">模式动机</h2>
+<div class="outline-text-2" id="text-org3e34f82">
 <p>
 无论是在现实世界中还是在软件系统中，都存在一些复杂的对象，它们拥有多个组成部分，如汽车，它包括车轮、方向盘、发送机等各种部件。而对于大多数用户而言，无须知道这些部件的装配细节，也几乎不会使用单独某个部件，而是使用一辆完整的汽车，可以通过建造者模式对其进行设计与描述，建造者模式可以将部件和其组装过程分开，一步一步创建一个复杂的对象。用户只需要指定复杂对象的类型就可以得到该对象，而无须知道其内部的具体构造细节。<br>
 </p>
@@ -51,9 +51,9 @@
 </p>
 </div>
 </div>
-<div id="outline-container-org6e9f7ed" class="outline-2">
-<h2 id="org6e9f7ed">go 实现</h2>
-<div class="outline-text-2" id="text-org6e9f7ed">
+<div id="outline-container-org5b4d917" class="outline-2">
+<h2 id="org5b4d917">go 实现</h2>
+<div class="outline-text-2" id="text-org5b4d917">
 <p>
 我们需要定义一个资源池配置类 ResourcePoolConfig。这里的资源池，你可以简单理解为线程池、连接池、对象池等。在这个资源池配置类中，有以下几个成员变量，也就是可配置项。现在，请你编写代码实现这个 ResourcePoolConfig 类。<br>
 </p>
@@ -109,14 +109,14 @@
 </tbody>
 </table>
 </div>
-<div id="outline-container-org3feb70a" class="outline-3">
-<h3 id="org3feb70a">构造者实现</h3>
-<div class="outline-text-3" id="text-org3feb70a">
+<div id="outline-container-orgfcbb5af" class="outline-3">
+<h3 id="orgfcbb5af">构造者实现</h3>
+<div class="outline-text-3" id="text-orgfcbb5af">
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">const</span> (
-    <span style="color: #d75fd7;">defaultMaxTotal</span> = 10
-    <span style="color: #d75fd7;">defaultMaxIdle</span>  = 9
-    <span style="color: #d75fd7;">defaultMinIdle</span>  = 1
+    <span style="color: #d75fd7;">defaultMaxTotal</span> = <span style="color: #d75fd7;">10</span>
+    <span style="color: #d75fd7;">defaultMaxIdle</span>  = <span style="color: #d75fd7;">9</span>
+    <span style="color: #d75fd7;">defaultMinIdle</span>  = <span style="color: #d75fd7;">1</span>
 )
 
 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">ResourcePoolConfig &#36164;&#28304;&#27744;&#37197;&#32622;</span>
@@ -145,7 +145,7 @@
 }
 
 <span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">b</span> *<span style="color: #df005f; font-weight: bold;">ResourcePoolConfigBuilder</span>) <span style="color: #d75fd7; font-weight: bold;">SetMinIdle</span>(<span style="color: #8787d7;">minIdle</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">error</span> {
-    <span style="color: #268bd2; font-weight: bold;">if</span> minIdle &lt; 0 {
+    <span style="color: #268bd2; font-weight: bold;">if</span> minIdle &lt; <span style="color: #d75fd7;">0</span> {
         <span style="color: #268bd2; font-weight: bold;">return</span> fmt.<span style="color: #d75fd7; font-weight: bold;">Errorf</span>(<span style="color: #2aa198;">"max tatal cannot &lt; 0, input: %d"</span>, minIdle)
     }
     b.minIdle = minIdle
@@ -153,7 +153,7 @@
 }
 
 <span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">b</span> *<span style="color: #df005f; font-weight: bold;">ResourcePoolConfigBuilder</span>) <span style="color: #d75fd7; font-weight: bold;">SetMaxIdle</span>(<span style="color: #8787d7;">maxIdle</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">error</span> {
-    <span style="color: #268bd2; font-weight: bold;">if</span> maxIdle &lt; 0 {
+    <span style="color: #268bd2; font-weight: bold;">if</span> maxIdle &lt; <span style="color: #d75fd7;">0</span> {
         <span style="color: #268bd2; font-weight: bold;">return</span> fmt.<span style="color: #d75fd7; font-weight: bold;">Errorf</span>(<span style="color: #2aa198;">"max tatal cannot &lt; 0, input: %d"</span>, maxIdle)
     }
     b.maxIdle = maxIdle
@@ -161,7 +161,7 @@
 }
 
 <span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">b</span> *<span style="color: #df005f; font-weight: bold;">ResourcePoolConfigBuilder</span>) <span style="color: #d75fd7; font-weight: bold;">SetMaxTotal</span>(<span style="color: #8787d7;">maxTotal</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">error</span> {
-    <span style="color: #268bd2; font-weight: bold;">if</span> maxTotal &lt;= 0 {
+    <span style="color: #268bd2; font-weight: bold;">if</span> maxTotal &lt;= <span style="color: #d75fd7;">0</span> {
         <span style="color: #268bd2; font-weight: bold;">return</span> fmt.<span style="color: #d75fd7; font-weight: bold;">Errorf</span>(<span style="color: #2aa198;">"max tatal cannot &lt;= 0, input: %d"</span>, maxTotal)
     }
     b.maxTotal = maxTotal
@@ -177,15 +177,15 @@
     }
 
     <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35774;&#32622;&#40664;&#35748;&#20540;</span>
-    <span style="color: #268bd2; font-weight: bold;">if</span> b.minIdle == 0 {
+    <span style="color: #268bd2; font-weight: bold;">if</span> b.minIdle == <span style="color: #d75fd7;">0</span> {
         b.minIdle = defaultMinIdle
     }
 
-    <span style="color: #268bd2; font-weight: bold;">if</span> b.maxIdle == 0 {
+    <span style="color: #268bd2; font-weight: bold;">if</span> b.maxIdle == <span style="color: #d75fd7;">0</span> {
         b.maxIdle = defaultMaxIdle
     }
 
-    <span style="color: #268bd2; font-weight: bold;">if</span> b.maxTotal == 0 {
+    <span style="color: #268bd2; font-weight: bold;">if</span> b.maxTotal == <span style="color: #d75fd7;">0</span> {
         b.maxTotal = defaultMaxTotal
     }
 
@@ -214,18 +214,18 @@
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #8787d7;">builder</span> := &amp;<span style="color: #df005f; font-weight: bold;">ResourcePoolConfigBuilder</span>{}
 _ = builder.<span style="color: #d75fd7; font-weight: bold;">SetName</span>(<span style="color: #2aa198;">"Thread pool resources"</span>)
-_ = builder.<span style="color: #d75fd7; font-weight: bold;">SetMaxTotal</span>(12)
-_ = builder.<span style="color: #d75fd7; font-weight: bold;">SetMaxIdle</span>(8)
-_ = builder.<span style="color: #d75fd7; font-weight: bold;">SetMinIdle</span>(2)
+_ = builder.<span style="color: #d75fd7; font-weight: bold;">SetMaxTotal</span>(<span style="color: #d75fd7;">12</span>)
+_ = builder.<span style="color: #d75fd7; font-weight: bold;">SetMaxIdle</span>(<span style="color: #d75fd7;">8</span>)
+_ = builder.<span style="color: #d75fd7; font-weight: bold;">SetMinIdle</span>(<span style="color: #d75fd7;">2</span>)
 <span style="color: #8787d7;">resourcePool</span>, <span style="color: #8787d7;">_</span> := builder.<span style="color: #d75fd7; font-weight: bold;">Build</span>()
 fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(resourcePool) 
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org5d0a7e9" class="outline-3">
-<h3 id="org5d0a7e9">自参考函数</h3>
-<div class="outline-text-3" id="text-org5d0a7e9">
+<div id="outline-container-org171af25" class="outline-3">
+<h3 id="org171af25">自参考函数</h3>
+<div class="outline-text-3" id="text-org171af25">
 <p>
 其实在 Golang 中对于创建类参数比较多的对象的时候，我们常见的做法是必填参数直接传递，可选参数通过传递可变的方法进行创建。<br>
 </p>
@@ -255,7 +255,7 @@ fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(resourcePool
         <span style="color: #d75fd7; font-weight: bold;">opt</span>(option)
     }
 
-    <span style="color: #268bd2; font-weight: bold;">if</span> option.maxTotal &lt; 0 || option.maxIdle &lt; 0 || option.minIdle &lt; 0 {
+    <span style="color: #268bd2; font-weight: bold;">if</span> option.maxTotal &lt; <span style="color: #d75fd7;">0</span> || option.maxIdle &lt; <span style="color: #d75fd7;">0</span> || option.minIdle &lt; <span style="color: #d75fd7;">0</span> {
         <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">nil</span>, fmt.<span style="color: #d75fd7; font-weight: bold;">Errorf</span>(<span style="color: #2aa198;">"args err, option: %v"</span>, option)
     }
 
@@ -275,9 +275,9 @@ fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(resourcePool
 </div>
 </div>
 </div>
-<div id="outline-container-orgaddb710" class="outline-2">
-<h2 id="orgaddb710">模式分析</h2>
-<div class="outline-text-2" id="text-orgaddb710">
+<div id="outline-container-orgf901112" class="outline-2">
+<h2 id="orgf901112">模式分析</h2>
+<div class="outline-text-2" id="text-orgf901112">
 <p>
 抽象建造者类中定义了产品的创建方法和返回方法;<br>
 </p>
@@ -287,9 +287,9 @@ fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(resourcePool
 </p>
 </div>
 </div>
-<div id="outline-container-orgdb98df9" class="outline-2">
-<h2 id="orgdb98df9">建造者模式的优缺点</h2>
-<div class="outline-text-2" id="text-orgdb98df9">
+<div id="outline-container-orgb949ca6" class="outline-2">
+<h2 id="orgb949ca6">建造者模式的优缺点</h2>
+<div class="outline-text-2" id="text-orgb949ca6">
 <ul class="org-ul">
 <li>在建造者模式中， <b>客户端不必知道产品内部组成的细节，将产品本身与产品的创建过程解耦，使得相同的创建过程可以创建不同的产品对象</b> 。<br></li>
 <li>每一个具体建造者都相对独立，而与其他的具体建造者无关，因此可以很方便地替换具体建造者或增加新的具体建造者， <b>用户使用不同的具体建造者即可得到不同的产品对象</b> 。<br></li>
@@ -300,9 +300,9 @@ fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(resourcePool
 </ul>
 </div>
 </div>
-<div id="outline-container-orgafa1a61" class="outline-2">
-<h2 id="orgafa1a61">适用环境</h2>
-<div class="outline-text-2" id="text-orgafa1a61">
+<div id="outline-container-org09e6b0b" class="outline-2">
+<h2 id="org09e6b0b">适用环境</h2>
+<div class="outline-text-2" id="text-org09e6b0b">
 <ul class="org-ul">
 <li>需要生成的产品对象有复杂的内部结构，这些产品对象通常包含多个成员属性。<br></li>
 <li>需要生成的产品对象的属性相互依赖，需要指定其生成顺序。<br></li>
@@ -314,7 +314,7 @@ fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(resourcePool
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-07-09 Sat 16:09</p>
+<p class="date">Created: 2022-08-15 Mon 11:32</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

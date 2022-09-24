@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-08-01 Mon 18:46 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>查看进程的几种方法</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">查看进程的几种方法</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgdab7a8b">ps -aux</a></li>
+<li><a href="#orgdee87f7">ps -elf</a></li>
+<li><a href="#org99cf679">top</a></li>
+<li><a href="#orgbab4ce5">pstree -aup</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgdab7a8b" class="outline-2">
+<h2 id="orgdab7a8b">ps -aux</h2>
+<div class="outline-text-2" id="text-orgdab7a8b">
+<p>
+ps 命令（Process Status 的缩写）用于报告当前系统的进程状态。可以搭配 kill 指令随时中断、删除不必要的程序。ps 命令是最基本同时也是非常强大的进程查看命令，使用该命令可以确定有哪些进程正在运行和运行的状态、进程是否结束、进程有没有僵死、哪些进程占用了过多的资源等等，总之大部分信息都是可以通过执行该命令得到的。<br>
+</p>
+
+<ul class="org-ul">
+<li>a：显示当前终端下的所有进程信息，包括其他用户的进程。<br></li>
+<li>u：使用以用户为主的格式输出进程信息。<br></li>
+<li>x：显示当前用户在所有终端下的进程。<br></li>
+</ul>
+
+<p>
+结果的解释：<br>
+</p>
+
+<ul class="org-ul">
+<li>USER：启动该进程的用户账号名称<br></li>
+<li>PID：该进程的ID号，在当前系统中是唯一的<br></li>
+<li>%CPU：CPU占用的百分比<br></li>
+<li>%MEM：内存占用的百分比<br></li>
+<li>VSZ：占用虚拟内存（swap空间）的大小<br></li>
+<li>RSS：占用常驻内存（物理内存）的大小<br></li>
+<li>TTY：该进程在哪个终端上运行。"?" 表未知或不需要终端<br></li>
+<li>STAT：显示了进程当前的状态，如：（对处于僵死状态的进程应予以手动终止）<br>
+<ul class="org-ul">
+<li>S（休眠）<br></li>
+<li>R（运行）<br></li>
+<li>Z（僵死）<br></li>
+<li>&lt;（高优先级）<br></li>
+<li>N（低优先级）<br></li>
+<li>s（父进程）<br></li>
+<li>+（前台进程）<br></li>
+</ul></li>
+<li>START：启动该进程的时间<br></li>
+<li>TIME：该进程占用 CPU 时间<br></li>
+<li>COMMAND：启动该进程的命令的名称<br></li>
+</ul>
+
+<p>
+ps aux 和 ps -aux 其实是一样的，只是输出的风格不同而已，一般是使用 ps -aux。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgdee87f7" class="outline-2">
+<h2 id="orgdee87f7">ps -elf</h2>
+<div class="outline-text-2" id="text-orgdee87f7">
+<ul class="org-ul">
+<li>-e：显示系统内的所有进程信息<br></li>
+<li>-l：使用长（long）格式显示进程信息<br></li>
+<li>-f：使用完整的（full）格式显示进程信息<br></li>
+</ul>
+
+<p>
+结果的解释：<br>
+</p>
+
+<ul class="org-ul">
+<li>PPID 为父进程的 PID<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org99cf679" class="outline-2">
+<h2 id="org99cf679">top</h2>
+<div class="outline-text-2" id="text-org99cf679">
+<p>
+以全屏交互式的界面显示进程排名，及时跟踪包括 CPU、内存等系统资源占用情况，默认情况下每三秒刷新一次，其作用基本类似于 Windows 系统中的任务管理器。<br>
+</p>
+
+<ul class="org-ul">
+<li>Tasks（系统任务）信息：total，总进程数；running，正在运行的进程数；sleeping，休眠的进程数；stopped，中止的进程数；zombie，僵死无响应的进程数。<br></li>
+<li>CPU信息：us，用户占用；sy，内核占用；ni，优先级调度占用；id，空闲CPU；wa，I/O等待占用；hi，硬件中断占用；si，软件中断占用；st，虚拟化占用。了解空闲的CPU百分比，主要看%id部分。<br></li>
+<li>Mem（内存）信息：total，总内存空间；used，已用内存；free，空闲内存；buffers，缓存区域。<br></li>
+<li>Swap（交换空间）信息：total，总交换空间；used，已用交换空间；free，空闲交换空间；cached，缓存空间。<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgbab4ce5" class="outline-2">
+<h2 id="orgbab4ce5">pstree -aup</h2>
+<div class="outline-text-2" id="text-orgbab4ce5">
+<p>
+以树状图的方式展现进程之间的派生关系，显示效果比较直观。<br>
+</p>
+
+<p>
+-a：显示每个程序的完整指令，包含路径，参数或是常驻服务的标示；<br>
+-c：不使用精简标示法；<br>
+-G：使用VT100终端机的列绘图字符；<br>
+-h：列出树状图时，特别标明现在执行的程序；<br>
+-H&lt;程序识别码&gt;：此参数的效果和指定”-h”参数类似，但特别标明指定的程序；<br>
+-l：采用长列格式显示树状图；<br>
+-n：用程序识别码排序。预设是以程序名称来排序；<br>
+-p：显示程序识别码；<br>
+-u：显示用户名称；<br>
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-08-01 15:08 Mon</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-08-01 Mon 18:46</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

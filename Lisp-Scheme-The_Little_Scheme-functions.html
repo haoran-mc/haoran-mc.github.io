@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-08-14 Sun 17:57 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>《the little scheme》functions</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">《the little scheme》functions</h1>
+<dl class="org-dl">
+<dt>lat?</dt><dd><p>
+(lat? l) is just another way to ask "Whether every S-expression is l is an atom?".<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-scheme">(<span style="color: #268bd2; font-weight: bold;">define</span> <span style="color: #d75fd7; font-weight: bold;">lat?</span>
+  (<span style="color: #268bd2; font-weight: bold;">lambda</span> (l)
+    (<span style="color: #268bd2; font-weight: bold;">cond</span>
+     ((null? l) #t)
+     ((atom? (car l)) (lat? (cdr l)))
+     (<span style="color: #268bd2; font-weight: bold;">else</span> #f))))
+</pre>
+</div></dd>
+<dt>member?</dt><dd><p>
+(member? a lat) is just another way to ask "Is a is one of the atoms of the lat".<br>
+</p>
+<div class="org-src-container">
+<pre class="src src-scheme">(<span style="color: #268bd2; font-weight: bold;">define</span> <span style="color: #d75fd7; font-weight: bold;">member?</span>
+  (<span style="color: #268bd2; font-weight: bold;">lambda</span> (a lat)
+    (<span style="color: #268bd2; font-weight: bold;">cond</span>
+     ((null? lat) #f)
+     (<span style="color: #268bd2; font-weight: bold;">else</span> (<span style="color: #268bd2; font-weight: bold;">or</span> (eq? (car lat) a)
+               (member? a (cdr lat)))))))
+</pre>
+</div></dd>
+</dl>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-08-14 17:08 Sun</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-08-14 Sun 17:57</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

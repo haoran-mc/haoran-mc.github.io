@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-07-03 Sun 01:28 -->
+<!-- 2022-08-11 Thu 10:30 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>空结构体是什么</title>
@@ -21,41 +21,42 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgddc1f0d">引言</a></li>
-<li><a href="#orgd56d93c">原理解密</a>
+<li><a href="#org09fba5f">引言</a></li>
+<li><a href="#org3c9965f">原理解密</a>
 <ul>
-<li><a href="#org7acb4e1">特殊变量：zerobase</a></li>
-<li><a href="#org63cc7c3">内存管理特殊处理 mallocgc</a></li>
-<li><a href="#orgb604b2f">定义空结构体</a>
+<li><a href="#orgffc9629">特殊变量：zerobase</a></li>
+<li><a href="#orgd6e1ee9">内存管理特殊处理 mallocgc</a></li>
+<li><a href="#org825b862">定义空结构体</a>
 <ul>
-<li><a href="#org98b79a1">原生定义</a></li>
-<li><a href="#org2fa7dbb">重定义类型</a></li>
-<li><a href="#org90e260c">匿名嵌套类型</a></li>
-<li><a href="#org6d364c9">当一个结构体嵌入空结构体时</a>
+<li><a href="#org6e7650c">原生定义</a></li>
+<li><a href="#org99d6d8c">重定义类型</a></li>
+<li><a href="#orgf93bba0">匿名嵌套类型</a></li>
+<li><a href="#orge6a661a">当一个结构体嵌入空结构体时</a>
 <ul>
-<li><a href="#orgd648c38">场景一：struct{} 在最前面</a></li>
-<li><a href="#orge378973">场景二：struct{] 在中间</a></li>
-<li><a href="#org3985dc2">场景三：struct{} 在最后</a></li>
+<li><a href="#orgb5021dc">场景一：struct{} 在最前面</a></li>
+<li><a href="#org1fdb899">场景二：struct{] 在中间</a></li>
+<li><a href="#org765bf96">场景三：struct{} 在最后</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#orged6cfe8">struct{} 作为 receiver</a></li>
+<li><a href="#orga7db066">struct{} 作为 receiver</a></li>
 </ul>
 </li>
-<li><a href="#org9fd6d03">空结构体的用途</a>
+<li><a href="#org058c53f">空结构体的用途</a>
 <ul>
-<li><a href="#org0618984">1. 阻止 unkeyed 方式初始化结构体</a></li>
+<li><a href="#org1fff891">1. 阻止 unkeyed 方式初始化结构体</a></li>
+<li><a href="#org54d5071">2. 实现方法接收者</a></li>
 </ul>
 </li>
-<li><a href="#org6f68949">与其他结构结合使用</a>
+<li><a href="#orgff4fe02">与其他结构结合使用</a>
 <ul>
-<li><a href="#org34889e2">map &amp; struct{}</a></li>
-<li><a href="#orgd0e8af5">chan &amp; struct{}</a></li>
-<li><a href="#org4bb85bf">slice &amp; struct{}</a></li>
+<li><a href="#org7a3f032">map &amp; struct{}，实现集合类型（set）</a></li>
+<li><a href="#org6dde464">chan &amp; struct{}，协调 goroutine 的运行</a></li>
+<li><a href="#org5ac005f">slice &amp; struct{}</a></li>
 </ul>
 </li>
-<li><a href="#orgbe2a506">总结</a></li>
+<li><a href="#org334753a">总结</a></li>
 </ul>
 </div>
 </div>
@@ -67,9 +68,9 @@ del {
 }
 </style>
 
-<div id="outline-container-orgddc1f0d" class="outline-2">
-<h2 id="orgddc1f0d">引言</h2>
-<div class="outline-text-2" id="text-orgddc1f0d">
+<div id="outline-container-org09fba5f" class="outline-2">
+<h2 id="org09fba5f">引言</h2>
+<div class="outline-text-2" id="text-org09fba5f">
 <p>
 本文摘自：<a href="https://juejin.cn/post/6908733156707287048">Go 最细节篇 - 空结构体是什么？</a> <br>
 </p>
@@ -121,13 +122,13 @@ fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(unsafe.<span
 </p>
 </div>
 </div>
-<div id="outline-container-orgd56d93c" class="outline-2">
-<h2 id="orgd56d93c">原理解密</h2>
-<div class="outline-text-2" id="text-orgd56d93c">
+<div id="outline-container-org3c9965f" class="outline-2">
+<h2 id="org3c9965f">原理解密</h2>
+<div class="outline-text-2" id="text-org3c9965f">
 </div>
-<div id="outline-container-org7acb4e1" class="outline-3">
-<h3 id="org7acb4e1">特殊变量：zerobase</h3>
-<div class="outline-text-3" id="text-org7acb4e1">
+<div id="outline-container-orgffc9629" class="outline-3">
+<h3 id="orgffc9629">特殊变量：zerobase</h3>
+<div class="outline-text-3" id="text-orgffc9629">
 <p>
 空结构体是没有内存大小的结构体。这句话是没有错的，但是更准确的来说，其实是有一个特殊起点的，那就是 <code>zerobase</code> 变量，这是一个 <code>uintptr</code>  全局变量，占用 8 个字节。当在任何地方定义无数个 <code>struct {}</code> 类型的变量，编译器都只是把这个 <code>zerobase</code> 变量的地址给出去。换句话说，在 golang 里面，涉及到所有内存 size 为 0 的内存分配，那么就是用的同一个地址 <code>&amp;zerobase</code> 。<br>
 </p>
@@ -162,9 +163,9 @@ fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(unsafe.<span
 </p>
 </div>
 </div>
-<div id="outline-container-org63cc7c3" class="outline-3">
-<h3 id="org63cc7c3">内存管理特殊处理 mallocgc</h3>
-<div class="outline-text-3" id="text-org63cc7c3">
+<div id="outline-container-orgd6e1ee9" class="outline-3">
+<h3 id="orgd6e1ee9">内存管理特殊处理 mallocgc</h3>
+<div class="outline-text-3" id="text-orgd6e1ee9">
 <p>
 <del>编译器在编译期间，识别到 <code>struct{}</code> 这种特殊类型的内存分配，会统统分配出 <code>runtime.zerobase</code> 的地址出去，</del> 这个代码逻辑是在 <code>mallocgc</code> 函数里面：<br>
 </p>
@@ -172,7 +173,7 @@ fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(unsafe.<span
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">mallocgc</span>(<span style="color: #8787d7;">size</span> <span style="color: #df005f; font-weight: bold;">uintptr</span>, <span style="color: #8787d7;">typ</span> *<span style="color: #df005f; font-weight: bold;">_type</span>, <span style="color: #8787d7;">needzero</span> <span style="color: #df005f; font-weight: bold;">bool</span>) <span style="color: #df005f; font-weight: bold;">unsafe.Pointer</span> {
         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20998;&#37197; size &#20026; 0 &#30340;&#32467;&#26500;&#20307;&#65292;&#25226;&#20840;&#23616;&#21464;&#37327; zerobase &#30340;&#22320;&#22336;&#32473;&#20986;&#21435;&#21363;&#21487;&#65307;</span>
-    <span style="color: #268bd2; font-weight: bold;">if</span> size == 0 {
+    <span style="color: #268bd2; font-weight: bold;">if</span> size == <span style="color: #d75fd7;">0</span> {
         <span style="color: #268bd2; font-weight: bold;">return</span> unsafe.<span style="color: #d75fd7; font-weight: bold;">Pointer</span>(&amp;zerobase)
     }
         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">... </span>
@@ -188,13 +189,13 @@ golang 使用 <code>mallocgc</code> 分配内存的时候，如果 size 为 0 �
 </p>
 </div>
 </div>
-<div id="outline-container-orgb604b2f" class="outline-3">
-<h3 id="orgb604b2f">定义空结构体</h3>
-<div class="outline-text-3" id="text-orgb604b2f">
+<div id="outline-container-org825b862" class="outline-3">
+<h3 id="org825b862">定义空结构体</h3>
+<div class="outline-text-3" id="text-org825b862">
 </div>
-<div id="outline-container-org98b79a1" class="outline-4">
-<h4 id="org98b79a1">原生定义</h4>
-<div class="outline-text-4" id="text-org98b79a1">
+<div id="outline-container-org6e7650c" class="outline-4">
+<h4 id="org6e7650c">原生定义</h4>
+<div class="outline-text-4" id="text-org6e7650c">
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #8787d7;">a</span> := <span style="color: #268bd2; font-weight: bold;">struct</span>{}{} 
 </pre>
@@ -205,9 +206,9 @@ golang 使用 <code>mallocgc</code> 分配内存的时候，如果 size 为 0 �
 </p>
 </div>
 </div>
-<div id="outline-container-org2fa7dbb" class="outline-4">
-<h4 id="org2fa7dbb">重定义类型</h4>
-<div class="outline-text-4" id="text-org2fa7dbb">
+<div id="outline-container-org99d6d8c" class="outline-4">
+<h4 id="org99d6d8c">重定义类型</h4>
+<div class="outline-text-4" id="text-org99d6d8c">
 <p>
 golang 使用 <code>type</code> 关键字定义新的类型，比如：<br>
 </p>
@@ -222,9 +223,9 @@ golang 使用 <code>type</code> 关键字定义新的类型，比如：<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org90e260c" class="outline-4">
-<h4 id="org90e260c">匿名嵌套类型</h4>
-<div class="outline-text-4" id="text-org90e260c">
+<div id="outline-container-orgf93bba0" class="outline-4">
+<h4 id="orgf93bba0">匿名嵌套类型</h4>
+<div class="outline-text-4" id="text-orgf93bba0">
 <p>
 <code>struct{}</code> 作为一个匿名字段，内嵌其他结构体。这种情况是怎么样的？<br>
 </p>
@@ -257,9 +258,9 @@ golang 使用 <code>type</code> 关键字定义新的类型，比如：<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org6d364c9" class="outline-4">
-<h4 id="org6d364c9">当一个结构体嵌入空结构体时</h4>
-<div class="outline-text-4" id="text-org6d364c9">
+<div id="outline-container-orge6a661a" class="outline-4">
+<h4 id="orge6a661a">当一个结构体嵌入空结构体时</h4>
+<div class="outline-text-4" id="text-orge6a661a">
 <p>
 内置字段的场景没有什么特殊的，主要是地址和长度的对齐要考虑。还是只需要注意 3 个要点：<br>
 </p>
@@ -274,9 +275,9 @@ golang 使用 <code>type</code> 关键字定义新的类型，比如：<br>
 我们分 3 种场景讨论这个问题：<br>
 </p>
 </div>
-<div id="outline-container-orgd648c38" class="outline-5">
-<h5 id="orgd648c38">场景一：struct{} 在最前面</h5>
-<div class="outline-text-5" id="text-orgd648c38">
+<div id="outline-container-orgb5021dc" class="outline-5">
+<h5 id="orgb5021dc">场景一：struct{} 在最前面</h5>
+<div class="outline-text-5" id="text-orgb5021dc">
 <p>
 这种场景非常好理解， <code>struct{}</code> 字段类型在最前面，这种类型不占空间，所以自然第二个字段的地址和整个变量的地址一致。<br>
 </p>
@@ -313,9 +314,9 @@ golang 使用 <code>type</code> 关键字定义新的类型，比如：<br>
 </p>
 </div>
 </div>
-<div id="outline-container-orge378973" class="outline-5">
-<h5 id="orge378973">场景二：struct{] 在中间</h5>
-<div class="outline-text-5" id="text-orge378973">
+<div id="outline-container-org1fdb899" class="outline-5">
+<h5 id="org1fdb899">场景二：struct{] 在中间</h5>
+<div class="outline-text-5" id="text-org1fdb899">
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Object1 &#31867;&#22411;&#21464;&#37327;&#21344;&#29992; 16 &#20010;&#23383;&#33410;</span>
 <span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Object1</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
@@ -338,9 +339,9 @@ golang 使用 <code>type</code> 关键字定义新的类型，比如：<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org3985dc2" class="outline-5">
-<h5 id="org3985dc2">场景三：struct{} 在最后</h5>
-<div class="outline-text-5" id="text-org3985dc2">
+<div id="outline-container-org765bf96" class="outline-5">
+<h5 id="org765bf96">场景三：struct{} 在最后</h5>
+<div class="outline-text-5" id="text-org765bf96">
 <p>
 这个场景稍微注意下，因为编译器遇到之后会做特殊的字节填充补齐，如下；<br>
 </p>
@@ -389,9 +390,9 @@ golang 使用 <code>type</code> 关键字定义新的类型，比如：<br>
 </div>
 </div>
 </div>
-<div id="outline-container-orged6cfe8" class="outline-3">
-<h3 id="orged6cfe8">struct{} 作为 receiver</h3>
-<div class="outline-text-3" id="text-orged6cfe8">
+<div id="outline-container-orga7db066" class="outline-3">
+<h3 id="orga7db066">struct{} 作为 receiver</h3>
+<div class="outline-text-3" id="text-orga7db066">
 <p>
 receiver 这个是 golang 里 struct 具有的基础特点。空结构体本质上作为结构体也是一样的，可以作为 receiver 来定义方法。<br>
 </p>
@@ -407,8 +408,8 @@ receiver 这个是 golang 里 struct 具有的基础特点。空结构体本质�
 <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
     <span style="color: #8787d7;">a</span> := <span style="color: #df005f; font-weight: bold;">emptyStruct</span>{}
 
-    <span style="color: #8787d7;">n</span> := 1
-    <span style="color: #8787d7;">m</span> := 2
+    <span style="color: #8787d7;">n</span> := <span style="color: #d75fd7;">1</span>
+    <span style="color: #8787d7;">m</span> := <span style="color: #d75fd7;">2</span>
 
     a.<span style="color: #d75fd7; font-weight: bold;">FuncA</span>(n, m)
     a.<span style="color: #d75fd7; font-weight: bold;">FuncB</span>(n, m)
@@ -512,13 +513,13 @@ receiver 这种写法是 golang 支撑面向对象的基础，本质上的实现
 </div>
 </div>
 </div>
-<div id="outline-container-org9fd6d03" class="outline-2">
-<h2 id="org9fd6d03">空结构体的用途</h2>
-<div class="outline-text-2" id="text-org9fd6d03">
+<div id="outline-container-org058c53f" class="outline-2">
+<h2 id="org058c53f">空结构体的用途</h2>
+<div class="outline-text-2" id="text-org058c53f">
 </div>
-<div id="outline-container-org0618984" class="outline-3">
-<h3 id="org0618984">1. 阻止 unkeyed 方式初始化结构体</h3>
-<div class="outline-text-3" id="text-org0618984">
+<div id="outline-container-org1fff891" class="outline-3">
+<h3 id="org1fff891">1. 阻止 unkeyed 方式初始化结构体</h3>
+<div class="outline-text-3" id="text-org1fff891">
 <div class="org-src-container">
 <pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">MustKeydStruct</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
     Name <span style="color: #df005f; font-weight: bold;">string</span>
@@ -527,26 +528,51 @@ receiver 这种写法是 golang 支撑面向对象的基础，本质上的实现
 }
 
 <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #8787d7;">persion</span> := <span style="color: #df005f; font-weight: bold;">MustKeydStruct</span>{<span style="color: #d75fd7;">Name</span>: <span style="color: #2aa198;">"hello"</span>, <span style="color: #d75fd7;">Age</span>: 10}
+    <span style="color: #8787d7;">persion</span> := <span style="color: #df005f; font-weight: bold;">MustKeydStruct</span>{<span style="color: #d75fd7;">Name</span>: <span style="color: #2aa198;">"hello"</span>, <span style="color: #d75fd7;">Age</span>: <span style="color: #d75fd7;">10</span>}
     fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(persion)
-    <span style="color: #8787d7;">persion2</span> := <span style="color: #df005f; font-weight: bold;">MustKeydStruct</span>{<span style="color: #2aa198;">"hello"</span>, 10} <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#32534;&#35793;&#22833;&#36133;&#65292;&#25552;&#31034;&#65306; too few values in MustKeydStruct{...}</span>
+    <span style="color: #8787d7;">persion2</span> := <span style="color: #df005f; font-weight: bold;">MustKeydStruct</span>{<span style="color: #2aa198;">"hello"</span>, <span style="color: #d75fd7;">10</span>} <span style="color: #008787; background-color: #262626;">//</span><span style="color: #008787; background-color: #262626;">&#32534;&#35793;&#22833;&#36133;&#65292;&#25552;&#31034;&#65306; too few values in MustKeydStruct{...}</span>
     fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(persion2)
 } 
 </pre>
 </div>
 </div>
 </div>
+<div id="outline-container-org54d5071" class="outline-3">
+<h3 id="org54d5071">2. 实现方法接收者</h3>
+<div class="outline-text-3" id="text-org54d5071">
+<p>
+在业务场景下，我们需要将方法组合起来，代表其是一个“分组”的，便于后续拓展和维护。<br>
+</p>
+
+<p>
+这时候使用空结构体，既不占空间，还方便未来针对该类型进行公共字段的增加。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">T</span> <span style="color: #268bd2; font-weight: bold;">struct</span>{}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (*<span style="color: #df005f; font-weight: bold;">T</span>) <span style="color: #d75fd7; font-weight: bold;">Call</span>() {
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"call..."</span>)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> (*<span style="color: #df005f; font-weight: bold;">T</span>) <span style="color: #d75fd7; font-weight: bold;">Back</span>() {
+<span style="color: #268bd2; font-weight: bold;">func</span> .<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"back..."</span>)
+}
+</pre>
 </div>
-<div id="outline-container-org6f68949" class="outline-2">
-<h2 id="org6f68949">与其他结构结合使用</h2>
-<div class="outline-text-2" id="text-org6f68949">
+</div>
+</div>
+</div>
+<div id="outline-container-orgff4fe02" class="outline-2">
+<h2 id="orgff4fe02">与其他结构结合使用</h2>
+<div class="outline-text-2" id="text-orgff4fe02">
 <p>
 空结构体 <code>struct{}</code> 为什么会存在的核心理由就是为了节省内存。当你需要一个结构体，但是却丝毫不关系里面的内容，那么就可以考虑空结构体。golang 核心的几个复合结构 <code>map</code> ， <code>chan</code> ， <code>slice</code> 都能结合 <code>struct{}</code> 使用。<br>
 </p>
 </div>
-<div id="outline-container-org34889e2" class="outline-3">
-<h3 id="org34889e2">map &amp; struct{}</h3>
-<div class="outline-text-3" id="text-org34889e2">
+<div id="outline-container-org7a3f032" class="outline-3">
+<h3 id="org7a3f032">map &amp; struct{}，实现集合类型（set）</h3>
+<div class="outline-text-3" id="text-org7a3f032">
 <p>
 <code>map</code> 和 <code>struct{}</code> 一般的结合姿势是这样的：<br>
 </p>
@@ -555,9 +581,9 @@ receiver 这种写法是 golang 支撑面向对象的基础，本质上的实现
 <pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21019;&#24314; map</span>
 <span style="color: #8787d7;">m</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">int</span>]<span style="color: #268bd2; font-weight: bold;">struct</span>{})
 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36171;&#20540;</span>
-m[1] = <span style="color: #268bd2; font-weight: bold;">struct</span>{}{}
+m[<span style="color: #d75fd7;">1</span>] = <span style="color: #268bd2; font-weight: bold;">struct</span>{}{}
 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21028;&#26029; key &#38190;&#23384;&#19981;&#23384;&#22312;</span>
-<span style="color: #8787d7;">_</span>, <span style="color: #8787d7;">ok</span> := m[1]
+<span style="color: #8787d7;">_</span>, <span style="color: #8787d7;">ok</span> := m[<span style="color: #d75fd7;">1</span>]
 </pre>
 </div>
 
@@ -570,9 +596,9 @@ m[1] = <span style="color: #268bd2; font-weight: bold;">struct</span>{}{}
 </p>
 </div>
 </div>
-<div id="outline-container-orgd0e8af5" class="outline-3">
-<h3 id="orgd0e8af5">chan &amp; struct{}</h3>
-<div class="outline-text-3" id="text-orgd0e8af5">
+<div id="outline-container-org6dde464" class="outline-3">
+<h3 id="org6dde464">chan &amp; struct{}，协调 goroutine 的运行</h3>
+<div class="outline-text-3" id="text-org6dde464">
 <p>
 <code>channel</code> 和 <code>struct{}</code> 结合是一个最经典的场景， <code>struct{}</code> 通常作为一个信号来传输，并不关注其中内容。 <code>chan</code> 的分析在前几篇文章有详细说明。 <code>chan</code> 本质的数据结构是一个管理结构加上一个 ringbuffer ，如果 <code>struct{}</code> 作为元素的话，ringbuffer 就是 0 分配的。<br>
 </p>
@@ -586,13 +612,13 @@ m[1] = <span style="color: #268bd2; font-weight: bold;">struct</span>{}{}
 <span style="color: #8787d7;">waitc</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #268bd2; font-weight: bold;">struct</span>{})
 
 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">...</span>
-goroutine <span style="color: #df005f; font-weight: bold;">1</span>:
+goroutine <span style="color: #d75fd7;">1</span>:
 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21457;&#36865;&#20449;&#21495;: &#25237;&#36882;&#20803;&#32032;</span>
-waitc &lt;- <span style="color: #268bd2; font-weight: bold;">struct</span>{}
+waitc &lt;- <span style="color: #268bd2; font-weight: bold;">struct</span>{}{}
 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21457;&#36865;&#20449;&#21495;: &#20851;&#38381;</span>
 <span style="color: #268bd2;">close</span>(waitc)
 
-goroutine <span style="color: #df005f; font-weight: bold;">2</span>:
+goroutine <span style="color: #d75fd7;">2</span>:
 <span style="color: #268bd2; font-weight: bold;">select</span> {
 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25910;&#21040;&#20449;&#21495;&#65292;&#20570;&#20986;&#23545;&#24212;&#30340;&#21160;&#20316;</span>
 <span style="color: #268bd2; font-weight: bold;">case</span> &lt;-waitc:
@@ -605,15 +631,15 @@ goroutine <span style="color: #df005f; font-weight: bold;">2</span>:
 </p>
 </div>
 </div>
-<div id="outline-container-org4bb85bf" class="outline-3">
-<h3 id="org4bb85bf">slice &amp; struct{}</h3>
-<div class="outline-text-3" id="text-org4bb85bf">
+<div id="outline-container-org5ac005f" class="outline-3">
+<h3 id="org5ac005f">slice &amp; struct{}</h3>
+<div class="outline-text-3" id="text-org5ac005f">
 <p>
 形式上， <code>slice</code> 也结合 <code>struct{}</code> 。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #8787d7;">s</span> := <span style="color: #268bd2;">make</span>([]<span style="color: #268bd2; font-weight: bold;">struct</span>{}, 100)
+<pre class="src src-go"><span style="color: #8787d7;">s</span> := <span style="color: #268bd2;">make</span>([]<span style="color: #268bd2; font-weight: bold;">struct</span>{}, <span style="color: #d75fd7;">100</span>)
 </pre>
 </div>
 
@@ -628,7 +654,7 @@ goroutine <span style="color: #df005f; font-weight: bold;">2</span>:
 <div class="org-src-container">
 <pre class="src src-go">    <span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">growslice</span>(<span style="color: #8787d7;">et</span> *<span style="color: #df005f; font-weight: bold;">_type</span>, <span style="color: #8787d7;">old</span> <span style="color: #df005f; font-weight: bold;">slice</span>, <span style="color: #8787d7;">cap</span> <span style="color: #df005f; font-weight: bold;">int</span>) <span style="color: #df005f; font-weight: bold;">slice</span> {
         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524;&#20803;&#32032;&#30340; size &#20026; 0&#65292;&#37027;&#20040;&#36824;&#26159;&#30452;&#25509;&#36171;&#20540;&#20102; zerobase &#30340;&#22320;&#22336;&#65307;</span>
-        <span style="color: #268bd2; font-weight: bold;">if</span> et.size == 0 {
+        <span style="color: #268bd2; font-weight: bold;">if</span> et.size == <span style="color: #d75fd7;">0</span> {
                 <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #df005f; font-weight: bold;">slice</span>{unsafe.<span style="color: #d75fd7; font-weight: bold;">Pointer</span>(&amp;zerobase), old.len, cap}
         }
 }
@@ -637,9 +663,9 @@ goroutine <span style="color: #df005f; font-weight: bold;">2</span>:
 </div>
 </div>
 </div>
-<div id="outline-container-orgbe2a506" class="outline-2">
-<h2 id="orgbe2a506">总结</h2>
-<div class="outline-text-2" id="text-orgbe2a506">
+<div id="outline-container-org334753a" class="outline-2">
+<h2 id="org334753a">总结</h2>
+<div class="outline-text-2" id="text-org334753a">
 <ul class="org-ul">
 <li>空结构体也是结构体，只是 size 为 0 的类型而已；<br></li>
 <li>所有的空结构体都有一个共同的地址： <code>zerobase</code> 的地址；<br></li>
@@ -653,7 +679,7 @@ goroutine <span style="color: #df005f; font-weight: bold;">2</span>:
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-07-03 Sun 01:28</p>
+<p class="date">Created: 2022-08-11 Thu 10:30</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

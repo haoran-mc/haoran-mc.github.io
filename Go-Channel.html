@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-08-04 Thu 14:23 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Channel</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
+>
+
+                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+                <script type="module" src="static/js/main.js" defer></script>
+                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">Channel</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgb5f98a4">Go 语言中协程间通信机制</a></li>
+<li><a href="#orgd72df81">channel 类型</a></li>
+<li><a href="#org3163af3">创建 channel</a></li>
+<li><a href="#org455c11e">channel 操作</a></li>
+<li><a href="#orgaf46c08">无缓冲的通道</a></li>
+<li><a href="#orgec86275">有缓冲的通道</a></li>
+<li><a href="#org2b2061e">关闭通道</a></li>
+<li><a href="#orgc3135b7">如何优雅的从通道循环取值</a></li>
+<li><a href="#org3f55e46">单向通道</a></li>
+<li><a href="#orga105b06">channel 常见的异常总结</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgb5f98a4" class="outline-2">
+<h2 id="orgb5f98a4">Go 语言中协程间通信机制</h2>
+<div class="outline-text-2" id="text-orgb5f98a4">
+<p>
+单纯地将函数并发执行是没有意义的。函数与函数间需要交换数据才能体现并发执行函数的意义。<br>
+</p>
+
+<p>
+虽然可以使用共享内存进行数据交换，但是共享内存在不同的goroutine中容易发生竞态问题。为了保证数据交换的正确性，必须使用互斥量对内存进行加锁，这种做法势必造成性能问题。<br>
+</p>
+
+<p>
+Go语言的并发模型是CSP（Communicating Sequential Processes），提倡通过通信共享内存而不是通过共享内存而实现通信。<br>
+</p>
+
+<p>
+如果说goroutine是Go程序并发的执行体，channel就是它们之间的连接。channel是可以让一个goroutine发送特定值到另一个goroutine的通信机制。<br>
+</p>
+
+<p>
+Go 语言中的通道（channel）是一种特殊的类型。通道像一个传送带或者队列，总是遵循先入先出（First In First Out）的规则，保证收发数据的顺序。每一个通道都是一个具体类型的导管，也就是声明channel的时候需要为其指定元素类型。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd72df81" class="outline-2">
+<h2 id="orgd72df81">channel 类型</h2>
+<div class="outline-text-2" id="text-orgd72df81">
+<p>
+channel 是一种类型，一种引用类型。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">ch1</span> <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #8787d7;">int</span>   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22768;&#26126;&#19968;&#20010;&#20256;&#36882;&#25972;&#22411;&#30340;&#36890;&#36947;</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">ch2</span> <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #8787d7;">bool</span>  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22768;&#26126;&#19968;&#20010;&#20256;&#36882;&#24067;&#23572;&#22411;&#30340;&#36890;&#36947;</span>
+<span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">ch3</span> <span style="color: #268bd2; font-weight: bold;">chan</span> []<span style="color: #df005f; font-weight: bold;">int</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22768;&#26126;&#19968;&#20010;&#20256;&#36882;int&#20999;&#29255;&#30340;&#36890;&#36947;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org3163af3" class="outline-2">
+<h2 id="org3163af3">创建 channel</h2>
+<div class="outline-text-2" id="text-org3163af3">
+<p>
+通道是引用类型，通道类型的空值是 nil。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">ch</span> <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #8787d7;">int</span>
+fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(ch) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&lt;nil&gt;</span>
+</pre>
+</div>
+
+<p>
+声明的通道后需要使用 make 函数初始化之后才能使用。<br>
+</p>
+
+<p>
+创建 channel 的格式如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">&#20803;&#32032;&#31867;&#22411;</span>, [&#32531;&#20914;&#22823;&#23567;])
+</pre>
+</div>
+
+<p>
+channel 的缓冲大小是可选的。<br>
+</p>
+
+<p>
+举几个例子：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">ch4</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+<span style="color: #8787d7;">ch5</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">bool</span>)
+<span style="color: #8787d7;">ch6</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> []<span style="color: #df005f; font-weight: bold;">int</span>)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org455c11e" class="outline-2">
+<h2 id="org455c11e">channel 操作</h2>
+<div class="outline-text-2" id="text-org455c11e">
+<p>
+通道有发送（send）、接收(receive）和关闭（close）三种操作。<br>
+</p>
+
+<p>
+发送和接收都使用 &lt;- 符号。<br>
+</p>
+
+<p>
+现在我们先使用以下语句定义一个通道：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">ch</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+</pre>
+</div>
+
+<ul class="org-ul">
+<li><p>
+发送：将一个值发送到通道中。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go">ch &lt;- <span style="color: #d75fd7;">10</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25226;10&#21457;&#36865;&#21040;ch&#20013;</span>
+</pre>
+</div></li>
+
+<li><p>
+接收：从一个通道中接收值。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #8787d7;">x</span> := &lt;- ch <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20174;ch&#20013;&#25509;&#25910;&#20540;&#24182;&#36171;&#20540;&#32473;&#21464;&#37327;x</span>
+&lt;-ch       <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20174;ch&#20013;&#25509;&#25910;&#20540;&#65292;&#24573;&#30053;&#32467;&#26524;</span>
+</pre>
+</div></li>
+
+<li><p>
+关闭：我们通过调用内置的close函数来关闭通道。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2;">close</span>(ch)
+</pre>
+</div></li>
+</ul>
+
+<p>
+关于关闭通道需要注意的事情是，只有在通知接收方goroutine所有的数据都发送完毕的时候才需要关闭通道。通道是可以被垃圾回收机制回收的，它和关闭文件是不一样的，在结束操作之后关闭文件是必须要做的，但关闭通道不是必须的。<br>
+</p>
+
+<p>
+关闭后的通道有以下特点：<br>
+</p>
+
+<p>
+1.对一个关闭的通道再发送值就会导致panic。<br>
+2.对一个关闭的通道进行接收会一直获取值直到通道为空。<br>
+3.对一个关闭的并且没有值的通道执行接收操作会得到对应类型的零值。<br>
+4.关闭一个已经关闭的通道会导致panic。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgaf46c08" class="outline-2">
+<h2 id="orgaf46c08">无缓冲的通道</h2>
+<div class="outline-text-2" id="text-orgaf46c08">
+<p>
+无缓冲的通道又称为阻塞的通道。我们来看一下下面的代码：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">ch</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+    ch &lt;- <span style="color: #d75fd7;">10</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"&#21457;&#36865;&#25104;&#21151;"</span>)
+}
+</pre>
+</div>
+
+<p>
+上面这段代码能够通过编译，但是执行的时候会出现以下错误：<br>
+</p>
+
+<pre class="example">
+fatal error: all goroutines are asleep - deadlock!
+
+goroutine 1 [chan send]:
+main.main()
+	.../src/github.com/pprof/studygo/day06/channel02/main.go:8 +0x54
+</pre>
+
+<p>
+为什么会出现 deadlock 错误呢？<br>
+</p>
+
+<p>
+因为我们使用 ch := make(chan int) 创建的是无缓冲的通道，无缓冲的通道只有在有人接收值的时候才能发送值。就像你住的小区没有快递柜和代收点，快递员给你打电话必须要把这个物品送到你的手中，简单来说就是无缓冲的通道必须有接收才能发送。<br>
+</p>
+
+<p>
+上面的代码会阻塞在ch &lt;- 10这一行代码形成死锁，那如何解决这个问题呢？<br>
+</p>
+
+<p>
+一种方法是启用一个goroutine去接收值，例如：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">recv</span>(<span style="color: #8787d7;">c</span> <span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
+    <span style="color: #8787d7;">ret</span> := &lt;-c
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"&#25509;&#25910;&#25104;&#21151;"</span>, ret)
+}
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">ch</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">recv</span>(ch) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21551;&#29992;goroutine&#20174;&#36890;&#36947;&#25509;&#25910;&#20540;</span>
+    ch &lt;- <span style="color: #d75fd7;">10</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"&#21457;&#36865;&#25104;&#21151;"</span>)
+}
+</pre>
+</div>
+
+<p>
+无缓冲通道上的发送操作会阻塞，直到另一个goroutine在该通道上执行接收操作，这时值才能发送成功，两个goroutine将继续执行。相反，如果接收操作先执行，接收方的goroutine将阻塞，直到另一个goroutine在该通道上发送一个值。<br>
+</p>
+
+<p>
+使用无缓冲通道进行通信将导致发送和接收的goroutine同步化。因此，无缓冲通道也被称为同步通道。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgec86275" class="outline-2">
+<h2 id="orgec86275">有缓冲的通道</h2>
+<div class="outline-text-2" id="text-orgec86275">
+<p>
+解决上面问题的方法还有一种就是使用有缓冲区的通道。<br>
+</p>
+
+<p>
+我们可以在使用make函数初始化通道的时候为其指定通道的容量，例如：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">ch</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #d75fd7;">1</span>) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21019;&#24314;&#19968;&#20010;&#23481;&#37327;&#20026;1&#30340;&#26377;&#32531;&#20914;&#21306;&#36890;&#36947;</span>
+    ch &lt;- <span style="color: #d75fd7;">10</span>
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"&#21457;&#36865;&#25104;&#21151;"</span>)
+}
+</pre>
+</div>
+
+<p>
+只要通道的容量大于零，那么该通道就是有缓冲的通道，通道的容量表示通道中能存放元素的数量。就像你小区的快递柜只有那么个多格子，格子满了就装不下了，就阻塞了，等到别人取走一个快递员就能往里面放一个。<br>
+</p>
+
+<p>
+我们可以使用内置的len函数获取通道内元素的数量，使用cap函数获取通道的容量，虽然我们很少会这么做。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org2b2061e" class="outline-2">
+<h2 id="org2b2061e">关闭通道</h2>
+<div class="outline-text-2" id="text-org2b2061e">
+<p>
+可以通过内置的close()函数关闭channel（如果你的管道不往里存值或者取值的时候一定记得关闭管道）<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+
+<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">c</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+        <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; <span style="color: #d75fd7;">5</span>; i++ {
+            c &lt;- i
+        }
+        <span style="color: #268bd2;">close</span>(c)
+    }()
+    <span style="color: #268bd2; font-weight: bold;">for</span> {
+        <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #8787d7;">data</span>, <span style="color: #8787d7;">ok</span> := &lt;-c; ok {
+            fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(data)
+        } <span style="color: #268bd2; font-weight: bold;">else</span> {
+            <span style="color: #268bd2; font-weight: bold;">break</span>
+        }
+    }
+    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"main&#32467;&#26463;"</span>)
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgc3135b7" class="outline-2">
+<h2 id="orgc3135b7">如何优雅的从通道循环取值</h2>
+<div class="outline-text-2" id="text-orgc3135b7">
+<p>
+当通过通道发送有限的数据时，我们可以通过close函数关闭通道来告知从该通道接收值的goroutine停止等待。当通道被关闭时，往该通道发送值会引发panic，从该通道里接收的值一直都是类型零值。那如何判断一个通道是否被关闭了呢？<br>
+</p>
+
+<p>
+我们来看下面这个例子：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">channel &#32451;&#20064;</span>
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">ch1</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+    <span style="color: #8787d7;">ch2</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#24320;&#21551;goroutine&#23558;0~100&#30340;&#25968;&#21457;&#36865;&#21040;ch1&#20013;</span>
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+        <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; <span style="color: #d75fd7;">100</span>; i++ {
+            ch1 &lt;- i
+        }
+        <span style="color: #268bd2;">close</span>(ch1)
+    }()
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#24320;&#21551;goroutine&#20174;ch1&#20013;&#25509;&#25910;&#20540;&#65292;&#24182;&#23558;&#35813;&#20540;&#30340;&#24179;&#26041;&#21457;&#36865;&#21040;ch2&#20013;</span>
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #268bd2; font-weight: bold;">func</span>() {
+        <span style="color: #268bd2; font-weight: bold;">for</span> {
+            <span style="color: #8787d7;">i</span>, <span style="color: #8787d7;">ok</span> := &lt;-ch1 <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36890;&#36947;&#20851;&#38381;&#21518;&#20877;&#21462;&#20540;ok=false</span>
+            <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #d75fd7;">!</span>ok {
+                <span style="color: #268bd2; font-weight: bold;">break</span>
+            }
+            ch2 &lt;- i * i
+        }
+        <span style="color: #268bd2;">close</span>(ch2)
+    }()
+    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22312;&#20027;goroutine&#20013;&#20174;ch2&#20013;&#25509;&#25910;&#20540;&#25171;&#21360;</span>
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #268bd2; font-weight: bold;">range</span> ch2 { <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#36890;&#36947;&#20851;&#38381;&#21518;&#20250;&#36864;&#20986;for range&#24490;&#29615;</span>
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(i)
+    }
+}
+</pre>
+</div>
+
+<p>
+从上面的例子中我们看到有两种方式在接收值的时候判断通道是否被关闭，我们通常使用的是for range的方式。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org3f55e46" class="outline-2">
+<h2 id="org3f55e46">单向通道</h2>
+<div class="outline-text-2" id="text-org3f55e46">
+<p>
+有的时候我们会将通道作为参数在多个任务函数间传递，很多时候我们在不同的任务函数中使用通道都会对其进行限制，比如限制通道在函数中只能发送或只能接收。<br>
+</p>
+
+<p>
+Go语言中提供了单向通道来处理这种情况。例如，我们把上面的例子改造如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">counter</span>(<span style="color: #8787d7;">out</span> <span style="color: #268bd2; font-weight: bold;">chan</span>&lt;- <span style="color: #df005f; font-weight: bold;">int</span>) {
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #d75fd7;">0</span>; i &lt; <span style="color: #d75fd7;">100</span>; i++ {
+        out &lt;- i
+    }
+    <span style="color: #268bd2;">close</span>(out)
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">squarer</span>(<span style="color: #8787d7;">out</span> <span style="color: #268bd2; font-weight: bold;">chan</span>&lt;- <span style="color: #df005f; font-weight: bold;">int</span>, <span style="color: #8787d7;">in</span> &lt;-<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #268bd2; font-weight: bold;">range</span> in {
+        out &lt;- i * i
+    }
+    <span style="color: #268bd2;">close</span>(out)
+}
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">printer</span>(<span style="color: #8787d7;">in</span> &lt;-<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
+    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := <span style="color: #268bd2; font-weight: bold;">range</span> in {
+        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(i)
+    }
+}
+
+<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
+    <span style="color: #8787d7;">ch1</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+    <span style="color: #8787d7;">ch2</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">chan</span> <span style="color: #df005f; font-weight: bold;">int</span>)
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">counter</span>(ch1)
+    <span style="color: #268bd2; font-weight: bold;">go</span> <span style="color: #d75fd7; font-weight: bold;">squarer</span>(ch2, ch1)
+    <span style="color: #d75fd7; font-weight: bold;">printer</span>(ch2)
+}
+</pre>
+</div>
+
+<p>
+其中，<br>
+</p>
+
+<ol class="org-ol">
+<li>chan&lt;- int 是一个只能发送的通道，可以发送但是不能接收；<br></li>
+<li>&lt;-chan int 是一个只能接收的通道，可以接收但是不能发送。<br></li>
+</ol>
+
+<p>
+在函数传参及任何赋值操作中将双向通道转换为单向通道是可以的，但反过来是不可以的。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orga105b06" class="outline-2">
+<h2 id="orga105b06">channel 常见的异常总结</h2>
+<div class="outline-text-2" id="text-orga105b06">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">channel</th>
+<th scope="col" class="org-left">nil</th>
+<th scope="col" class="org-left">非空</th>
+<th scope="col" class="org-left">空的</th>
+<th scope="col" class="org-left">满了</th>
+<th scope="col" class="org-left">没满</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">接收</td>
+<td class="org-left">阻塞</td>
+<td class="org-left">接收值</td>
+<td class="org-left">阻塞</td>
+<td class="org-left">接收值</td>
+<td class="org-left">接收值</td>
+</tr>
+
+<tr>
+<td class="org-left">发送</td>
+<td class="org-left">阻塞</td>
+<td class="org-left">发送值</td>
+<td class="org-left">发送值</td>
+<td class="org-left">阻塞</td>
+<td class="org-left">发送值</td>
+</tr>
+
+<tr>
+<td class="org-left">关闭</td>
+<td class="org-left">panic</td>
+<td class="org-left">关闭成功，读完数据后返回零值</td>
+<td class="org-left">关闭成功，返回零值</td>
+<td class="org-left">关闭成功，读完数据后返回零值</td>
+<td class="org-left">关闭成功，读完数据后返回零值</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+注意:关闭已经关闭的channel也会引发panic。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-08-04 13:08 Thu</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-08-04 Thu 14:23</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-08-30 二 21:07 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cookie 与 Session</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="L.M.haoran">
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
+>
+<link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+      <script type="module" src="static/js/main.js" defer></script>
+      <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">Cookie 与 Session</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgef13243">常用的本地存储</a></li>
+<li><a href="#orge92daf7">Cookie 与 Session 的区别</a></li>
+<li><a href="#org10c19ce">Go 语言处理 Cookie 与 Session</a>
+<ul>
+<li><a href="#orgdfa2017">实现一个 go 语言 session 库</a></li>
+<li><a href="#orgdf6e09f">gin 框架之 session 的使用</a>
+<ul>
+<li><a href="#org58ba2e2">cookie 存储 session</a></li>
+<li><a href="#orgb59f02a">redis 存储 session</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgef13243" class="outline-2">
+<h2 id="orgef13243">常用的本地存储</h2>
+<div class="outline-text-2" id="text-orgef13243">
+<img src="./images/浏览器本地存储.png"/>
+
+<p>
+以上的 <verbatim>indexedDB</verbatim> 、 <verbatim>Local Storage</verbatim> 、 <verbatim>Session Storage</verbatim> 、 <verbatim>Cookies</verbatim> ，就是常用的本地存储。<br>
+</p>
+
+<p>
+1、cookie<br>
+</p>
+
+<p>
+HTTP cookie，通常直接叫做cookie，是客户端用来存储数据的一种选项，它既可以在客户端设置也可以在服务器端设置。cookie会跟随任意HTTP请求一起发送。<br>
+</p>
+
+<p>
+2、web存储机制<br>
+</p>
+
+<p>
+web storage，包括两种：sessionStorage 和 localStorage，前者严格用于一个浏览器会话中存储数据，因为数据在浏览器关闭后会立即删除；后者则用于跨会话持久化地存储数据。<br>
+</p>
+
+<p>
+3、indexedDB<br>
+</p>
+
+<p>
+indexed Database API，简称为indexedDB，是在浏览器中保存结构化数据的一种「数据库」。它类似SQL数据库的结构化数据存储机制，代替了废弃已久的web SQL Database API，它能够在客户端存储大量的结构化数据，并且使用索引高效检索的API。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orge92daf7" class="outline-2">
+<h2 id="orge92daf7">Cookie 与 Session 的区别<a id="orgbd68f78"></a></h2>
+<div class="outline-text-2" id="text-orge92daf7">
+<ol class="org-ol">
+<li>由于 HTTP 协议是无状态的协议，所以服务端需要记录用户的状态时，就需要用某种机制来识具体的用户，这个机制就是 Session。<br>
+<ul class="org-ul">
+<li>典型的场景比如购物车，当你点击下单按钮时，由于 HTTP 协议无状态，所以并不知道是哪个用户操作的，所以服务端要为特定的用户创建了特定的 Session，用于标识这个用户，并且跟踪用户，这样才知道购物车里面有几本书（李太白：《TCP/IP网络编程》、《计算机组成与设计：硬件 / 软件接口》、《程序员的自我修养：链接、装载和库》、《深入理解计算机系统》）。<br></li>
+<li><span class="underline">这个 Session 是保存在服务端的，有一个唯一标识。</span> <span class="underline">在服务端保存 Session 的方法很多，内存、数据库、文件都有。</span> 集群的时候也要考虑 Session 的转移，在大型的网站，一般会有专门的 Session 服务器集群，用来保存用户会话，这个时候 Session 信息都是放在内存的，使用一些缓存服务比如 Memcached 之类的来放 Session。<br></li>
+</ul></li>
+<li>思考一下服务端如何识别特定的客户？这个时候 Cookie 就登场了。 <span class="underline">每次 HTTP 请求的时候，客户端都会发送相应的 Cookie 信息到服务端。</span><br>
+<ul class="org-ul">
+<li>实际上大多数的应用都是 <span class="underline">用 Cookie 来实现 Session 跟踪</span> 的，第一次创建 Session 的时候，服务端会在 HTTP 协议中告诉客户端，需要在 Cookie 里面记录一个 Session ID，以后每次请求把这个会话 ID 发送到服务器，我就知道你是谁了。有人问，如果客户端的浏览器禁用了 Cookie 怎么办？一般这种情况下，会使用一种叫做URL重写的技术来进行会话跟踪，即每次 HTTP 交互，URL后面都会被附加上一个诸如 sid=xxxxx 这样的参数，服务端据此来识别用户。<br></li>
+<li>Cookie 其实还可以用在一些方便用户的场景下，设想你某次登陆过一个网站，下次登录的时候不想再次输入账号了，怎么办？这个信息可以写到 Cookie 里面，访问网站的时候，网站页面的脚本可以读取这个信息，就自动帮你把用户名给填了，能够方便一下用户。这也是 Cookie 名称的由来，给用户的一点甜头。<br></li>
+</ul></li>
+</ol>
+
+<p>
+所以，总结一下：<br>
+</p>
+
+<ul class="org-ul">
+<li>Session 是在服务端保存的一个数据结构，用来跟踪用户的状态，这个数据可以保存在集群、数据库、文件中；<br></li>
+<li>Cookie 是客户端保存用户信息的一种机制，用来记录用户的一些信息，也是实现 Session 的一种方式；<br></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org10c19ce" class="outline-2">
+<h2 id="org10c19ce">Go 语言处理 Cookie 与 Session</h2>
+<div class="outline-text-2" id="text-org10c19ce">
+</div>
+<div id="outline-container-orgdfa2017" class="outline-3">
+<h3 id="orgdfa2017">实现一个 go 语言 session 库</h3>
+</div>
+<div id="outline-container-orgdf6e09f" class="outline-3">
+<h3 id="orgdf6e09f">gin 框架之 session 的使用</h3>
+<div class="outline-text-3" id="text-orgdf6e09f">
+<p>
+在 gin 框架中，我们依赖 gin-contrib/sessions 中间件处理 session。<br>
+</p>
+
+<p>
+gin-contrib/sessions 中间件支持的存储引擎：<br>
+</p>
+
+<ul class="org-ul">
+<li>cookie<br></li>
+<li>memstore<br></li>
+<li>redis<br></li>
+<li>memcached<br></li>
+<li>mongodb<br></li>
+</ul>
+</div>
+
+<div id="outline-container-org58ba2e2" class="outline-4">
+<h4 id="org58ba2e2">cookie 存储 session</h4>
+<div class="outline-text-4" id="text-org58ba2e2">
+<p>
+下面介绍使用 cookie 存储 session 的过程：<br>
+</p>
+
+<p>
+首先安装 session 包<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">go get github.com/gin-contrib/sessions
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #ff79c6;">package</span> main
+
+<span style="color: #ff79c6;">import</span> (
+    <span style="color: #6272a4;">// </span><span style="color: #6272a4;">&#23548;&#20837;session&#21253;</span>
+    <span style="color: #f1fa8c;">"github.com/gin-contrib/sessions"</span>
+    <span style="color: #6272a4;">// </span><span style="color: #6272a4;">&#23548;&#20837;session&#23384;&#20648;&#24341;&#25806;</span>
+    <span style="color: #f1fa8c;">"github.com/gin-contrib/sessions/cookie"</span>
+    <span style="color: #6272a4;">// </span><span style="color: #6272a4;">&#23548;&#20837;gin&#26694;&#26550;&#21253;</span>
+    <span style="color: #f1fa8c;">"github.com/gin-gonic/gin"</span>
+)
+
+<span style="color: #ff79c6;">func</span> <span style="color: #50fa7b;">main</span>() {
+    <span style="color: #ffc9e8;">r</span> := gin.<span style="color: #50fa7b;">Default</span>()
+    <span style="color: #6272a4;">// </span><span style="color: #6272a4;">&#21019;&#24314;&#22522;&#20110;cookie&#30340;&#23384;&#20648;&#24341;&#25806;&#65292;secret_str &#21442;&#25968;&#26159;&#29992;&#20110;&#21152;&#23494;&#30340;&#23494;&#38053;</span>
+    <span style="color: #ffc9e8;">store</span> := cookie.<span style="color: #50fa7b;">NewStore</span>([]<span style="color: #50fa7b;">byte</span>(<span style="color: #f1fa8c;">"secret_str"</span>))
+    <span style="color: #6272a4;">// </span><span style="color: #6272a4;">&#35774;&#32622;session&#20013;&#38388;&#20214;&#65292;&#21442;&#25968;mysession&#65292;&#25351;&#30340;&#26159;session&#30340;&#21517;&#23383;&#65292;&#20063;&#26159;cookie&#30340;&#21517;&#23383;</span>
+    <span style="color: #6272a4;">// </span><span style="color: #6272a4;">store&#26159;&#21069;&#38754;&#21019;&#24314;&#30340;&#23384;&#20648;&#24341;&#25806;&#65292;&#25105;&#20204;&#21487;&#20197;&#26367;&#25442;&#25104;&#20854;&#20182;&#23384;&#20648;&#24341;&#25806;</span>
+    r.<span style="color: #50fa7b;">Use</span>(sessions.<span style="color: #50fa7b;">Sessions</span>(<span style="color: #f1fa8c;">"mysession"</span>, store))
+
+    r.<span style="color: #50fa7b;">GET</span>(<span style="color: #f1fa8c;">"/hello"</span>, <span style="color: #ff79c6;">func</span>(<span style="color: #ffc9e8;">c</span> *<span style="color: #bd93f9;">gin.Context</span>) {
+        <span style="color: #6272a4;">// </span><span style="color: #6272a4;">&#21021;&#22987;&#21270;session&#23545;&#35937;</span>
+        <span style="color: #ffc9e8;">session</span> := sessions.<span style="color: #50fa7b;">Default</span>(c)
+
+        <span style="color: #6272a4;">// </span><span style="color: #6272a4;">&#36890;&#36807;session.Get&#35835;&#21462;session&#20540;</span>
+        <span style="color: #6272a4;">// </span><span style="color: #6272a4;">session&#26159;&#38190;&#20540;&#23545;&#26684;&#24335;&#25968;&#25454;&#65292;&#22240;&#27492;&#38656;&#35201;&#36890;&#36807;key&#26597;&#35810;&#25968;&#25454;</span>
+        <span style="color: #ff79c6;">if</span> session.<span style="color: #50fa7b;">Get</span>(<span style="color: #f1fa8c;">"hello"</span>) != <span style="color: #f1fa8c;">"world"</span> {
+            <span style="color: #6272a4;">// </span><span style="color: #6272a4;">&#35774;&#32622;session&#25968;&#25454;</span>
+            session.<span style="color: #50fa7b;">Set</span>(<span style="color: #f1fa8c;">"hello"</span>, <span style="color: #f1fa8c;">"world"</span>)
+            <span style="color: #6272a4;">// </span><span style="color: #6272a4;">&#21024;&#38500;session&#25968;&#25454;</span>
+            session.<span style="color: #50fa7b;">Delete</span>(<span style="color: #f1fa8c;">"tizi365"</span>)
+            <span style="color: #6272a4;">// </span><span style="color: #6272a4;">&#20445;&#23384;session&#25968;&#25454;</span>
+            session.<span style="color: #50fa7b;">Save</span>()
+            <span style="color: #6272a4;">// </span><span style="color: #6272a4;">&#21024;&#38500;&#25972;&#20010;session</span>
+            <span style="color: #6272a4;">// </span><span style="color: #6272a4;">session.Clear()</span>
+        }
+
+        c.<span style="color: #50fa7b;">JSON</span>(200, <span style="color: #bd93f9;">gin.H</span>{<span style="color: #f1fa8c;">"hello"</span>: session.<span style="color: #50fa7b;">Get</span>(<span style="color: #f1fa8c;">"hello"</span>)})
+    })
+    r.<span style="color: #50fa7b;">Run</span>(<span style="color: #f1fa8c;">":8000"</span>)
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb59f02a" class="outline-4">
+<h4 id="orgb59f02a">redis 存储 session</h4>
+<div class="outline-text-4" id="text-orgb59f02a">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #ff79c6;">package</span> main
+
+<span style="color: #ff79c6;">import</span> (
+    <span style="color: #f1fa8c;">"github.com/gin-contrib/sessions"</span>
+    <span style="color: #f1fa8c;">"github.com/gin-contrib/sessions/redis"</span>
+    <span style="color: #f1fa8c;">"github.com/gin-gonic/gin"</span>
+)
+
+<span style="color: #ff79c6;">func</span> <span style="color: #50fa7b;">main</span>() {
+    <span style="color: #ffc9e8;">r</span> := gin.<span style="color: #50fa7b;">Default</span>()
+    <span style="color: #6272a4;">// </span><span style="color: #6272a4;">&#21021;&#22987;&#21270;&#22522;&#20110;redis&#30340;&#23384;&#20648;&#24341;&#25806;</span>
+    <span style="color: #6272a4;">// </span><span style="color: #6272a4;">&#21442;&#25968;&#35828;&#26126;&#65306;</span>
+    <span style="color: #6272a4;">//    </span><span style="color: #6272a4;">&#31532;1&#20010;&#21442;&#25968; - redis&#26368;&#22823;&#30340;&#31354;&#38386;&#36830;&#25509;&#25968;</span>
+    <span style="color: #6272a4;">//    </span><span style="color: #6272a4;">&#31532;2&#20010;&#21442;&#25968; - &#25968;&#36890;&#20449;&#21327;&#35758;tcp&#25110;&#32773;udp</span>
+    <span style="color: #6272a4;">//    </span><span style="color: #6272a4;">&#31532;3&#20010;&#21442;&#25968; - redis&#22320;&#22336;, &#26684;&#24335;&#65292;host:port</span>
+    <span style="color: #6272a4;">//    </span><span style="color: #6272a4;">&#31532;4&#20010;&#21442;&#25968; - redis&#23494;&#30721;</span>
+    <span style="color: #6272a4;">//    </span><span style="color: #6272a4;">&#31532;5&#20010;&#21442;&#25968; - session&#21152;&#23494;&#23494;&#38053;</span>
+    <span style="color: #ffc9e8;">store</span>, <span style="color: #ffc9e8;">_</span> := redis.<span style="color: #50fa7b;">NewStore</span>(10, <span style="color: #f1fa8c;">"tcp"</span>, <span style="color: #f1fa8c;">"localhost:6379"</span>, <span style="color: #f1fa8c;">""</span>, []<span style="color: #50fa7b;">byte</span>(<span style="color: #f1fa8c;">"secret_str"</span>))
+    r.<span style="color: #50fa7b;">Use</span>(sessions.<span style="color: #50fa7b;">Sessions</span>(<span style="color: #f1fa8c;">"mysession"</span>, store))
+
+    r.<span style="color: #50fa7b;">GET</span>(<span style="color: #f1fa8c;">"/incr"</span>, <span style="color: #ff79c6;">func</span>(<span style="color: #ffc9e8;">c</span> *<span style="color: #bd93f9;">gin.Context</span>) {
+        <span style="color: #ffc9e8;">session</span> := sessions.<span style="color: #50fa7b;">Default</span>(c)
+        <span style="color: #ff79c6;">var</span> <span style="color: #ffc9e8;">count</span> <span style="color: #bd93f9;">int</span>
+        <span style="color: #ffc9e8;">v</span> := session.<span style="color: #50fa7b;">Get</span>(<span style="color: #f1fa8c;">"count"</span>)
+        <span style="color: #ff79c6;">if</span> v == <span style="color: #8be9fd;">nil</span> {
+            count = 0
+        } <span style="color: #ff79c6;">else</span> {
+            count = v.(<span style="color: #bd93f9;">int</span>)
+            count++
+        }
+        session.<span style="color: #50fa7b;">Set</span>(<span style="color: #f1fa8c;">"count"</span>, count)
+        session.<span style="color: #50fa7b;">Save</span>()
+        c.<span style="color: #50fa7b;">JSON</span>(200, <span style="color: #bd93f9;">gin.H</span>{<span style="color: #f1fa8c;">"count"</span>: count})
+    })
+    r.<span style="color: #50fa7b;">Run</span>(<span style="color: #f1fa8c;">":8000"</span>)
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2021-12-29 11:12 Wed</p>
+<p class="author">Author: L.M.haoran</p>
+<p class="date">Created: 2022-08-30 二 21:07</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-04-16 Sat 00:47 -->
+<!-- 2022-09-01 四 20:43 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Go 语言模板（template）</title>
@@ -9,10 +9,9 @@
 <meta name="author" content="L.M.haoran">
 <meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
 >
-
-                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
-                <script type="module" src="static/js/main.js" defer></script>
-                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+      <script type="module" src="static/js/main.js" defer></script>
+      <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
 </head>
 <body>
 <div id="content">
@@ -21,48 +20,48 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org58e37bf">Go 语言的模板引擎</a></li>
-<li><a href="#org751e8b2">模板引擎的使用</a>
+<li><a href="#org5834669">Go 语言的模板引擎</a></li>
+<li><a href="#org05de064">模板引擎的使用</a>
 <ul>
-<li><a href="#orgb3699d4">定义模板文件</a></li>
-<li><a href="#orgf58c530">解析模板文件</a></li>
-<li><a href="#org73bdf97">模板渲染</a></li>
-<li><a href="#org3871ad6">基本示例</a>
+<li><a href="#orga2d70f7">定义模板文件</a></li>
+<li><a href="#orgf81bfbb">解析模板文件</a></li>
+<li><a href="#org5f8771f">模板渲染</a></li>
+<li><a href="#org7ba111f">基本示例</a>
 <ul>
-<li><a href="#org58b5446">定义模板文件</a></li>
-<li><a href="#orgc7986e3">解析和渲染模板文件</a></li>
+<li><a href="#org9354794">定义模板文件</a></li>
+<li><a href="#orgd285cb0">解析和渲染模板文件</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#org93e13eb">模板语法</a>
+<li><a href="#org84860ac">模板语法</a>
 <ul>
-<li><a href="#orgaf855c1">{{.}}</a></li>
-<li><a href="#orgecb69b5">注释</a></li>
-<li><a href="#org1096b0c">pipeline</a></li>
-<li><a href="#orgaeb9b14">变量</a></li>
-<li><a href="#orga5ebb45">移除空格</a></li>
-<li><a href="#org4509dd4">条件判断</a></li>
-<li><a href="#org5fe06fa">range</a></li>
-<li><a href="#org813b481">with</a></li>
-<li><a href="#org612e1ea">预定义函数</a></li>
-<li><a href="#org0667698">比较函数</a></li>
-<li><a href="#org5e982de">自定义函数</a></li>
-<li><a href="#orgd522854">嵌套 template</a></li>
-<li><a href="#org0a66852">模板继承 - block</a></li>
-<li><a href="#org020d2d5">修改默认的标识符</a></li>
+<li><a href="#org6d98503">{{.}}</a></li>
+<li><a href="#org350149f">注释</a></li>
+<li><a href="#org6330839">pipeline</a></li>
+<li><a href="#org3a41ee2">变量</a></li>
+<li><a href="#org8d2792c">移除空格</a></li>
+<li><a href="#orgff6563b">条件判断</a></li>
+<li><a href="#orgfe9b08d">range</a></li>
+<li><a href="#org54014bd">with</a></li>
+<li><a href="#org7cc349a">预定义函数</a></li>
+<li><a href="#org4ea467c">比较函数</a></li>
+<li><a href="#org7427a3e">自定义函数</a></li>
+<li><a href="#orgd2aa52d">嵌套 template</a></li>
+<li><a href="#org6fee757">模板继承 - block</a></li>
+<li><a href="#org958565a">修改默认的标识符</a></li>
 </ul>
 </li>
-<li><a href="#orga394bf7">text/template 与 html/template 的区别</a></li>
+<li><a href="#org4c0cfab">text/template 与 html/template 的区别</a></li>
 </ul>
 </div>
 </div>
 <p>
 <code>html/template</code> 包实现了数据驱动的模板，用于生成可防止代码注入的安全的HTML内容。它提供了和 <code>text/template</code> 包相同的接口，Go 语言中输出 HTML 的场景都应使用 <code>html/template</code> 这个包。<br>
 </p>
-<div id="outline-container-org58e37bf" class="outline-2">
-<h2 id="org58e37bf">Go 语言的模板引擎</h2>
-<div class="outline-text-2" id="text-org58e37bf">
+<div id="outline-container-org5834669" class="outline-2">
+<h2 id="org5834669">Go 语言的模板引擎</h2>
+<div class="outline-text-2" id="text-org5834669">
 <p>
 Go 语言内置了文本模板引擎 <code>text/template</code> 和用于 HTML 文档的 <code>html/template</code> 。它们的作用机制可以简单归纳如下：<br>
 </p>
@@ -75,32 +74,32 @@ Go 语言内置了文本模板引擎 <code>text/template</code> 和用于 HTML �
 </ol>
 </div>
 </div>
-<div id="outline-container-org751e8b2" class="outline-2">
-<h2 id="org751e8b2">模板引擎的使用</h2>
-<div class="outline-text-2" id="text-org751e8b2">
+<div id="outline-container-org05de064" class="outline-2">
+<h2 id="org05de064">模板引擎的使用</h2>
+<div class="outline-text-2" id="text-org05de064">
 <p>
 Go语言模板引擎的使用可以分为三部分： <span class="underline">定义模板文件、解析模板文件和模板渲染</span> 。<br>
 </p>
 </div>
-<div id="outline-container-orgb3699d4" class="outline-3">
-<h3 id="orgb3699d4">定义模板文件</h3>
-<div class="outline-text-3" id="text-orgb3699d4">
+<div id="outline-container-orga2d70f7" class="outline-3">
+<h3 id="orga2d70f7">定义模板文件</h3>
+<div class="outline-text-3" id="text-orga2d70f7">
 <p>
 其中，定义模板文件时需要我们按照相关语法规则去编写，后文会详细介绍。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-orgf58c530" class="outline-3">
-<h3 id="orgf58c530">解析模板文件</h3>
-<div class="outline-text-3" id="text-orgf58c530">
+<div id="outline-container-orgf81bfbb" class="outline-3">
+<h3 id="orgf81bfbb">解析模板文件</h3>
+<div class="outline-text-3" id="text-orgf81bfbb">
 <p>
 上面定义好了模板文件之后，可以使用下面的常用方法去解析模板文件，得到模板对象：<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">Template</span>) <span style="color: #d75fd7; font-weight: bold;">Parse</span>(<span style="color: #8787d7;">src</span> <span style="color: #df005f; font-weight: bold;">string</span>) (*<span style="color: #df005f; font-weight: bold;">Template</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
-<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ParseFiles</span>(<span style="color: #8787d7;">filenames</span> ...<span style="color: #df005f; font-weight: bold;">string</span>) (*<span style="color: #df005f; font-weight: bold;">Template</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
-<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ParseGlob</span>(<span style="color: #8787d7;">pattern</span> <span style="color: #df005f; font-weight: bold;">string</span>) (*<span style="color: #df005f; font-weight: bold;">Template</span>, <span style="color: #df005f; font-weight: bold;">error</span>)
+<pre class="src src-go"><span style="color: #4f97d7; font-weight: bold;">func</span> (<span style="color: #7590db;">t</span> *<span style="color: #ce537a; font-weight: bold;">Template</span>) <span style="color: #bc6ec5; font-weight: bold;">Parse</span>(<span style="color: #7590db;">src</span> <span style="color: #ce537a; font-weight: bold;">string</span>) (*<span style="color: #ce537a; font-weight: bold;">Template</span>, <span style="color: #ce537a; font-weight: bold;">error</span>)
+<span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">ParseFiles</span>(<span style="color: #7590db;">filenames</span> ...<span style="color: #ce537a; font-weight: bold;">string</span>) (*<span style="color: #ce537a; font-weight: bold;">Template</span>, <span style="color: #ce537a; font-weight: bold;">error</span>)
+<span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">ParseGlob</span>(<span style="color: #7590db;">pattern</span> <span style="color: #ce537a; font-weight: bold;">string</span>) (*<span style="color: #ce537a; font-weight: bold;">Template</span>, <span style="color: #ce537a; font-weight: bold;">error</span>)
 </pre>
 </div>
 
@@ -109,83 +108,83 @@ Go语言模板引擎的使用可以分为三部分： <span class="underline">�
 </p>
 </div>
 </div>
-<div id="outline-container-org73bdf97" class="outline-3">
-<h3 id="org73bdf97">模板渲染</h3>
-<div class="outline-text-3" id="text-org73bdf97">
+<div id="outline-container-org5f8771f" class="outline-3">
+<h3 id="org5f8771f">模板渲染</h3>
+<div class="outline-text-3" id="text-org5f8771f">
 <p>
 渲染模板简单来说就是使用数据去填充模板，当然实际上可能会复杂很多。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">Template</span>) <span style="color: #d75fd7; font-weight: bold;">Execute</span>(<span style="color: #8787d7;">wr</span> <span style="color: #df005f; font-weight: bold;">io.Writer</span>, <span style="color: #8787d7;">data</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}) <span style="color: #df005f; font-weight: bold;">error</span>
-<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">Template</span>) <span style="color: #d75fd7; font-weight: bold;">ExecuteTemplate</span>(<span style="color: #8787d7;">wr</span> <span style="color: #df005f; font-weight: bold;">io.Writer</span>, <span style="color: #8787d7;">name</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">data</span> <span style="color: #268bd2; font-weight: bold;">interface</span>{}) <span style="color: #df005f; font-weight: bold;">error</span>
+<pre class="src src-go"><span style="color: #4f97d7; font-weight: bold;">func</span> (<span style="color: #7590db;">t</span> *<span style="color: #ce537a; font-weight: bold;">Template</span>) <span style="color: #bc6ec5; font-weight: bold;">Execute</span>(<span style="color: #7590db;">wr</span> <span style="color: #ce537a; font-weight: bold;">io.Writer</span>, <span style="color: #7590db;">data</span> <span style="color: #4f97d7; font-weight: bold;">interface</span>{}) <span style="color: #ce537a; font-weight: bold;">error</span>
+<span style="color: #4f97d7; font-weight: bold;">func</span> (<span style="color: #7590db;">t</span> *<span style="color: #ce537a; font-weight: bold;">Template</span>) <span style="color: #bc6ec5; font-weight: bold;">ExecuteTemplate</span>(<span style="color: #7590db;">wr</span> <span style="color: #ce537a; font-weight: bold;">io.Writer</span>, <span style="color: #7590db;">name</span> <span style="color: #ce537a; font-weight: bold;">string</span>, <span style="color: #7590db;">data</span> <span style="color: #4f97d7; font-weight: bold;">interface</span>{}) <span style="color: #ce537a; font-weight: bold;">error</span>
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org3871ad6" class="outline-3">
-<h3 id="org3871ad6">基本示例</h3>
-<div class="outline-text-3" id="text-org3871ad6">
+<div id="outline-container-org7ba111f" class="outline-3">
+<h3 id="org7ba111f">基本示例</h3>
+<div class="outline-text-3" id="text-org7ba111f">
 </div>
-<div id="outline-container-org58b5446" class="outline-4">
-<h4 id="org58b5446">定义模板文件</h4>
-<div class="outline-text-4" id="text-org58b5446">
+<div id="outline-container-org9354794" class="outline-4">
+<h4 id="org9354794">定义模板文件</h4>
+<div class="outline-text-4" id="text-org9354794">
 <p>
 我们按照 Go 模板语法定义一个 <code>hello.tmpl</code> 的模板文件，内容如下：<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-html">&lt;<span style="color: #268bd2; font-weight: bold;">!DOCTYPE</span> html&gt;
-&lt;<span style="color: #d75fd7; font-weight: bold;">html</span> <span style="color: #8787d7;">lang</span>=<span style="color: #2aa198;">"zh-CN"</span>&gt;
-&lt;<span style="color: #d75fd7; font-weight: bold;">head</span>&gt;
-    &lt;<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;<span style="font-weight: bold; text-decoration: underline;">Hello</span>&lt;/<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;
-&lt;/<span style="color: #d75fd7; font-weight: bold;">head</span>&gt;
-&lt;<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
-    &lt;<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;Hello {{.}}&lt;/<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;
-&lt;/<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
-&lt;/<span style="color: #d75fd7; font-weight: bold;">html</span>&gt;
+<pre class="src src-html">&lt;<span style="color: #4f97d7; font-weight: bold;">!DOCTYPE</span> html&gt;
+&lt;<span style="color: #bc6ec5; font-weight: bold;">html</span> <span style="color: #7590db;">lang</span>=<span style="color: #2d9574;">"zh-CN"</span>&gt;
+  &lt;<span style="color: #bc6ec5; font-weight: bold;">head</span>&gt;
+    &lt;<span style="color: #bc6ec5; font-weight: bold;">title</span>&gt;<span style="font-weight: bold; text-decoration: underline;">Hello</span>&lt;/<span style="color: #bc6ec5; font-weight: bold;">title</span>&gt;
+  &lt;/<span style="color: #bc6ec5; font-weight: bold;">head</span>&gt;
+  &lt;<span style="color: #bc6ec5; font-weight: bold;">body</span>&gt;
+    &lt;<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;Hello {{.}}&lt;/<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;
+  &lt;/<span style="color: #bc6ec5; font-weight: bold;">body</span>&gt;
+&lt;/<span style="color: #bc6ec5; font-weight: bold;">html</span>&gt;
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orgc7986e3" class="outline-4">
-<h4 id="orgc7986e3">解析和渲染模板文件</h4>
-<div class="outline-text-4" id="text-orgc7986e3">
+<div id="outline-container-orgd285cb0" class="outline-4">
+<h4 id="orgd285cb0">解析和渲染模板文件</h4>
+<div class="outline-text-4" id="text-orgd285cb0">
 <p>
 然后我们创建一个 <code>main.go</code> 文件，在其中写下 HTTP server 端代码如下：<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+<pre class="src src-go"><span style="color: #4f97d7; font-weight: bold;">package</span> main
 
-<span style="color: #268bd2; font-weight: bold;">import</span> (
-    <span style="color: #2aa198;">"fmt"</span>
-    <span style="color: #2aa198;">"html/template"</span>
-    <span style="color: #2aa198;">"net/http"</span>
+<span style="color: #4f97d7; font-weight: bold;">import</span> (
+    <span style="color: #2d9574;">"fmt"</span>
+    <span style="color: #2d9574;">"html/template"</span>
+    <span style="color: #2d9574;">"net/http"</span>
 )
 
-<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">sayHello</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">http.Request</span>) {
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">1. &#23450;&#20041;&#27169;&#26495;</span>
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">2. &#35299;&#26512;&#27169;&#26495;&#65288;&#25351;&#23450;&#27169;&#26495;&#25991;&#20214;&#65289;</span>
-    <span style="color: #8787d7;">t</span>, <span style="color: #8787d7;">err</span> := template.<span style="color: #d75fd7; font-weight: bold;">ParseFiles</span>(<span style="color: #2aa198;">"./hello.tmpl"</span>)
-    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
-        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"Parse template failed, err: %v\n"</span>, err)
+<span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">sayHello</span>(<span style="color: #7590db;">w</span> <span style="color: #ce537a; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #7590db;">r</span> *<span style="color: #ce537a; font-weight: bold;">http.Request</span>) {
+    <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">1. &#23450;&#20041;&#27169;&#26495;</span>
+    <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">2. &#35299;&#26512;&#27169;&#26495;&#65288;&#25351;&#23450;&#27169;&#26495;&#25991;&#20214;&#65289;</span>
+    <span style="color: #7590db;">t</span>, <span style="color: #7590db;">err</span> := template.<span style="color: #bc6ec5; font-weight: bold;">ParseFiles</span>(<span style="color: #2d9574;">"./hello.tmpl"</span>)
+    <span style="color: #4f97d7; font-weight: bold;">if</span> err != <span style="color: #a45bad;">nil</span> {
+        fmt.<span style="color: #bc6ec5; font-weight: bold;">Printf</span>(<span style="color: #2d9574;">"Parse template failed, err: %v\n"</span>, err)
     }
 
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">3. &#28210;&#26579;&#27169;&#26495;&#65288;&#21033;&#29992;&#32473;&#23450;&#25968;&#25454; name := "&#23567;&#29579;&#23376;"&#28210;&#26579;&#27169;&#26495;&#65292;&#24182;&#23558;&#32467;&#26524;&#20889;&#20837; w&#65289;</span>
-    <span style="color: #8787d7;">name</span> := <span style="color: #2aa198;">"&#23567;&#29579;&#23376;"</span>
-    err = t.<span style="color: #d75fd7; font-weight: bold;">Execute</span>(w, name)
-    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
-        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"render template failed, err: %v\n"</span>, err)
+    <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">3. &#28210;&#26579;&#27169;&#26495;&#65288;&#21033;&#29992;&#32473;&#23450;&#25968;&#25454; name := "&#23567;&#29579;&#23376;"&#28210;&#26579;&#27169;&#26495;&#65292;&#24182;&#23558;&#32467;&#26524;&#20889;&#20837; w&#65289;</span>
+    <span style="color: #7590db;">name</span> := <span style="color: #2d9574;">"&#23567;&#29579;&#23376;"</span>
+    err = t.<span style="color: #bc6ec5; font-weight: bold;">Execute</span>(w, name)
+    <span style="color: #4f97d7; font-weight: bold;">if</span> err != <span style="color: #a45bad;">nil</span> {
+        fmt.<span style="color: #bc6ec5; font-weight: bold;">Printf</span>(<span style="color: #2d9574;">"render template failed, err: %v\n"</span>, err)
     }
 }
 
-<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    http.<span style="color: #d75fd7; font-weight: bold;">HandleFunc</span>(<span style="color: #2aa198;">"/"</span>, sayHello)
-    <span style="color: #8787d7;">err</span> := http.<span style="color: #d75fd7; font-weight: bold;">ListenAndServe</span>(<span style="color: #2aa198;">":9003"</span>, <span style="color: #d75fd7;">nil</span>)
-    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
-        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"HTTP server failed, err: %v\n"</span>, err)
-        <span style="color: #268bd2; font-weight: bold;">return</span>
+<span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">main</span>() {
+    http.<span style="color: #bc6ec5; font-weight: bold;">HandleFunc</span>(<span style="color: #2d9574;">"/"</span>, sayHello)
+    <span style="color: #7590db;">err</span> := http.<span style="color: #bc6ec5; font-weight: bold;">ListenAndServe</span>(<span style="color: #2d9574;">":9003"</span>, <span style="color: #a45bad;">nil</span>)
+    <span style="color: #4f97d7; font-weight: bold;">if</span> err != <span style="color: #a45bad;">nil</span> {
+        fmt.<span style="color: #bc6ec5; font-weight: bold;">Printf</span>(<span style="color: #2d9574;">"HTTP server failed, err: %v\n"</span>, err)
+        <span style="color: #4f97d7; font-weight: bold;">return</span>
     }
 }
 </pre>
@@ -197,7 +196,7 @@ Go语言模板引擎的使用可以分为三部分： <span class="underline">�
 
 <div class="org-src-container">
 <pre class="src src-bash">$ go build
-$ ./main.exe  
+$ ./main.exe
 </pre>
 </div>
 
@@ -208,13 +207,13 @@ $ ./main.exe
 </div>
 </div>
 </div>
-<div id="outline-container-org93e13eb" class="outline-2">
-<h2 id="org93e13eb">模板语法</h2>
-<div class="outline-text-2" id="text-org93e13eb">
+<div id="outline-container-org84860ac" class="outline-2">
+<h2 id="org84860ac">模板语法</h2>
+<div class="outline-text-2" id="text-org84860ac">
 </div>
-<div id="outline-container-orgaf855c1" class="outline-3">
-<h3 id="orgaf855c1">{{.}}</h3>
-<div class="outline-text-3" id="text-orgaf855c1">
+<div id="outline-container-org6d98503" class="outline-3">
+<h3 id="org6d98503">{{.}}</h3>
+<div class="outline-text-3" id="text-org6d98503">
 <p>
 模板语法都包含在 <code>{{</code> 和 <code>}}</code> 中间，其中 <code>{{.}}</code> 中的点表示当前对象。<br>
 </p>
@@ -224,41 +223,41 @@ $ ./main.exe
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+<pre class="src src-go"><span style="color: #4f97d7; font-weight: bold;">package</span> main
 
-<span style="color: #268bd2; font-weight: bold;">import</span> (
-    <span style="color: #2aa198;">"fmt"</span>
-    <span style="color: #2aa198;">"html/template"</span>
-    <span style="color: #2aa198;">"net/http"</span>
+<span style="color: #4f97d7; font-weight: bold;">import</span> (
+    <span style="color: #2d9574;">"fmt"</span>
+    <span style="color: #2d9574;">"html/template"</span>
+    <span style="color: #2d9574;">"net/http"</span>
 )
 
-<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">User</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
-    Name   <span style="color: #df005f; font-weight: bold;">string</span>
-    Gender <span style="color: #df005f; font-weight: bold;">string</span>
-    Age    <span style="color: #df005f; font-weight: bold;">int</span>
+<span style="color: #4f97d7; font-weight: bold;">type</span> <span style="color: #ce537a; font-weight: bold;">User</span> <span style="color: #4f97d7; font-weight: bold;">struct</span> {
+    Name   <span style="color: #ce537a; font-weight: bold;">string</span>
+    Gender <span style="color: #ce537a; font-weight: bold;">string</span>
+    Age    <span style="color: #ce537a; font-weight: bold;">int</span>
 }
 
-<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">sayHello</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">http.Request</span>) {
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23450;&#20041;&#27169;&#26495;</span>
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35299;&#26512;&#27169;&#26495;</span>
-    <span style="color: #8787d7;">t</span>, <span style="color: #8787d7;">err</span> := template.<span style="color: #d75fd7; font-weight: bold;">ParseFiles</span>(<span style="color: #2aa198;">"./hello.tmpl"</span>)
-    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
-        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"parse template failed, err: %v\n"</span>, err)
+<span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">sayHello</span>(<span style="color: #7590db;">w</span> <span style="color: #ce537a; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #7590db;">r</span> *<span style="color: #ce537a; font-weight: bold;">http.Request</span>) {
+    <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#23450;&#20041;&#27169;&#26495;</span>
+    <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#35299;&#26512;&#27169;&#26495;</span>
+    <span style="color: #7590db;">t</span>, <span style="color: #7590db;">err</span> := template.<span style="color: #bc6ec5; font-weight: bold;">ParseFiles</span>(<span style="color: #2d9574;">"./hello.tmpl"</span>)
+    <span style="color: #4f97d7; font-weight: bold;">if</span> err != <span style="color: #a45bad;">nil</span> {
+        fmt.<span style="color: #bc6ec5; font-weight: bold;">Printf</span>(<span style="color: #2d9574;">"parse template failed, err: %v\n"</span>, err)
     }
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#28210;&#26579;&#27169;&#26495;</span>
-    <span style="color: #8787d7;">u1</span> := <span style="color: #df005f; font-weight: bold;">User</span>{
-        <span style="color: #d75fd7;">Name</span>:   <span style="color: #2aa198;">"&#23567;&#29579;&#23376;"</span>,
-        <span style="color: #d75fd7;">Gender</span>: <span style="color: #2aa198;">"&#30007;"</span>,
-        <span style="color: #d75fd7;">Age</span>:    20,
+    <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#28210;&#26579;&#27169;&#26495;</span>
+    <span style="color: #7590db;">u1</span> := <span style="color: #ce537a; font-weight: bold;">User</span>{
+        <span style="color: #a45bad;">Name</span>:   <span style="color: #2d9574;">"&#23567;&#29579;&#23376;"</span>,
+        <span style="color: #a45bad;">Gender</span>: <span style="color: #2d9574;">"&#30007;"</span>,
+        <span style="color: #a45bad;">Age</span>:    20,
     }
-    _ = t.<span style="color: #d75fd7; font-weight: bold;">Execute</span>(w, u1)
+    _ = t.<span style="color: #bc6ec5; font-weight: bold;">Execute</span>(w, u1)
 }
 
-<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    http.<span style="color: #d75fd7; font-weight: bold;">HandleFunc</span>(<span style="color: #2aa198;">"/"</span>, sayHello)
-    <span style="color: #8787d7;">err</span> := http.<span style="color: #d75fd7; font-weight: bold;">ListenAndServe</span>(<span style="color: #2aa198;">":9003"</span>, <span style="color: #d75fd7;">nil</span>)
-    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
-        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"HTTP server start failed, err: %v\n"</span>, err)
+<span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">main</span>() {
+    http.<span style="color: #bc6ec5; font-weight: bold;">HandleFunc</span>(<span style="color: #2d9574;">"/"</span>, sayHello)
+    <span style="color: #7590db;">err</span> := http.<span style="color: #bc6ec5; font-weight: bold;">ListenAndServe</span>(<span style="color: #2d9574;">":9003"</span>, <span style="color: #a45bad;">nil</span>)
+    <span style="color: #4f97d7; font-weight: bold;">if</span> err != <span style="color: #a45bad;">nil</span> {
+        fmt.<span style="color: #bc6ec5; font-weight: bold;">Printf</span>(<span style="color: #2d9574;">"HTTP server start failed, err: %v\n"</span>, err)
     }
 }
 </pre>
@@ -269,17 +268,17 @@ $ ./main.exe
 </p>
 
 <div class="org-src-container">
-<pre class="src src-html">&lt;<span style="color: #268bd2; font-weight: bold;">!DOCTYPE</span> html&gt;
-&lt;<span style="color: #d75fd7; font-weight: bold;">html</span>&gt;
-  &lt;<span style="color: #d75fd7; font-weight: bold;">head</span>&gt;
-    &lt;<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;<span style="font-weight: bold; text-decoration: underline;">Hello</span>&lt;/<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;
-  &lt;/<span style="color: #d75fd7; font-weight: bold;">head</span>&gt;
-  &lt;<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
-    &lt;<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;Hello {{.Name}}&lt;/<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;
-    &lt;<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;Age: {{.Age}}&lt;/<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;
-    &lt;<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;Gender: {{.Gender}}&lt;/<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;
-  &lt;/<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
-&lt;/<span style="color: #d75fd7; font-weight: bold;">html</span>&gt;
+<pre class="src src-html">&lt;<span style="color: #4f97d7; font-weight: bold;">!DOCTYPE</span> html&gt;
+&lt;<span style="color: #bc6ec5; font-weight: bold;">html</span>&gt;
+  &lt;<span style="color: #bc6ec5; font-weight: bold;">head</span>&gt;
+    &lt;<span style="color: #bc6ec5; font-weight: bold;">title</span>&gt;<span style="font-weight: bold; text-decoration: underline;">Hello</span>&lt;/<span style="color: #bc6ec5; font-weight: bold;">title</span>&gt;
+  &lt;/<span style="color: #bc6ec5; font-weight: bold;">head</span>&gt;
+  &lt;<span style="color: #bc6ec5; font-weight: bold;">body</span>&gt;
+    &lt;<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;Hello {{.Name}}&lt;/<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;
+    &lt;<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;Age: {{.Age}}&lt;/<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;
+    &lt;<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;Gender: {{.Gender}}&lt;/<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;
+  &lt;/<span style="color: #bc6ec5; font-weight: bold;">body</span>&gt;
+&lt;/<span style="color: #bc6ec5; font-weight: bold;">html</span>&gt;
 </pre>
 </div>
 
@@ -288,82 +287,82 @@ $ ./main.exe
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+<pre class="src src-go"><span style="color: #4f97d7; font-weight: bold;">package</span> main
 
-<span style="color: #268bd2; font-weight: bold;">import</span> (
-    <span style="color: #2aa198;">"fmt"</span>
-    <span style="color: #2aa198;">"html/template"</span>
-    <span style="color: #2aa198;">"net/http"</span>
+<span style="color: #4f97d7; font-weight: bold;">import</span> (
+    <span style="color: #2d9574;">"fmt"</span>
+    <span style="color: #2d9574;">"html/template"</span>
+    <span style="color: #2d9574;">"net/http"</span>
 )
 
-<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">User</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
-    Name   <span style="color: #df005f; font-weight: bold;">string</span>
-    Gender <span style="color: #df005f; font-weight: bold;">string</span>
-    Age    <span style="color: #df005f; font-weight: bold;">int</span>
+<span style="color: #4f97d7; font-weight: bold;">type</span> <span style="color: #ce537a; font-weight: bold;">User</span> <span style="color: #4f97d7; font-weight: bold;">struct</span> {
+    Name   <span style="color: #ce537a; font-weight: bold;">string</span>
+    Gender <span style="color: #ce537a; font-weight: bold;">string</span>
+    Age    <span style="color: #ce537a; font-weight: bold;">int</span>
 }
 
-<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">sayHello</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">http.Request</span>) {
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23450;&#20041;&#27169;&#26495;</span>
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35299;&#26512;&#27169;&#26495;</span>
-    <span style="color: #8787d7;">t</span>, <span style="color: #8787d7;">err</span> := template.<span style="color: #d75fd7; font-weight: bold;">ParseFiles</span>(<span style="color: #2aa198;">"./hello.tmpl"</span>)
-    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
-        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"parse template failed, err: %v\n"</span>, err)
+<span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">sayHello</span>(<span style="color: #7590db;">w</span> <span style="color: #ce537a; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #7590db;">r</span> *<span style="color: #ce537a; font-weight: bold;">http.Request</span>) {
+    <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#23450;&#20041;&#27169;&#26495;</span>
+    <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#35299;&#26512;&#27169;&#26495;</span>
+    <span style="color: #7590db;">t</span>, <span style="color: #7590db;">err</span> := template.<span style="color: #bc6ec5; font-weight: bold;">ParseFiles</span>(<span style="color: #2d9574;">"./hello.tmpl"</span>)
+    <span style="color: #4f97d7; font-weight: bold;">if</span> err != <span style="color: #a45bad;">nil</span> {
+        fmt.<span style="color: #bc6ec5; font-weight: bold;">Printf</span>(<span style="color: #2d9574;">"parse template failed, err: %v\n"</span>, err)
     }
 
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#28210;&#26579;&#27169;&#26495;</span>
-    <span style="color: #8787d7;">u1</span> := <span style="color: #df005f; font-weight: bold;">User</span>{
-        <span style="color: #d75fd7;">Name</span>:   <span style="color: #2aa198;">"&#23567;&#29579;&#23376;"</span>,
-        <span style="color: #d75fd7;">Gender</span>: <span style="color: #2aa198;">"&#30007;"</span>,
-        <span style="color: #d75fd7;">Age</span>:    20,
+    <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#28210;&#26579;&#27169;&#26495;</span>
+    <span style="color: #7590db;">u1</span> := <span style="color: #ce537a; font-weight: bold;">User</span>{
+        <span style="color: #a45bad;">Name</span>:   <span style="color: #2d9574;">"&#23567;&#29579;&#23376;"</span>,
+        <span style="color: #a45bad;">Gender</span>: <span style="color: #2d9574;">"&#30007;"</span>,
+        <span style="color: #a45bad;">Age</span>:    20,
     }
-    <span style="color: #8787d7;">m1</span> := <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #268bd2; font-weight: bold;">interface</span>{}{
-        <span style="color: #2aa198;">"Name"</span>:   <span style="color: #2aa198;">"&#23567;&#29579;&#23376;"</span>,
-        <span style="color: #2aa198;">"Gender"</span>: <span style="color: #2aa198;">"&#30007;"</span>,
-        <span style="color: #2aa198;">"Age"</span>:    20,
+    <span style="color: #7590db;">m1</span> := <span style="color: #4f97d7; font-weight: bold;">map</span>[<span style="color: #ce537a; font-weight: bold;">string</span>]<span style="color: #4f97d7; font-weight: bold;">interface</span>{}{
+        <span style="color: #2d9574;">"Name"</span>:   <span style="color: #2d9574;">"&#23567;&#29579;&#23376;"</span>,
+        <span style="color: #2d9574;">"Gender"</span>: <span style="color: #2d9574;">"&#30007;"</span>,
+        <span style="color: #2d9574;">"Age"</span>:    20,
     }
-    _ = t.<span style="color: #d75fd7; font-weight: bold;">Execute</span>(w, <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #268bd2; font-weight: bold;">interface</span>{}{
-        <span style="color: #2aa198;">"u1"</span>: u1,
-        <span style="color: #2aa198;">"m1"</span>: m1,
+    _ = t.<span style="color: #bc6ec5; font-weight: bold;">Execute</span>(w, <span style="color: #4f97d7; font-weight: bold;">map</span>[<span style="color: #ce537a; font-weight: bold;">string</span>]<span style="color: #4f97d7; font-weight: bold;">interface</span>{}{
+        <span style="color: #2d9574;">"u1"</span>: u1,
+        <span style="color: #2d9574;">"m1"</span>: m1,
     })
 }
 
-<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    http.<span style="color: #d75fd7; font-weight: bold;">HandleFunc</span>(<span style="color: #2aa198;">"/"</span>, sayHello)
-    <span style="color: #8787d7;">err</span> := http.<span style="color: #d75fd7; font-weight: bold;">ListenAndServe</span>(<span style="color: #2aa198;">":9003"</span>, <span style="color: #d75fd7;">nil</span>)
-    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
-        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"HTTP server start failed, err: %v\n"</span>, err)
+<span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">main</span>() {
+    http.<span style="color: #bc6ec5; font-weight: bold;">HandleFunc</span>(<span style="color: #2d9574;">"/"</span>, sayHello)
+    <span style="color: #7590db;">err</span> := http.<span style="color: #bc6ec5; font-weight: bold;">ListenAndServe</span>(<span style="color: #2d9574;">":9003"</span>, <span style="color: #a45bad;">nil</span>)
+    <span style="color: #4f97d7; font-weight: bold;">if</span> err != <span style="color: #a45bad;">nil</span> {
+        fmt.<span style="color: #bc6ec5; font-weight: bold;">Printf</span>(<span style="color: #2d9574;">"HTTP server start failed, err: %v\n"</span>, err)
     }
 }
 </pre>
 </div>
 
 <div class="org-src-container">
-<pre class="src src-html">&lt;<span style="color: #268bd2; font-weight: bold;">!DOCTYPE</span> html&gt;
-&lt;<span style="color: #d75fd7; font-weight: bold;">html</span>&gt;
-  &lt;<span style="color: #d75fd7; font-weight: bold;">head</span>&gt;
-    &lt;<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;<span style="font-weight: bold; text-decoration: underline;">Hello</span>&lt;/<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;
-  &lt;/<span style="color: #d75fd7; font-weight: bold;">head</span>&gt;
-  &lt;<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
-    &lt;<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;u1:&lt;/<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;
-    &lt;<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;Hello {{.u1.Name}}&lt;/<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;
-    &lt;<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;Age: {{.u1.Age}}&lt;/<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;
-    &lt;<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;Gender: {{.u1.Gender}}&lt;/<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;
+<pre class="src src-html">&lt;<span style="color: #4f97d7; font-weight: bold;">!DOCTYPE</span> html&gt;
+&lt;<span style="color: #bc6ec5; font-weight: bold;">html</span>&gt;
+  &lt;<span style="color: #bc6ec5; font-weight: bold;">head</span>&gt;
+    &lt;<span style="color: #bc6ec5; font-weight: bold;">title</span>&gt;<span style="font-weight: bold; text-decoration: underline;">Hello</span>&lt;/<span style="color: #bc6ec5; font-weight: bold;">title</span>&gt;
+  &lt;/<span style="color: #bc6ec5; font-weight: bold;">head</span>&gt;
+  &lt;<span style="color: #bc6ec5; font-weight: bold;">body</span>&gt;
+    &lt;<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;u1:&lt;/<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;
+    &lt;<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;Hello {{.u1.Name}}&lt;/<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;
+    &lt;<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;Age: {{.u1.Age}}&lt;/<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;
+    &lt;<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;Gender: {{.u1.Gender}}&lt;/<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;
 
-    &lt;<span style="color: #d75fd7; font-weight: bold;">hr</span>&gt;
+    &lt;<span style="color: #bc6ec5; font-weight: bold;">hr</span>&gt;
 
-    &lt;<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;m1:&lt;/<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;
-    &lt;<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;Hello {{.m1.Name}}&lt;/<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;
-    &lt;<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;Age: {{.m1.Age}}&lt;/<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;
-    &lt;<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;Gender: {{.m1.Gender}}&lt;/<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;
-  &lt;/<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
-&lt;/<span style="color: #d75fd7; font-weight: bold;">html</span>&gt;
+    &lt;<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;m1:&lt;/<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;
+    &lt;<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;Hello {{.m1.Name}}&lt;/<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;
+    &lt;<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;Age: {{.m1.Age}}&lt;/<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;
+    &lt;<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;Gender: {{.m1.Gender}}&lt;/<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;
+  &lt;/<span style="color: #bc6ec5; font-weight: bold;">body</span>&gt;
+&lt;/<span style="color: #bc6ec5; font-weight: bold;">html</span>&gt;
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orgecb69b5" class="outline-3">
-<h3 id="orgecb69b5">注释</h3>
-<div class="outline-text-3" id="text-orgecb69b5">
+<div id="outline-container-org350149f" class="outline-3">
+<h3 id="org350149f">注释</h3>
+<div class="outline-text-3" id="text-org350149f">
 <pre class="example">
 {{/* a comment */}}
 </pre>
@@ -373,9 +372,9 @@ $ ./main.exe
 </p>
 </div>
 </div>
-<div id="outline-container-org1096b0c" class="outline-3">
-<h3 id="org1096b0c">pipeline</h3>
-<div class="outline-text-3" id="text-org1096b0c">
+<div id="outline-container-org6330839" class="outline-3">
+<h3 id="org6330839">pipeline</h3>
+<div class="outline-text-3" id="text-org6330839">
 <p>
 <code>pipeline</code> 是指产生数据的操作。比如 <code>{{.}}</code> 、 <code>{{.Name}}</code> 等。Go 的模板语法中支持使用管道符号 <code>|</code> 链接多个命令，用法和 unix 下的管道类似： <code>|</code> 前面的命令会将运算结果（或返回值）传递给后一个命令的最后一个位置。<br>
 </p>
@@ -385,9 +384,9 @@ $ ./main.exe
 </p>
 </div>
 </div>
-<div id="outline-container-orgaeb9b14" class="outline-3">
-<h3 id="orgaeb9b14">变量</h3>
-<div class="outline-text-3" id="text-orgaeb9b14">
+<div id="outline-container-org3a41ee2" class="outline-3">
+<h3 id="org3a41ee2">变量</h3>
+<div class="outline-text-3" id="text-org3a41ee2">
 <p>
 我们还可以在模板中声明变量，用来保存传入模板的数据或其他语句生成的结果。具体语法如下：<br>
 </p>
@@ -404,9 +403,9 @@ $ ./main.exe
 </p>
 </div>
 </div>
-<div id="outline-container-orga5ebb45" class="outline-3">
-<h3 id="orga5ebb45">移除空格</h3>
-<div class="outline-text-3" id="text-orga5ebb45">
+<div id="outline-container-org8d2792c" class="outline-3">
+<h3 id="org8d2792c">移除空格</h3>
+<div class="outline-text-3" id="text-org8d2792c">
 <p>
 有时候我们在使用模板语法的时候会不可避免的引入一下空格或者换行符，这样模板最终渲染出来的内容可能就和我们想的不一样，这个时候可以使用 <code>{{-</code> 语法去除模板内容左侧的所有空白符号， 使用 <code>-}}</code> 去除模板内容右侧的所有空白符号。<br>
 </p>
@@ -426,9 +425,9 @@ $ ./main.exe
 </p>
 </div>
 </div>
-<div id="outline-container-org4509dd4" class="outline-3">
-<h3 id="org4509dd4">条件判断</h3>
-<div class="outline-text-3" id="text-org4509dd4">
+<div id="outline-container-orgff6563b" class="outline-3">
+<h3 id="orgff6563b">条件判断</h3>
+<div class="outline-text-3" id="text-orgff6563b">
 <p>
 Go 模板语法中的条件判断有以下几种:<br>
 </p>
@@ -443,17 +442,17 @@ Go 模板语法中的条件判断有以下几种:<br>
 <pre class="src src-html">{{if $obj1 == 100}}
 obj1 == 100
 {{else if $obj1 &lt; 100}}
-obj1 &lt; 100
-{{else}}
-obj1 &gt; 100
-{{end}}
+                  obj1 &lt; 100
+                         {{else}}
+                         obj1 &gt; 100
+                  {{end}}
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org5fe06fa" class="outline-3">
-<h3 id="org5fe06fa">range</h3>
-<div class="outline-text-3" id="text-org5fe06fa">
+<div id="outline-container-orgfe9b08d" class="outline-3">
+<h3 id="orgfe9b08d">range</h3>
+<div class="outline-text-3" id="text-orgfe9b08d">
 <p>
 Go 的模板语法中使用 <code>range</code> 关键字进行遍历，有以下两种写法，其中 <code>pipeline</code> 的值必须是数组、切片、字典或者通道。<br>
 </p>
@@ -467,31 +466,31 @@ Go 的模板语法中使用 <code>range</code> 关键字进行遍历，有以下
 </pre>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #8787d7;">hobbyList</span> := []<span style="color: #df005f; font-weight: bold;">string</span>{
-    <span style="color: #2aa198;">"&#31726;&#29699;"</span>,
-    <span style="color: #2aa198;">"&#36275;&#29699;"</span>,
-    <span style="color: #2aa198;">"&#25490;&#29699;"</span>,
+<pre class="src src-go"><span style="color: #7590db;">hobbyList</span> := []<span style="color: #ce537a; font-weight: bold;">string</span>{
+    <span style="color: #2d9574;">"&#31726;&#29699;"</span>,
+    <span style="color: #2d9574;">"&#36275;&#29699;"</span>,
+    <span style="color: #2d9574;">"&#25490;&#29699;"</span>,
 }
 
-t.<span style="color: #d75fd7; font-weight: bold;">Execute</span>(w, <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #268bd2; font-weight: bold;">interface</span>{}{
-    <span style="color: #2aa198;">"hobby"</span>: hobbyList,
+t.<span style="color: #bc6ec5; font-weight: bold;">Execute</span>(w, <span style="color: #4f97d7; font-weight: bold;">map</span>[<span style="color: #ce537a; font-weight: bold;">string</span>]<span style="color: #4f97d7; font-weight: bold;">interface</span>{}{
+    <span style="color: #2d9574;">"hobby"</span>: hobbyList,
 }
 </pre>
 </div>
 
 <div class="org-src-container">
 <pre class="src src-html">{{range $idx, $hobby := .hobby}}
-   &lt;<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;{{$idx}} - {{$hobby}}&lt;/<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;
+&lt;<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;{{$idx}} - {{$hobby}}&lt;/<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;
 {{else}}
-   &lt;<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;&#27809;&#26377;&#29233;&#22909;&lt;/<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;
+&lt;<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;&#27809;&#26377;&#29233;&#22909;&lt;/<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;
 {{end}}
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org813b481" class="outline-3">
-<h3 id="org813b481">with</h3>
-<div class="outline-text-3" id="text-org813b481">
+<div id="outline-container-org54014bd" class="outline-3">
+<h3 id="org54014bd">with</h3>
+<div class="outline-text-3" id="text-org54014bd">
 <pre class="example">
 {{with pipeline}} T1 {{end}}
 如果 pipeline 为 empty 不产生输出，否则将 dot 设为 pipeline 的值并执行 T1，不修改外面的 dot
@@ -501,22 +500,22 @@ t.<span style="color: #d75fd7; font-weight: bold;">Execute</span>(w, <span style
 </pre>
 
 <div class="org-src-container">
-<pre class="src src-html">&lt;<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;{{.m1.name}}&lt;/<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;
-&lt;<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;{{.m1.age}}&lt;/<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;
-&lt;<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;{{.m1.gender}}&lt;/<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;
+<pre class="src src-html">&lt;<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;{{.m1.name}}&lt;/<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;
+&lt;<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;{{.m1.age}}&lt;/<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;
+&lt;<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;{{.m1.gender}}&lt;/<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;
 
 {{with .m1}}
-&lt;<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;{{.name}}&lt;/<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;
-&lt;<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;{{.age}}&lt;/<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;
-&lt;<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;{{.gender}}&lt;/<span style="color: #d75fd7; font-weight: bold;">p</span>&gt;
+&lt;<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;{{.name}}&lt;/<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;
+&lt;<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;{{.age}}&lt;/<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;
+&lt;<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;{{.gender}}&lt;/<span style="color: #bc6ec5; font-weight: bold;">p</span>&gt;
 {{end}}
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org612e1ea" class="outline-3">
-<h3 id="org612e1ea">预定义函数</h3>
-<div class="outline-text-3" id="text-org612e1ea">
+<div id="outline-container-org7cc349a" class="outline-3">
+<h3 id="org7cc349a">预定义函数</h3>
+<div class="outline-text-3" id="text-org7cc349a">
 <p>
 执行模板时，函数从两个函数字典中查找：首先是模板函数字典，然后是全局函数字典。一般不在模板内定义函数，而是使用 <code>Funcs</code> 方法添加函数到模板里。<br>
 </p>
@@ -527,45 +526,45 @@ t.<span style="color: #d75fd7; font-weight: bold;">Execute</span>(w, <span style
 
 <pre class="example">
 and
-		函数返回它的第一个empty参数或者最后一个参数；
-		就是说"and x y"等价于"if x then y else x"；所有参数都会执行；
+        函数返回它的第一个empty参数或者最后一个参数；
+        就是说"and x y"等价于"if x then y else x"；所有参数都会执行；
 or
-		返回第一个非empty参数或者最后一个参数；
-		亦即"or x y"等价于"if x then x else y"；所有参数都会执行；
+        返回第一个非empty参数或者最后一个参数；
+        亦即"or x y"等价于"if x then x else y"；所有参数都会执行；
 not
-		返回它的单个参数的布尔值的否定
+        返回它的单个参数的布尔值的否定
 len
-		返回它的参数的整数类型长度
+        返回它的参数的整数类型长度
 index
-		执行结果为第一个参数以剩下的参数为索引/键指向的值；
-		如"index x 1 2 3"返回x[1][2][3]的值；每个被索引的主体必须是数组、切片或者字典。
+        执行结果为第一个参数以剩下的参数为索引/键指向的值；
+        如"index x 1 2 3"返回x[1][2][3]的值；每个被索引的主体必须是数组、切片或者字典。
 print
-		即fmt.Sprint
+        即fmt.Sprint
 printf
-		即fmt.Sprintf
+        即fmt.Sprintf
 println
-		即fmt.Sprintln
+        即fmt.Sprintln
 html
-		返回与其参数的文本表示形式等效的转义HTML。
-		这个函数在html/template中不可用。
+        返回与其参数的文本表示形式等效的转义HTML。
+        这个函数在html/template中不可用。
 urlquery
-		以适合嵌入到网址查询中的形式返回其参数的文本表示的转义值。
-		这个函数在html/template中不可用。
+        以适合嵌入到网址查询中的形式返回其参数的文本表示的转义值。
+        这个函数在html/template中不可用。
 js
-		返回与其参数的文本表示形式等效的转义JavaScript。
+        返回与其参数的文本表示形式等效的转义JavaScript。
 call
-		执行结果是调用第一个参数的返回值，该参数必须是函数类型，其余参数作为调用该函数的参数；
-		如"call .X.Y 1 2"等价于go语言里的dot.X.Y(1, 2)；
-		其中Y是函数类型的字段或者字典的值，或者其他类似情况；
-		call的第一个参数的执行结果必须是函数类型的值（和预定义函数如print明显不同）；
-		该函数类型值必须有1到2个返回值，如果有2个则后一个必须是error接口类型；
-		如果有2个返回值的方法返回的error非nil，模板执行会中断并返回给调用模板执行者该错误；
+        执行结果是调用第一个参数的返回值，该参数必须是函数类型，其余参数作为调用该函数的参数；
+        如"call .X.Y 1 2"等价于go语言里的dot.X.Y(1, 2)；
+        其中Y是函数类型的字段或者字典的值，或者其他类似情况；
+        call的第一个参数的执行结果必须是函数类型的值（和预定义函数如print明显不同）；
+        该函数类型值必须有1到2个返回值，如果有2个则后一个必须是error接口类型；
+        如果有2个返回值的方法返回的error非nil，模板执行会中断并返回给调用模板执行者该错误；
 </pre>
 </div>
 </div>
-<div id="outline-container-org0667698" class="outline-3">
-<h3 id="org0667698">比较函数</h3>
-<div class="outline-text-3" id="text-org0667698">
+<div id="outline-container-org4ea467c" class="outline-3">
+<h3 id="org4ea467c">比较函数</h3>
+<div class="outline-text-3" id="text-org4ea467c">
 <p>
 布尔函数会将任何类型的零值视为假，其余视为真。<br>
 </p>
@@ -596,50 +595,50 @@ ge      如果arg1 &gt;= arg2则返回真
 </p>
 </div>
 </div>
-<div id="outline-container-org5e982de" class="outline-3">
-<h3 id="org5e982de">自定义函数</h3>
-<div class="outline-text-3" id="text-org5e982de">
+<div id="outline-container-org7427a3e" class="outline-3">
+<h3 id="org7427a3e">自定义函数</h3>
+<div class="outline-text-3" id="text-org7427a3e">
 <p>
 Go 的模板支持自定义函数。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+<pre class="src src-go"><span style="color: #4f97d7; font-weight: bold;">package</span> main
 
-<span style="color: #268bd2; font-weight: bold;">import</span> (
-    <span style="color: #2aa198;">"fmt"</span>
-    <span style="color: #2aa198;">"html/template"</span>
-    <span style="color: #2aa198;">"net/http"</span>
+<span style="color: #4f97d7; font-weight: bold;">import</span> (
+    <span style="color: #2d9574;">"fmt"</span>
+    <span style="color: #2d9574;">"html/template"</span>
+    <span style="color: #2d9574;">"net/http"</span>
 )
 
-<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">customFunc</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">http.Request</span>) {
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#33258;&#23450;&#20041;&#20989;&#25968;</span>
-    <span style="color: #8787d7;">run</span> := <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">name</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #df005f; font-weight: bold;">error</span>) {
-        <span style="color: #268bd2; font-weight: bold;">return</span> name + <span style="color: #2aa198;">" keeps running."</span>, <span style="color: #d75fd7;">nil</span>
+<span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">customFunc</span>(<span style="color: #7590db;">w</span> <span style="color: #ce537a; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #7590db;">r</span> *<span style="color: #ce537a; font-weight: bold;">http.Request</span>) {
+    <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#33258;&#23450;&#20041;&#20989;&#25968;</span>
+    <span style="color: #7590db;">run</span> := <span style="color: #4f97d7; font-weight: bold;">func</span>(<span style="color: #7590db;">name</span> <span style="color: #ce537a; font-weight: bold;">string</span>) (<span style="color: #ce537a; font-weight: bold;">string</span>, <span style="color: #ce537a; font-weight: bold;">error</span>) {
+        <span style="color: #4f97d7; font-weight: bold;">return</span> name + <span style="color: #2d9574;">" keeps running."</span>, <span style="color: #a45bad;">nil</span>
     }
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23450;&#20041;&#27169;&#26495;</span>
-    <span style="color: #8787d7;">t</span> := template.<span style="color: #d75fd7; font-weight: bold;">New</span>(<span style="color: #2aa198;">"index.tmpl"</span>)
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#27880;&#20876;&#33258;&#23450;&#20041;&#20989;&#25968;</span>
-    t.<span style="color: #d75fd7; font-weight: bold;">Funcs</span>(<span style="color: #df005f; font-weight: bold;">template.FuncMap</span>{
-        <span style="color: #2aa198;">"run"</span>: run,
+    <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#23450;&#20041;&#27169;&#26495;</span>
+    <span style="color: #7590db;">t</span> := template.<span style="color: #bc6ec5; font-weight: bold;">New</span>(<span style="color: #2d9574;">"index.tmpl"</span>)
+    <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#27880;&#20876;&#33258;&#23450;&#20041;&#20989;&#25968;</span>
+    t.<span style="color: #bc6ec5; font-weight: bold;">Funcs</span>(<span style="color: #ce537a; font-weight: bold;">template.FuncMap</span>{
+        <span style="color: #2d9574;">"run"</span>: run,
     })
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35299;&#26512;&#27169;&#26495;</span>
-    <span style="color: #8787d7;">_</span>, <span style="color: #8787d7;">err</span> := t.<span style="color: #d75fd7; font-weight: bold;">ParseFiles</span>(<span style="color: #2aa198;">"./index.tmpl"</span>)
-    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
-        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"parse template failed, err: %v\n"</span>, err)
-        <span style="color: #268bd2; font-weight: bold;">return</span>
+    <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#35299;&#26512;&#27169;&#26495;</span>
+    <span style="color: #7590db;">_</span>, <span style="color: #7590db;">err</span> := t.<span style="color: #bc6ec5; font-weight: bold;">ParseFiles</span>(<span style="color: #2d9574;">"./index.tmpl"</span>)
+    <span style="color: #4f97d7; font-weight: bold;">if</span> err != <span style="color: #a45bad;">nil</span> {
+        fmt.<span style="color: #bc6ec5; font-weight: bold;">Printf</span>(<span style="color: #2d9574;">"parse template failed, err: %v\n"</span>, err)
+        <span style="color: #4f97d7; font-weight: bold;">return</span>
     }
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#28210;&#26579;&#27169;&#26495;</span>
-    <span style="color: #8787d7;">name</span> := <span style="color: #2aa198;">"&#23567;&#29579;&#23376;"</span>
-    _ = t.<span style="color: #d75fd7; font-weight: bold;">Execute</span>(w, name)
+    <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#28210;&#26579;&#27169;&#26495;</span>
+    <span style="color: #7590db;">name</span> := <span style="color: #2d9574;">"&#23567;&#29579;&#23376;"</span>
+    _ = t.<span style="color: #bc6ec5; font-weight: bold;">Execute</span>(w, name)
 }
 
-<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    http.<span style="color: #d75fd7; font-weight: bold;">HandleFunc</span>(<span style="color: #2aa198;">"/"</span>, customFunc)
-    <span style="color: #8787d7;">err</span> := http.<span style="color: #d75fd7; font-weight: bold;">ListenAndServe</span>(<span style="color: #2aa198;">":9003"</span>, <span style="color: #d75fd7;">nil</span>)
-    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
-        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"HTTP server failed, err: %v\n"</span>, err)
-        <span style="color: #268bd2; font-weight: bold;">return</span>
+<span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">main</span>() {
+    http.<span style="color: #bc6ec5; font-weight: bold;">HandleFunc</span>(<span style="color: #2d9574;">"/"</span>, customFunc)
+    <span style="color: #7590db;">err</span> := http.<span style="color: #bc6ec5; font-weight: bold;">ListenAndServe</span>(<span style="color: #2d9574;">":9003"</span>, <span style="color: #a45bad;">nil</span>)
+    <span style="color: #4f97d7; font-weight: bold;">if</span> err != <span style="color: #a45bad;">nil</span> {
+        fmt.<span style="color: #bc6ec5; font-weight: bold;">Printf</span>(<span style="color: #2d9574;">"HTTP server failed, err: %v\n"</span>, err)
+        <span style="color: #4f97d7; font-weight: bold;">return</span>
     }
 }
 </pre>
@@ -654,9 +653,9 @@ Go 的模板支持自定义函数。<br>
 </pre>
 </div>
 </div>
-<div id="outline-container-orgd522854" class="outline-3">
-<h3 id="orgd522854">嵌套 template</h3>
-<div class="outline-text-3" id="text-orgd522854">
+<div id="outline-container-orgd2aa52d" class="outline-3">
+<h3 id="orgd2aa52d">嵌套 template</h3>
+<div class="outline-text-3" id="text-orgd2aa52d">
 <p>
 我们可以在 template 中嵌套其他的 template。这个 template 可以是单独的文件，也可以是通过 <code>define</code> 定义的 template。<br>
 </p>
@@ -666,26 +665,26 @@ Go 的模板支持自定义函数。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-html">&lt;<span style="color: #268bd2; font-weight: bold;">!DOCTYPE</span> html&gt;
-&lt;<span style="color: #d75fd7; font-weight: bold;">html</span> <span style="color: #8787d7;">lang</span>=<span style="color: #2aa198;">"zh-CN"</span>&gt;
-  &lt;<span style="color: #d75fd7; font-weight: bold;">head</span>&gt;
-    &lt;<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;<span style="font-weight: bold; text-decoration: underline;">tmpl test</span>&lt;/<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;
-  &lt;/<span style="color: #d75fd7; font-weight: bold;">head</span>&gt;
-  &lt;<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
-    &lt;<span style="color: #d75fd7; font-weight: bold;">h1</span>&gt;<span style="font-weight: bold; text-decoration: underline;">&#27979;&#35797;&#23884;&#22871;template&#35821;&#27861;</span>&lt;/<span style="color: #d75fd7; font-weight: bold;">h1</span>&gt;
-    &lt;<span style="color: #d75fd7; font-weight: bold;">hr</span>&gt;
+<pre class="src src-html">&lt;<span style="color: #4f97d7; font-weight: bold;">!DOCTYPE</span> html&gt;
+&lt;<span style="color: #bc6ec5; font-weight: bold;">html</span> <span style="color: #7590db;">lang</span>=<span style="color: #2d9574;">"zh-CN"</span>&gt;
+  &lt;<span style="color: #bc6ec5; font-weight: bold;">head</span>&gt;
+    &lt;<span style="color: #bc6ec5; font-weight: bold;">title</span>&gt;<span style="font-weight: bold; text-decoration: underline;">tmpl test</span>&lt;/<span style="color: #bc6ec5; font-weight: bold;">title</span>&gt;
+  &lt;/<span style="color: #bc6ec5; font-weight: bold;">head</span>&gt;
+  &lt;<span style="color: #bc6ec5; font-weight: bold;">body</span>&gt;
+    &lt;<span style="color: #bc6ec5; font-weight: bold;">h1</span>&gt;<span style="font-weight: bold; text-decoration: underline;">&#27979;&#35797;&#23884;&#22871;template&#35821;&#27861;</span>&lt;/<span style="color: #bc6ec5; font-weight: bold;">h1</span>&gt;
+    &lt;<span style="color: #bc6ec5; font-weight: bold;">hr</span>&gt;
     {{template "ul.tmpl"}}
-    &lt;<span style="color: #d75fd7; font-weight: bold;">hr</span>&gt;
+    &lt;<span style="color: #bc6ec5; font-weight: bold;">hr</span>&gt;
     {{template "ol.tmpl"}}
-  &lt;/<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
-&lt;/<span style="color: #d75fd7; font-weight: bold;">html</span>&gt;
+  &lt;/<span style="color: #bc6ec5; font-weight: bold;">body</span>&gt;
+&lt;/<span style="color: #bc6ec5; font-weight: bold;">html</span>&gt;
 
 {{ define "ol.tmpl"}}
-&lt;<span style="color: #d75fd7; font-weight: bold;">ol</span>&gt;
-  &lt;<span style="color: #d75fd7; font-weight: bold;">li</span>&gt;&#21507;&#39277;&lt;/<span style="color: #d75fd7; font-weight: bold;">li</span>&gt;
-  &lt;<span style="color: #d75fd7; font-weight: bold;">li</span>&gt;&#30561;&#35273;&lt;/<span style="color: #d75fd7; font-weight: bold;">li</span>&gt;
-  &lt;<span style="color: #d75fd7; font-weight: bold;">li</span>&gt;&#29609;&#28216;&#25103;&lt;/<span style="color: #d75fd7; font-weight: bold;">li</span>&gt;
-&lt;/<span style="color: #d75fd7; font-weight: bold;">ol</span>&gt;
+&lt;<span style="color: #bc6ec5; font-weight: bold;">ol</span>&gt;
+  &lt;<span style="color: #bc6ec5; font-weight: bold;">li</span>&gt;&#21507;&#39277;&lt;/<span style="color: #bc6ec5; font-weight: bold;">li</span>&gt;
+  &lt;<span style="color: #bc6ec5; font-weight: bold;">li</span>&gt;&#30561;&#35273;&lt;/<span style="color: #bc6ec5; font-weight: bold;">li</span>&gt;
+  &lt;<span style="color: #bc6ec5; font-weight: bold;">li</span>&gt;&#29609;&#28216;&#25103;&lt;/<span style="color: #bc6ec5; font-weight: bold;">li</span>&gt;
+&lt;/<span style="color: #bc6ec5; font-weight: bold;">ol</span>&gt;
 {{end}}
 </pre>
 </div>
@@ -695,11 +694,11 @@ Go 的模板支持自定义函数。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-html">&lt;<span style="color: #d75fd7; font-weight: bold;">ul</span>&gt;
-  &lt;<span style="color: #d75fd7; font-weight: bold;">li</span>&gt;&#27880;&#37322;&lt;/<span style="color: #d75fd7; font-weight: bold;">li</span>&gt;
-  &lt;<span style="color: #d75fd7; font-weight: bold;">li</span>&gt;&#26085;&#24535;&lt;/<span style="color: #d75fd7; font-weight: bold;">li</span>&gt;
-  &lt;<span style="color: #d75fd7; font-weight: bold;">li</span>&gt;&#27979;&#35797;&lt;/<span style="color: #d75fd7; font-weight: bold;">li</span>&gt;
-&lt;/<span style="color: #d75fd7; font-weight: bold;">ul</span>&gt;
+<pre class="src src-html">&lt;<span style="color: #bc6ec5; font-weight: bold;">ul</span>&gt;
+  &lt;<span style="color: #bc6ec5; font-weight: bold;">li</span>&gt;&#27880;&#37322;&lt;/<span style="color: #bc6ec5; font-weight: bold;">li</span>&gt;
+  &lt;<span style="color: #bc6ec5; font-weight: bold;">li</span>&gt;&#26085;&#24535;&lt;/<span style="color: #bc6ec5; font-weight: bold;">li</span>&gt;
+  &lt;<span style="color: #bc6ec5; font-weight: bold;">li</span>&gt;&#27979;&#35797;&lt;/<span style="color: #bc6ec5; font-weight: bold;">li</span>&gt;
+&lt;/<span style="color: #bc6ec5; font-weight: bold;">ul</span>&gt;
 </pre>
 </div>
 
@@ -708,7 +707,7 @@ Go 的模板支持自定义函数。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go">http.<span style="color: #d75fd7; font-weight: bold;">HandleFunc</span>(<span style="color: #2aa198;">"/tmpl"</span>, tmplDemo)
+<pre class="src src-go">http.<span style="color: #bc6ec5; font-weight: bold;">HandleFunc</span>(<span style="color: #2d9574;">"/tmpl"</span>, tmplDemo)
 </pre>
 </div>
 
@@ -717,18 +716,18 @@ Go 的模板支持自定义函数。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">tmplDemo</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">http.Request</span>) {
-    <span style="color: #8787d7;">tmpl</span>, <span style="color: #8787d7;">err</span> := template.<span style="color: #d75fd7; font-weight: bold;">ParseFiles</span>(<span style="color: #2aa198;">"./t.tmpl"</span>, <span style="color: #2aa198;">"./ul.tmpl"</span>)
-    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
-        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"create template failed, err:"</span>, err)
-        <span style="color: #268bd2; font-weight: bold;">return</span>
+<pre class="src src-go"><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">tmplDemo</span>(<span style="color: #7590db;">w</span> <span style="color: #ce537a; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #7590db;">r</span> *<span style="color: #ce537a; font-weight: bold;">http.Request</span>) {
+    <span style="color: #7590db;">tmpl</span>, <span style="color: #7590db;">err</span> := template.<span style="color: #bc6ec5; font-weight: bold;">ParseFiles</span>(<span style="color: #2d9574;">"./t.tmpl"</span>, <span style="color: #2d9574;">"./ul.tmpl"</span>)
+    <span style="color: #4f97d7; font-weight: bold;">if</span> err != <span style="color: #a45bad;">nil</span> {
+        fmt.<span style="color: #bc6ec5; font-weight: bold;">Println</span>(<span style="color: #2d9574;">"create template failed, err:"</span>, err)
+        <span style="color: #4f97d7; font-weight: bold;">return</span>
     }
-    <span style="color: #8787d7;">user</span> := <span style="color: #df005f; font-weight: bold;">UserInfo</span>{
-        <span style="color: #d75fd7;">Name</span>:   <span style="color: #2aa198;">"&#23567;&#29579;&#23376;"</span>,
-        <span style="color: #d75fd7;">Gender</span>: <span style="color: #2aa198;">"&#30007;"</span>,
-        <span style="color: #d75fd7;">Age</span>:    18,
+    <span style="color: #7590db;">user</span> := <span style="color: #ce537a; font-weight: bold;">UserInfo</span>{
+        <span style="color: #a45bad;">Name</span>:   <span style="color: #2d9574;">"&#23567;&#29579;&#23376;"</span>,
+        <span style="color: #a45bad;">Gender</span>: <span style="color: #2d9574;">"&#30007;"</span>,
+        <span style="color: #a45bad;">Age</span>:    18,
     }
-    tmpl.<span style="color: #d75fd7; font-weight: bold;">Execute</span>(w, user)
+    tmpl.<span style="color: #bc6ec5; font-weight: bold;">Execute</span>(w, user)
 }
 </pre>
 </div>
@@ -738,9 +737,9 @@ Go 的模板支持自定义函数。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org0a66852" class="outline-3">
-<h3 id="org0a66852">模板继承 - block</h3>
-<div class="outline-text-3" id="text-org0a66852">
+<div id="outline-container-org6fee757" class="outline-3">
+<h3 id="org6fee757">模板继承 - block</h3>
+<div class="outline-text-3" id="text-org6fee757">
 <pre class="example">
 {{block "name" pipeline}} T1 {{end}}
 </pre>
@@ -754,23 +753,23 @@ Go 的模板支持自定义函数。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-html">&lt;<span style="color: #268bd2; font-weight: bold;">!DOCTYPE</span> html&gt;
-&lt;<span style="color: #d75fd7; font-weight: bold;">html</span> <span style="color: #8787d7;">lang</span>=<span style="color: #2aa198;">"zh-CN"</span>&gt;
-&lt;<span style="color: #d75fd7; font-weight: bold;">head</span>&gt;
-    &lt;<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;<span style="font-weight: bold; text-decoration: underline;">Go Templates</span>&lt;/<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;
-&lt;/<span style="color: #d75fd7; font-weight: bold;">head</span>&gt;
-&lt;<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
-&lt;<span style="color: #d75fd7; font-weight: bold;">div</span> <span style="color: #8787d7;">class</span>=<span style="color: #2aa198;">"container-fluid"</span>&gt;
-    {{block "content" . }}{{end}}
-&lt;/<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
-&lt;/<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
-&lt;/<span style="color: #d75fd7; font-weight: bold;">html</span>&gt;
+<pre class="src src-html">&lt;<span style="color: #4f97d7; font-weight: bold;">!DOCTYPE</span> html&gt;
+&lt;<span style="color: #bc6ec5; font-weight: bold;">html</span> <span style="color: #7590db;">lang</span>=<span style="color: #2d9574;">"zh-CN"</span>&gt;
+  &lt;<span style="color: #bc6ec5; font-weight: bold;">head</span>&gt;
+    &lt;<span style="color: #bc6ec5; font-weight: bold;">title</span>&gt;<span style="font-weight: bold; text-decoration: underline;">Go Templates</span>&lt;/<span style="color: #bc6ec5; font-weight: bold;">title</span>&gt;
+  &lt;/<span style="color: #bc6ec5; font-weight: bold;">head</span>&gt;
+  &lt;<span style="color: #bc6ec5; font-weight: bold;">body</span>&gt;
+    &lt;<span style="color: #bc6ec5; font-weight: bold;">div</span> <span style="color: #7590db;">class</span>=<span style="color: #2d9574;">"container-fluid"</span>&gt;
+      {{block "content" . }}{{end}}
+    &lt;/<span style="color: #bc6ec5; font-weight: bold;">div</span>&gt;
+  &lt;/<span style="color: #bc6ec5; font-weight: bold;">body</span>&gt;
+&lt;/<span style="color: #bc6ec5; font-weight: bold;">html</span>&gt;
 &#28982;&#21518;&#23450;&#20041;&#19968;&#20010;templates/index.tmpl&#65292;&#8221;&#32487;&#25215;&#8221;base.tmpl&#65306;
 
 {{template "base.tmpl"}}
 
 {{define "content"}}
-    &lt;<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;Hello world!&lt;/<span style="color: #d75fd7; font-weight: bold;">div</span>&gt;
+&lt;<span style="color: #bc6ec5; font-weight: bold;">div</span>&gt;Hello world!&lt;/<span style="color: #bc6ec5; font-weight: bold;">div</span>&gt;
 {{end}}
 </pre>
 </div>
@@ -780,16 +779,16 @@ Go 的模板支持自定义函数。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">index</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">http.Request</span>){
-    <span style="color: #8787d7;">tmpl</span>, <span style="color: #8787d7;">err</span> := template.<span style="color: #d75fd7; font-weight: bold;">ParseGlob</span>(<span style="color: #2aa198;">"templates/*.tmpl"</span>)
-    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
-        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"create template failed, err:"</span>, err)
-        <span style="color: #268bd2; font-weight: bold;">return</span>
+<pre class="src src-go"><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">index</span>(<span style="color: #7590db;">w</span> <span style="color: #ce537a; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #7590db;">r</span> *<span style="color: #ce537a; font-weight: bold;">http.Request</span>){
+    <span style="color: #7590db;">tmpl</span>, <span style="color: #7590db;">err</span> := template.<span style="color: #bc6ec5; font-weight: bold;">ParseGlob</span>(<span style="color: #2d9574;">"templates/*.tmpl"</span>)
+    <span style="color: #4f97d7; font-weight: bold;">if</span> err != <span style="color: #a45bad;">nil</span> {
+        fmt.<span style="color: #bc6ec5; font-weight: bold;">Println</span>(<span style="color: #2d9574;">"create template failed, err:"</span>, err)
+        <span style="color: #4f97d7; font-weight: bold;">return</span>
     }
-    err = tmpl.<span style="color: #d75fd7; font-weight: bold;">ExecuteTemplate</span>(w, <span style="color: #2aa198;">"index.tmpl"</span>, <span style="color: #d75fd7;">nil</span>)
-    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
-        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"render template failed, err:"</span>, err)
-        <span style="color: #268bd2; font-weight: bold;">return</span>
+    err = tmpl.<span style="color: #bc6ec5; font-weight: bold;">ExecuteTemplate</span>(w, <span style="color: #2d9574;">"index.tmpl"</span>, <span style="color: #a45bad;">nil</span>)
+    <span style="color: #4f97d7; font-weight: bold;">if</span> err != <span style="color: #a45bad;">nil</span> {
+        fmt.<span style="color: #bc6ec5; font-weight: bold;">Println</span>(<span style="color: #2d9574;">"render template failed, err:"</span>, err)
+        <span style="color: #4f97d7; font-weight: bold;">return</span>
     }
 }
 </pre>
@@ -808,23 +807,23 @@ Go 的模板支持自定义函数。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org020d2d5" class="outline-3">
-<h3 id="org020d2d5">修改默认的标识符</h3>
-<div class="outline-text-3" id="text-org020d2d5">
+<div id="outline-container-org958565a" class="outline-3">
+<h3 id="org958565a">修改默认的标识符</h3>
+<div class="outline-text-3" id="text-org958565a">
 <p>
 Go 标准库的模板引擎使用的花括号 <code>{{</code> 和 <code>}}</code> 作为标识，而许多前端框架（如 <code>Vue</code> 和 <code>AngularJS</code> ）也使用 <code>{{</code> 和 <code>}}</code> 作为标识符，所以当我们同时使用 Go 语言模板引擎和以上前端框架时就会出现冲突，这个时候我们需要修改标识符，修改前端的或者修改 Go 语言的。这里演示如何修改 Go 语言模板引擎默认的标识符：<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go">template.<span style="color: #d75fd7; font-weight: bold;">New</span>(<span style="color: #2aa198;">"test"</span>).<span style="color: #d75fd7; font-weight: bold;">Delims</span>(<span style="color: #2aa198;">"{["</span>, <span style="color: #2aa198;">"]}"</span>).<span style="color: #d75fd7; font-weight: bold;">ParseFiles</span>(<span style="color: #2aa198;">"./t.tmpl"</span>)
+<pre class="src src-go">template.<span style="color: #bc6ec5; font-weight: bold;">New</span>(<span style="color: #2d9574;">"test"</span>).<span style="color: #bc6ec5; font-weight: bold;">Delims</span>(<span style="color: #2d9574;">"{["</span>, <span style="color: #2d9574;">"]}"</span>).<span style="color: #bc6ec5; font-weight: bold;">ParseFiles</span>(<span style="color: #2d9574;">"./t.tmpl"</span>)
 </pre>
 </div>
 </div>
 </div>
 </div>
-<div id="outline-container-orga394bf7" class="outline-2">
-<h2 id="orga394bf7">text/template 与 html/template 的区别</h2>
-<div class="outline-text-2" id="text-orga394bf7">
+<div id="outline-container-org4c0cfab" class="outline-2">
+<h2 id="org4c0cfab">text/template 与 html/template 的区别</h2>
+<div class="outline-text-2" id="text-org4c0cfab">
 <p>
 <code>html/template</code> 针对的是需要返回 HTML 内容的场景，在模板渲染过程中会对一些有风险的内容进行转义，以此来防范跨站脚本攻击。<br>
 </p>
@@ -834,18 +833,18 @@ Go 标准库的模板引擎使用的花括号 <code>{{</code> 和 <code>}}</code
 </p>
 
 <div class="org-src-container">
-<pre class="src src-html">&lt;<span style="color: #268bd2; font-weight: bold;">!DOCTYPE</span> html&gt;
-&lt;<span style="color: #d75fd7; font-weight: bold;">html</span> <span style="color: #8787d7;">lang</span>=<span style="color: #2aa198;">"zh-CN"</span>&gt;
-&lt;<span style="color: #d75fd7; font-weight: bold;">head</span>&gt;
-    &lt;<span style="color: #d75fd7; font-weight: bold;">meta</span> <span style="color: #8787d7;">charset</span>=<span style="color: #2aa198;">"UTF-8"</span>&gt;
-    &lt;<span style="color: #d75fd7; font-weight: bold;">meta</span> <span style="color: #8787d7;">name</span>=<span style="color: #2aa198;">"viewport"</span> <span style="color: #8787d7;">content</span>=<span style="color: #2aa198;">"width=device-width, initial-scale=1.0"</span>&gt;
-    &lt;<span style="color: #d75fd7; font-weight: bold;">meta</span> <span style="color: #8787d7;">http-equiv</span>=<span style="color: #2aa198;">"X-UA-Compatible"</span> <span style="color: #8787d7;">content</span>=<span style="color: #2aa198;">"ie=edge"</span>&gt;
-    &lt;<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;<span style="font-weight: bold; text-decoration: underline;">Hello</span>&lt;/<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;
-&lt;/<span style="color: #d75fd7; font-weight: bold;">head</span>&gt;
-&lt;<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
+<pre class="src src-html">&lt;<span style="color: #4f97d7; font-weight: bold;">!DOCTYPE</span> html&gt;
+&lt;<span style="color: #bc6ec5; font-weight: bold;">html</span> <span style="color: #7590db;">lang</span>=<span style="color: #2d9574;">"zh-CN"</span>&gt;
+  &lt;<span style="color: #bc6ec5; font-weight: bold;">head</span>&gt;
+    &lt;<span style="color: #bc6ec5; font-weight: bold;">meta</span> <span style="color: #7590db;">charset</span>=<span style="color: #2d9574;">"UTF-8"</span>&gt;
+    &lt;<span style="color: #bc6ec5; font-weight: bold;">meta</span> <span style="color: #7590db;">name</span>=<span style="color: #2d9574;">"viewport"</span> <span style="color: #7590db;">content</span>=<span style="color: #2d9574;">"width=device-width, initial-scale=1.0"</span>&gt;
+    &lt;<span style="color: #bc6ec5; font-weight: bold;">meta</span> <span style="color: #7590db;">http-equiv</span>=<span style="color: #2d9574;">"X-UA-Compatible"</span> <span style="color: #7590db;">content</span>=<span style="color: #2d9574;">"ie=edge"</span>&gt;
+    &lt;<span style="color: #bc6ec5; font-weight: bold;">title</span>&gt;<span style="font-weight: bold; text-decoration: underline;">Hello</span>&lt;/<span style="color: #bc6ec5; font-weight: bold;">title</span>&gt;
+  &lt;/<span style="color: #bc6ec5; font-weight: bold;">head</span>&gt;
+  &lt;<span style="color: #bc6ec5; font-weight: bold;">body</span>&gt;
     {{.}}
-&lt;/<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
-&lt;/<span style="color: #d75fd7; font-weight: bold;">html</span>&gt;
+  &lt;/<span style="color: #bc6ec5; font-weight: bold;">body</span>&gt;
+&lt;/<span style="color: #bc6ec5; font-weight: bold;">html</span>&gt;
 </pre>
 </div>
 
@@ -858,20 +857,20 @@ Go 标准库的模板引擎使用的花括号 <code>{{</code> 和 <code>}}</code
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">xss</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">http.Request</span>){
-    <span style="color: #8787d7;">tmpl</span>,err := template.<span style="color: #d75fd7; font-weight: bold;">New</span>(<span style="color: #2aa198;">"xss.tmpl"</span>).<span style="color: #d75fd7; font-weight: bold;">Funcs</span>(<span style="color: #df005f; font-weight: bold;">template.FuncMap</span>{
-        <span style="color: #2aa198;">"safe"</span>: <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">s</span> <span style="color: #df005f; font-weight: bold;">string</span>)template.HTML {
-            <span style="color: #268bd2; font-weight: bold;">return</span> template.<span style="color: #d75fd7; font-weight: bold;">HTML</span>(s)
+<pre class="src src-go"><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">xss</span>(<span style="color: #7590db;">w</span> <span style="color: #ce537a; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #7590db;">r</span> *<span style="color: #ce537a; font-weight: bold;">http.Request</span>){
+    <span style="color: #7590db;">tmpl</span>,err := template.<span style="color: #bc6ec5; font-weight: bold;">New</span>(<span style="color: #2d9574;">"xss.tmpl"</span>).<span style="color: #bc6ec5; font-weight: bold;">Funcs</span>(<span style="color: #ce537a; font-weight: bold;">template.FuncMap</span>{
+        <span style="color: #2d9574;">"safe"</span>: <span style="color: #4f97d7; font-weight: bold;">func</span>(<span style="color: #7590db;">s</span> <span style="color: #ce537a; font-weight: bold;">string</span>)template.HTML {
+            <span style="color: #4f97d7; font-weight: bold;">return</span> template.<span style="color: #bc6ec5; font-weight: bold;">HTML</span>(s)
         },
-    }).<span style="color: #d75fd7; font-weight: bold;">ParseFiles</span>(<span style="color: #2aa198;">"./xss.tmpl"</span>)
-    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
-        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"create template failed, err:"</span>, err)
-        <span style="color: #268bd2; font-weight: bold;">return</span>
+    }).<span style="color: #bc6ec5; font-weight: bold;">ParseFiles</span>(<span style="color: #2d9574;">"./xss.tmpl"</span>)
+    <span style="color: #4f97d7; font-weight: bold;">if</span> err != <span style="color: #a45bad;">nil</span> {
+        fmt.<span style="color: #bc6ec5; font-weight: bold;">Println</span>(<span style="color: #2d9574;">"create template failed, err:"</span>, err)
+        <span style="color: #4f97d7; font-weight: bold;">return</span>
     }
-    <span style="color: #8787d7;">jsStr</span> := <span style="color: #2aa198;">`&lt;script&gt;alert('&#22079;&#22079;&#22079;')&lt;/script&gt;`</span>
-    err = tmpl.<span style="color: #d75fd7; font-weight: bold;">Execute</span>(w, jsStr)
-    <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
-        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(err)
+    <span style="color: #7590db;">jsStr</span> := <span style="color: #2d9574;">`&lt;script&gt;alert('&#22079;&#22079;&#22079;')&lt;/script&gt;`</span>
+    err = tmpl.<span style="color: #bc6ec5; font-weight: bold;">Execute</span>(w, jsStr)
+    <span style="color: #4f97d7; font-weight: bold;">if</span> err != <span style="color: #a45bad;">nil</span> {
+        fmt.<span style="color: #bc6ec5; font-weight: bold;">Println</span>(err)
     }
 }
 </pre>
@@ -890,7 +889,7 @@ Go 标准库的模板引擎使用的花括号 <code>{{</code> 和 <code>}}</code
 <div id="postamble" class="status">
 <p class="date">Date: 2022-04-15 16:04 Fri</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-04-16 Sat 00:47</p>
+<p class="date">Created: 2022-09-01 四 20:43</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
