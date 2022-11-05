@@ -1,18 +1,16 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-06-19 Sun 12:12 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 2022-10-21 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>文件权限与目录配置</title>
-<meta name="generator" content="Org mode">
-<meta name="author" content="L.M.haoran">
-<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
->
-
-                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
-                <script type="module" src="static/js/main.js" defer></script>
-                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<meta name="author" content="L.M.haoran" />
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved." />
+<meta name="generator" content="Org Mode" />
+<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+           <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+           <script type="module" src="static/js/main.js" defer></script>
 <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
         displayAlign: "center",
@@ -33,49 +31,48 @@
              }
 });
 </script>
-<script type="text/javascript"
-        src="static/MathJax/MathJax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="static/MathJax/cdn.bootcdn.net/ajax/libs/mathjax/3.1.2/es5/tex-mml-chtml.min.js"></script>
 </head>
 <body>
-<div id="content">
+<div id="content" class="content">
 <h1 class="title">文件权限与目录配置</h1>
-<div id="table-of-contents">
+<div id="table-of-contents" role="doc-toc">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents">
+<div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org474f79f">用户与用户组</a></li>
-<li><a href="#org601cc3f">Linux 文件权限概念</a>
+<li><a href="#orgcf8420f">用户与用户组</a></li>
+<li><a href="#org1932940">Linux 文件权限概念</a>
 <ul>
-<li><a href="#org17cb443">Linux 文件属性</a></li>
-<li><a href="#org1568e67">如何修改文件属性与权限</a>
+<li><a href="#orga352177">Linux 文件属性</a></li>
+<li><a href="#org38f26a6">如何修改文件属性与权限</a>
 <ul>
-<li><a href="#org4a878f9">修改所属用户组，chgrp</a></li>
-<li><a href="#orgbfd3f66">修改文件拥有者，chown</a></li>
-<li><a href="#orgb8dd823">修改权限，chmod</a>
+<li><a href="#org651ba65">修改所属用户组，chgrp</a></li>
+<li><a href="#orgcef2fcf">修改文件拥有者，chown</a></li>
+<li><a href="#org3fb50fb">修改权限，chmod</a>
 <ul>
-<li><a href="#org0069ef6">数字类型修改文件权限</a></li>
-<li><a href="#org1252496">符号类型修改文件权限</a></li>
+<li><a href="#orga0af06b">数字类型修改文件权限</a></li>
+<li><a href="#orgeeddf81">符号类型修改文件权限</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#org13eb004">Linux 文件种类与扩展名</a>
+<li><a href="#org2236412">Linux 文件种类与扩展名</a>
 <ul>
-<li><a href="#org6fa8218">文件种类</a></li>
-<li><a href="#org29f5904">文件扩展名</a></li>
-<li><a href="#orgfb37488">文件名的限制</a></li>
+<li><a href="#org6259264">文件种类</a></li>
+<li><a href="#org2838cb7">文件扩展名</a></li>
+<li><a href="#org964dd98">文件名的限制</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#orge3b5f52">Linux 目录配置</a>
+<li><a href="#orgbab116c">Linux 目录配置</a>
 <ul>
-<li><a href="#orgacff6ed">Linux 目录配置的依据 &#x2013; FHS</a>
+<li><a href="#orga213b77">Linux 目录配置的依据 &#x2013; FHS</a>
 <ul>
-<li><a href="#orgc6544ac">什么是 FHS</a></li>
-<li><a href="#orgb658672">根目录（/）的意义与内容</a></li>
-<li><a href="#org63f59fe">/usr 的意义与内容</a></li>
-<li><a href="#orga04e42c">/var 的意义与内容</a></li>
+<li><a href="#orgf3b50bc">什么是 FHS</a></li>
+<li><a href="#org2dc2d19">根目录（/）的意义与内容</a></li>
+<li><a href="#org3b068c3">/usr 的意义与内容</a></li>
+<li><a href="#org1cffd86">/var 的意义与内容</a></li>
 </ul>
 </li>
 </ul>
@@ -84,22 +81,22 @@
 </div>
 </div>
 
-<div id="outline-container-org474f79f" class="outline-2">
-<h2 id="org474f79f">用户与用户组</h2>
-<div class="outline-text-2" id="text-org474f79f">
+<div id="outline-container-orgcf8420f" class="outline-2">
+<h2 id="orgcf8420f">用户与用户组</h2>
+<div class="outline-text-2" id="text-orgcf8420f">
 <p>
 默认情况下，所有的系统上的账号与一般身份用户，还有 root 的相关信息，都记录在 /etc/passwd 这个文件内；至于个人的密码则是记录在 /etc/shadow 这个文件内；此外，Linux 所有的组名都记录在 /etc/group 中。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org601cc3f" class="outline-2">
-<h2 id="org601cc3f">Linux 文件权限概念</h2>
-<div class="outline-text-2" id="text-org601cc3f">
+<div id="outline-container-org1932940" class="outline-2">
+<h2 id="org1932940">Linux 文件权限概念</h2>
+<div class="outline-text-2" id="text-org1932940">
 </div>
-<div id="outline-container-org17cb443" class="outline-3">
-<h3 id="org17cb443">Linux 文件属性</h3>
-<div class="outline-text-3" id="text-org17cb443">
-<pre class="example">
+<div id="outline-container-orga352177" class="outline-3">
+<h3 id="orga352177">Linux 文件属性</h3>
+<div class="outline-text-3" id="text-orga352177">
+<pre class="example" id="org385176f">
 drwxr-xr-x 1 haoran haoran  4096 Jun 18 17:37 ./
 drwxr-xr-x 1 root   root    4096 Mar 31 12:00 ../
 -rw------- 1 haoran haoran 10246 Jun 18 17:37 .bash_history
@@ -116,7 +113,7 @@ drwxr-xr-x 1 haoran haoran  4096 Apr  3 12:03 haoran/
 <li>第一栏代表这个文件的类型与权限（permission）<br>
 <ul class="org-ul">
 <li>此栏一共有十个字符：<br></li>
-<li>第一个字符代表这个文件是目录、文件还是链接文件等，<a href="#org153306e">文件种类</a>；<br></li>
+<li>第一个字符代表这个文件是目录、文件还是链接文件等，<a href="#org40dfe1b">文件种类</a>；<br></li>
 <li>接下来的字符中，以三个为一组，且均为【rwx】的三个参数的组合。其中，[r] 代表可读（read）、[w] 代表可写（write）、[x] 代表可执行（execute）。三个权限的位置不会改变，如果没有权限，就会出现 [-] 代替；<br></li>
 <li>第一组为文件拥有者可具备的权限；<br></li>
 <li>第二组为加入此用户组账号的权限；<br></li>
@@ -133,27 +130,27 @@ drwxr-xr-x 1 haoran haoran  4096 Apr  3 12:03 haoran/
 </ul>
 </div>
 </div>
-<div id="outline-container-org1568e67" class="outline-3">
-<h3 id="org1568e67">如何修改文件属性与权限</h3>
-<div class="outline-text-3" id="text-org1568e67">
+<div id="outline-container-org38f26a6" class="outline-3">
+<h3 id="org38f26a6">如何修改文件属性与权限</h3>
+<div class="outline-text-3" id="text-org38f26a6">
 </div>
-<div id="outline-container-org4a878f9" class="outline-4">
-<h4 id="org4a878f9">修改所属用户组，chgrp<a id="org124c6a4"></a></h4>
-<div class="outline-text-4" id="text-org4a878f9">
+<div id="outline-container-org651ba65" class="outline-4">
+<h4 id="org651ba65">修改所属用户组，chgrp<a id="org18c7c65"></a></h4>
+<div class="outline-text-4" id="text-org651ba65">
 <p>
 修改一个文件的用户组很简单，直接使用 chgrp 命令修改即可。不过，要被修改的组名必须要在 /etc/group 文件中存在才行，否则就会显示错误。<br>
 </p>
 
-<pre class="example">
+<pre class="example" id="orgdd9aed8">
 chgrp [-R] dirname/filename ...
 
 -R: 进行递归（recursive）修改，亦即连同子目录下的所有文件、目录都更新成为这个用户组之意，常常用在修改某一目录内所有的文件之情况；
 </pre>
 </div>
 </div>
-<div id="outline-container-orgbfd3f66" class="outline-4">
-<h4 id="orgbfd3f66">修改文件拥有者，chown<a id="orgcc5edbe"></a></h4>
-<div class="outline-text-4" id="text-orgbfd3f66">
+<div id="outline-container-orgcef2fcf" class="outline-4">
+<h4 id="orgcef2fcf">修改文件拥有者，chown<a id="org6299144"></a></h4>
+<div class="outline-text-4" id="text-orgcef2fcf">
 <p>
 同样，文件的拥有者也必须是已经存在系统中的账号，也就是在 /etc/passwd 这个文件中有记录的用户名称才能修改。<br>
 </p>
@@ -162,7 +159,7 @@ chgrp [-R] dirname/filename ...
 chown 还可以顺便直接修改用户组的名称，此外，如果要连同目录下的所有子目录或文件同时更改文件拥有者的话，直接加上 -R 的选项即可。<br>
 </p>
 
-<pre class="example">
+<pre class="example" id="orgded168d">
 chown [-R] 账号名称 文件或目录
 chown [-R] 账号名称:用户组名称 文件或目录
 
@@ -170,18 +167,18 @@ chown [-R] 账号名称:用户组名称 文件或目录
 </pre>
 </div>
 </div>
-<div id="outline-container-orgb8dd823" class="outline-4">
-<h4 id="orgb8dd823">修改权限，chmod<a id="org31c1cbc"></a></h4>
-<div class="outline-text-4" id="text-orgb8dd823">
+<div id="outline-container-org3fb50fb" class="outline-4">
+<h4 id="org3fb50fb">修改权限，chmod<a id="org86028ad"></a></h4>
+<div class="outline-text-4" id="text-org3fb50fb">
 </div>
-<div id="outline-container-org0069ef6" class="outline-5">
-<h5 id="org0069ef6">数字类型修改文件权限</h5>
-<div class="outline-text-5" id="text-org0069ef6">
+<div id="outline-container-orga0af06b" class="outline-5">
+<h5 id="orga0af06b">数字类型修改文件权限</h5>
+<div class="outline-text-5" id="text-orga0af06b">
 <p>
 Linux 文件的基本权限就有 9 个，分别是拥有者（owner）、所属群组（group）、其他人（others）三种身份各有自己的读（read）、写（write）、执行（execute）权限，先复习一下刚刚上面提到的数据：文件的权限字符为：【-rwxrwxrwx】，这九个权限是三个三个一组。其中，我们可以使用数字来代表各个权限，各权限的数字对照表如下：<br>
 </p>
 
-<pre class="example">
+<pre class="example" id="orgf71694e">
 r:4
 w:2
 x:1
@@ -191,7 +188,7 @@ x:1
 每种身份（owner、group、others）各自的三个权限（r、w、x）数字是需要累加的，例如当权限为：【-rwxrwx&#x2014;】数字则是：<br>
 </p>
 
-<pre class="example">
+<pre class="example" id="org941afd9">
 owner = rwx = 4+2+1 = 7
 group = rwx = 4+2+1 = 7
 others = --- = 0+0+0 = 0
@@ -201,7 +198,7 @@ others = --- = 0+0+0 = 0
 所以我们设置权限时，该文件的权限数字就是 770，修改权限的命令 chmod 的语法是：<br>
 </p>
 
-<pre class="example">
+<pre class="example" id="orga4df00a">
 chmod [-R] xyz 文件或目录
 
 xyz: 就是上面提到的数字类型的权限属性，为 rwx 属性数值的相加；
@@ -209,9 +206,9 @@ xyz: 就是上面提到的数字类型的权限属性，为 rwx 属性数值的�
 </pre>
 </div>
 </div>
-<div id="outline-container-org1252496" class="outline-5">
-<h5 id="org1252496">符号类型修改文件权限</h5>
-<div class="outline-text-5" id="text-org1252496">
+<div id="outline-container-orgeeddf81" class="outline-5">
+<h5 id="orgeeddf81">符号类型修改文件权限</h5>
+<div class="outline-text-5" id="text-orgeeddf81">
 <p>
 分别由 u（user）、g（group）、o（others）代表三种身份的权限，此外，a 则代表 all 亦即全部的身份，那么读写的权限就可以写成 r、w、x，也就是下面的方式来看：<br>
 </p>
@@ -219,8 +216,9 @@ xyz: 就是上面提到的数字类型的权限属性，为 rwx 属性数值的�
 <dl class="org-dl">
 <dt>+</dt><dd>加入<br></dd>
 <dt>-</dt><dd>移除<br></dd>
-<dt>=</dt><dd>设置<br></dd>
-</dl>
+<dt>=</dt><dd><p>
+设置<br>
+</p>
 
 <p>
 实践一下，假如要设置一个文件的权限成为【-rwxr-xr-x】：<br>
@@ -228,24 +226,27 @@ xyz: 就是上面提到的数字类型的权限属性，为 rwx 属性数值的�
 
 <ul class="org-ul">
 <li>user（u）：具有可读、可写、可执行的权限；<br></li>
-<li>group 与 others（g/o）：具有可读与执行的权限；<br></li>
-</ul>
+<li><p>
+group 与 others（g/o）：具有可读与执行的权限；<br>
+</p>
 
 <div class="org-src-container">
-<pre class="src src-bash">chmod <span style="color: #8787d7;">u</span>=rwx,<span style="color: #8787d7;">go</span>=rx .bashrc
+<pre class="src src-bash">chmod <span style="color: #cbccd1;">u</span>=rwx,<span style="color: #cbccd1;">go</span>=rx .bashrc
 </pre>
+</div></li>
+</ul></dd>
+</dl>
 </div>
 </div>
 </div>
 </div>
+<div id="outline-container-org2236412" class="outline-3">
+<h3 id="org2236412">Linux 文件种类与扩展名</h3>
+<div class="outline-text-3" id="text-org2236412">
 </div>
-<div id="outline-container-org13eb004" class="outline-3">
-<h3 id="org13eb004">Linux 文件种类与扩展名</h3>
-<div class="outline-text-3" id="text-org13eb004">
-</div>
-<div id="outline-container-org6fa8218" class="outline-4">
-<h4 id="org6fa8218">文件种类<a id="org153306e"></a></h4>
-<div class="outline-text-4" id="text-org6fa8218">
+<div id="outline-container-org6259264" class="outline-4">
+<h4 id="org6259264">文件种类<a id="org40dfe1b"></a></h4>
+<div class="outline-text-4" id="text-org6259264">
 <p>
 使用 <code>ls -l</code> 观察到第一栏那十个字符中，第一个字符为文件的类型，除了常见的一般文件（-）与目录文件（d）之外，还有哪些种类的文件类型呢？<br>
 </p>
@@ -254,7 +255,7 @@ xyz: 就是上面提到的数字类型的权限属性，为 rwx 属性数值的�
 <li><p>
 常规文件（regular file）<br>
 </p>
-<pre class="example">
+<pre class="example" id="orge8a0eba">
 就是一般我们在进行读写的类型的文件，由 ls -al 所显示出来的属性方面，第一个字符为 [-]，例如 [-rwxrwxrwx]。另外，依照文件的内容，又大概可以分为：
 </pre>
 
@@ -266,19 +267,19 @@ xyz: 就是上面提到的数字类型的权限属性，为 rwx 属性数值的�
 <li><p>
 目录（directory）<br>
 </p>
-<pre class="example">
+<pre class="example" id="org388baab">
 就是目录，第一个属性为 [d]，例如 [drwxrwxrwx]；
 </pre></li>
 <li><p>
 链接文件（link）<br>
 </p>
-<pre class="example">
+<pre class="example" id="org235c8d8">
 就是类似 Windows 系统下面的快捷方式，第一个属性为 [l]，例如 [lrwxrwxrwx]；
 </pre></li>
 <li><p>
 设备与设备文件（device）<br>
 </p>
-<pre class="example">
+<pre class="example" id="orgb36b9fa">
 与系统周边及存储等相关的一些文件，通常都集中在 /dev 这个目录下，通常又分成两种：
 </pre>
 
@@ -289,29 +290,29 @@ xyz: 就是上面提到的数字类型的权限属性，为 rwx 属性数值的�
 <li><p>
 数据接口文件（sockets）<br>
 </p>
-<pre class="example">
+<pre class="example" id="orgb316d96">
 既然被称为数据接口文件，这种类型的文件通常被用在网络上的数据交换了；我们可以启动一个程序来监听客户端的要求，而客户端就可以通过这个 socket 来进行数据的沟通了；第一个属性为 [s]，最常在 /run 或 /tmp 这些个目录中看到这种文件类型；
 </pre></li>
 <li><p>
 数据输送文件（FIFO，pipe）<br>
 </p>
-<pre class="example">
+<pre class="example" id="org1ff5b07">
 FIFO 也是一种特殊的文件类型，他主要的目的在解决多个程序同时存取一个文件所造成的错误问题， FIFO 是先进先出（first-in-first-out）的缩写，即管道，第一个属性为 [p]；
 </pre></li>
 </ul>
 </div>
 </div>
-<div id="outline-container-org29f5904" class="outline-4">
-<h4 id="org29f5904">文件扩展名</h4>
-<div class="outline-text-4" id="text-org29f5904">
+<div id="outline-container-org2838cb7" class="outline-4">
+<h4 id="org2838cb7">文件扩展名</h4>
+<div class="outline-text-4" id="text-org2838cb7">
 <p>
 基本上，Linux 的文件是没有所谓的扩展名的， <span class="underline">一个 Linux 文件能不能被执行，与他的第一栏的十个属性有关， 与文件名根本一点关系也没有</span> 。这个观念跟 Windows 的情况不相同，在Windows下面， 能被执行的文件扩展名通常是 .com .exe .bat 等等；而在 Linux 下面，只要你的权限当中具有 x 的话，例如 [-rwxr-xr-x] 即代表这个文件具有可以被执行的能力。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-orgfb37488" class="outline-4">
-<h4 id="orgfb37488">文件名的限制</h4>
-<div class="outline-text-4" id="text-orgfb37488">
+<div id="outline-container-org964dd98" class="outline-4">
+<h4 id="org964dd98">文件名的限制</h4>
+<div class="outline-text-4" id="text-org964dd98">
 <p>
 单一文件或目录的最大容许文件名为 255 字节，以一个 ASCII 英文占用 1 字节来说，则大约可达 255 个字符长度；若是以每个汉字占用 2 字节来说， 最大文件名就是大约是 128 个汉字。<br>
 </p>
@@ -320,28 +321,28 @@ FIFO 也是一种特殊的文件类型，他主要的目的在解决多个程序
 由于 Linux 在命令行下的一些指令操作关系，一般来说，你在设置 Linux 下面的文件名称时，最好可以避免一些特殊字符比较好！例如下面这些：<br>
 </p>
 
-<pre class="example">
+<pre class="example" id="org6d0a01d">
 ? &gt; &lt; ; &amp; ! [ ] | \ ' " ` （ ） { }
 </pre>
 
 <p>
-因为这些符号在命令行下，是有特殊意义的。另外，文件名称的开头为小数点 <code>.</code> 时，代表这个文件为隐藏文件。同时，由于指令下达当中，常常会使用到 -option 之类的选项， 所以你最好也避免将文件文件名的开头以 - 或 + 来命名。<br>
+因为这些符号在命令行下，是有特殊意义的。另外，文件名称的开头为小数点 <verbatim>.</verbatim> 时，代表这个文件为隐藏文件。同时，由于指令下达当中，常常会使用到 -option 之类的选项， 所以你最好也避免将文件文件名的开头以 - 或 + 来命名。<br>
 </p>
 </div>
 </div>
 </div>
 </div>
-<div id="outline-container-orge3b5f52" class="outline-2">
-<h2 id="orge3b5f52">Linux 目录配置</h2>
-<div class="outline-text-2" id="text-orge3b5f52">
+<div id="outline-container-orgbab116c" class="outline-2">
+<h2 id="orgbab116c">Linux 目录配置</h2>
+<div class="outline-text-2" id="text-orgbab116c">
 </div>
-<div id="outline-container-orgacff6ed" class="outline-3">
-<h3 id="orgacff6ed">Linux 目录配置的依据 &#x2013; FHS</h3>
-<div class="outline-text-3" id="text-orgacff6ed">
+<div id="outline-container-orga213b77" class="outline-3">
+<h3 id="orga213b77">Linux 目录配置的依据 &#x2013; FHS</h3>
+<div class="outline-text-3" id="text-orga213b77">
 </div>
-<div id="outline-container-orgc6544ac" class="outline-4">
-<h4 id="orgc6544ac">什么是 FHS</h4>
-<div class="outline-text-4" id="text-orgc6544ac">
+<div id="outline-container-orgf3b50bc" class="outline-4">
+<h4 id="orgf3b50bc">什么是 FHS</h4>
+<div class="outline-text-4" id="text-orgf3b50bc">
 <p>
 Filesystem Hierarchy Standard（FHS），制定这个标准主要目的是希望 <span class="underline">让用户可以了解到已安装软件通常放置于哪个目录下</span> 。<br>
 </p>
@@ -397,8 +398,9 @@ FHS 根据过去的经验一直在持续地改版，FHS 依据文件系统使用
 <li>可分享：可以分享给其他系统挂载使用的目录，所以包括执行文件与用户的邮件等数据，是能够分享给网络上其他主机挂载用的目录；<br></li>
 <li>不可分享：自己机器上面运行的设备文件或是与程序有关的 socket 文件等，由于仅与自身机器有关，所以当然就不适合分享给其他主机；<br></li>
 <li>不变：有些数据是不会经常变动的，跟随着发行版而不变动。例如函数库、文件说明、系统管理员所管理的主机服务配置文件等；<br></li>
-<li>可变动：经常修改的数据，例如日志文件、一般用户可自行接收的新闻组等；<br></li>
-</ul>
+<li><p>
+可变动：经常修改的数据，例如日志文件、一般用户可自行接收的新闻组等；<br>
+</p>
 
 <p>
 事实上，FHS 针对目录树架构仅定义出三层目录下面应该放置什么数据而已，分别是下面这三个目录的定义：<br>
@@ -408,12 +410,13 @@ FHS 根据过去的经验一直在持续地改版，FHS 依据文件系统使用
 <li>/：与启动系统有关；<br></li>
 <li>/usr（unix software resource）：与软件安装、执行有关；<br></li>
 <li>/var（variable）：与系统运行过程有关；<br></li>
+</ul></li>
 </ul>
 </div>
 </div>
-<div id="outline-container-orgb658672" class="outline-4">
-<h4 id="orgb658672">根目录（/）的意义与内容</h4>
-<div class="outline-text-4" id="text-orgb658672">
+<div id="outline-container-org2dc2d19" class="outline-4">
+<h4 id="org2dc2d19">根目录（/）的意义与内容</h4>
+<div class="outline-text-4" id="text-org2dc2d19">
 <p>
 第一部分：FHS 要求必须要存在的目录<br>
 </p>
@@ -441,8 +444,9 @@ FHS 根据过去的经验一直在持续地改版，FHS 依据文件系统使用
 <li>/srv：srv 可以视为 service 的缩写，是一些网络服务启动之后，这些服务所需要取用的数据目录。常见的服务例如 WWW, FTP 等等。举例来说，WWW 服务器需要的网页数据就可以放置在/srv/www/里面。不过，系统的服务数据如果尚未要提供给网际网络任何人浏览的话，默认还是建议放置到 /var/lib 下面即可；<br></li>
 <li>/tmp：这是让一般使用者或者是正在执行的程序暂时放置文件的地方。这个目录是任何人都能够存取的，所以你需要定期的清理一下。当然，重要数据不可放置在此目录，因为 FHS 甚至建议在启动时，应该要将 /tmp 下的数据都删除；<br></li>
 <li>/usr：第二层 FHS 设置，后续介绍<br></li>
-<li>/var：第二曾 FHS 设置，主要为放置变动性的数据，后续介绍<br></li>
-</ul>
+<li><p>
+/var：第二曾 FHS 设置，主要为放置变动性的数据，后续介绍<br>
+</p>
 
 <p>
 第二部份：FHS 建议可以存在的目录<br>
@@ -455,8 +459,9 @@ FHS 根据过去的经验一直在持续地改版，FHS 依据文件系统使用
 <li>~haoran ：则代表 haoran 的主文件夹；<br></li>
 </ul></li>
 <li>/lib&lt;qual&gt;：用来存放与 /lib 不同的格式的二进制函数库，例如支持 64 位的 /lib64 函数库等；<br></li>
-<li>/root：系统管理员（root）的家目录。之所以放在这里，是因为如果进入单人维护模式而仅挂载根目录时，该目录就能够拥有 root 的家目录，所以我们会希望 root 的家目录与根目录放置在同一个分区中；<br></li>
-</ul>
+<li><p>
+/root：系统管理员（root）的家目录。之所以放在这里，是因为如果进入单人维护模式而仅挂载根目录时，该目录就能够拥有 root 的家目录，所以我们会希望 root 的家目录与根目录放置在同一个分区中；<br>
+</p>
 
 <p>
 事实上 FHS 针对根目录所定义的标准就仅有上面的东西，不过我们的 Linux 下面还有许多目录你也需要了解一下的。下面是几个在 Linux 当中也是非常重要的目录：<br>
@@ -465,17 +470,21 @@ FHS 根据过去的经验一直在持续地改版，FHS 依据文件系统使用
 <ul class="org-ul">
 <li>/lost+found：这个目录是使用标准的 ext2/ext3/ext4 文件系统格式才会产生的一个目录，目的在于当文件系统发生错误时，将一些遗失的片段放置到这个目录下。不过如果使用的是 xfs 文件系统的话，就不会存在这个目录了；<br></li>
 <li>/proc：这个目录本身是一个虚拟文件系统（virtual filesystem），他放置的数据都是在内存当中， 例如系统核心、行程信息（process）、周边设备的状态及网络状态等。因为这个目录下的数据都是在内存当中，所以本身不占任何硬盘空间，比较重要的文件例如：/proc/cpuinfo, /proc/dma, /proc/interrupts, /proc/ioports, /proc/net/* 等；<br></li>
-<li>/sys：这个目录跟 /proc 非常类似，也是一个虚拟的文件系统，主要也是记录核心与系统硬件信息相关的信息。包括目前已加载的内核模块与内核侦测到的硬件设备信息等。这个目录同样不占硬盘容量；<br></li>
-</ul>
+<li><p>
+/sys：这个目录跟 /proc 非常类似，也是一个虚拟的文件系统，主要也是记录核心与系统硬件信息相关的信息。包括目前已加载的内核模块与内核侦测到的硬件设备信息等。这个目录同样不占硬盘容量；<br>
+</p>
 
 <p>
 早期 Linux 在设计的时候，若发生问题时，救援模式通常仅挂载根目录而已，因此有五个重要的目录被要求一定要与根目录放置在一起， 那就是 /etc, /bin, /dev, /lib, /sbin 这五个重要目录。现在许多的 Linux distributions 由于已经将许多非必要的文件移出 /usr 之外了， 所以 /usr 也是越来越精简，同时因为 /usr 被建议为即使挂载成为只读，系统还是可以正常运行的模样，所以救援模式也能同时挂载 /usr。<br>
-</p>
+</p></li>
+</ul></li>
+</ul></li>
+</ul>
 </div>
 </div>
-<div id="outline-container-org63f59fe" class="outline-4">
-<h4 id="org63f59fe">/usr 的意义与内容</h4>
-<div class="outline-text-4" id="text-org63f59fe">
+<div id="outline-container-org3b068c3" class="outline-4">
+<h4 id="org3b068c3">/usr 的意义与内容</h4>
+<div class="outline-text-4" id="text-org3b068c3">
 <p>
 依据 FHS 的基本定义，/usr 里面放置的数据属于可分享的与不可变动的（shareable, static）， 如果你知道如何通过网络进行分区的挂载（例如在服务器篇会谈到的 NFS 服务器），那么 /usr 确实可以分享给区域网络内的其他主机来使用。<br>
 </p>
@@ -501,9 +510,9 @@ FHS 根据过去的经验一直在持续地改版，FHS 依据文件系统使用
 <ul class="org-ul">
 <li>/usr/share/man：线上说明文档<br></li>
 <li>/usr/share/doc：软件杂项的文件说明<br></li>
-<li>/usr/share/zoneinfo：与时区有关的时区文件<br></li>
-</ul></li>
-</ul>
+<li><p>
+/usr/share/zoneinfo：与时区有关的时区文件<br>
+</p>
 
 <p>
 第二部份：FHS 建议可以存在的目录<br>
@@ -515,12 +524,14 @@ FHS 根据过去的经验一直在持续地改版，FHS 依据文件系统使用
 <li>/usr/libexec/：某些不被一般使用者惯用的可执行文件或脚本（script）等等，都会放置在此目录中。例如大部分的 X 窗口下面的操作指令， 很多都是放在此目录下的；<br></li>
 <li>/usr/lib&lt;qual&gt;/：与/lib&lt;qual&gt;/功能相同，因此目前 /lib&lt;qual&gt; 就是链接到此目录中；<br></li>
 <li>/usr/src/：一般源代码建议放置到这里，src 有 source 的意思。至于核心源代码则建议放置到/usr/src/linux/目录下；<br></li>
+</ul></li>
+</ul></li>
 </ul>
 </div>
 </div>
-<div id="outline-container-orga04e42c" class="outline-4">
-<h4 id="orga04e42c">/var 的意义与内容</h4>
-<div class="outline-text-4" id="text-orga04e42c">
+<div id="outline-container-org1cffd86" class="outline-4">
+<h4 id="org1cffd86">/var 的意义与内容</h4>
+<div class="outline-text-4" id="text-org1cffd86">
 <p>
 如果 /usr 是安装时会占用较大硬盘容量的目录，那么 /var 就是在系统运行后才会渐渐占用硬盘容量的目录。 因为 /var 目录主要针对常态性变动的文件，包括高速缓存（cache）、登录文件（log file）以及某些软件运行所产生的文件， 包括程序文件（lock file, run file），或者例如 MySQL 数据库的文件等等。常见的子目录有：<br>
 </p>
@@ -536,12 +547,14 @@ FHS 根据过去的经验一直在持续地改版，FHS 依据文件系统使用
 <li>/var/log/：重要到不行！这是登录文件放置的目录，里面比较重要的文件如 /var/log/messages, /var/log/wtmp（记录登陆者的信息）等；<br></li>
 <li>/var/mail/：放置个人电子邮件信箱的目录，不过这个目录也被放置到/var/spool/mail/目录中，通常这两个目录是互为链接文件啦；<br></li>
 <li>/var/run/：某些程序或者是服务启动后，会将他们的 PID 放置在这个目录下，至于 PID 的意义我们会在后续章节提到的。与 /run 相同，这个目录链接到 /run 去了；<br></li>
-<li>/var/spool/：这个目录通常放置一些队列数据，所谓的队列就是排队等待其他程序使用的数据，这些数据被使用后通常都会被删除。举例来说，系统收到新信会放置到/var/spool/mail/中， 但使用者收下该信件后该封信原则上就会被删除。信件如果暂时寄不出去会被放到/var/spool/mqueue/中， 等到被送出后就被删除。如果是工作调度数据（crontab），就会被放置到/var/spool/cron/目录中；<br></li>
-</ul>
+<li><p>
+/var/spool/：这个目录通常放置一些队列数据，所谓的队列就是排队等待其他程序使用的数据，这些数据被使用后通常都会被删除。举例来说，系统收到新信会放置到/var/spool/mail/中， 但使用者收下该信件后该封信原则上就会被删除。信件如果暂时寄不出去会被放到/var/spool/mqueue/中， 等到被送出后就被删除。如果是工作调度数据（crontab），就会被放置到/var/spool/cron/目录中；<br>
+</p>
 
 <p>
 建议在你读完整个基础篇之后，可以挑战FHS官方英文文件（参考本章参考数据），相信会让你对于 Linux 操作系统的目录有更深入的了解喔！<br>
-</p>
+</p></li>
+</ul>
 </div>
 </div>
 </div>
@@ -549,8 +562,8 @@ FHS 根据过去的经验一直在持续地改版，FHS 依据文件系统使用
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-06-19 Sun 12:12</p>
-<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+<p class="date">Created: 2022-10-21</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>

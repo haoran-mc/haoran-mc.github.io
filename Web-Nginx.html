@@ -1,122 +1,118 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-01-30 Sun 21:40 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 2022-11-01 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>NGINX</title>
-<meta name="generator" content="Org mode">
-<meta name="author" content="L.M.haoran &lt;haoran.mc@outlook.com&gt;">
-
-                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
-                <script type="module" src="static/js/main.js" defer></script>
-                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<meta name="author" content="L.M.haoran &lt;haoran.mc@outlook.com&gt;" />
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved." />
+<meta name="generator" content="Org Mode" />
+<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+           <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+           <script type="module" src="static/js/main.js" defer></script>
 </head>
 <body>
-<div id="content">
+<div id="content" class="content">
 <h1 class="title">NGINX</h1>
-<div id="table-of-contents">
+<div id="table-of-contents" role="doc-toc">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents">
+<div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org3a8c757">Nginx</a>
+<li><a href="#org5d6fd9a">什么是 nginx</a></li>
+<li><a href="#org6fc7eaa">nginx 的四个作用</a>
 <ul>
-<li><a href="#org33ca9c8">什么是Nginx</a></li>
-<li><a href="#org1647f07">Nginx作用</a>
+<li><a href="#org0aade2d">正向代理</a></li>
+<li><a href="#org67ff124">反向代理</a></li>
+<li><a href="#org96c4d87">负载均衡</a>
 <ul>
-<li><a href="#org5b0f48e">正向代理</a></li>
-<li><a href="#org95e98f6">反向代理</a></li>
-<li><a href="#orgfa23856">负载均衡</a>
+<li>
 <ul>
-<li><a href="#org729445a">轮询</a></li>
-<li><a href="#org722c7e5">加权轮询</a></li>
-<li><a href="#org933d848">IP hash</a></li>
+<li><a href="#orgb2298e4">轮询</a></li>
+<li><a href="#org2abd97a">加权轮询</a></li>
+<li><a href="#org9ff1aba">IP hash</a></li>
 </ul>
 </li>
-<li><a href="#orgd535a1a">动静分离</a></li>
 </ul>
 </li>
-<li><a href="#org5c3da6e">Nginx安装</a></li>
-<li><a href="#org16f9bff">Nginx常用命令</a></li>
-<li><a href="#org6bd26ec">Nginx配置</a></li>
+<li><a href="#org9d0a4a6">动静分离</a></li>
 </ul>
 </li>
+<li><a href="#orgeeb229c">安装 nginx</a></li>
+<li><a href="#org586b9de">nginx常用命令</a>
+<ul>
+<li><a href="#orgec58fc8">简单使用 nginx</a></li>
+</ul>
+</li>
+<li><a href="#org9d01f86">Nginx配置</a></li>
 </ul>
 </div>
 </div>
-<p>
-#+DESCRIPTION Copyright © 2021, L.M.haoran, all rights reserved.<br>
-</p>
 
-
-<div id="outline-container-org3a8c757" class="outline-2">
-<h2 id="org3a8c757">Nginx</h2>
-<div class="outline-text-2" id="text-org3a8c757">
-</div>
-<div id="outline-container-org33ca9c8" class="outline-3">
-<h3 id="org33ca9c8">什么是Nginx</h3>
-<div class="outline-text-3" id="text-org33ca9c8">
+<div id="outline-container-org5d6fd9a" class="outline-2">
+<h2 id="org5d6fd9a">什么是 nginx</h2>
+<div class="outline-text-2" id="text-org5d6fd9a">
 <p>
-Nginx(engin x)是一个高性能HTTP和反向代理web服务器，同时也提供了IMAP/POP3/SMTP服务，Nginx其特点是占有内存少，并发能力强，Nginx代码完全用C语言写成，官方数据测试表明能够支持高达50000个并发连接数的响应<br>
+Nginx(engin x)是一个高性能HTTP和反向代理web服务器，同时也提供了IMAP/POP3/SMTP服务，Nginx其特点是占有内存少，并发能力强，Nginx代码完全用C语言写成，官方数据测试表明能够支持高达50000个并发连接数的响应。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org1647f07" class="outline-3">
-<h3 id="org1647f07">Nginx作用</h3>
-<div class="outline-text-3" id="text-org1647f07">
+<div id="outline-container-org6fc7eaa" class="outline-2">
+<h2 id="org6fc7eaa">nginx 的四个作用</h2>
+<div class="outline-text-2" id="text-org6fc7eaa">
 </div>
-<div id="outline-container-org5b0f48e" class="outline-4">
-<h4 id="org5b0f48e">正向代理</h4>
-<div class="outline-text-4" id="text-org5b0f48e">
+<div id="outline-container-org0aade2d" class="outline-3">
+<h3 id="org0aade2d">正向代理</h3>
+<div class="outline-text-3" id="text-org0aade2d">
 <p>
 在中国不能访问外网，但是使用VPN后就可以连接外网，在电脑上开了一个VPN就相当于开了一个代理，这个代理会去请求能够访问外网的服务器，假设请求香港的服务器，那么香港的服务器会去请求美国的服务器，美国服务器返回数据到香港这边，香港服务器再返回当前电脑<br>
 这里是代理客户端的，反向代理是代理服务器端的<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org95e98f6" class="outline-4">
-<h4 id="org95e98f6">反向代理</h4>
-<div class="outline-text-4" id="text-org95e98f6">
+<div id="outline-container-org67ff124" class="outline-3">
+<h3 id="org67ff124">反向代理</h3>
+<div class="outline-text-3" id="text-org67ff124">
 <p>
 同正向代理，但是在服务端的一个代理，这样只需要访问指定一个的域名，就能够访问不同的服务器上的数据<br>
 </p>
 </div>
 </div>
-<div id="outline-container-orgfa23856" class="outline-4">
-<h4 id="orgfa23856">负载均衡</h4>
-<div class="outline-text-4" id="text-orgfa23856">
+<div id="outline-container-org96c4d87" class="outline-3">
+<h3 id="org96c4d87">负载均衡</h3>
+<div class="outline-text-3" id="text-org96c4d87">
 <p>
 Nginx提供的负载均衡策略有2种：内置策略和扩展策略，内置策略为轮询，加权轮询，IP hash<br>
 </p>
 </div>
-<div id="outline-container-org729445a" class="outline-5">
-<h5 id="org729445a">轮询</h5>
-<div class="outline-text-5" id="text-org729445a">
+<div id="outline-container-orgb2298e4" class="outline-5">
+<h5 id="orgb2298e4">轮询</h5>
+<div class="outline-text-5" id="text-orgb2298e4">
 <p>
 请求依次循环访问服务器<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org722c7e5" class="outline-5">
-<h5 id="org722c7e5">加权轮询</h5>
-<div class="outline-text-5" id="text-org722c7e5">
+<div id="outline-container-org2abd97a" class="outline-5">
+<h5 id="org2abd97a">加权轮询</h5>
+<div class="outline-text-5" id="text-org2abd97a">
 <p>
 根据权重依次循环访问服务器<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org933d848" class="outline-5">
-<h5 id="org933d848">IP hash</h5>
-<div class="outline-text-5" id="text-org933d848">
+<div id="outline-container-org9ff1aba" class="outline-5">
+<h5 id="org9ff1aba">IP hash</h5>
+<div class="outline-text-5" id="text-org9ff1aba">
 <p>
 Nginx默认带的操作，但是不建议使用Nginx，建议使用Redis<br>
 </p>
 </div>
 </div>
 </div>
-<div id="outline-container-orgd535a1a" class="outline-4">
-<h4 id="orgd535a1a">动静分离</h4>
-<div class="outline-text-4" id="text-orgd535a1a">
+<div id="outline-container-org9d0a4a6" class="outline-3">
+<h3 id="org9d0a4a6">动静分离</h3>
+<div class="outline-text-3" id="text-org9d0a4a6">
 <p>
 在软件开发中，有些请求是需要后台处理的，有些请求是不需要经过后台处理的(如：CSS, html, jpg, js等等文件)，这些不需要后台处理的文件称为静态文件，让动态网站的动态网页根据一定规则把不变的资源和经常变的资源区分开来，动静资源做好拆分之后，可以根据静态资源的特点将其作为缓存操作，提高资源响应速度<br>
 静态的自己就可以解决，动态的就使用web server比如tomcat<br>
@@ -124,9 +120,9 @@ Nginx默认带的操作，但是不建议使用Nginx，建议使用Redis<br>
 </div>
 </div>
 </div>
-<div id="outline-container-org5c3da6e" class="outline-3">
-<h3 id="org5c3da6e">Nginx安装</h3>
-<div class="outline-text-3" id="text-org5c3da6e">
+<div id="outline-container-orgeeb229c" class="outline-2">
+<h2 id="orgeeb229c">安装 nginx</h2>
+<div class="outline-text-2" id="text-orgeeb229c">
 <p>
 yum install nginx<br>
 whereis nginx<br>
@@ -134,117 +130,120 @@ nginx下载目录下有sbin是二进制运行文件，conf是配置文件，里�
 </p>
 </div>
 </div>
-<div id="outline-container-org16f9bff" class="outline-3">
-<h3 id="org16f9bff">Nginx常用命令</h3>
-<div class="outline-text-3" id="text-org16f9bff">
-<p>
-cd /usr/local/nginx/sbin<br>
-./nginx 启动<br>
-./nginx -s stop 停止<br>
-./nginx -s quit 安全退出<br>
-./nginx -s reload 重新加载配置文件<br>
-ps aux|grep nginx 查看nginx进程<br>
-</p>
+<div id="outline-container-org586b9de" class="outline-2">
+<h2 id="org586b9de">nginx常用命令</h2>
+<div class="outline-text-2" id="text-org586b9de">
 </div>
-</div>
-<div id="outline-container-org6bd26ec" class="outline-3">
-<h3 id="org6bd26ec">Nginx配置</h3>
-<div class="outline-text-3" id="text-org6bd26ec">
+<div id="outline-container-orgec58fc8" class="outline-3">
+<h3 id="orgec58fc8">简单使用 nginx</h3>
+<div class="outline-text-3" id="text-orgec58fc8">
 <div class="org-src-container">
-<pre class="src src-conf"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#20840;&#23616;&#37197;&#32622;</span>
-
-<span style="color: #df005f; font-weight: bold;">events</span> {
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#26368;&#22823;&#36827;&#31243;&#25968;</span>
-}
-
-
-<span style="color: #df005f; font-weight: bold;">http</span> {
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">htpp&#30340;&#20840;&#23616;&#37197;&#32622;</span>
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#38745;&#24577;&#31649;&#29702;</span>
-
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#36825;&#37324;&#30340;&#21517;&#23383;&#26159;&#20219;&#24847;&#23450;&#30340;&#65292;&#29992;&#26469;&#32473;&#19979;&#38754;&#30340;&#20195;&#29702;&#20351;&#29992;</span>
-<span style="color: #df005f; font-weight: bold;">upstream random_name</span> {
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#36127;&#36733;&#22343;&#34913;</span>
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#26381;&#21153;&#22120;&#36164;&#28304;</span>
-<span style="color: #8787d7;">server 127.0.0.1.8080 weight</span>=1;
-<span style="color: #8787d7;">server 127.0.0.1.8081 weight</span>=1;
-}
-
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#29992;&#26469;&#37197;&#32622;&#19981;&#21516;&#30340;&#26381;&#21153;</span>
-<span style="color: #df005f; font-weight: bold;">server</span> {
-listen 80;
-server_name localhost;
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#20195;&#29702;</span>
-
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#21453;&#21521;&#20195;&#29702;&#37096;&#20998;</span>
-<span style="color: #df005f; font-weight: bold;">location /</span> {
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">xxxx</span>
-root html;
-index index.html index.htm;
-proxy_pass http://random_name;
-}
-
-<span style="color: #df005f; font-weight: bold;">location /</span> {
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#38745;&#24577;&#25991;&#20214;&#26681;&#30446;&#24405;</span>
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">xxxx</span>
-}
-}
-
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#29992;&#26469;&#37197;&#32622;&#19981;&#21516;&#30340;&#26381;&#21153;</span>
-<span style="color: #df005f; font-weight: bold;">server</span> {
-listen 443;
-server_name localhost;
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#20195;&#29702;</span>
-}
-}
-</pre>
-</div>
-
-<div class="org-src-container">
-<pre class="src src-conf"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#20840;&#23616;&#37197;&#32622;</span>
-
-<span style="color: #df005f; font-weight: bold;">events</span> {
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#26368;&#22823;&#36827;&#31243;&#25968;</span>
-}
-
-
-<span style="color: #df005f; font-weight: bold;">http</span> {
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">htpp&#30340;&#20840;&#23616;&#37197;&#32622;</span>
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#38745;&#24577;&#31649;&#29702;</span>
-
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#36825;&#37324;&#30340;&#21517;&#23383;&#26159;&#20219;&#24847;&#23450;&#30340;&#65292;&#29992;&#26469;&#32473;&#19979;&#38754;&#30340;&#20195;&#29702;&#20351;&#29992;</span>
-<span style="color: #df005f; font-weight: bold;">upstream random_name</span> {
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#36127;&#36733;&#22343;&#34913;</span>
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#26381;&#21153;&#22120;&#36164;&#28304;</span>
-<span style="color: #8787d7;">server 127.0.0.1.8080 weight</span>=1;
-<span style="color: #8787d7;">server 127.0.0.1.8081 weight</span>=1;
-}
-
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#29992;&#26469;&#37197;&#32622;&#19981;&#21516;&#30340;&#26381;&#21153;</span>
-<span style="color: #df005f; font-weight: bold;">server</span> {
-listen 80;
-server_name localhost;
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#20195;&#29702;</span>
-
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#21453;&#21521;&#20195;&#29702;&#37096;&#20998;</span>
-<span style="color: #df005f; font-weight: bold;">location /</span> {
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">xxxx</span>
-root html;
-index index.html index.htm;
-proxy_pass http://random_name;
-}
-}
-}
+<pre class="src src-bash"><span style="color: #fedd38;">cd</span> /usr/local/nginx/sbin  <span style="color: #5B6268;"># </span><span style="color: #5B6268;">&#20063;&#21487;&#33021;&#26159;&#20854;&#20182;&#25991;&#20214;&#22841;&#65292;&#20351;&#29992; whereis nginx &#26597;&#30475;</span>
+./nginx             <span style="color: #5B6268;"># </span><span style="color: #5B6268;">&#21551;&#21160;</span>
+./nginx -s stop     <span style="color: #5B6268;"># </span><span style="color: #5B6268;">&#20572;&#27490;</span>
+./nginx -s quit     <span style="color: #5B6268;"># </span><span style="color: #5B6268;">&#23433;&#20840;&#36864;&#20986;</span>
+./nginx -s reload   <span style="color: #5B6268;"># </span><span style="color: #5B6268;">&#37325;&#26032;&#21152;&#36733;&#37197;&#32622;&#25991;&#20214;</span>
+ps aux|grep nginx   <span style="color: #5B6268;"># </span><span style="color: #5B6268;">&#26597;&#30475;nginx&#36827;&#31243;</span>
 </pre>
 </div>
 </div>
+</div>
+</div>
+<div id="outline-container-org9d01f86" class="outline-2">
+<h2 id="org9d01f86">Nginx配置</h2>
+<div class="outline-text-2" id="text-org9d01f86">
+<pre class="example" id="orgc1030fa">
+# 全局配置
+
+events {
+  # 最大进程数
+}
+
+
+http {
+  # htpp的全局配置
+  # 静态管理
+
+  # 这里的名字是任意定的，用来给下面的代理使用
+  upstream random_name {
+      # 负载均衡
+      # 服务器资源
+      server 127.0.0.1.8080 weight=1;
+      server 127.0.0.1.8081 weight=1;
+  }
+
+  # 用来配置不同的服务
+  server {
+    listen 80;
+    server_name localhost;
+    # 代理
+
+    # 反向代理部分
+    location / {
+      # xxxx
+      root html;
+      index index.html index.htm;
+      proxy_pass http://random_name;
+    }
+
+    location / {
+      # 静态文件根目录
+      # xxxx
+    }
+  }
+
+  # 用来配置不同的服务
+  server {
+    listen 443;
+    server_name localhost;
+    # 代理
+  }
+}
+</pre>
+
+<pre class="example" id="org945d22e">
+# 全局配置
+
+events {
+  # 最大进程数
+}
+
+
+http {
+  # htpp的全局配置
+  # 静态管理
+
+  # 这里的名字是任意定的，用来给下面的代理使用
+  upstream random_name {
+    # 负载均衡
+    # 服务器资源
+    server 127.0.0.1.8080 weight=1;
+    server 127.0.0.1.8081 weight=1;
+  }
+
+  # 用来配置不同的服务
+  server {
+    listen 80;
+    server_name localhost;
+    # 代理
+
+    # 反向代理部分
+    location / {
+      # xxxx
+      root html;
+      index index.html index.htm;
+      proxy_pass http://random_name;
+    }
+  }
+}
+</pre>
 </div>
 </div>
 </div>
 <div id="postamble" class="status">
 <p class="date">Date: 2021-05-06 17:05 四</p>
 <p class="author">Author: L.M.haoran &lt;haoran.mc@outlook.com&gt;</p>
-<p class="date">Created: 2022-01-30 Sun 21:40</p>
+<p class="date">Created: 2022-11-01</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

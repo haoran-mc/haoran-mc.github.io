@@ -1,62 +1,60 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-05-07 Sat 10:58 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 2022-10-07 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>数据库 ACID 原则</title>
-<meta name="generator" content="Org mode">
-<meta name="author" content="L.M.haoran">
-<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
->
-
-                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
-                <script type="module" src="static/js/main.js" defer></script>
-                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<meta name="author" content="L.M.haoran" />
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved." />
+<meta name="generator" content="Org Mode" />
+<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+           <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+           <script type="module" src="static/js/main.js" defer></script>
 </head>
 <body>
-<div id="content">
+<div id="content" class="content">
 <h1 class="title">数据库 ACID 原则</h1>
-<div id="table-of-contents">
+<div id="table-of-contents" role="doc-toc">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents">
+<div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org20087fd">事务</a></li>
-<li><a href="#orga93b547">事务控制语句</a></li>
-<li><a href="#org6861097">MySQL 事务处理只要有两种方法</a></li>
-<li><a href="#org89d6ae5">ACID</a>
+<li><a href="#orgaeb62e5">事务</a></li>
+<li><a href="#orgf17a99c">事务控制语句</a></li>
+<li><a href="#org0914cf7">MySQL 事务处理只要有两种方法</a></li>
+<li><a href="#orgdc4325f">ACID</a>
 <ul>
-<li><a href="#org543670e">Atomicity 原子性</a></li>
-<li><a href="#org91c64db">Consistency 一致性</a></li>
-<li><a href="#orge30778d">Isolation 隔离性</a>
+<li><a href="#org2bc3023">Atomicity 原子性</a></li>
+<li><a href="#orgd3eadb0">Consistency 一致性</a></li>
+<li><a href="#orge7b194c">Isolation 隔离性</a>
 <ul>
-<li><a href="#org4da25e3">事务之间的相互影响</a>
+<li><a href="#orgb240c55">事务之间的相互影响</a>
 <ul>
-<li><a href="#org4663b4c">脏读</a></li>
-<li><a href="#org72bc7e1">不可重复读</a></li>
-<li><a href="#org829d3a3">幻读</a></li>
-<li><a href="#org25cf743">丢失更新（脏写）</a>
+<li><a href="#org5b24f62">脏读</a></li>
+<li><a href="#orge611074">不可重复读</a></li>
+<li><a href="#org37a7a6d">幻读</a></li>
+<li><a href="#orgabd606f">丢失更新（脏写）</a>
 <ul>
-<li><a href="#org3ad9aec">丢失更新分类</a></li>
-<li><a href="#org4ab4301">解决丢失更新问题</a></li>
+<li><a href="#orgb66e191">丢失更新分类</a></li>
+<li><a href="#orgda33572">解决丢失更新问题</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#org33c22be">理解 SQL SERVER 中的隔离级别</a></li>
+<li><a href="#org7c8549a">理解 SQL SERVER 中的隔离级别</a></li>
 </ul>
 </li>
-<li><a href="#org7e8fccf">Durability 持久性</a></li>
-<li><a href="#orga8e7220">总结</a></li>
+<li><a href="#org0708292">Durability 持久性</a></li>
+<li><a href="#org4693106">总结</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org20087fd" class="outline-2">
-<h2 id="org20087fd">事务</h2>
-<div class="outline-text-2" id="text-org20087fd">
+<div id="outline-container-orgaeb62e5" class="outline-2">
+<h2 id="orgaeb62e5">事务</h2>
+<div class="outline-text-2" id="text-orgaeb62e5">
 <blockquote>
 <p>
 事务是一个操作序列，这些操作要么都执行，要么都不执行，他是一个不可分割的工作单位。<br>
@@ -66,8 +64,9 @@
 <ul class="org-ul">
 <li>在 MySQL 中只有使用了 Innodb 数据库引擎的数据库或表才支持事务。<br></li>
 <li>事务处理可以用来维护数据库的完整性，保证成批的 SQL 语句要么全部执行，要么全部不执行。<br></li>
-<li>事务用来管理 insert, update, delete 语句<br></li>
-</ul>
+<li><p>
+事务用来管理 insert, update, delete 语句<br>
+</p>
 
 <p>
 一般来说，事务必须满足 4 个条件（ACID）：原子性（Atomicity，或称不可分割性）、一致性（Consistency）、隔离性（Isolation，又称独立性）、持久性（Durability）。<br>
@@ -77,17 +76,20 @@
 <dt>原子性</dt><dd>一个事务（transaction）中的所有操作，要么全部完成，要么全部不完成，不会结束在中间某个环节。事务在执行过程中发生错误，会被回滚（Rollback）到事务开始前的状态，就像这个事务从来没有执行过一样。<br></dd>
 <dt>一致性</dt><dd>在事务开始之前和事务结束以后，数据库的完整性没有被破坏。这表示写入的资料必须完全符合所有的预设规则，这包含资料的精确度、串联性以及后续数据库可以自发性地完成预定的工作。<br></dd>
 <dt>隔离性</dt><dd>数据库允许多个并发事务同时对其数据进行读写和修改的能力，隔离性可以防止多个事务并发执行时由于交叉执行而导致数据的不一致。事务隔离分为不同级别，包括读未提交（Read uncommitted）、读提交（read committed）、可重复读（repeatable read）和串行化（Serializable）。<br></dd>
-<dt>持久性</dt><dd>事务处理结束后，对数据的修改就是永久的，即便系统故障也不会丢失。<br></dd>
-</dl>
+<dt>持久性</dt><dd><p>
+事务处理结束后，对数据的修改就是永久的，即便系统故障也不会丢失。<br>
+</p>
 
-<pre class="example">
-在 MySQL 命令行的默认设置下，事务都是自动提交的，即执行 SQL 语句后就会马上执行 COMMIT 操作。因此要显式地开启一个事务务须使用命令 BEGIN 或 START TRANSACTION，或者执行命令 SET AUTOCOMMIT=0，用来禁止使用当前会话的自动提交。	
-</pre>
+<pre class="example" id="org13255a9">
+在 MySQL 命令行的默认设置下，事务都是自动提交的，即执行 SQL 语句后就会马上执行 COMMIT 操作。因此要显式地开启一个事务务须使用命令 BEGIN 或 START TRANSACTION，或者执行命令 SET AUTOCOMMIT=0，用来禁止使用当前会话的自动提交。
+</pre></dd>
+</dl></li>
+</ul>
 </div>
 </div>
-<div id="outline-container-orga93b547" class="outline-2">
-<h2 id="orga93b547">事务控制语句</h2>
-<div class="outline-text-2" id="text-orga93b547">
+<div id="outline-container-orgf17a99c" class="outline-2">
+<h2 id="orgf17a99c">事务控制语句</h2>
+<div class="outline-text-2" id="text-orgf17a99c">
 <ul class="org-ul">
 <li><code>SET autocommit = 0</code> 关闭默认的事务自动提交<br></li>
 <li><code>BEGIN</code> 或 <code>START TRANSACTION</code> 显式地开启一个事务；<br></li>
@@ -100,9 +102,9 @@
 </ul>
 </div>
 </div>
-<div id="outline-container-org6861097" class="outline-2">
-<h2 id="org6861097">MySQL 事务处理只要有两种方法</h2>
-<div class="outline-text-2" id="text-org6861097">
+<div id="outline-container-org0914cf7" class="outline-2">
+<h2 id="org0914cf7">MySQL 事务处理只要有两种方法</h2>
+<div class="outline-text-2" id="text-org0914cf7">
 <ol class="org-ol">
 <li>用 BEGIN, ROLLBACK, COMMIT 来实现<br>
 <ul class="org-ul">
@@ -118,13 +120,13 @@
 </ol>
 </div>
 </div>
-<div id="outline-container-org89d6ae5" class="outline-2">
-<h2 id="org89d6ae5">ACID</h2>
-<div class="outline-text-2" id="text-org89d6ae5">
+<div id="outline-container-orgdc4325f" class="outline-2">
+<h2 id="orgdc4325f">ACID</h2>
+<div class="outline-text-2" id="text-orgdc4325f">
 </div>
-<div id="outline-container-org543670e" class="outline-3">
-<h3 id="org543670e">Atomicity 原子性</h3>
-<div class="outline-text-3" id="text-org543670e">
+<div id="outline-container-org2bc3023" class="outline-3">
+<h3 id="org2bc3023">Atomicity 原子性</h3>
+<div class="outline-text-3" id="text-org2bc3023">
 <blockquote>
 <p>
 默认情况下一条SQL就是一个单独事务，事务是自动提交的。只有显式的使用start transaction开启一个事务，才能将一个代码块放在事务中执行。保障事务的原子性是数据库管理系统的责任，为此许多数据源采用日志机制。例如，SQL Server使用一个预写事务日志，在将数据提交到实际数据页面前，先写在事务日志上。<br>
@@ -132,13 +134,13 @@
 </blockquote>
 
 <div class="org-src-container">
-<pre class="src src-sql"><span style="color: #268bd2; font-weight: bold;">begin</span> <span style="color: #268bd2; font-weight: bold;">transaction</span>  
-<span style="color: #268bd2; font-weight: bold;">update</span> account <span style="color: #268bd2; font-weight: bold;">set</span> money= money - 100where <span style="color: #268bd2; font-weight: bold;">name</span>=<span style="color: #2aa198;">'A'</span>;  
-<span style="color: #268bd2; font-weight: bold;">update</span> account <span style="color: #268bd2; font-weight: bold;">set</span> money= money +100where <span style="color: #268bd2; font-weight: bold;">name</span>=<span style="color: #2aa198;">'B'</span>;  
-if Error <span style="color: #268bd2; font-weight: bold;">then</span>  
-   <span style="color: #268bd2; font-weight: bold;">rollback</span>  
-<span style="color: #268bd2; font-weight: bold;">else</span>  
-   <span style="color: #268bd2; font-weight: bold;">commit</span>
+<pre class="src src-sql"><span style="color: #ea3d54;">begin</span> <span style="color: #ea3d54;">transaction</span>
+<span style="color: #ea3d54;">update</span> account <span style="color: #ea3d54;">set</span> money= money - 100where <span style="color: #ea3d54;">name</span>=<span style="color: #4fb3d8;">'A'</span>;
+<span style="color: #ea3d54;">update</span> account <span style="color: #ea3d54;">set</span> money= money +100where <span style="color: #ea3d54;">name</span>=<span style="color: #4fb3d8;">'B'</span>;
+if Error <span style="color: #ea3d54;">then</span>
+<span style="color: #ea3d54;">rollback</span>
+<span style="color: #ea3d54;">else</span>
+<span style="color: #ea3d54;">commit</span>
 </pre>
 </div>
 
@@ -151,9 +153,9 @@ if Error <span style="color: #268bd2; font-weight: bold;">then</span>
 </p>
 </div>
 </div>
-<div id="outline-container-org91c64db" class="outline-3">
-<h3 id="org91c64db">Consistency 一致性</h3>
-<div class="outline-text-3" id="text-org91c64db">
+<div id="outline-container-orgd3eadb0" class="outline-3">
+<h3 id="orgd3eadb0">Consistency 一致性</h3>
+<div class="outline-text-3" id="text-orgd3eadb0">
 <blockquote>
 <p>
 在事务开始之前和事务结束以后，数据库的完整性没有被破坏。这表示写入的资料必须完全符合所有的预设规则，这包含资料的精确度、串联性以及后续数据库可以自发性地完成预定的工作。<br>
@@ -174,9 +176,9 @@ if Error <span style="color: #268bd2; font-weight: bold;">then</span>
 </ol>
 </div>
 </div>
-<div id="outline-container-orge30778d" class="outline-3">
-<h3 id="orge30778d">Isolation 隔离性</h3>
-<div class="outline-text-3" id="text-orge30778d">
+<div id="outline-container-orge7b194c" class="outline-3">
+<h3 id="orge7b194c">Isolation 隔离性</h3>
+<div class="outline-text-3" id="text-orge7b194c">
 <blockquote>
 <p>
 数据库允许多个并发事务同时对其数据进行读写和修改的能力，隔离性可以防止多个事务并发执行时由于交叉执行而导致数据的不一致。事务隔离分为不同级别，包括读未提交（Read uncommitted）、读提交（read committed）、可重复读（repeatable read）和串行化（Serializable）。<br>
@@ -191,72 +193,72 @@ if Error <span style="color: #268bd2; font-weight: bold;">then</span>
 企业开发中，事务最复杂问题都是由事务隔离性引起的。当多个事务并发时，SQL Server利用加锁和阻塞来保证事务之间不同等级的隔离性。一般情况下，完全的隔离性是不现实的，完全的隔离性要求数据库同一时间只执行一条事务，这样会严重影响性能。想要理解SQL Server中对于隔离性的保障，首先要了解并发事务之间是如何干扰的。<br>
 </p>
 </div>
-<div id="outline-container-org4da25e3" class="outline-4">
-<h4 id="org4da25e3">事务之间的相互影响</h4>
-<div class="outline-text-4" id="text-org4da25e3">
+<div id="outline-container-orgb240c55" class="outline-4">
+<h4 id="orgb240c55">事务之间的相互影响</h4>
+<div class="outline-text-4" id="text-orgb240c55">
 <p>
 事务之间的相互影响分为几种，分别为：脏读，不可重复读，幻读，丢失更新。<br>
 </p>
 </div>
-<div id="outline-container-org4663b4c" class="outline-5">
-<h5 id="org4663b4c">脏读</h5>
-<div class="outline-text-5" id="text-org4663b4c">
+<div id="outline-container-org5b24f62" class="outline-5">
+<h5 id="org5b24f62">脏读</h5>
+<div class="outline-text-5" id="text-org5b24f62">
 <p>
 脏读意味着一个事务读取了另一个事务未提交的数据，而这个数据是有可能回滚的；如下案例，此时如果事务 1 回滚，则 B 账户必将有损失。<br>
 </p>
 
 <div class="div-center">
-	<img src="./images/MySQL-脏读.png" />
+    <img src="./images/MySQL-脏读.png" />
 </div>
 </div>
 </div>
-<div id="outline-container-org72bc7e1" class="outline-5">
-<h5 id="org72bc7e1">不可重复读</h5>
-<div class="outline-text-5" id="text-org72bc7e1">
+<div id="outline-container-orge611074" class="outline-5">
+<h5 id="orge611074">不可重复读</h5>
+<div class="outline-text-5" id="text-orge611074">
 <p>
 不可重复读意味着，在数据库访问中，一个事务范围内两个相同的查询却返回了不同数据。这是由于查询时系统中其他事务修改的提交而引起的。如下案例，事务 1 必然会变得糊涂，不知道发生了什么。<br>
 </p>
 
 <div class="div-center">
-	<img src="./images/MySQL-不可重复读.png" />
+    <img src="./images/MySQL-不可重复读.png" />
 </div>
 </div>
 </div>
-<div id="outline-container-org829d3a3" class="outline-5">
-<h5 id="org829d3a3">幻读</h5>
-<div class="outline-text-5" id="text-org829d3a3">
+<div id="outline-container-org37a7a6d" class="outline-5">
+<h5 id="org37a7a6d">幻读</h5>
+<div class="outline-text-5" id="text-org37a7a6d">
 <p>
 幻读，是指当事务不是独立执行时发生的一种现象，例如第一个事务对一个表中的数据进行了修改，这种修改涉及到表中的全部数据行。同时，第二个事务也修改这个表中的数据，这种修改是向表中插入一行新数据。那么，以后就会发生操作第一个事务的用户发现表中还有没有修改的数据行，就好象发生了幻觉一样。<br>
 </p>
 
 <div class="div-center">
-	<img src="./images/MySQL-幻读.png" />
+    <img src="./images/MySQL-幻读.png" />
 </div>
 </div>
 </div>
-<div id="outline-container-org25cf743" class="outline-5">
-<h5 id="org25cf743">丢失更新（脏写）</h5>
-<div class="outline-text-5" id="text-org25cf743">
+<div id="outline-container-orgabd606f" class="outline-5">
+<h5 id="orgabd606f">丢失更新（脏写）</h5>
+<div class="outline-text-5" id="text-orgabd606f">
 <p>
 丢失更新就是两个事务在并发下同时进行更新，后一个事务的更新覆盖了前一个事务更新的情况，丢失更新是数据没有保证一致性导致的。比如，事务 A 修改了一条记录，事务 B 在 事务 A 提交的同时也进行了一次修改并且提交。当事务 A 查询的时候，会发现刚才修改的内容没有被修改，好像丢失了更新。<br>
 </p>
 
 <div class="div-center">
-	<img src="./images/MySQL-丢失更新.png" />
+    <img src="./images/MySQL-丢失更新.png" />
 </div>
 </div>
 
-<div id="outline-container-org3ad9aec" class="outline-6">
-<h6 id="org3ad9aec">丢失更新分类</h6>
-<div class="outline-text-6" id="text-org3ad9aec">
+<div id="outline-container-orgb66e191" class="outline-6">
+<h6 id="orgb66e191">丢失更新分类</h6>
+<div class="outline-text-6" id="text-orgb66e191">
 <p>
 上图中，事务二最后一步进行提交，造成事务一的更新没有了，这样的丢失叫做 <b>覆盖丢失</b> ；如果上图中的事务二最后一步进行的是回滚，事务一的更新还是会丢失，这样的丢失叫做 <b>回滚丢失</b> 。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org4ab4301" class="outline-6">
-<h6 id="org4ab4301">解决丢失更新问题</h6>
-<div class="outline-text-6" id="text-org4ab4301">
+<div id="outline-container-orgda33572" class="outline-6">
+<h6 id="orgda33572">解决丢失更新问题</h6>
+<div class="outline-text-6" id="text-orgda33572">
 <p>
 两种思路，一种是悲观锁，另一种是乐观锁，详细了解请看：<a href="MySQL-锁机制.html">MySQL锁机制</a><br>
 </p>
@@ -264,9 +266,9 @@ if Error <span style="color: #268bd2; font-weight: bold;">then</span>
 </div>
 </div>
 </div>
-<div id="outline-container-org33c22be" class="outline-4">
-<h4 id="org33c22be">理解 SQL SERVER 中的隔离级别</h4>
-<div class="outline-text-4" id="text-org33c22be">
+<div id="outline-container-org7c8549a" class="outline-4">
+<h4 id="org7c8549a">理解 SQL SERVER 中的隔离级别</h4>
+<div class="outline-text-4" id="text-org7c8549a">
 <p>
 数据库的事务隔离级别（TRANSACTION ISOLATION LEVEL）是一个数据库上很基本的一个概念。为什么会有事务隔离级别，SQL Server上实现了哪些事务隔离级别？事务隔离级别的前提是一个多用户、多进程、多线程的并发系统，在这个系统中为了保证数据的一致性和完整性，我们引入了事务隔离级别这个概念，对一个单用户、单线程的应用来说则不存在这个问题。<br>
 </p>
@@ -349,9 +351,9 @@ if Error <span style="color: #268bd2; font-weight: bold;">then</span>
 </div>
 </div>
 </div>
-<div id="outline-container-org7e8fccf" class="outline-3">
-<h3 id="org7e8fccf">Durability 持久性</h3>
-<div class="outline-text-3" id="text-org7e8fccf">
+<div id="outline-container-org0708292" class="outline-3">
+<h3 id="org0708292">Durability 持久性</h3>
+<div class="outline-text-3" id="text-org0708292">
 <blockquote>
 <p>
 事务处理结束后，对数据的修改就是永久的，即便系统故障也不会丢失。<br>
@@ -363,9 +365,9 @@ SQL SERVER通过write-ahead transaction log来保证持久性。write-ahead tran
 </p>
 </div>
 </div>
-<div id="outline-container-orga8e7220" class="outline-3">
-<h3 id="orga8e7220">总结</h3>
-<div class="outline-text-3" id="text-orga8e7220">
+<div id="outline-container-org4693106" class="outline-3">
+<h3 id="org4693106">总结</h3>
+<div class="outline-text-3" id="text-org4693106">
 <p>
 事务的（ACID）特性是由关系数据库管理系统（RDBMS，数据库系统）来实现的。数据库管理系统采用日志来保证事务的原子性、一致性和持久性。日志记录了事务对数据库所做的更新，如果某个事务在执行过程中发生错误，就可以根据日志，撤销事务对数据库已做的更新，使数据库退回到执行事务前的初始状态。<br>
 </p>
@@ -380,8 +382,8 @@ SQL SERVER通过write-ahead transaction log来保证持久性。write-ahead tran
 <div id="postamble" class="status">
 <p class="date">Date: 2022-03-14 20:03 Mon</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-05-07 Sat 10:58</p>
-<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+<p class="date">Created: 2022-10-07</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>
