@@ -1,32 +1,31 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-05-30 Mon 17:33 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 2023-01-09 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>EDITOR-VIM-NOTES</title>
-<meta name="generator" content="Org mode">
-<meta name="author" content="L.M.haoran">
-<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
->
-
-                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
-                <script type="module" src="static/js/main.js" defer></script>
-                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<meta name="author" content="L.M.haoran" />
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved." />
+<meta name="generator" content="Org Mode" />
+<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+           <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+           <script type="module" src="static/js/main.js" defer></script>
 </head>
 <body>
-<div id="content">
+<div id="content" class="content">
 <h1 class="title">EDITOR-VIM-NOTES</h1>
-<div id="table-of-contents">
+<div id="table-of-contents" role="doc-toc">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents">
+<div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orge5bc204"><i><span class="timestamp-wrapper"><span class="timestamp">[2022-02-15 Tue 21:42]</span></span></i> C、C++ 的格式化配置</a></li>
-<li><a href="#org1d27429"><i><span class="timestamp-wrapper"><span class="timestamp">[2022-02-02 Wed 16:30]</span></span></i> 查看当前文件类型</a></li>
-<li><a href="#org22f9711"><i><span class="timestamp-wrapper"><span class="timestamp">[2022-02-02 Wed 16:30]</span></span></i> 在 vim 中设置当前目录</a></li>
-<li><a href="#orgaba6ec0"><i><span class="timestamp-wrapper"><span class="timestamp">[2022-02-02 Wed 16:30]</span></span></i> vim-plug 换源</a></li>
-<li><a href="#org1693248"><i><span class="timestamp-wrapper"><span class="timestamp">[2022-02-02 Wed 16:30]</span></span></i> 好玩的命令</a></li>
-<li><a href="#org03fb718"><i><span class="timestamp-wrapper"><span class="timestamp">[2022-02-02 Wed 16:30]</span></span></i> 与系统剪切板共用</a></li>
+<li><a href="#org38a76a1"><i><span class="timestamp-wrapper"><span class="timestamp">[2023-01-09 Mon 16:30]</span></span></i> 为什么不使用 ctrl+c</a></li>
+<li><a href="#org6faa25a"><i><span class="timestamp-wrapper"><span class="timestamp">[2022-02-15 Tue 21:42]</span></span></i> C、C++ 的格式化配置</a></li>
+<li><a href="#org7d6cd3d"><i><span class="timestamp-wrapper"><span class="timestamp">[2022-02-02 Wed 16:30]</span></span></i> 查看当前文件类型</a></li>
+<li><a href="#org1584a1c"><i><span class="timestamp-wrapper"><span class="timestamp">[2022-02-02 Wed 16:30]</span></span></i> 在 vim 中设置当前目录</a></li>
+<li><a href="#org8ed67a7"><i><span class="timestamp-wrapper"><span class="timestamp">[2022-02-02 Wed 16:30]</span></span></i> vim-plug 换源</a></li>
+<li><a href="#org1696532"><i><span class="timestamp-wrapper"><span class="timestamp">[2022-02-02 Wed 16:30]</span></span></i> 好玩的命令</a></li>
+<li><a href="#org3bf6044"><i><span class="timestamp-wrapper"><span class="timestamp">[2022-02-02 Wed 16:30]</span></span></i> 与系统剪切板共用</a></li>
 </ul>
 </div>
 </div>
@@ -36,14 +35,30 @@
 }
 </style>
 
-<div id="outline-container-orge5bc204" class="outline-2">
-<h2 id="orge5bc204"><i><span class="timestamp-wrapper"><span class="timestamp">[2022-02-15 Tue 21:42]</span></span></i> C、C++ 的格式化配置</h2>
-<div class="outline-text-2" id="text-orge5bc204">
+<div id="outline-container-org38a76a1" class="outline-2">
+<h2 id="org38a76a1"><i><span class="timestamp-wrapper"><span class="timestamp">[2023-01-09 Mon 16:30]</span></span></i> 为什么不使用 ctrl+c</h2>
+<div class="outline-text-2" id="text-org38a76a1">
+<p>
+ctrl+[ 和 esc 具有完全相同的 ASCII 码值（0x1b），所以这两个键完全一样，而 ctrl+c 是 0x3。<br>
+</p>
+
+<p>
+ctrl+c 在 vim 正在执行的时候会中断当前的命令，其他情况下会回到 normal mode。<br>
+</p>
+
+<p>
+比如打开一个大的文本文件并进行 syntax 分析（syntax enable）时，使用 ctrl+c 会打断当前的分析并给出一个没有高亮的显示。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org6faa25a" class="outline-2">
+<h2 id="org6faa25a"><i><span class="timestamp-wrapper"><span class="timestamp">[2022-02-15 Tue 21:42]</span></span></i> C、C++ 的格式化配置</h2>
+<div class="outline-text-2" id="text-org6faa25a">
 <p>
 astyle的格式化风格配置：<a href="https://astyle.sourceforge.net/astyle.html">Artistic Style</a><br>
 </p>
 
-<pre class="example">
+<pre class="example" id="org083009c">
 nnoremap &lt;c-a-\&gt; :Autoformat&lt;CR&gt;
 let g:formatdef_custom_js = '"js-beautify -t"'
 let g:formatters_javascript = ['custom_js']
@@ -79,18 +94,18 @@ let g:autoformat_remove_trailing_spaces = 0
 </p>
 </div>
 </div>
-<div id="outline-container-org1d27429" class="outline-2">
-<h2 id="org1d27429"><i><span class="timestamp-wrapper"><span class="timestamp">[2022-02-02 Wed 16:30]</span></span></i> 查看当前文件类型</h2>
-<div class="outline-text-2" id="text-org1d27429">
+<div id="outline-container-org7d6cd3d" class="outline-2">
+<h2 id="org7d6cd3d"><i><span class="timestamp-wrapper"><span class="timestamp">[2022-02-02 Wed 16:30]</span></span></i> 查看当前文件类型</h2>
+<div class="outline-text-2" id="text-org7d6cd3d">
 <div class="org-src-container">
 <pre class="src src-bash">:set filetype?
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org22f9711" class="outline-2">
-<h2 id="org22f9711"><i><span class="timestamp-wrapper"><span class="timestamp">[2022-02-02 Wed 16:30]</span></span></i> 在 vim 中设置当前目录</h2>
-<div class="outline-text-2" id="text-org22f9711">
+<div id="outline-container-org1584a1c" class="outline-2">
+<h2 id="org1584a1c"><i><span class="timestamp-wrapper"><span class="timestamp">[2022-02-02 Wed 16:30]</span></span></i> 在 vim 中设置当前目录</h2>
+<div class="outline-text-2" id="text-org1584a1c">
 <ol class="org-ol">
 <li><p>
 使用 cd 命令更改当前目录：<br>
@@ -139,18 +154,18 @@ let g:autoformat_remove_trailing_spaces = 0
 </div>
 </div>
 </div>
-<div id="outline-container-orgaba6ec0" class="outline-2">
-<h2 id="orgaba6ec0"><i><span class="timestamp-wrapper"><span class="timestamp">[2022-02-02 Wed 16:30]</span></span></i> vim-plug 换源</h2>
-<div class="outline-text-2" id="text-orgaba6ec0">
+<div id="outline-container-org8ed67a7" class="outline-2">
+<h2 id="org8ed67a7"><i><span class="timestamp-wrapper"><span class="timestamp">[2022-02-02 Wed 16:30]</span></span></i> vim-plug 换源</h2>
+<div class="outline-text-2" id="text-org8ed67a7">
 <p>
 因为中国地区访问像 github 这种国外网站很不稳定, 所以在一般都是采用镜像网站的方式间接访问. 而 vim-plug 下载时都是用的实际网站, 我们可以修改 plug.vim 来将实际网站变为镜像网站, 提高下载成功率.<br>
 </p>
 
 <p>
-在 plug.vim 中搜索 github, 修改两条语句，即可成功下载GitHub资源。 <br>
+在 plug.vim 中搜索 github, 修改两条语句，即可成功下载GitHub资源。<br>
 </p>
 
-<pre class="example">
+<pre class="example" id="orgd62d538">
 1 将该行
 let fmt = get(g:, 'plug_url_format', 'https://git::@github.com/%s.git')
 改为
@@ -163,16 +178,16 @@ let fmt = get(g:, 'plug_url_format', 'https://git::@hub.fastgit.org/%s.git')
 </pre>
 </div>
 </div>
-<div id="outline-container-org1693248" class="outline-2">
-<h2 id="org1693248"><i><span class="timestamp-wrapper"><span class="timestamp">[2022-02-02 Wed 16:30]</span></span></i> 好玩的命令</h2>
-<div class="outline-text-2" id="text-org1693248">
+<div id="outline-container-org1696532" class="outline-2">
+<h2 id="org1696532"><i><span class="timestamp-wrapper"><span class="timestamp">[2022-02-02 Wed 16:30]</span></span></i> 好玩的命令</h2>
+<div class="outline-text-2" id="text-org1696532">
 <p>
 <code>:ab string strings</code><br>
 </p>
-<pre class="example">
+<pre class="example" id="orgbc0a9b7">
 例如 ":ab PROC the People's Republic of China" ,
 当你在文见里插入 PROC 时
-the People's Republic of China 就蹦出来了
+  the People's Republic of China 就蹦出来了
 </pre>
 
 <dl class="org-dl">
@@ -181,9 +196,9 @@ the People's Republic of China 就蹦出来了
 </dl>
 </div>
 </div>
-<div id="outline-container-org03fb718" class="outline-2">
-<h2 id="org03fb718"><i><span class="timestamp-wrapper"><span class="timestamp">[2022-02-02 Wed 16:30]</span></span></i> 与系统剪切板共用</h2>
-<div class="outline-text-2" id="text-org03fb718">
+<div id="outline-container-org3bf6044" class="outline-2">
+<h2 id="org3bf6044"><i><span class="timestamp-wrapper"><span class="timestamp">[2022-02-02 Wed 16:30]</span></span></i> 与系统剪切板共用</h2>
+<div class="outline-text-2" id="text-org3bf6044">
 <ul class="org-ul">
 <li>ubuntu<br></li>
 </ul>
@@ -204,8 +219,8 @@ sudo pacman -S gvim<br>
 <div id="postamble" class="status">
 <p class="date">Date: 2022-02-02 16:02 Wed</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-05-30 Mon 17:33</p>
-<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+<p class="date">Created: 2023-01-09</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>

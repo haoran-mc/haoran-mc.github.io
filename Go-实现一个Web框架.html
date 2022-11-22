@@ -1,29 +1,27 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-06-06 Mon 09:24 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 2022-12-19 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>用Go实现一个Web框架</title>
-<meta name="generator" content="Org mode">
-<meta name="author" content="L.M.haoran">
-<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
->
-
-                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
-                <script type="module" src="static/js/main.js" defer></script>
-                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<meta name="author" content="L.M.haoran" />
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved." />
+<meta name="generator" content="Org Mode" />
+<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+           <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+           <script type="module" src="static/js/main.js" defer></script>
 </head>
 <body>
-<div id="content">
+<div id="content" class="content">
 <h1 class="title">用Go实现一个Web框架</h1>
-<div id="table-of-contents">
+<div id="table-of-contents" role="doc-toc">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents">
+<div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org7be20bb">设计一个框架</a></li>
-<li><a href="#orgd609ce0">Gee 框架</a></li>
-<li><a href="#org4e1e7ee">目录</a></li>
+<li><a href="#orga797b86">设计一个框架</a></li>
+<li><a href="#org4991667">Gee 框架</a></li>
+<li><a href="#orgdf69748">目录</a></li>
 </ul>
 </div>
 </div>
@@ -43,9 +41,9 @@ h2:before {
 }
 </style>
 
-<div id="outline-container-org7be20bb" class="outline-2">
-<h2 id="org7be20bb">设计一个框架</h2>
-<div class="outline-text-2" id="text-org7be20bb">
+<div id="outline-container-orga797b86" class="outline-2">
+<h2 id="orga797b86">设计一个框架</h2>
+<div class="outline-text-2" id="text-orga797b86">
 <p>
 大部分时候，我们需要实现一个Web应用，第一反应是应该使用哪个框架。不同的框架设计理念和提供的功能有很大的差别。比如 Python 语言的 <code>django</code> 和 <code>flask</code> ，前者大而全，后者小而美。Go语言/Golang也是这样，新框架层出不穷，比如 <code>Beego</code> ， <code>Gin</code> ， <code>Iris</code> 等。那为什么不直接使用标准库，而必须使用框架呢？在设计一个框架之前，我们需要回答框架核心为我们解决了什么问题。只有理解了这一点，才能想明白我们需要在框架中实现什么功能。<br>
 </p>
@@ -55,14 +53,14 @@ h2:before {
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    http.<span style="color: #d75fd7; font-weight: bold;">HandleFunc</span>(<span style="color: #2aa198;">"/"</span>, handler)
-    http.<span style="color: #d75fd7; font-weight: bold;">HandleFunc</span>(<span style="color: #2aa198;">"/count"</span>, counter)
-    log.<span style="color: #d75fd7; font-weight: bold;">Fatal</span>(http.<span style="color: #d75fd7; font-weight: bold;">ListenAndServe</span>(<span style="color: #2aa198;">"localhost:8000"</span>, <span style="color: #d75fd7;">nil</span>))
+<pre class="src src-go"><span style="color: #9d0006;">func</span> <span style="color: #b57614;">main</span>() {
+    http.<span style="color: #b57614;">HandleFunc</span>(<span style="color: #79740e;">"/"</span>, handler)
+    http.<span style="color: #b57614;">HandleFunc</span>(<span style="color: #79740e;">"/count"</span>, counter)
+    log.<span style="color: #b57614;">Fatal</span>(http.<span style="color: #b57614;">ListenAndServe</span>(<span style="color: #79740e;">"localhost:8000"</span>, <span style="color: #8f3f71;">nil</span>))
 }
 
-<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">handler</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">http.Request</span>) {
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Fprintf</span>(w, <span style="color: #2aa198;">"URL.Path = %q\n"</span>, r.URL.Path)
+<span style="color: #9d0006;">func</span> <span style="color: #b57614;">handler</span>(<span style="color: #076678;">w</span> <span style="color: #8f3f71;">http.ResponseWriter</span>, <span style="color: #076678;">r</span> *<span style="color: #8f3f71;">http.Request</span>) {
+    fmt.<span style="color: #b57614;">Fprintf</span>(w, <span style="color: #79740e;">"URL.Path = %q\n"</span>, r.URL.Path)
 }
 </pre>
 </div>
@@ -91,11 +89,11 @@ h2:before {
 </ul>
 </div>
 </div>
-<div id="outline-container-orgd609ce0" class="outline-2">
-<h2 id="orgd609ce0">Gee 框架</h2>
-<div class="outline-text-2" id="text-orgd609ce0">
+<div id="outline-container-org4991667" class="outline-2">
+<h2 id="org4991667">Gee 框架</h2>
+<div class="outline-text-2" id="text-org4991667">
 <p>
-本教程来源：<a href="https://geektutu.com/post/gee.html">7天实现Gee框架</a> <br>
+本教程来源：<a href="https://geektutu.com/post/gee.html">7天实现Gee框架</a><br>
 </p>
 
 <p>
@@ -111,9 +109,9 @@ h2:before {
 </p>
 </div>
 </div>
-<div id="outline-container-org4e1e7ee" class="outline-2">
-<h2 id="org4e1e7ee">目录</h2>
-<div class="outline-text-2" id="text-org4e1e7ee">
+<div id="outline-container-orgdf69748" class="outline-2">
+<h2 id="orgdf69748">目录</h2>
+<div class="outline-text-2" id="text-orgdf69748">
 <ul class="org-ul">
 <li>第一天：<a href="Go-实现一个Web框架-前置知识.html">前置知识（http.Handler接口）</a><br></li>
 <li>第二天：<a href="Go-实现一个Web框架-上下文设计.html">上下文设计（Context）</a><br></li>
@@ -128,8 +126,8 @@ h2:before {
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-06-06 Mon 09:24</p>
-<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+<p class="date">Created: 2022-12-19</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>

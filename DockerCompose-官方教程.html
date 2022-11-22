@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2023-01-06 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DOCKERCOMPOSE-官方教程</title>
+<meta name="author" content="Haoran Liu" />
+<meta name="description" content="Copyright © 2022, Haoran Liu, all rights reserved." />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="static/css/org.css"/>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script src="static/MathJax/cdn.bootcdn.net/ajax/libs/mathjax/3.1.2/es5/tex-mml-chtml.min.js"></script>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">DOCKERCOMPOSE-官方教程</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org0bf1e65">什么是 Docker Compose</a></li>
+<li><a href="#org9ae185d">安装 Docker Compose</a></li>
+<li><a href="#org8255111">Getting started</a>
+<ul>
+<li><a href="#org21375a9">Step 1: Set up</a></li>
+<li><a href="#org0873404">Step 2: Create a Dockerfile</a></li>
+<li><a href="#org9bde14e">Step 3: Define services in a Compose file</a></li>
+<li><a href="#org0071fcc">Step 4: Build and run your app with Compose</a></li>
+<li><a href="#orge4014e1">Step 5: Edit the Compose file to add a bind mount</a></li>
+<li><a href="#orgdeab6be">Step 6: Re-build and run the app with Compose</a></li>
+<li><a href="#org8782234">Step 7: Update the application</a></li>
+<li><a href="#org0e54076">Step 8: Experiment with some other commands</a></li>
+</ul>
+</li>
+<li><a href="#org8b70a72">yaml 规则</a>
+<ul>
+<li><a href="#org0f2f354">有关 docker compose 的 yaml 规则：</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org0bf1e65" class="outline-2">
+<h2 id="org0bf1e65">什么是 Docker Compose</h2>
+<div class="outline-text-2" id="text-org0bf1e65">
+<p>
+Compose 是用于定义和运行多容器 Docker 应用程序的工具。通过 Compose，您可以使用 <a href="YAML.html">YML</a> 文件来配置应用程序需要的所有服务。然后，使用一个命令，就可以从 YML 文件配置中创建并启动所有服务。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org9ae185d" class="outline-2">
+<h2 id="org9ae185d">安装 Docker Compose</h2>
+<div class="outline-text-2" id="text-org9ae185d">
+<dl class="org-dl">
+<dt>官网有安装步骤</dt><dd><a href="https://docs.docker.com/compose/install/">https://docs.docker.com/compose/install/</a><br></dd>
+</dl>
+
+<p>
+对于 Linux 来说就两条命令：<br>
+</p>
+
+<dl class="org-dl">
+<dt>sudo curl -L "<a href="https://github.com/docker/compose/releases/download/1.29.2/docker-compose">https://github.com/docker/compose/releases/download/1.29.2/docker-compose</a>-\((uname -s)-\)(uname -m)" -o /usr/local/bin/docker-compose</dt><dd>下载 docker-compose 到 /usr/local/bin/docker-compose<br></dd>
+<dt>sudo chmod +x /usr/local/bin/docker-compose</dt><dd>赋予运行权限<br></dd>
+<dt>docker-compose &#x2013;version</dt><dd>查看是否安装成功<br></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-org8255111" class="outline-2">
+<h2 id="org8255111">Getting started</h2>
+<div class="outline-text-2" id="text-org8255111">
+<dl class="org-dl">
+<dt>官网</dt><dd><p>
+<a href="https://docs.docker.com/compose/gettingstarted/">https://docs.docker.com/compose/gettingstarted/</a><br>
+</p>
+
+<p>
+官网有一个关于 python web 的应用程序。这个应用程序使用 Flask 框架并在 Redis 中维护一个命中计数器，这里不要求配置 python 与 Redis 环境，你也不需要懂得 python 与 redis。<br>
+</p></dd>
+</dl>
+</div>
+<div id="outline-container-org21375a9" class="outline-3">
+<h3 id="org21375a9">Step 1: Set up</h3>
+<div class="outline-text-3" id="text-org21375a9">
+<ol class="org-ol">
+<li><p>
+创建一个项目目录<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell">$ mkdir composetest
+$ cd composetest
+</pre>
+</div></li>
+
+<li><p>
+创建一个名为 <code>app.py</code> 的文件，文件内容如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #89DDFF; font-weight: bold;">import</span> time
+
+<span style="color: #89DDFF; font-weight: bold;">import</span> redis
+<span style="color: #89DDFF; font-weight: bold;">from</span> flask <span style="color: #89DDFF; font-weight: bold;">import</span> Flask
+
+<span style="color: #ffcb6b;">app</span> = Flask(<span style="color: #82aaff; font-style: italic;">__name__</span>)
+<span style="color: #ffcb6b;">cache</span> = redis.Redis(host=<span style="color: #c3e88d;">'redis'</span>, port=6379)
+
+<span style="color: #89DDFF; font-weight: bold;">def</span> <span style="color: #82aaff;">get_hit_count</span>():
+        retries = 5
+        <span style="color: #89DDFF; font-weight: bold;">while</span> <span style="color: #F78C6C; font-weight: bold;">True</span>:
+                <span style="color: #89DDFF; font-weight: bold;">try</span>:
+                        <span style="color: #89DDFF; font-weight: bold;">return</span> cache.incr(<span style="color: #c3e88d;">'hits'</span>)
+                <span style="color: #89DDFF; font-weight: bold;">except</span> redis.exceptions.<span style="color: #c792ea; font-style: italic;">ConnectionError</span> <span style="color: #89DDFF; font-weight: bold;">as</span> exc:
+                        <span style="color: #89DDFF; font-weight: bold;">if</span> retries == 0:
+                                <span style="color: #89DDFF; font-weight: bold;">raise</span> exc
+                        retries -= 1
+                        time.sleep(0.5)
+
+<span style="color: #c792ea; font-style: italic;">@app.route</span>(<span style="color: #c3e88d;">'/'</span>)
+<span style="color: #89DDFF; font-weight: bold;">def</span> <span style="color: #82aaff;">hello</span>():
+        count = get_hit_count()
+        <span style="color: #89DDFF; font-weight: bold;">return</span> <span style="color: #c3e88d;">'Hello World! I have been seen {} times.\n'</span>.<span style="color: #82aaff; font-style: italic;">format</span>(count)
+</pre>
+</div></li>
+
+<li><p>
+创建一个名为 <code>requirements.txt</code> 文件，文件内容如下：<br>
+</p>
+
+<pre class="example" id="orgba7ec29">
+flask
+redis
+</pre></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-org0873404" class="outline-3">
+<h3 id="org0873404">Step 2: Create a Dockerfile</h3>
+<div class="outline-text-3" id="text-org0873404">
+<p>
+在这一步，我们创建一个 Dockerfile 文件，利用这个 Dockerfile 文件来创建镜像：<br>
+</p>
+
+<pre class="example" id="org4e8f049">
+# syntax=docker/dockerfile:1
+FROM python:3.7-alpine         # 以 python3.7 开始创建这个镜像
+WORKDIR /code                  # 规定 /code 是工作目录
+ENV FLASK_APP=app.py           # 使用 flask 命令来建立环境
+ENV FLASK_RUN_HOST=0.0.0.0
+RUN apk add --no-cache gcc musl-dev linux-headers   # 下载 gcc 以及其他依赖
+COPY requirements.txt requirements.txt              # 复制宿主机中的 requirements.txt 文件到 docker 容器中
+RUN pip install -r requirements.txt                 # 通过下载 requirements.txt 中的 python 依赖
+EXPOSE 5000                    # 暴露端口
+COPY . .                       # 复制宿主机当前目录下的项目到容器中
+CMD ["flask", "run"]           # 在容器中运行 "flask run" 这条命令
+</pre>
+</div>
+</div>
+<div id="outline-container-org9bde14e" class="outline-3">
+<h3 id="org9bde14e">Step 3: Define services in a Compose file</h3>
+<div class="outline-text-3" id="text-org9bde14e">
+<p>
+创建一个 <code>docker-compose.yml</code> 文件，文件内容如下：<br>
+</p>
+
+<pre class="example" id="org6f94558">
+version: "3.9"
+services:
+    web:
+        build: .
+        ports:
+            - "5000:5000"
+    redis:
+        image: "redis:alpine"
+</pre>
+
+<p>
+在这个 compose 文件中，我们定义了两个服务：<br>
+</p>
+
+<ol class="org-ol">
+<li><p>
+Web service<br>
+</p>
+
+<p>
+web 服务使用的是我们自己通过 Dockerfile 构建的镜像，暴露的端口也是 Flask 的默认端口：5000。<br>
+</p></li>
+
+<li><p>
+Redis service<br>
+</p>
+
+<p>
+redis 服务使用的是从仓库中拉取的官方镜像。<br>
+</p></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-org0071fcc" class="outline-3">
+<h3 id="org0071fcc">Step 4: Build and run your app with Compose</h3>
+<div class="outline-text-3" id="text-org0071fcc">
+<ol class="org-ol">
+<li><p>
+运行命令： <code>docker-compose up</code><br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell">docker-compose up
+</pre>
+</div></li>
+
+<li><p>
+查看 <code>http://localhost:5000</code><br>
+</p>
+
+<img src="./images/docker-compose-01.png" /></li>
+
+<li><p>
+刷新页面，数字会增加1。<br>
+</p>
+
+<img src="./images/docker-compose-02.png" /></li>
+
+<li><p>
+docker images：查看镜像数量<br>
+</p>
+
+<img src="./images/docker-compose-03.png" /></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orge4014e1" class="outline-3">
+<h3 id="orge4014e1">Step 5: Edit the Compose file to add a bind mount</h3>
+<div class="outline-text-3" id="text-orge4014e1">
+<p>
+重新编写 Compose 文件，添加数据卷，允许在宿主机中工作。<br>
+</p>
+
+<pre class="example" id="org0d5b71e">
+version: "3.9"
+services:
+    web:
+        build: .
+        ports:
+            - "5000:5000"
+        volumes:
+            - .:/code
+        environment:
+            FLASK_ENV: development
+    redis:
+        image: "redis:alpine"
+</pre>
+</div>
+</div>
+<div id="outline-container-orgdeab6be" class="outline-3">
+<h3 id="orgdeab6be">Step 6: Re-build and run the app with Compose</h3>
+<div class="outline-text-3" id="text-orgdeab6be">
+<p>
+<code>docker-compose up</code> ，重新运行。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8782234" class="outline-3">
+<h3 id="org8782234">Step 7: Update the application</h3>
+<div class="outline-text-3" id="text-org8782234">
+<p>
+由于现在使用卷将应用程序代码挂载到容器中，因此您可以对其代码进行更改并立即看到更改，而无需重新构建映像。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #89DDFF; font-weight: bold;">import</span> time
+
+<span style="color: #89DDFF; font-weight: bold;">import</span> redis
+<span style="color: #89DDFF; font-weight: bold;">from</span> flask <span style="color: #89DDFF; font-weight: bold;">import</span> Flask
+
+<span style="color: #ffcb6b;">app</span> = Flask(<span style="color: #82aaff; font-style: italic;">__name__</span>)
+<span style="color: #ffcb6b;">cache</span> = redis.Redis(host=<span style="color: #c3e88d;">'redis'</span>, port=6379)
+
+<span style="color: #89DDFF; font-weight: bold;">def</span> <span style="color: #82aaff;">get_hit_count</span>():
+        retries = 5
+        <span style="color: #89DDFF; font-weight: bold;">while</span> <span style="color: #F78C6C; font-weight: bold;">True</span>:
+                <span style="color: #89DDFF; font-weight: bold;">try</span>:
+                        <span style="color: #89DDFF; font-weight: bold;">return</span> cache.incr(<span style="color: #c3e88d;">'hits'</span>)
+                <span style="color: #89DDFF; font-weight: bold;">except</span> redis.exceptions.<span style="color: #c792ea; font-style: italic;">ConnectionError</span> <span style="color: #89DDFF; font-weight: bold;">as</span> exc:
+                        <span style="color: #89DDFF; font-weight: bold;">if</span> retries == 0:
+                                <span style="color: #89DDFF; font-weight: bold;">raise</span> exc
+                        retries -= 1
+                        time.sleep(0.5)
+
+<span style="color: #c792ea; font-style: italic;">@app.route</span>(<span style="color: #c3e88d;">'/'</span>)
+<span style="color: #89DDFF; font-weight: bold;">def</span> <span style="color: #82aaff;">hello</span>():
+        count = get_hit_count()
+        <span style="color: #626262; font-weight: bold; font-style: italic;">#  </span><span style="color: #626262; font-weight: bold; font-style: italic;">return 'Hello World! I have been seen {} times.\n'.format(count)</span>
+        <span style="color: #89DDFF; font-weight: bold;">return</span> <span style="color: #c3e88d;">'Hello from Docker! I have been seen {} times.\n'</span>.<span style="color: #82aaff; font-style: italic;">format</span>(count)
+</pre>
+</div>
+
+<img src="./images/docker-compose-04.png" />
+</div>
+</div>
+<div id="outline-container-org0e54076" class="outline-3">
+<h3 id="org0e54076">Step 8: Experiment with some other commands</h3>
+<div class="outline-text-3" id="text-org0e54076">
+<dl class="org-dl">
+<dt>docker-compose up -d</dt><dd>在后台运行<br></dd>
+<dt>docker-compose ps</dt><dd>查看运行中的 docker compose<br></dd>
+<dt>docker-compose stop</dt><dd>停止 docker compose<br></dd>
+<dt>docker-compose down &#x2013;volumes</dt><dd>使用 down 命令删除所有内容，完全删除容器。——volumes 可以删除容器使用的数据卷<br></dd>
+</dl>
+</div>
+</div>
+</div>
+<div id="outline-container-org8b70a72" class="outline-2">
+<h2 id="org8b70a72">yaml 规则</h2>
+<div class="outline-text-2" id="text-org8b70a72">
+<ul class="org-ul">
+<li><a href="YAML.html">YAML</a><br></li>
+</ul>
+</div>
+<div id="outline-container-org0f2f354" class="outline-3">
+<h3 id="org0f2f354">有关 docker compose 的 yaml 规则：</h3>
+<div class="outline-text-3" id="text-org0f2f354">
+<ul class="org-ul">
+<li>docker compose 的 yaml 有且只有 3 层<br>
+
+<ol class="org-ol">
+<li>version：版本<br></li>
+<li>services：服务<br></li>
+<li>其他：<br>
+<ul class="org-ul">
+<li>volumes<br></li>
+<li>networks<br></li>
+<li>configs<br></li>
+</ul></li>
+</ol></li>
+</ul>
+
+<p>
+更多的配置参考看这里：<a href="https://docs.docker.com/compose/compose-file/compose-file-v3/#service-configuration-reference">https://docs.docker.com/compose/compose-file/compose-file-v3/#service-configuration-reference</a><br>
+</p>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-12-05 20:12 Mon</p>
+<p class="author">Author: Haoran Liu</p>
+<p class="date">Created: 2023-01-06</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

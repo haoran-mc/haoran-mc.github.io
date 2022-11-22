@@ -1,623 +1,630 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-10-01 五 14:29 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 2022-12-04 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>GIT-COMMIT-MESSAGE-GUIDE</title>
-<meta name="generator" content="Org mode">
-<meta name="author" content="L.M.haoran">
-<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
->
-
-                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
-                <script type="module" src="static/js/main.js" defer></script>
-                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<meta name="author" content="L.M.haoran" />
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved." />
+<meta name="generator" content="Org Mode" />
+<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+           <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+           <script type="module" src="static/js/main.js" defer></script>
 </head>
 <body>
-<div id="content">
+<div id="content" class="content">
 <h1 class="title">GIT-COMMIT-MESSAGE-GUIDE</h1>
-<div id="table-of-contents">
+<div id="table-of-contents" role="doc-toc">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents">
+<div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org67231ab">这个项目</a></li>
-<li><a href="#org048122c">什么是“commit”？</a></li>
-<li><a href="#org1ff11ba">为什么 commit 信息很重要？</a></li>
-<li><a href="#org2ed02a8">好的实践</a>
+<li><a href="#orgf4581a1">这个项目</a></li>
+<li><a href="#orgbf8f534">什么是“commit”？</a></li>
+<li><a href="#orge39892d">为什么 commit 信息很重要？</a></li>
+<li><a href="#orge8e7e9e">好的实践</a>
 <ul>
-<li><a href="#org438f0d4">使用祈使句</a></li>
-<li><a href="#org5fecf88">首字母大写</a></li>
-<li><a href="#orga68e304">尽量做到只看注释便可明白而无需查看变更内容</a></li>
-<li><a href="#orgc2a2f41">使用信息本身来解释“原因”、“目的”、“手段”和其他的细节</a></li>
-<li><a href="#orgb4d546c">避免使用无上下文的信息</a></li>
-<li><a href="#org2034476">限制每行字数</a></li>
-<li><a href="#org05a7d1d">保持语言的一致性</a></li>
-<li><a href="#orgf786c97">模板</a></li>
+<li><a href="#org7d6fbf2">使用祈使句</a></li>
+<li><a href="#org66db62b">首字母大写</a></li>
+<li><a href="#org583e5bb">尽量做到只看注释便可明白而无需查看变更内容</a></li>
+<li><a href="#org2b8ae0e">使用信息本身来解释“原因”、“目的”、“手段”和其他的细节</a></li>
+<li><a href="#org8731689">避免使用无上下文的信息</a></li>
+<li><a href="#org690421e">限制每行字数</a></li>
+<li><a href="#org459b67b">保持语言的一致性</a></li>
+<li><a href="#org7cdfe32">模板</a></li>
 </ul>
 </li>
-<li><a href="#org7ee7a3a">Rebase vs. Merge</a>
+<li><a href="#org76eb333">Rebase vs. Merge</a>
 <ul>
-<li><a href="#org2fedfd5">Rebase</a></li>
-<li><a href="#orgeaf1adf">Merge</a></li>
-<li><a href="#orgfbf385c">为什么一些人更喜欢 rebase 而非 merge？</a></li>
-<li><a href="#orga36cb9f">什么时候 squash</a></li>
-<li><a href="#orgcea5cf9">什么时候避免 rebase 或 squash</a></li>
+<li><a href="#org144bf17">Rebase</a></li>
+<li><a href="#orgf922098">Merge</a></li>
+<li><a href="#orgea1def7">为什么一些人更喜欢 rebase 而非 merge？</a></li>
+<li><a href="#orgce88237">什么时候 squash</a></li>
+<li><a href="#org35d3d6e">什么时候避免 rebase 或 squash</a></li>
 </ul>
 </li>
-<li><a href="#orgb2ad193">有用的 git 命令</a>
+<li><a href="#orgc1f2cdc">有用的 git 命令</a>
 <ul>
-<li><a href="#org81f1265">rebase -i</a>
+<li><a href="#orgeebaa17">rebase -i</a>
 <ul>
-<li><a href="#org3a37a3c">fixup</a></li>
+<li><a href="#org223fc97">fixup</a></li>
 </ul>
 </li>
-<li><a href="#orgd4658d3">cherry-pick</a></li>
-<li><a href="#org25cac98">add/checkout/reset [&#x2013;patch | -p]</a>
+<li><a href="#org39e6c00">cherry-pick</a></li>
+<li><a href="#orgedebb73">add/checkout/reset [&#x2013;patch | -p]</a>
 <ul>
-<li><a href="#org2aee37f">hunk 1</a></li>
-<li><a href="#org5a9d590">hunk 2</a></li>
-<li><a href="#org609954f">hunk 3</a></li>
+<li><a href="#org46cf2b9">hunk 1</a></li>
+<li><a href="#org33b4c6e">hunk 2</a></li>
+<li><a href="#org7806441">hunk 3</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#org07ab549">其他有趣的内容</a></li>
-<li><a href="#org60c86e7">喜欢它吗？</a></li>
-<li><a href="#orge7f4a29">贡献</a></li>
-<li><a href="#org788f007">灵感、来源以及扩展阅读</a></li>
+<li><a href="#orgeb5c614">其他有趣的内容</a></li>
+<li><a href="#org911d10e">喜欢它吗？</a></li>
+<li><a href="#orge24b45c">贡献</a></li>
+<li><a href="#org05afcdd">灵感、来源以及扩展阅读</a></li>
 </ul>
 </div>
 </div>
 <p>
-[![Say Thanks!](<object type="image/svg+xml" data="https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg" class="org-svg">
-Sorry, your browser does not support SVG.</object>)](<a href="https://saythanks.io/to/RomuloOliveira">https://saythanks.io/to/RomuloOliveira</a>)
+[![Say Thanks!](<img src="https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg" alt="Say%20Thanks-!-1EAEDB.svg" class="org-svg">)](<a href="https://saythanks.io/to/RomuloOliveira">https://saythanks.io/to/RomuloOliveira</a>)<br>
 </p>
 
-<div id="outline-container-org67231ab" class="outline-2">
-<h2 id="org67231ab">这个项目</h2>
-<div class="outline-text-2" id="text-org67231ab">
+<div id="outline-container-orgf4581a1" class="outline-2">
+<h2 id="orgf4581a1">这个项目</h2>
+<div class="outline-text-2" id="text-orgf4581a1">
 <p>
-一个了解 commit 信息重要性和如何更好地编写它的指南。
-</p>
-
-<p>
-它可以帮助你了解什么是 commit、为什么编写好的信息很重要、最好的实践案例以及一些技巧来计划和（重新）编写良好的 commit 历史。
-</p>
-</div>
-</div>
-<div id="outline-container-org048122c" class="outline-2">
-<h2 id="org048122c">什么是“commit”？</h2>
-<div class="outline-text-2" id="text-org048122c">
-<p>
-简单来讲，commit 就是在本地存储库中编写的文件的 _快照_。与印象中不同的是，<a href="https://git-scm.com/book/en/v2/Getting-Started-What-is-Git%3F#_snapshots_not_differences">git 不仅存储不同版本文件之间的差异，还存储了所有文件的完整版本</a>。对于两个 commit 之间没有被修改的文件，git 只存储指向前一个完全相同的文件的链接。
+一个了解 commit 信息重要性和如何更好地编写它的指南。<br>
 </p>
 
 <p>
-下面的图片展示了 git 如何随着时间存储数据，其中每个 “Version” 都是一个 commit：
+它可以帮助你了解什么是 commit、为什么编写好的信息很重要、最好的实践案例以及一些技巧来计划和（重新）编写良好的 commit 历史。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgbf8f534" class="outline-2">
+<h2 id="orgbf8f534">什么是“commit”？</h2>
+<div class="outline-text-2" id="text-orgbf8f534">
+<p>
+简单来讲，commit 就是在本地存储库中编写的文件的 _快照_。与印象中不同的是，<a href="https://git-scm.com/book/en/v2/Getting-Started-What-is-Git%3F#_snapshots_not_differences">git 不仅存储不同版本文件之间的差异，还存储了所有文件的完整版本</a>。对于两个 commit 之间没有被修改的文件，git 只存储指向前一个完全相同的文件的链接。<br>
 </p>
 
 <p>
-<a href="img/Git-commit-message-guide.png">Git</a>
+下面的图片展示了 git 如何随着时间存储数据，其中每个 “Version” 都是一个 commit：<br>
+</p>
+
+<p>
+<a href="img/Git-commit-message-guide.png">Git</a><br>
 </p>
 </div>
 </div>
-<div id="outline-container-org1ff11ba" class="outline-2">
-<h2 id="org1ff11ba">为什么 commit 信息很重要？</h2>
-<div class="outline-text-2" id="text-org1ff11ba">
+<div id="outline-container-orge39892d" class="outline-2">
+<h2 id="orge39892d">为什么 commit 信息很重要？</h2>
+<div class="outline-text-2" id="text-orge39892d">
 <ul class="org-ul">
-<li>加快和简化代码审查（code reviews）</li>
-<li>帮助理解一个更改</li>
-<li>解释不能只由代码描述的“为什么”</li>
-<li>帮助未来的维护人员弄清楚为什么以及如何产生的更改，从而使故障排查和调试更容易</li>
+<li>加快和简化代码审查（code reviews）<br></li>
+<li>帮助理解一个更改<br></li>
+<li>解释不能只由代码描述的“为什么”<br></li>
+<li><p>
+帮助未来的维护人员弄清楚为什么以及如何产生的更改，从而使故障排查和调试更容易<br>
+</p>
+
+<p>
+为了最大化这些结果，我们可以使用下一节中描述的一些好的实践和标准。<br>
+</p></li>
 </ul>
-
-<p>
-为了最大化这些结果，我们可以使用下一节中描述的一些好的实践和标准。
-</p>
 </div>
 </div>
-<div id="outline-container-org2ed02a8" class="outline-2">
-<h2 id="org2ed02a8">好的实践</h2>
-<div class="outline-text-2" id="text-org2ed02a8">
+<div id="outline-container-orge8e7e9e" class="outline-2">
+<h2 id="orge8e7e9e">好的实践</h2>
+<div class="outline-text-2" id="text-orge8e7e9e">
 <p>
-这些是从我的经验、互联网文章和其他指南中整理的一些实践经验。如果你有更多的经验（或持不同意见），请随时提交 Pull Request 提供帮助。
+这些是从我的经验、互联网文章和其他指南中整理的一些实践经验。如果你有更多的经验（或持不同意见），请随时提交 Pull Request 提供帮助。<br>
 </p>
 </div>
 
-<div id="outline-container-org438f0d4" class="outline-3">
-<h3 id="org438f0d4">使用祈使句</h3>
-<div class="outline-text-3" id="text-org438f0d4">
+<div id="outline-container-org7d6fbf2" class="outline-3">
+<h3 id="org7d6fbf2">使用祈使句</h3>
+<div class="outline-text-3" id="text-org7d6fbf2">
 <blockquote>
 <p>
-Use InventoryBackendPool to retrieve inventory backend
-用 InventoryBackendPool 获取库存
+Use InventoryBackendPool to retrieve inventory backend<br>
+用 InventoryBackendPool 获取库存<br>
 </p>
 </blockquote>
 
 <blockquote>
 <p>
-Used InventoryBackendPool to retrieve inventory backend 
-InventoryBackendPool 被用于获取库存
+Used InventoryBackendPool to retrieve inventory backend<br>
+InventoryBackendPool 被用于获取库存<br>
 </p>
 </blockquote>
 
 <p>
-<span class="underline">不过为什么要使用祈使句呢？</span>
+<span class="underline">不过为什么要使用祈使句呢？</span><br>
 </p>
 
 <p>
-commit 信息描述的是引用的变更部分实际上**做**了什么，它的效果，而不是因此被做了什么。
+commit 信息描述的是引用的变更部分实际上**做**了什么，它的效果，而不是因此被做了什么。<br>
 </p>
 
 <p>
-<a href="https://chris.beams.io/posts/git-commit/">Chris Beams 的这篇优秀的文章</a>为我们提供了一些简单的句子，可以帮助我们用祈使句编写更好的 commit 信息：
+<a href="https://chris.beams.io/posts/git-commit/">Chris Beams 的这篇优秀的文章</a>为我们提供了一些简单的句子，可以帮助我们用祈使句编写更好的 commit 信息：<br>
 </p>
 
 <blockquote>
 <p>
-If applied, this commit will &lt;commit message&gt; 
-如获许可，此提交将会 &lt;提交备注&gt;
+If applied, this commit will &lt;commit message&gt;<br>
+如获许可，此提交将会 &lt;提交备注&gt;<br>
 </p>
 </blockquote>
 
 <p>
-例子：
+例子：<br>
 </p>
 
 <blockquote>
 <p>
-If applied, this commit will use InventoryBackendPool to retrieve inventory backend
-如获许可，此提交将使用 InventoryBackendPool 获取库存
+If applied, this commit will use InventoryBackendPool to retrieve inventory backend<br>
+如获许可，此提交将使用 InventoryBackendPool 获取库存<br>
 </p>
 </blockquote>
 
 <blockquote>
 <p>
-If applied, this commit will used InventoryBackendPool to retrieve inventory backend 
-如获许可，InventoryBackendPool 将会被用于获取库存
+If applied, this commit will used InventoryBackendPool to retrieve inventory backend<br>
+如获许可，InventoryBackendPool 将会被用于获取库存<br>
 </p>
 </blockquote>
 </div>
 </div>
-
-<div id="outline-container-org5fecf88" class="outline-3">
-<h3 id="org5fecf88">首字母大写</h3>
-<div class="outline-text-3" id="text-org5fecf88">
+<div id="outline-container-org66db62b" class="outline-3">
+<h3 id="org66db62b">首字母大写</h3>
+<div class="outline-text-3" id="text-org66db62b">
 <blockquote>
 <p>
-Add `use` method to Credit model
+Add `use` method to Credit model<br>
 </p>
 </blockquote>
 
 <blockquote>
 <p>
-add `use` method to Credit model
+add `use` method to Credit model<br>
 </p>
 </blockquote>
 
 <p>
-首字母大写的原因是遵守英文句子开头使用大写字母的语法规则。
+首字母大写的原因是遵守英文句子开头使用大写字母的语法规则。<br>
 </p>
 
 <p>
-这种做法可能因人而异、因团队而异、甚至因语言而异。不管是否大写，重要的是要制定一个标准并遵守它。
+这种做法可能因人而异、因团队而异、甚至因语言而异。不管是否大写，重要的是要制定一个标准并遵守它。<br>
 </p>
 </div>
 </div>
 
-<div id="outline-container-orga68e304" class="outline-3">
-<h3 id="orga68e304">尽量做到只看注释便可明白而无需查看变更内容</h3>
-<div class="outline-text-3" id="text-orga68e304">
+<div id="outline-container-org583e5bb" class="outline-3">
+<h3 id="org583e5bb">尽量做到只看注释便可明白而无需查看变更内容</h3>
+<div class="outline-text-3" id="text-org583e5bb">
 <blockquote>
 <p>
-Add `use` method to Credit model 
-为 Credit 模块添加 `use` 方法
+Add `use` method to Credit model<br>
+为 Credit 模块添加 `use` 方法<br>
 </p>
 </blockquote>
 
 <blockquote>
 <p>
-Add `use` method 
-添加 `use` 方法
+Add `use` method<br>
+添加 `use` 方法<br>
 </p>
 </blockquote>
 
 <blockquote>
 <p>
-Increase left padding between textbox and layout frame 
-在 textbox 和 layout frame 之间添加向左对齐
+Increase left padding between textbox and layout frame<br>
+在 textbox 和 layout frame 之间添加向左对齐<br>
 </p>
 </blockquote>
 
 <blockquote>
 <p>
-Adjust css 
-就改了下 css
+Adjust css<br>
+就改了下 css<br>
 </p>
 </blockquote>
 
 <p>
-它在许多场景中（例如多次 commit、多个更改和重构）非常有用，可以帮助审查人员理解提交者的想法。
+它在许多场景中（例如多次 commit、多个更改和重构）非常有用，可以帮助审查人员理解提交者的想法。<br>
 </p>
 </div>
 </div>
 
-<div id="outline-container-orgc2a2f41" class="outline-3">
-<h3 id="orgc2a2f41">使用信息本身来解释“原因”、“目的”、“手段”和其他的细节</h3>
-<div class="outline-text-3" id="text-orgc2a2f41">
+<div id="outline-container-org2b8ae0e" class="outline-3">
+<h3 id="org2b8ae0e">使用信息本身来解释“原因”、“目的”、“手段”和其他的细节</h3>
+<div class="outline-text-3" id="text-org2b8ae0e">
 <blockquote>
 <p>
-Fix method name of InventoryBackend child classes
+Fix method name of InventoryBackend child classes<br>
 </p>
 
 <p>
-Classes derived from InventoryBackend were not
-respecting the base class interface.
+Classes derived from InventoryBackend were not<br>
+respecting the base class interface.<br>
 </p>
 
 <p>
-It worked because the cart was calling the backend implementation
-incorrectly.
+It worked because the cart was calling the backend implementation<br>
+incorrectly.<br>
 </p>
 </blockquote>
 
 <blockquote>
 <p>
-Serialize and deserialize credits to json in Cart
+Serialize and deserialize credits to json in Cart<br>
 </p>
 
 <p>
-Convert the Credit instances to dict for two main reasons:
-</p>
-
-<ul class="org-ul">
-<li>Pickle relies on file path for classes and we do not want to break up
-everything if a refactor is needed</li>
-<li>Dict and built-in types are pickleable by default</li>
-</ul>
-</blockquote>
-
-<blockquote>
-<p>
-Add `use` method to Credit
-</p>
-
-<p>
-Change from namedtuple to class because we need to
-setup a new attribute (in_use_amount) with a new value
-</p>
-</blockquote>
-
-<p>
-信息的主题和正文之间用空行隔开。其他空行被视为信息正文的一部分。
-</p>
-
-<p>
-像“-”、“*”和“\”这样的字符可以提高可读性。
-</p>
-</div>
-</div>
-
-<div id="outline-container-orgb4d546c" class="outline-3">
-<h3 id="orgb4d546c">避免使用无上下文的信息</h3>
-<div class="outline-text-3" id="text-orgb4d546c">
-<blockquote>
-<p>
-Fix this
-</p>
-
-<p>
-Fix stuff
-</p>
-
-<p>
-It should work now
-</p>
-
-<p>
-Change stuff
-</p>
-
-<p>
-Adjust css
-</p>
-</blockquote>
-</div>
-</div>
-
-<div id="outline-container-org2034476" class="outline-3">
-<h3 id="org2034476">限制每行字数</h3>
-<div class="outline-text-3" id="text-org2034476">
-<p>
-<a href="https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project#_commit_guidelines">这里建议</a>主题最多使用50个字符，正文最多使用72个字符。
-</p>
-</div>
-</div>
-<div id="outline-container-org05a7d1d" class="outline-3">
-<h3 id="org05a7d1d">保持语言的一致性</h3>
-<div class="outline-text-3" id="text-org05a7d1d">
-<p>
-对于项目所有者而言：选择一种语言并使用该语言编写所有的 commit 信息。理想情况下，它应与代码注释、默认翻译区域（用于本地化项目）等相匹配。
-</p>
-
-<p>
-对于贡献者而言：使用与现有 commit 历史相同的语言编写 commit 信息。
-</p>
-
-<blockquote>
-<p>
-ababab Add `use` method to Credit model
-efefef Use InventoryBackendPool to retrieve inventory backend
-bebebe Fix method name of InventoryBackend child classes
-</p>
-</blockquote>
-
-<blockquote>
-<p>
-ababab Adiciona o método `use` ao model Credit
-efefef Usa o InventoryBackendPool para recuperar o backend de estoque
-bebebe Corrige nome de método na classe InventoryBackend
-</p>
-</blockquote>
-
-<blockquote>
-<p>
-ababab Usa o InventoryBackendPool para recuperar o backend de estoque
-efefef Add `use` method to Credit model
-cdcdcd Agora vai
-</p>
-</blockquote>
-</div>
-</div>
-<div id="outline-container-orgf786c97" class="outline-3">
-<h3 id="orgf786c97">模板</h3>
-<div class="outline-text-3" id="text-orgf786c97">
-<p>
-下面是参考模板，最初由 <a href="http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html">Tim Pope</a> 编写，出现在 <a href="https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project"><span class="underline">Pro Git Book</span></a>  中。
-</p>
-
-<blockquote>
-<p>
-用 50 左右或更少的字符描述更改
-</p>
-
-<p>
-如有必要，可提供更详细的补充说明，并尽可能将其限定在每行 72 个字符左右。在某些情况下，第一行被视为 commit 的主题，文本其余部分被作为正文。因此，将主题从正文分割出来的空白行就显得至关重要(除非完全省略正文)。如若不然，在使用命令行，如 “log”，“shortlog” 以及 “rebase” 的时候，将会很容易混淆。
-</p>
-
-<p>
-解释当前 commit 所解决的问题。请重点描述产生此更改的原因，而非手段（代码解释了一切）。是否存在副作用以及其他不直观的影响？请在这里将其解释清楚。
-</p>
-
-<p>
-接下来请另起一行。
+Convert the Credit instances to dict for two main reasons:<br>
 </p>
 
 <ul class="org-ul">
-<li>也可以使用列举要点的格式。</li>
-
-<li>通常使用连字符(-)或星号(*)作为要点段落标记，标记与文本之间留一空格，各要点之间留一空行。但这取决于你们的约定。</li>
+<li>Pickle relies on file path for classes and we do not want to break up<br>
+everything if a refactor is needed<br></li>
+<li>Dict and built-in types are pickleable by default<br></li>
 </ul>
+</blockquote>
 
+<blockquote>
 <p>
-如果你使用问题跟踪器，请将对它们的引用放在底部，如下所示:
+Add `use` method to Credit<br>
 </p>
 
 <p>
-Resolves: #123
-See also: #456, #789
+Change from namedtuple to class because we need to<br>
+setup a new attribute (in_use_amount) with a new value<br>
+</p>
+</blockquote>
+
+<p>
+信息的主题和正文之间用空行隔开。其他空行被视为信息正文的一部分。<br>
+</p>
+
+<p>
+像“-”、“*”和“\”这样的字符可以提高可读性。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org8731689" class="outline-3">
+<h3 id="org8731689">避免使用无上下文的信息</h3>
+<div class="outline-text-3" id="text-org8731689">
+<blockquote>
+<p>
+Fix this<br>
+</p>
+
+<p>
+Fix stuff<br>
+</p>
+
+<p>
+It should work now<br>
+</p>
+
+<p>
+Change stuff<br>
+</p>
+
+<p>
+Adjust css<br>
 </p>
 </blockquote>
 </div>
 </div>
-</div>
-<div id="outline-container-org7ee7a3a" class="outline-2">
-<h2 id="org7ee7a3a">Rebase vs. Merge</h2>
-<div class="outline-text-2" id="text-org7ee7a3a">
+
+<div id="outline-container-org690421e" class="outline-3">
+<h3 id="org690421e">限制每行字数</h3>
+<div class="outline-text-3" id="text-org690421e">
 <p>
-这部分是 Atlassian 的优秀教程(TL;DR)—— <a href="https://www.atlassian.com/git/tutorials/merging-vs-rebasing">"Merging vs. Rebasing"</a> 的精华。
+<a href="https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project#_commit_guidelines">这里建议</a>主题最多使用50个字符，正文最多使用72个字符。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org459b67b" class="outline-3">
+<h3 id="org459b67b">保持语言的一致性</h3>
+<div class="outline-text-3" id="text-org459b67b">
+<p>
+对于项目所有者而言：选择一种语言并使用该语言编写所有的 commit 信息。理想情况下，它应与代码注释、默认翻译区域（用于本地化项目）等相匹配。<br>
 </p>
 
 <p>
-<a href="img/Git-commit-1.svg">A forked commit history</a>
+对于贡献者而言：使用与现有 commit 历史相同的语言编写 commit 信息。<br>
 </p>
-</div>
-<div id="outline-container-org2fedfd5" class="outline-3">
-<h3 id="org2fedfd5">Rebase</h3>
-<div class="outline-text-3" id="text-org2fedfd5">
+
+<blockquote>
 <p>
-<b>TL;DR:</b> 将你的分支逐个应用于基本分支，生成新树。
+ababab Add `use` method to Credit model<br>
+efefef Use InventoryBackendPool to retrieve inventory backend<br>
+bebebe Fix method name of InventoryBackend child classes<br>
+</p>
+</blockquote>
+
+<blockquote>
+<p>
+ababab Adiciona o método `use` ao model Credit<br>
+efefef Usa o InventoryBackendPool para recuperar o backend de estoque<br>
+bebebe Corrige nome de método na classe InventoryBackend<br>
+</p>
+</blockquote>
+
+<blockquote>
+<p>
+ababab Usa o InventoryBackendPool para recuperar o backend de estoque<br>
+efefef Add `use` method to Credit model<br>
+cdcdcd Agora vai<br>
+</p>
+</blockquote>
+</div>
+</div>
+<div id="outline-container-org7cdfe32" class="outline-3">
+<h3 id="org7cdfe32">模板</h3>
+<div class="outline-text-3" id="text-org7cdfe32">
+<p>
+下面是参考模板，最初由 <a href="http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html">Tim Pope</a> 编写，出现在 <a href="https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project"><span class="underline">Pro Git Book</span></a>  中。<br>
+</p>
+
+<blockquote>
+<p>
+用 50 左右或更少的字符描述更改<br>
 </p>
 
 <p>
-<a href="img/Git-commit-2.svg">Brand New Commit</a>
-</p>
-</div>
-</div>
-
-<div id="outline-container-orgeaf1adf" class="outline-3">
-<h3 id="orgeaf1adf">Merge</h3>
-<div class="outline-text-3" id="text-orgeaf1adf">
-<p>
-<b>TL;DR:</b> 创建一个新的 commit，称为 _merge commit_（合并提交），其具有两个分支之间的差异。
+如有必要，可提供更详细的补充说明，并尽可能将其限定在每行 72 个字符左右。<br>
+在某些情况下，第一行被视为 commit 的主题，文本其余部分被作为正文。<br>
+因此，将主题从正文分割出来的空白行就显得至关重要(除非完全省略正文)。<br>
+如若不然，在使用命令行，如 “log”，“shortlog” 以及 “rebase” 的时候，将会很容易混淆。<br>
 </p>
 
 <p>
-<a href="img/Git-commit-3.svg">Merge Commit</a>
+解释当前 commit 所解决的问题。<br>
+请重点描述产生此更改的原因，而非手段（代码解释了一切）。<br>
+是否存在副作用以及其他不直观的影响？<br>
+请在这里将其解释清楚。<br>
 </p>
-</div>
-</div>
 
-<div id="outline-container-orgfbf385c" class="outline-3">
-<h3 id="orgfbf385c">为什么一些人更喜欢 rebase 而非 merge？</h3>
-<div class="outline-text-3" id="text-orgfbf385c">
 <p>
-我特别喜欢 rebase 而不是 merge。原因有以下几点：
+接下来请另起一行。<br>
 </p>
 
 <ul class="org-ul">
-<li>它的历史信息很"干净"，没有无用的合并 commit。</li>
-<li>_所见即所得_，即在代码审查中，所有的更改都能在特定的、有标题的 commit 中找到，避免了隐藏在合并 commit 中的修改。</li>
-<li>通常 merge 是由提交者实行的，并会为每个转换成 commit 的 merge 书写准确的信息。
+<li>也可以使用列举要点的格式。<br></li>
+
+<li><p>
+通常使用连字符(-)或星号(*)作为要点段落标记，标记与文本之间留一空格，各要点之间留一空行。但这取决于你们的约定。<br>
+</p>
+
+<p>
+如果你使用问题跟踪器，请将对它们的引用放在底部，如下所示:<br>
+</p>
+
+<p>
+Resolves: #123<br>
+See also: #456, #789<br>
+</p></li>
+</ul>
+</blockquote>
+</div>
+</div>
+</div>
+<div id="outline-container-org76eb333" class="outline-2">
+<h2 id="org76eb333">Rebase vs. Merge</h2>
+<div class="outline-text-2" id="text-org76eb333">
+<p>
+这部分是 Atlassian 的优秀教程(TL;DR)—— <a href="https://www.atlassian.com/git/tutorials/merging-vs-rebasing">"Merging vs. Rebasing"</a> 的精华。<br>
+</p>
+
+<p>
+<a href="img/Git-commit-1.svg">A forked commit history</a><br>
+</p>
+</div>
+<div id="outline-container-org144bf17" class="outline-3">
+<h3 id="org144bf17">Rebase</h3>
+<div class="outline-text-3" id="text-org144bf17">
+<p>
+<b>TL;DR:</b> 将你的分支逐个应用于基本分支，生成新树。<br>
+</p>
+
+<p>
+<a href="img/Git-commit-2.svg">Brand New Commit</a><br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgf922098" class="outline-3">
+<h3 id="orgf922098">Merge</h3>
+<div class="outline-text-3" id="text-orgf922098">
+<p>
+<b>TL;DR:</b> 创建一个新的 commit，称为 _merge commit_（合并提交），其具有两个分支之间的差异。<br>
+</p>
+
+<p>
+<a href="img/Git-commit-3.svg">Merge Commit</a><br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgea1def7" class="outline-3">
+<h3 id="orgea1def7">为什么一些人更喜欢 rebase 而非 merge？</h3>
+<div class="outline-text-3" id="text-orgea1def7">
+<p>
+我特别喜欢 rebase 而不是 merge。原因有以下几点：<br>
+</p>
+
 <ul class="org-ul">
-<li>通常我们不会深挖和复查 merge commit，因此尽量避免使用 merge commit，并确保个变化点都有它们所属的 commit 。</li>
+<li>它的历史信息很"干净"，没有无用的合并 commit。<br></li>
+<li>_所见即所得_，即在代码审查中，所有的更改都能在特定的、有标题的 commit 中找到，避免了隐藏在合并 commit 中的修改。<br></li>
+<li>通常 merge 是由提交者实行的，并会为每个转换成 commit 的 merge 书写准确的信息。<br>
+<ul class="org-ul">
+<li>通常我们不会深挖和复查 merge commit，因此尽量避免使用 merge commit，并确保个变化点都有它们所属的 commit 。<br></li>
 </ul></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orga36cb9f" class="outline-3">
-<h3 id="orga36cb9f">什么时候 squash</h3>
-<div class="outline-text-3" id="text-orga36cb9f">
+<div id="outline-container-orgce88237" class="outline-3">
+<h3 id="orgce88237">什么时候 squash</h3>
+<div class="outline-text-3" id="text-orgce88237">
 <p>
-“Squashing” 是将一系列 commit 压缩成一个的过程。
+“Squashing” 是将一系列 commit 压缩成一个的过程。<br>
 </p>
 
 <p>
-它在某些情况下很有用，例如：
+它在某些情况下很有用，例如：<br>
 </p>
 
 <ul class="org-ul">
-<li>减少那些很少甚至没有上下文（拼写错误、格式化、缺失内容）的 commit</li>
-<li>将单独的更改连接在一起使它们更通俗易懂</li>
-<li>重写 <span class="underline">work in progress</span> 的 commit</li>
+<li>减少那些很少甚至没有上下文（拼写错误、格式化、缺失内容）的 commit<br></li>
+<li>将单独的更改连接在一起使它们更通俗易懂<br></li>
+<li>重写 <span class="underline">work in progress</span> 的 commit<br></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgcea5cf9" class="outline-3">
-<h3 id="orgcea5cf9">什么时候避免 rebase 或 squash</h3>
-<div class="outline-text-3" id="text-orgcea5cf9">
+<div id="outline-container-org35d3d6e" class="outline-3">
+<h3 id="org35d3d6e">什么时候避免 rebase 或 squash</h3>
+<div class="outline-text-3" id="text-org35d3d6e">
 <p>
-避免在多人共同开发的公共 commit 或共享分支上使用 rebase 和 squash。rebase 和 squash 会改写历史记录并覆盖当前 commit，在共享分支的 commit（即推送到远程仓库或来自其他分支的 commit）上执行这些操作可能会引起混乱，由于分支产生分歧及冲突，合作者可能会因此失去他们（本地和远程）的更改。
+避免在多人共同开发的公共 commit 或共享分支上使用 rebase 和 squash。rebase 和 squash 会改写历史记录并覆盖当前 commit，在共享分支的 commit（即推送到远程仓库或来自其他分支的 commit）上执行这些操作可能会引起混乱，由于分支产生分歧及冲突，合作者可能会因此失去他们（本地和远程）的更改。<br>
 </p>
 </div>
 </div>
 </div>
 
-<div id="outline-container-orgb2ad193" class="outline-2">
-<h2 id="orgb2ad193">有用的 git 命令</h2>
-<div class="outline-text-2" id="text-orgb2ad193">
+<div id="outline-container-orgc1f2cdc" class="outline-2">
+<h2 id="orgc1f2cdc">有用的 git 命令</h2>
+<div class="outline-text-2" id="text-orgc1f2cdc">
 </div>
-<div id="outline-container-org81f1265" class="outline-3">
-<h3 id="org81f1265">rebase -i</h3>
-<div class="outline-text-3" id="text-org81f1265">
+<div id="outline-container-orgeebaa17" class="outline-3">
+<h3 id="orgeebaa17">rebase -i</h3>
+<div class="outline-text-3" id="text-orgeebaa17">
 <p>
-使用它来压缩提交（squash commits）、 编写信息、 重写/删除/重新编排 commit 等。
-</p>
-
-<blockquote>
-<p>
-pick 002a7cc Improve description and update document title
-pick 897f66d Add contributing section
-pick e9549cf Add a section of Available languages
-pick ec003aa Add "What is a commit" section"
-pick bbe5361 Add source referencing as a point of help wanted
-pick b71115e Add a section explaining the importance of commit messages
-pick 669bf2b Add "Good practices" section
-pick d8340d7 Add capitalization of first letter practice
-pick 925f42b Add a practice to encourage good descriptions
-pick be05171 Add a section showing good uses of message body
-pick d115bb8 Add generic messages and column limit sections
-pick 1693840 Add a section about language consistency
-pick 80c5f47 Add commit message template
-pick 8827962 Fix triple "m" typo
-pick 9b81c72 Add "Rebase vs Merge" section
-</p>
-</blockquote>
-</div>
-
-<div id="outline-container-org3a37a3c" class="outline-4">
-<h4 id="org3a37a3c">fixup</h4>
-<div class="outline-text-4" id="text-org3a37a3c">
-<p>
-使用它可以轻松清理 commit，而不需要复杂的 rebase。 <a href="http://fle.github.io/git-tip-keep-your-branch-clean-with-fixup-and-autosquash.html">这篇文章</a> 提供了很好的示例，说明了如何以及何时进行此操作。
-</p>
-</div>
-</div>
-</div>
-
-<div id="outline-container-orgd4658d3" class="outline-3">
-<h3 id="orgd4658d3">cherry-pick</h3>
-<div class="outline-text-3" id="text-orgd4658d3">
-<p>
-它在你 commit 到了错误的分支而不需要重新编码时非常有用。
-</p>
-
-<p>
-例子：
+使用它来压缩提交（squash commits）、 编写信息、 重写/删除/重新编排 commit 等。<br>
 </p>
 
 <blockquote>
 <p>
-$ git cherry-pick 790ab21
-[master 094d820] Fix English grammar in Contributing
-Date: Sun Feb 25 23:14:23 2018 -0300
-1 file changed, 1 insertion(+), 1 deletion(-)
+pick 002a7cc Improve description and update document title<br>
+pick 897f66d Add contributing section<br>
+pick e9549cf Add a section of Available languages<br>
+pick ec003aa Add "What is a commit" section"<br>
+pick bbe5361 Add source referencing as a point of help wanted<br>
+pick b71115e Add a section explaining the importance of commit messages<br>
+pick 669bf2b Add "Good practices" section<br>
+pick d8340d7 Add capitalization of first letter practice<br>
+pick 925f42b Add a practice to encourage good descriptions<br>
+pick be05171 Add a section showing good uses of message body<br>
+pick d115bb8 Add generic messages and column limit sections<br>
+pick 1693840 Add a section about language consistency<br>
+pick 80c5f47 Add commit message template<br>
+pick 8827962 Fix triple "m" typo<br>
+pick 9b81c72 Add "Rebase vs Merge" section<br>
+</p>
+</blockquote>
+</div>
+
+<div id="outline-container-org223fc97" class="outline-4">
+<h4 id="org223fc97">fixup</h4>
+<div class="outline-text-4" id="text-org223fc97">
+<p>
+使用它可以轻松清理 commit，而不需要复杂的 rebase。 <a href="http://fle.github.io/git-tip-keep-your-branch-clean-with-fixup-and-autosquash.html">这篇文章</a> 提供了很好的示例，说明了如何以及何时进行此操作。<br>
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org39e6c00" class="outline-3">
+<h3 id="org39e6c00">cherry-pick</h3>
+<div class="outline-text-3" id="text-org39e6c00">
+<p>
+它在你 commit 到了错误的分支而不需要重新编码时非常有用。<br>
+</p>
+
+<p>
+例子：<br>
+</p>
+
+<blockquote>
+<p>
+$ git cherry-pick 790ab21<br>
+[master 094d820] Fix English grammar in Contributing<br>
+Date: Sun Feb 25 23:14:23 2018 -0300<br>
+1 file changed, 1 insertion(+), 1 deletion(-)<br>
 </p>
 </blockquote>
 </div>
 </div>
 
-<div id="outline-container-org25cac98" class="outline-3">
-<h3 id="org25cac98">add/checkout/reset [&#x2013;patch | -p]</h3>
-<div class="outline-text-3" id="text-org25cac98">
+<div id="outline-container-orgedebb73" class="outline-3">
+<h3 id="orgedebb73">add/checkout/reset [&#x2013;patch | -p]</h3>
+<div class="outline-text-3" id="text-orgedebb73">
 <p>
-假设我们有以下冲突：
+假设我们有以下冲突：<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-diff">diff --git a/README.md b/README.md
-index 7b45277..6b1993c 100644
---- a/README.md
-+++ b/README.md
-@@ -186,10 +186,13 @@ bebebe Corrige nome de método na classe InventoryBackend
-``
-# Bad (mixes English and Portuguese)
-ababab Usa o InventoryBackendPool para recuperar o backend de estoque
--efefef Add `use` method to Credit model
-cdcdcd Agora vai
-``
+<pre class="src src-diff"><span style="color: #36D8BD;">diff --git a/README.md b/README.md</span>
+<span style="color: #36D8BD;">index 7b45277..6b1993c 100644</span>
+<span style="color: #36D8BD;">--- </span><span style="color: #3679D8;">a/README.md</span>
+<span style="color: #36D8BD;">+++ </span><span style="color: #3679D8;">b/README.md</span>
+<span style="color: #AB11D8;">@@ -186,10 +186,13 @@</span><span style="color: #36D8BD;"> bebebe Corrige nome de m&#233;todo na classe InventoryBackend</span>
+<span style="color: #b5c0c9;">``</span>
+<span style="color: #767676; font-style: italic;">#</span><span style="color: #767676; font-style: italic;"> Bad (mixes English and Portuguese)</span>
+<span style="color: #b5c0c9;">ababab Usa o InventoryBackendPool para recuperar o backend de estoque</span>
+<span style="color: #aa2222; background-color: #464A56;">-</span><span style="color: #D83441; background-color: #464A56;">efefef Add `use` method to Credit model</span>
+<span style="color: #b5c0c9;">cdcdcd Agora vai</span>
+<span style="color: #b5c0c9;">``</span>
 
-+### Template
-+
-+This is a template, [written originally by Tim Pope](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html), which appears in the [_Pro Git Book_](https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project).
-+
-## Contributing
+<span style="color: #22aa22; background-color: #040408;">+</span><span style="color: #79D836; background-color: #040408;">### Template</span>
+<span style="color: #22aa22; background-color: #040408;">+</span>
+<span style="color: #22aa22; background-color: #040408;">+</span><span style="color: #79D836; background-color: #040408;">This is a template, [written originally by Tim Pope](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html), which appears in the [_Pro Git Book_](https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project).</span>
+<span style="color: #22aa22; background-color: #040408;">+</span>
+<span style="color: #767676; font-style: italic;">#</span><span style="color: #767676; font-style: italic;"># Contributing</span>
 
-Any kind of help would be appreciated. Example of topics that you can help me with:
-@@ -202,3 +205,4 @@ Any kind of help would be appreciated. Example of topics that you can help me wi
+<span style="color: #b5c0c9;">Any kind of help would be appreciated. Example of topics that you can help me with:</span>
+<span style="color: #AB11D8;">@@ -202,3 +205,4 @@</span><span style="color: #36D8BD;"> Any kind of help would be appreciated. Example of topics that you can help me wi</span>
 
-- [How to Write a Git Commit Message](https://chris.beams.io/posts/git-commit/)
-- [Pro Git Book - Commit guidelines](https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project#_commit_guidelines)
+<span style="color: #aa2222; background-color: #464A56;">-</span><span style="color: #D83441; background-color: #464A56;"> [How to Write a Git Commit Message](https://chris.beams.io/posts/git-commit/)</span>
+<span style="color: #aa2222; background-color: #464A56;">-</span><span style="color: #D83441; background-color: #464A56;"> [Pro Git Book - Commit guidelines](https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project#_commit_guidelines)</span>
 +- [A Note About Git Commit Messages](https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html)
 </pre>
 </div>
 
 <p>
-我们可以使用 `git add -p` 只添加我们想要的补丁，而无需更改已有代码。它在将一个大的更改分解为小的 commit 或 reset/checkout 特定的更改时很有用。
+我们可以使用 `git add -p` 只添加我们想要的补丁，而无需更改已有代码。<br>
+它在将一个大的更改分解为小的 commit 或 reset/checkout 特定的更改时很有用。<br>
 </p>
 
 <blockquote>
 <p>
-Stage this hunk [y,n,q,a,d,/,j,J,g,s,e,?]? s
-Split into 2 hunks.
+Stage this hunk [y,n,q,a,d,/,j,J,g,s,e,?]? s<br>
+Split into 2 hunks.<br>
 </p>
 </blockquote>
 </div>
 
-<div id="outline-container-org2aee37f" class="outline-4">
-<h4 id="org2aee37f">hunk 1</h4>
-<div class="outline-text-4" id="text-org2aee37f">
+<div id="outline-container-org46cf2b9" class="outline-4">
+<h4 id="org46cf2b9">hunk 1</h4>
+<div class="outline-text-4" id="text-org46cf2b9">
 <div class="org-src-container">
-<pre class="src src-diff">@@ -186,7 +186,6 @@
-``
-# Bad (mixes English and Portuguese)
-ababab Usa o InventoryBackendPool para recuperar o backend de estoque
--efefef Add `use` method to Credit model
-cdcdcd Agora vai
-``
+<pre class="src src-diff"><span style="color: #AB11D8;">@@ -186,7 +186,6 @@</span>
+<span style="color: #b5c0c9;">``</span>
+<span style="color: #767676; font-style: italic;">#</span><span style="color: #767676; font-style: italic;"> Bad (mixes English and Portuguese)</span>
+<span style="color: #b5c0c9;">ababab Usa o InventoryBackendPool para recuperar o backend de estoque</span>
+<span style="color: #aa2222; background-color: #464A56;">-</span><span style="color: #D83441; background-color: #464A56;">efefef Add `use` method to Credit model</span>
+<span style="color: #b5c0c9;">cdcdcd Agora vai</span>
+<span style="color: #b5c0c9;">``</span>
 
 Stage this hunk [y,n,q,a,d,/,j,J,g,e,?]?
 </pre>
@@ -625,36 +632,36 @@ Stage this hunk [y,n,q,a,d,/,j,J,g,e,?]?
 </div>
 </div>
 
-<div id="outline-container-org5a9d590" class="outline-4">
-<h4 id="org5a9d590">hunk 2</h4>
-<div class="outline-text-4" id="text-org5a9d590">
+<div id="outline-container-org33b4c6e" class="outline-4">
+<h4 id="org33b4c6e">hunk 2</h4>
+<div class="outline-text-4" id="text-org33b4c6e">
 <div class="org-src-container">
-<pre class="src src-diff">@@ -190,6 +189,10 @@
-``
-cdcdcd Agora vai
-``
+<pre class="src src-diff"><span style="color: #AB11D8;">@@ -190,6 +189,10 @@</span>
+<span style="color: #b5c0c9;">``</span>
+<span style="color: #b5c0c9;">cdcdcd Agora vai</span>
+<span style="color: #b5c0c9;">``</span>
 
-+### Template
-+
-+This is a template, [written originally by Tim Pope](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html), which appears in the [_Pro Git Book_](https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project).
-+
-## Contributing
+<span style="color: #22aa22; background-color: #040408;">+</span><span style="color: #79D836; background-color: #040408;">### Template</span>
+<span style="color: #22aa22; background-color: #040408;">+</span>
+<span style="color: #22aa22; background-color: #040408;">+</span><span style="color: #79D836; background-color: #040408;">This is a template, [written originally by Tim Pope](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html), which appears in the [_Pro Git Book_](https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project).</span>
+<span style="color: #22aa22; background-color: #040408;">+</span>
+<span style="color: #767676; font-style: italic;">#</span><span style="color: #767676; font-style: italic;"># Contributing</span>
 
-Any kind of help would be appreciated. Example of topics that you can help me with:
+<span style="color: #b5c0c9;">Any kind of help would be appreciated. Example of topics that you can help me with:</span>
 Stage this hunk [y,n,q,a,d,/,K,j,J,g,e,?]?
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-org609954f" class="outline-4">
-<h4 id="org609954f">hunk 3</h4>
-<div class="outline-text-4" id="text-org609954f">
+<div id="outline-container-org7806441" class="outline-4">
+<h4 id="org7806441">hunk 3</h4>
+<div class="outline-text-4" id="text-org7806441">
 <div class="org-src-container">
-<pre class="src src-diff">@@ -202,3 +205,4 @@ Any kind of help would be appreciated. Example of topics that you can help me wi
+<pre class="src src-diff"><span style="color: #AB11D8;">@@ -202,3 +205,4 @@</span><span style="color: #36D8BD;"> Any kind of help would be appreciated. Example of topics that you can help me wi</span>
 
-- [How to Write a Git Commit Message](https://chris.beams.io/posts/git-commit/)
-- [Pro Git Book - Commit guidelines](https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project#_commit_guidelines)
+<span style="color: #aa2222; background-color: #464A56;">-</span><span style="color: #D83441; background-color: #464A56;"> [How to Write a Git Commit Message](https://chris.beams.io/posts/git-commit/)</span>
+<span style="color: #aa2222; background-color: #464A56;">-</span><span style="color: #D83441; background-color: #464A56;"> [Pro Git Book - Commit guidelines](https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project#_commit_guidelines)</span>
 +- [A Note About Git Commit Messages](https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html)
 </pre>
 </div>
@@ -663,49 +670,49 @@ Stage this hunk [y,n,q,a,d,/,K,j,J,g,e,?]?
 </div>
 </div>
 
-<div id="outline-container-org07ab549" class="outline-2">
-<h2 id="org07ab549">其他有趣的内容</h2>
-<div class="outline-text-2" id="text-org07ab549">
+<div id="outline-container-orgeb5c614" class="outline-2">
+<h2 id="orgeb5c614">其他有趣的内容</h2>
+<div class="outline-text-2" id="text-orgeb5c614">
 <p>
-<a href="https://whatthecommit.com/">https://whatthecommit.com/</a>
+<a href="https://whatthecommit.com/">https://whatthecommit.com/</a><br>
 </p>
 </div>
 </div>
 
-<div id="outline-container-org60c86e7" class="outline-2">
-<h2 id="org60c86e7">喜欢它吗？</h2>
-<div class="outline-text-2" id="text-org60c86e7">
+<div id="outline-container-org911d10e" class="outline-2">
+<h2 id="org911d10e">喜欢它吗？</h2>
+<div class="outline-text-2" id="text-org911d10e">
 <p>
-[点赞！](<a href="https://saythanks.io/to/RomuloOliveira">https://saythanks.io/to/RomuloOliveira</a>)
+[点赞！](<a href="https://saythanks.io/to/RomuloOliveira">https://saythanks.io/to/RomuloOliveira</a>)<br>
 </p>
 </div>
 </div>
 
-<div id="outline-container-orge7f4a29" class="outline-2">
-<h2 id="orge7f4a29">贡献</h2>
-<div class="outline-text-2" id="text-orge7f4a29">
+<div id="outline-container-orge24b45c" class="outline-2">
+<h2 id="orge24b45c">贡献</h2>
+<div class="outline-text-2" id="text-orge24b45c">
 <p>
-感谢任何形式的帮助。例如：
+感谢任何形式的帮助。例如：<br>
 </p>
 
 <ul class="org-ul">
-<li>语法和拼写的纠正</li>
-<li>翻译成其他语言</li>
-<li>原引用的改进</li>
-<li>不正确或不完整的信息</li>
+<li>语法和拼写的纠正<br></li>
+<li>翻译成其他语言<br></li>
+<li>原引用的改进<br></li>
+<li>不正确或不完整的信息<br></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org788f007" class="outline-2">
-<h2 id="org788f007">灵感、来源以及扩展阅读</h2>
-<div class="outline-text-2" id="text-org788f007">
+<div id="outline-container-org05afcdd" class="outline-2">
+<h2 id="org05afcdd">灵感、来源以及扩展阅读</h2>
+<div class="outline-text-2" id="text-org05afcdd">
 <ul class="org-ul">
-<li>[如何编写 Git Commit Message](<a href="https://chris.beams.io/posts/git-commit/">https://chris.beams.io/posts/git-commit/</a>)</li>
-<li>[Pro Git Book - Commit 指南](<a href="https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project#_commit_guidelines">https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project#_commit_guidelines</a>)</li>
-<li>[关于 Git Commit Messages 的说明](<a href="https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html">https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html</a>)</li>
-<li>[合并与变基](<a href="https://www.atlassian.com/git/tutorials/merging-vs-rebasing">https://www.atlassian.com/git/tutorials/merging-vs-rebasing</a>)</li>
-<li>[Pro Git Book - 改写历史](<a href="https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History">https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History</a>)</li>
+<li>[如何编写 Git Commit Message](<a href="https://chris.beams.io/posts/git-commit/">https://chris.beams.io/posts/git-commit/</a>)<br></li>
+<li>[Pro Git Book - Commit 指南](<a href="https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project#_commit_guidelines">https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project#_commit_guidelines</a>)<br></li>
+<li>[关于 Git Commit Messages 的说明](<a href="https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html">https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html</a>)<br></li>
+<li>[合并与变基](<a href="https://www.atlassian.com/git/tutorials/merging-vs-rebasing">https://www.atlassian.com/git/tutorials/merging-vs-rebasing</a>)<br></li>
+<li>[Pro Git Book - 改写历史](<a href="https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History">https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History</a>)<br></li>
 </ul>
 </div>
 </div>

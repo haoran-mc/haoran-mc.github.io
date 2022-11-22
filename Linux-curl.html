@@ -1,83 +1,81 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-05-27 Fri 17:16 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 2023-01-12 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>CURL</title>
-<meta name="generator" content="Org mode">
-<meta name="author" content="L.M.haoran">
-<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
->
-
-                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
-                <script type="module" src="static/js/main.js" defer></script>
-                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<meta name="author" content="L.M.haoran" />
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved." />
+<meta name="generator" content="Org Mode" />
+<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+           <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+           <script type="module" src="static/js/main.js" defer></script>
 </head>
 <body>
-<div id="content">
+<div id="content" class="content">
 <h1 class="title">CURL</h1>
-<div id="table-of-contents">
+<div id="table-of-contents" role="doc-toc">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents">
+<div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org5d8a279">curl 的功能</a>
+<li><a href="#orge8fc9ac">curl 的功能</a>
 <ul>
-<li><a href="#org3471343">一、查看网页码源</a></li>
-<li><a href="#orge241e29">二、自动跳转</a></li>
-<li><a href="#org648cf89">三、显示头信息</a></li>
-<li><a href="#org90d1abf">四、显示通信过程</a></li>
-<li><a href="#org1a0d8e4">五、发送表单信息</a></li>
-<li><a href="#org141cc57">六、HTTP动词</a></li>
-<li><a href="#org3a0c458">七、文件上传</a></li>
-<li><a href="#org7ec2596">八、Referer字段</a></li>
-<li><a href="#org320cbe7">九、User Agent字段</a></li>
-<li><a href="#org7095fa0">十、cookie</a></li>
-<li><a href="#org0e09144">十一、增加头信息</a></li>
-<li><a href="#orge6029b5">十二、HTTP认证</a></li>
+<li><a href="#orgd17c2e2">一、查看网页码源</a></li>
+<li><a href="#orgfb1d4ac">二、自动跳转</a></li>
+<li><a href="#org2e55e31">三、显示头信息</a></li>
+<li><a href="#orgde7e26b">四、显示通信过程</a></li>
+<li><a href="#org19be7c5">五、发送表单信息</a></li>
+<li><a href="#org2415da4">六、HTTP动词</a></li>
+<li><a href="#orga10ae15">七、文件上传</a></li>
+<li><a href="#org23ca775">八、Referer字段</a></li>
+<li><a href="#orgc9c2b35">九、User Agent字段</a></li>
+<li><a href="#orgad91bb4">十、cookie</a></li>
+<li><a href="#org33da60d">十一、增加头信息</a></li>
+<li><a href="#orgf31a342">十二、HTTP认证</a></li>
 </ul>
 </li>
-<li><a href="#org78e6a37">使用 curl 代替 postman</a>
+<li><a href="#orgd9d8b1c">使用 curl 代替 postman</a>
 <ul>
-<li><a href="#org17faed5">发送 GET 请求</a></li>
-<li><a href="#org3b61aab">发送 POST 请求</a></li>
-<li><a href="#orga139ace">发送 PUT 请求</a></li>
-<li><a href="#orgbed4d6f">发送 DELETE 请求</a></li>
+<li><a href="#org8d667c7">发送 GET 请求</a></li>
+<li><a href="#org77e82a6">发送 POST 请求</a></li>
+<li><a href="#org75ba96f">发送 PUT 请求</a></li>
+<li><a href="#orgf053eff">发送 DELETE 请求</a></li>
 </ul>
 </li>
-<li><a href="#org3239deb">curl 参数</a>
+<li><a href="#org957f5aa">curl 参数</a>
 <ul>
-<li><a href="#orgeaaa3a0">-A</a></li>
-<li><a href="#orgfcf3c40">-b</a></li>
-<li><a href="#orge778f3a">-c</a></li>
-<li><a href="#org8d49af1">-d</a></li>
-<li><a href="#org76e163f">&#x2013;data-urlencode</a></li>
-<li><a href="#orgf8f6cc3">-e</a></li>
-<li><a href="#org61434d3">-F</a></li>
-<li><a href="#org7e4fae3">-G</a></li>
-<li><a href="#orgaf77f48">-H</a></li>
-<li><a href="#org7c1991a">-i</a></li>
-<li><a href="#orga4d2f28">-I</a></li>
-<li><a href="#org120bd79">-k</a></li>
-<li><a href="#orgb999aba">-L</a></li>
-<li><a href="#org52df9c4">&#x2013;limit-rate</a></li>
-<li><a href="#org0127d87">-o</a></li>
-<li><a href="#org2cdff24">-O</a></li>
-<li><a href="#orge274e0a">-s</a></li>
-<li><a href="#orga23e828">-S</a></li>
-<li><a href="#org32877ec">-u</a></li>
-<li><a href="#org7e8342f">-v</a></li>
-<li><a href="#org48e8f34">-x</a></li>
-<li><a href="#orged78862">-X</a></li>
+<li><a href="#org5d9851e">-A</a></li>
+<li><a href="#orgc17da27">-b</a></li>
+<li><a href="#org4272418">-c</a></li>
+<li><a href="#org28613c5">-d</a></li>
+<li><a href="#org779be2a">&#x2013;data-urlencode</a></li>
+<li><a href="#orgf8f2652">-e</a></li>
+<li><a href="#orged750f2">-F</a></li>
+<li><a href="#orgb56a3dc">-G</a></li>
+<li><a href="#org58eb96d">-H</a></li>
+<li><a href="#org7e1a5ab">-i</a></li>
+<li><a href="#orgeda1b40">-I</a></li>
+<li><a href="#orge81626d">-k</a></li>
+<li><a href="#org68d580c">-L</a></li>
+<li><a href="#orga3987ee">&#x2013;limit-rate</a></li>
+<li><a href="#orgdde78b7">-o</a></li>
+<li><a href="#org6ccf030">-O</a></li>
+<li><a href="#org285daad">-s</a></li>
+<li><a href="#orgbe78f7e">-S</a></li>
+<li><a href="#org0b16fd6">-u</a></li>
+<li><a href="#org24cb44b">-v</a></li>
+<li><a href="#org1bf43eb">-x</a></li>
+<li><a href="#orga84c5ce">-X</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org5d8a279" class="outline-2">
-<h2 id="org5d8a279">curl 的功能</h2>
-<div class="outline-text-2" id="text-org5d8a279">
+<div id="outline-container-orge8fc9ac" class="outline-2">
+<h2 id="orge8fc9ac">curl 的功能</h2>
+<div class="outline-text-2" id="text-orge8fc9ac">
 <p>
 curl是一种命令行工具，作用是发出网络请求，然后得到和提取数据，显示在"标准输出"（stdout）上面。<br>
 </p>
@@ -86,14 +84,14 @@ curl是一种命令行工具，作用是发出网络请求，然后得到和提�
 它支持多种协议，下面举例讲解如何将它用于网站开发。<br>
 </p>
 </div>
-<div id="outline-container-org3471343" class="outline-3">
-<h3 id="org3471343">一、查看网页码源</h3>
-<div class="outline-text-3" id="text-org3471343">
+<div id="outline-container-orgd17c2e2" class="outline-3">
+<h3 id="orgd17c2e2">一、查看网页码源</h3>
+<div class="outline-text-3" id="text-orgd17c2e2">
 <ul class="org-ul">
 <li>curl www.sina.com.cn<br></li>
 </ul>
 
-<pre class="example">
+<pre class="example" id="orgf451f33">
 &lt;!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN"&gt;
 &lt;html&gt;
 &lt;head&gt;&lt;title&gt;302 Found&lt;/title&gt;&lt;/head&gt;
@@ -114,9 +112,9 @@ curl是一种命令行工具，作用是发出网络请求，然后得到和提�
 </div>
 </div>
 </div>
-<div id="outline-container-orge241e29" class="outline-3">
-<h3 id="orge241e29">二、自动跳转</h3>
-<div class="outline-text-3" id="text-orge241e29">
+<div id="outline-container-orgfb1d4ac" class="outline-3">
+<h3 id="orgfb1d4ac">二、自动跳转</h3>
+<div class="outline-text-3" id="text-orgfb1d4ac">
 <p>
 有的网址是自动跳转的，使用 <code>-L</code> 参数，curl 就会跳到新的网址。<br>
 </p>
@@ -130,9 +128,9 @@ curl是一种命令行工具，作用是发出网络请求，然后得到和提�
 </p>
 </div>
 </div>
-<div id="outline-container-org648cf89" class="outline-3">
-<h3 id="org648cf89">三、显示头信息</h3>
-<div class="outline-text-3" id="text-org648cf89">
+<div id="outline-container-org2e55e31" class="outline-3">
+<h3 id="org2e55e31">三、显示头信息</h3>
+<div class="outline-text-3" id="text-org2e55e31">
 <p>
 <code>-i</code> 参数可以显示 http response 头信息，<br>
 </p>
@@ -141,7 +139,7 @@ curl是一种命令行工具，作用是发出网络请求，然后得到和提�
 <li>curl -i www.sina.com<br></li>
 </ul>
 
-<pre class="example">
+<pre class="example" id="org83b1500">
 HTTP/1.1 302 Found
 Server: Tengine
 Date: Wed, 01 Dec 2021 02:22:00 GMT
@@ -170,9 +168,9 @@ EagleId: 7499412216383253208014035e
 </p>
 </div>
 </div>
-<div id="outline-container-org90d1abf" class="outline-3">
-<h3 id="org90d1abf">四、显示通信过程</h3>
-<div class="outline-text-3" id="text-org90d1abf">
+<div id="outline-container-orgde7e26b" class="outline-3">
+<h3 id="orgde7e26b">四、显示通信过程</h3>
+<div class="outline-text-3" id="text-orgde7e26b">
 <p>
 <code>-v</code> 参数可以显示一次 http 通信的整个过程，包括端口连接和 http request 头信息。<br>
 </p>
@@ -181,14 +179,14 @@ EagleId: 7499412216383253208014035e
 <li>curl -v www.sina.com.cn<br></li>
 </ul>
 
-<pre class="example">
+<pre class="example" id="org6e17a6d">
 *   Trying 2408:874c:1ff:e:3::3fe:80...
 * Connected to www.sina.com.cn (2408:874c:1ff:e:3::3fe) port 80 (#0)
 &gt; GET / HTTP/1.1
 &gt; Host: www.sina.com.cn
 &gt; User-Agent: curl/7.79.1
 &gt; Accept: */*
-&gt; 
+&gt;
 * Mark bundle as not supporting multiuse
 &lt; HTTP/1.1 302 Found
 &lt; Server: Tengine
@@ -202,7 +200,7 @@ EagleId: 7499412216383253208014035e
 &lt; Via: cache9.cn4027[,0]
 &lt; Timing-Allow-Origin: *
 &lt; EagleId: 7499421d16383259732214855e
-&lt; 
+&lt;
 &lt;!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN"&gt;
 &lt;html&gt;
 &lt;head&gt;&lt;title&gt;302 Found&lt;/title&gt;&lt;/head&gt;
@@ -220,7 +218,6 @@ EagleId: 7499412216383253208014035e
 
 <ul class="org-ul">
 <li>curl &#x2013;trace output.txt www.sina.com.cn<br></li>
-
 <li>curl &#x2013;trace-ascii output.txt www.sina.com.cn<br></li>
 </ul>
 
@@ -229,9 +226,9 @@ EagleId: 7499412216383253208014035e
 </p>
 </div>
 </div>
-<div id="outline-container-org1a0d8e4" class="outline-3">
-<h3 id="org1a0d8e4">五、发送表单信息</h3>
-<div class="outline-text-3" id="text-org1a0d8e4">
+<div id="outline-container-org19be7c5" class="outline-3">
+<h3 id="org19be7c5">五、发送表单信息</h3>
+<div class="outline-text-3" id="text-org19be7c5">
 <p>
 发送表单信息有GET和POST两种方法。GET方法相对简单，只要把数据附在网址后面就行。<br>
 </p>
@@ -257,32 +254,31 @@ POST方法必须把数据和网址分开，curl就要用到&#x2013;data参数。
 </ul>
 </div>
 </div>
-<div id="outline-container-org141cc57" class="outline-3">
-<h3 id="org141cc57">六、HTTP动词</h3>
-<div class="outline-text-3" id="text-org141cc57">
+<div id="outline-container-org2415da4" class="outline-3">
+<h3 id="org2415da4">六、HTTP动词</h3>
+<div class="outline-text-3" id="text-org2415da4">
 <p>
 curl默认的HTTP动词是GET，使用 <code>-X</code> 参数可以支持其他动词。<br>
 </p>
 
 <ul class="org-ul">
 <li>curl -X POST www.example.com<br></li>
-
 <li>curl -X DELETE www.example.com<br></li>
 </ul>
 </div>
 </div>
-<div id="outline-container-org3a0c458" class="outline-3">
-<h3 id="org3a0c458">七、文件上传</h3>
-<div class="outline-text-3" id="text-org3a0c458">
+<div id="outline-container-orga10ae15" class="outline-3">
+<h3 id="orga10ae15">七、文件上传</h3>
+<div class="outline-text-3" id="text-orga10ae15">
 <p>
 假定文件上传的表单是下面这样：<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-html">&lt;<span style="color: #d75fd7; font-weight: bold;">form</span> <span style="color: #8787d7;">method</span>=<span style="color: #2aa198;">"POST"</span> <span style="color: #8787d7;">enctype</span>=<span style="color: #2aa198;">'multipart/form-data'</span> <span style="color: #8787d7;">action</span>=<span style="color: #2aa198;">"upload.cgi"</span>&gt;
-  &lt;<span style="color: #d75fd7; font-weight: bold;">input</span> type=file name=upload&gt;
-  &lt;<span style="color: #d75fd7; font-weight: bold;">input</span> type=submit name=press <span style="color: #8787d7;">value</span>=<span style="color: #2aa198;">"OK"</span>&gt;
-&lt;/<span style="color: #d75fd7; font-weight: bold;">form</span>&gt;
+<pre class="src src-html">&lt;<span style="color: #81a2be;">form</span> <span style="color: #cc6666;">method</span>=<span style="color: #b5bd68;">"POST"</span> <span style="color: #cc6666;">enctype</span>=<span style="color: #b5bd68;">'multipart/form-data'</span> <span style="color: #cc6666;">action</span>=<span style="color: #b5bd68;">"upload.cgi"</span>&gt;
+  &lt;<span style="color: #81a2be;">input</span> type=file name=upload&gt;
+  &lt;<span style="color: #81a2be;">input</span> type=submit name=press <span style="color: #cc6666;">value</span>=<span style="color: #b5bd68;">"OK"</span>&gt;
+&lt;/<span style="color: #81a2be;">form</span>&gt;
 </pre>
 </div>
 
@@ -295,9 +291,9 @@ curl默认的HTTP动词是GET，使用 <code>-X</code> 参数可以支持其他�
 </ul>
 </div>
 </div>
-<div id="outline-container-org7ec2596" class="outline-3">
-<h3 id="org7ec2596">八、Referer字段</h3>
-<div class="outline-text-3" id="text-org7ec2596">
+<div id="outline-container-org23ca775" class="outline-3">
+<h3 id="org23ca775">八、Referer字段</h3>
+<div class="outline-text-3" id="text-org23ca775">
 <p>
 有时你需要在http request头信息中，提供一个referer字段，表示你是从哪里跳转过来的。<br>
 </p>
@@ -307,9 +303,9 @@ curl默认的HTTP动词是GET，使用 <code>-X</code> 参数可以支持其他�
 </ul>
 </div>
 </div>
-<div id="outline-container-org320cbe7" class="outline-3">
-<h3 id="org320cbe7">九、User Agent字段</h3>
-<div class="outline-text-3" id="text-org320cbe7">
+<div id="outline-container-orgc9c2b35" class="outline-3">
+<h3 id="orgc9c2b35">九、User Agent字段</h3>
+<div class="outline-text-3" id="text-orgc9c2b35">
 <p>
 这个字段是用来表示客户端的设备信息。服务器有时会根据这个字段，针对不同设备，返回不同格式的网页，比如手机版和桌面版。<br>
 </p>
@@ -318,7 +314,7 @@ curl默认的HTTP动词是GET，使用 <code>-X</code> 参数可以支持其他�
 iPhone4的User Agent是：<br>
 </p>
 
-<pre class="example">
+<pre class="example" id="org7ff1261">
 　Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_0 like Mac OS X; en-us) AppleWebKit/532.9 (KHTML, like Gecko) Version/4.0.5 Mobile/8A293 Safari/6531.22.7
 </pre>
 
@@ -331,9 +327,9 @@ curl可以这样模拟：<br>
 </ul>
 </div>
 </div>
-<div id="outline-container-org7095fa0" class="outline-3">
-<h3 id="org7095fa0">十、cookie</h3>
-<div class="outline-text-3" id="text-org7095fa0">
+<div id="outline-container-orgad91bb4" class="outline-3">
+<h3 id="orgad91bb4">十、cookie</h3>
+<div class="outline-text-3" id="text-orgad91bb4">
 <p>
 使用 <code>--cookie</code> 参数，可以让curl发送cookie。<br>
 </p>
@@ -357,9 +353,9 @@ $ curl -b cookies http://example.com
 </div>
 </div>
 </div>
-<div id="outline-container-org0e09144" class="outline-3">
-<h3 id="org0e09144">十一、增加头信息</h3>
-<div class="outline-text-3" id="text-org0e09144">
+<div id="outline-container-org33da60d" class="outline-3">
+<h3 id="org33da60d">十一、增加头信息</h3>
+<div class="outline-text-3" id="text-org33da60d">
 <p>
 有时需要在 http request 之中，自行增加一个头信息。 ~ &#x2013;header ~ 参数就可以起到这个作用。<br>
 </p>
@@ -369,9 +365,9 @@ $ curl -b cookies http://example.com
 </ul>
 </div>
 </div>
-<div id="outline-container-orge6029b5" class="outline-3">
-<h3 id="orge6029b5">十二、HTTP认证</h3>
-<div class="outline-text-3" id="text-orge6029b5">
+<div id="outline-container-orgf31a342" class="outline-3">
+<h3 id="orgf31a342">十二、HTTP认证</h3>
+<div class="outline-text-3" id="text-orgf31a342">
 <p>
 有些网域需要HTTP认证，这时curl需要用到 ~ &#x2013;user ~ 参数。<br>
 </p>
@@ -382,46 +378,46 @@ $ curl -b cookies http://example.com
 </div>
 </div>
 </div>
-<div id="outline-container-org78e6a37" class="outline-2">
-<h2 id="org78e6a37">使用 curl 代替 postman</h2>
-<div class="outline-text-2" id="text-org78e6a37">
+<div id="outline-container-orgd9d8b1c" class="outline-2">
+<h2 id="orgd9d8b1c">使用 curl 代替 postman</h2>
+<div class="outline-text-2" id="text-orgd9d8b1c">
 </div>
-<div id="outline-container-org17faed5" class="outline-3">
-<h3 id="org17faed5">发送 GET 请求</h3>
-<div class="outline-text-3" id="text-org17faed5">
+<div id="outline-container-org8d667c7" class="outline-3">
+<h3 id="org8d667c7">发送 GET 请求</h3>
+<div class="outline-text-3" id="text-org8d667c7">
 <ul class="org-ul">
 <li>curl example.com/form.cgi?data=xxx<br></li>
 </ul>
 </div>
 </div>
-<div id="outline-container-org3b61aab" class="outline-3">
-<h3 id="org3b61aab">发送 POST 请求</h3>
-<div class="outline-text-3" id="text-org3b61aab">
+<div id="outline-container-org77e82a6" class="outline-3">
+<h3 id="org77e82a6">发送 POST 请求</h3>
+<div class="outline-text-3" id="text-org77e82a6">
 <ul class="org-ul">
-<li>curl -H "Content-Type: application/json" -X POST -d "{\"id\": 1, \"username\": \"haoran\", \"password\": \"haoran232\", \"grade\": 2019, \"role_id\": 1}" <a href="http://127.0.0.1:8070/api/v1/user/renew">http://127.0.0.1:8070/api/v1/user/renew</a> <br></li>
+<li>curl -H "Content-Type: application/json" -X POST -d "{\"id\": 1, \"username\": \"haoran\", \"password\": \"haoran232\", \"grade\": 2019, \"role_id\": 1}" <a href="http://127.0.0.1:8070/api/v1/user/renew">http://127.0.0.1:8070/api/v1/user/renew</a><br></li>
 </ul>
 </div>
 </div>
-<div id="outline-container-orga139ace" class="outline-3">
-<h3 id="orga139ace">发送 PUT 请求</h3>
-<div class="outline-text-3" id="text-orga139ace">
+<div id="outline-container-org75ba96f" class="outline-3">
+<h3 id="org75ba96f">发送 PUT 请求</h3>
+<div class="outline-text-3" id="text-org75ba96f">
 <ul class="org-ul">
-<li>curl -H "Content-Type: application/json" -X PUT -d "{\"id\": 1, \"username\": \"haoran\", \"password\": \"haoran232\", \"grade\": 2019, \"role_id\": 1}" <a href="http://127.0.0.1:8070/api/v1/user/renew">http://127.0.0.1:8070/api/v1/user/renew</a> <br></li>
+<li>curl -H "Content-Type: application/json" -X PUT -d "{\"id\": 1, \"username\": \"haoran\", \"password\": \"haoran232\", \"grade\": 2019, \"role_id\": 1}" <a href="http://127.0.0.1:8070/api/v1/user/renew">http://127.0.0.1:8070/api/v1/user/renew</a><br></li>
 </ul>
 </div>
 </div>
-<div id="outline-container-orgbed4d6f" class="outline-3">
-<h3 id="orgbed4d6f">发送 DELETE 请求</h3>
-<div class="outline-text-3" id="text-orgbed4d6f">
+<div id="outline-container-orgf053eff" class="outline-3">
+<h3 id="orgf053eff">发送 DELETE 请求</h3>
+<div class="outline-text-3" id="text-orgf053eff">
 <ul class="org-ul">
-<li>curl -H "Content-Type: application/json" -X DELETE -d "{\"id\": 1, \"username\": \"haoran\", \"password\": \"haoran232\", \"grade\": 2019, \"role_id\": 1}" <a href="http://127.0.0.1:8070/api/v1/user/renew">http://127.0.0.1:8070/api/v1/user/renew</a> <br></li>
+<li>curl -H "Content-Type: application/json" -X DELETE -d "{\"id\": 1, \"username\": \"haoran\", \"password\": \"haoran232\", \"grade\": 2019, \"role_id\": 1}" <a href="http://127.0.0.1:8070/api/v1/user/renew">http://127.0.0.1:8070/api/v1/user/renew</a><br></li>
 </ul>
 </div>
 </div>
 </div>
-<div id="outline-container-org3239deb" class="outline-2">
-<h2 id="org3239deb">curl 参数</h2>
-<div class="outline-text-2" id="text-org3239deb">
+<div id="outline-container-org957f5aa" class="outline-2">
+<h2 id="org957f5aa">curl 参数</h2>
+<div class="outline-text-2" id="text-org957f5aa">
 <p>
 <a href="https://www.ruanyifeng.com/blog/2019/09/curl-reference.html">https://www.ruanyifeng.com/blog/2019/09/curl-reference.html</a><br>
 </p>
@@ -438,9 +434,9 @@ curl 是常用的命令行工具，用来请求 Web 服务器。它的名字就�
 <dt>curl <a href="http://www.baidu.com">http://www.baidu.com</a></dt><dd>向 <code>www.baidu.com</code> 发送 GET 请求<br></dd>
 </dl>
 </div>
-<div id="outline-container-orgeaaa3a0" class="outline-3">
-<h3 id="orgeaaa3a0">-A</h3>
-<div class="outline-text-3" id="text-orgeaaa3a0">
+<div id="outline-container-org5d9851e" class="outline-3">
+<h3 id="org5d9851e">-A</h3>
+<div class="outline-text-3" id="text-org5d9851e">
 <p>
 指定客户端的用户代理标头，即 <code>User-Agent</code> ，默认的用户代理字符串是 <code>curl/[version]</code><br>
 </p>
@@ -470,9 +466,9 @@ curl 是常用的命令行工具，用来请求 Web 服务器。它的名字就�
 </ul>
 </div>
 </div>
-<div id="outline-container-orgfcf3c40" class="outline-3">
-<h3 id="orgfcf3c40">-b</h3>
-<div class="outline-text-3" id="text-orgfcf3c40">
+<div id="outline-container-orgc17da27" class="outline-3">
+<h3 id="orgc17da27">-b</h3>
+<div class="outline-text-3" id="text-orgc17da27">
 <p>
 -b参数用来向服务器发送 Cookie。<br>
 </p>
@@ -503,9 +499,9 @@ curl 是常用的命令行工具，用来请求 Web 服务器。它的名字就�
 </p>
 </div>
 </div>
-<div id="outline-container-orge778f3a" class="outline-3">
-<h3 id="orge778f3a">-c</h3>
-<div class="outline-text-3" id="text-orge778f3a">
+<div id="outline-container-org4272418" class="outline-3">
+<h3 id="org4272418">-c</h3>
+<div class="outline-text-3" id="text-org4272418">
 <p>
 -c参数将服务器设置的 Cookie 写入一个文件。<br>
 </p>
@@ -519,9 +515,9 @@ curl 是常用的命令行工具，用来请求 Web 服务器。它的名字就�
 </p>
 </div>
 </div>
-<div id="outline-container-org8d49af1" class="outline-3">
-<h3 id="org8d49af1">-d</h3>
-<div class="outline-text-3" id="text-org8d49af1">
+<div id="outline-container-org28613c5" class="outline-3">
+<h3 id="org28613c5">-d</h3>
+<div class="outline-text-3" id="text-org28613c5">
 <p>
 -d参数用于发送 POST 请求的数据体。<br>
 </p>
@@ -532,11 +528,11 @@ curl 是常用的命令行工具，用来请求 Web 服务器。它的名字就�
 </ul>
 
 <p>
-使用-d参数以后，HTTP 请求会自动加上标头Content-Type : application/x-www-form-urlencoded。并且会自动将请求转为 POST 方法，因此可以省略-X POST。<br>
+使用 -d 参数以后，HTTP 请求会自动加上标头Content-Type : application/x-www-form-urlencoded。并且会自动将请求转为 POST 方法，因此可以省略-X POST。<br>
 </p>
 
 <p>
--d参数可以读取本地文本文件的数据，向服务器发送。<br>
+-d 参数可以读取本地文本文件的数据，向服务器发送。<br>
 </p>
 
 
@@ -545,13 +541,13 @@ curl 是常用的命令行工具，用来请求 Web 服务器。它的名字就�
 </ul>
 
 <p>
-上面命令读取data.txt文件的内容，作为数据体向服务器发送。<br>
+上面命令读取 data.txt 文件的内容，作为数据体向服务器发送。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org76e163f" class="outline-3">
-<h3 id="org76e163f">&#x2013;data-urlencode</h3>
-<div class="outline-text-3" id="text-org76e163f">
+<div id="outline-container-org779be2a" class="outline-3">
+<h3 id="org779be2a">&#x2013;data-urlencode</h3>
+<div class="outline-text-3" id="text-org779be2a">
 <p>
 &#x2013;data-urlencode参数等同于-d，发送 POST 请求的数据体，区别在于会自动将发送的数据进行 URL 编码。<br>
 </p>
@@ -565,9 +561,9 @@ curl 是常用的命令行工具，用来请求 Web 服务器。它的名字就�
 </p>
 </div>
 </div>
-<div id="outline-container-orgf8f6cc3" class="outline-3">
-<h3 id="orgf8f6cc3">-e</h3>
-<div class="outline-text-3" id="text-orgf8f6cc3">
+<div id="outline-container-orgf8f2652" class="outline-3">
+<h3 id="orgf8f2652">-e</h3>
+<div class="outline-text-3" id="text-orgf8f2652">
 <p>
 -e参数用来设置 HTTP 的标头Referer，表示请求的来源。<br>
 </p>
@@ -581,7 +577,7 @@ curl 是常用的命令行工具，用来请求 Web 服务器。它的名字就�
 </p>
 
 <p>
--H参数可以通过直接添加标头Referer，达到同样效果。<br>
+-H 参数可以通过直接添加标头Referer，达到同样效果。<br>
 </p>
 
 <ul class="org-ul">
@@ -589,11 +585,11 @@ curl 是常用的命令行工具，用来请求 Web 服务器。它的名字就�
 </ul>
 </div>
 </div>
-<div id="outline-container-org61434d3" class="outline-3">
-<h3 id="org61434d3">-F</h3>
-<div class="outline-text-3" id="text-org61434d3">
+<div id="outline-container-orged750f2" class="outline-3">
+<h3 id="orged750f2">-F</h3>
+<div class="outline-text-3" id="text-orged750f2">
 <p>
--F参数用来向服务器上传二进制文件。<br>
+-F 参数用来向服务器上传二进制文件。<br>
 </p>
 
 <ul class="org-ul">
@@ -601,11 +597,11 @@ curl 是常用的命令行工具，用来请求 Web 服务器。它的名字就�
 </ul>
 
 <p>
-上面命令会给 HTTP 请求加上标头Content-Type: multipart/form-data，然后将文件photo.png作为file字段上传。<br>
+上面命令会给 HTTP 请求加上标头 Content-Type: multipart/form-data，然后将文件 photo.png 作为 file 字段上传。<br>
 </p>
 
 <p>
--F参数可以指定 MIME 类型。<br>
+-F 参数可以指定 MIME 类型。<br>
 </p>
 
 <ul class="org-ul">
@@ -613,11 +609,11 @@ curl 是常用的命令行工具，用来请求 Web 服务器。它的名字就�
 </ul>
 
 <p>
-上面命令指定 MIME 类型为image/png，否则 curl 会把 MIME 类型设为application/octet-stream。<br>
+上面命令指定 MIME 类型为 image/png，否则 curl 会把 MIME 类型设为 application/octet-stream。<br>
 </p>
 
 <p>
--F参数也可以指定文件名。<br>
+-F 参数也可以指定文件名。<br>
 </p>
 
 <ul class="org-ul">
@@ -625,20 +621,21 @@ curl 是常用的命令行工具，用来请求 Web 服务器。它的名字就�
 </ul>
 
 <p>
-上面命令中，原始文件名为photo.png，但是服务器接收到的文件名为me.png。<br>
+上面命令中，原始文件名为 photo.png，但是服务器接收到的文件名为 me.png。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org7e4fae3" class="outline-3">
-<h3 id="org7e4fae3">-G</h3>
-<div class="outline-text-3" id="text-org7e4fae3">
+<div id="outline-container-orgb56a3dc" class="outline-3">
+<h3 id="orgb56a3dc">-G</h3>
+<div class="outline-text-3" id="text-orgb56a3dc">
 <p>
 -G参数用来构造 URL 的查询字符串。<br>
 </p>
 
 <ul class="org-ul">
-<li>curl -G -d 'q=kitties' -d 'count=20' <a href="https://google.com/search">https://google.com/search</a><br></li>
-</ul>
+<li><p>
+curl -G -d 'q=kitties' -d 'count=20' <a href="https://google.com/search">https://google.com/search</a><br>
+</p>
 
 <p>
 上面命令会发出一个 GET 请求，实际请求的 URL 为<a href="https://google.com/search?q=kitties&amp;count=20%E3%80%82%E5%A6%82%E6%9E%9C%E7%9C%81%E7%95%A5--G%EF%BC%8C%E4%BC%9A%E5%8F%91%E5%87%BA%E4%B8%80%E4%B8%AA">https://google.com/search?q=kitties&amp;count=20%E3%80%82%E5%A6%82%E6%9E%9C%E7%9C%81%E7%95%A5--G%EF%BC%8C%E4%BC%9A%E5%8F%91%E5%87%BA%E4%B8%80%E4%B8%AA</a> POST 请求。<br>
@@ -646,18 +643,17 @@ curl 是常用的命令行工具，用来请求 Web 服务器。它的名字就�
 
 <p>
 如果数据需要 URL 编码，可以结合&#x2013;data&#x2013;urlencode参数。<br>
-</p>
+</p></li>
 
-<ul class="org-ul">
 <li>curl -G &#x2013;data-urlencode 'comment=hello world' <a href="https://www.example.com">https://www.example.com</a><br></li>
 </ul>
 </div>
 </div>
-<div id="outline-container-orgaf77f48" class="outline-3">
-<h3 id="orgaf77f48">-H</h3>
-<div class="outline-text-3" id="text-orgaf77f48">
+<div id="outline-container-org58eb96d" class="outline-3">
+<h3 id="org58eb96d">-H</h3>
+<div class="outline-text-3" id="text-org58eb96d">
 <p>
--H参数添加 HTTP 请求的标头。<br>
+-H 参数添加 HTTP 请求的标头。<br>
 </p>
 
 <ul class="org-ul">
@@ -665,7 +661,7 @@ curl 是常用的命令行工具，用来请求 Web 服务器。它的名字就�
 </ul>
 
 <p>
-上面命令添加 HTTP 标头Accept-Language: en-US。<br>
+上面命令添加 HTTP 标头 Accept-Language: en-US。<br>
 </p>
 
 <ul class="org-ul">
@@ -681,13 +677,13 @@ curl 是常用的命令行工具，用来请求 Web 服务器。它的名字就�
 </ul>
 
 <p>
-上面命令添加 HTTP 请求的标头是Content-Type: application/json，然后用-d参数发送 JSON 数据。<br>
+上面命令添加 HTTP 请求的标头是 Content-Type: application/json，然后用 -d 参数发送 JSON 数据。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org7c1991a" class="outline-3">
-<h3 id="org7c1991a">-i</h3>
-<div class="outline-text-3" id="text-org7c1991a">
+<div id="outline-container-org7e1a5ab" class="outline-3">
+<h3 id="org7e1a5ab">-i</h3>
+<div class="outline-text-3" id="text-org7e1a5ab">
 <p>
 -i 参数打印出服务器回应的 HTTP 标头。<br>
 </p>
@@ -701,9 +697,9 @@ curl 是常用的命令行工具，用来请求 Web 服务器。它的名字就�
 </p>
 </div>
 </div>
-<div id="outline-container-orga4d2f28" class="outline-3">
-<h3 id="orga4d2f28">-I</h3>
-<div class="outline-text-3" id="text-orga4d2f28">
+<div id="outline-container-orgeda1b40" class="outline-3">
+<h3 id="orgeda1b40">-I</h3>
+<div class="outline-text-3" id="text-orgeda1b40">
 <p>
 -I参数向服务器发出 HEAD 请求，然会将服务器返回的 HTTP 标头打印出来。<br>
 </p>
@@ -725,9 +721,9 @@ curl 是常用的命令行工具，用来请求 Web 服务器。它的名字就�
 </ul>
 </div>
 </div>
-<div id="outline-container-org120bd79" class="outline-3">
-<h3 id="org120bd79">-k</h3>
-<div class="outline-text-3" id="text-org120bd79">
+<div id="outline-container-orge81626d" class="outline-3">
+<h3 id="orge81626d">-k</h3>
+<div class="outline-text-3" id="text-orge81626d">
 <p>
 -k参数指定跳过 SSL 检测。<br>
 </p>
@@ -741,9 +737,9 @@ curl 是常用的命令行工具，用来请求 Web 服务器。它的名字就�
 </p>
 </div>
 </div>
-<div id="outline-container-orgb999aba" class="outline-3">
-<h3 id="orgb999aba">-L</h3>
-<div class="outline-text-3" id="text-orgb999aba">
+<div id="outline-container-org68d580c" class="outline-3">
+<h3 id="org68d580c">-L</h3>
+<div class="outline-text-3" id="text-org68d580c">
 <p>
 -L参数会让 HTTP 请求跟随服务器的重定向。curl 默认不跟随重定向。<br>
 </p>
@@ -753,9 +749,9 @@ curl 是常用的命令行工具，用来请求 Web 服务器。它的名字就�
 </ul>
 </div>
 </div>
-<div id="outline-container-org52df9c4" class="outline-3">
-<h3 id="org52df9c4">&#x2013;limit-rate</h3>
-<div class="outline-text-3" id="text-org52df9c4">
+<div id="outline-container-orga3987ee" class="outline-3">
+<h3 id="orga3987ee">&#x2013;limit-rate</h3>
+<div class="outline-text-3" id="text-orga3987ee">
 <p>
 &#x2013;limit-rate用来限制 HTTP 请求和回应的带宽，模拟慢网速的环境。<br>
 </p>
@@ -769,11 +765,11 @@ curl 是常用的命令行工具，用来请求 Web 服务器。它的名字就�
 </p>
 </div>
 </div>
-<div id="outline-container-org0127d87" class="outline-3">
-<h3 id="org0127d87">-o</h3>
-<div class="outline-text-3" id="text-org0127d87">
+<div id="outline-container-orgdde78b7" class="outline-3">
+<h3 id="orgdde78b7">-o</h3>
+<div class="outline-text-3" id="text-orgdde78b7">
 <p>
--o参数将服务器的回应保存成文件，等同于wget命令。<br>
+-o 参数将服务器的回应保存成文件，等同于 wget 命令。<br>
 </p>
 
 <ul class="org-ul">
@@ -781,13 +777,13 @@ curl 是常用的命令行工具，用来请求 Web 服务器。它的名字就�
 </ul>
 
 <p>
-上面命令将www.example.com保存成example.html。<br>
+上面命令将 www.example.com 保存成 example.html。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org2cdff24" class="outline-3">
-<h3 id="org2cdff24">-O</h3>
-<div class="outline-text-3" id="text-org2cdff24">
+<div id="outline-container-org6ccf030" class="outline-3">
+<h3 id="org6ccf030">-O</h3>
+<div class="outline-text-3" id="text-org6ccf030">
 <p>
 -O参数将服务器回应保存成文件，并将 URL 的最后部分当作文件名。<br>
 </p>
@@ -801,9 +797,9 @@ curl 是常用的命令行工具，用来请求 Web 服务器。它的名字就�
 </p>
 </div>
 </div>
-<div id="outline-container-orge274e0a" class="outline-3">
-<h3 id="orge274e0a">-s</h3>
-<div class="outline-text-3" id="text-orge274e0a">
+<div id="outline-container-org285daad" class="outline-3">
+<h3 id="org285daad">-s</h3>
+<div class="outline-text-3" id="text-org285daad">
 <p>
 -s参数将不输出错误和进度信息。<br>
 </p>
@@ -825,9 +821,9 @@ curl 是常用的命令行工具，用来请求 Web 服务器。它的名字就�
 </ul>
 </div>
 </div>
-<div id="outline-container-orga23e828" class="outline-3">
-<h3 id="orga23e828">-S</h3>
-<div class="outline-text-3" id="text-orga23e828">
+<div id="outline-container-orgbe78f7e" class="outline-3">
+<h3 id="orgbe78f7e">-S</h3>
+<div class="outline-text-3" id="text-orgbe78f7e">
 <p>
 -S参数指定只输出错误信息，通常与-s一起使用。<br>
 </p>
@@ -841,9 +837,9 @@ curl 是常用的命令行工具，用来请求 Web 服务器。它的名字就�
 </p>
 </div>
 </div>
-<div id="outline-container-org32877ec" class="outline-3">
-<h3 id="org32877ec">-u</h3>
-<div class="outline-text-3" id="text-org32877ec">
+<div id="outline-container-org0b16fd6" class="outline-3">
+<h3 id="org0b16fd6">-u</h3>
+<div class="outline-text-3" id="text-org0b16fd6">
 <p>
 -u参数用来设置服务器认证的用户名和密码。<br>
 </p>
@@ -877,11 +873,11 @@ curl 能够识别 URL 里面的用户名和密码。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org7e8342f" class="outline-3">
-<h3 id="org7e8342f">-v</h3>
-<div class="outline-text-3" id="text-org7e8342f">
+<div id="outline-container-org24cb44b" class="outline-3">
+<h3 id="org24cb44b">-v</h3>
+<div class="outline-text-3" id="text-org24cb44b">
 <p>
--v参数输出通信的整个过程，用于调试。<br>
+-v 参数输出通信的整个过程，用于调试。<br>
 </p>
 
 <ul class="org-ul">
@@ -889,7 +885,7 @@ curl 能够识别 URL 里面的用户名和密码。<br>
 </ul>
 
 <p>
-&#x2013;trace参数也可以用于调试，还会输出原始的二进制数据。<br>
+&#x2013;trace 参数也可以用于调试，还会输出原始的二进制数据。<br>
 </p>
 
 <ul class="org-ul">
@@ -897,9 +893,9 @@ curl 能够识别 URL 里面的用户名和密码。<br>
 </ul>
 </div>
 </div>
-<div id="outline-container-org48e8f34" class="outline-3">
-<h3 id="org48e8f34">-x</h3>
-<div class="outline-text-3" id="text-org48e8f34">
+<div id="outline-container-org1bf43eb" class="outline-3">
+<h3 id="org1bf43eb">-x</h3>
+<div class="outline-text-3" id="text-org1bf43eb">
 <p>
 -x参数指定 HTTP 请求的代理。<br>
 </p>
@@ -925,9 +921,9 @@ curl 能够识别 URL 里面的用户名和密码。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-orged78862" class="outline-3">
-<h3 id="orged78862">-X</h3>
-<div class="outline-text-3" id="text-orged78862">
+<div id="outline-container-orga84c5ce" class="outline-3">
+<h3 id="orga84c5ce">-X</h3>
+<div class="outline-text-3" id="text-orga84c5ce">
 <p>
 -X参数指定 HTTP 请求的方法。<br>
 </p>
@@ -946,8 +942,8 @@ curl 能够识别 URL 里面的用户名和密码。<br>
 <div id="postamble" class="status">
 <p class="date">Date: 2021-12-01 09:12 Wed</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-05-27 Fri 17:16</p>
-<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+<p class="date">Created: 2023-01-12</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>

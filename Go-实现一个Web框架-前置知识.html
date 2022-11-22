@@ -1,70 +1,68 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-05-29 Sun 17:40 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>实现一个Go Web框架-HTTP基础</title>
-<meta name="generator" content="Org mode">
-<meta name="author" content="L.M.haoran">
-<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
->
-
-                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
-                <script type="module" src="static/js/main.js" defer></script>
-                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<!-- 2022-12-25 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>HTTP基础</title>
+<meta name="author" content="L.M.haoran" />
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved." />
+<meta name="generator" content="Org Mode" />
+<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+           <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+           <script type="module" src="static/js/main.js" defer></script>
 </head>
 <body>
-<div id="content">
-<h1 class="title">实现一个Go Web框架-HTTP基础</h1>
-<div id="table-of-contents">
+<div id="content" class="content">
+<h1 class="title">HTTP基础</h1>
+<div id="table-of-contents" role="doc-toc">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents">
+<div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org5384d97">标准库启动Web服务</a></li>
-<li><a href="#orgd76143d">实现 http.Handler 接口</a></li>
-<li><a href="#org59d811b">Gee 框架的雏形</a>
+<li><a href="#org4de6730">标准库启动Web服务</a></li>
+<li><a href="#org5b17d1a">实现 http.Handler 接口</a></li>
+<li><a href="#orga9ed745">Gee 框架的雏形</a>
 <ul>
-<li><a href="#org1f795f2">go.mod</a></li>
-<li><a href="#org4cddcda">main.go</a></li>
-<li><a href="#org0da9930">gee.go</a></li>
+<li><a href="#org79977b4">go.mod</a></li>
+<li><a href="#orgb0208d7">main.go</a></li>
+<li><a href="#orgc32f9be">gee.go</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org5384d97" class="outline-2">
-<h2 id="org5384d97">标准库启动Web服务</h2>
-<div class="outline-text-2" id="text-org5384d97">
+<div id="outline-container-org4de6730" class="outline-2">
+<h2 id="org4de6730">标准库启动Web服务</h2>
+<div class="outline-text-2" id="text-org4de6730">
 <p>
 Go语言内置了 <code>net/http</code> 库，封装了 HTTP 网络编程的基础接口，我们实现的是 <code>Gee</code> Web框架便是基于 <code>net/http</code> 的，简单介绍下 <code>net/http</code> 库的使用。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+<pre class="src src-go"><span style="color: #e45649;">package</span> main
 
-<span style="color: #268bd2; font-weight: bold;">import</span> (
-    <span style="color: #2aa198;">"fmt"</span>
-    <span style="color: #2aa198;">"log"</span>
-    <span style="color: #2aa198;">"net/http"</span>
+<span style="color: #e45649;">import</span> (
+    <span style="color: #50a14f;">"fmt"</span>
+    <span style="color: #50a14f;">"log"</span>
+    <span style="color: #50a14f;">"net/http"</span>
 )
 
-<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    http.<span style="color: #d75fd7; font-weight: bold;">HandleFunc</span>(<span style="color: #2aa198;">"/"</span>, indexHandler)
-    http.<span style="color: #d75fd7; font-weight: bold;">HandleFunc</span>(<span style="color: #2aa198;">"/hello"</span>, helloHandler)
-    log.<span style="color: #d75fd7; font-weight: bold;">Fatal</span>(http.<span style="color: #d75fd7; font-weight: bold;">ListenAndServe</span>(<span style="color: #2aa198;">":9999"</span>, <span style="color: #d75fd7;">nil</span>))
+<span style="color: #e45649;">func</span> <span style="color: #a626a4;">main</span>() {
+    http.<span style="color: #a626a4;">HandleFunc</span>(<span style="color: #50a14f;">"/"</span>, indexHandler)
+    http.<span style="color: #a626a4;">HandleFunc</span>(<span style="color: #50a14f;">"/hello"</span>, helloHandler)
+    log.<span style="color: #a626a4;">Fatal</span>(http.<span style="color: #a626a4;">ListenAndServe</span>(<span style="color: #50a14f;">":9999"</span>, <span style="color: #b751b6;">nil</span>))
 }
 
-<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">handler echoes r.URL.Path</span>
-<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">indexHandler</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #8787d7;">req</span> *<span style="color: #df005f; font-weight: bold;">http.Request</span>) {
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Fprintf</span>(w, <span style="color: #2aa198;">"URL.Path = %q\n"</span>, req.URL.Path)
+<span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">handler echoes r.URL.Path</span>
+<span style="color: #e45649;">func</span> <span style="color: #a626a4;">indexHandler</span>(<span style="color: #6a1868;">w</span> <span style="color: #986801;">http.ResponseWriter</span>, <span style="color: #6a1868;">req</span> *<span style="color: #986801;">http.Request</span>) {
+    fmt.<span style="color: #a626a4;">Fprintf</span>(w, <span style="color: #50a14f;">"URL.Path = %q\n"</span>, req.URL.Path)
 }
 
-<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">handler echoes r.URL.Header</span>
-<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">helloHandler</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #8787d7;">req</span> *<span style="color: #df005f; font-weight: bold;">http.Request</span>) {
-    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">k</span>, <span style="color: #8787d7;">v</span> := <span style="color: #268bd2; font-weight: bold;">range</span> req.Header {
-        fmt.<span style="color: #d75fd7; font-weight: bold;">Fprintf</span>(w, <span style="color: #2aa198;">"Header[%q] = %q\n"</span>, k, v)
+<span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">handler echoes r.URL.Header</span>
+<span style="color: #e45649;">func</span> <span style="color: #a626a4;">helloHandler</span>(<span style="color: #6a1868;">w</span> <span style="color: #986801;">http.ResponseWriter</span>, <span style="color: #6a1868;">req</span> *<span style="color: #986801;">http.Request</span>) {
+    <span style="color: #e45649;">for</span> <span style="color: #6a1868;">k</span>, <span style="color: #6a1868;">v</span> := <span style="color: #e45649;">range</span> req.Header {
+        fmt.<span style="color: #a626a4;">Fprintf</span>(w, <span style="color: #50a14f;">"Header[%q] = %q\n"</span>, k, v)
     }
 }
 </pre>
@@ -75,7 +73,7 @@ Go语言内置了 <code>net/http</code> 库，封装了 HTTP 网络编程的基�
 </p>
 
 <p>
-<a href="wiki.html#org75bc823">handle 与 handler 的区别</a><br>
+<a href="wiki.html#org202be7c">handle 与 handler 的区别</a><br>
 </p>
 
 <p>
@@ -94,7 +92,7 @@ Go语言内置了 <code>net/http</code> 库，封装了 HTTP 网络编程的基�
 用 <code>curl</code> 这个工具测试一下，将会得到如下结果：<br>
 </p>
 
-<pre class="example">
+<pre class="example" id="org00d1600">
 $ curl http://localhost:9999/
 URL.Path = "/"
 $ curl http://localhost:9999/hello
@@ -107,17 +105,17 @@ Header["Accept"] = ["*/*"]
 </p>
 </div>
 </div>
-<div id="outline-container-orgd76143d" class="outline-2">
-<h2 id="orgd76143d">实现 http.Handler 接口</h2>
-<div class="outline-text-2" id="text-orgd76143d">
+<div id="outline-container-org5b17d1a" class="outline-2">
+<h2 id="org5b17d1a">实现 http.Handler 接口</h2>
+<div class="outline-text-2" id="text-org5b17d1a">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> http
+<pre class="src src-go"><span style="color: #e45649;">package</span> http
 
-<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Handler</span> <span style="color: #268bd2; font-weight: bold;">interface</span> {
-    <span style="color: #d75fd7; font-weight: bold;">ServeHTTP</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">ResponseWriter</span>, <span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">Request</span>)
+<span style="color: #e45649;">type</span> <span style="color: #986801;">Handler</span> <span style="color: #e45649;">interface</span> {
+    <span style="color: #a626a4;">ServeHTTP</span>(<span style="color: #6a1868;">w</span> <span style="color: #986801;">ResponseWriter</span>, <span style="color: #6a1868;">r</span> *<span style="color: #986801;">Request</span>)
 }
 
-<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">ListenAndServe</span>(<span style="color: #8787d7;">address</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">h</span> <span style="color: #df005f; font-weight: bold;">Handler</span>) <span style="color: #df005f; font-weight: bold;">error</span>
+<span style="color: #e45649;">func</span> <span style="color: #a626a4;">ListenAndServe</span>(<span style="color: #6a1868;">address</span> <span style="color: #986801;">string</span>, <span style="color: #6a1868;">h</span> <span style="color: #986801;">Handler</span>) <span style="color: #986801;">error</span>
 </pre>
 </div>
 
@@ -126,33 +124,33 @@ Header["Accept"] = ["*/*"]
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+<pre class="src src-go"><span style="color: #e45649;">package</span> main
 
-<span style="color: #268bd2; font-weight: bold;">import</span> (
-    <span style="color: #2aa198;">"fmt"</span>
-    <span style="color: #2aa198;">"log"</span>
-    <span style="color: #2aa198;">"net/http"</span>
+<span style="color: #e45649;">import</span> (
+    <span style="color: #50a14f;">"fmt"</span>
+    <span style="color: #50a14f;">"log"</span>
+    <span style="color: #50a14f;">"net/http"</span>
 )
 
-<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Engine is the union handler for all requests.</span>
-<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Engine</span> <span style="color: #268bd2; font-weight: bold;">struct</span>{}
+<span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">Engine is the union handler for all requests.</span>
+<span style="color: #e45649;">type</span> <span style="color: #986801;">Engine</span> <span style="color: #e45649;">struct</span>{}
 
-<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">engine</span> *<span style="color: #df005f; font-weight: bold;">Engine</span>) <span style="color: #d75fd7; font-weight: bold;">ServeHTTP</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #8787d7;">req</span> *<span style="color: #df005f; font-weight: bold;">http.Request</span>) {
-    <span style="color: #268bd2; font-weight: bold;">switch</span> req.URL.Path {
-    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #2aa198;">"/"</span>:
-        _, _ = fmt.<span style="color: #d75fd7; font-weight: bold;">Fprintf</span>(w, <span style="color: #2aa198;">"URL.Path = %q\n"</span>, req.URL.Path)
-    <span style="color: #268bd2; font-weight: bold;">case</span> <span style="color: #2aa198;">"/hello"</span>:
-        <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">k</span>, <span style="color: #8787d7;">v</span> := <span style="color: #268bd2; font-weight: bold;">range</span> req.Header {
-            _, _ = fmt.<span style="color: #d75fd7; font-weight: bold;">Fprintf</span>(w, <span style="color: #2aa198;">"Header[%q] = %q\n"</span>, k, v)
+<span style="color: #e45649;">func</span> (<span style="color: #6a1868;">engine</span> *<span style="color: #986801;">Engine</span>) <span style="color: #a626a4;">ServeHTTP</span>(<span style="color: #6a1868;">w</span> <span style="color: #986801;">http.ResponseWriter</span>, <span style="color: #6a1868;">req</span> *<span style="color: #986801;">http.Request</span>) {
+    <span style="color: #e45649;">switch</span> req.URL.Path {
+    <span style="color: #e45649;">case</span> <span style="color: #50a14f;">"/"</span>:
+        _, _ = fmt.<span style="color: #a626a4;">Fprintf</span>(w, <span style="color: #50a14f;">"URL.Path = %q\n"</span>, req.URL.Path)
+    <span style="color: #e45649;">case</span> <span style="color: #50a14f;">"/hello"</span>:
+        <span style="color: #e45649;">for</span> <span style="color: #6a1868;">k</span>, <span style="color: #6a1868;">v</span> := <span style="color: #e45649;">range</span> req.Header {
+            _, _ = fmt.<span style="color: #a626a4;">Fprintf</span>(w, <span style="color: #50a14f;">"Header[%q] = %q\n"</span>, k, v)
         }
-    <span style="color: #268bd2; font-weight: bold;">default</span>:
-        _, _ = fmt.<span style="color: #d75fd7; font-weight: bold;">Fprintf</span>(w, <span style="color: #2aa198;">"404 NOT FOUND: %s\n"</span>, req.URL)
+    <span style="color: #e45649;">default</span>:
+        _, _ = fmt.<span style="color: #a626a4;">Fprintf</span>(w, <span style="color: #50a14f;">"404 NOT FOUND: %s\n"</span>, req.URL)
     }
 }
 
-<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #8787d7;">engine</span> := <span style="color: #268bd2;">new</span>(<span style="color: #df005f; font-weight: bold;">Engine</span>)
-    log.<span style="color: #d75fd7; font-weight: bold;">Fatal</span>(http.<span style="color: #d75fd7; font-weight: bold;">ListenAndServe</span>(<span style="color: #2aa198;">":9999"</span>, engine))
+<span style="color: #e45649;">func</span> <span style="color: #a626a4;">main</span>() {
+    <span style="color: #6a1868;">engine</span> := <span style="color: #a626a4;">new</span>(<span style="color: #986801;">Engine</span>)
+    log.<span style="color: #a626a4;">Fatal</span>(http.<span style="color: #a626a4;">ListenAndServe</span>(<span style="color: #50a14f;">":9999"</span>, engine))
 }
 </pre>
 </div>
@@ -164,9 +162,9 @@ Header["Accept"] = ["*/*"]
 </ul>
 </div>
 </div>
-<div id="outline-container-org59d811b" class="outline-2">
-<h2 id="org59d811b">Gee 框架的雏形</h2>
-<div class="outline-text-2" id="text-org59d811b">
+<div id="outline-container-orga9ed745" class="outline-2">
+<h2 id="orga9ed745">Gee 框架的雏形</h2>
+<div class="outline-text-2" id="text-orga9ed745">
 <p>
 我们接下来重新组织上面的代码，搭建出整个框架的雏形。<br>
 </p>
@@ -175,7 +173,7 @@ Header["Accept"] = ["*/*"]
 最终的代码目录结构是这样的：<br>
 </p>
 
-<pre class="example">
+<pre class="example" id="org08d713b">
 gee/
  |--gee.go
  |--go.mod
@@ -183,17 +181,17 @@ main.go
 go.mod
 </pre>
 </div>
-<div id="outline-container-org1f795f2" class="outline-3">
-<h3 id="org1f795f2">go.mod</h3>
-<div class="outline-text-3" id="text-org1f795f2">
-<pre class="example">
+<div id="outline-container-org79977b4" class="outline-3">
+<h3 id="org79977b4">go.mod</h3>
+<div class="outline-text-3" id="text-org79977b4">
+<pre class="example" id="org2eb9c2c">
 module example
 
 go 1.13
 
 require gee v0.0.0
 
-replace gee =&gt; ./gee 
+replace gee =&gt; ./gee
 </pre>
 
 <ul class="org-ul">
@@ -207,33 +205,33 @@ replace gee =&gt; ./gee
 </blockquote>
 </div>
 </div>
-<div id="outline-container-org4cddcda" class="outline-3">
-<h3 id="org4cddcda">main.go</h3>
-<div class="outline-text-3" id="text-org4cddcda">
+<div id="outline-container-orgb0208d7" class="outline-3">
+<h3 id="orgb0208d7">main.go</h3>
+<div class="outline-text-3" id="text-orgb0208d7">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+<pre class="src src-go"><span style="color: #e45649;">package</span> main
 
-<span style="color: #268bd2; font-weight: bold;">import</span> (
-    <span style="color: #2aa198;">"fmt"</span>
-    <span style="color: #2aa198;">"net/http"</span>
+<span style="color: #e45649;">import</span> (
+    <span style="color: #50a14f;">"fmt"</span>
+    <span style="color: #50a14f;">"net/http"</span>
 
-    <span style="color: #2aa198;">"gee"</span>
+    <span style="color: #50a14f;">"gee"</span>
 )
 
-<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #8787d7;">r</span> := gee.<span style="color: #d75fd7; font-weight: bold;">New</span>()
-    r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #8787d7;">req</span> *<span style="color: #df005f; font-weight: bold;">http.Request</span>) {
-        fmt.<span style="color: #d75fd7; font-weight: bold;">Fprintf</span>(w, <span style="color: #2aa198;">"URL.Path = %q\n"</span>, req.URL.Path)
+<span style="color: #e45649;">func</span> <span style="color: #a626a4;">main</span>() {
+    <span style="color: #6a1868;">r</span> := gee.<span style="color: #a626a4;">New</span>()
+    r.<span style="color: #a626a4;">GET</span>(<span style="color: #50a14f;">"/"</span>, <span style="color: #e45649;">func</span>(<span style="color: #6a1868;">w</span> <span style="color: #986801;">http.ResponseWriter</span>, <span style="color: #6a1868;">req</span> *<span style="color: #986801;">http.Request</span>) {
+        fmt.<span style="color: #a626a4;">Fprintf</span>(w, <span style="color: #50a14f;">"URL.Path = %q\n"</span>, req.URL.Path)
     })
 
-    r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/hello"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #8787d7;">req</span> *<span style="color: #df005f; font-weight: bold;">http.Request</span>) {
-        <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">k</span>, <span style="color: #8787d7;">v</span> := <span style="color: #268bd2; font-weight: bold;">range</span> req.Header {
-            fmt.<span style="color: #d75fd7; font-weight: bold;">Fprintf</span>(w, <span style="color: #2aa198;">"Header[%q] = %q\n"</span>, k, v)
+    r.<span style="color: #a626a4;">GET</span>(<span style="color: #50a14f;">"/hello"</span>, <span style="color: #e45649;">func</span>(<span style="color: #6a1868;">w</span> <span style="color: #986801;">http.ResponseWriter</span>, <span style="color: #6a1868;">req</span> *<span style="color: #986801;">http.Request</span>) {
+        <span style="color: #e45649;">for</span> <span style="color: #6a1868;">k</span>, <span style="color: #6a1868;">v</span> := <span style="color: #e45649;">range</span> req.Header {
+            fmt.<span style="color: #a626a4;">Fprintf</span>(w, <span style="color: #50a14f;">"Header[%q] = %q\n"</span>, k, v)
         }
     })
 
-    r.<span style="color: #d75fd7; font-weight: bold;">Run</span>(<span style="color: #2aa198;">":9999"</span>)
-} 
+    r.<span style="color: #a626a4;">Run</span>(<span style="color: #50a14f;">":9999"</span>)
+}
 </pre>
 </div>
 
@@ -242,58 +240,58 @@ replace gee =&gt; ./gee
 </p>
 </div>
 </div>
-<div id="outline-container-org0da9930" class="outline-3">
-<h3 id="org0da9930">gee.go</h3>
-<div class="outline-text-3" id="text-org0da9930">
+<div id="outline-container-orgc32f9be" class="outline-3">
+<h3 id="orgc32f9be">gee.go</h3>
+<div class="outline-text-3" id="text-orgc32f9be">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> gee
+<pre class="src src-go"><span style="color: #e45649;">package</span> gee
 
-<span style="color: #268bd2; font-weight: bold;">import</span> (
-    <span style="color: #2aa198;">"fmt"</span>
-    <span style="color: #2aa198;">"net/http"</span>
+<span style="color: #e45649;">import</span> (
+    <span style="color: #50a14f;">"fmt"</span>
+    <span style="color: #50a14f;">"net/http"</span>
 )
 
-<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">HandlerFunc defines the request handler used by gee</span>
-<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">HandlerFunc</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, *<span style="color: #df005f; font-weight: bold;">http.Request</span>)
+<span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">HandlerFunc defines the request handler used by gee</span>
+<span style="color: #e45649;">type</span> <span style="color: #986801;">HandlerFunc</span> <span style="color: #e45649;">func</span>(<span style="color: #986801;">http.ResponseWriter</span>, *<span style="color: #986801;">http.Request</span>)
 
-<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Engine implement the interface of ServeHTTP</span>
-<span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Engine</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
-    router <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">HandlerFunc</span>
+<span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">Engine implement the interface of ServeHTTP</span>
+<span style="color: #e45649;">type</span> <span style="color: #986801;">Engine</span> <span style="color: #e45649;">struct</span> {
+    router <span style="color: #e45649;">map</span>[<span style="color: #986801;">string</span>]<span style="color: #986801;">HandlerFunc</span>
 }
 
-<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">New is the constructor of gee.Engine</span>
-<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">New</span>() *<span style="color: #df005f; font-weight: bold;">Engine</span> {
-    <span style="color: #268bd2; font-weight: bold;">return</span> &amp;<span style="color: #df005f; font-weight: bold;">Engine</span>{<span style="color: #d75fd7;">router</span>: <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">HandlerFunc</span>)}
+<span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">New is the constructor of gee.Engine</span>
+<span style="color: #e45649;">func</span> <span style="color: #a626a4;">New</span>() *<span style="color: #986801;">Engine</span> {
+    <span style="color: #e45649;">return</span> &amp;<span style="color: #986801;">Engine</span>{<span style="color: #b751b6;">router</span>: <span style="color: #a626a4;">make</span>(<span style="color: #e45649;">map</span>[<span style="color: #986801;">string</span>]<span style="color: #986801;">HandlerFunc</span>)}
 }
 
-<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">engine</span> *<span style="color: #df005f; font-weight: bold;">Engine</span>) <span style="color: #d75fd7; font-weight: bold;">addRoute</span>(<span style="color: #8787d7;">method</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">pattern</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">handler</span> <span style="color: #df005f; font-weight: bold;">HandlerFunc</span>) {
-    <span style="color: #8787d7;">key</span> := method + <span style="color: #2aa198;">"-"</span> + pattern
+<span style="color: #e45649;">func</span> (<span style="color: #6a1868;">engine</span> *<span style="color: #986801;">Engine</span>) <span style="color: #a626a4;">addRoute</span>(<span style="color: #6a1868;">method</span> <span style="color: #986801;">string</span>, <span style="color: #6a1868;">pattern</span> <span style="color: #986801;">string</span>, <span style="color: #6a1868;">handler</span> <span style="color: #986801;">HandlerFunc</span>) {
+    <span style="color: #6a1868;">key</span> := method + <span style="color: #50a14f;">"-"</span> + pattern
     engine.router[key] = handler
 }
 
-<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">GET defines the method to add GET request</span>
-<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">engine</span> *<span style="color: #df005f; font-weight: bold;">Engine</span>) <span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #8787d7;">pattern</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">handler</span> <span style="color: #df005f; font-weight: bold;">HandlerFunc</span>) {
-    engine.<span style="color: #d75fd7; font-weight: bold;">addRoute</span>(<span style="color: #2aa198;">"GET"</span>, pattern, handler)
+<span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">GET defines the method to add GET request</span>
+<span style="color: #e45649;">func</span> (<span style="color: #6a1868;">engine</span> *<span style="color: #986801;">Engine</span>) <span style="color: #a626a4;">GET</span>(<span style="color: #6a1868;">pattern</span> <span style="color: #986801;">string</span>, <span style="color: #6a1868;">handler</span> <span style="color: #986801;">HandlerFunc</span>) {
+    engine.<span style="color: #a626a4;">addRoute</span>(<span style="color: #50a14f;">"GET"</span>, pattern, handler)
 }
 
-<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">POST defines the method to add POST request</span>
-<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">engine</span> *<span style="color: #df005f; font-weight: bold;">Engine</span>) <span style="color: #d75fd7; font-weight: bold;">POST</span>(<span style="color: #8787d7;">pattern</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">handler</span> <span style="color: #df005f; font-weight: bold;">HandlerFunc</span>) {
-    engine.<span style="color: #d75fd7; font-weight: bold;">addRoute</span>(<span style="color: #2aa198;">"POST"</span>, pattern, handler)
+<span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">POST defines the method to add POST request</span>
+<span style="color: #e45649;">func</span> (<span style="color: #6a1868;">engine</span> *<span style="color: #986801;">Engine</span>) <span style="color: #a626a4;">POST</span>(<span style="color: #6a1868;">pattern</span> <span style="color: #986801;">string</span>, <span style="color: #6a1868;">handler</span> <span style="color: #986801;">HandlerFunc</span>) {
+    engine.<span style="color: #a626a4;">addRoute</span>(<span style="color: #50a14f;">"POST"</span>, pattern, handler)
 }
 
-<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Run defines the method to start a http server</span>
-<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">engine</span> *<span style="color: #df005f; font-weight: bold;">Engine</span>) <span style="color: #d75fd7; font-weight: bold;">Run</span>(<span style="color: #8787d7;">addr</span> <span style="color: #df005f; font-weight: bold;">string</span>) (<span style="color: #8787d7;">err</span> <span style="color: #df005f; font-weight: bold;">error</span>) {
-    <span style="color: #268bd2; font-weight: bold;">return</span> http.<span style="color: #d75fd7; font-weight: bold;">ListenAndServe</span>(addr, engine)
+<span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">Run defines the method to start a http server</span>
+<span style="color: #e45649;">func</span> (<span style="color: #6a1868;">engine</span> *<span style="color: #986801;">Engine</span>) <span style="color: #a626a4;">Run</span>(<span style="color: #6a1868;">addr</span> <span style="color: #986801;">string</span>) (<span style="color: #6a1868;">err</span> <span style="color: #986801;">error</span>) {
+    <span style="color: #e45649;">return</span> http.<span style="color: #a626a4;">ListenAndServe</span>(addr, engine)
 }
 
-<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">engine</span> *<span style="color: #df005f; font-weight: bold;">Engine</span>) <span style="color: #d75fd7; font-weight: bold;">ServeHTTP</span>(<span style="color: #8787d7;">w</span> <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>, <span style="color: #8787d7;">req</span> *<span style="color: #df005f; font-weight: bold;">http.Request</span>) {
-    <span style="color: #8787d7;">key</span> := req.Method + <span style="color: #2aa198;">"-"</span> + req.URL.Path
-    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #8787d7;">handler</span>, <span style="color: #8787d7;">ok</span> := engine.router[key]; ok {
-        <span style="color: #d75fd7; font-weight: bold;">handler</span>(w, req)
-    } <span style="color: #268bd2; font-weight: bold;">else</span> {
-        fmt.<span style="color: #d75fd7; font-weight: bold;">Fprintf</span>(w, <span style="color: #2aa198;">"404 NOT FOUND: %s\n"</span>, req.URL)
+<span style="color: #e45649;">func</span> (<span style="color: #6a1868;">engine</span> *<span style="color: #986801;">Engine</span>) <span style="color: #a626a4;">ServeHTTP</span>(<span style="color: #6a1868;">w</span> <span style="color: #986801;">http.ResponseWriter</span>, <span style="color: #6a1868;">req</span> *<span style="color: #986801;">http.Request</span>) {
+    <span style="color: #6a1868;">key</span> := req.Method + <span style="color: #50a14f;">"-"</span> + req.URL.Path
+    <span style="color: #e45649;">if</span> <span style="color: #6a1868;">handler</span>, <span style="color: #6a1868;">ok</span> := engine.router[key]; ok {
+        <span style="color: #a626a4;">handler</span>(w, req)
+    } <span style="color: #e45649;">else</span> {
+        fmt.<span style="color: #a626a4;">Fprintf</span>(w, <span style="color: #50a14f;">"404 NOT FOUND: %s\n"</span>, req.URL)
     }
-} 
+}
 </pre>
 </div>
 
@@ -311,7 +309,7 @@ replace gee =&gt; ./gee
 执行 <code>go run main.go</code> ，再用 <i>curl</i> 工具访问，结果与最开始的一致。<br>
 </p>
 
-<pre class="example">
+<pre class="example" id="org291d8c2">
 $ curl http://localhost:9999/
 URL.Path = "/"
 $ curl http://localhost:9999/hello
@@ -330,8 +328,8 @@ $ curl http://localhost:9999/world
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-05-29 Sun 17:40</p>
-<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+<p class="date">Created: 2022-12-25</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>

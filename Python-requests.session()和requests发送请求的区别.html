@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-12-26 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>requests.session()和requests发送请求的区别</title>
+<meta name="author" content="Haoran Liu" />
+<meta name="description" content="Copyright © 2022, Haoran Liu, all rights reserved." />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="static/css/org.css"/>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">requests.session()和requests发送请求的区别</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org9f50a92">Session</a></li>
+<li><a href="#orgad85db7">requests</a></li>
+<li><a href="#orgecb6e33">Session 对象和 requests 两种方法发送的请求的区别</a></li>
+<li><a href="#org8cf2cbf">补充</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org9f50a92" class="outline-2">
+<h2 id="org9f50a92">Session</h2>
+<div class="outline-text-2" id="text-org9f50a92">
+<p>
+在 <code>requests</code> 里， <code>session</code> 对象是一个非常常用的对象，这个对象代表一次用户会话：从客户端浏览器连接服务器开始，到客户端浏览器与服务器断开。<br>
+</p>
+
+<p>
+会话能让我们在跨请求的时候保持某些参数，比如在同一个 <code>session</code> 实例发出的所有请求之间保持 <code>cookie</code> 信息。<br>
+</p>
+
+<p>
+创建session对象<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #6a1868;">session</span> = requests.session()
+</pre>
+</div>
+
+<p>
+得到 <code>session</code> 对象之后，就可以调用该对象中方法来发送请求了。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #6a1868;">response1</span> = session.get(url,params,headers)
+<span style="color: #6a1868;">response2</span> = session.post(url,data,json,headers)
+</pre>
+</div>
+
+<p>
+通过 <code>session</code> 来发送 get、post、delete、put 等请求并获取响应。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgad85db7" class="outline-2">
+<h2 id="orgad85db7">requests</h2>
+<div class="outline-text-2" id="text-orgad85db7">
+<p>
+<code>requests</code> 是 Python 的一个第三方的库，主要用于发送网络请求，比如 get、post 等请求已达到获取网络响应的目的。<br>
+</p>
+
+<p>
+语法如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #e45649;">import</span> requests
+<span style="color: #6a1868;">response1</span> = requests.get(url,params,headers,cookies) <span style="color: #9ca0a4;"># </span><span style="color: #9ca0a4;">&#21457;&#36865;get&#32593;&#32476;&#35831;&#27714;</span>
+<span style="color: #6a1868;">response2</span> = requests.post(url,data,json,headers,cookies) <span style="color: #9ca0a4;"># </span><span style="color: #9ca0a4;">&#21457;&#36865;post&#32593;&#32476;&#35831;&#27714;</span>
+<span style="color: #9ca0a4;"># </span><span style="color: #9ca0a4;">put&#12289;delete&#31561;&#35831;&#27714;&#26041;&#27861;&#31867;&#20284;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgecb6e33" class="outline-2">
+<h2 id="orgecb6e33">Session 对象和 requests 两种方法发送的请求的区别</h2>
+<div class="outline-text-2" id="text-orgecb6e33">
+<ol class="org-ol">
+<li>场景<br>
+<ol class="org-ol">
+<li>登录某商城<br></li>
+<li>查询我的订单数据<br></li>
+</ol></li>
+<li>业务代码分析<br>
+<ol class="org-ol">
+<li>首先这里涉及到两个接口，一个“登陆接口”，另外一个是“查询订单”的接口；<br></li>
+<li>常规操作是我们 通过调用登陆接口 来获取响应的 cookie 信息；<br></li>
+<li>然后拿这个 cookie 信息作为下一次请求的参数（cookie 带有当前登陆人的信息）来请求查询订单的接口；<br></li>
+</ol></li>
+</ol>
+
+<blockquote>
+<p>
+request:<br>
+</p>
+</blockquote>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #9ca0a4;"># </span><span style="color: #9ca0a4;">&#20197;&#19979;&#20195;&#30721;&#32431;&#20026;&#20102;&#20030;&#20363;&#65292;&#27809;&#26377;&#25928;&#26524;&#30340;&#20266;&#20195;&#30721;</span>
+<span style="color: #e45649;">import</span> requests
+<span style="color: #9ca0a4;"># </span><span style="color: #9ca0a4;">&#30331;&#38470;&#25509;&#21475;</span>
+<span style="color: #6a1868;">response1</span> = requests.get(url_login,params,headers)
+<span style="color: #9ca0a4;"># </span><span style="color: #9ca0a4;">&#33719;&#21462;cookies&#20449;&#24687;</span>
+<span style="color: #6a1868;">cookies</span> = response.cookies
+<span style="color: #9ca0a4;"># </span><span style="color: #9ca0a4;">&#24471;&#21040;&#30340;cookies &#26159;&#19968;&#20010;&#23383;&#20856;&#31867;&#22411;</span>
+<span style="color: #6a1868;">cookie</span> = cookies.get(<span style="color: #50a14f;">"cookies&#30340;key"</span>)
+<span style="color: #9ca0a4;"># </span><span style="color: #9ca0a4;">&#35831;&#27714; &#26597;&#35810;&#25509;&#21475;</span>
+<span style="color: #6a1868;">response2</span> = requests.get(search_url,params,headers,cookies=cookie)
+<span style="color: #9ca0a4;"># </span><span style="color: #9ca0a4;">&#26597;&#30475;&#26597;&#35810;&#21709;&#24212;&#30340;&#32467;&#26524;</span>
+response2.json()
+</pre>
+</div>
+
+<blockquote>
+<p>
+session:<br>
+</p>
+</blockquote>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #9ca0a4;"># </span><span style="color: #9ca0a4;">&#20197;&#19979;&#20195;&#30721;&#32431;&#20026;&#20102;&#20030;&#20363;&#65292;&#27809;&#26377;&#25928;&#26524;&#30340;&#20266;&#20195;&#30721;</span>
+<span style="color: #e45649;">import</span> requests
+<span style="color: #9ca0a4;"># </span><span style="color: #9ca0a4;">&#33719;&#21462; session&#23545;&#35937;</span>
+<span style="color: #6a1868;">session</span> = requests.session()
+<span style="color: #9ca0a4;"># </span><span style="color: #9ca0a4;">&#30331;&#38470;&#25509;&#21475;</span>
+<span style="color: #6a1868;">response1</span> = session.get(url_login,params,headers)
+<span style="color: #9ca0a4;"># </span><span style="color: #9ca0a4;">&#35831;&#27714; &#26597;&#35810;&#25509;&#21475;</span>
+<span style="color: #6a1868;">response2</span> = session.get(search_url,params,headers)
+<span style="color: #9ca0a4;"># </span><span style="color: #9ca0a4;">&#26597;&#30475;&#26597;&#35810;&#21709;&#24212;&#30340;&#32467;&#26524;</span>
+response2.json()
+</pre>
+</div>
+
+<p>
+区别：<br>
+</p>
+
+<ol class="org-ol">
+<li>通过代码的对比可发现使用 session 对象效率会更好，不用每次都将 cookie 信息放到请求内容中了；<br></li>
+<li>session 对象能够自动获取到 cookie 并且可以在下一次请求红自动带上我们所得到的的 cookie 信息，不用人为的去填写；<br></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-org8cf2cbf" class="outline-2">
+<h2 id="org8cf2cbf">补充</h2>
+<div class="outline-text-2" id="text-org8cf2cbf">
+<p>
+可以从请求方法的返回值 response 中可以获取的内容：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python">response.status_code   &#29366;&#24577;&#30721;
+response.url    &#35831;&#27714;url
+response.encoding       &#26597;&#30475;&#21709;&#24212;&#22836;&#37096;&#23383;&#31526;&#32534;&#30721;
+response.cookies        cookie&#20449;&#24687;
+response.headers        &#22836;&#20449;&#24687;
+response.text   &#25991;&#26412;&#24418;&#24335;&#30340;&#21709;&#24212;&#20869;&#23481;
+response.content        &#20108;&#36827;&#21046;&#23383;&#33410;&#24418;&#24335;&#30340;&#21709;&#24212;&#20869;&#23481;
+response.json()         JSON&#24418;&#24335;&#30340;&#21709;&#24212;&#20869;&#23481;(&#20854;&#23454;&#23601;&#26159;dict&#23383;&#20856;&#31867;&#22411;)
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-12-26 17:12 Mon</p>
+<p class="author">Author: Haoran Liu</p>
+<p class="date">Created: 2022-12-26</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

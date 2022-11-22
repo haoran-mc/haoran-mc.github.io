@@ -1,49 +1,47 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-06-22 Wed 22:10 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>实现一个Go Web框架-trie树路由</title>
-<meta name="generator" content="Org mode">
-<meta name="author" content="L.M.haoran">
-<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
->
-
-                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
-                <script type="module" src="static/js/main.js" defer></script>
-                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<!-- 2022-12-25 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>trie树路由</title>
+<meta name="author" content="L.M.haoran" />
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved." />
+<meta name="generator" content="Org Mode" />
+<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+           <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+           <script type="module" src="static/js/main.js" defer></script>
 </head>
 <body>
-<div id="content">
-<h1 class="title">实现一个Go Web框架-trie树路由</h1>
-<div id="table-of-contents">
+<div id="content" class="content">
+<h1 class="title">trie树路由</h1>
+<div id="table-of-contents" role="doc-toc">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents">
+<div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orgf93663b">完成目标：</a></li>
-<li><a href="#org790793e">Trie 树简介</a></li>
-<li><a href="#orge713f0f">Trie 树实现</a></li>
-<li><a href="#org1d24b8c">Router</a></li>
-<li><a href="#org7da42ea">Context 与 handle 的变化</a></li>
-<li><a href="#org9f3b9ff">单元测试</a></li>
-<li><a href="#org70efc47">使用 Demo</a></li>
+<li><a href="#org2bcdc2e">完成目标：</a></li>
+<li><a href="#org5440fdb">Trie 树简介</a></li>
+<li><a href="#org2a8278d">Trie 树实现</a></li>
+<li><a href="#orgd5c21dc">Router</a></li>
+<li><a href="#orge5cac6f">Context 与 handle 的变化</a></li>
+<li><a href="#orgc5934b0">单元测试</a></li>
+<li><a href="#org3d31a74">使用 Demo</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgf93663b" class="outline-2">
-<h2 id="orgf93663b">完成目标：</h2>
-<div class="outline-text-2" id="text-orgf93663b">
+<div id="outline-container-org2bcdc2e" class="outline-2">
+<h2 id="org2bcdc2e">完成目标：</h2>
+<div class="outline-text-2" id="text-org2bcdc2e">
 <ul class="org-ul">
 <li>使用 Trie 树实现动态路由（dynamic route）解析；<br></li>
 <li>支持两种模式 <code>:name</code> 和 <code>*filepath</code> ；<br></li>
 </ul>
 </div>
 </div>
-<div id="outline-container-org790793e" class="outline-2">
-<h2 id="org790793e">Trie 树简介</h2>
-<div class="outline-text-2" id="text-org790793e">
+<div id="outline-container-org5440fdb" class="outline-2">
+<h2 id="org5440fdb">Trie 树简介</h2>
+<div class="outline-text-2" id="text-org5440fdb">
 <p>
 之前，我们用了一个非常简单的 <code>map</code> 结构存储了路由表，使用 <code>map</code> 存储键值对，索引非常高效，但是有一个弊端，键值对的存储的方式，只能用来索引静态路由。那如果我们想支持类似于 <code>/hello/:name</code> 这样的动态路由怎么办呢？所谓动态路由，即一条路由规则可以匹配某一类型而非某一条固定的路由。例如 <code>/hello/:name</code> ，可以匹配 <code>/hello/gee</code> 、 <code>hello/jack</code> 等。<br>
 </p>
@@ -64,8 +62,9 @@
 <li>/:lang/intro<br></li>
 <li>/about<br></li>
 <li>/p/blog<br></li>
-<li>/p/related<br></li>
-</ul>
+<li><p>
+/p/related<br>
+</p>
 
 <p>
 我们用前缀树来表示，是这样的。<br>
@@ -88,12 +87,13 @@ HTTP 请求的路径恰好是由/分隔的多段构成的，因此，每一段�
 <ul class="org-ul">
 <li>参数匹配:。例如 <code>/p/:lang/doc</code> ，可以匹配 <code>/p/c/doc</code> 和 <code>/p/go/doc</code> ；<br></li>
 <li>通配*。例如 <code>/static/*filepath</code> ，可以匹配 <code>/static/fav.ico</code> ，也可以匹配 <code>/static/js/jQuery.js</code> ，这种模式常用于静态服务器，能够递归地匹配子路径；<br></li>
+</ul></li>
 </ul>
 </div>
 </div>
-<div id="outline-container-orge713f0f" class="outline-2">
-<h2 id="orge713f0f">Trie 树实现</h2>
-<div class="outline-text-2" id="text-orge713f0f">
+<div id="outline-container-org2a8278d" class="outline-2">
+<h2 id="org2a8278d">Trie 树实现</h2>
+<div class="outline-text-2" id="text-org2a8278d">
 <p>
 首先我们需要设计树节点上应该存储哪些信息。<br>
 </p>
@@ -105,11 +105,11 @@ gee/trie.go<br>
 </blockquote>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">node</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
-    pattern  <span style="color: #df005f; font-weight: bold;">string</span>  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#24453;&#21305;&#37197;&#36335;&#30001;&#65292;&#20363;&#22914; /p/:lang</span>
-    part     <span style="color: #df005f; font-weight: bold;">string</span>  <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#24403;&#21069;&#32467;&#28857;&#21344;&#26377;&#36335;&#30001;&#30340;&#21738;&#19968;&#37096;&#20998;&#65292;&#20363;&#22914; :/lang</span>
-    children []*<span style="color: #df005f; font-weight: bold;">node</span> <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23376;&#33410;&#28857;&#65292;&#20363;&#22914; [doc, tutorial, intro]</span>
-    isWild   <span style="color: #df005f; font-weight: bold;">bool</span>    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26159;&#21542;&#31934;&#30830;&#21305;&#37197;&#65292;part &#21547;&#26377; : &#25110; * &#26102;&#20026; true</span>
+<pre class="src src-go"><span style="color: #e45649;">type</span> <span style="color: #986801;">node</span> <span style="color: #e45649;">struct</span> {
+    pattern  <span style="color: #986801;">string</span>  <span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">&#24453;&#21305;&#37197;&#36335;&#30001;&#65292;&#20363;&#22914; /p/:lang</span>
+    part     <span style="color: #986801;">string</span>  <span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">&#24403;&#21069;&#32467;&#28857;&#21344;&#26377;&#36335;&#30001;&#30340;&#21738;&#19968;&#37096;&#20998;&#65292;&#20363;&#22914; :/lang</span>
+    children []*<span style="color: #986801;">node</span> <span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">&#23376;&#33410;&#28857;&#65292;&#20363;&#22914; [doc, tutorial, intro]</span>
+    isWild   <span style="color: #986801;">bool</span>    <span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">&#26159;&#21542;&#31934;&#30830;&#21305;&#37197;&#65292;part &#21547;&#26377; : &#25110; * &#26102;&#20026; true</span>
 }
 </pre>
 </div>
@@ -119,25 +119,25 @@ gee/trie.go<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">matchChild finds the matched child for insert</span>
-<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">n</span> *<span style="color: #df005f; font-weight: bold;">node</span>) <span style="color: #d75fd7; font-weight: bold;">matchChild</span>(<span style="color: #8787d7;">part</span> <span style="color: #df005f; font-weight: bold;">string</span>) *<span style="color: #df005f; font-weight: bold;">node</span> {
-    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">_</span>, <span style="color: #8787d7;">child</span> := <span style="color: #268bd2; font-weight: bold;">range</span> n.children {
-        <span style="color: #268bd2; font-weight: bold;">if</span> child.part == part || child.isWild {
-            <span style="color: #268bd2; font-weight: bold;">return</span> child
+<pre class="src src-go"><span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">matchChild finds the matched child for insert</span>
+<span style="color: #e45649;">func</span> (<span style="color: #6a1868;">n</span> *<span style="color: #986801;">node</span>) <span style="color: #a626a4;">matchChild</span>(<span style="color: #6a1868;">part</span> <span style="color: #986801;">string</span>) *<span style="color: #986801;">node</span> {
+    <span style="color: #e45649;">for</span> <span style="color: #6a1868;">_</span>, <span style="color: #6a1868;">child</span> := <span style="color: #e45649;">range</span> n.children {
+        <span style="color: #e45649;">if</span> child.part == part || child.isWild {
+            <span style="color: #e45649;">return</span> child
         }
     }
-    <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">nil</span>
+    <span style="color: #e45649;">return</span> <span style="color: #b751b6;">nil</span>
 }
 
-<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">matchChildren finds all the matched children for search</span>
-<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">n</span> *<span style="color: #df005f; font-weight: bold;">node</span>) <span style="color: #d75fd7; font-weight: bold;">matchChildren</span>(<span style="color: #8787d7;">part</span> <span style="color: #df005f; font-weight: bold;">string</span>) []*<span style="color: #df005f; font-weight: bold;">node</span> {
-    <span style="color: #8787d7;">nodes</span> := <span style="color: #268bd2;">make</span>([]*<span style="color: #df005f; font-weight: bold;">node</span>, 0)
-    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">_</span>, <span style="color: #8787d7;">child</span> := <span style="color: #268bd2; font-weight: bold;">range</span> n.children {
-        <span style="color: #268bd2; font-weight: bold;">if</span> child.part == part || child.isWild {
-            nodes = <span style="color: #268bd2;">append</span>(nodes, child)
+<span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">matchChildren finds all the matched children for search</span>
+<span style="color: #e45649;">func</span> (<span style="color: #6a1868;">n</span> *<span style="color: #986801;">node</span>) <span style="color: #a626a4;">matchChildren</span>(<span style="color: #6a1868;">part</span> <span style="color: #986801;">string</span>) []*<span style="color: #986801;">node</span> {
+    <span style="color: #6a1868;">nodes</span> := <span style="color: #a626a4;">make</span>([]*<span style="color: #986801;">node</span>, 0)
+    <span style="color: #e45649;">for</span> <span style="color: #6a1868;">_</span>, <span style="color: #6a1868;">child</span> := <span style="color: #e45649;">range</span> n.children {
+        <span style="color: #e45649;">if</span> child.part == part || child.isWild {
+            nodes = <span style="color: #a626a4;">append</span>(nodes, child)
         }
     }
-    <span style="color: #268bd2; font-weight: bold;">return</span> nodes
+    <span style="color: #e45649;">return</span> nodes
 }
 
 </pre>
@@ -148,52 +148,52 @@ gee/trie.go<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">n</span> *<span style="color: #df005f; font-weight: bold;">node</span>) <span style="color: #d75fd7; font-weight: bold;">insert</span>(<span style="color: #8787d7;">pattern</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">parts</span> []<span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">height</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Recurse to the deepest point</span>
-    <span style="color: #268bd2; font-weight: bold;">if</span> height == <span style="color: #268bd2;">len</span>(parts) {
+<pre class="src src-go"><span style="color: #e45649;">func</span> (<span style="color: #6a1868;">n</span> *<span style="color: #986801;">node</span>) <span style="color: #a626a4;">insert</span>(<span style="color: #6a1868;">pattern</span> <span style="color: #986801;">string</span>, <span style="color: #6a1868;">parts</span> []<span style="color: #986801;">string</span>, <span style="color: #6a1868;">height</span> <span style="color: #986801;">int</span>) {
+    <span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">Recurse to the deepest point</span>
+    <span style="color: #e45649;">if</span> height == <span style="color: #a626a4;">len</span>(parts) {
         n.pattern = pattern
-        <span style="color: #268bd2; font-weight: bold;">return</span>
+        <span style="color: #e45649;">return</span>
     }
 
-    <span style="color: #8787d7;">part</span> := parts[height]
-    <span style="color: #8787d7;">child</span> := n.<span style="color: #d75fd7; font-weight: bold;">matchChild</span>(part)
-    <span style="color: #268bd2; font-weight: bold;">if</span> child == <span style="color: #d75fd7;">nil</span> {
-        child = &amp;<span style="color: #df005f; font-weight: bold;">node</span>{<span style="color: #d75fd7;">part</span>: part, <span style="color: #d75fd7;">isWild</span>: part[0] == <span style="color: #2aa198;">':'</span> || part[0] == <span style="color: #2aa198;">'*'</span>}
-        n.children = <span style="color: #268bd2;">append</span>(n.children, child)
+    <span style="color: #6a1868;">part</span> := parts[height]
+    <span style="color: #6a1868;">child</span> := n.<span style="color: #a626a4;">matchChild</span>(part)
+    <span style="color: #e45649;">if</span> child == <span style="color: #b751b6;">nil</span> {
+        child = &amp;<span style="color: #986801;">node</span>{<span style="color: #b751b6;">part</span>: part, <span style="color: #b751b6;">isWild</span>: part[0] == <span style="color: #50a14f;">':'</span> || part[0] == <span style="color: #50a14f;">'*'</span>}
+        n.children = <span style="color: #a626a4;">append</span>(n.children, child)
     }
-    child.<span style="color: #d75fd7; font-weight: bold;">insert</span>(pattern, parts, height+1)
+    child.<span style="color: #a626a4;">insert</span>(pattern, parts, height+1)
 }
 
-<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Now we want to enter the page: /assets/css/style.css</span>
-<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">n</span> *<span style="color: #df005f; font-weight: bold;">node</span>) <span style="color: #d75fd7; font-weight: bold;">search</span>(<span style="color: #8787d7;">parts</span> []<span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">height</span> <span style="color: #df005f; font-weight: bold;">int</span>) *<span style="color: #df005f; font-weight: bold;">node</span> {
-    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #268bd2;">len</span>(parts) == height || strings.<span style="color: #d75fd7; font-weight: bold;">HasPrefix</span>(n.part, <span style="color: #2aa198;">"*"</span>) {
-        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">We use the field n.pattern to indicate whether the current node is the end of a full path</span>
-        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">A match is successful only if the path of the current node is a complete path</span>
-        <span style="color: #268bd2; font-weight: bold;">if</span> n.pattern == <span style="color: #2aa198;">""</span> {
-            <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">nil</span>
+<span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">Now we want to enter the page: /assets/css/style.css</span>
+<span style="color: #e45649;">func</span> (<span style="color: #6a1868;">n</span> *<span style="color: #986801;">node</span>) <span style="color: #a626a4;">search</span>(<span style="color: #6a1868;">parts</span> []<span style="color: #986801;">string</span>, <span style="color: #6a1868;">height</span> <span style="color: #986801;">int</span>) *<span style="color: #986801;">node</span> {
+    <span style="color: #e45649;">if</span> <span style="color: #a626a4;">len</span>(parts) == height || strings.<span style="color: #a626a4;">HasPrefix</span>(n.part, <span style="color: #50a14f;">"*"</span>) {
+        <span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">We use the field n.pattern to indicate whether the current node is the end of a full path</span>
+        <span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">A match is successful only if the path of the current node is a complete path</span>
+        <span style="color: #e45649;">if</span> n.pattern == <span style="color: #50a14f;">""</span> {
+            <span style="color: #e45649;">return</span> <span style="color: #b751b6;">nil</span>
         }
-        <span style="color: #268bd2; font-weight: bold;">return</span> n
+        <span style="color: #e45649;">return</span> n
     }
 
-    <span style="color: #8787d7;">part</span> := parts[height]
-    <span style="color: #8787d7;">children</span> := n.<span style="color: #d75fd7; font-weight: bold;">matchChildren</span>(part)
+    <span style="color: #6a1868;">part</span> := parts[height]
+    <span style="color: #6a1868;">children</span> := n.<span style="color: #a626a4;">matchChildren</span>(part)
 
-    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">_</span>, <span style="color: #8787d7;">child</span> := <span style="color: #268bd2; font-weight: bold;">range</span> children {
-        <span style="color: #8787d7;">result</span> := child.<span style="color: #d75fd7; font-weight: bold;">search</span>(parts, height+1)
-        <span style="color: #268bd2; font-weight: bold;">if</span> result != <span style="color: #d75fd7;">nil</span> {
-            <span style="color: #268bd2; font-weight: bold;">return</span> result
+    <span style="color: #e45649;">for</span> <span style="color: #6a1868;">_</span>, <span style="color: #6a1868;">child</span> := <span style="color: #e45649;">range</span> children {
+        <span style="color: #6a1868;">result</span> := child.<span style="color: #a626a4;">search</span>(parts, height+1)
+        <span style="color: #e45649;">if</span> result != <span style="color: #b751b6;">nil</span> {
+            <span style="color: #e45649;">return</span> result
         }
     }
 
-    <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">nil</span>
+    <span style="color: #e45649;">return</span> <span style="color: #b751b6;">nil</span>
 }
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org1d24b8c" class="outline-2">
-<h2 id="org1d24b8c">Router</h2>
-<div class="outline-text-2" id="text-org1d24b8c">
+<div id="outline-container-orgd5c21dc" class="outline-2">
+<h2 id="orgd5c21dc">Router</h2>
+<div class="outline-text-2" id="text-orgd5c21dc">
 <p>
 Trie 树的插入与查找都成功实现了，接下来我们将 Trie 树应用到路由中去吧。我们使用 roots 来存储每种请求方式的 Trie 树根节点。使用 handlers 存储每种请求方式的 HandlerFunc 。getRoute 函数中，还解析了 <code>:</code> 和 <code>*</code> 两种匹配符的参数，返回一个 map 。例如 <code>/p/go/doc</code> 匹配到 <code>/p/:lang/doc</code> ，解析结果为： <code>{lang: "go"}</code> ， <code>/static/css/style.css</code> 匹配到 <code>/static/*filepath</code> ，解析结果为 <code>{filepath: "css/style.css"}</code> 。<br>
 </p>
@@ -205,91 +205,91 @@ gee/router.go<br>
 </blockquote>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">router</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
-    roots    <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]*<span style="color: #df005f; font-weight: bold;">node</span>
-    handlers <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">HandlerFunc</span>
+<pre class="src src-go"><span style="color: #e45649;">type</span> <span style="color: #986801;">router</span> <span style="color: #e45649;">struct</span> {
+    roots    <span style="color: #e45649;">map</span>[<span style="color: #986801;">string</span>]*<span style="color: #986801;">node</span>
+    handlers <span style="color: #e45649;">map</span>[<span style="color: #986801;">string</span>]<span style="color: #986801;">HandlerFunc</span>
 }
 
-<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">roots key eg, roots['GET'] roots['POST']</span>
-<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">handlers key eg, handlers['GET-/p/:lang/doc'], handlers['POST-/p/book']</span>
+<span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">roots key eg, roots['GET'] roots['POST']</span>
+<span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">handlers key eg, handlers['GET-/p/:lang/doc'], handlers['POST-/p/book']</span>
 
-<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">newRouter</span>() *<span style="color: #df005f; font-weight: bold;">router</span> {
-    <span style="color: #268bd2; font-weight: bold;">return</span> &amp;<span style="color: #df005f; font-weight: bold;">router</span>{
-        <span style="color: #d75fd7;">roots</span>:    <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]*<span style="color: #df005f; font-weight: bold;">node</span>),
-        <span style="color: #d75fd7;">handlers</span>: <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">HandlerFunc</span>),
+<span style="color: #e45649;">func</span> <span style="color: #a626a4;">newRouter</span>() *<span style="color: #986801;">router</span> {
+    <span style="color: #e45649;">return</span> &amp;<span style="color: #986801;">router</span>{
+        <span style="color: #b751b6;">roots</span>:    <span style="color: #a626a4;">make</span>(<span style="color: #e45649;">map</span>[<span style="color: #986801;">string</span>]*<span style="color: #986801;">node</span>),
+        <span style="color: #b751b6;">handlers</span>: <span style="color: #a626a4;">make</span>(<span style="color: #e45649;">map</span>[<span style="color: #986801;">string</span>]<span style="color: #986801;">HandlerFunc</span>),
     }
 }
 
-<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Only one * is allowed</span>
-<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">ip:port/assets/*filepath -&gt; parts: ["assets", "*filepath"]</span>
-<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">parsePattern</span>(<span style="color: #8787d7;">pattern</span> <span style="color: #df005f; font-weight: bold;">string</span>) []<span style="color: #df005f; font-weight: bold;">string</span> {
-    <span style="color: #8787d7;">vs</span> := strings.<span style="color: #d75fd7; font-weight: bold;">Split</span>(pattern, <span style="color: #2aa198;">"/"</span>)
+<span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">Only one * is allowed</span>
+<span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">ip:port/assets/*filepath -&gt; parts: ["assets", "*filepath"]</span>
+<span style="color: #e45649;">func</span> <span style="color: #a626a4;">parsePattern</span>(<span style="color: #6a1868;">pattern</span> <span style="color: #986801;">string</span>) []<span style="color: #986801;">string</span> {
+    <span style="color: #6a1868;">vs</span> := strings.<span style="color: #a626a4;">Split</span>(pattern, <span style="color: #50a14f;">"/"</span>)
 
-    <span style="color: #8787d7;">parts</span> := <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">string</span>, 0)
-    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">_</span>, <span style="color: #8787d7;">item</span> := <span style="color: #268bd2; font-weight: bold;">range</span> vs {
-        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">/hello -&gt; ["", "hello"]</span>
-        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">prevent the error: index out of range [0] with length 0 on line 35</span>
-        <span style="color: #268bd2; font-weight: bold;">if</span> item != <span style="color: #2aa198;">""</span> {
-            parts = <span style="color: #268bd2;">append</span>(parts, item)
-            <span style="color: #268bd2; font-weight: bold;">if</span> item[0] == <span style="color: #2aa198;">'*'</span> {
-                <span style="color: #268bd2; font-weight: bold;">break</span>
+    <span style="color: #6a1868;">parts</span> := <span style="color: #a626a4;">make</span>([]<span style="color: #986801;">string</span>, 0)
+    <span style="color: #e45649;">for</span> <span style="color: #6a1868;">_</span>, <span style="color: #6a1868;">item</span> := <span style="color: #e45649;">range</span> vs {
+        <span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">/hello -&gt; ["", "hello"]</span>
+        <span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">prevent the error: index out of range [0] with length 0 on line 35</span>
+        <span style="color: #e45649;">if</span> item != <span style="color: #50a14f;">""</span> {
+            parts = <span style="color: #a626a4;">append</span>(parts, item)
+            <span style="color: #e45649;">if</span> item[0] == <span style="color: #50a14f;">'*'</span> {
+                <span style="color: #e45649;">break</span>
             }
         }
     }
-    <span style="color: #268bd2; font-weight: bold;">return</span> parts
+    <span style="color: #e45649;">return</span> parts
 }
 
-<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">router</span>) <span style="color: #d75fd7; font-weight: bold;">addRoute</span>(<span style="color: #8787d7;">method</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">pattern</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">handler</span> <span style="color: #df005f; font-weight: bold;">HandlerFunc</span>) {
-    log.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"Route %4s - %s"</span>, method, pattern)
-    <span style="color: #8787d7;">parts</span> := <span style="color: #d75fd7; font-weight: bold;">parsePattern</span>(pattern)
+<span style="color: #e45649;">func</span> (<span style="color: #6a1868;">r</span> *<span style="color: #986801;">router</span>) <span style="color: #a626a4;">addRoute</span>(<span style="color: #6a1868;">method</span> <span style="color: #986801;">string</span>, <span style="color: #6a1868;">pattern</span> <span style="color: #986801;">string</span>, <span style="color: #6a1868;">handler</span> <span style="color: #986801;">HandlerFunc</span>) {
+    log.<span style="color: #a626a4;">Printf</span>(<span style="color: #50a14f;">"Route %4s - %s"</span>, method, pattern)
+    <span style="color: #6a1868;">parts</span> := <span style="color: #a626a4;">parsePattern</span>(pattern)
 
-    <span style="color: #8787d7;">key</span> := method + <span style="color: #2aa198;">"-"</span> + pattern
-    <span style="color: #8787d7;">_</span>, <span style="color: #8787d7;">ok</span> := r.roots[method]
-    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #d75fd7;">!</span>ok {
-        r.roots[method] = &amp;<span style="color: #df005f; font-weight: bold;">node</span>{}
+    <span style="color: #6a1868;">key</span> := method + <span style="color: #50a14f;">"-"</span> + pattern
+    <span style="color: #6a1868;">_</span>, <span style="color: #6a1868;">ok</span> := r.roots[method]
+    <span style="color: #e45649;">if</span> <span style="color: #4078f2; font-weight: bold;">!</span>ok {
+        r.roots[method] = &amp;<span style="color: #986801;">node</span>{}
     }
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">ip:port/assets/*filepath</span>
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">r.roots["GET"].insert()</span>
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">pattern: "assets/*filepath"</span>
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">parts: ["assets", "*filepath"]</span>
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">height: 0</span>
-    r.roots[method].<span style="color: #d75fd7; font-weight: bold;">insert</span>(pattern, parts, 0)
+    <span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">ip:port/assets/*filepath</span>
+    <span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">r.roots["GET"].insert()</span>
+    <span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">pattern: "assets/*filepath"</span>
+    <span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">parts: ["assets", "*filepath"]</span>
+    <span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">height: 0</span>
+    r.roots[method].<span style="color: #a626a4;">insert</span>(pattern, parts, 0)
     r.handlers[key] = handler
 }
 
-<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">router</span>) <span style="color: #d75fd7; font-weight: bold;">getRoute</span>(<span style="color: #8787d7;">method</span> <span style="color: #df005f; font-weight: bold;">string</span>, <span style="color: #8787d7;">path</span> <span style="color: #df005f; font-weight: bold;">string</span>) (*<span style="color: #df005f; font-weight: bold;">node</span>, <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">string</span>) {
-    <span style="color: #8787d7;">searchParts</span> := <span style="color: #d75fd7; font-weight: bold;">parsePattern</span>(path)
-    <span style="color: #8787d7;">params</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">string</span>)
-    <span style="color: #8787d7;">root</span>, <span style="color: #8787d7;">ok</span> := r.roots[method]
+<span style="color: #e45649;">func</span> (<span style="color: #6a1868;">r</span> *<span style="color: #986801;">router</span>) <span style="color: #a626a4;">getRoute</span>(<span style="color: #6a1868;">method</span> <span style="color: #986801;">string</span>, <span style="color: #6a1868;">path</span> <span style="color: #986801;">string</span>) (*<span style="color: #986801;">node</span>, <span style="color: #e45649;">map</span>[<span style="color: #986801;">string</span>]<span style="color: #986801;">string</span>) {
+    <span style="color: #6a1868;">searchParts</span> := <span style="color: #a626a4;">parsePattern</span>(path)
+    <span style="color: #6a1868;">params</span> := <span style="color: #a626a4;">make</span>(<span style="color: #e45649;">map</span>[<span style="color: #986801;">string</span>]<span style="color: #986801;">string</span>)
+    <span style="color: #6a1868;">root</span>, <span style="color: #6a1868;">ok</span> := r.roots[method]
 
-    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #d75fd7;">!</span>ok {
-        <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">nil</span>, <span style="color: #d75fd7;">nil</span>
+    <span style="color: #e45649;">if</span> <span style="color: #4078f2; font-weight: bold;">!</span>ok {
+        <span style="color: #e45649;">return</span> <span style="color: #b751b6;">nil</span>, <span style="color: #b751b6;">nil</span>
     }
 
-    <span style="color: #8787d7;">n</span> := root.<span style="color: #d75fd7; font-weight: bold;">search</span>(searchParts, 0)
+    <span style="color: #6a1868;">n</span> := root.<span style="color: #a626a4;">search</span>(searchParts, 0)
 
-    <span style="color: #268bd2; font-weight: bold;">if</span> n != <span style="color: #d75fd7;">nil</span> {
-        <span style="color: #8787d7;">parts</span> := <span style="color: #d75fd7; font-weight: bold;">parsePattern</span>(n.pattern)
-        <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">index</span>, <span style="color: #8787d7;">part</span> := <span style="color: #268bd2; font-weight: bold;">range</span> parts {
-            <span style="color: #268bd2; font-weight: bold;">if</span> part[0] == <span style="color: #2aa198;">':'</span> {
+    <span style="color: #e45649;">if</span> n != <span style="color: #b751b6;">nil</span> {
+        <span style="color: #6a1868;">parts</span> := <span style="color: #a626a4;">parsePattern</span>(n.pattern)
+        <span style="color: #e45649;">for</span> <span style="color: #6a1868;">index</span>, <span style="color: #6a1868;">part</span> := <span style="color: #e45649;">range</span> parts {
+            <span style="color: #e45649;">if</span> part[0] == <span style="color: #50a14f;">':'</span> {
                 params[part[1:]] = searchParts[index]
             }
-            <span style="color: #268bd2; font-weight: bold;">if</span> part[0] == <span style="color: #2aa198;">'*'</span> &amp;&amp; <span style="color: #268bd2;">len</span>(part) &gt; 1 {
-                params[part[1:]] = strings.<span style="color: #d75fd7; font-weight: bold;">Join</span>(searchParts[index:], <span style="color: #2aa198;">"/"</span>)
+            <span style="color: #e45649;">if</span> part[0] == <span style="color: #50a14f;">'*'</span> &amp;&amp; <span style="color: #a626a4;">len</span>(part) &gt; 1 {
+                params[part[1:]] = strings.<span style="color: #a626a4;">Join</span>(searchParts[index:], <span style="color: #50a14f;">"/"</span>)
             }
         }
-        <span style="color: #268bd2; font-weight: bold;">return</span> n, params
+        <span style="color: #e45649;">return</span> n, params
     }
 
-    <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #d75fd7;">nil</span>, <span style="color: #d75fd7;">nil</span>
+    <span style="color: #e45649;">return</span> <span style="color: #b751b6;">nil</span>, <span style="color: #b751b6;">nil</span>
 }
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org7da42ea" class="outline-2">
-<h2 id="org7da42ea">Context 与 handle 的变化</h2>
-<div class="outline-text-2" id="text-org7da42ea">
+<div id="outline-container-orge5cac6f" class="outline-2">
+<h2 id="orge5cac6f">Context 与 handle 的变化</h2>
+<div class="outline-text-2" id="text-orge5cac6f">
 <p>
 在 HandlerFunc 中，希望能够访问到解析的参数，因此，需要对 Context 对象增加一个属性和方法，来提供对路由参数的访问。我们将解析后的参数存储到 <code>Params</code> 中，通过 <code>c.Param("lang")</code> 的方式获取到对应的值。<br>
 </p>
@@ -301,21 +301,21 @@ gee/context.go<br>
 </blockquote>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">type</span> <span style="color: #df005f; font-weight: bold;">Context</span> <span style="color: #268bd2; font-weight: bold;">struct</span> {
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">origin objects</span>
-    Writer <span style="color: #df005f; font-weight: bold;">http.ResponseWriter</span>
-    Req    *<span style="color: #df005f; font-weight: bold;">http.Request</span>
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">request info</span>
-    Path   <span style="color: #df005f; font-weight: bold;">string</span>
-    Method <span style="color: #df005f; font-weight: bold;">string</span>
-    Params <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">string</span>
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">response info</span>
-    StatusCode <span style="color: #df005f; font-weight: bold;">int</span>
+<pre class="src src-go"><span style="color: #e45649;">type</span> <span style="color: #986801;">Context</span> <span style="color: #e45649;">struct</span> {
+    <span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">origin objects</span>
+    Writer <span style="color: #986801;">http.ResponseWriter</span>
+    Req    *<span style="color: #986801;">http.Request</span>
+    <span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">request info</span>
+    Path   <span style="color: #986801;">string</span>
+    Method <span style="color: #986801;">string</span>
+    Params <span style="color: #e45649;">map</span>[<span style="color: #986801;">string</span>]<span style="color: #986801;">string</span>
+    <span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">response info</span>
+    StatusCode <span style="color: #986801;">int</span>
 }
 
-<span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">Context</span>) <span style="color: #d75fd7; font-weight: bold;">Param</span>(<span style="color: #8787d7;">key</span> <span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #df005f; font-weight: bold;">string</span> {
-    <span style="color: #8787d7;">value</span>, <span style="color: #8787d7;">_</span> := c.Params[key]
-    <span style="color: #268bd2; font-weight: bold;">return</span> value
+<span style="color: #e45649;">func</span> (<span style="color: #6a1868;">c</span> *<span style="color: #986801;">Context</span>) <span style="color: #a626a4;">Param</span>(<span style="color: #6a1868;">key</span> <span style="color: #986801;">string</span>) <span style="color: #986801;">string</span> {
+    <span style="color: #6a1868;">value</span>, <span style="color: #6a1868;">_</span> := c.Params[key]
+    <span style="color: #e45649;">return</span> value
 }
 </pre>
 </div>
@@ -327,14 +327,14 @@ gee/router.go<br>
 </blockquote>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> (<span style="color: #8787d7;">r</span> *<span style="color: #df005f; font-weight: bold;">router</span>) <span style="color: #d75fd7; font-weight: bold;">handle</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">Context</span>) {
-    <span style="color: #8787d7;">n</span>, <span style="color: #8787d7;">params</span> := r.<span style="color: #d75fd7; font-weight: bold;">getRoute</span>(c.Method, c.Path)
-    <span style="color: #268bd2; font-weight: bold;">if</span> n != <span style="color: #d75fd7;">nil</span> {
+<pre class="src src-go"><span style="color: #e45649;">func</span> (<span style="color: #6a1868;">r</span> *<span style="color: #986801;">router</span>) <span style="color: #a626a4;">handle</span>(<span style="color: #6a1868;">c</span> *<span style="color: #986801;">Context</span>) {
+    <span style="color: #6a1868;">n</span>, <span style="color: #6a1868;">params</span> := r.<span style="color: #a626a4;">getRoute</span>(c.Method, c.Path)
+    <span style="color: #e45649;">if</span> n != <span style="color: #b751b6;">nil</span> {
         c.Params = params
-        <span style="color: #8787d7;">key</span> := c.Method + <span style="color: #2aa198;">"-"</span> + n.pattern
+        <span style="color: #6a1868;">key</span> := c.Method + <span style="color: #50a14f;">"-"</span> + n.pattern
         r.handlers[key](c)
-    } <span style="color: #268bd2; font-weight: bold;">else</span> {
-        c.<span style="color: #d75fd7; font-weight: bold;">String</span>(http.StatusNotFound, <span style="color: #2aa198;">"404 NOT FOUND: %s\n"</span>, c.Path)
+    } <span style="color: #e45649;">else</span> {
+        c.<span style="color: #a626a4;">String</span>(http.StatusNotFound, <span style="color: #50a14f;">"404 NOT FOUND: %s\n"</span>, c.Path)
     }
 }
 </pre>
@@ -345,9 +345,9 @@ gee/router.go<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org9f3b9ff" class="outline-2">
-<h2 id="org9f3b9ff">单元测试</h2>
-<div class="outline-text-2" id="text-org9f3b9ff">
+<div id="outline-container-orgc5934b0" class="outline-2">
+<h2 id="orgc5934b0">单元测试</h2>
+<div class="outline-text-2" id="text-orgc5934b0">
 <blockquote>
 <p>
 gee/router_test.go<br>
@@ -355,50 +355,50 @@ gee/router_test.go<br>
 </blockquote>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">newTestRouter</span>() *<span style="color: #df005f; font-weight: bold;">router</span> {
-    <span style="color: #8787d7;">r</span> := <span style="color: #d75fd7; font-weight: bold;">newRouter</span>()
-    r.<span style="color: #d75fd7; font-weight: bold;">addRoute</span>(<span style="color: #2aa198;">"GET"</span>, <span style="color: #2aa198;">"/"</span>, <span style="color: #d75fd7;">nil</span>)
-    r.<span style="color: #d75fd7; font-weight: bold;">addRoute</span>(<span style="color: #2aa198;">"GET"</span>, <span style="color: #2aa198;">"/hello/:name"</span>, <span style="color: #d75fd7;">nil</span>)
-    r.<span style="color: #d75fd7; font-weight: bold;">addRoute</span>(<span style="color: #2aa198;">"GET"</span>, <span style="color: #2aa198;">"/hello/b/c"</span>, <span style="color: #d75fd7;">nil</span>)
-    r.<span style="color: #d75fd7; font-weight: bold;">addRoute</span>(<span style="color: #2aa198;">"GET"</span>, <span style="color: #2aa198;">"/hi/:name"</span>, <span style="color: #d75fd7;">nil</span>)
-    r.<span style="color: #d75fd7; font-weight: bold;">addRoute</span>(<span style="color: #2aa198;">"GET"</span>, <span style="color: #2aa198;">"/assets/*filepath"</span>, <span style="color: #d75fd7;">nil</span>)
-    <span style="color: #268bd2; font-weight: bold;">return</span> r
+<pre class="src src-go"><span style="color: #e45649;">func</span> <span style="color: #a626a4;">newTestRouter</span>() *<span style="color: #986801;">router</span> {
+    <span style="color: #6a1868;">r</span> := <span style="color: #a626a4;">newRouter</span>()
+    r.<span style="color: #a626a4;">addRoute</span>(<span style="color: #50a14f;">"GET"</span>, <span style="color: #50a14f;">"/"</span>, <span style="color: #b751b6;">nil</span>)
+    r.<span style="color: #a626a4;">addRoute</span>(<span style="color: #50a14f;">"GET"</span>, <span style="color: #50a14f;">"/hello/:name"</span>, <span style="color: #b751b6;">nil</span>)
+    r.<span style="color: #a626a4;">addRoute</span>(<span style="color: #50a14f;">"GET"</span>, <span style="color: #50a14f;">"/hello/b/c"</span>, <span style="color: #b751b6;">nil</span>)
+    r.<span style="color: #a626a4;">addRoute</span>(<span style="color: #50a14f;">"GET"</span>, <span style="color: #50a14f;">"/hi/:name"</span>, <span style="color: #b751b6;">nil</span>)
+    r.<span style="color: #a626a4;">addRoute</span>(<span style="color: #50a14f;">"GET"</span>, <span style="color: #50a14f;">"/assets/*filepath"</span>, <span style="color: #b751b6;">nil</span>)
+    <span style="color: #e45649;">return</span> r
 }
 
-<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">TestParsePattern</span>(<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">testing.T</span>) {
-    <span style="color: #8787d7;">ok</span> := reflect.<span style="color: #d75fd7; font-weight: bold;">DeepEqual</span>(<span style="color: #d75fd7; font-weight: bold;">parsePattern</span>(<span style="color: #2aa198;">"/p/:name"</span>), []<span style="color: #df005f; font-weight: bold;">string</span>{<span style="color: #2aa198;">"p"</span>, <span style="color: #2aa198;">":name"</span>})
-    ok = ok &amp;&amp; reflect.<span style="color: #d75fd7; font-weight: bold;">DeepEqual</span>(<span style="color: #d75fd7; font-weight: bold;">parsePattern</span>(<span style="color: #2aa198;">"/p/*"</span>), []<span style="color: #df005f; font-weight: bold;">string</span>{<span style="color: #2aa198;">"p"</span>, <span style="color: #2aa198;">"*"</span>})
-    ok = ok &amp;&amp; reflect.<span style="color: #d75fd7; font-weight: bold;">DeepEqual</span>(<span style="color: #d75fd7; font-weight: bold;">parsePattern</span>(<span style="color: #2aa198;">"/p/*name/*"</span>), []<span style="color: #df005f; font-weight: bold;">string</span>{<span style="color: #2aa198;">"p"</span>, <span style="color: #2aa198;">"*name"</span>})
-    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #d75fd7;">!</span>ok {
-        t.<span style="color: #d75fd7; font-weight: bold;">Fatal</span>(<span style="color: #2aa198;">"test parsePattern failed"</span>)
+<span style="color: #e45649;">func</span> <span style="color: #a626a4;">TestParsePattern</span>(<span style="color: #6a1868;">t</span> *<span style="color: #986801;">testing.T</span>) {
+    <span style="color: #6a1868;">ok</span> := reflect.<span style="color: #a626a4;">DeepEqual</span>(<span style="color: #a626a4;">parsePattern</span>(<span style="color: #50a14f;">"/p/:name"</span>), []<span style="color: #986801;">string</span>{<span style="color: #50a14f;">"p"</span>, <span style="color: #50a14f;">":name"</span>})
+    ok = ok &amp;&amp; reflect.<span style="color: #a626a4;">DeepEqual</span>(<span style="color: #a626a4;">parsePattern</span>(<span style="color: #50a14f;">"/p/*"</span>), []<span style="color: #986801;">string</span>{<span style="color: #50a14f;">"p"</span>, <span style="color: #50a14f;">"*"</span>})
+    ok = ok &amp;&amp; reflect.<span style="color: #a626a4;">DeepEqual</span>(<span style="color: #a626a4;">parsePattern</span>(<span style="color: #50a14f;">"/p/*name/*"</span>), []<span style="color: #986801;">string</span>{<span style="color: #50a14f;">"p"</span>, <span style="color: #50a14f;">"*name"</span>})
+    <span style="color: #e45649;">if</span> <span style="color: #4078f2; font-weight: bold;">!</span>ok {
+        t.<span style="color: #a626a4;">Fatal</span>(<span style="color: #50a14f;">"test parsePattern failed"</span>)
     }
 }
 
-<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">TestGetRoute</span>(<span style="color: #8787d7;">t</span> *<span style="color: #df005f; font-weight: bold;">testing.T</span>) {
-    <span style="color: #8787d7;">r</span> := <span style="color: #d75fd7; font-weight: bold;">newTestRouter</span>()
-    <span style="color: #8787d7;">n</span>, <span style="color: #8787d7;">ps</span> := r.<span style="color: #d75fd7; font-weight: bold;">getRoute</span>(<span style="color: #2aa198;">"GET"</span>, <span style="color: #2aa198;">"/hello/haoran"</span>)
+<span style="color: #e45649;">func</span> <span style="color: #a626a4;">TestGetRoute</span>(<span style="color: #6a1868;">t</span> *<span style="color: #986801;">testing.T</span>) {
+    <span style="color: #6a1868;">r</span> := <span style="color: #a626a4;">newTestRouter</span>()
+    <span style="color: #6a1868;">n</span>, <span style="color: #6a1868;">ps</span> := r.<span style="color: #a626a4;">getRoute</span>(<span style="color: #50a14f;">"GET"</span>, <span style="color: #50a14f;">"/hello/haoran"</span>)
 
-    <span style="color: #268bd2; font-weight: bold;">if</span> n == <span style="color: #d75fd7;">nil</span> {
-        t.<span style="color: #d75fd7; font-weight: bold;">Fatal</span>(<span style="color: #2aa198;">"nil shouldn't be returned"</span>)
+    <span style="color: #e45649;">if</span> n == <span style="color: #b751b6;">nil</span> {
+        t.<span style="color: #a626a4;">Fatal</span>(<span style="color: #50a14f;">"nil shouldn't be returned"</span>)
     }
 
-    <span style="color: #268bd2; font-weight: bold;">if</span> n.pattern != <span style="color: #2aa198;">"/hello/:name"</span> {
-        t.<span style="color: #d75fd7; font-weight: bold;">Fatal</span>(<span style="color: #2aa198;">"should match /hello/:name"</span>)
+    <span style="color: #e45649;">if</span> n.pattern != <span style="color: #50a14f;">"/hello/:name"</span> {
+        t.<span style="color: #a626a4;">Fatal</span>(<span style="color: #50a14f;">"should match /hello/:name"</span>)
     }
 
-    <span style="color: #268bd2; font-weight: bold;">if</span> ps[<span style="color: #2aa198;">"name"</span>] != <span style="color: #2aa198;">"haoran"</span> {
-        t.<span style="color: #d75fd7; font-weight: bold;">Fatal</span>(<span style="color: #2aa198;">"name should be equal to 'haoran'"</span>)
+    <span style="color: #e45649;">if</span> ps[<span style="color: #50a14f;">"name"</span>] != <span style="color: #50a14f;">"haoran"</span> {
+        t.<span style="color: #a626a4;">Fatal</span>(<span style="color: #50a14f;">"name should be equal to 'haoran'"</span>)
     }
 
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"matched path: %s, params['name']: %s\n"</span>, n.pattern, ps[<span style="color: #2aa198;">"name"</span>])
+    fmt.<span style="color: #a626a4;">Printf</span>(<span style="color: #50a14f;">"matched path: %s, params['name']: %s\n"</span>, n.pattern, ps[<span style="color: #50a14f;">"name"</span>])
 }
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org70efc47" class="outline-2">
-<h2 id="org70efc47">使用 Demo</h2>
-<div class="outline-text-2" id="text-org70efc47">
+<div id="outline-container-org3d31a74" class="outline-2">
+<h2 id="org3d31a74">使用 Demo</h2>
+<div class="outline-text-2" id="text-org3d31a74">
 <p>
 看看框架使用的样例吧：<br>
 </p>
@@ -410,29 +410,29 @@ main.go<br>
 </blockquote>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #8787d7;">r</span> := gee.<span style="color: #d75fd7; font-weight: bold;">New</span>()
-    r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gee.Context</span>) {
-        c.<span style="color: #d75fd7; font-weight: bold;">HTML</span>(http.StatusOK, <span style="color: #2aa198;">"&lt;h1&gt;Hello Gee&lt;/h1&gt;"</span>)
+<pre class="src src-go"><span style="color: #e45649;">func</span> <span style="color: #a626a4;">main</span>() {
+    <span style="color: #6a1868;">r</span> := gee.<span style="color: #a626a4;">New</span>()
+    r.<span style="color: #a626a4;">GET</span>(<span style="color: #50a14f;">"/"</span>, <span style="color: #e45649;">func</span>(<span style="color: #6a1868;">c</span> *<span style="color: #986801;">gee.Context</span>) {
+        c.<span style="color: #a626a4;">HTML</span>(http.StatusOK, <span style="color: #50a14f;">"&lt;h1&gt;Hello Gee&lt;/h1&gt;"</span>)
     })
 
-    r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/hello"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gee.Context</span>) {
-        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">expect /hello?name=haoran</span>
-        c.<span style="color: #d75fd7; font-weight: bold;">String</span>(http.StatusOK, <span style="color: #2aa198;">"hello %s, you're at %s\n"</span>, c.<span style="color: #d75fd7; font-weight: bold;">Query</span>(<span style="color: #2aa198;">"name"</span>), c.Path)
+    r.<span style="color: #a626a4;">GET</span>(<span style="color: #50a14f;">"/hello"</span>, <span style="color: #e45649;">func</span>(<span style="color: #6a1868;">c</span> *<span style="color: #986801;">gee.Context</span>) {
+        <span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">expect /hello?name=haoran</span>
+        c.<span style="color: #a626a4;">String</span>(http.StatusOK, <span style="color: #50a14f;">"hello %s, you're at %s\n"</span>, c.<span style="color: #a626a4;">Query</span>(<span style="color: #50a14f;">"name"</span>), c.Path)
     })
 
-    r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/hello/:name"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gee.Context</span>) {
-        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">expect /hello/haoran</span>
-        c.<span style="color: #d75fd7; font-weight: bold;">String</span>(http.StatusOK, <span style="color: #2aa198;">"hello %s, you're at %s\n"</span>, c.<span style="color: #d75fd7; font-weight: bold;">Param</span>(<span style="color: #2aa198;">"name"</span>), c.Path)
+    r.<span style="color: #a626a4;">GET</span>(<span style="color: #50a14f;">"/hello/:name"</span>, <span style="color: #e45649;">func</span>(<span style="color: #6a1868;">c</span> *<span style="color: #986801;">gee.Context</span>) {
+        <span style="color: #9ca0a4;">// </span><span style="color: #9ca0a4;">expect /hello/haoran</span>
+        c.<span style="color: #a626a4;">String</span>(http.StatusOK, <span style="color: #50a14f;">"hello %s, you're at %s\n"</span>, c.<span style="color: #a626a4;">Param</span>(<span style="color: #50a14f;">"name"</span>), c.Path)
     })
 
-    r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/assets/*filepath"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gee.Context</span>) {
-        c.<span style="color: #d75fd7; font-weight: bold;">JSON</span>(http.StatusOK, <span style="color: #df005f; font-weight: bold;">gee.H</span>{
-            <span style="color: #2aa198;">"filepath"</span>: c.<span style="color: #d75fd7; font-weight: bold;">Param</span>(<span style="color: #2aa198;">"filepath"</span>),
+    r.<span style="color: #a626a4;">GET</span>(<span style="color: #50a14f;">"/assets/*filepath"</span>, <span style="color: #e45649;">func</span>(<span style="color: #6a1868;">c</span> *<span style="color: #986801;">gee.Context</span>) {
+        c.<span style="color: #a626a4;">JSON</span>(http.StatusOK, <span style="color: #986801;">gee.H</span>{
+            <span style="color: #50a14f;">"filepath"</span>: c.<span style="color: #a626a4;">Param</span>(<span style="color: #50a14f;">"filepath"</span>),
         })
     })
 
-    _ = r.<span style="color: #d75fd7; font-weight: bold;">Run</span>(<span style="color: #2aa198;">":9999"</span>)
+    _ = r.<span style="color: #a626a4;">Run</span>(<span style="color: #50a14f;">":9999"</span>)
 }
 </pre>
 </div>
@@ -441,7 +441,7 @@ main.go<br>
 使用 <code>curl</code> 工具，测试结果。<br>
 </p>
 
-<pre class="example">
+<pre class="example" id="org3ecb756">
 $ curl "http://localhost:9999/hello/haoran"
 hello haoran, you're at /hello/haoran
 
@@ -453,8 +453,8 @@ $ curl "http://localhost:9999/assets/css/style.css"
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-06-22 Wed 22:10</p>
-<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+<p class="date">Created: 2022-12-25</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>

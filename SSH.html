@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-10-21 -->
+<!-- 2022-11-23 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>SSH</title>
@@ -19,55 +19,68 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org9e5e428">ssh基础使用</a>
+<li><a href="#orgd29f574">ssh基础使用</a>
 <ul>
-<li><a href="#orgdcd9260">OpenSSH服务端常用命令</a></li>
-<li><a href="#orgc701a66">ssh配置文件</a></li>
+<li><a href="#org55b033d">OpenSSH 服务端常用命令</a></li>
+<li><a href="#org7542526">ssh 配置文件</a></li>
 </ul>
 </li>
-<li><a href="#org1cc4015">ssh高级配置</a>
+<li><a href="#orga63c320">ssh 高级配置</a>
 <ul>
-<li><a href="#org05fb5af">配置文件</a></li>
-<li><a href="#org2498f1c">服务器别名</a></li>
-<li><a href="#org1296975">免密登录</a></li>
-<li><a href="#org9055e37">免密钥文件登录</a>
+<li><a href="#org75f6ac8">配置文件</a></li>
+<li><a href="#org59757ad">服务器别名</a></li>
+<li><a href="#org840aa05">免密登录</a></li>
+<li><a href="#org0046e1a">免密钥文件登录</a>
 <ul>
-<li><a href="#orgfda2ec2">生成密钥对</a></li>
-<li><a href="#org8886100">上传公钥</a></li>
-<li><a href="#org11fd2a6">连接GCP</a></li>
-<li><a href="#orgb781bd8">简化登录</a></li>
+<li><a href="#org49bece8">生成密钥对</a></li>
+<li><a href="#org14161fd">上传公钥</a></li>
+<li><a href="#org52b6652">连接GCP</a></li>
+<li><a href="#org63e67de">简化登录</a></li>
 </ul>
 </li>
-<li><a href="#org969d68c">创建新用户设置远程登录</a></li>
+<li><a href="#org94fd297">创建新用户设置远程登录</a></li>
+</ul>
+</li>
+<li><a href="#orgc190e0e">使用 Ed25519 算法生成你的 SSH 密钥</a>
+<ul>
+<li><a href="#orgb02ea60">生成密钥</a></li>
+<li><a href="#org3aa8ba8">添加到配置文件</a></li>
+<li><a href="#orgbbb9b78">解释： ssh-keygen 的命令含义</a></li>
+<li><a href="#org84a0f25">解释：最佳实践</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org9e5e428" class="outline-2">
-<h2 id="org9e5e428">ssh基础使用</h2>
-<div class="outline-text-2" id="text-org9e5e428">
+<div id="outline-container-orgd29f574" class="outline-2">
+<h2 id="orgd29f574">ssh基础使用</h2>
+<div class="outline-text-2" id="text-orgd29f574">
 <p>
-ssh客户端是一种使用Secure Shell(ssh)协议连接到运行了ssh服务端的远程服务器上<br>
-ssh是目前较可靠，专为远程登录会话和其他网络服务提供安全性的协议。<br>
+ssh 客户端是一种使用 Secure Shell(ssh) 协议连接到运行了 ssh 服务端的远程服务器上。<br>
 </p>
+
+<p>
+ssh 是目前较可靠，专为远程登录会话和其他网络服务提供安全性的协议。<br>
+</p>
+
 <ul class="org-ul">
-<li>有效防止远程管理过程中的信息泄漏<br></li>
+<li>有效防止远程管理过程中的信息泄漏；<br></li>
 <li>传输 <b>数据加密</b> ，能够防止DNS和IP欺骗<br></li>
-<li><p>
-传输 <b>数据压缩</b> ，加快传输速度<br>
+<li>传输 <b>数据压缩</b> ，加快传输速度<br></li>
+</ul>
+
+<p>
+OpenSSH 是 SSH 协议的免费开源实现。OpenSSH 提供了服务端程序(openssh-server)和客户端工具(openssh-client)。<br>
 </p>
 
 <p>
-OpenSSH 是 SSH协议的免费开源实现。OpenSSH提供了服务端程序(openssh-server)和客户端工具(openssh-client)<br>
-Mac和Linux中默认已安装ssh客户端，可直接在终端中使用ssh命令。Windows则需手动安装ssh客户端，较常用的Windows SSH客户端有PuTTY和XShell<br>
-</p></li>
-</ul>
+Mac 和 Linux 中默认已安装 ssh 客户端，可直接在终端中使用 ssh 命令。Windows 则需手动安装 ssh 客户端，较常用的 Windows SSH 客户端有 PuTTY 和 XShell。<br>
+</p>
 </div>
-<div id="outline-container-orgdcd9260" class="outline-3">
-<h3 id="orgdcd9260">OpenSSH服务端常用命令</h3>
-<div class="outline-text-3" id="text-orgdcd9260">
+<div id="outline-container-org55b033d" class="outline-3">
+<h3 id="org55b033d">OpenSSH 服务端常用命令</h3>
+<div class="outline-text-3" id="text-org55b033d">
 <p>
 $ sudo apt install openssh-server/openssh-client<br>
 </p>
@@ -81,9 +94,9 @@ $ sudo /etc/init.d/ssh start/stop/restart<br>
 </p>
 </div>
 </div>
-<div id="outline-container-orgc701a66" class="outline-3">
-<h3 id="orgc701a66">ssh配置文件</h3>
-<div class="outline-text-3" id="text-orgc701a66">
+<div id="outline-container-org7542526" class="outline-3">
+<h3 id="org7542526">ssh 配置文件</h3>
+<div class="outline-text-3" id="text-org7542526">
 <p>
 ssh服务端配置文件默认为/etc/ssh/sshd_config。可以按需修改默认22端口等配置<br>
 </p>
@@ -109,22 +122,21 @@ $ ssh [-options] [user@hostname]<br>
 <tbody>
 <tr>
 <td class="org-left">-p</td>
-<td class="org-left">指定ssh端口号,默认端口为22</td>
+<td class="org-left">指定 ssh 端口号，默认端口为22</td>
 </tr>
 
 <tr>
 <td class="org-left">-i</td>
-<td class="org-left">使用指定私钥文件连接服务器(免密登录)</td>
+<td class="org-left">使用指定私钥文件连接服务器（免密登录）</td>
 </tr>
 </tbody>
 </table>
 
 <ul class="org-ul">
-<li>user远程服务器登录的用户名，默认为当前用户<br></li>
-<li>hostname远程服务器地址。可以是IP/域名/别名<br></li>
-<li><p>
-exit或logout命令均可退出当前登录<br>
-</p>
+<li>user 远程服务器登录的用户名，默认为当前用户；<br></li>
+<li>hostname 远程服务器地址。可以是IP/域名/别名；<br></li>
+<li>exit 或 logout 命令均可退出当前登录；<br></li>
+</ul>
 
 <p>
 $ ssh colin@192.168.1.196<br>
@@ -136,20 +148,19 @@ $ ssh -p 2222 colin@192.168.1.198<br>
 
 <p>
 $ ssh 168.1.196<br>
-</p></li>
-</ul>
+</p>
 </div>
 </div>
 </div>
-<div id="outline-container-org1cc4015" class="outline-2">
-<h2 id="org1cc4015">ssh高级配置</h2>
-<div class="outline-text-2" id="text-org1cc4015">
+<div id="outline-container-orga63c320" class="outline-2">
+<h2 id="orga63c320">ssh 高级配置</h2>
+<div class="outline-text-2" id="text-orga63c320">
 </div>
-<div id="outline-container-org05fb5af" class="outline-3">
-<h3 id="org05fb5af">配置文件</h3>
-<div class="outline-text-3" id="text-org05fb5af">
+<div id="outline-container-org75f6ac8" class="outline-3">
+<h3 id="org75f6ac8">配置文件</h3>
+<div class="outline-text-3" id="text-org75f6ac8">
 <p>
-ssh配置信息都保存在~/.ssh 中<br>
+ssh 配置信息都保存在 ~/.ssh 中<br>
 </p>
 
 <table>
@@ -169,37 +180,41 @@ ssh配置信息都保存在~/.ssh 中<br>
 <tbody>
 <tr>
 <td class="org-left">known_hosts</td>
-<td class="org-left">作为客户端。记录曾连接服务器授权。ssh第一次连接一台服务器会有一个授权提示，确认授权后会记录在此文件中，下次连接记录中的服务器时则不再需要进行授权确认提示</td>
+<td class="org-left">作为客户端，记录曾连接服务器授权。ssh第一次连接一台服务器会有一个授权提示，确认授权后会记录在此文件中，下次连接记录中的服务器时则不再需要进行授权确认提示</td>
 </tr>
 
 <tr>
 <td class="org-left">authorized_keys</td>
-<td class="org-left">作为服务端。客户端的免密连接公钥文件</td>
+<td class="org-left">作为服务端，客户端的免密连接公钥文件</td>
 </tr>
 
 <tr>
 <td class="org-left">config</td>
-<td class="org-left">作为客户端。记录连接服务器配置的别名</td>
+<td class="org-left">作为客户端，记录连接服务器配置的别名</td>
 </tr>
 </tbody>
 </table>
 
 <ul class="org-ul">
-<li>其中authorized_keys这个文件的权限要是0600<br></li>
-<li>.ssh这个文件夹的权限要是0700<br></li>
+<li>其中 authorized_keys 这个文件的权限要是 0600<br></li>
+<li>.ssh 这个文件夹的权限要是 0700<br></li>
 </ul>
 </div>
 </div>
-<div id="outline-container-org2498f1c" class="outline-3">
-<h3 id="org2498f1c">服务器别名</h3>
-<div class="outline-text-3" id="text-org2498f1c">
+<div id="outline-container-org59757ad" class="outline-3">
+<h3 id="org59757ad">服务器别名</h3>
+<div class="outline-text-3" id="text-org59757ad">
 <p>
-远程管理命令(如ssh,scp等)连接一台服务器时一般都需要提供 服务器地址、端口、用户名 ，每次输入比较繁琐，我们可以把经常使用的服务器连接参数打包记录到配置文件中并为其设置一个简单易记的别名。这样我们就可以通过别名方便的访问服务器，而不需要提供地址、端口、用户名等信息了<br>
+远程管理命令（如ssh，scp等）连接一台服务器时一般都需要提供 服务器地址、端口、用户名 ，每次输入比较繁琐，我们可以把经常使用的服务器连接参数打包记录到配置文件中并为其设置一个简单易记的别名。这样我们就可以通过别名方便的访问服务器，而不需要提供地址、端口、用户名等信息了。<br>
 </p>
 
 <p>
 配置方法如下：<br>
-创建或打开 ~/.ssh/config，在文件追加服务器配置信息<br>
+</p>
+
+<ol class="org-ol">
+<li>创建或打开 ~/.ssh/config，在文件追加服务器配置信息<br></li>
+<li><p>
 一台服务器配置格式如下<br>
 </p>
 <div class="org-src-container">
@@ -208,9 +223,14 @@ HostName 192.168.1.196
 User colin
 Port 22
 </pre>
-</div>
+</div></li>
+</ol>
+
 <p>
-以上配置中只有HostName是必选项，其他都可按需省略。<br>
+以上配置中只有 HostName 是必选项，其他都可按需省略。<br>
+</p>
+
+<p>
 配置完成后远程管理命令中就可以直接使用别名访问了，如<br>
 </p>
 
@@ -221,9 +241,9 @@ $ scp 123.txt ColinMac:Desktop
 </div>
 </div>
 </div>
-<div id="outline-container-org1296975" class="outline-3">
-<h3 id="org1296975">免密登录</h3>
-<div class="outline-text-3" id="text-org1296975">
+<div id="outline-container-org840aa05" class="outline-3">
+<h3 id="org840aa05">免密登录</h3>
+<div class="outline-text-3" id="text-org840aa05">
 <div class="org-src-container">
 <pre class="src src-shell">$ ssh-keygen [-options]
 </pre>
@@ -260,35 +280,45 @@ $ scp 123.txt ColinMac:Desktop
 </tr>
 </tbody>
 </table>
+
 <p>
-远程管理命令(如ssh, scp等)每次都需要提供用户密码保证安全。除此之外，我们也可配置使指定加密算法验证密钥文件的方式，避免每次输入密码<br>
-配置免密登录后，ssh连接和scp等远程管理命令都不需要再输密码<br>
-生成密钥时若指定了文件名，连接服务器时需要通过-i指定要验证的密钥文件,形如：ssh -i file user@host。默认文件名则可省略<br>
+远程管理命令（如ssh，scp等）每次都需要提供用户密码保证安全。除此之外，我们也可配置使指定加密算法验证密钥文件的方式，避免每次输入密码。<br>
+</p>
+
+<p>
+配置免密登录后，ssh 连接和 scp 等远程管理命令都不需要再输密码。<br>
+</p>
+
+<p>
+生成密钥时若指定了文件名，连接服务器时需要通过 -i 指定要验证的密钥文件，形如：ssh -i file user@host。默认文件名则可省略<br>
+</p>
+
+<p>
 默认配置只需以下两步：<br>
 </p>
 <div class="org-src-container">
-<pre class="src src-shell"><span style="color: #5B6268;"># </span><span style="color: #5B6268;">&#23458;&#25143;&#31471;&#29983;&#25104;&#23494;&#38053;&#23545;</span>
+<pre class="src src-shell"><span style="color: #676E95;"># </span><span style="color: #676E95;">&#23458;&#25143;&#31471;&#29983;&#25104;&#23494;&#38053;&#23545;</span>
 $ ssh-keygen
 
-<span style="color: #5B6268;"># </span><span style="color: #5B6268;">&#19978;&#20256;&#20844;&#38053;&#21040;&#26381;&#21153;&#22120;</span>
-$ ssh-copy-id user@hostname   <span style="color: #5B6268;"># </span><span style="color: #5B6268;">&#25991;&#20214;&#20250;&#33258;&#21160;&#19978;&#20256;&#20026;&#26381;&#21153;&#22120;&#29305;&#23450;&#25991;&#20214; &#65374;/.ssh/authorized_keys</span>
+<span style="color: #676E95;"># </span><span style="color: #676E95;">&#19978;&#20256;&#20844;&#38053;&#21040;&#26381;&#21153;&#22120;</span>
+$ ssh-copy-id user@hostname   <span style="color: #676E95;"># </span><span style="color: #676E95;">&#25991;&#20214;&#20250;&#33258;&#21160;&#19978;&#20256;&#20026;&#26381;&#21153;&#22120;&#29305;&#23450;&#25991;&#20214; &#65374;/.ssh/authorized_keys</span>
 </pre>
 </div>
 <p>
-完成以上步骤后直接使用ssh ColinUbuntu即可登录，服务器地址和密码均不用录入。<br>
+完成以上步骤后直接使用 ssh ColinUbuntu 即可登录，服务器地址和密码均不用录入。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org9055e37" class="outline-3">
-<h3 id="org9055e37">免密钥文件登录</h3>
-<div class="outline-text-3" id="text-org9055e37">
+<div id="outline-container-org0046e1a" class="outline-3">
+<h3 id="org0046e1a">免密钥文件登录</h3>
+<div class="outline-text-3" id="text-org0046e1a">
 <p>
-出于安全考虑，大部分服务器提供商如要求使用密钥文件进行远程登录，如GCP和AWS。下面我们以GCP为例来看如何简化连接操作,这搞起来吧&#x2026;<br>
+出于安全考虑，大部分服务器提供商如要求使用密钥文件进行远程登录，如 GCP 和 AWS，下面我们以 GCP 为例来看如何简化连接操作。<br>
 </p>
 </div>
-<div id="outline-container-orgfda2ec2" class="outline-4">
-<h4 id="orgfda2ec2">生成密钥对</h4>
-<div class="outline-text-4" id="text-orgfda2ec2">
+<div id="outline-container-org49bece8" class="outline-4">
+<h4 id="org49bece8">生成密钥对</h4>
+<div class="outline-text-4" id="text-org49bece8">
 <div class="org-src-container">
 <pre class="src src-shell">$ ssh-keygen -t rsa -f ~/.ssh/[KEY_FILENAME] -C [USERNAME]
 $ chmod 400 ~/.ssh/[KEY_FILENAME]
@@ -296,17 +326,17 @@ $ chmod 400 ~/.ssh/[KEY_FILENAME]
 </div>
 </div>
 </div>
-<div id="outline-container-org8886100" class="outline-4">
-<h4 id="org8886100">上传公钥</h4>
-<div class="outline-text-4" id="text-org8886100">
+<div id="outline-container-org14161fd" class="outline-4">
+<h4 id="org14161fd">上传公钥</h4>
+<div class="outline-text-4" id="text-org14161fd">
 <p>
-在Compute Engine页面左侧菜单找到元数据,将上一步生成的公钥文件(KEY_FILENAME_pub)内容添加到SSH密钥中即可。<br>
+在 Compute Engine 页面左侧菜单找到元数据,将上一步生成的公钥文件（KEY_FILENAME_pub）内容添加到 SSH 密钥中即可。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org11fd2a6" class="outline-4">
-<h4 id="org11fd2a6">连接GCP</h4>
-<div class="outline-text-4" id="text-org11fd2a6">
+<div id="outline-container-org52b6652" class="outline-4">
+<h4 id="org52b6652">连接GCP</h4>
+<div class="outline-text-4" id="text-org52b6652">
 <p>
 使用以下命令登录即可<br>
 </p>
@@ -317,16 +347,16 @@ $ chmod 400 ~/.ssh/[KEY_FILENAME]
 </div>
 </div>
 </div>
-<div id="outline-container-orgb781bd8" class="outline-4">
-<h4 id="orgb781bd8">简化登录</h4>
-<div class="outline-text-4" id="text-orgb781bd8">
+<div id="outline-container-org63e67de" class="outline-4">
+<h4 id="org63e67de">简化登录</h4>
+<div class="outline-text-4" id="text-org63e67de">
 <p>
-以上是GCP官方步骤，使用IdentityFile方式进行登录，每次ssh登录都要通过-i选项指定私钥路径比较繁琐，我们可以将密钥文件添加到ssh客户端config中以简化连接命令。<br>
+以上是 GCP 官方步骤，使用 IdentityFile 方式进行登录，每次 ssh 登录都要通过 -i 选项指定私钥路径比较繁琐，我们可以将密钥文件添加到 ssh 客户端 config 中以简化连接命令。<br>
 </p>
 <div class="org-src-container">
 <pre class="src src-shell">Host *
 AddKeysToAgent yes
-UseKeychain yes  <span style="color: #5B6268;"># </span><span style="color: #5B6268;">only for mac</span>
+UseKeychain yes  <span style="color: #676E95;"># </span><span style="color: #676E95;">only for mac</span>
 
 Host tu
 HostName IP_ADDRESS
@@ -337,36 +367,36 @@ IdentityFile ~/.ssh/gcp
 </div>
 
 <p>
-按照以上配置添加到～/.ssh/config中<br>
+按照以上配置添加到 ~/.ssh/config 中。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-shell"><span style="color: #5B6268;"># </span><span style="color: #5B6268;">&#21518;&#21488;&#36816;&#34892;ssh-agent</span>
-$ eval <span style="color: #4fb3d8;">"$(ssh-agent -s)"</span>
-<span style="color: #5B6268;"># </span><span style="color: #5B6268;">&#28155;&#21152;&#23494;&#38053;&#21040;ssh-agent</span>
+<pre class="src src-shell"><span style="color: #676E95;"># </span><span style="color: #676E95;">&#21518;&#21488;&#36816;&#34892;ssh-agent</span>
+$ eval <span style="color: #c3e88d;">"$(ssh-agent -s)"</span>
+<span style="color: #676E95;"># </span><span style="color: #676E95;">&#28155;&#21152;&#23494;&#38053;&#21040;ssh-agent</span>
 $ ssh-add -K ~/.ssh/gcp
 </pre>
 </div>
 
 <p>
-完成以上配置后，连接服务器只需使用 ssh tu即可<br>
+完成以上配置后，连接服务器只需使用 ssh tu 即可<br>
 </p>
 
 <p>
-除了连接云服务器，GitHub等服务也可是通过以上方式连接<br>
+除了连接云服务器，GitHub 等服务也可是通过以上方式连接。<br>
 </p>
 </div>
 </div>
 </div>
-<div id="outline-container-org969d68c" class="outline-3">
-<h3 id="org969d68c">创建新用户设置远程登录</h3>
-<div class="outline-text-3" id="text-org969d68c">
+<div id="outline-container-org94fd297" class="outline-3">
+<h3 id="org94fd297">创建新用户设置远程登录</h3>
+<div class="outline-text-3" id="text-org94fd297">
 <p>
-SSH 登录时提示 Permission denied (publickey,gssapi-keyex,gssapi-with-mic).<br>
+SSH 登录时提示 Permission denied (publickey, gssapi-keyex, gssapi-with-mic)。<br>
 </p>
 
 <p>
-首先在服务器上创建了一个peter用户，为了让peter这个用户也可以使用ssh key的方式登录，在/home/peter用户主目录下新建一个.ssh文件夹，在这个文件夹下又添加了一个authorized_keys的文件，将本地的ssh公钥放在这个文件里<br>
+首先在服务器上创建了一个 peter 用户，为了让 peter 这个用户也可以使用 ssh key 的方式登录，在 /home/peter 用户主目录下新建一个 .ssh 文件夹，在这个文件夹下又添加了一个 authorized_keys 的文件，将本地的 ssh 公钥放在这个文件里。<br>
 </p>
 
 <p>
@@ -376,12 +406,157 @@ Permission denied (publickey,gssapi-keyex,gssapi-with-mic).<br>
 
 <p>
 原因是用户主目录下的 .ssh 目录与它里面的 authorized_keys 文件的权限不能<br>
+</p>
+
+<p>
 .ssh 目录的权限应该是 700，authorized_keys 这个文件的权限应该设置成 600<br>
 </p>
 
 <p>
 chmod 700 ~/.ssh<br>
 chmod 600 ~/.ssh_authorized_keys<br>
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgc190e0e" class="outline-2">
+<h2 id="orgc190e0e">使用 Ed25519 算法生成你的 SSH 密钥</h2>
+<div class="outline-text-2" id="text-orgc190e0e">
+</div>
+<div id="outline-container-orgb02ea60" class="outline-3">
+<h3 id="orgb02ea60">生成密钥</h3>
+<div class="outline-text-3" id="text-orgb02ea60">
+<p>
+先上车再解释，让我们直接开始：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">mkdir -p ~/.ssh &amp;&amp; <span style="color: #82aaff;">cd</span> ~/.ssh
+<span style="color: #676E95;"># </span><span style="color: #676E95;">&#25105;&#22312; GitHub</span>
+ssh-keygen -t ed25519 -f my_github_ed25519  -C <span style="color: #c3e88d;">"haoran.mc@outlook.com"</span>
+<span style="color: #676E95;"># </span><span style="color: #676E95;">&#25105;&#22312; Gitee</span>
+ssh-keygen -t ed25519 -f my_gitee_ed25519   -C <span style="color: #c3e88d;">"me@gitee"</span>
+<span style="color: #676E95;"># </span><span style="color: #676E95;">&#25105;&#22312; GitLab</span>
+ssh-keygen -t ed25519 -f my_gitlab_ed25519  -C <span style="color: #c3e88d;">"me@gitlab"</span>
+<span style="color: #676E95;"># </span><span style="color: #676E95;">&#25105;&#22312;&#20225;&#19994;</span>
+ssh-keygen -t ed25519 -f my_company_ed25519 -C <span style="color: #c3e88d;">"hrliu@servicewall.ai"</span>
+</pre>
+</div>
+
+<p>
+▲ 注意修改 [-C "注释"] 部分。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org3aa8ba8" class="outline-3">
+<h3 id="org3aa8ba8">添加到配置文件</h3>
+<div class="outline-text-3" id="text-org3aa8ba8">
+<p>
+将常用 SSH 信息写进全局配置文件，省得连接时配置。<br>
+</p>
+
+<p>
+编辑 ~/.ssh/config 文件：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-conf"><span style="color: #676E95;"># </span><span style="color: #676E95;">&#20851;&#20110;&#21035;&#21517;</span>
+<span style="color: #676E95;"># </span><span style="color: #676E95;">Host &#26159;&#21035;&#21517;&#65292;HostName &#26159;&#30495;&#27491;&#30340;&#22495;&#21517;&#12290;</span>
+<span style="color: #676E95;"># </span><span style="color: #676E95;">&#24471;&#30410;&#20110;&#21035;&#21517;&#65292;&#20320;&#21487;&#20197;&#30452;&#25509;&#20197;&#21035;&#21517;&#35775;&#38382;&#22320;&#22336;&#12290;&#20363;&#22914;&#65306;</span>
+<span style="color: #676E95;"># </span><span style="color: #676E95;">&#26080;&#21035;&#21517;&#65306; git clone git@github.com:torvalds/linux.git</span>
+<span style="color: #676E95;"># </span><span style="color: #676E95;">&#26377;&#21035;&#21517;&#65306; git clone github:torvalds/linux.git</span>
+<span style="color: #676E95;"># </span><span style="color: #676E95;">&#26412;&#20363;&#20013;&#20351;&#29992;&#19982;&#22495;&#21517;&#19968;&#33268;&#30340;&#21035;&#21517;&#65292;&#20197;&#20813;&#38169;&#35823;&#30340;&#37197;&#32622;&#23548;&#33268;&#30331;&#24405;&#19981;&#19978;&#12290;</span>
+
+<span style="color: #676E95;"># </span><span style="color: #676E95;">&#20851;&#20110;&#20195;&#29702;</span>
+<span style="color: #676E95;"># </span><span style="color: #676E95;">SOCKS &#20195;&#29702;&#26684;&#24335;&#65306; ProxyCommand connect -S localhost:1080  %h %p</span>
+<span style="color: #676E95;"># </span><span style="color: #676E95;">HTTP &#20195;&#29702;&#26684;&#24335;&#65306; ProxyCommand connect -H localhost:1080  %h %p</span>
+<span style="color: #676E95;">## </span><span style="color: #676E95;">SSH &#20195;&#29702;&#20381;&#36182;&#22806;&#37096;&#31243;&#24207;&#65292;&#36825;&#37324;&#20351;&#29992;&#20102; Git for Windows &#21516;&#25414;&#30340; connect.exe&#12290;</span>
+<span style="color: #676E95;">## </span><span style="color: #676E95;">Linux &#19979;&#20351;&#29992;&#35813;&#20195;&#29702;&#26041;&#24335;&#38656;&#35201;&#39069;&#22806;&#23433;&#35013; connect-proxy&#12290;</span>
+
+<span style="color: #676E95;"># </span><span style="color: #676E95;">&#25105;&#22312; GitHub</span>
+Host github.com
+Hostname github.com
+<span style="color: #676E95;">#  </span><span style="color: #676E95;">ProxyCommand connect -H localhost:1080  %h %p</span>
+User git
+PreferredAuthentications publickey
+IdentityFile ~/.ssh/my_github_ed25519
+
+<span style="color: #676E95;"># </span><span style="color: #676E95;">&#25105;&#22312; GitLab</span>
+Host gitlab.com
+Hostname gitlab.com
+<span style="color: #676E95;">#  </span><span style="color: #676E95;">ProxyCommand connect -H localhost:1080  %h %p</span>
+User git
+PreferredAuthentications publickey
+IdentityFile ~/.ssh/my_gitlab_ed25519
+
+<span style="color: #676E95;"># </span><span style="color: #676E95;">&#25105;&#22312; Gitee</span>
+Host gitee.com
+Hostname gitee.com
+User git
+PreferredAuthentications publickey
+IdentityFile ~/.ssh/my_gitee_ed25519
+
+<span style="color: #676E95;"># </span><span style="color: #676E95;">&#25105;&#22312;&#20225;&#19994;</span>
+Host example.com
+Hostname example.com
+Port 22
+User git
+PreferredAuthentications publickey
+IdentityFile ~/.ssh/my_company_ed25519
+</pre>
+</div>
+
+<p>
+配置完毕，现在把 .pub 公钥文件发给服务器。<br>
+</p>
+
+<p>
+如果你懒得在每台机器上都配置一遍，把 ~/.ssh 下的文件放在安全的地方拷走即可。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-orgbbb9b78" class="outline-3">
+<h3 id="orgbbb9b78">解释： ssh-keygen 的命令含义</h3>
+<div class="outline-text-3" id="text-orgbbb9b78">
+<p>
+举例：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">ssh-keygen -t rsa -b 4096 -f my_id -C <span style="color: #c3e88d;">"email@example.com"</span>
+</pre>
+</div>
+
+<p>
+其中：<br>
+</p>
+
+<ul class="org-ul">
+<li>[-t rsa] 表示使用 RSA 算法。<br></li>
+<li>[-b 4096] 表示 RSA 密钥长度 4096 bits （默认 2048 bits）。Ed25519 算法不需要指定。<br></li>
+<li>[-f my_id] 表示在【当前工作目录】下生成一个私钥文件 my_id （同时也会生成一个公钥文件 my_id.pub）。<br></li>
+<li>[-C "email@example.com"] 表示在公钥文件中添加注释，即为这个公钥“起个别名”（不是 id，可以更改）。<br></li>
+</ul>
+
+<p>
+在敲下该命令后，会提示输入 passphrase，即为私钥添加一个“解锁口令”。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org84a0f25" class="outline-3">
+<h3 id="org84a0f25">解释：最佳实践</h3>
+<div class="outline-text-3" id="text-org84a0f25">
+<p>
+私钥必须要有 passphrase。如果私钥文件遗失，没有 passphrase 也无法解锁（只能暴力破解）。不要偷懒，passphrase 一定要加。<br>
+</p>
+
+<p>
+一对密钥只对应一个 Git 服务。一对密钥通吃各 Git 服务不太明智。<br>
+</p>
+
+<p>
+严格来讲，你应该在不同的机器上用不同的密钥，出了问题好排查处理。但实际上复杂的管理反而更容易让人犯错，选择你能 hold 住的方式更为重要。<br>
 </p>
 </div>
 </div>

@@ -1,80 +1,80 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-03-28 Mon 22:57 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 2022-12-02 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>MAP</title>
-<meta name="generator" content="Org mode">
-<meta name="author" content="L.M.haoran">
-<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
->
-
-                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
-                <script type="module" src="static/js/main.js" defer></script>
-                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<meta name="author" content="L.M.haoran" />
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved." />
+<meta name="generator" content="Org Mode" />
+<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+           <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+           <script type="module" src="static/js/main.js" defer></script>
 </head>
 <body>
-<div id="content">
+<div id="content" class="content">
 <h1 class="title">MAP</h1>
-<div id="table-of-contents">
+<div id="table-of-contents" role="doc-toc">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents">
+<div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org39d8835">map 定义</a></li>
-<li><a href="#orgbdfe332">map 基本使用</a></li>
-<li><a href="#org2c8f14a">判断某个键是否存在</a></li>
-<li><a href="#org003e246">map 的遍历</a></li>
-<li><a href="#org0f511e9">按照指定顺序遍历 map</a></li>
-<li><a href="#orga9af2d0">使用 delete() 函数删除键值对</a></li>
-<li><a href="#org0ead3f6">元素为 map 类型的切片</a></li>
-<li><a href="#orgcfab387">值为切片类型的 map</a></li>
+<li><a href="#org23222a8">map 定义</a></li>
+<li><a href="#org21f3a14">map 基本使用</a></li>
+<li><a href="#org75f0c94">判断某个键是否存在</a></li>
+<li><a href="#orga73489b">map 的遍历</a></li>
+<li><a href="#org8eb7ea9">按照指定顺序遍历 map</a></li>
+<li><a href="#org2000607">使用 delete() 函数删除键值对</a></li>
+<li><a href="#orgc25a9d7">元素为 map 类型的切片</a></li>
+<li><a href="#org249f6a8">值为切片类型的 map</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org39d8835" class="outline-2">
-<h2 id="org39d8835">map 定义</h2>
-<div class="outline-text-2" id="text-org39d8835">
+<div id="outline-container-org23222a8" class="outline-2">
+<h2 id="org23222a8">map 定义</h2>
+<div class="outline-text-2" id="text-org23222a8">
 <p>
 Go 语言中 <code>map</code> 的定义语法如下：<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">KeyType</span>]<span style="color: #df005f; font-weight: bold;">ValueType</span>
+<pre class="src src-go"><span style="color: #51afef;">map</span>[<span style="color: #FCCE7B;">KeyType</span>]<span style="color: #FCCE7B;">ValueType</span>
 </pre>
 </div>
 
 <ul class="org-ul">
 <li>KeyType：表示键的类型。<br></li>
-<li>ValueType：表示键对应的值的类型。<br></li>
-</ul>
+<li><p>
+ValueType：表示键对应的值的类型。<br>
+</p>
 
 <p>
 <code>map</code> 类型的变量默认初始值为 <code>nil</code> ，需要使用 <code>make()</code> 函数来分配内存。语法为：<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">KeyType</span>]<span style="color: #df005f; font-weight: bold;">ValueType</span>, [cap])
+<pre class="src src-go"><span style="color: #C57BDB;">make</span>(<span style="color: #51afef;">map</span>[<span style="color: #FCCE7B;">KeyType</span>]<span style="color: #FCCE7B;">ValueType</span>, [cap])
 </pre>
 </div>
 
 <p>
 其中 <code>cap</code> 表示 <code>map</code> 的容量，该参数虽然不是必须的，但是我们应该在初始化 <code>map</code> 的时候就为其指定一个合适的容量。<br>
-</p>
+</p></li>
+</ul>
 </div>
 </div>
-<div id="outline-container-orgbdfe332" class="outline-2">
-<h2 id="orgbdfe332">map 基本使用</h2>
-<div class="outline-text-2" id="text-orgbdfe332">
+<div id="outline-container-org21f3a14" class="outline-2">
+<h2 id="org21f3a14">map 基本使用</h2>
+<div class="outline-text-2" id="text-org21f3a14">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #8787d7;">scoreMap</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">int</span>, 8)
-    scoreMap[<span style="color: #2aa198;">"&#24352;&#19977;"</span>] = 90
-    scoreMap[<span style="color: #2aa198;">"&#23567;&#26126;"</span>] = 100
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(scoreMap)
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(scoreMap[<span style="color: #2aa198;">"&#23567;&#26126;"</span>])
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"type of a:%T\n"</span>, scoreMap)
+<pre class="src src-go"><span style="color: #51afef;">func</span> <span style="color: #5cEfFF;">main</span>() {
+    <span style="color: #dcafe9;">scoreMap</span> := <span style="color: #C57BDB;">make</span>(<span style="color: #51afef;">map</span>[<span style="color: #FCCE7B;">string</span>]<span style="color: #FCCE7B;">int</span>, 8)
+    scoreMap[<span style="color: #7bc275;">"&#24352;&#19977;"</span>] = 90
+    scoreMap[<span style="color: #7bc275;">"&#23567;&#26126;"</span>] = 100
+    fmt.<span style="color: #5cEfFF;">Println</span>(scoreMap)
+    fmt.<span style="color: #5cEfFF;">Println</span>(scoreMap[<span style="color: #7bc275;">"&#23567;&#26126;"</span>])
+    fmt.<span style="color: #5cEfFF;">Printf</span>(<span style="color: #7bc275;">"type of a:%T\n"</span>, scoreMap)
 }
 </pre>
 </div>
@@ -83,7 +83,7 @@ Go 语言中 <code>map</code> 的定义语法如下：<br>
 输出：<br>
 </p>
 
-<pre class="example">
+<pre class="example" id="orgc45d608">
 map[小明:100 张三:90]
 100
 type of a:map[string]int
@@ -94,26 +94,26 @@ type of a:map[string]int
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #8787d7;">userInfo</span> := <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">string</span> {
-        <span style="color: #2aa198;">"username"</span>: <span style="color: #2aa198;">"pprof.cn"</span>,
-        <span style="color: #2aa198;">"password"</span>: <span style="color: #2aa198;">"123456"</span>,
+<pre class="src src-go"><span style="color: #51afef;">func</span> <span style="color: #5cEfFF;">main</span>() {
+    <span style="color: #dcafe9;">userInfo</span> := <span style="color: #51afef;">map</span>[<span style="color: #FCCE7B;">string</span>]<span style="color: #FCCE7B;">string</span> {
+        <span style="color: #7bc275;">"username"</span>: <span style="color: #7bc275;">"pprof.cn"</span>,
+            <span style="color: #7bc275;">"password"</span>: <span style="color: #7bc275;">"123456"</span>,
         }
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(userInfo)
+    fmt.<span style="color: #5cEfFF;">Println</span>(userInfo)
 }
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org2c8f14a" class="outline-2">
-<h2 id="org2c8f14a">判断某个键是否存在</h2>
-<div class="outline-text-2" id="text-org2c8f14a">
+<div id="outline-container-org75f0c94" class="outline-2">
+<h2 id="org75f0c94">判断某个键是否存在</h2>
+<div class="outline-text-2" id="text-org75f0c94">
 <p>
 Go 语言中有个判断 <code>map</code> 中键是否存在的特殊写法，格式如下:<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #8787d7;">value</span>, <span style="color: #8787d7;">ok</span> := <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">key</span>]
+<pre class="src src-go"><span style="color: #dcafe9;">value</span>, <span style="color: #dcafe9;">ok</span> := <span style="color: #51afef;">map</span>[<span style="color: #FCCE7B;">key</span>]
 </pre>
 </div>
 
@@ -122,38 +122,38 @@ Go 语言中有个判断 <code>map</code> 中键是否存在的特殊写法，�
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #8787d7;">scoreMap</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">int</span>)
-    scoreMap[<span style="color: #2aa198;">"&#24352;&#19977;"</span>] = 90
-    scoreMap[<span style="color: #2aa198;">"&#23567;&#26126;"</span>] = 100
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22914;&#26524; key &#23384;&#22312; ok &#20026; true&#65292;v &#20026;&#23545;&#24212;&#30340;&#20540;&#65307;</span>
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#19981;&#23384;&#22312; ok &#20026; false&#65292;v &#20026;&#20540;&#31867;&#22411;&#30340;&#38646;&#20540;</span>
-    <span style="color: #8787d7;">v</span>, <span style="color: #8787d7;">ok</span> := scoreMap[<span style="color: #2aa198;">"&#24352;&#19977;"</span>]
-    <span style="color: #268bd2; font-weight: bold;">if</span> ok {
-        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(v)
-    } <span style="color: #268bd2; font-weight: bold;">else</span> {
-        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"&#26597;&#26080;&#27492;&#20154;"</span>)
+<pre class="src src-go"><span style="color: #51afef;">func</span> <span style="color: #5cEfFF;">main</span>() {
+    <span style="color: #dcafe9;">scoreMap</span> := <span style="color: #C57BDB;">make</span>(<span style="color: #51afef;">map</span>[<span style="color: #FCCE7B;">string</span>]<span style="color: #FCCE7B;">int</span>)
+    scoreMap[<span style="color: #7bc275;">"&#24352;&#19977;"</span>] = 90
+    scoreMap[<span style="color: #7bc275;">"&#23567;&#26126;"</span>] = 100
+    <span style="color: #62686E;">// </span><span style="color: #62686E;">&#22914;&#26524; key &#23384;&#22312; ok &#20026; true&#65292;v &#20026;&#23545;&#24212;&#30340;&#20540;&#65307;</span>
+    <span style="color: #62686E;">// </span><span style="color: #62686E;">&#19981;&#23384;&#22312; ok &#20026; false&#65292;v &#20026;&#20540;&#31867;&#22411;&#30340;&#38646;&#20540;</span>
+    <span style="color: #dcafe9;">v</span>, <span style="color: #dcafe9;">ok</span> := scoreMap[<span style="color: #7bc275;">"&#24352;&#19977;"</span>]
+    <span style="color: #51afef;">if</span> ok {
+        fmt.<span style="color: #5cEfFF;">Println</span>(v)
+    } <span style="color: #51afef;">else</span> {
+        fmt.<span style="color: #5cEfFF;">Println</span>(<span style="color: #7bc275;">"&#26597;&#26080;&#27492;&#20154;"</span>)
     }
 }
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org003e246" class="outline-2">
-<h2 id="org003e246">map 的遍历</h2>
-<div class="outline-text-2" id="text-org003e246">
+<div id="outline-container-orga73489b" class="outline-2">
+<h2 id="orga73489b">map 的遍历</h2>
+<div class="outline-text-2" id="text-orga73489b">
 <p>
 Go 语言中使用 <code>for range</code> 遍历 <code>map</code> 。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #8787d7;">scoreMap</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">int</span>)
-    scoreMap[<span style="color: #2aa198;">"&#24352;&#19977;"</span>] = 90
-    scoreMap[<span style="color: #2aa198;">"&#23567;&#26126;"</span>] = 100
-    scoreMap[<span style="color: #2aa198;">"&#29579;&#20116;"</span>] = 60
-    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">k</span>, <span style="color: #8787d7;">v</span> := <span style="color: #268bd2; font-weight: bold;">range</span> scoreMap {
-        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(k, v)
+<pre class="src src-go"><span style="color: #51afef;">func</span> <span style="color: #5cEfFF;">main</span>() {
+    <span style="color: #dcafe9;">scoreMap</span> := <span style="color: #C57BDB;">make</span>(<span style="color: #51afef;">map</span>[<span style="color: #FCCE7B;">string</span>]<span style="color: #FCCE7B;">int</span>)
+    scoreMap[<span style="color: #7bc275;">"&#24352;&#19977;"</span>] = 90
+    scoreMap[<span style="color: #7bc275;">"&#23567;&#26126;"</span>] = 100
+    scoreMap[<span style="color: #7bc275;">"&#29579;&#20116;"</span>] = 60
+    <span style="color: #51afef;">for</span> <span style="color: #dcafe9;">k</span>, <span style="color: #dcafe9;">v</span> := <span style="color: #51afef;">range</span> scoreMap {
+        fmt.<span style="color: #5cEfFF;">Println</span>(k, v)
     }
 }
 </pre>
@@ -164,13 +164,13 @@ Go 语言中使用 <code>for range</code> 遍历 <code>map</code> 。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #8787d7;">scoreMap</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">int</span>)
-    scoreMap[<span style="color: #2aa198;">"&#24352;&#19977;"</span>] = 90
-    scoreMap[<span style="color: #2aa198;">"&#23567;&#26126;"</span>] = 100
-    scoreMap[<span style="color: #2aa198;">"&#29579;&#20116;"</span>] = 60
-    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">k</span> := <span style="color: #268bd2; font-weight: bold;">range</span> scoreMap {
-        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(k)
+<pre class="src src-go"><span style="color: #51afef;">func</span> <span style="color: #5cEfFF;">main</span>() {
+    <span style="color: #dcafe9;">scoreMap</span> := <span style="color: #C57BDB;">make</span>(<span style="color: #51afef;">map</span>[<span style="color: #FCCE7B;">string</span>]<span style="color: #FCCE7B;">int</span>)
+    scoreMap[<span style="color: #7bc275;">"&#24352;&#19977;"</span>] = 90
+    scoreMap[<span style="color: #7bc275;">"&#23567;&#26126;"</span>] = 100
+    scoreMap[<span style="color: #7bc275;">"&#29579;&#20116;"</span>] = 60
+    <span style="color: #51afef;">for</span> <span style="color: #dcafe9;">k</span> := <span style="color: #51afef;">range</span> scoreMap {
+        fmt.<span style="color: #5cEfFF;">Println</span>(k)
     }
 }
 </pre>
@@ -181,45 +181,45 @@ Go 语言中使用 <code>for range</code> 遍历 <code>map</code> 。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org0f511e9" class="outline-2">
-<h2 id="org0f511e9">按照指定顺序遍历 map</h2>
-<div class="outline-text-2" id="text-org0f511e9">
+<div id="outline-container-org8eb7ea9" class="outline-2">
+<h2 id="org8eb7ea9">按照指定顺序遍历 map</h2>
+<div class="outline-text-2" id="text-org8eb7ea9">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    rand.<span style="color: #d75fd7; font-weight: bold;">Seed</span>(time.<span style="color: #d75fd7; font-weight: bold;">Now</span>().<span style="color: #d75fd7; font-weight: bold;">UnixNano</span>())   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21021;&#22987;&#21270;&#38543;&#26426;&#25968;&#31181;&#23376;</span>
+<pre class="src src-go"><span style="color: #51afef;">func</span> <span style="color: #5cEfFF;">main</span>() {
+    rand.<span style="color: #5cEfFF;">Seed</span>(time.<span style="color: #5cEfFF;">Now</span>().<span style="color: #5cEfFF;">UnixNano</span>())   <span style="color: #62686E;">// </span><span style="color: #62686E;">&#21021;&#22987;&#21270;&#38543;&#26426;&#25968;&#31181;&#23376;</span>
 
-    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">scoreMap</span> = <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">int</span>, 200)
+    <span style="color: #51afef;">var</span> <span style="color: #dcafe9;">scoreMap</span> = <span style="color: #C57BDB;">make</span>(<span style="color: #51afef;">map</span>[<span style="color: #FCCE7B;">string</span>]<span style="color: #FCCE7B;">int</span>, 200)
 
-    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">i</span> := 0; i &lt; 100; i++ {
-        <span style="color: #8787d7;">key</span> := fmt.<span style="color: #d75fd7; font-weight: bold;">Sprintf</span>(<span style="color: #2aa198;">"stu%02d"</span>, i) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#29983;&#25104; stu &#24320;&#22836;&#30340;&#23383;&#31526;&#20018;</span>
-        <span style="color: #8787d7;">value</span> := rand.<span style="color: #d75fd7; font-weight: bold;">Intn</span>(100)          <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#29983;&#25104; 0~99 &#30340;&#38543;&#26426;&#25972;&#25968;</span>
+    <span style="color: #51afef;">for</span> <span style="color: #dcafe9;">i</span> := 0; i &lt; 100; i++ {
+        <span style="color: #dcafe9;">key</span> := fmt.<span style="color: #5cEfFF;">Sprintf</span>(<span style="color: #7bc275;">"stu%02d"</span>, i) <span style="color: #62686E;">// </span><span style="color: #62686E;">&#29983;&#25104; stu &#24320;&#22836;&#30340;&#23383;&#31526;&#20018;</span>
+        <span style="color: #dcafe9;">value</span> := rand.<span style="color: #5cEfFF;">Intn</span>(100)          <span style="color: #62686E;">// </span><span style="color: #62686E;">&#29983;&#25104; 0~99 &#30340;&#38543;&#26426;&#25972;&#25968;</span>
         scoreMap[key] = value
     }
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21462;&#20986; map &#20013;&#30340;&#25152;&#26377; key &#23384;&#20837;&#20999;&#29255; keys</span>
-    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">keys</span> = <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">string</span>, 0, 200)
-    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">key</span> := <span style="color: #268bd2; font-weight: bold;">range</span> scoreMap {
-        keys = <span style="color: #268bd2;">append</span>(keys, key)
+    <span style="color: #62686E;">// </span><span style="color: #62686E;">&#21462;&#20986; map &#20013;&#30340;&#25152;&#26377; key &#23384;&#20837;&#20999;&#29255; keys</span>
+    <span style="color: #51afef;">var</span> <span style="color: #dcafe9;">keys</span> = <span style="color: #C57BDB;">make</span>([]<span style="color: #FCCE7B;">string</span>, 0, 200)
+    <span style="color: #51afef;">for</span> <span style="color: #dcafe9;">key</span> := <span style="color: #51afef;">range</span> scoreMap {
+        keys = <span style="color: #C57BDB;">append</span>(keys, key)
     }
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23545;&#20999;&#29255;&#36827;&#34892;&#25490;&#24207;</span>
-    sort.<span style="color: #d75fd7; font-weight: bold;">Strings</span>(keys)
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25353;&#29031;&#25490;&#24207;&#21518;&#30340; key &#36941;&#21382; map</span>
-    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">_</span>, <span style="color: #8787d7;">key</span> := <span style="color: #268bd2; font-weight: bold;">range</span> keys {
-        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(key, scoreMap[key])
+    <span style="color: #62686E;">// </span><span style="color: #62686E;">&#23545;&#20999;&#29255;&#36827;&#34892;&#25490;&#24207;</span>
+    sort.<span style="color: #5cEfFF;">Strings</span>(keys)
+    <span style="color: #62686E;">// </span><span style="color: #62686E;">&#25353;&#29031;&#25490;&#24207;&#21518;&#30340; key &#36941;&#21382; map</span>
+    <span style="color: #51afef;">for</span> <span style="color: #dcafe9;">_</span>, <span style="color: #dcafe9;">key</span> := <span style="color: #51afef;">range</span> keys {
+        fmt.<span style="color: #5cEfFF;">Println</span>(key, scoreMap[key])
     }
 }
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orga9af2d0" class="outline-2">
-<h2 id="orga9af2d0">使用 delete() 函数删除键值对</h2>
-<div class="outline-text-2" id="text-orga9af2d0">
+<div id="outline-container-org2000607" class="outline-2">
+<h2 id="org2000607">使用 delete() 函数删除键值对</h2>
+<div class="outline-text-2" id="text-org2000607">
 <p>
 使用 <code>delete()</code> 内建函数从 <code>map</code> 中删除一组键值对， <code>delete()</code> 函数的格式如下：<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2;">delete</span>(<span style="color: #268bd2; font-weight: bold;">map</span>, key)
+<pre class="src src-go"><span style="color: #C57BDB;">delete</span>(<span style="color: #51afef;">map</span>, key)
 </pre>
 </div>
 
@@ -233,67 +233,67 @@ Go 语言中使用 <code>for range</code> 遍历 <code>map</code> 。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>(){
-    <span style="color: #8787d7;">scoreMap</span> := <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">int</span>)
-    scoreMap[<span style="color: #2aa198;">"&#24352;&#19977;"</span>] = 90
-    scoreMap[<span style="color: #2aa198;">"&#23567;&#26126;"</span>] = 100
-    scoreMap[<span style="color: #2aa198;">"&#29579;&#20116;"</span>] = 60
-    <span style="color: #268bd2;">delete</span>(scoreMap, <span style="color: #2aa198;">"&#23567;&#26126;"</span>)   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23558; &#23567;&#26126;:100 &#20174; map &#20013;&#21024;&#38500;</span>
-    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">k</span>, <span style="color: #8787d7;">v</span> := <span style="color: #268bd2; font-weight: bold;">range</span> <span style="color: #df005f; font-weight: bold;">scoreMap</span>{
-        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(k, v)
+<pre class="src src-go"><span style="color: #51afef;">func</span> <span style="color: #5cEfFF;">main</span>(){
+    <span style="color: #dcafe9;">scoreMap</span> := <span style="color: #C57BDB;">make</span>(<span style="color: #51afef;">map</span>[<span style="color: #FCCE7B;">string</span>]<span style="color: #FCCE7B;">int</span>)
+    scoreMap[<span style="color: #7bc275;">"&#24352;&#19977;"</span>] = 90
+    scoreMap[<span style="color: #7bc275;">"&#23567;&#26126;"</span>] = 100
+    scoreMap[<span style="color: #7bc275;">"&#29579;&#20116;"</span>] = 60
+    <span style="color: #C57BDB;">delete</span>(scoreMap, <span style="color: #7bc275;">"&#23567;&#26126;"</span>)   <span style="color: #62686E;">// </span><span style="color: #62686E;">&#23558; &#23567;&#26126;:100 &#20174; map &#20013;&#21024;&#38500;</span>
+    <span style="color: #51afef;">for</span> <span style="color: #dcafe9;">k</span>, <span style="color: #dcafe9;">v</span> := <span style="color: #51afef;">range</span> <span style="color: #FCCE7B;">scoreMap</span>{
+        fmt.<span style="color: #5cEfFF;">Println</span>(k, v)
     }
 }
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org0ead3f6" class="outline-2">
-<h2 id="org0ead3f6">元素为 map 类型的切片</h2>
-<div class="outline-text-2" id="text-org0ead3f6">
+<div id="outline-container-orgc25a9d7" class="outline-2">
+<h2 id="orgc25a9d7">元素为 map 类型的切片</h2>
+<div class="outline-text-2" id="text-orgc25a9d7">
 <p>
 下面的代码演示了切片中的元素为 map 类型时的操作：<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">mapSlice</span> = <span style="color: #268bd2;">make</span>([]<span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">string</span>, 3)
-    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">index</span>, <span style="color: #8787d7;">value</span> := <span style="color: #268bd2; font-weight: bold;">range</span> mapSlice {
-        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"index:%d value:%v\n"</span>, index, value)
+<pre class="src src-go"><span style="color: #51afef;">func</span> <span style="color: #5cEfFF;">main</span>() {
+    <span style="color: #51afef;">var</span> <span style="color: #dcafe9;">mapSlice</span> = <span style="color: #C57BDB;">make</span>([]<span style="color: #51afef;">map</span>[<span style="color: #FCCE7B;">string</span>]<span style="color: #FCCE7B;">string</span>, 3)
+    <span style="color: #51afef;">for</span> <span style="color: #dcafe9;">index</span>, <span style="color: #dcafe9;">value</span> := <span style="color: #51afef;">range</span> mapSlice {
+        fmt.<span style="color: #5cEfFF;">Printf</span>(<span style="color: #7bc275;">"index:%d value:%v\n"</span>, index, value)
     }
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"after init"</span>)
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23545;&#20999;&#29255;&#20013;&#30340; map &#20803;&#32032;&#36827;&#34892;&#21021;&#22987;&#21270;</span>
-    mapSlice[0] = <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">string</span>, 10)
-    mapSlice[0][<span style="color: #2aa198;">"name"</span>] = <span style="color: #2aa198;">"&#29579;&#20116;"</span>
-    mapSlice[0][<span style="color: #2aa198;">"password"</span>] = <span style="color: #2aa198;">"123456"</span>
-    mapSlice[0][<span style="color: #2aa198;">"address"</span>] = <span style="color: #2aa198;">"&#32418;&#26071;&#22823;&#34903;"</span>
-    <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">index</span>, <span style="color: #8787d7;">value</span> := <span style="color: #268bd2; font-weight: bold;">range</span> mapSlice {
-        fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"index:%d value:%v\n"</span>, index, value)
+    fmt.<span style="color: #5cEfFF;">Println</span>(<span style="color: #7bc275;">"after init"</span>)
+    <span style="color: #62686E;">// </span><span style="color: #62686E;">&#23545;&#20999;&#29255;&#20013;&#30340; map &#20803;&#32032;&#36827;&#34892;&#21021;&#22987;&#21270;</span>
+    mapSlice[0] = <span style="color: #C57BDB;">make</span>(<span style="color: #51afef;">map</span>[<span style="color: #FCCE7B;">string</span>]<span style="color: #FCCE7B;">string</span>, 10)
+    mapSlice[0][<span style="color: #7bc275;">"name"</span>] = <span style="color: #7bc275;">"&#29579;&#20116;"</span>
+    mapSlice[0][<span style="color: #7bc275;">"password"</span>] = <span style="color: #7bc275;">"123456"</span>
+    mapSlice[0][<span style="color: #7bc275;">"address"</span>] = <span style="color: #7bc275;">"&#32418;&#26071;&#22823;&#34903;"</span>
+    <span style="color: #51afef;">for</span> <span style="color: #dcafe9;">index</span>, <span style="color: #dcafe9;">value</span> := <span style="color: #51afef;">range</span> mapSlice {
+        fmt.<span style="color: #5cEfFF;">Printf</span>(<span style="color: #7bc275;">"index:%d value:%v\n"</span>, index, value)
     }
 }
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orgcfab387" class="outline-2">
-<h2 id="orgcfab387">值为切片类型的 map</h2>
-<div class="outline-text-2" id="text-orgcfab387">
+<div id="outline-container-org249f6a8" class="outline-2">
+<h2 id="org249f6a8">值为切片类型的 map</h2>
+<div class="outline-text-2" id="text-org249f6a8">
 <p>
 下面的代码演示了 <code>map</code> 中值为切片类型的操作：<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">sliceMap</span> = <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>][]<span style="color: #df005f; font-weight: bold;">string</span>, 3)
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(sliceMap)
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"after init"</span>)
-    <span style="color: #8787d7;">key</span> := <span style="color: #2aa198;">"&#20013;&#22269;"</span>
-    <span style="color: #8787d7;">value</span>, <span style="color: #8787d7;">ok</span> := sliceMap[key]
-    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #d75fd7;">!</span>ok {
-        value = <span style="color: #268bd2;">make</span>([]<span style="color: #df005f; font-weight: bold;">string</span>, 0, 2)
+<pre class="src src-go"><span style="color: #51afef;">func</span> <span style="color: #5cEfFF;">main</span>() {
+    <span style="color: #51afef;">var</span> <span style="color: #dcafe9;">sliceMap</span> = <span style="color: #C57BDB;">make</span>(<span style="color: #51afef;">map</span>[<span style="color: #FCCE7B;">string</span>][]<span style="color: #FCCE7B;">string</span>, 3)
+    fmt.<span style="color: #5cEfFF;">Println</span>(sliceMap)
+    fmt.<span style="color: #5cEfFF;">Println</span>(<span style="color: #7bc275;">"after init"</span>)
+    <span style="color: #dcafe9;">key</span> := <span style="color: #7bc275;">"&#20013;&#22269;"</span>
+    <span style="color: #dcafe9;">value</span>, <span style="color: #dcafe9;">ok</span> := sliceMap[key]
+    <span style="color: #51afef;">if</span> <span style="color: #C57BDB; font-weight: bold;">!</span>ok {
+        value = <span style="color: #C57BDB;">make</span>([]<span style="color: #FCCE7B;">string</span>, 0, 2)
     }
-    value = <span style="color: #268bd2;">append</span>(value, <span style="color: #2aa198;">"&#21271;&#20140;"</span>, <span style="color: #2aa198;">"&#19978;&#28023;"</span>)
+    value = <span style="color: #C57BDB;">append</span>(value, <span style="color: #7bc275;">"&#21271;&#20140;"</span>, <span style="color: #7bc275;">"&#19978;&#28023;"</span>)
     sliceMap[key] = value
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(sliceMap)
+    fmt.<span style="color: #5cEfFF;">Println</span>(sliceMap)
 }
 </pre>
 </div>
@@ -303,8 +303,8 @@ Go 语言中使用 <code>for range</code> 遍历 <code>map</code> 。<br>
 <div id="postamble" class="status">
 <p class="date">Date: 2022-02-11 00:02 Fri</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-03-28 Mon 22:57</p>
-<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+<p class="date">Created: 2022-12-02</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>

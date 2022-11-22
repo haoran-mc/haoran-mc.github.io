@@ -1,27 +1,26 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-05-23 Mon 00:12 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 2023-01-03 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>GO WIKI</title>
-<meta name="generator" content="Org mode">
-<meta name="author" content="L.M.haoran">
-<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
->
-
-                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
-                <script type="module" src="static/js/main.js" defer></script>
-                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<meta name="author" content="L.M.haoran" />
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved." />
+<meta name="generator" content="Org Mode" />
+<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+           <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+           <script type="module" src="static/js/main.js" defer></script>
 </head>
 <body>
-<div id="content">
+<div id="content" class="content">
 <h1 class="title">GO WIKI</h1>
-<div id="table-of-contents">
+<div id="table-of-contents" role="doc-toc">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents">
+<div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org26701ef"><i><span class="timestamp-wrapper"><span class="timestamp">[2022-05-03 Tue 01:44]</span></span></i> go 反汇编</a></li>
+<li><a href="#org8b3e44f"><i><span class="timestamp-wrapper"><span class="timestamp">[2023-01-02 Mon 10:53]</span></span></i> 什么时候使用指针？</a></li>
+<li><a href="#org7ec914b"><i><span class="timestamp-wrapper"><span class="timestamp">[2022-05-03 Tue 01:44]</span></span></i> go 反汇编</a></li>
 </ul>
 </div>
 </div>
@@ -31,9 +30,27 @@
 }
 </style>
 
-<div id="outline-container-org26701ef" class="outline-2">
-<h2 id="org26701ef"><i><span class="timestamp-wrapper"><span class="timestamp">[2022-05-03 Tue 01:44]</span></span></i> go 反汇编</h2>
-<div class="outline-text-2" id="text-org26701ef">
+<div id="outline-container-org8b3e44f" class="outline-2">
+<h2 id="org8b3e44f"><i><span class="timestamp-wrapper"><span class="timestamp">[2023-01-02 Mon 10:53]</span></span></i> 什么时候使用指针？</h2>
+<div class="outline-text-2" id="text-org8b3e44f">
+<ul class="org-ul">
+<li>使用值接收器可以减少垃圾的生成；<br></li>
+<li>如果需要修改外部变量的值，我们需要使用指针；<br></li>
+<li>不需要对 <code>map</code> ， <code>slice</code> 等引用类型使用指针，因为他们本身就是一个指针，这个我下一篇再分享；<br></li>
+<li>如果有超级大的结构体需要作为函数的参数，使用指针可以节省内存开销；<br></li>
+<li>因为指针可以修改其指向数据的值，所以最好不要随意在并发场景下使用；<br></li>
+<li>最好不要嵌套使用指针，比如 <code>b := &amp;a, c := &amp;b</code> ，这样代码会比较复杂难懂；<br></li>
+<li>对于一个结构体，不要混用指针和值；<br></li>
+</ul>
+
+<p>
+<a href="https://github.com/golang/go/wiki/CodeReviewComments#receiver-type">https://github.com/golang/go/wiki/CodeReviewComments#receiver-type</a><br>
+</p>
+</div>
+</div>
+<div id="outline-container-org7ec914b" class="outline-2">
+<h2 id="org7ec914b"><i><span class="timestamp-wrapper"><span class="timestamp">[2022-05-03 Tue 01:44]</span></span></i> go 反汇编</h2>
+<div class="outline-text-2" id="text-org7ec914b">
 <ul class="org-ul">
 <li>方法一：go tool compile<br>
 <ul class="org-ul">
@@ -60,8 +77,8 @@
 <div id="postamble" class="status">
 <p class="date">Date: 2022-05-03 01:05 Tue</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-05-23 Mon 00:12</p>
-<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+<p class="date">Created: 2023-01-03</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>

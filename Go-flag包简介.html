@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2023-01-11 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>flag包简介</title>
+<meta name="author" content="Haoran Liu" />
+<meta name="description" content="Copyright © 2023, Haoran Liu, all rights reserved." />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="static/css/org.css"/>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">flag包简介</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#orgfb820cf">入门 demo</a></li>
+<li><a href="#org15bf5c6">运行 demo</a>
+<ul>
+<li><a href="#org80618e4">命令行传参的格式</a></li>
+<li><a href="#org51883f4">不传递命令行参数</a></li>
+<li><a href="#orgff134a8">传递命令行参数</a></li>
+<li><a href="#org9553461">传递多余的命令行参数</a></li>
+<li><a href="#org7fd3479">传递错误的命令行参数</a></li>
+<li><a href="#org932658f">查看帮助信息</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<p>
+在 Golang 程序中有很多种方法来处理命令行参数。简单的情况下可以不使用任何库，直接处理 os.Args；其实 Golang 的标准库提供了 flag 包来处理命令行参数；还有第三方提供的处理命令行参数的库，比如 Pflag 等。<br>
+</p>
+
+<div id="outline-container-orgfb820cf" class="outline-2">
+<h2 id="orgfb820cf">入门 demo</h2>
+<div class="outline-text-2" id="text-orgfb820cf">
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #ffa759;">package</span> main
+
+<span style="color: #ffa759;">import</span> (
+    <span style="color: #bae67e;">"flag"</span>
+    <span style="color: #bae67e;">"fmt"</span>
+)
+
+<span style="color: #484f5b;">// </span><span style="color: #484f5b;">&#23450;&#20041;&#21629;&#20196;&#34892;&#21442;&#25968;&#23545;&#24212;&#30340;&#21464;&#37327;&#65292;&#36825;&#19977;&#20010;&#21464;&#37327;&#37117;&#26159;&#25351;&#38024;&#31867;&#22411;</span>
+<span style="color: #ffa759;">var</span> <span style="color: #cbccc6;">cliName</span> = flag.<span style="color: #ffd580;">String</span>(<span style="color: #bae67e;">"name"</span>, <span style="color: #bae67e;">"nick"</span>, <span style="color: #bae67e;">"Input Your Name"</span>)
+<span style="color: #ffa759;">var</span> <span style="color: #cbccc6;">cliAge</span> = flag.<span style="color: #ffd580;">Int</span>(<span style="color: #bae67e;">"age"</span>, 28, <span style="color: #bae67e;">"Input Your Age"</span>)
+<span style="color: #ffa759;">var</span> <span style="color: #cbccc6;">cliGender</span> = flag.<span style="color: #ffd580;">String</span>(<span style="color: #bae67e;">"gender"</span>, <span style="color: #bae67e;">"male"</span>, <span style="color: #bae67e;">"Input Your Gender"</span>)
+
+<span style="color: #484f5b;">// </span><span style="color: #484f5b;">&#23450;&#20041;&#19968;&#20010;&#20540;&#31867;&#22411;&#30340;&#21629;&#20196;&#34892;&#21442;&#25968;&#21464;&#37327;&#65292;&#22312; Init() &#20989;&#25968;&#20013;&#23545;&#20854;&#21021;&#22987;&#21270;</span>
+<span style="color: #484f5b;">// </span><span style="color: #484f5b;">&#22240;&#27492;&#65292;&#21629;&#20196;&#34892;&#21442;&#25968;&#23545;&#24212;&#21464;&#37327;&#30340;&#23450;&#20041;&#21644;&#21021;&#22987;&#21270;&#26159;&#21487;&#20197;&#20998;&#24320;&#30340;</span>
+<span style="color: #ffa759;">var</span> <span style="color: #cbccc6;">cliFlag</span> <span style="color: #ffe6b3;">int</span>
+
+<span style="color: #ffa759;">func</span> <span style="color: #ffd580;">Init</span>() {
+    flag.<span style="color: #ffd580;">IntVar</span>(&amp;cliFlag, <span style="color: #bae67e;">"flagname"</span>, 1234, <span style="color: #bae67e;">"Just for demo"</span>)
+}
+
+<span style="color: #ffa759;">func</span> <span style="color: #ffd580;">main</span>() {
+    <span style="color: #484f5b;">// </span><span style="color: #484f5b;">&#21021;&#22987;&#21270;&#21464;&#37327; cliFlag</span>
+    <span style="color: #ffd580;">Init</span>()
+    <span style="color: #484f5b;">// </span><span style="color: #484f5b;">&#25226;&#29992;&#25143;&#20256;&#36882;&#30340;&#21629;&#20196;&#34892;&#21442;&#25968;&#35299;&#26512;&#20026;&#23545;&#24212;&#21464;&#37327;&#30340;&#20540;</span>
+    flag.<span style="color: #ffd580;">Parse</span>()
+
+    <span style="color: #484f5b;">// </span><span style="color: #484f5b;">flag.Args() &#20989;&#25968;&#36820;&#22238;&#27809;&#26377;&#34987;&#35299;&#26512;&#30340;&#21629;&#20196;&#34892;&#21442;&#25968;</span>
+    <span style="color: #484f5b;">// </span><span style="color: #484f5b;">func NArg() &#20989;&#25968;&#36820;&#22238;&#27809;&#26377;&#34987;&#35299;&#26512;&#30340;&#21629;&#20196;&#34892;&#21442;&#25968;&#30340;&#20010;&#25968;</span>
+    fmt.<span style="color: #ffd580;">Printf</span>(<span style="color: #bae67e;">"args=%s, num=%d\n"</span>, flag.<span style="color: #ffd580;">Args</span>(), flag.<span style="color: #ffd580;">NArg</span>())
+    <span style="color: #ffa759;">for</span> <span style="color: #cbccc6;">i</span> := 0; i != flag.<span style="color: #ffd580;">NArg</span>(); i++ {
+        fmt.<span style="color: #ffd580;">Printf</span>(<span style="color: #bae67e;">"arg[%d]=%s\n"</span>, i, flag.<span style="color: #ffd580;">Arg</span>(i))
+    }
+
+    <span style="color: #484f5b;">// </span><span style="color: #484f5b;">&#36755;&#20986;&#21629;&#20196;&#34892;&#21442;&#25968;</span>
+    fmt.<span style="color: #ffd580;">Println</span>(<span style="color: #bae67e;">"name="</span>, *cliName)
+    fmt.<span style="color: #ffd580;">Println</span>(<span style="color: #bae67e;">"age="</span>, *cliAge)
+    fmt.<span style="color: #ffd580;">Println</span>(<span style="color: #bae67e;">"gender="</span>, *cliGender)
+    fmt.<span style="color: #ffd580;">Println</span>(<span style="color: #bae67e;">"flagname="</span>, cliFlag)
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org15bf5c6" class="outline-2">
+<h2 id="org15bf5c6">运行 demo</h2>
+<div class="outline-text-2" id="text-org15bf5c6">
+</div>
+<div id="outline-container-org80618e4" class="outline-3">
+<h3 id="org80618e4">命令行传参的格式</h3>
+<div class="outline-text-3" id="text-org80618e4">
+<pre class="example" id="orgd11ee23">
+-isbool    (一个 - 符号，布尔类型该写法等同于 -isbool=true)
+-age=x     (一个 - 符号，使用等号)
+-age x     (一个 - 符号，使用空格)
+--age=x    (两个 - 符号，使用等号)
+--age x    (两个 - 符号，使用空格)
+</pre>
+</div>
+</div>
+<div id="outline-container-org51883f4" class="outline-3">
+<h3 id="org51883f4">不传递命令行参数</h3>
+<div class="outline-text-3" id="text-org51883f4">
+<pre class="example" id="orgb4bfed4">
+$ go run main.go
+args=[], num=0
+name= nick
+age= 28
+gender= male
+flagname= 1234
+</pre>
+</div>
+</div>
+<div id="outline-container-orgff134a8" class="outline-3">
+<h3 id="orgff134a8">传递命令行参数</h3>
+<div class="outline-text-3" id="text-orgff134a8">
+<pre class="example" id="orgdc438da">
+$ go run main.go -name=jack -age 33 --flagname=66
+args=[], num=0
+name= jack
+age= 33
+gender= male
+flagname= 66
+</pre>
+</div>
+</div>
+<div id="outline-container-org9553461" class="outline-3">
+<h3 id="org9553461">传递多余的命令行参数</h3>
+<div class="outline-text-3" id="text-org9553461">
+<pre class="example" id="org5b2d821">
+$ go run main.go -name=jack hello
+args=[hello], num=1
+arg[0]=hello
+name= jack
+age= 28
+gender= male
+flagname= 1234
+</pre>
+</div>
+</div>
+<div id="outline-container-org7fd3479" class="outline-3">
+<h3 id="org7fd3479">传递错误的命令行参数</h3>
+<div class="outline-text-3" id="text-org7fd3479">
+<pre class="example" id="orge918096">
+$ go run main.go -name=jack -hello
+flag provided but not defined: -hello
+Usage of /var/folders/nz/9h41g1_n093bd9rft2l8gxqw0000gn/T/go-build1834906098/b001/exe/main:
+  -age int
+    	Input Your Age (default 28)
+  -flagname int
+    	Just for demo (default 1234)
+  -gender string
+    	Input Your Gender (default "male")
+  -name string
+    	Input Your Name (default "nick")
+exit status 2
+</pre>
+</div>
+</div>
+<div id="outline-container-org932658f" class="outline-3">
+<h3 id="org932658f">查看帮助信息</h3>
+<div class="outline-text-3" id="text-org932658f">
+<p>
+通过命令行参数 -h 或 &#x2013;help 查看帮助信息：<br>
+</p>
+
+<pre class="example" id="orgf4ac361">
+$ go run main.go -h
+Usage of /var/folders/nz/9h41g1_n093bd9rft2l8gxqw0000gn/T/go-build4203476218/b001/exe/main:
+  -age int
+    	Input Your Age (default 28)
+  -flagname int
+    	Just for demo (default 1234)
+  -gender string
+    	Input Your Gender (default "male")
+  -name string
+    	Input Your Name (default "nick")
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2023-01-11 19:01 Wed</p>
+<p class="author">Author: Haoran Liu</p>
+<p class="date">Created: 2023-01-11</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

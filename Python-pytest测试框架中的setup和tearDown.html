@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2022-12-26 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>pytest测试框架中的setup和teardown</title>
+<meta name="author" content="Haoran Liu" />
+<meta name="description" content="Copyright © 2022, Haoran Liu, all rights reserved." />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="static/css/org.css"/>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">pytest测试框架中的setup和teardown</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org165a253">Part One</a></li>
+<li><a href="#org81fb162">Part Two</a></li>
+<li><a href="#org2129859">Reference</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org165a253" class="outline-2">
+<h2 id="org165a253">Part One</h2>
+<div class="outline-text-2" id="text-org165a253">
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #9ca0a4;"># </span><span style="color: #9ca0a4;">content of test_websites.py</span>
+
+<span style="color: #84888b; font-style: italic;">'''</span>
+<span style="color: #84888b; font-style: italic;">Setup/teardown in pytest, see https://docs.pytest.org/en/3.5.1/xunit_setup.html</span>
+
+<span style="color: #84888b; font-style: italic;">Remarks:</span>
+<span style="color: #84888b; font-style: italic;">1. setup/teardown&#30340;&#32467;&#23545;&#20989;&#25968;&#22312;&#27979;&#35797;&#36827;&#31243;&#20013;&#21487;&#20197;&#34987;&#35843;&#29992;&#22810;&#27425;&#30340;&#12290;</span>
+<span style="color: #84888b; font-style: italic;">2. &#22914;&#26524;setup&#20989;&#25968;&#22312;&#25191;&#34892;&#26102;&#22833;&#36133;&#25110;&#34987;skipped&#20102;&#65292;&#30456;&#24212;&#30340;tearDown&#20989;&#25968;&#19981;&#20250;&#34987;&#35843;&#29992;&#12290;</span>
+<span style="color: #84888b; font-style: italic;">'''</span>
+
+<span style="color: #e45649;">import</span> pytest
+
+<span style="color: #e45649;">def</span> <span style="color: #a626a4;">setup_module</span>(module):
+    <span style="color: #84888b; font-style: italic;">"""</span>
+<span style="color: #84888b; font-style: italic;">    &#36825;&#26159;&#19968;&#20010;module&#32423;&#21035;&#30340;setup&#65292;&#23427;&#20250;&#22312;&#26412;module(test_website.py)&#37324;</span>
+<span style="color: #84888b; font-style: italic;">    &#25152;&#26377;test&#25191;&#34892;&#20043;&#21069;&#65292;&#34987;&#35843;&#29992;&#19968;&#27425;&#12290;</span>
+<span style="color: #84888b; font-style: italic;">    &#27880;&#24847;&#65292;&#23427;&#26159;&#30452;&#25509;&#23450;&#20041;&#20026;&#19968;&#20010;module&#37324;&#30340;&#20989;&#25968;</span>
+<span style="color: #84888b; font-style: italic;">    """</span>
+    <span style="color: #a626a4;">print</span>()
+    <span style="color: #a626a4;">print</span>(<span style="color: #50a14f;">"-------------- setup before module --------------"</span>)
+
+
+<span style="color: #e45649;">def</span> <span style="color: #a626a4;">teardown_module</span>(module):
+    <span style="color: #84888b; font-style: italic;">"""</span>
+<span style="color: #84888b; font-style: italic;">    &#36825;&#26159;&#19968;&#20010;module&#32423;&#21035;&#30340;teardown&#65292;&#23427;&#20250;&#22312;&#26412;module(test_website.py)&#37324;</span>
+<span style="color: #84888b; font-style: italic;">    &#25152;&#26377;test&#25191;&#34892;&#23436;&#25104;&#20043;&#21518;&#65292;&#34987;&#35843;&#29992;&#19968;&#27425;&#12290;</span>
+<span style="color: #84888b; font-style: italic;">    &#27880;&#24847;&#65292;&#23427;&#26159;&#30452;&#25509;&#23450;&#20041;&#20026;&#19968;&#20010;module&#37324;&#30340;&#20989;&#25968;</span>
+<span style="color: #84888b; font-style: italic;">    """</span>
+    <span style="color: #a626a4;">print</span>(<span style="color: #50a14f;">"-------------- teardown after module --------------"</span>)
+
+
+<span style="color: #e45649;">class</span> <span style="color: #986801;">TestBaidu</span>(<span style="color: #a626a4;">object</span>):
+    <span style="color: #e45649;">def</span> <span style="color: #a626a4;">test_login</span>(<span style="color: #e45649;">self</span>):
+        <span style="color: #a626a4;">print</span>(<span style="color: #50a14f;">"test baidu login function"</span>)
+        <span style="color: #e45649;">assert</span> <span style="color: #b751b6;">True</span> == <span style="color: #b751b6;">True</span>
+
+
+<span style="color: #e45649;">class</span> <span style="color: #986801;">TestSohu</span>(<span style="color: #a626a4;">object</span>):
+    @<span style="color: #a626a4;">classmethod</span>
+    <span style="color: #e45649;">def</span> <span style="color: #a626a4;">setup_class</span>(cls):
+        <span style="color: #84888b; font-style: italic;">""" &#36825;&#26159;&#19968;&#20010;class&#32423;&#21035;&#30340;setup&#20989;&#25968;&#65292;&#23427;&#20250;&#22312;&#36825;&#20010;&#27979;&#35797;&#31867;TestSohu&#37324;</span>
+<span style="color: #84888b; font-style: italic;">        &#25152;&#26377;test&#25191;&#34892;&#20043;&#21069;&#65292;&#34987;&#35843;&#29992;&#19968;&#27425;.</span>
+<span style="color: #84888b; font-style: italic;">        &#27880;&#24847;&#23427;&#26159;&#19968;&#20010;@classmethod</span>
+<span style="color: #84888b; font-style: italic;">        """</span>
+        <span style="color: #a626a4;">print</span>(<span style="color: #50a14f;">"------ setup before class TestSohu ------"</span>)
+
+    @<span style="color: #a626a4;">classmethod</span>
+    <span style="color: #e45649;">def</span> <span style="color: #a626a4;">teardown_class</span>(cls):
+        <span style="color: #84888b; font-style: italic;">""" &#36825;&#26159;&#19968;&#20010;class&#32423;&#21035;&#30340;teardown&#20989;&#25968;&#65292;&#23427;&#20250;&#22312;&#36825;&#20010;&#27979;&#35797;</span>
+<span style="color: #84888b; font-style: italic;">         &#31867;TestSohu&#37324;&#25152;&#26377;test&#25191;&#34892;&#23436;&#20043;&#21518;&#65292;&#34987;&#35843;&#29992;&#19968;&#27425;.</span>
+<span style="color: #84888b; font-style: italic;">        &#27880;&#24847;&#23427;&#26159;&#19968;&#20010;@classmethod</span>
+<span style="color: #84888b; font-style: italic;">        """</span>
+        <span style="color: #a626a4;">print</span>(<span style="color: #50a14f;">"------ teardown after class TestSohu ------"</span>)
+
+    <span style="color: #e45649;">def</span> <span style="color: #a626a4;">setup_method</span>(<span style="color: #e45649;">self</span>, method):
+        <span style="color: #84888b; font-style: italic;">""" &#36825;&#26159;&#19968;&#20010;method&#32423;&#21035;&#30340;setup&#20989;&#25968;&#65292;&#23427;&#20250;&#22312;&#36825;&#20010;&#27979;&#35797;</span>
+<span style="color: #84888b; font-style: italic;">         &#31867;TestSohu&#37324;&#65292;&#27599;&#19968;&#20010;test&#25191;&#34892;&#20043;&#21069;&#65292;&#34987;&#35843;&#29992;&#19968;&#27425;.</span>
+<span style="color: #84888b; font-style: italic;">        """</span>
+        <span style="color: #a626a4;">print</span>(<span style="color: #50a14f;">"--- setup before each method ---"</span>)
+
+    <span style="color: #e45649;">def</span> <span style="color: #a626a4;">teardown_method</span>(<span style="color: #e45649;">self</span>, method):
+        <span style="color: #84888b; font-style: italic;">""" &#36825;&#26159;&#19968;&#20010;method&#32423;&#21035;&#30340;teardown&#20989;&#25968;&#65292;&#23427;&#20250;&#22312;&#36825;&#20010;&#27979;&#35797;</span>
+<span style="color: #84888b; font-style: italic;">         &#31867;TestSohu&#37324;&#65292;&#27599;&#19968;&#20010;test&#25191;&#34892;&#20043;&#21518;&#65292;&#34987;&#35843;&#29992;&#19968;&#27425;.</span>
+<span style="color: #84888b; font-style: italic;">        """</span>
+        <span style="color: #a626a4;">print</span>(<span style="color: #50a14f;">"--- teardown after each method ---"</span>)
+
+    <span style="color: #e45649;">def</span> <span style="color: #a626a4;">test_login</span>(<span style="color: #e45649;">self</span>):
+        <span style="color: #a626a4;">print</span>(<span style="color: #50a14f;">"sohu login"</span>)
+        <span style="color: #e45649;">assert</span> <span style="color: #b751b6;">True</span> == <span style="color: #b751b6;">True</span>
+
+    <span style="color: #e45649;">def</span> <span style="color: #a626a4;">test_logout</span>(<span style="color: #e45649;">self</span>):
+        <span style="color: #a626a4;">print</span>(<span style="color: #50a14f;">"sohu logout"</span>)
+        pytest.skip()
+</pre>
+</div>
+
+<p>
+pytest 中的 setup/teardown 还有一个更推荐的实现方法是去使用 pytest.fixture 特性，上面这种经典的 setup/teardown，pytest 表示也会继续支持。下面准备总结下用 pytest.fixture 实现 setup/teardown 的方法。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org81fb162" class="outline-2">
+<h2 id="org81fb162">Part Two</h2>
+<div class="outline-text-2" id="text-org81fb162">
+<p>
+下面内容是阅读文档 <a href="https://docs.pytest.org/en/latest/explanation/fixtures.html">pytest fixtures: explicit, modular, scalable</a> 的一些总结，pytest fixture 功能很丰富，功能远不止用来构建测试中传统的 setup/teardown。<br>
+</p>
+
+<p>
+但是还是先看下用 pytest.fixture 特性写的 setup/teardown，据 <a href="https://stackoverflow.com/questions/26405380/how-do-i-correctly-setup-and-teardown-for-my-pytest-class-with-tests/39401087#39401087">stackoverflow</a> 上一哥们说，这还是目前的最佳实践。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #e45649;">import</span> time
+<span style="color: #e45649;">import</span> pytest
+<span style="color: #e45649;">from</span> selenium <span style="color: #e45649;">import</span> webdriver
+<span style="color: #e45649;">from</span> selenium.webdriver.common.by <span style="color: #e45649;">import</span> By
+<span style="color: #e45649;">from</span> utils.log <span style="color: #e45649;">import</span> logger
+<span style="color: #e45649;">from</span> utils.config <span style="color: #e45649;">import</span> get_url
+
+<span style="color: #986801;">@pytest.fixture</span>()
+<span style="color: #e45649;">def</span> <span style="color: #a626a4;">chrome_driver</span>(scope=<span style="color: #50a14f;">"function"</span>):
+    <span style="color: #84888b; font-style: italic;">"""</span>
+<span style="color: #84888b; font-style: italic;">    scope="function" &#26159; scope &#30340;&#40664;&#35748;&#20540;&#65292;&#34920;&#31034;&#36825;&#26159;&#19968;&#20010; function &#32423;&#21035;&#30340; fixture</span>
+<span style="color: #84888b; font-style: italic;">    """</span>
+    <span style="color: #a626a4;">print</span>(<span style="color: #50a14f;">"setup() begin"</span>)
+    driver = webdriver.Chrome()
+    driver.get(get_url())
+    <span style="color: #a626a4;">print</span>(<span style="color: #50a14f;">"setup() end"</span>)
+    <span style="color: #e45649;">yield</span> driver
+    <span style="color: #9ca0a4;">#</span><span style="color: #9ca0a4;">&#36825;&#37324;&#20250;&#36820;&#22238;driver&#65292;&#32473;&#20351;&#29992;&#36825;&#20010;fixture&#20026;&#21442;&#25968;&#30340;test_&#20989;&#25968;&#20351;&#29992;&#65292;</span>
+    <span style="color: #9ca0a4;">#</span><span style="color: #9ca0a4;">test_&#20989;&#25968;&#32467;&#26463;&#21518;&#65292;&#20250;&#22238;&#21040;&#36825;&#37324;&#65292;&#32487;&#32493;&#25191;&#34892;&#21518;&#38754;&#35821;&#21477;</span>
+    <span style="color: #a626a4;">print</span>(<span style="color: #50a14f;">"teardown() begin"</span>)
+    driver.close()
+    <span style="color: #a626a4;">print</span>(<span style="color: #50a14f;">"teardown() end"</span>)
+
+
+<span style="color: #e45649;">class</span> <span style="color: #986801;">TestBaiDu</span>(<span style="color: #a626a4;">object</span>):
+    locator_kw = (By.ID, <span style="color: #50a14f;">'kw'</span>)
+    locator_su = (By.ID, <span style="color: #50a14f;">'su'</span>)
+    locator_result = (By.XPATH, <span style="color: #50a14f;">'//div[contains(@class, "result")]/h3/a'</span>)
+
+    <span style="color: #e45649;">def</span> <span style="color: #a626a4;">test_search_0</span>(<span style="color: #e45649;">self</span>, chrome_driver):
+        <span style="color: #84888b; font-style: italic;">"""</span>
+<span style="color: #84888b; font-style: italic;">        &#36825;&#37324;&#30340;chrome_driver&#26159;&#22312;&#26412;&#27169;&#22359;&#20013;&#23450;&#20041;&#30340;fixture&#65292;&#36825;&#37324;&#36755;&#20837;</span>
+<span style="color: #84888b; font-style: italic;">        &#30340;&#21442;&#25968;&#26159;&#19978;&#38754; yield driver &#20013;&#36820;&#22238;&#30340; driver</span>
+<span style="color: #84888b; font-style: italic;">        """</span>
+        chrome_driver.find_element(*<span style="color: #e45649;">self</span>.locator_kw).send_keys(u<span style="color: #50a14f;">'selenium &#27979;&#35797;'</span>)
+        chrome_driver.find_element(*<span style="color: #e45649;">self</span>.locator_su).click()
+        time.sleep(2)
+        links = chrome_driver.find_elements(*<span style="color: #e45649;">self</span>.locator_result)
+        <span style="color: #e45649;">for</span> link <span style="color: #e45649;">in</span> links:
+            logger.info(link.text)
+</pre>
+</div>
+
+<p>
+这样写看起来有点pythonic的味道，我理解写这样fixture形式的setup/teardown函数，主要还是给那些需要打开然后关闭的资源，比如上面例子中的浏览器driver，确实需要收尾（driver.quit()）。<br>
+</p>
+
+<p>
+可能还有其他应用，比如写一个数据库查询的函数，就可以把连接数据库，获得数据查询句柄，yield 句柄，关闭数据库句柄，关闭数据连接写成一个fixture，这样代码应该清爽多了。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #986801;">@pytest.fixture</span>(scope=<span style="color: #50a14f;">"module"</span>) <span style="color: #9ca0a4;">#</span><span style="color: #9ca0a4;">&#19968;&#20010;module&#37324;&#30340;&#25152;&#26377;&#20989;&#25968;&#20849;&#29992;&#19968;&#20010;&#21477;&#26564;&#23454;&#20363;</span>
+<span style="color: #e45649;">def</span> <span style="color: #a626a4;">sql_query</span>():
+    <span style="color: #9ca0a4;">#</span><span style="color: #9ca0a4;">&#36830;&#25509;&#25968;&#25454;&#24211;</span>
+    <span style="color: #9ca0a4;">#</span><span style="color: #9ca0a4;">&#33719;&#24471;&#25968;&#25454;&#24211;&#26597;&#35810;&#21477;&#26564;</span>
+    <span style="color: #e45649;">yield</span> <span style="color: #50a14f;">"&#26597;&#35810;&#21477;&#26564;"</span>
+    <span style="color: #9ca0a4;">#</span><span style="color: #9ca0a4;">&#20851;&#38381;&#21477;&#26564;</span>
+    <span style="color: #9ca0a4;">#</span><span style="color: #9ca0a4;">&#20851;&#38381;&#25968;&#25454;&#24211;&#36830;&#25509;</span>
+</pre>
+</div>
+
+<p>
+fixture如果不用到yield，则只是把fixture函数里返回的值，作为参数给到使用fixture的函数，代码如下<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #986801;">@pytest.fixture</span>()
+<span style="color: #e45649;">def</span> <span style="color: #a626a4;">fruit_name</span>():
+    <span style="color: #e45649;">return</span>  <span style="color: #50a14f;">"apple"</span>
+
+<span style="color: #e45649;">def</span> <span style="color: #a626a4;">test_fruit</span>(fruit_name):
+    <span style="color: #e45649;">assert</span> <span style="color: #50a14f;">"apple"</span> == fruit_name
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org2129859" class="outline-2">
+<h2 id="org2129859">Reference</h2>
+<div class="outline-text-2" id="text-org2129859">
+<div class="reference">
+<ul style="list-style: none;">
+<li><a href="https://python012.github.io/2018/05/08/pytest%E6%B5%8B%E8%AF%95%E6%A1%86%E6%9E%B6%E4%B8%AD%E7%9A%84setup%E5%92%8CtearDown/" target="_blank">pytest测试框架中的setup和tearDown</a></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2022-12-26 18:12 Mon</p>
+<p class="author">Author: Haoran Liu</p>
+<p class="date">Created: 2022-12-26</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
