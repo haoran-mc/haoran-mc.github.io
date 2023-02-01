@@ -1,72 +1,70 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2021-11-06 Sat 18:08 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 2023-02-03 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>时间与日期</title>
-<meta name="generator" content="Org mode">
-<meta name="author" content="L.M.haoran">
-<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved."
->
-
-                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
-                <script type="module" src="static/js/main.js" defer></script>
-                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<meta name="author" content="L.M.haoran" />
+<meta name="description" content="Copyright © 2021, L.M.haoran, all rights reserved." />
+<meta name="generator" content="Org Mode" />
+<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+           <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+           <script type="module" src="static/js/main.js" defer></script>
 </head>
 <body>
-<div id="content">
+<div id="content" class="content">
 <h1 class="title">时间与日期</h1>
-<div id="table-of-contents">
+<div id="table-of-contents" role="doc-toc">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents">
+<div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orgef3ad15">time 包</a></li>
-<li><a href="#org3e6f65e">Location</a>
+<li><a href="#org0e83042">time 包</a></li>
+<li><a href="#orga1c77ca">Location</a>
 <ul>
-<li><a href="#org30c84fe">Local 是如何做到表示本地时区的？</a></li>
-<li><a href="#orgb4b59a7">获得特定时区的实例</a></li>
-<li><a href="#org7ed786c">总结</a></li>
+<li><a href="#org43fce76">Local 是如何做到表示本地时区的？</a></li>
+<li><a href="#orgc2fae08">获得特定时区的实例</a></li>
+<li><a href="#org871c480">总结</a></li>
 </ul>
 </li>
-<li><a href="#org3928fbe">Time</a>
+<li><a href="#org47423fe">Time</a>
 <ul>
-<li><a href="#org1213458">常用函数或方法</a>
+<li><a href="#orged0fdee">常用函数或方法</a>
 <ul>
-<li><a href="#org0c4e5c5">零值的判断</a></li>
-<li><a href="#org6fe9bf9">与 Unix 时间戳的转换</a></li>
-<li><a href="#orgd7c1c30">格式化和解析</a>
+<li><a href="#org9ba08fe">零值的判断</a></li>
+<li><a href="#org3359c81">与 Unix 时间戳的转换</a></li>
+<li><a href="#org736e8a8">格式化和解析</a>
 <ul>
-<li><a href="#org90041b0">解析</a></li>
-<li><a href="#org64d428e">为什么是 2006-01-02 15:04:05</a></li>
-<li><a href="#orgde1c833">格式化</a></li>
+<li><a href="#orge5e623b">解析</a></li>
+<li><a href="#org26cece2">为什么是 2006-01-02 15:04:05</a></li>
+<li><a href="#org1b46f99">格式化</a></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#org16b33c7">Duration</a></li>
-<li><a href="#org62d29bb">Timer 和 Ticker</a>
+<li><a href="#org8a927bc">Duration</a></li>
+<li><a href="#org3f47b7a">Timer 和 Ticker</a>
 <ul>
-<li><a href="#org95b5ccc">Timer</a>
+<li><a href="#org764fac6">Timer</a>
 <ul>
-<li><a href="#org6ca7278">内部源码</a></li>
-<li><a href="#org30071f3">相关函数与方法</a></li>
+<li><a href="#org1d81bb1">内部源码</a></li>
+<li><a href="#orgb25dd97">相关函数与方法</a></li>
 </ul>
 </li>
-<li><a href="#orgdfab595">Ticker 相关函数与方法</a></li>
+<li><a href="#org74fe38a">Ticker 相关函数与方法</a></li>
 </ul>
 </li>
-<li><a href="#org99f0ee7">Weekday 和 Month</a></li>
-<li><a href="#org6493c5c">简单点，常用方法：</a></li>
+<li><a href="#org30b2d6f">Weekday 和 Month</a></li>
+<li><a href="#orgaf35c1f">简单点，常用方法：</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgef3ad15" class="outline-2">
-<h2 id="orgef3ad15">time 包</h2>
-<div class="outline-text-2" id="text-orgef3ad15">
+<div id="outline-container-org0e83042" class="outline-2">
+<h2 id="org0e83042">time 包</h2>
+<div class="outline-text-2" id="text-org0e83042">
 <p>
 Go 语言通过标准库 time 包处理日期和时间相关的问题。<br>
 </p>
@@ -76,9 +74,9 @@ time 包提供了时间的显示和计量用的功能。日历的计算采用的
 </p>
 </div>
 </div>
-<div id="outline-container-org3e6f65e" class="outline-2">
-<h2 id="org3e6f65e">Location</h2>
-<div class="outline-text-2" id="text-org3e6f65e">
+<div id="outline-container-orga1c77ca" class="outline-2">
+<h2 id="orga1c77ca">Location</h2>
+<div class="outline-text-2" id="text-orga1c77ca">
 <p>
 代表一个地区，并表示该地区所在的时区（可能多个）。Location 通常代表地理位置的偏移，比如 CEST 和 CET 表示中欧。<br>
 </p>
@@ -91,9 +89,9 @@ time 包提供了时间的显示和计量用的功能。日历的计算采用的
 time 包提供了 Location 的两个实例：Local 和 UTC。Local 代表当前系统本地时区；UTC 代表通用协调时间，也就是零时区。time 包默认（为显示提供时区）使用 UTC 时区。<br>
 </p>
 </div>
-<div id="outline-container-org30c84fe" class="outline-3">
-<h3 id="org30c84fe">Local 是如何做到表示本地时区的？</h3>
-<div class="outline-text-3" id="text-org30c84fe">
+<div id="outline-container-org43fce76" class="outline-3">
+<h3 id="org43fce76">Local 是如何做到表示本地时区的？</h3>
+<div class="outline-text-3" id="text-org43fce76">
 <p>
 时区信息既浩繁又多变，Unix 系统以标准格式存于文件中，这些文件位于 /usr/share/zoneinfo，而本地时区可以通过 /etc/localtime 获取，这是一个符号链接，指向 /usr/share/zoneinfo 中某一个时区。比如我本地电脑指向的是：/usr/share/zoneinfo/Asia/Shanghai。<br>
 </p>
@@ -110,28 +108,28 @@ time 包提供了 Location 的两个实例：Local 和 UTC。Local 代表当前�
 相关代码：<br>
 </p>
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #AFAFAF;">tz</span>, <span style="color: #AFAFAF;">ok</span> := syscall.<span style="color: #AFAFAF;">Getenv</span>(<span style="color: #FC9F4E;">"TZ"</span>)
-<span style="color: #BD93F9;">switch</span> {
-<span style="color: #BD93F9;">case</span> !ok:
-    <span style="color: #AFAFAF;">z</span>, <span style="color: #AFAFAF;">err</span> := <span style="color: #AFAFAF;">loadZoneFile</span>(<span style="color: #FC9F4E;">""</span>, <span style="color: #FC9F4E;">"/etc/localtime"</span>)
-    <span style="color: #BD93F9;">if</span> err == <span style="color: #009F9F;">nil</span> {
+<pre class="src src-go"><span style="color: #83a598;">tz</span>, <span style="color: #83a598;">ok</span> := syscall.<span style="color: #b8bb26;">Getenv</span>(<span style="color: #b8bb26;">"TZ"</span>)
+<span style="color: #fb4934;">switch</span> {
+<span style="color: #fb4934;">case</span> <span style="color: #ebdbb2; font-weight: bold;">!</span>ok:
+    <span style="color: #83a598;">z</span>, <span style="color: #83a598;">err</span> := <span style="color: #b8bb26;">loadZoneFile</span>(<span style="color: #b8bb26;">""</span>, <span style="color: #b8bb26;">"/etc/localtime"</span>)
+    <span style="color: #fb4934;">if</span> err == <span style="color: #d3869b;">nil</span> {
         localLoc = *z
-        localLoc.name = <span style="color: #FC9F4E;">"Local"</span>
-        <span style="color: #BD93F9;">return</span>
+        localLoc.name = <span style="color: #b8bb26;">"Local"</span>
+        <span style="color: #fb4934;">return</span>
     }
-<span style="color: #BD93F9;">case</span> tz != <span style="color: #FC9F4E;">""</span> &amp;&amp; tz != <span style="color: #FC9F4E;">"UTC"</span>:
-    <span style="color: #BD93F9;">if</span> <span style="color: #AFAFAF;">z</span>, <span style="color: #AFAFAF;">err</span> := <span style="color: #AFAFAF;">loadLocation</span>(tz); err == <span style="color: #009F9F;">nil</span> {
+<span style="color: #fb4934;">case</span> tz != <span style="color: #b8bb26;">""</span> &amp;&amp; tz != <span style="color: #b8bb26;">"UTC"</span>:
+    <span style="color: #fb4934;">if</span> <span style="color: #83a598;">z</span>, <span style="color: #83a598;">err</span> := <span style="color: #b8bb26;">loadLocation</span>(tz); err == <span style="color: #d3869b;">nil</span> {
         localLoc = *z
-        <span style="color: #BD93F9;">return</span>
+        <span style="color: #fb4934;">return</span>
     }
 }
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orgb4b59a7" class="outline-3">
-<h3 id="orgb4b59a7">获得特定时区的实例</h3>
-<div class="outline-text-3" id="text-orgb4b59a7">
+<div id="outline-container-orgc2fae08" class="outline-3">
+<h3 id="orgc2fae08">获得特定时区的实例</h3>
+<div class="outline-text-3" id="text-orgc2fae08">
 <p>
 函数 LoadLocation 可以根据名称获取特定时区的实例。函数声明如下：<br>
 </p>
@@ -153,18 +151,18 @@ LoadLocation 函数需要的时区数据库可能不是所有系统都提供，�
 </p>
 </div>
 </div>
-<div id="outline-container-org7ed786c" class="outline-3">
-<h3 id="org7ed786c">总结</h3>
-<div class="outline-text-3" id="text-org7ed786c">
+<div id="outline-container-org871c480" class="outline-3">
+<h3 id="org871c480">总结</h3>
+<div class="outline-text-3" id="text-org871c480">
 <p>
 通常，我们使用 time.Local 即可，偶尔可能会需要使用 UTC。在解析时间时，心中一定记得有时区这么回事。当你发现时间出现莫名的情况时，很可能是因为时区的问题，特别是当时间相差 8 小时时。<br>
 </p>
 </div>
 </div>
 </div>
-<div id="outline-container-org3928fbe" class="outline-2">
-<h2 id="org3928fbe">Time</h2>
-<div class="outline-text-2" id="text-org3928fbe">
+<div id="outline-container-org47423fe" class="outline-2">
+<h2 id="org47423fe">Time</h2>
+<div class="outline-text-2" id="text-org47423fe">
 <p>
 代表一个纳秒精度的时间点，是公历时间。<br>
 </p>
@@ -185,13 +183,13 @@ Time 零值代表时间点 January 1, year 1, 00:00:00 000000000 UTC。因为本
 通过 <code>==</code> 比较 Time 时，Location 信息也会参与比较，因此 Time 不应该作为 map 的 key。<br>
 </p>
 </div>
-<div id="outline-container-org1213458" class="outline-3">
-<h3 id="org1213458">常用函数或方法</h3>
-<div class="outline-text-3" id="text-org1213458">
+<div id="outline-container-orged0fdee" class="outline-3">
+<h3 id="orged0fdee">常用函数或方法</h3>
+<div class="outline-text-3" id="text-orged0fdee">
 </div>
-<div id="outline-container-org0c4e5c5" class="outline-4">
-<h4 id="org0c4e5c5">零值的判断</h4>
-<div class="outline-text-4" id="text-org0c4e5c5">
+<div id="outline-container-org9ba08fe" class="outline-4">
+<h4 id="org9ba08fe">零值的判断</h4>
+<div class="outline-text-4" id="text-org9ba08fe">
 <p>
 Time 的零值是 sec 和 nsec 都是 0，表示 1 年 1 月 1 日。<br>
 </p>
@@ -201,9 +199,9 @@ Time 的零值是 sec 和 nsec 都是 0，表示 1 年 1 月 1 日。<br>
 </dl>
 </div>
 </div>
-<div id="outline-container-org6fe9bf9" class="outline-4">
-<h4 id="org6fe9bf9">与 Unix 时间戳的转换</h4>
-<div class="outline-text-4" id="text-org6fe9bf9">
+<div id="outline-container-org3359c81" class="outline-4">
+<h4 id="org3359c81">与 Unix 时间戳的转换</h4>
+<div class="outline-text-4" id="text-org3359c81">
 <dl class="org-dl">
 <dt>time.Unix(sec, nsec int 64)</dt><dd>通过 Unix 时间戳生成 <code>time.Time</code> 实例。<br></dd>
 <dt>time.Time.Unix()</dt><dd>得到 Unix 时间戳。<br></dd>
@@ -211,24 +209,24 @@ Time 的零值是 sec 和 nsec 都是 0，表示 1 年 1 月 1 日。<br>
 </dl>
 </div>
 </div>
-<div id="outline-container-orgd7c1c30" class="outline-4">
-<h4 id="orgd7c1c30">格式化和解析</h4>
-<div class="outline-text-4" id="text-orgd7c1c30">
+<div id="outline-container-org736e8a8" class="outline-4">
+<h4 id="org736e8a8">格式化和解析</h4>
+<div class="outline-text-4" id="text-org736e8a8">
 <ul class="org-ul">
 <li>time.Parse<br></li>
 <li>time.ParseInLocation<br></li>
 <li>time.Time.Format<br></li>
 </ul>
 </div>
-<div id="outline-container-org90041b0" class="outline-5">
-<h5 id="org90041b0">解析</h5>
-<div class="outline-text-5" id="text-org90041b0">
+<div id="outline-container-orge5e623b" class="outline-5">
+<h5 id="orge5e623b">解析</h5>
+<div class="outline-text-5" id="text-orge5e623b">
 <p>
 对于解析，要特别注意时区问题，否则很容易出 bug。比如：<br>
 </p>
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #AFAFAF;">t</span>, <span style="color: #AFAFAF;">_</span> := time.<span style="color: #AFAFAF;">Parse</span>(<span style="color: #FC9F4E;">"2006-01-02 15:04:05"</span>, <span style="color: #FC9F4E;">"2016-06-13 09:14:00"</span>)
-fmt.<span style="color: #AFAFAF;">Println</span>(time.<span style="color: #AFAFAF;">Now</span>().<span style="color: #AFAFAF;">Sub</span>(t).<span style="color: #AFAFAF;">Hours</span>())
+<pre class="src src-go"><span style="color: #83a598;">t</span>, <span style="color: #83a598;">_</span> := time.<span style="color: #b8bb26;">Parse</span>(<span style="color: #b8bb26;">"2006-01-02 15:04:05"</span>, <span style="color: #b8bb26;">"2016-06-13 09:14:00"</span>)
+fmt.<span style="color: #b8bb26;">Println</span>(time.<span style="color: #b8bb26;">Now</span>().<span style="color: #b8bb26;">Sub</span>(t).<span style="color: #b8bb26;">Hours</span>())
 </pre>
 </div>
 
@@ -245,9 +243,9 @@ fmt.<span style="color: #AFAFAF;">Println</span>(time.<span style="color: #AFAFA
 </p>
 </div>
 </div>
-<div id="outline-container-org64d428e" class="outline-5">
-<h5 id="org64d428e">为什么是 2006-01-02 15:04:05</h5>
-<div class="outline-text-5" id="text-org64d428e">
+<div id="outline-container-org26cece2" class="outline-5">
+<h5 id="org26cece2">为什么是 2006-01-02 15:04:05</h5>
+<div class="outline-text-5" id="text-org26cece2">
 <p>
 可能你已经注意到：2006-01-02 15:04:05 这个字符串了。没错，这是固定写法，类似于其他语言中 Y-m-d H:i:s 等。为什么采用这种形式？又为什么是这个时间点而不是其他时间点？<br>
 </p>
@@ -258,9 +256,9 @@ fmt.<span style="color: #AFAFAF;">Println</span>(time.<span style="color: #AFAFA
 </ul>
 </div>
 </div>
-<div id="outline-container-orgde1c833" class="outline-5">
-<h5 id="orgde1c833">格式化</h5>
-<div class="outline-text-5" id="text-orgde1c833">
+<div id="outline-container-org1b46f99" class="outline-5">
+<h5 id="org1b46f99">格式化</h5>
+<div class="outline-text-5" id="text-org1b46f99">
 <p>
 时间格式化输出，使用 Format 方法，layout 参数和 Parse 的一样。Time.String() 方法使用了 2006-01-02 15:04:05.999999999 -0700 MST 这种 layout。<br>
 </p>
@@ -269,9 +267,9 @@ fmt.<span style="color: #AFAFAF;">Println</span>(time.<span style="color: #AFAFA
 </div>
 </div>
 </div>
-<div id="outline-container-org16b33c7" class="outline-2">
-<h2 id="org16b33c7">Duration</h2>
-<div class="outline-text-2" id="text-org16b33c7">
+<div id="outline-container-org8a927bc" class="outline-2">
+<h2 id="org8a927bc">Duration</h2>
+<div class="outline-text-2" id="text-org8a927bc">
 <p>
 代表两个时间点之间经过的时间，以纳秒为单位。可表示的最长时间段大约 290 年，也就是说如果两个时间点相差超过 290 年，会返回 290 年，也就是 minDuration(-1 &lt;&lt; 63) 或 maxDuration(1 &lt;&lt; 63 - 1)。<br>
 </p>
@@ -285,9 +283,9 @@ fmt.<span style="color: #AFAFAF;">Println</span>(time.<span style="color: #AFAFA
 </p>
 </div>
 </div>
-<div id="outline-container-org62d29bb" class="outline-2">
-<h2 id="org62d29bb">Timer 和 Ticker</h2>
-<div class="outline-text-2" id="text-org62d29bb">
+<div id="outline-container-org3f47b7a" class="outline-2">
+<h2 id="org3f47b7a">Timer 和 Ticker</h2>
+<div class="outline-text-2" id="text-org3f47b7a">
 <p>
 定时器相关类型，定时器是进程规划自己在未来某一时刻接获通知的一种机制。<br>
 </p>
@@ -296,33 +294,33 @@ fmt.<span style="color: #AFAFAF;">Println</span>(time.<span style="color: #AFAFA
 Timer（到达指定时间触发且只触发一次）和 Ticker（间隔特定时间触发）。<br>
 </p>
 </div>
-<div id="outline-container-org95b5ccc" class="outline-3">
-<h3 id="org95b5ccc">Timer</h3>
-<div class="outline-text-3" id="text-org95b5ccc">
+<div id="outline-container-org764fac6" class="outline-3">
+<h3 id="org764fac6">Timer</h3>
+<div class="outline-text-3" id="text-org764fac6">
 </div>
-<div id="outline-container-org6ca7278" class="outline-4">
-<h4 id="org6ca7278">内部源码</h4>
+<div id="outline-container-org1d81bb1" class="outline-4">
+<h4 id="org1d81bb1">内部源码</h4>
 </div>
-<div id="outline-container-org30071f3" class="outline-4">
-<h4 id="org30071f3">相关函数与方法</h4>
-</div>
-</div>
-<div id="outline-container-orgdfab595" class="outline-3">
-<h3 id="orgdfab595">Ticker 相关函数与方法</h3>
+<div id="outline-container-orgb25dd97" class="outline-4">
+<h4 id="orgb25dd97">相关函数与方法</h4>
 </div>
 </div>
-<div id="outline-container-org99f0ee7" class="outline-2">
-<h2 id="org99f0ee7">Weekday 和 Month</h2>
-<div class="outline-text-2" id="text-org99f0ee7">
+<div id="outline-container-org74fe38a" class="outline-3">
+<h3 id="org74fe38a">Ticker 相关函数与方法</h3>
+</div>
+</div>
+<div id="outline-container-org30b2d6f" class="outline-2">
+<h2 id="org30b2d6f">Weekday 和 Month</h2>
+<div class="outline-text-2" id="text-org30b2d6f">
 <p>
 这两个类型的原始类型都是 int，定义它们，语义更明确，同时，实现 fmt.Stringer 接口，方便输出。<br>
 </p>
 </div>
 </div>
 
-<div id="outline-container-org6493c5c" class="outline-2">
-<h2 id="org6493c5c">简单点，常用方法：</h2>
-<div class="outline-text-2" id="text-org6493c5c">
+<div id="outline-container-orgaf35c1f" class="outline-2">
+<h2 id="orgaf35c1f">简单点，常用方法：</h2>
+<div class="outline-text-2" id="text-orgaf35c1f">
 <dl class="org-dl">
 <dt>time.Now()</dt><dd>获取当前时间<br></dd>
 <dt>time.Parse(layout, value string)(Time, error)</dt><dd>解析一个格式化时间字符串并返回代表的时间，layout 定义参考时间<br></dd>
@@ -349,7 +347,7 @@ Timer（到达指定时间触发且只触发一次）和 Ticker（间隔特定�
 <div id="postamble" class="status">
 <p class="date">Date: 2021-11-04 17:11 Thu</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2021-11-06 Sat 18:08</p>
+<p class="date">Created: 2023-02-03</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

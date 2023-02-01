@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2023-01-23 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SHELL-什么是SHELL脚本</title>
+<meta name="author" content="Haoran Liu" />
+<meta name="description" content="Copyright © 2023, Haoran Liu, all rights reserved." />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="static/css/org.css"/>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">SHELL-什么是SHELL脚本</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org7f016c2">什么是 shell 脚本</a></li>
+<li><a href="#org5dc1f83">创建 shell 脚本</a></li>
+<li><a href="#org4a9626e">脚本执行</a></li>
+<li><a href="#org9044fbd">注释</a></li>
+<li><a href="#orgbf81d6f">printf 语句</a></li>
+<li><a href="#orgfb1e74b">退出脚本</a>
+<ul>
+<li><a href="#org18c03d1">退出状态码</a></li>
+<li><a href="#org60efe19">exit 命令</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org7f016c2" class="outline-2">
+<h2 id="org7f016c2">什么是 shell 脚本</h2>
+<div class="outline-text-2" id="text-org7f016c2">
+<p>
+先来看个例子：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell"><span style="color: #686858;">#</span><span style="color: #686858;">!/bin/</span><span style="color: #87AFD7;">sh</span>
+<span style="color: #87AFD7;">cd</span> ~
+mkdir shell_tut
+<span style="color: #87AFD7;">cd</span> shell_tut
+
+<span style="color: #87AFD7;">for</span> ((<span style="color: #faf4c6;">i</span>=0; i&lt;10; i++)); <span style="color: #87AFD7;">do</span>
+  touch test_$<span style="color: #faf4c6;">i</span>.txt
+<span style="color: #87AFD7;">done</span>
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>第1行：指定脚本解释器，这里是用 <code>/bin/sh</code> 做解释器的<br></li>
+<li>第2行：切换到当前用户的 home 目录<br></li>
+<li>第3行：创建一个目录 shell_tut<br></li>
+<li>第4行：切换到 shell_tut 目录<br></li>
+<li>第5行：循环条件，一共循环 10 次<br></li>
+<li>第6行：创建一个 test_0…9.txt 文件<br></li>
+<li>第7行：循环体结束<br></li>
+</ul>
+
+<p>
+mkdir, touch 都是系统自带的程序，一般在 /bin 或者 /usr/bin 目录下。for, do, done 是 sh 脚本语言的关键字。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5dc1f83" class="outline-2">
+<h2 id="org5dc1f83">创建 shell 脚本</h2>
+<div class="outline-text-2" id="text-org5dc1f83">
+<p>
+在创建 shell 脚本文件时，必须在文件的第一行指定要使用的 shell，格式为：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell"><span style="color: #686858;">#</span><span style="color: #686858;">!/bin/</span><span style="color: #87AFD7;">bash</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org4a9626e" class="outline-2">
+<h2 id="org4a9626e">脚本执行</h2>
+<div class="outline-text-2" id="text-org4a9626e">
+<ul class="org-ul">
+<li><p>
+利用直接执行的方式来执行脚本<br>
+</p>
+
+<p>
+当使用直接命令执行（不论是绝对路径、相对路径还是 ${PATH} 内），或是利用 bash（或sh）来执行脚本时，该脚本都会使用一个新的 bash 环境来执行脚本内的命令。也就是说，使用这种执行方式时，其实脚本是在子进程的 bash 内执行的。 <span class="underline">当子进程完成后，在子进程内的各项变量或操作将会结束而不会传回父进程中。</span><br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">$ echo ${<span style="color: #faf4c6;">firstname</span>} ${<span style="color: #faf4c6;">lastname</span>}   <span style="color: #686858;"># </span><span style="color: #686858;">&#27809;&#26377;&#36755;&#20986;&#65292;&#36825;&#20004;&#20010;&#21464;&#37327;&#19981;&#23384;&#22312;</span>
+$ sh showname.sh
+Please input your first name: Haoran
+Please input your last name: Liu
+Your full name is: Haoran Liu
+
+$ echo ${<span style="color: #faf4c6;">firstname</span>} ${<span style="color: #faf4c6;">lastname</span>}   <span style="color: #686858;"># </span><span style="color: #686858;">&#21516;&#26679;&#27809;&#26377;&#36755;&#20986;</span>
+</pre>
+</div></li>
+
+<li><p>
+利用 source 来执行脚本：在父进程中执行<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">$ source showname.sh
+Please input your first name: Haoran
+Please input your last name: Liu
+Your full name is: Haoran Liu
+
+$ echo ${<span style="color: #faf4c6;">firstname</span>} ${<span style="color: #faf4c6;">lastname</span>}   <span style="color: #686858;"># </span><span style="color: #686858;">&#21516;&#26679;&#27809;&#26377;&#36755;&#20986;</span>
+Haoran Liu
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org9044fbd" class="outline-2">
+<h2 id="org9044fbd">注释</h2>
+<div class="outline-text-2" id="text-org9044fbd">
+<p>
+以 <code>#</code> 开头的行就是注释，会被解释器忽略，只能每一行加一个 <code>#</code> 号。<br>
+</p>
+
+<p>
+多行注释可以使用以下格式（内联输入重定向）：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell">:&lt;&lt;EOF
+<span style="color: #87875f;">&#27880;&#37322;&#20869;&#23481;...</span>
+<span style="color: #87875f;">&#27880;&#37322;&#20869;&#23481;...</span>
+<span style="color: #87875f;">&#27880;&#37322;&#20869;&#23481;...</span>
+<span style="color: #87875f;">EOF</span>
+</pre>
+</div>
+
+<p>
+EOF 也可以使用其他符号:<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell">:&lt;&lt;<span style="color: #87875f;">'</span>
+<span style="color: #87875f;">&#27880;&#37322;&#20869;&#23481;...</span>
+<span style="color: #87875f;">&#27880;&#37322;&#20869;&#23481;...</span>
+<span style="color: #87875f;">&#27880;&#37322;&#20869;&#23481;...</span>
+<span style="color: #87875f;">'</span>
+
+<span style="color: #87875f;">:&lt;&lt;!</span>
+<span style="color: #87875f;">&#27880;&#37322;&#20869;&#23481;...</span>
+<span style="color: #87875f;">&#27880;&#37322;&#20869;&#23481;...</span>
+<span style="color: #87875f;">&#27880;&#37322;&#20869;&#23481;...</span>
+<span style="color: #87875f;">!</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgbf81d6f" class="outline-2">
+<h2 id="orgbf81d6f">printf 语句</h2>
+<div class="outline-text-2" id="text-orgbf81d6f">
+<p>
+目前版本的 bash 都提供 printf 命令，X/Open 规范建议用它来代替 echo 命令以产生格式化的输出。<br>
+</p>
+
+<pre class="example" id="org6a281e4">
+printf "format string" parameter1 parameter2 ...
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgfb1e74b" class="outline-2">
+<h2 id="orgfb1e74b">退出脚本</h2>
+<div class="outline-text-2" id="text-orgfb1e74b">
+</div>
+<div id="outline-container-org18c03d1" class="outline-3">
+<h3 id="org18c03d1">退出状态码</h3>
+<div class="outline-text-3" id="text-org18c03d1">
+<p>
+<code>$?</code><br>
+</p>
+
+<p>
+成功结束的命令的退出状态码是 <code>0</code> 。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org60efe19" class="outline-3">
+<h3 id="org60efe19">exit 命令</h3>
+<div class="outline-text-3" id="text-org60efe19">
+<p>
+脚本会以最后一个命令的退出状态码退出，可以使用 <code>exit</code> 命令修改退出状态码（挺废的哈）。<br>
+</p>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2023-01-21 16:01 Sat</p>
+<p class="author">Author: Haoran Liu</p>
+<p class="date">Created: 2023-01-23</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

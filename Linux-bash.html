@@ -1,18 +1,16 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-07-12 二 02:55 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 2023-02-01 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>LINUX-认识与学习BASH</title>
-<meta name="generator" content="Org mode">
-<meta name="author" content="L.M.haoran">
-<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
->
+<meta name="author" content="L.M.haoran" />
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved." />
+<meta name="generator" content="Org Mode" />
 <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
-            <link rel="stylesheet" href="css/style.css" type="text/css"  />
-            <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js"></script>
-            <script type="module" src="js/main.js" defer></script>
+           <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+           <script type="module" src="static/js/main.js" defer></script>
 <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
         displayAlign: "center",
@@ -33,310 +31,311 @@
              }
 });
 </script>
-<script type="text/javascript"
-        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+<script src="static/MathJax/cdn.bootcdn.net/ajax/libs/mathjax/3.1.2/es5/tex-mml-chtml.min.js"></script>
 </head>
 <body>
-<div id="content">
+<div id="content" class="content">
 <h1 class="title">LINUX-认识与学习BASH</h1>
-<div id="table-of-contents">
+<div id="table-of-contents" role="doc-toc">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents">
+<div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org1298fd5">什么是 shell</a></li>
-<li><a href="#org0f44017">常用的 shell</a></li>
-<li><a href="#org222cfc1">Bash shell 的功能</a></li>
-<li><a href="#org0d7c223">查询命令是否为 Bash 的内置命令：type</a></li>
-<li><a href="#org4c0b453">shell 的变量功能</a>
+<li><a href="#orgabda1d3">什么是 shell</a></li>
+<li><a href="#org5b638b2">常用的 shell</a></li>
+<li><a href="#orge9b0308">Bash shell 的功能</a></li>
+<li><a href="#orgb98153b">查询命令是否为 Bash 的内置命令：type</a></li>
+<li><a href="#orgc980bd4">shell 的变量功能</a>
 <ul>
-<li><a href="#orgb9d5144">变量的使用与设置</a></li>
-<li><a href="#orgdaa77bf">环境变量的功能</a>
+<li><a href="#org9baf2da">变量的使用与设置</a></li>
+<li><a href="#org619bea9">环境变量的功能</a>
 <ul>
-<li><a href="#org9538d57">查看环境变量</a></li>
-<li><a href="#orgc3eafa7">重要的环境变量</a>
+<li><a href="#org14cfbf8">查看环境变量</a></li>
+<li><a href="#org3dbf194">重要的环境变量</a>
 <ul>
-<li><a href="#org332edc3">RANDOM</a></li>
-<li><a href="#org1ad65db">PS1</a></li>
+<li><a href="#org640aa61">RANDOM</a></li>
+<li><a href="#orga2b3108">PS1</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#org61e053d">变量键盘读取、数组与声明</a>
+<li><a href="#org3ce814d">变量键盘读取、数组与声明</a>
 <ul>
-<li><a href="#orgfa6e802">变量键盘读取：read</a></li>
-<li><a href="#orgf6f3e3e">声明：declare</a></li>
+<li><a href="#org06eac33">变量键盘读取：read</a></li>
+<li><a href="#orgc973a56">声明：declare</a></li>
 </ul>
 </li>
-<li><a href="#org013f092">与文件系统及程序的限制关系（ulimit）</a></li>
+<li><a href="#org1f84392">与文件系统及程序的限制关系（ulimit）</a></li>
 </ul>
 </li>
-<li><a href="#org6bb09c6">命令别名与历史命令</a>
+<li><a href="#orgdef3049">命令别名与历史命令</a>
 <ul>
-<li><a href="#orgb95088c">命令别名设置：alias、unalias</a></li>
-<li><a href="#org2979cd5">历史命令：history</a></li>
+<li><a href="#org3342951">命令别名设置：alias、unalias</a></li>
+<li><a href="#org5f28876">历史命令：history</a></li>
 </ul>
 </li>
-<li><a href="#orgbf485d6">Bash shell 的操作环境</a>
+<li><a href="#orgcfd3b04">Bash shell 的操作环境</a>
 <ul>
-<li><a href="#orgd808e75">路径与命令查找顺序</a></li>
-<li><a href="#orge838e8b">bash 的登录与欢迎信息</a></li>
-<li><a href="#org985f2ea">bash 的环境配置文件</a>
+<li><a href="#org3fc8521">路径与命令查找顺序</a></li>
+<li><a href="#org168f9c1">bash 的登录与欢迎信息</a></li>
+<li><a href="#orgf752182">bash 的环境配置文件</a>
 <ul>
-<li><a href="#orga5d4f3d">login 与 non-login shell</a></li>
-<li><a href="#orgb8967d6">/etc/profile</a>
+<li><a href="#org5de3bd6">login 与 non-login shell</a></li>
+<li><a href="#orgb83ff80">/etc/profile</a>
 <ul>
-<li><a href="#org577f1b2">/etc/profile.d/*sh</a></li>
-<li><a href="#org9ad3def">/etc/locale.conf</a></li>
-<li><a href="#org0ffebb7">/usr/share/bash-completion/completions/*</a></li>
+<li><a href="#org210ab63">/etc/profile.d/*sh</a></li>
+<li><a href="#org308328c">/etc/locale.conf</a></li>
+<li><a href="#orge0e03d6">/usr/share/bash-completion/completions/*</a></li>
 </ul>
 </li>
-<li><a href="#org37cc748">~/.bash_profile</a>
+<li><a href="#org341a99e">~/.bash_profile</a>
 <ul>
-<li><a href="#org16f9685">source</a></li>
-<li><a href="#orgdd9ac89">~/.bashrc</a></li>
+<li><a href="#org1c4a8b1">source</a></li>
+<li><a href="#orgf15783e">~/.bashrc</a></li>
 </ul>
 </li>
-<li><a href="#orged2ade7">其他相关配置文件</a>
+<li><a href="#orgc2ea36e">其他相关配置文件</a>
 <ul>
-<li><a href="#org2ebd173">/etc/man_db.conf</a></li>
-<li><a href="#org3c101a3">~/.bash_history</a></li>
-<li><a href="#orgc0ecc74">~/.bash_logout</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a href="#orge790ace">终端的环境设置：stty、set</a></li>
-<li><a href="#orge3c638b">通配符与特殊符号</a></li>
-</ul>
-</li>
-<li><a href="#org5cdba17">数据流重定向</a>
-<ul>
-<li><a href="#org8ed6639">什么是数据流重定向</a>
-<ul>
-<li><a href="#orgb67d671">standard output 与 standard error output</a></li>
-<li><a href="#org6b54205">/dev/null 垃圾桶黑洞</a></li>
-<li><a href="#org74bb6b5">正确与错误数据同时写入一个文件</a></li>
-<li><a href="#orgef3ef98">standard input</a></li>
-</ul>
-</li>
-<li><a href="#org84edee0">命令执行的判断依据：;、&amp;&amp;、||</a>
-<ul>
-<li><a href="#org8e6c29a">cmd; cmd（不考虑命令相关性的连续命令执行）</a></li>
-<li><a href="#org439bd2e">$?（命令返回值）与 &amp;&amp; 与 ||</a></li>
-<li><a href="#orgd18a309">判断式</a></li>
+<li><a href="#org327263d">/etc/man_db.conf</a></li>
+<li><a href="#orgfb952d3">~/.bash_history</a></li>
+<li><a href="#orgf0e0ed5">~/.bash_logout</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#org0617c85">管道命令（pipe）</a>
-<ul>
-<li><a href="#orgc6670ee">选取命令：cut、grep</a>
-<ul>
-<li><a href="#org4399010">cut 选取命令</a></li>
-<li><a href="#orgae5dbe6">grep 查找命令</a></li>
+<li><a href="#org19bfac0">终端的环境设置：stty、set</a></li>
+<li><a href="#orgfd0119d">通配符与特殊符号</a></li>
 </ul>
 </li>
-<li><a href="#org59de80e">排序命令：sort、wc、uniq</a>
+<li><a href="#orge000c69">数据流重定向</a>
 <ul>
-<li><a href="#orgc79ec5d">sort 排序命令</a></li>
-<li><a href="#org619ccdb">uniq 去重命令</a></li>
-<li><a href="#org8ec3a2f">wc 统计字数</a></li>
+<li><a href="#org4cff34e">什么是数据流重定向</a>
+<ul>
+<li><a href="#org2cebfe0">standard output 与 standard error output</a></li>
+<li><a href="#org5769688">/dev/null 垃圾桶黑洞</a></li>
+<li><a href="#orgd3a9985">正确与错误数据同时写入一个文件</a></li>
+<li><a href="#orga7f0137">standard input</a></li>
 </ul>
 </li>
-<li><a href="#orgf8b0dd8">双向重定向：tee</a></li>
-<li><a href="#orgac6abf2">字符转换命令：tr、col、join、paste、expand</a>
+<li><a href="#org8e0b196">命令执行的判断依据：;、&amp;&amp;、||</a>
 <ul>
-<li><a href="#org4bdb233">tr 转换或删除文件中的字符</a></li>
-<li><a href="#orgcd61d29">col 过滤控制字符</a></li>
-<li><a href="#orgf697684">join 将文件中指定栏位内容相同的行连接起来</a></li>
-<li><a href="#org272769b">paste 合并文件的列</a></li>
-<li><a href="#org6c5907e">expand 制表符转换为空白字符</a></li>
+<li><a href="#orgf1ef603">cmd; cmd（不考虑命令相关性的连续命令执行）</a></li>
+<li><a href="#org485e118">$?（命令返回值）与 &amp;&amp; 与 ||</a></li>
+<li><a href="#org53394b3">判断式</a></li>
 </ul>
 </li>
-<li><a href="#orgb5923e7">划分命令：split</a></li>
-<li><a href="#org138e406">参数代换：xargs</a></li>
-<li><a href="#org0e46156">关于减号【-】的用途</a></li>
+</ul>
+</li>
+<li><a href="#org0fddb2f">管道命令（pipe）</a>
+<ul>
+<li><a href="#org5b6b639">选取命令：cut、grep</a>
+<ul>
+<li><a href="#org17a8d23">cut 选取命令</a></li>
+<li><a href="#orgc805784">grep 查找命令</a></li>
+</ul>
+</li>
+<li><a href="#orga518e03">排序命令：sort、wc、uniq</a>
+<ul>
+<li><a href="#org005f3c3">sort 排序命令</a></li>
+<li><a href="#org79d4a6f">uniq 去重命令</a></li>
+<li><a href="#org29782fa">wc 统计字数</a></li>
+</ul>
+</li>
+<li><a href="#org1be32f4">双向重定向：tee</a></li>
+<li><a href="#org0589bf5">字符转换命令：tr、col、join、paste、expand</a>
+<ul>
+<li><a href="#org53feb16">tr 转换或删除文件中的字符</a></li>
+<li><a href="#org70d0b05">col 过滤控制字符</a></li>
+<li><a href="#orgad458f2">join 将文件中指定栏位内容相同的行连接起来</a></li>
+<li><a href="#orge933437">paste 合并文件的列</a></li>
+<li><a href="#org73d3e42">expand 制表符转换为空白字符</a></li>
+</ul>
+</li>
+<li><a href="#org4c25cc6">划分命令：split</a></li>
+<li><a href="#orgb855e3b">参数代换：xargs</a></li>
+<li><a href="#orgcacd650">关于减号【-】的用途</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org1298fd5" class="outline-2">
-<h2 id="org1298fd5">什么是 shell</h2>
-<div class="outline-text-2" id="text-org1298fd5">
+<div id="outline-container-orgabda1d3" class="outline-2">
+<h2 id="orgabda1d3">什么是 shell</h2>
+<div class="outline-text-2" id="text-orgabda1d3">
 <p>
-shell 是指一种应用程序，这个应用程序提供了一个界面，用户通过这个界面访问操作系统内核的服务。Ken Thompson 的 sh 是第一种 Unix Shell，Windows Explorer 是一个典型的图形界面 Shell。
+shell 是指一种应用程序，这个应用程序提供了一个界面，用户通过这个界面访问操作系统内核的服务。Ken Thompson 的 sh 是第一种 Unix Shell，Windows Explorer 是一个典型的图形界面 Shell。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org0f44017" class="outline-2">
-<h2 id="org0f44017">常用的 shell</h2>
-<div class="outline-text-2" id="text-org0f44017">
+<div id="outline-container-org5b638b2" class="outline-2">
+<h2 id="org5b638b2">常用的 shell</h2>
+<div class="outline-text-2" id="text-org5b638b2">
 <p>
-/etc/shells 文件中列出了可以使用的 shell。
+/etc/shells 文件中列出了可以使用的 shell。<br>
 </p>
 
 <dl class="org-dl">
-<dt>/bin/sh</dt><dd>已经被 /bin/bash 所替换</dd>
-<dt>/bin/bash</dt><dd>Linux 默认的 shell</dd>
-<dt>/bin/tcsh</dt><dd>整合 C Shell，提供更多的功能</dd>
-<dt>/bin/csh</dt><dd>已经被 /bin/tcsh 所替换</dd>
+<dt>/bin/sh</dt><dd>已经被 /bin/bash 所替换<br></dd>
+<dt>/bin/bash</dt><dd>Linux 默认的 shell<br></dd>
+<dt>/bin/tcsh</dt><dd>整合 C Shell，提供更多的功能<br></dd>
+<dt>/bin/csh</dt><dd>已经被 /bin/tcsh 所替换<br></dd>
 </dl>
 </div>
 </div>
-<div id="outline-container-org222cfc1" class="outline-2">
-<h2 id="org222cfc1">Bash shell 的功能</h2>
-<div class="outline-text-2" id="text-org222cfc1">
+<div id="outline-container-orge9b0308" class="outline-2">
+<h2 id="orge9b0308">Bash shell 的功能</h2>
+<div class="outline-text-2" id="text-orge9b0308">
 <ul class="org-ul">
 <li><p>
-历史命令（history）
-在命令行按【上下键】就可以找到前后一个输入的命令，在很多 Linux 发行版里，默认的命令条目可以到达 1000 个。
+历史命令（history）<br>
+在命令行按【上下键】就可以找到前后一个输入的命令，在很多 Linux 发行版里，默认的命令条目可以到达 1000 个。<br>
 </p>
 
 <p>
-这些命令记录在哪里？在家目录下的 .bash_history，不过 ~/.bash_history 记录的是前一次登录以前所执行过的命令，这一次登录执行的命令都被缓存在内存中，当你成功的注销系统后，该命令才会记录到 .bash_history 当中。
+这些命令记录在哪里？在家目录下的 .bash_history，不过 ~/.bash_history 记录的是前一次登录以前所执行过的命令，这一次登录执行的命令都被缓存在内存中，当你成功的注销系统后，该命令才会记录到 .bash_history 当中。<br>
 </p></li>
-<li>命令与文件补全功能
+<li>命令与文件补全功能<br>
 <ul class="org-ul">
-<li>[Tab] 接在一串命令的第一个字的后面，则为命令补全；</li>
-<li>[Tab] 接在一串命令的第二个字的后面，则为文件补齐；</li>
-<li>若安装 bash-completion 软件，则在某些命令后面使用 [Tab] 按键时，可以进行【选项/参数的补齐】功能；</li>
+<li>[Tab] 接在一串命令的第一个字的后面，则为命令补全；<br></li>
+<li>[Tab] 接在一串命令的第二个字的后面，则为文件补齐；<br></li>
+<li>若安装 bash-completion 软件，则在某些命令后面使用 [Tab] 按键时，可以进行【选项/参数的补齐】功能；<br></li>
 </ul></li>
-<li>命令别名设置（alias）</li>
-<li>任务管理、前台、后台控制（job control、foreground、background）
-使用前、后台的控制可以让工作进行的更为顺利！至于任务管理（jobs）的用途则更广， 可以让我们随时将工作丢到后台中执行！而不怕不小心使用了 [Ctrl] + c 来停掉该程序！此外，也可以在单一登陆的环境中，达到多任务的目的呢！</li>
-<li>程序化脚本</li>
-<li>通配符</li>
+<li>命令别名设置（alias）<br></li>
+<li>任务管理、前台、后台控制（job control、foreground、background）<br>
+使用前、后台的控制可以让工作进行的更为顺利！至于任务管理（jobs）的用途则更广， 可以让我们随时将工作丢到后台中执行！而不怕不小心使用了 [Ctrl] + c 来停掉该程序！此外，也可以在单一登陆的环境中，达到多任务的目的呢！<br></li>
+<li>程序化脚本<br></li>
+<li>通配符<br></li>
 </ul>
 </div>
 </div>
-<div id="outline-container-org0d7c223" class="outline-2">
-<h2 id="org0d7c223">查询命令是否为 Bash 的内置命令：type<a id="orgc09dc1f"></a></h2>
-<div class="outline-text-2" id="text-org0d7c223">
+<div id="outline-container-orgb98153b" class="outline-2">
+<h2 id="orgb98153b">查询命令是否为 Bash 的内置命令：type<a id="orgf9451c5"></a></h2>
+<div class="outline-text-2" id="text-orgb98153b">
 <p>
-查询命令是来自于外部（非 bash 所提供的命令）或是内置在 bash 中的。
+查询命令是来自于外部（非 bash 所提供的命令）或是内置在 bash 中的。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #87d7ff; font-style: italic;">type</span> [-tpa] name
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#19981;&#21152;&#20219;&#20309;&#36873;&#39033;&#21644;&#21442;&#25968;&#26102;&#65292;type &#20250;&#26174;&#31034;&#20986; name &#26159;&#22806;&#37096;&#21629;&#20196;&#36824;&#26159; bash &#20869;&#32622;&#21629;&#20196;</span>
+<pre class="src src-bash"><span style="color: #af3a03;">type</span> [-tpa] name
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#19981;&#21152;&#20219;&#20309;&#36873;&#39033;&#21644;&#21442;&#25968;&#26102;&#65292;type &#20250;&#26174;&#31034;&#20986; name &#26159;&#22806;&#37096;&#21629;&#20196;&#36824;&#26159; bash &#20869;&#32622;&#21629;&#20196;</span>
 </pre>
 </div>
 
 <ul class="org-ul">
-<li>t：当加入 -t 参数时，type 将 name 以下面这些字眼显示出它的意义：
+<li>t：当加入 -t 参数时，type 将 name 以下面这些字眼显示出它的意义：<br>
 <ul class="org-ul">
-<li>file：表示为外部命令</li>
-<li>alias：表示该命令为命令别名所设置的名称</li>
-<li>builtin：表示该命令为 bash 内置的命令功能</li>
+<li>file：表示为外部命令<br></li>
+<li>alias：表示该命令为命令别名所设置的名称<br></li>
+<li>builtin：表示该命令为 bash 内置的命令功能<br></li>
 </ul></li>
-<li>p：如果后面接的 name 为外部命令时，才会显示完整的文件名；</li>
-<li>a：会由 PATH 变量定义的路径中，将所有含 name 的命令都列出来，包含 alias；</li>
+<li>p：如果后面接的 name 为外部命令时，才会显示完整的文件名；<br></li>
+<li>a：会由 PATH 变量定义的路径中，将所有含 name 的命令都列出来，包含 alias；<br></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org4c0b453" class="outline-2">
-<h2 id="org4c0b453">shell 的变量功能</h2>
-<div class="outline-text-2" id="text-org4c0b453">
+<div id="outline-container-orgc980bd4" class="outline-2">
+<h2 id="orgc980bd4">shell 的变量功能</h2>
+<div class="outline-text-2" id="text-orgc980bd4">
 </div>
-<div id="outline-container-orgb9d5144" class="outline-3">
-<h3 id="orgb9d5144">变量的使用与设置</h3>
-<div class="outline-text-3" id="text-orgb9d5144">
+<div id="outline-container-org9baf2da" class="outline-3">
+<h3 id="org9baf2da">变量的使用与设置</h3>
+<div class="outline-text-3" id="text-org9baf2da">
 <p>
-<a href="Shell.html#orged6b329">Shell::变量（variable）</a>
+<a href="Shell-变量.html">Shell-变量.org</a><br>
 </p>
 </div>
 </div>
-<div id="outline-container-orgdaa77bf" class="outline-3">
-<h3 id="orgdaa77bf">环境变量的功能</h3>
-<div class="outline-text-3" id="text-orgdaa77bf">
+<div id="outline-container-org619bea9" class="outline-3">
+<h3 id="org619bea9">环境变量的功能</h3>
+<div class="outline-text-3" id="text-org619bea9">
 <p>
-环境变量可以帮我们达到很多功能，包括主文件夹的变换、提示字符的显示、可执行文件搜寻的路径等等， 那么，既然环境变量有那么多的功能，问一下，目前我的 shell 环境中， 有多少默认的环境变量？我们可以利用两个指令来查阅，分别是 <code>env</code> 与 <code>export</code> 呢！
+环境变量可以帮我们达到很多功能，包括主文件夹的变换、提示字符的显示、可执行文件搜寻的路径等等， 那么，既然环境变量有那么多的功能，问一下，目前我的 shell 环境中， 有多少默认的环境变量？我们可以利用两个指令来查阅，分别是 <code>env</code> 与 <code>export</code> 呢！<br>
 </p>
 </div>
-<div id="outline-container-org9538d57" class="outline-4">
-<h4 id="org9538d57">查看环境变量</h4>
-<div class="outline-text-4" id="text-org9538d57">
+<div id="outline-container-org14cfbf8" class="outline-4">
+<h4 id="org14cfbf8">查看环境变量</h4>
+<div class="outline-text-4" id="text-org14cfbf8">
 <div class="org-src-container">
-<pre class="src src-bash">$ env         <span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#26597;&#30475;&#29615;&#22659;&#21464;&#37327;</span>
-$ set         <span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#35266;&#23519;&#25152;&#26377;&#21464;&#37327;&#65306;&#29615;&#22659;&#21464;&#37327;&#19982;&#33258;&#23450;&#20041;&#21464;&#37327;</span>
-$ export &#21464;&#37327;&#21517;&#31216;      <span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#33258;&#23450;&#20041;&#21464;&#37327;&#36716;&#25104;&#29615;&#22659;&#21464;&#37327;</span>
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#21487;&#20197;&#20351;&#29992; declare &#23558;&#29615;&#22659;&#21464;&#37327;&#36716;&#25104;&#33258;&#23450;&#20041;&#21464;&#37327;</span>
-$ export      <span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#26597;&#30475;&#29615;&#22659;&#21464;&#37327;</span>
+<pre class="src src-bash">$ env         <span style="color: #a89984;"># </span><span style="color: #a89984;">&#26597;&#30475;&#29615;&#22659;&#21464;&#37327;</span>
+$ set         <span style="color: #a89984;"># </span><span style="color: #a89984;">&#35266;&#23519;&#25152;&#26377;&#21464;&#37327;&#65306;&#29615;&#22659;&#21464;&#37327;&#19982;&#33258;&#23450;&#20041;&#21464;&#37327;</span>
+$ export &#21464;&#37327;&#21517;&#31216;      <span style="color: #a89984;"># </span><span style="color: #a89984;">&#33258;&#23450;&#20041;&#21464;&#37327;&#36716;&#25104;&#29615;&#22659;&#21464;&#37327;</span>
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#21487;&#20197;&#20351;&#29992; declare &#23558;&#29615;&#22659;&#21464;&#37327;&#36716;&#25104;&#33258;&#23450;&#20041;&#21464;&#37327;</span>
+$ export      <span style="color: #a89984;"># </span><span style="color: #a89984;">&#26597;&#30475;&#29615;&#22659;&#21464;&#37327;</span>
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orgc3eafa7" class="outline-4">
-<h4 id="orgc3eafa7">重要的环境变量</h4>
-<div class="outline-text-4" id="text-orgc3eafa7">
+<div id="outline-container-org3dbf194" class="outline-4">
+<h4 id="org3dbf194">重要的环境变量</h4>
+<div class="outline-text-4" id="text-org3dbf194">
 <dl class="org-dl">
-<dt>HOME</dt><dd>用户的根目录；</dd>
-<dt>SHELL</dt><dd>目前这个环境使用的 shell 是哪个程序；</dd>
-<dt>MAIL</dt><dd>使用 mail 这个命令在收信时，系统会读取邮箱文件；</dd>
-<dt>HISTSIZE</dt><dd>历史记录条数；</dd>
-<dt>PATH</dt><dd>执行文件查找的路径，目录与目录中间以冒号分隔，由于文件的查找是依序由 PATH 的变量内的目录来查询的，所以目录的顺序也很重要；</dd>
-<dt>LANG</dt><dd>语系数据；</dd>
-<dt>OSTYPE、HOSTTYPE、MACHTYPE</dt><dd>主机硬件与核心的等级；</dd>
-<dt>$</dt><dd>目前 shell 的进程号，即 PID（Process ID）；</dd>
-<dt>?</dt><dd>上一个执行的命令的返回值，如果上一个执行的命令被成功执行了， <code>?</code> 这个特殊的变量就会赋值 0，否则返回错误代码，一般以非 0 的数值替换；</dd>
+<dt>HOME</dt><dd>用户的根目录；<br></dd>
+<dt>SHELL</dt><dd>目前这个环境使用的 shell 是哪个程序；<br></dd>
+<dt>MAIL</dt><dd>使用 mail 这个命令在收信时，系统会读取邮箱文件；<br></dd>
+<dt>HISTSIZE</dt><dd>历史记录条数；<br></dd>
+<dt>PATH</dt><dd>执行文件查找的路径，目录与目录中间以冒号分隔，由于文件的查找是依序由 PATH 的变量内的目录来查询的，所以目录的顺序也很重要；<br></dd>
+<dt>LANG</dt><dd>语系数据；<br></dd>
+<dt>OSTYPE、HOSTTYPE、MACHTYPE</dt><dd>主机硬件与核心的等级；<br></dd>
+<dt>$</dt><dd>目前 shell 的进程号，即 PID（Process ID）；<br></dd>
+<dt>?</dt><dd>上一个执行的命令的返回值，如果上一个执行的命令被成功执行了， <code>?</code> 这个特殊的变量就会赋值 0，否则返回错误代码，一般以非 0 的数值替换；<br></dd>
 </dl>
 </div>
-<div id="outline-container-org332edc3" class="outline-5">
-<h5 id="org332edc3">RANDOM</h5>
-<div class="outline-text-5" id="text-org332edc3">
+<div id="outline-container-org640aa61" class="outline-5">
+<h5 id="org640aa61">RANDOM</h5>
+<div class="outline-text-5" id="text-org640aa61">
 <p>
-随机数的变量，目前大多数的 Linux 发行版都会有随机数生成器，那就是 /dev/random 这个文件。 我们可以通过这个随机数文件相关的变量（$RANDOM）来随机取得随机数。在 BASH 的环境下，这个 RANDOM 变量的内容，介于 0~32767 之间，所以，你只要 echo $RANDOM 时，系统就会主动的随机取出一个介于 0~32767 的数值。万一我想要使用 0~9 之间的数值呢？利用 declare 宣告数值类型， 然后这样做就可以了：
+随机数的变量，目前大多数的 Linux 发行版都会有随机数生成器，那就是 /dev/random 这个文件。 我们可以通过这个随机数文件相关的变量（$RANDOM）来随机取得随机数。在 BASH 的环境下，这个 RANDOM 变量的内容，介于 0~32767 之间，所以，你只要 echo $RANDOM 时，系统就会主动的随机取出一个介于 0~32767 的数值。万一我想要使用 0~9 之间的数值呢？利用 declare 宣告数值类型， 然后这样做就可以了：<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-bash">$ declare -i <span style="color: #ffffff; font-weight: bold;">number</span>=$<span style="color: #ffffff; font-weight: bold;">RANDOM</span>*10/32768; <span style="color: #87d7ff; font-style: italic;">echo</span> $<span style="color: #ffffff; font-weight: bold;">number</span>
-8                     <span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&lt;== &#27492;&#26102;&#20250;&#38543;&#26426;&#21462;&#20986; 0~9 &#20043;&#38388;&#30340;&#25968;&#20540;</span>
+<pre class="src src-bash">$ declare -i <span style="color: #076678;">number</span>=$<span style="color: #076678;">RANDOM</span>*10/32768; <span style="color: #af3a03;">echo</span> $<span style="color: #076678;">number</span>
+8                     <span style="color: #a89984;"># </span><span style="color: #a89984;">&lt;== &#27492;&#26102;&#20250;&#38543;&#26426;&#21462;&#20986; 0~9 &#20043;&#38388;&#30340;&#25968;&#20540;</span>
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org1ad65db" class="outline-5">
-<h5 id="org1ad65db">PS1</h5>
-<div class="outline-text-5" id="text-org1ad65db">
+<div id="outline-container-orga2b3108" class="outline-5">
+<h5 id="orga2b3108">PS1</h5>
+<div class="outline-text-5" id="text-orga2b3108">
 <p>
-命令提示字符：
+命令提示字符：<br>
 </p>
 
 <ul class="org-ul">
-<li>\d ：可显示出“星期 月 日”的日期格式，如："Mon Feb 2"；</li>
-<li>\H ：完整的主机名称；</li>
-<li>\h ：仅取主机名称在第一个小数点之前的名字；</li>
-<li>\t ：显示时间，为 24 小时格式的“HH:MM:SS”；</li>
-<li>\T ：显示时间，为 12 小时格式的“HH:MM:SS”；</li>
-<li>\A ：显示时间，为 24 小时格式的“HH:MM”；</li>
-<li>\@ ：显示时间，为 12 小时格式的“am/pm”样式；</li>
-<li>\u ：目前使用者的帐号名称；</li>
-<li>\v ：BASH 的版本信息，如鸟哥的测试主机版本为 4.2.46（1）-release，仅取“4.2”显示；</li>
-<li>\w ：完整的工作目录名称，由根目录写起的目录名称，但主文件夹会以 ~ 取代；</li>
-<li>\W ：利用 basename 函数取得工作目录名称，所以仅会列出最后一个目录名；</li>
-<li># ：下达的第几个指令；</li>
-<li>$ ：提示字符，如果是 root 时，提示字符为 # ，否则就是 $；</li>
-</ul>
+<li>\d ：可显示出“星期 月 日”的日期格式，如："Mon Feb 2"；<br></li>
+<li>\H ：完整的主机名称；<br></li>
+<li>\h ：仅取主机名称在第一个小数点之前的名字；<br></li>
+<li>\t ：显示时间，为 24 小时格式的“HH:MM:SS”；<br></li>
+<li>\T ：显示时间，为 12 小时格式的“HH:MM:SS”；<br></li>
+<li>\A ：显示时间，为 24 小时格式的“HH:MM”；<br></li>
+<li>\@ ：显示时间，为 12 小时格式的“am/pm”样式；<br></li>
+<li>\u ：目前使用者的帐号名称；<br></li>
+<li>\v ：BASH 的版本信息，如鸟哥的测试主机版本为 4.2.46（1）-release，仅取“4.2”显示；<br></li>
+<li>\w ：完整的工作目录名称，由根目录写起的目录名称，但主文件夹会以 ~ 取代；<br></li>
+<li>\W ：利用 basename 函数取得工作目录名称，所以仅会列出最后一个目录名；<br></li>
+<li># ：下达的第几个指令；<br></li>
+<li><p>
+$ ：提示字符，如果是 root 时，提示字符为 # ，否则就是 $；<br>
+</p>
 
-<pre class="example">
+<pre class="example" id="orgbabd9c3">
 CentOS 默认的 PS1 内容：
-[\u@\h \W]$ 
-</pre>
+[\u@\h \W]$
+</pre></li>
+</ul>
 </div>
 </div>
 </div>
 </div>
-<div id="outline-container-org61e053d" class="outline-3">
-<h3 id="org61e053d">变量键盘读取、数组与声明</h3>
-<div class="outline-text-3" id="text-org61e053d">
+<div id="outline-container-org3ce814d" class="outline-3">
+<h3 id="org3ce814d">变量键盘读取、数组与声明</h3>
+<div class="outline-text-3" id="text-org3ce814d">
 </div>
-<div id="outline-container-orgfa6e802" class="outline-4">
-<h4 id="orgfa6e802">变量键盘读取：read<a id="org1bea975"></a></h4>
-<div class="outline-text-4" id="text-orgfa6e802">
-<pre class="example">
+<div id="outline-container-org06eac33" class="outline-4">
+<h4 id="org06eac33">变量键盘读取：read<a id="orge9cb088"></a></h4>
+<div class="outline-text-4" id="text-org06eac33">
+<pre class="example" id="org59e666c">
 read - read from a file descriptor
 
 - -p :: 提示信息；
@@ -344,13 +343,14 @@ read - read from a file descriptor
 - -d :: 设置结束符；
 - -t :: 时间限制，规定时间内没有输入变量就会结束该命令；
 - -n :: 设置输入的长度；
+- -s :: 不显示输入的数据，输入密码时可以使用；
 </pre>
 </div>
 </div>
-<div id="outline-container-orgf6f3e3e" class="outline-4">
-<h4 id="orgf6f3e3e">声明：declare<a id="org5c8ca3b"></a></h4>
-<div class="outline-text-4" id="text-orgf6f3e3e">
-<pre class="example">
+<div id="outline-container-orgc973a56" class="outline-4">
+<h4 id="orgc973a56">声明：declare<a id="orgd6eaa50"></a></h4>
+<div class="outline-text-4" id="text-orgc973a56">
+<pre class="example" id="orgde9b347">
 declare [-aixr] variable
 
 -a: 将后面名为 variable 的变量定义成为数组（array）类型；
@@ -360,27 +360,27 @@ declare [-aixr] variable
 </pre>
 
 <div class="org-src-container">
-<pre class="src src-bash">$ declare -i <span style="color: #ffffff; font-weight: bold;">sum</span>=100+300+50
-$ echo ${<span style="color: #ffffff; font-weight: bold;">sum</span>}
+<pre class="src src-bash">$ declare -i <span style="color: #076678;">sum</span>=100+300+50
+$ echo ${<span style="color: #076678;">sum</span>}
 450
 </pre>
 </div>
 </div>
 </div>
 </div>
-<div id="outline-container-org013f092" class="outline-3">
-<h3 id="org013f092">与文件系统及程序的限制关系（ulimit）<a id="org4931074"></a></h3>
-<div class="outline-text-3" id="text-org013f092">
+<div id="outline-container-org1f84392" class="outline-3">
+<h3 id="org1f84392">与文件系统及程序的限制关系（ulimit）<a id="orge32a056"></a></h3>
+<div class="outline-text-3" id="text-org1f84392">
 <p>
-<a id="org4a0e74a"></a>想象一个状况：我的 Linux 主机里面同时登陆了十个人，这十个人同时开启了 100 个文件，每个文件的大小约为 10MB。
+<a id="org0091e7f"></a>想象一个状况：我的 Linux 主机里面同时登陆了十个人，这十个人同时开启了 100 个文件，每个文件的大小约为 10MB。<br>
 </p>
 
 <p>
-10*100*10 = 10000MB = 10GB，想要满足上面的情况，我的 Linux 主机的内存需要有 10GB&#x2026;&#x2026;，显然我的主机没有那么多的内存，操作系统会挂掉的。
+10*100*10 = 10000MB = 10GB，想要满足上面的情况，我的 Linux 主机的内存需要有 10GB&#x2026;&#x2026;，显然我的主机没有那么多的内存，操作系统会挂掉的。<br>
 </p>
 
 <p>
-为了预防这种情况的发生，我们的 bash 可以限制用户的某些系统资源，包括可以开启的文件数量，可以使用的 CPU 时间，可以使用的内存总量等，该如何设置呢？使用 ulimit：
+为了预防这种情况的发生，我们的 bash 可以限制用户的某些系统资源，包括可以开启的文件数量，可以使用的 CPU 时间，可以使用的内存总量等，该如何设置呢？使用 ulimit：<br>
 </p>
 
 <div class="org-src-container">
@@ -389,66 +389,68 @@ $ echo ${<span style="color: #ffffff; font-weight: bold;">sum</span>}
 </div>
 
 <ul class="org-ul">
-<li>-H：hard limit ，严格的设置，必定不能超过这个设置的数值；</li>
-<li>-S：soft limit ，警告的设置，可以超过这个设置值，但是若超过则有警告讯息。
+<li>-H：hard limit ，严格的设置，必定不能超过这个设置的数值；<br></li>
+<li>-S：soft limit ，警告的设置，可以超过这个设置值，但是若超过则有警告讯息。<br>
 <ul class="org-ul">
-<li>在设置上，通常 soft 会比 hard 小，举例来说，soft 可设置为 80 而 hard 设置为 100，那么你可以使用到 90 （因为没有超过 100），但介于 80~100 之间时，系统会有警告讯息通知你！</li>
+<li>在设置上，通常 soft 会比 hard 小，举例来说，soft 可设置为 80 而 hard 设置为 100，那么你可以使用到 90 （因为没有超过 100），但介于 80~100 之间时，系统会有警告讯息通知你！<br></li>
 </ul></li>
-<li>-a：后面不接任何选项与参数，可列出所有的限制额度；</li>
-<li>-c：当某些程序发生错误时，系统可能会将该程序在内存中的信息写成文件（除错用），
+<li>-a：后面不接任何选项与参数，可列出所有的限制额度；<br></li>
+<li>-c：当某些程序发生错误时，系统可能会将该程序在内存中的信息写成文件（除错用），<br>
 <ul class="org-ul">
-<li>这种文件就被称为核心文件（core file）。此为限制每个核心文件的最大容量。</li>
+<li>这种文件就被称为核心文件（core file）。此为限制每个核心文件的最大容量。<br></li>
 </ul></li>
-<li>-f：此 shell 可以创建的最大文件大小（一般可能设置为 2GB）单位为 KBytes</li>
-<li>-d：程序可使用的最大断裂内存（segment）容量；</li>
-<li>-l：可用于锁定 （lock） 的内存量</li>
-<li>-t：可使用的最大 CPU 时间 （单位为秒）</li>
-<li>-u：单一使用者可以使用的最大程序（process）数量。</li>
+<li>-f：此 shell 可以创建的最大文件大小（一般可能设置为 2GB）单位为 KBytes<br></li>
+<li>-d：程序可使用的最大断裂内存（segment）容量；<br></li>
+<li>-l：可用于锁定 （lock） 的内存量<br></li>
+<li>-t：可使用的最大 CPU 时间 （单位为秒）<br></li>
+<li><p>
+-u：单一使用者可以使用的最大程序（process）数量。<br>
+</p>
+
+<p>
+想要复原 ulimit 的设置最简单的方法就是登出再登陆，否则就是得要重新以 ulimit 设置才行！ 不过，要注意的是，一般身份使用者如果以 ulimit 设置了 -f 的文件大小， 那么他“只能继续减小文件大小，不能增加文件大小！”<br>
+</p></li>
 </ul>
-
+</div>
+</div>
+</div>
+<div id="outline-container-orgdef3049" class="outline-2">
+<h2 id="orgdef3049">命令别名与历史命令</h2>
+<div class="outline-text-2" id="text-orgdef3049">
+</div>
+<div id="outline-container-org3342951" class="outline-3">
+<h3 id="org3342951">命令别名设置：alias、unalias<a id="orgf29a34e"></a></h3>
+<div class="outline-text-3" id="text-org3342951">
 <p>
-想要复原 ulimit 的设置最简单的方法就是登出再登陆，否则就是得要重新以 ulimit 设置才行！ 不过，要注意的是，一般身份使用者如果以 ulimit 设置了 -f 的文件大小， 那么他“只能继续减小文件大小，不能增加文件大小！”
-</p>
-</div>
-</div>
-</div>
-<div id="outline-container-org6bb09c6" class="outline-2">
-<h2 id="org6bb09c6">命令别名与历史命令</h2>
-<div class="outline-text-2" id="text-org6bb09c6">
-</div>
-<div id="outline-container-orgb95088c" class="outline-3">
-<h3 id="orgb95088c">命令别名设置：alias、unalias<a id="org96298dd"></a></h3>
-<div class="outline-text-3" id="text-orgb95088c">
-<p>
-使用 alias 命令，不加任何参数可以查看目前有哪些命名。
+使用 alias 命令，不加任何参数可以查看目前有哪些命名。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-shell"><span style="color: #87d7ff; font-style: italic;">alias</span> <span style="color: #ffffff; font-weight: bold;">lm</span>=<span style="color: #ffff87;">'ls -al | more'</span>    <span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#26597;&#35810;&#38544;&#34255;&#25991;&#20214;&#65292;&#19988;&#19981;&#24819;&#29992;&#40736;&#26631;&#19968;&#39029;&#19968;&#39029;&#30340;&#32763;&#30475;</span>
-<span style="color: #87d7ff; font-style: italic;">alias</span> <span style="color: #ffffff; font-weight: bold;">rm</span>=<span style="color: #ffff87;">'rm -i'</span>            <span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#27599;&#27425;&#21024;&#38500;&#21069;&#35810;&#38382;&#26159;&#21542;&#21024;&#38500;</span>
+<pre class="src src-shell"><span style="color: #af3a03;">alias</span> <span style="color: #076678;">lm</span>=<span style="color: #79740e;">'ls -al | more'</span>    <span style="color: #a89984;"># </span><span style="color: #a89984;">&#26597;&#35810;&#38544;&#34255;&#25991;&#20214;&#65292;&#19988;&#19981;&#24819;&#29992;&#40736;&#26631;&#19968;&#39029;&#19968;&#39029;&#30340;&#32763;&#30475;</span>
+<span style="color: #af3a03;">alias</span> <span style="color: #076678;">rm</span>=<span style="color: #79740e;">'rm -i'</span>            <span style="color: #a89984;"># </span><span style="color: #a89984;">&#27599;&#27425;&#21024;&#38500;&#21069;&#35810;&#38382;&#26159;&#21542;&#21024;&#38500;</span>
 </pre>
 </div>
 
 <p>
-使用 unalias 将别名删除。
+使用 unalias 将别名删除。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org2979cd5" class="outline-3">
-<h3 id="org2979cd5">历史命令：history<a id="orgae9dbd6"></a></h3>
-<div class="outline-text-3" id="text-org2979cd5">
+<div id="outline-container-org5f28876" class="outline-3">
+<h3 id="org5f28876">历史命令：history<a id="org4e8839c"></a></h3>
+<div class="outline-text-3" id="text-org5f28876">
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #87d7ff; font-style: italic;">history</span> [n]
-<span style="color: #87d7ff; font-style: italic;">history</span> [-c]
-<span style="color: #87d7ff; font-style: italic;">history</span> [-raw] histfiles
+<pre class="src src-bash"><span style="color: #af3a03;">history</span> [n]
+<span style="color: #af3a03;">history</span> [-c]
+<span style="color: #af3a03;">history</span> [-raw] histfiles
 </pre>
 </div>
 
 <p>
-选项与参数：
+选项与参数：<br>
 </p>
 
-<pre class="example">
+<pre class="example" id="org147c0f3">
 n : 列出最近执行的 n 条命令
 -c : 将新增的历史命令写入 histfiles 中，若没有加 histfiles，则默认写入 ~/.bash_history
 -r : 将 history 的内容读到目前这个 shell 的 history 记录中
@@ -456,228 +458,236 @@ n : 列出最近执行的 n 条命令
 </pre>
 
 <p>
-利用历史记录的功能来执行命令：
+利用历史记录的功能来执行命令：<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-bash">$ !number      <span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#25191;&#34892;&#31532;&#20960;&#26465;&#21629;&#20196;&#30340;&#24847;&#24605;</span>
-$ !command     <span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#30001;&#26368;&#36817;&#30340;&#21629;&#20196;&#21521;&#21069;&#26597;&#25214;&#12304;&#21629;&#20196;&#20018;&#24320;&#22836;&#20026; command&#12305;&#30340;&#37027;&#20010;&#21629;&#20196;&#65292;&#24182;&#25191;&#34892;</span>
-$ !!           <span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#25191;&#34892;&#19978;&#19968;&#20010;&#21629;&#20196;</span>
+<pre class="src src-bash">$ !number      <span style="color: #a89984;"># </span><span style="color: #a89984;">&#25191;&#34892;&#31532;&#20960;&#26465;&#21629;&#20196;&#30340;&#24847;&#24605;</span>
+$ !command     <span style="color: #a89984;"># </span><span style="color: #a89984;">&#30001;&#26368;&#36817;&#30340;&#21629;&#20196;&#21521;&#21069;&#26597;&#25214;&#12304;&#21629;&#20196;&#20018;&#24320;&#22836;&#20026; command&#12305;&#30340;&#37027;&#20010;&#21629;&#20196;&#65292;&#24182;&#25191;&#34892;</span>
+$ !!           <span style="color: #a89984;"># </span><span style="color: #a89984;">&#25191;&#34892;&#19978;&#19968;&#20010;&#21629;&#20196;</span>
 </pre>
 </div>
 </div>
 </div>
 </div>
-<div id="outline-container-orgbf485d6" class="outline-2">
-<h2 id="orgbf485d6">Bash shell 的操作环境</h2>
-<div class="outline-text-2" id="text-orgbf485d6">
+<div id="outline-container-orgcfd3b04" class="outline-2">
+<h2 id="orgcfd3b04">Bash shell 的操作环境</h2>
+<div class="outline-text-2" id="text-orgcfd3b04">
 </div>
-<div id="outline-container-orgd808e75" class="outline-3">
-<h3 id="orgd808e75">路径与命令查找顺序</h3>
-<div class="outline-text-3" id="text-orgd808e75">
+<div id="outline-container-org3fc8521" class="outline-3">
+<h3 id="org3fc8521">路径与命令查找顺序</h3>
+<div class="outline-text-3" id="text-org3fc8521">
 <p>
-命令的运行顺序：
+命令的运行顺序：<br>
 </p>
 
 <ol class="org-ol">
-<li>以相对/绝对路径执行指令，例如 "/bin/ls" 或 "./ls"；</li>
-<li>由 alias 找到该指令来执行；</li>
-<li>由 bash 内置的（builtin）指令来执行；</li>
-<li>通过 $PATH 这个变量的顺序搜寻到的第一个指令来执行；</li>
+<li>以相对/绝对路径执行指令，例如 "/bin/ls" 或 "./ls"；<br></li>
+<li>由 alias 找到该指令来执行；<br></li>
+<li>由 bash 内置的（builtin）指令来执行；<br></li>
+<li>通过 $PATH 这个变量的顺序搜寻到的第一个指令来执行；<br></li>
 </ol>
 </div>
 </div>
-<div id="outline-container-orge838e8b" class="outline-3">
-<h3 id="orge838e8b">bash 的登录与欢迎信息</h3>
-<div class="outline-text-3" id="text-orge838e8b">
+<div id="outline-container-org168f9c1" class="outline-3">
+<h3 id="org168f9c1">bash 的登录与欢迎信息</h3>
+<div class="outline-text-3" id="text-org168f9c1">
 <dl class="org-dl">
-<dt>/etc/issue</dt><dd>本机的登录画面</dd>
-<dt>/etc/issue.net</dt><dd>远程登录的登录画面</dd>
-<dt>/etc/motd</dt><dd>欢迎信息</dd>
-</dl>
+<dt>/etc/issue</dt><dd>本机的登录画面<br></dd>
+<dt>/etc/issue.net</dt><dd>远程登录的登录画面<br></dd>
+<dt>/etc/motd</dt><dd><p>
+欢迎信息<br>
+</p>
 
 <p>
-issue 内的各代码意义：
+issue 内的各代码意义：<br>
 </p>
 
 <ul class="org-ul">
-<li>\d 本地端时间的日期；</li>
-<li>\l 显示第几个终端机接口；</li>
-<li>\m 显示硬件的等级（i386/i486/i586/i686&#x2026;）；</li>
-<li>\n 显示主机的网络名称；</li>
-<li>\O 显示 domain name；</li>
-<li>\r 操作系统的版本（相当于 uname -r）</li>
-<li>\t 显示本地端时间的时间；</li>
-<li>&sect; 操作系统的名称；</li>
-<li>\v 操作系统的版本；</li>
-</ul>
+<li>\d 本地端时间的日期；<br></li>
+<li>\l 显示第几个终端机接口；<br></li>
+<li>\m 显示硬件的等级（i386/i486/i586/i686&#x2026;）；<br></li>
+<li>\n 显示主机的网络名称；<br></li>
+<li>\O 显示 domain name；<br></li>
+<li>\r 操作系统的版本（相当于 uname -r）<br></li>
+<li>\t 显示本地端时间的时间；<br></li>
+<li>&sect; 操作系统的名称；<br></li>
+<li>\v 操作系统的版本；<br></li>
+</ul></dd>
+</dl>
 </div>
 </div>
-<div id="outline-container-org985f2ea" class="outline-3">
-<h3 id="org985f2ea">bash 的环境配置文件</h3>
-<div class="outline-text-3" id="text-org985f2ea">
+<div id="outline-container-orgf752182" class="outline-3">
+<h3 id="orgf752182">bash 的环境配置文件</h3>
+<div class="outline-text-3" id="text-orgf752182">
 </div>
-<div id="outline-container-orga5d4f3d" class="outline-4">
-<h4 id="orga5d4f3d">login 与 non-login shell</h4>
-<div class="outline-text-4" id="text-orga5d4f3d">
+<div id="outline-container-org5de3bd6" class="outline-4">
+<h4 id="org5de3bd6">login 与 non-login shell</h4>
+<div class="outline-text-4" id="text-org5de3bd6">
 <ul class="org-ul">
-<li>login shell：取得 bash 时需要完整的登录流程，就称为 login shell。举例来说，你要由 tty1 ~ tty6 登录，需要输入用户的账号与密码，此时取得的 bash 就称为【login shell】；</li>
-<li>non-login shell：取得 bash 的方法不需要重复登录的操作
+<li>login shell：取得 bash 时需要完整的登录流程，就称为 login shell。举例来说，你要由 tty1 ~ tty6 登录，需要输入用户的账号与密码，此时取得的 bash 就称为【login shell】；<br></li>
+<li>non-login shell：取得 bash 的方法不需要重复登录的操作<br>
 <ul class="org-ul">
-<li>以 X Window 登录 Linux 后，该 bash 的环境就称为 non-login shell；</li>
-<li>再原本的 bash 环境下再次执行 bash 这个命令，同样的没有输入账号密码，那第二个 bash（子进程）也是 non-login shell；</li>
+<li>以 X Window 登录 Linux 后，该 bash 的环境就称为 non-login shell；<br></li>
+<li><p>
+再原本的 bash 环境下再次执行 bash 这个命令，同样的没有输入账号密码，那第二个 bash（子进程）也是 non-login shell；<br>
+</p>
+
+<p>
+在这两个取得 bash 的情况中，读取的配置文件并不一样，一般来说，login shell 只会读取两个配置文件：<br>
+</p>
+
+<ol class="org-ol">
+<li>/etc/profile：这是系统整体的设置，最好不要修改这个文件；<br></li>
+<li>~/.bash_profile 或 ~/.bash_login 或 ~/.profile：属于用户个人设置，你要添加自己的数据，就写入这里；<br></li>
+</ol></li>
 </ul></li>
 </ul>
-
-<p>
-在这两个取得 bash 的情况中，读取的配置文件并不一样，一般来说，login shell 只会读取两个配置文件：
-</p>
-
-<ol class="org-ol">
-<li>/etc/profile：这是系统整体的设置，最好不要修改这个文件；</li>
-<li>~/.bash_profile 或 ~/.bash_login 或 ~/.profile：属于用户个人设置，你要添加自己的数据，就写入这里；</li>
-</ol>
 </div>
 </div>
-<div id="outline-container-orgb8967d6" class="outline-4">
-<h4 id="orgb8967d6">/etc/profile</h4>
-<div class="outline-text-4" id="text-orgb8967d6">
+<div id="outline-container-orgb83ff80" class="outline-4">
+<h4 id="orgb83ff80">/etc/profile</h4>
+<div class="outline-text-4" id="text-orgb83ff80">
 <p>
-该文件设置的变量主要有：
+该文件设置的变量主要有：<br>
 </p>
 
 <dl class="org-dl">
-<dt>PATH</dt><dd>根据 UID 决定 PATH 变量要不要含有 sbin 的系统命令目录；</dd>
-<dt>MAIL</dt><dd>根据账号设置用户的 mailbox 到 /var/spool/mail/账号名；</dd>
-<dt>USER</dt><dd>根据用户的账号设置此变量内容；</dd>
-<dt>HOSTNAME</dt><dd>根据主机的 hostname 命令决定；</dd>
-<dt>HISTSIZE</dt><dd>历史命令记录条数；</dd>
-<dt>umask</dt><dd>包括 root 默认为 022，而一般用户为 002 等；</dd>
+<dt>PATH</dt><dd>根据 UID 决定 PATH 变量要不要含有 sbin 的系统命令目录；<br></dd>
+<dt>MAIL</dt><dd>根据账号设置用户的 mailbox 到 /var/spool/mail/账号名；<br></dd>
+<dt>USER</dt><dd>根据用户的账号设置此变量内容；<br></dd>
+<dt>HOSTNAME</dt><dd>根据主机的 hostname 命令决定；<br></dd>
+<dt>HISTSIZE</dt><dd>历史命令记录条数；<br></dd>
+<dt>umask</dt><dd><p>
+包括 root 默认为 022，而一般用户为 002 等；<br>
+</p>
+
+<p>
+/etc/profile 不止会做这些事而已，他还会去调用外部文件：<br>
+</p></dd>
 </dl>
-
-<p>
-/etc/profile 不止会做这些事而已，他还会去调用外部文件：
-</p>
 </div>
-<div id="outline-container-org577f1b2" class="outline-5">
-<h5 id="org577f1b2">/etc/profile.d/*sh</h5>
-<div class="outline-text-5" id="text-org577f1b2">
+<div id="outline-container-org210ab63" class="outline-5">
+<h5 id="org210ab63">/etc/profile.d/*sh</h5>
+<div class="outline-text-5" id="text-org210ab63">
 <p>
-/etc/profile.d/这个目录内且扩展名为 .sh 的文件都会被调用，这个目录下的文件规范了 bash 操作界面的颜色、语系、ll 与 ls 命令的别名、vi 的命令别名、which 的命令别名等。
+/etc/profile.d/这个目录内且扩展名为 .sh 的文件都会被调用，这个目录下的文件规范了 bash 操作界面的颜色、语系、ll 与 ls 命令的别名、vi 的命令别名、which 的命令别名等。<br>
 </p>
 
 <p>
-如果你需要帮所有用户设置一些共享的命令别名，可以在这个目录下自行建立扩展名为 .sh 的文件，并将数写入就好。
+如果你需要帮所有用户设置一些共享的命令别名，可以在这个目录下自行建立扩展名为 .sh 的文件，并将数写入就好。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org9ad3def" class="outline-5">
-<h5 id="org9ad3def">/etc/locale.conf</h5>
-<div class="outline-text-5" id="text-org9ad3def">
+<div id="outline-container-org308328c" class="outline-5">
+<h5 id="org308328c">/etc/locale.conf</h5>
+<div class="outline-text-5" id="text-org308328c">
 <p>
-这个文件是由 /etc/profile.d/lang.sh 调用的，决定 bash 默认使用何种语系，文件中最重要的就是 Lang/LC_ALL 这个变量的设置。
+这个文件是由 /etc/profile.d/lang.sh 调用的，决定 bash 默认使用何种语系，文件中最重要的就是 Lang/LC_ALL 这个变量的设置。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org0ffebb7" class="outline-5">
-<h5 id="org0ffebb7">/usr/share/bash-completion/completions/*</h5>
-<div class="outline-text-5" id="text-org0ffebb7">
+<div id="outline-container-orge0e03d6" class="outline-5">
+<h5 id="orge0e03d6">/usr/share/bash-completion/completions/*</h5>
+<div class="outline-text-5" id="text-orge0e03d6">
 <p>
-命令补齐、文件名补齐、参数补全等，这个目录下的内容是由 /etc/profile.d/bash_completion.sh 文件加载的。
+命令补齐、文件名补齐、参数补全等，这个目录下的内容是由 /etc/profile.d/bash_completion.sh 文件加载的。<br>
 </p>
 </div>
 </div>
 </div>
-<div id="outline-container-org37cc748" class="outline-4">
-<h4 id="org37cc748">~/.bash_profile</h4>
-<div class="outline-text-4" id="text-org37cc748">
+<div id="outline-container-org341a99e" class="outline-4">
+<h4 id="org341a99e">~/.bash_profile</h4>
+<div class="outline-text-4" id="text-org341a99e">
 <p>
-bash 在读完了整体环境设置的 /etc/profile 并借此调用其他配置文件后，接下来则是会读取使用者的个人配置文件。 在 login shell 的 bash 环境中，所读取的个人偏好配置文件其实主要有三个，依序分别是：
+bash 在读完了整体环境设置的 /etc/profile 并借此调用其他配置文件后，接下来则是会读取使用者的个人配置文件。 在 login shell 的 bash 环境中，所读取的个人偏好配置文件其实主要有三个，依序分别是：<br>
 </p>
 
 <ol class="org-ol">
-<li>~/.bash_profile</li>
-<li>~/.bash_login</li>
-<li>~/.profile</li>
+<li>~/.bash_profile<br></li>
+<li>~/.bash_login<br></li>
+<li><p>
+~/.profile<br>
+</p>
+
+<p>
+其实 bash 的 login shell 设置只会读取上面三个文件的其中一个， 而读取的顺序则是依照上面的顺序。<br>
+</p></li>
 </ol>
-
-<p>
-其实 bash 的 login shell 设置只会读取上面三个文件的其中一个， 而读取的顺序则是依照上面的顺序。
-</p>
 </div>
-<div id="outline-container-org16f9685" class="outline-5">
-<h5 id="org16f9685">source</h5>
-<div class="outline-text-5" id="text-org16f9685">
+<div id="outline-container-org1c4a8b1" class="outline-5">
+<h5 id="org1c4a8b1">source</h5>
+<div class="outline-text-5" id="text-org1c4a8b1">
 <p>
-由于/etc/profile与~/.bash_profile 都是在取得 login shell 的时候才会读取的配置文件，所以， 如果你将自己的偏好设置写入上述的文件后，通常都是得登出再登陆后，该设置才会生效。那么，能不能直接读取配置文件而不登出登陆呢？ 可以的！那就得要利用 source 这个指令了！
+由于/etc/profile与~/.bash_profile 都是在取得 login shell 的时候才会读取的配置文件，所以， 如果你将自己的偏好设置写入上述的文件后，通常都是得登出再登陆后，该设置才会生效。那么，能不能直接读取配置文件而不登出登陆呢？ 可以的！那就得要利用 source 这个指令了！<br>
 </p>
 
 <p>
-利用 source 或小数点 （.） 都可以将配置文件的内容读进来目前的 shell 环境中！
+利用 source 或小数点 （.） 都可以将配置文件的内容读进来目前的 shell 环境中！<br>
 </p>
 </div>
 </div>
-<div id="outline-container-orgdd9ac89" class="outline-5">
-<h5 id="orgdd9ac89">~/.bashrc</h5>
-<div class="outline-text-5" id="text-orgdd9ac89">
+<div id="outline-container-orgf15783e" class="outline-5">
+<h5 id="orgf15783e">~/.bashrc</h5>
+<div class="outline-text-5" id="text-orgf15783e">
 <p>
-谈完了 login shell 后，那么 non-login shell 这种非登陆情况取得 bash 操作接口的环境配置文件又是什么？ 当你取得 non-login shell 时，该 bash 配置文件仅会读取 ~/.bashrc ！
+谈完了 login shell 后，那么 non-login shell 这种非登陆情况取得 bash 操作接口的环境配置文件又是什么？ 当你取得 non-login shell 时，该 bash 配置文件仅会读取 ~/.bashrc ！<br>
 </p>
 </div>
 </div>
 </div>
-<div id="outline-container-orged2ade7" class="outline-4">
-<h4 id="orged2ade7">其他相关配置文件</h4>
-<div class="outline-text-4" id="text-orged2ade7">
+<div id="outline-container-orgc2ea36e" class="outline-4">
+<h4 id="orgc2ea36e">其他相关配置文件</h4>
+<div class="outline-text-4" id="text-orgc2ea36e">
 </div>
-<div id="outline-container-org2ebd173" class="outline-5">
-<h5 id="org2ebd173">/etc/man_db.conf</h5>
-<div class="outline-text-5" id="text-org2ebd173">
+<div id="outline-container-org327263d" class="outline-5">
+<h5 id="org327263d">/etc/man_db.conf</h5>
+<div class="outline-text-5" id="text-org327263d">
 <p>
-规范了使用 man 的时候，man page 的路径到哪里去寻找。
+规范了使用 man 的时候，man page 的路径到哪里去寻找。<br>
 </p>
 
 <p>
-那么什么时候要来修改这个文件呢？如果你是以 tarball 的方式来安装你的数据，那么你的 man page 可能会放置在 /usr/local/softpackage/man 里头，那个 softpackage 是你的套件名称， 这个时候你就得以手动的方式将该路径加到 /etc/man_db.conf 里头，否则使用 man 的时候就会找不到相关的说明文档。
+那么什么时候要来修改这个文件呢？如果你是以 tarball 的方式来安装你的数据，那么你的 man page 可能会放置在 /usr/local/softpackage/man 里头，那个 softpackage 是你的套件名称， 这个时候你就得以手动的方式将该路径加到 /etc/man_db.conf 里头，否则使用 man 的时候就会找不到相关的说明文档。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org3c101a3" class="outline-5">
-<h5 id="org3c101a3">~/.bash_history</h5>
-<div class="outline-text-5" id="text-org3c101a3">
+<div id="outline-container-orgfb952d3" class="outline-5">
+<h5 id="orgfb952d3">~/.bash_history</h5>
+<div class="outline-text-5" id="text-orgfb952d3">
 <p>
-我们执行的命令历史记录就在里面。
+我们执行的命令历史记录就在里面。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-orgc0ecc74" class="outline-5">
-<h5 id="orgc0ecc74">~/.bash_logout</h5>
-<div class="outline-text-5" id="text-orgc0ecc74">
+<div id="outline-container-orgf0e0ed5" class="outline-5">
+<h5 id="orgf0e0ed5">~/.bash_logout</h5>
+<div class="outline-text-5" id="text-orgf0e0ed5">
 <p>
-这个文件则记录了“当我登出 bash 后，系统再帮我做完什么动作后才离开”的意思。 你可以去读取一下这个文件的内容，默认的情况下，登出时， bash 只是帮我们清掉屏幕的讯息而已。不过，你也可以将一些备份或者是其他你认为重要的工作写在这个文件中 （例如清空暂存盘）， 那么当你离开 Linux 的时候，就可以解决一些烦人的事情！
+这个文件则记录了“当我登出 bash 后，系统再帮我做完什么动作后才离开”的意思。 你可以去读取一下这个文件的内容，默认的情况下，登出时， bash 只是帮我们清掉屏幕的讯息而已。不过，你也可以将一些备份或者是其他你认为重要的工作写在这个文件中 （例如清空暂存盘）， 那么当你离开 Linux 的时候，就可以解决一些烦人的事情！<br>
 </p>
 </div>
 </div>
 </div>
 </div>
-<div id="outline-container-orge790ace" class="outline-3">
-<h3 id="orge790ace">终端的环境设置：stty<a id="org25cf742"></a>、set<a id="orgee7fe72"></a></h3>
-<div class="outline-text-3" id="text-orge790ace">
+<div id="outline-container-org19bfac0" class="outline-3">
+<h3 id="org19bfac0">终端的环境设置：stty<a id="org74de59c"></a>、set<a id="org0a071f3"></a></h3>
+<div class="outline-text-3" id="text-org19bfac0">
 <p>
-使用 stty 可以查看目前的一些按键内容，也可以帮助设置终端的输入按键代表的意义。
+使用 stty 可以查看目前的一些按键内容，也可以帮助设置终端的输入按键代表的意义。<br>
 </p>
 
-<pre class="example">
+<pre class="example" id="orgd0fc352">
 stty [-a]
 
 -a: 将目前所有的 stty 参数列出来；
 </pre>
 
 <p>
-除了 stty 之外，其实我们的 bash 还有自己的一些中断设置值，那就是利用 set 来设置。
+除了 stty 之外，其实我们的 bash 还有自己的一些中断设置值，那就是利用 set 来设置。<br>
 </p>
 
-<pre class="example">
+<pre class="example" id="org02ab8bc">
 set [-uvCHhmBx]
 
 -u: 默认不启用，若启用后，当使用未设置变量时，会显示错误信息；
@@ -691,19 +701,19 @@ set [-uvCHhmBx]
 </pre>
 
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#33539;&#20363;&#19968;&#65306;&#26174;&#31034;&#30446;&#21069;&#25152;&#26377;&#30340; set &#35774;&#32622;&#20540;</span>
-$ echo $<span style="color: #ffffff; font-weight: bold;">-</span>
+<pre class="src src-bash"><span style="color: #a89984;"># </span><span style="color: #a89984;">&#33539;&#20363;&#19968;&#65306;&#26174;&#31034;&#30446;&#21069;&#25152;&#26377;&#30340; set &#35774;&#32622;&#20540;</span>
+$ echo $<span style="color: #076678;">-</span>
 himBH
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#37027;&#20010; $- &#21464;&#37327;&#20869;&#23481;&#23601;&#26159; set &#30340;&#25152;&#26377;&#35774;&#32622;&#65292;bash &#40664;&#35748;&#26159; himBH</span>
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#37027;&#20010; $- &#21464;&#37327;&#20869;&#23481;&#23601;&#26159; set &#30340;&#25152;&#26377;&#35774;&#32622;&#65292;bash &#40664;&#35748;&#26159; himBH</span>
 </pre>
 </div>
 
 <p>
-另外，我们还有其他的按键设置功能，就在 /etc/inputrc 这个文件里设置。还有例如 /etc/DIR_COLORS* 与 /usr/share/terminfo/* 等，也都是与终端有关的环境配置文件。
+另外，我们还有其他的按键设置功能，就在 /etc/inputrc 这个文件里设置。还有例如 /etc/DIR_COLORS* 与 /usr/share/terminfo/* 等，也都是与终端有关的环境配置文件。<br>
 </p>
 
 <p>
-最后，将 bash 默认的组合键汇整如下：
+最后，将 bash 默认的组合键汇整如下：<br>
 </p>
 
 <table>
@@ -759,9 +769,9 @@ himBH
 </table>
 </div>
 </div>
-<div id="outline-container-orge3c638b" class="outline-3">
-<h3 id="orge3c638b">通配符与特殊符号</h3>
-<div class="outline-text-3" id="text-orge3c638b">
+<div id="outline-container-orgfd0119d" class="outline-3">
+<h3 id="orgfd0119d">通配符与特殊符号</h3>
+<div class="outline-text-3" id="text-orgfd0119d">
 <table>
 
 
@@ -897,69 +907,84 @@ himBH
 </div>
 </div>
 </div>
-<div id="outline-container-org5cdba17" class="outline-2">
-<h2 id="org5cdba17">数据流重定向</h2>
-<div class="outline-text-2" id="text-org5cdba17">
+<div id="outline-container-orge000c69" class="outline-2">
+<h2 id="orge000c69">数据流重定向<a id="org3b17c05"></a></h2>
+<div class="outline-text-2" id="text-orge000c69">
 </div>
-<div id="outline-container-org8ed6639" class="outline-3">
-<h3 id="org8ed6639">什么是数据流重定向</h3>
-<div class="outline-text-3" id="text-org8ed6639">
+<div id="outline-container-org4cff34e" class="outline-3">
+<h3 id="org4cff34e">什么是数据流重定向</h3>
+<div class="outline-text-3" id="text-org4cff34e">
 </div>
-<div id="outline-container-orgb67d671" class="outline-4">
-<h4 id="orgb67d671">standard output 与 standard error output</h4>
-<div class="outline-text-4" id="text-orgb67d671">
+<div id="outline-container-org2cebfe0" class="outline-4">
+<h4 id="org2cebfe0">standard output 与 standard error output</h4>
+<div class="outline-text-4" id="text-org2cebfe0">
 <p>
-标准输出指的是“指令执行所回传的正确的讯息”，而标准错误输出可理解为“ 指令执行失败后，所回传的错误讯息”。
+标准输出指的是「指令执行所回传的正确的讯息」，而标准错误输出可理解为「指令执行失败后，所回传的错误讯息」。<br>
 </p>
 
 <p>
-数据流重导向可以将 standard output （简称 stdout） 与 standard error output （简称 stderr） 分别传送到其他的文件或设备去，而分别传送所用的特殊字符则如下所示：
+数据流重导向可以将 standard output（简称 stdout）与 standard error output（简称 stderr）分别传送到其他的文件或设备去，而分别传送所用的特殊字符则如下所示：<br>
 </p>
 
 <ul class="org-ul">
-<li>标准输入（stdin）：代码为 0，使用 &lt; 或 &lt;&lt; ；</li>
-<li>标准输出（stdout）：代码为 1，使用 &gt; 或 &gt;&gt; ；</li>
-<li>标准错误输出（stderr）：代码为 2，使用 2&gt; 或 2&gt;&gt;</li>
+<li>标准输入（stdin）：代码为 0，使用 &lt; 或 &lt;&lt; ；<br></li>
+<li>标准输出（stdout）：代码为 1，使用 &gt; 或 &gt;&gt; ；<br></li>
+<li>标准错误输出（stderr）：代码为 2，使用 2&gt; 或 2&gt;&gt;<br></li>
+</ul>
 
-<li>1&gt; ：以覆盖的方法将【正确的数据】输出到指定的文件或设备上；</li>
-<li>1&gt;&gt;：以累加的方法将【正确的数据】输出到指定的文件或设备上；</li>
-<li>2&gt; ：以覆盖的方法将【错误的数据】输出到指定的文件或设备上；</li>
-<li>2&gt;&gt;：以累加的方法将【错误的数据】输出到指定的文件或设备上；</li>
+<p>
+这里代码指的是文件描述符，Linux 用文件描述符来标识每个文件对象，bash shell 保留了前三个文件描述符（0、1 和 2）。<br>
+</p>
+
+<ul class="org-ul">
+<li>1&gt; ：以覆盖的方法将【正确的数据】输出到指定的文件或设备上；<br></li>
+<li>1&gt;&gt;：以累加的方法将【正确的数据】输出到指定的文件或设备上；<br></li>
+<li>2&gt; ：以覆盖的方法将【错误的数据】输出到指定的文件或设备上；<br></li>
+<li>2&gt;&gt;：以累加的方法将【错误的数据】输出到指定的文件或设备上；<br></li>
 </ul>
 </div>
 </div>
-<div id="outline-container-org6b54205" class="outline-4">
-<h4 id="org6b54205">/dev/null 垃圾桶黑洞</h4>
-<div class="outline-text-4" id="text-org6b54205">
+<div id="outline-container-org5769688" class="outline-4">
+<h4 id="org5769688">/dev/null 垃圾桶黑洞</h4>
+<div class="outline-text-4" id="text-org5769688">
 <div class="org-src-container">
 <pre class="src src-bash">$ find /home -name .bashrc 2&gt; /dev/null
 </pre>
 </div>
 
 <p>
-这个 /dev/null 可以吃掉任何导向这个设备的信息，这里 stderr 就被丢弃了。
+这个 /dev/null 可以吃掉任何导向这个设备的信息，这里 stderr 就被丢弃了。<br>
 </p>
-</div>
-</div>
-<div id="outline-container-org74bb6b5" class="outline-4">
-<h4 id="org74bb6b5">正确与错误数据同时写入一个文件</h4>
-<div class="outline-text-4" id="text-org74bb6b5">
-<div class="org-src-container">
-<pre class="src src-bash">$ find /home -name .bashrc &gt; list 2&gt; list      <span style="color: #5f5faf;">#  </span><span style="color: #5f5faf;">&lt;== &#38169;&#35823;</span>
-$ find /home -name .bashrc &gt; list 2&gt;&amp;1         <span style="color: #5f5faf;">#  </span><span style="color: #5f5faf;">&lt;== &#27491;&#30830;</span>
-$ find /home -name .bashrc &amp;&gt; list             <span style="color: #5f5faf;">#  </span><span style="color: #5f5faf;">&lt;== &#27491;&#30830;</span>
 
-$ echo <span style="color: #ffff87;">"error message"</span> 1&gt;&amp;2
-$ echo <span style="color: #ffff87;">"error message"</span> 2&gt; /dev/null 1&gt;&amp;2
+<p>
+使用黑洞设备快速清除现有文件中的数据。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell">cat /dev/null &gt; testfile
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orgef3ef98" class="outline-4">
-<h4 id="orgef3ef98">standard input</h4>
-<div class="outline-text-4" id="text-orgef3ef98">
+<div id="outline-container-orgd3a9985" class="outline-4">
+<h4 id="orgd3a9985">正确与错误数据同时写入一个文件</h4>
+<div class="outline-text-4" id="text-orgd3a9985">
+<div class="org-src-container">
+<pre class="src src-bash">$ find /home -name .bashrc &gt; list 2&gt; list      <span style="color: #a89984;">#  </span><span style="color: #a89984;">&lt;== &#38169;&#35823;</span>
+$ find /home -name .bashrc &gt; list 2&gt;&amp;1         <span style="color: #a89984;">#  </span><span style="color: #a89984;">&lt;== &#27491;&#30830;</span>
+$ find /home -name .bashrc &amp;&gt; list             <span style="color: #a89984;">#  </span><span style="color: #a89984;">&lt;== &#27491;&#30830;</span>
+
+$ echo <span style="color: #79740e;">"error message"</span> 1&gt;&amp;2
+$ echo <span style="color: #79740e;">"error message"</span> 2&gt; /dev/null 1&gt;&amp;2
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orga7f0137" class="outline-4">
+<h4 id="orga7f0137">standard input</h4>
+<div class="outline-text-4" id="text-orga7f0137">
 <p>
-利用 cat 命令来建立一个文件的简单流程：
+利用 cat 命令来建立一个文件的简单流程：<br>
 </p>
 
 <div class="org-src-container">
@@ -975,11 +1000,11 @@ cat file test
 </div>
 
 <p>
-由于加入 <code>&gt;</code> 在 cat 之后，所以这个 catfile 文件会被建立，而内容就是刚刚键盘上输入的那两行数据。
+由于加入 <code>&gt;</code> 在 cat 之后，所以这个 catfile 文件会被建立，而内容就是刚刚键盘上输入的那两行数据。<br>
 </p>
 
 <p>
-那我能不能用纯文本文件替换键盘的输入？用 stdin 替换键盘的输入以建立新文件的简单流程：
+那我能不能用纯文本文件替换键盘的输入？用 stdin 替换键盘的输入以建立新文件的简单流程：<br>
 </p>
 
 <div class="org-src-container">
@@ -988,32 +1013,32 @@ cat file test
 </div>
 
 <p>
-其次是这个 <code>&lt;&lt;</code> 这个符号了，它代表的是【结束的输入字符】的意思：
+其次是这个 <code>&lt;&lt;</code> 这个符号了，它代表的是【结束的输入字符】的意思：<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-bash">$ cat &gt; catfile &lt;&lt; <span style="color: #ffff87;">"eof"</span>
-<span style="color: #ffa54f;">&gt; This is a test</span>
-<span style="color: #ffa54f;">&gt; OK now stop</span>
-<span style="color: #ffa54f;">&gt; eof   &lt;== &#36755;&#20837;&#36825;&#20010;&#20851;&#38190;&#35789;&#65292;&#31435;&#21051;&#32467;&#26463;&#32780;&#19981;&#38656;&#35201;&#36755;&#20837; [ctrl]+d</span>
+<pre class="src src-bash">$ cat &gt; catfile &lt;&lt; <span style="color: #79740e;">"eof"</span>
+<span style="color: #79740e;">&gt; This is a test</span>
+<span style="color: #79740e;">&gt; OK now stop</span>
+<span style="color: #79740e;">&gt; eof   &lt;== &#36755;&#20837;&#36825;&#20010;&#20851;&#38190;&#35789;&#65292;&#31435;&#21051;&#32467;&#26463;&#32780;&#19981;&#38656;&#35201;&#36755;&#20837; [ctrl]+d</span>
 
-<span style="color: #ffa54f;">$ cat catfile</span>
-<span style="color: #ffa54f;">This is a test</span>
-<span style="color: #ffa54f;">OK now stop</span>
+<span style="color: #79740e;">$ cat catfile</span>
+<span style="color: #79740e;">This is a test</span>
+<span style="color: #79740e;">OK now stop</span>
 </pre>
 </div>
 </div>
 </div>
 </div>
-<div id="outline-container-org84edee0" class="outline-3">
-<h3 id="org84edee0">命令执行的判断依据：;、&amp;&amp;、||</h3>
-<div class="outline-text-3" id="text-org84edee0">
+<div id="outline-container-org8e0b196" class="outline-3">
+<h3 id="org8e0b196">命令执行的判断依据：;、&amp;&amp;、||</h3>
+<div class="outline-text-3" id="text-org8e0b196">
 </div>
-<div id="outline-container-org8e6c29a" class="outline-4">
-<h4 id="org8e6c29a">cmd; cmd（不考虑命令相关性的连续命令执行）</h4>
-<div class="outline-text-4" id="text-org8e6c29a">
+<div id="outline-container-orgf1ef603" class="outline-4">
+<h4 id="orgf1ef603">cmd; cmd（不考虑命令相关性的连续命令执行）</h4>
+<div class="outline-text-4" id="text-orgf1ef603">
 <p>
-关机的时候我希望可以先执行两次 sync 同步写入磁盘后才 shutdown 计算机：
+关机的时候我希望可以先执行两次 sync 同步写入磁盘后才 shutdown 计算机：<br>
 </p>
 
 <div class="org-src-container">
@@ -1022,27 +1047,27 @@ cat file test
 </div>
 </div>
 </div>
-<div id="outline-container-org439bd2e" class="outline-4">
-<h4 id="org439bd2e">$?（命令返回值）与 &amp;&amp; 与 ||</h4>
-<div class="outline-text-4" id="text-org439bd2e">
+<div id="outline-container-org485e118" class="outline-4">
+<h4 id="org485e118">$?（命令返回值）与 &amp;&amp; 与 ||</h4>
+<div class="outline-text-4" id="text-org485e118">
 <ul class="org-ul">
-<li>cmd1 &amp;&amp; cmd2
+<li>cmd1 &amp;&amp; cmd2<br>
 <ol class="org-ol">
-<li>若 cmd1 执行完毕且正确执行（$?=0），则开始执行 cmd2；</li>
-<li>若 cmd1 执行完毕且为错误（$?≠0），则 cmd2 不执行；</li>
+<li>若 cmd1 执行完毕且正确执行（$?=0），则开始执行 cmd2；<br></li>
+<li>若 cmd1 执行完毕且为错误（$?≠0），则 cmd2 不执行；<br></li>
 </ol></li>
-<li>cmd1 || cmd2
+<li>cmd1 || cmd2<br>
 <ol class="org-ol">
-<li>若 cmd1 执行完毕且正确执行（$?=0），则 cmd2 不执行；</li>
-<li>若 cmd1 执行完毕且为错误（$?≠0），则开始执行 cmd2；</li>
+<li>若 cmd1 执行完毕且正确执行（$?=0），则 cmd2 不执行；<br></li>
+<li>若 cmd1 执行完毕且为错误（$?≠0），则开始执行 cmd2；<br></li>
 </ol></li>
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#20351;&#29992; ls &#26597;&#30475;&#30446;&#24405; /tmp/abc &#26159;&#21542;&#23384;&#22312;&#65292;&#33509;&#23384;&#22312;&#21017;&#29992; touch &#24314;&#31435; /tmp/abc/hehe</span>
+<pre class="src src-bash"><span style="color: #a89984;"># </span><span style="color: #a89984;">&#20351;&#29992; ls &#26597;&#30475;&#30446;&#24405; /tmp/abc &#26159;&#21542;&#23384;&#22312;&#65292;&#33509;&#23384;&#22312;&#21017;&#29992; touch &#24314;&#31435; /tmp/abc/hehe</span>
 $ ls /tmp/abc &amp;&amp; touch /tmp/abc/hehe
 ls: cannot access /tmp/abc: No such file or directory
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">ls &#25214;&#19981;&#21040;&#35813;&#30446;&#24405;&#65292;&#20294;&#27809;&#26377; touch &#30340;&#38169;&#35823;&#65292;&#35828;&#26126; touch &#24182;&#27809;&#26377;&#25191;&#34892;</span>
+<span style="color: #a89984;"># </span><span style="color: #a89984;">ls &#25214;&#19981;&#21040;&#35813;&#30446;&#24405;&#65292;&#20294;&#27809;&#26377; touch &#30340;&#38169;&#35823;&#65292;&#35828;&#26126; touch &#24182;&#27809;&#26377;&#25191;&#34892;</span>
 
 $ mkdir /tmp/abc
 $ ls /tmp/abc &amp;&amp; touch /tmp/abc/hehe
@@ -1050,7 +1075,7 @@ $ ls /tmp/abc &amp;&amp; touch /tmp/abc/hehe
 </div>
 
 <p>
-如果 /tmp/abc 不存在时，touch 就不会被执行，若 /tmp/abc 存在的话，那么 touch 就会开始执行。不过我们还是要手动建立目录，那能不能自动判断，如果没有该目录就创建这个目录？
+如果 /tmp/abc 不存在时，touch 就不会被执行，若 /tmp/abc 存在的话，那么 touch 就会开始执行。不过我们还是要手动建立目录，那能不能自动判断，如果没有该目录就创建这个目录？<br>
 </p>
 
 <div class="org-src-container">
@@ -1059,87 +1084,87 @@ $ ls /tmp/abc &amp;&amp; touch /tmp/abc/hehe
 </div>
 </div>
 </div>
-<div id="outline-container-orgd18a309" class="outline-4">
-<h4 id="orgd18a309">判断式</h4>
-<div class="outline-text-4" id="text-orgd18a309">
+<div id="outline-container-org53394b3" class="outline-4">
+<h4 id="org53394b3">判断式</h4>
+<div class="outline-text-4" id="text-org53394b3">
 <div class="org-src-container">
 <pre class="src src-bash">command1 &amp;&amp; command2 || command3
 </pre>
 </div>
 
 <p>
-以 ls 测试 /tmp/abc 是否存在，若存在则显示 "exist"；若不存在，则显示 "not exist"
+以 ls 测试 /tmp/abc 是否存在，若存在则显示 "exist"；若不存在，则显示 "not exist"<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-bash">ls /tmp/abc &amp;&amp; <span style="color: #87d7ff; font-style: italic;">echo</span> <span style="color: #ffff87;">"exist"</span> || <span style="color: #87d7ff; font-style: italic;">echo</span> <span style="color: #ffff87;">"not exist"</span>
+<pre class="src src-bash">ls /tmp/abc &amp;&amp; <span style="color: #af3a03;">echo</span> <span style="color: #79740e;">"exist"</span> || <span style="color: #af3a03;">echo</span> <span style="color: #79740e;">"not exist"</span>
 </pre>
 </div>
 </div>
 </div>
 </div>
 </div>
-<div id="outline-container-org0617c85" class="outline-2">
-<h2 id="org0617c85">管道命令（pipe）</h2>
-<div class="outline-text-2" id="text-org0617c85">
+<div id="outline-container-org0fddb2f" class="outline-2">
+<h2 id="org0fddb2f">管道命令（pipe）</h2>
+<div class="outline-text-2" id="text-org0fddb2f">
 </div>
-<div id="outline-container-orgc6670ee" class="outline-3">
-<h3 id="orgc6670ee">选取命令：cut、grep</h3>
-<div class="outline-text-3" id="text-orgc6670ee">
+<div id="outline-container-org5b6b639" class="outline-3">
+<h3 id="org5b6b639">选取命令：cut、grep</h3>
+<div class="outline-text-3" id="text-org5b6b639">
 </div>
-<div id="outline-container-org4399010" class="outline-4">
-<h4 id="org4399010">cut 选取命令<a id="org14ca840"></a></h4>
-<div class="outline-text-4" id="text-org4399010">
+<div id="outline-container-org17a8d23" class="outline-4">
+<h4 id="org17a8d23">cut 选取命令<a id="org862a225"></a></h4>
+<div class="outline-text-4" id="text-org17a8d23">
 <p>
-Linux cut 命令用于显示每行从开头算起 num1 到 num2 的文字。
+Linux cut 命令用于显示每行从开头算起 num1 到 num2 的文字。<br>
 </p>
 
-<pre class="example">
+<pre class="example" id="org30b01ec">
 -f: 根据 -d 的分隔字符将一段信息划分成为数段，用 -f 取出第几段的意思；
 -d: 后面接分隔字符，与 -f 一起使用；
 -c: 以字符（character）的单位取出固定字符区间；
 </pre>
 
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#33539;&#20363;&#19968;&#65306;&#21462;&#20986; PATH &#30340;&#31532;&#20116;&#20010;&#36335;&#24452;</span>
-$ echo ${<span style="color: #ffffff; font-weight: bold;">PATH</span>}
+<pre class="src src-bash"><span style="color: #a89984;"># </span><span style="color: #a89984;">&#33539;&#20363;&#19968;&#65306;&#21462;&#20986; PATH &#30340;&#31532;&#20116;&#20010;&#36335;&#24452;</span>
+$ echo ${<span style="color: #076678;">PATH</span>}
 /usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/dmtsai/.local/bin:/home/dmtsai/bin
 
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#20197; ':' &#20998;&#38548;&#21462;&#31532;&#20116;&#20010;</span>
-$ echo ${<span style="color: #ffffff; font-weight: bold;">PATH</span>} | cut -d <span style="color: #ffff87;">':'</span> -f 5
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#20197; ':' &#20998;&#38548;&#21462;&#31532;&#20116;&#20010;</span>
+$ echo ${<span style="color: #076678;">PATH</span>} | cut -d <span style="color: #79740e;">':'</span> -f 5
 
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#21462;&#20986; PATH &#30340;&#31532;&#19977;&#19982;&#31532;&#20116;&#20010;</span>
-$ echo ${<span style="color: #ffffff; font-weight: bold;">PATH</span>} | cut -d <span style="color: #ffff87;">':'</span> -f 3,5
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#21462;&#20986; PATH &#30340;&#31532;&#19977;&#19982;&#31532;&#20116;&#20010;</span>
+$ echo ${<span style="color: #076678;">PATH</span>} | cut -d <span style="color: #79740e;">':'</span> -f 3,5
 
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#21462;&#20986; PATH &#30340;&#31532;&#19977;&#12289;&#31532;&#22235;&#19982;&#31532;&#20116;&#20010;</span>
-$ echo ${<span style="color: #ffffff; font-weight: bold;">PATH</span>} | cut -d <span style="color: #ffff87;">':'</span> -f 3,4,5
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#21462;&#20986; PATH &#30340;&#31532;&#19977;&#12289;&#31532;&#22235;&#19982;&#31532;&#20116;&#20010;</span>
+$ echo ${<span style="color: #076678;">PATH</span>} | cut -d <span style="color: #79740e;">':'</span> -f 3,4,5
 </pre>
 </div>
 
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#33539;&#20363;&#20108;&#65306;&#21462;&#24471;&#23558; export &#36755;&#20986;&#30340;&#20449;&#24687;&#31532; 12 &#23383;&#31526;&#20197;&#21518;&#30340;&#25152;&#26377;&#23383;&#31526;</span>
-<span style="color: #87d7ff; font-style: italic;">export</span> | cut -c 12-
+<pre class="src src-bash"><span style="color: #a89984;"># </span><span style="color: #a89984;">&#33539;&#20363;&#20108;&#65306;&#21462;&#24471;&#23558; export &#36755;&#20986;&#30340;&#20449;&#24687;&#31532; 12 &#23383;&#31526;&#20197;&#21518;&#30340;&#25152;&#26377;&#23383;&#31526;</span>
+<span style="color: #af3a03;">export</span> | cut -c 12-
 
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">12-20 &#26159;&#25351;&#23450;&#33539;&#22260;&#30340;&#20540;</span>
-<span style="color: #87d7ff; font-style: italic;">export</span> | cut -c 12-20
+<span style="color: #a89984;"># </span><span style="color: #a89984;">12-20 &#26159;&#25351;&#23450;&#33539;&#22260;&#30340;&#20540;</span>
+<span style="color: #af3a03;">export</span> | cut -c 12-20
 </pre>
 </div>
 
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#33539;&#20363;&#19977;&#65306;&#29992; last &#23558;&#26174;&#31034;&#30340;&#30331;&#24405;&#32773;&#30340;&#20449;&#24687;&#65292;&#20351;&#29992; cut &#20999;&#20986;&#20351;&#29992;&#32773;&#21517;&#23383;&#37096;&#20998;</span>
-last | cut -d <span style="color: #ffff87;">' '</span> -f 1
+<pre class="src src-bash"><span style="color: #a89984;"># </span><span style="color: #a89984;">&#33539;&#20363;&#19977;&#65306;&#29992; last &#23558;&#26174;&#31034;&#30340;&#30331;&#24405;&#32773;&#30340;&#20449;&#24687;&#65292;&#20351;&#29992; cut &#20999;&#20986;&#20351;&#29992;&#32773;&#21517;&#23383;&#37096;&#20998;</span>
+last | cut -d <span style="color: #79740e;">' '</span> -f 1
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orgae5dbe6" class="outline-4">
-<h4 id="orgae5dbe6">grep 查找命令<a id="org48ee2b5"></a></h4>
-<div class="outline-text-4" id="text-orgae5dbe6">
+<div id="outline-container-orgc805784" class="outline-4">
+<h4 id="orgc805784">grep 查找命令<a id="org5e616fb"></a></h4>
+<div class="outline-text-4" id="text-orgc805784">
 <p>
-用于查找文件里符合条件的字符串。
+用于查找文件里符合条件的字符串。<br>
 </p>
 
-<pre class="example">
+<pre class="example" id="orgba7ad83">
 grep [-acinv] [--color=auto] '查找字符' filename
 
 -a: 将二进制文件以文本文件的方式查找数据；
@@ -1151,38 +1176,38 @@ grep [-acinv] [--color=auto] '查找字符' filename
 </pre>
 
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#33539;&#20363;&#19968;&#65306;&#23558; last &#20013;&#65292;&#20986;&#29616; root &#30340;&#37027;&#19968;&#34892;&#26174;&#31034;&#20986;&#26469;</span>
-last | grep <span style="color: #ffff87;">'root'</span>
+<pre class="src src-bash"><span style="color: #a89984;"># </span><span style="color: #a89984;">&#33539;&#20363;&#19968;&#65306;&#23558; last &#20013;&#65292;&#20986;&#29616; root &#30340;&#37027;&#19968;&#34892;&#26174;&#31034;&#20986;&#26469;</span>
+last | grep <span style="color: #79740e;">'root'</span>
 
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#33539;&#20363;&#20108;&#65306;&#19982;&#33539;&#20363;&#19968;&#30456;&#21453;&#65292;&#21462;&#20986;&#27809;&#26377; root &#30340;&#37027;&#19968;&#34892;</span>
-last | grep -v <span style="color: #ffff87;">'root'</span>
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#33539;&#20363;&#20108;&#65306;&#19982;&#33539;&#20363;&#19968;&#30456;&#21453;&#65292;&#21462;&#20986;&#27809;&#26377; root &#30340;&#37027;&#19968;&#34892;</span>
+last | grep -v <span style="color: #79740e;">'root'</span>
 
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#33539;&#20363;&#19977;&#65306;&#22312; last &#30340;&#36755;&#20986;&#20449;&#24687;&#20013;&#65292;&#21482;&#35201;&#26377; root &#23601;&#21462;&#20986;&#65292;&#24182;&#19988;&#20165;&#21462;&#31532;&#19968;&#26639;</span>
-last | grep <span style="color: #ffff87;">'root'</span> | cut -d <span style="color: #ffff87;">' '</span> -f 1
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#33539;&#20363;&#19977;&#65306;&#22312; last &#30340;&#36755;&#20986;&#20449;&#24687;&#20013;&#65292;&#21482;&#35201;&#26377; root &#23601;&#21462;&#20986;&#65292;&#24182;&#19988;&#20165;&#21462;&#31532;&#19968;&#26639;</span>
+last | grep <span style="color: #79740e;">'root'</span> | cut -d <span style="color: #79740e;">' '</span> -f 1
 
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#33539;&#20363;&#22235;&#65306;&#21462;&#20986; /etc/man_db.conf &#20869;&#21547; MANPATH &#30340;&#37027;&#20960;&#34892;</span>
-grep --color=auto <span style="color: #ffff87;">'MANPATH'</span> /etc/man_db.conf
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#33539;&#20363;&#22235;&#65306;&#21462;&#20986; /etc/man_db.conf &#20869;&#21547; MANPATH &#30340;&#37027;&#20960;&#34892;</span>
+grep --color=auto <span style="color: #79740e;">'MANPATH'</span> /etc/man_db.conf
 </pre>
 </div>
 
 <p>
-<a href="Linux-正则表达式与文件格式化处理.html#org5692b07">grep的高级用法</a>
+<a href="Linux-正则表达式与文件格式化处理.html#org25964c4">grep的高级用法</a><br>
 </p>
 </div>
 </div>
 </div>
-<div id="outline-container-org59de80e" class="outline-3">
-<h3 id="org59de80e">排序命令：sort、wc、uniq</h3>
-<div class="outline-text-3" id="text-org59de80e">
+<div id="outline-container-orga518e03" class="outline-3">
+<h3 id="orga518e03">排序命令：sort、wc、uniq</h3>
+<div class="outline-text-3" id="text-orga518e03">
 </div>
-<div id="outline-container-orgc79ec5d" class="outline-4">
-<h4 id="orgc79ec5d">sort 排序命令<a id="org8f92be5"></a></h4>
-<div class="outline-text-4" id="text-orgc79ec5d">
+<div id="outline-container-org005f3c3" class="outline-4">
+<h4 id="org005f3c3">sort 排序命令<a id="org428d08d"></a></h4>
+<div class="outline-text-4" id="text-org005f3c3">
 <p>
-sort 可以根据不同的数据形态来排序，例如数字与文字的排序就不同。此外，排序的字符与语系的编码有关，因此，如果需要排序时，建议使用 LANG=C 来让语系统一。
+sort 可以根据不同的数据形态来排序，例如数字与文字的排序就不同。此外，排序的字符与语系的编码有关，因此，如果需要排序时，建议使用 LANG=C 来让语系统一。<br>
 </p>
 
-<pre class="example">
+<pre class="example" id="org11ca4ae">
 sort [-fbMnrtuk] [file or stdin]
 
 -f: 忽略大小写的差异；
@@ -1196,28 +1221,28 @@ sort [-fbMnrtuk] [file or stdin]
 </pre>
 
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#33539;&#20363;&#19968;&#65306;&#20010;&#20154;&#36134;&#21495;&#37117;&#35760;&#24405;&#22312; /etc/passwd &#19979;&#65292;&#35831;&#23558;&#36134;&#21495;&#36827;&#34892;&#25490;&#24207;</span>
+<pre class="src src-bash"><span style="color: #a89984;"># </span><span style="color: #a89984;">&#33539;&#20363;&#19968;&#65306;&#20010;&#20154;&#36134;&#21495;&#37117;&#35760;&#24405;&#22312; /etc/passwd &#19979;&#65292;&#35831;&#23558;&#36134;&#21495;&#36827;&#34892;&#25490;&#24207;</span>
 cat /etc/passwd | sort
 
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#33539;&#20363;&#20108;&#65306;/etc/passwd &#26159;&#20197; ':' &#26469;&#20998;&#38548;&#30340;&#65292;&#22914;&#20309;&#20197;&#31532;&#19977;&#26639;&#36827;&#34892;&#25490;&#24207;</span>
-cat /etc/passwd | sort -t <span style="color: #ffff87;">':'</span> -k 3
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#31532;&#19977;&#26639;&#26159;&#25968;&#23383;&#65292;&#25152;&#20197; 1000 &#20250;&#22312; 2 &#21069;&#38754;&#65292;&#25152;&#20197;&#25105;&#20204;&#38656;&#35201;&#20351;&#29992; -n &#21442;&#25968;</span>
-cat /etc/passwd | sort -t <span style="color: #ffff87;">':'</span> -k 3 -n
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#33539;&#20363;&#20108;&#65306;/etc/passwd &#26159;&#20197; ':' &#26469;&#20998;&#38548;&#30340;&#65292;&#22914;&#20309;&#20197;&#31532;&#19977;&#26639;&#36827;&#34892;&#25490;&#24207;</span>
+cat /etc/passwd | sort -t <span style="color: #79740e;">':'</span> -k 3
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#31532;&#19977;&#26639;&#26159;&#25968;&#23383;&#65292;&#25152;&#20197; 1000 &#20250;&#22312; 2 &#21069;&#38754;&#65292;&#25152;&#20197;&#25105;&#20204;&#38656;&#35201;&#20351;&#29992; -n &#21442;&#25968;</span>
+cat /etc/passwd | sort -t <span style="color: #79740e;">':'</span> -k 3 -n
 
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#33539;&#20363;&#19977;&#65306;&#21033;&#29992; last&#65292;&#20165;&#26174;&#31034;&#36755;&#20986;&#25968;&#25454;&#30340;&#36134;&#21495;&#65292;&#24182;&#21152;&#20197;&#25490;&#24207;</span>
-last | cut -d <span style="color: #ffff87;">' '</span> -f1 | sort
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#33539;&#20363;&#19977;&#65306;&#21033;&#29992; last&#65292;&#20165;&#26174;&#31034;&#36755;&#20986;&#25968;&#25454;&#30340;&#36134;&#21495;&#65292;&#24182;&#21152;&#20197;&#25490;&#24207;</span>
+last | cut -d <span style="color: #79740e;">' '</span> -f1 | sort
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org619ccdb" class="outline-4">
-<h4 id="org619ccdb">uniq 去重命令<a id="org2606aec"></a></h4>
-<div class="outline-text-4" id="text-org619ccdb">
+<div id="outline-container-org79d4a6f" class="outline-4">
+<h4 id="org79d4a6f">uniq 去重命令<a id="orge709978"></a></h4>
+<div class="outline-text-4" id="text-org79d4a6f">
 <p>
-用于检查及删除文本中重复出现的行列，一般与 sort 命令结合使用。
+用于检查及删除文本中重复出现的行列，一般与 sort 命令结合使用。<br>
 </p>
 
-<pre class="example">
+<pre class="example" id="org3805164">
 uniq [-ic]
 
 -i: 忽略大小写字符的不同；
@@ -1225,23 +1250,23 @@ uniq [-ic]
 </pre>
 
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#33539;&#20363;&#19968;&#65306;&#20351;&#29992; last &#23558;&#36134;&#21495;&#21015;&#20986;&#65292;&#20165;&#21462;&#20986;&#36134;&#21495;&#26639;&#65292;&#36827;&#34892;&#25490;&#24207;&#21518;&#20165;&#21462;&#20986;&#19968;&#20301;</span>
-last | cut -d <span style="color: #ffff87;">' '</span> -f 1 | sort | uniq
+<pre class="src src-bash"><span style="color: #a89984;"># </span><span style="color: #a89984;">&#33539;&#20363;&#19968;&#65306;&#20351;&#29992; last &#23558;&#36134;&#21495;&#21015;&#20986;&#65292;&#20165;&#21462;&#20986;&#36134;&#21495;&#26639;&#65292;&#36827;&#34892;&#25490;&#24207;&#21518;&#20165;&#21462;&#20986;&#19968;&#20301;</span>
+last | cut -d <span style="color: #79740e;">' '</span> -f 1 | sort | uniq
 
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#33539;&#20363;&#20108;&#65306;&#25215;&#19978;&#39064;&#65292;&#22914;&#26524;&#25105;&#36824;&#24819;&#30693;&#36947;&#27599;&#20010;&#20154;&#30340;&#30331;&#24405;&#24635;&#27425;&#25968;&#65311;</span>
-last | cut -d <span style="color: #ffff87;">' '</span> -f 1 | sort | uniq -c
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#33539;&#20363;&#20108;&#65306;&#25215;&#19978;&#39064;&#65292;&#22914;&#26524;&#25105;&#36824;&#24819;&#30693;&#36947;&#27599;&#20010;&#20154;&#30340;&#30331;&#24405;&#24635;&#27425;&#25968;&#65311;</span>
+last | cut -d <span style="color: #79740e;">' '</span> -f 1 | sort | uniq -c
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org8ec3a2f" class="outline-4">
-<h4 id="org8ec3a2f">wc 统计字数<a id="org35ad1d8"></a></h4>
-<div class="outline-text-4" id="text-org8ec3a2f">
+<div id="outline-container-org29782fa" class="outline-4">
+<h4 id="org29782fa">wc 统计字数<a id="org3e17588"></a></h4>
+<div class="outline-text-4" id="text-org29782fa">
 <p>
-用于计算字数。
+用于计算字数。<br>
 </p>
 
-<pre class="example">
+<pre class="example" id="orga31c25f">
 wc [-lwm]
 
 -l: 仅列出行；
@@ -1250,62 +1275,62 @@ wc [-lwm]
 </pre>
 
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#33539;&#20363;&#19968;&#65306;/etc/man db.conf &#37324;&#38754;&#26377;&#22810;&#23569;&#23383;&#12289;&#34892;&#12289;&#23383;&#31526;&#25968;&#65311;</span>
+<pre class="src src-bash"><span style="color: #a89984;"># </span><span style="color: #a89984;">&#33539;&#20363;&#19968;&#65306;/etc/man db.conf &#37324;&#38754;&#26377;&#22810;&#23569;&#23383;&#12289;&#34892;&#12289;&#23383;&#31526;&#25968;&#65311;</span>
 cat /etc/man_db.conf | wc
 
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#33539;&#20363;&#20108;&#65306;&#20351;&#29992; last &#21487;&#20197;&#36755;&#20986;&#30331;&#38470;&#32773;&#65292;&#20294;&#26159; last &#26368;&#21518;&#20004;&#34892;&#24182;&#38750;&#24080;&#21495;&#20869;&#23481;&#65292;&#37027;&#20040;&#35831;&#38382;&#65292;&#35813;&#22914;&#20309;&#20197;&#19968;&#34892;&#25351;&#20196;&#20018;&#21462;&#24471;&#30331;&#38470;&#31995;&#32479;&#30340;&#24635;&#20154;&#27425;&#65311;</span>
-last | grep [a-zA-Z] | grep -v <span style="color: #ffff87;">'wtmp'</span> | grep -v <span style="color: #ffff87;">'reboot'</span> | <span style="color: #ffff87;">\</span>
-&gt; grep -v <span style="color: #ffff87;">'unknown'</span> | wc -l
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#33539;&#20363;&#20108;&#65306;&#20351;&#29992; last &#21487;&#20197;&#36755;&#20986;&#30331;&#38470;&#32773;&#65292;&#20294;&#26159; last &#26368;&#21518;&#20004;&#34892;&#24182;&#38750;&#24080;&#21495;&#20869;&#23481;&#65292;&#37027;&#20040;&#35831;&#38382;&#65292;&#35813;&#22914;&#20309;&#20197;&#19968;&#34892;&#25351;&#20196;&#20018;&#21462;&#24471;&#30331;&#38470;&#31995;&#32479;&#30340;&#24635;&#20154;&#27425;&#65311;</span>
+last | grep [a-zA-Z] | grep -v <span style="color: #79740e;">'wtmp'</span> | grep -v <span style="color: #79740e;">'reboot'</span> | <span style="color: #79740e;">\</span>
+  &gt; grep -v <span style="color: #79740e;">'unknown'</span> | wc -l
 
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#30001;&#20110; last &#20250;&#36755;&#20986;&#31354;&#30333;&#34892;, wtmp, unknown, reboot &#31561;&#26080;&#20851;&#24080;&#21495;&#30331;&#38470;&#30340;&#20449;&#24687;&#65292;&#22240;&#27492;&#65292;&#21033;&#29992;</span>
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">grep &#21462;&#20986;&#38750;&#31354;&#30333;&#34892;&#65292;&#20197;&#21450;&#21435;&#38500;&#19978;&#36848;&#20851;&#38190;&#23383;&#37027;&#20960;&#34892;&#65292;&#20877;&#35745;&#31639;&#34892;&#25968;&#65292;&#23601;&#33021;&#22815;&#24471;&#21040;&#32467;&#26524;</span>
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#30001;&#20110; last &#20250;&#36755;&#20986;&#31354;&#30333;&#34892;, wtmp, unknown, reboot &#31561;&#26080;&#20851;&#24080;&#21495;&#30331;&#38470;&#30340;&#20449;&#24687;&#65292;&#22240;&#27492;&#65292;&#21033;&#29992;</span>
+<span style="color: #a89984;"># </span><span style="color: #a89984;">grep &#21462;&#20986;&#38750;&#31354;&#30333;&#34892;&#65292;&#20197;&#21450;&#21435;&#38500;&#19978;&#36848;&#20851;&#38190;&#23383;&#37027;&#20960;&#34892;&#65292;&#20877;&#35745;&#31639;&#34892;&#25968;&#65292;&#23601;&#33021;&#22815;&#24471;&#21040;&#32467;&#26524;</span>
 </pre>
 </div>
 </div>
 </div>
 </div>
-<div id="outline-container-orgf8b0dd8" class="outline-3">
-<h3 id="orgf8b0dd8">双向重定向：tee<a id="org6f97478"></a></h3>
-<div class="outline-text-3" id="text-orgf8b0dd8">
+<div id="outline-container-org1be32f4" class="outline-3">
+<h3 id="org1be32f4">双向重定向：tee<a id="orgc5efa26"></a></h3>
+<div class="outline-text-3" id="text-org1be32f4">
 <p>
-想个简单的东西，我们由前一节知道 <code>&gt;</code> 会将数据流整个传送给文件或设备，因此我们除非去读取该文件或设备， 否则就无法继续利用这个数据流。万一我想要将这个数据流的处理过程中将某段讯息存下来，应该怎么做？利用 tee 就可以。
+想个简单的东西，我们由前一节知道 <code>&gt;</code> 会将数据流整个传送给文件或设备，因此我们除非去读取该文件或设备，否则就无法继续利用这个数据流。万一我想要将这个数据流的处理过程中将某段讯息存下来，应该怎么做？利用 tee 就可以。<br>
 </p>
 
 <p>
-tee 会同时将数据流分送到文件去与屏幕 （screen）；而输出到屏幕的，其实就是 stdout ，那就可以让下个指令继续处理！
+tee 会同时将数据流分送到文件去与屏幕（screen）；而输出到屏幕的，其实就是 stdout ，那就可以让下个指令继续处理！<br>
 </p>
 
-<pre class="example">
+<pre class="example" id="org770e3ca">
 tee [-a] file
 
 -a ：以累加 （append） 的方式，将数据加入 file 当中！
 </pre>
 
 <div class="org-src-container">
-<pre class="src src-bash">$ last | tee last.list | cut -d <span style="color: #ffff87;">" "</span> -f1
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#36825;&#20010;&#33539;&#20363;&#21487;&#20197;&#35753;&#25105;&#20204;&#23558; last &#30340;&#36755;&#20986;&#23384;&#19968;&#20221;&#21040; last.list &#25991;&#20214;&#20013;&#65307;</span>
+<pre class="src src-bash">$ last | tee last.list | cut -d <span style="color: #79740e;">" "</span> -f1
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#36825;&#20010;&#33539;&#20363;&#21487;&#20197;&#35753;&#25105;&#20204;&#23558; last &#30340;&#36755;&#20986;&#23384;&#19968;&#20221;&#21040; last.list &#25991;&#20214;&#20013;&#65307;</span>
 
 ls -l /home | tee ~/homefile | more
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#36825;&#20010;&#33539;&#20363;&#21017;&#26159;&#23558; ls &#30340;&#25968;&#25454;&#23384;&#19968;&#20221;&#21040; ~/homefile &#65292;&#21516;&#26102;&#23631;&#24149;&#20063;&#26377;&#36755;&#20986;&#35759;&#24687;&#65281;</span>
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#36825;&#20010;&#33539;&#20363;&#21017;&#26159;&#23558; ls &#30340;&#25968;&#25454;&#23384;&#19968;&#20221;&#21040; ~/homefile &#65292;&#21516;&#26102;&#23631;&#24149;&#20063;&#26377;&#36755;&#20986;&#35759;&#24687;&#65281;</span>
 
 ls -l / | tee -a ~/homefile | more
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#35201;&#27880;&#24847;&#65281; tee &#21518;&#25509;&#30340;&#25991;&#20214;&#20250;&#34987;&#35206;&#30422;&#65292;&#33509;&#21152;&#19978; -a &#36825;&#20010;&#36873;&#39033;&#21017;&#33021;&#23558;&#35759;&#24687;&#32047;&#21152;&#12290;</span>
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#35201;&#27880;&#24847;&#65281; tee &#21518;&#25509;&#30340;&#25991;&#20214;&#20250;&#34987;&#35206;&#30422;&#65292;&#33509;&#21152;&#19978; -a &#36825;&#20010;&#36873;&#39033;&#21017;&#33021;&#23558;&#35759;&#24687;&#32047;&#21152;&#12290;</span>
 </pre>
 </div>
 
 <p>
-tee 可以让 standard output 转存一份到文件内并将同样的数据继续送到屏幕去处理！这样除了可以让我们同时分析一份数据并记录下来之外，还可以作为处理一份数据的中间暂存盘记录之用！
+tee 可以让 standard output 转存一份到文件内并将同样的数据继续送到屏幕去处理！这样除了可以让我们同时分析一份数据并记录下来之外，还可以作为处理一份数据的中间暂存盘记录之用！<br>
 </p>
 </div>
 </div>
-<div id="outline-container-orgac6abf2" class="outline-3">
-<h3 id="orgac6abf2">字符转换命令：tr、col、join、paste、expand</h3>
-<div class="outline-text-3" id="text-orgac6abf2">
+<div id="outline-container-org0589bf5" class="outline-3">
+<h3 id="org0589bf5">字符转换命令：tr、col、join、paste、expand</h3>
+<div class="outline-text-3" id="text-org0589bf5">
 </div>
-<div id="outline-container-org4bdb233" class="outline-4">
-<h4 id="org4bdb233">tr 转换或删除文件中的字符<a id="orgccd7604"></a></h4>
-<div class="outline-text-4" id="text-org4bdb233">
-<pre class="example">
+<div id="outline-container-org53feb16" class="outline-4">
+<h4 id="org53feb16">tr 转换或删除文件中的字符<a id="org7994303"></a></h4>
+<div class="outline-text-4" id="text-org53feb16">
+<pre class="example" id="orgcb9369a">
 tr [-ds] SET1 ...
 
 -d: 删除信息当中的 SET1 这个字符；
@@ -1313,50 +1338,50 @@ tr [-ds] SET1 ...
 </pre>
 
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#33539;&#20363;&#19968;&#65306;&#23558; last &#36755;&#20986;&#30340;&#20449;&#24687;&#20013;&#65292;&#25152;&#26377;&#23567;&#20889;&#21464;&#25104;&#22823;&#20889;&#23383;&#31526;</span>
-$ last | tr <span style="color: #ffff87;">'[a-z]'</span> <span style="color: #ffff87;">'[A-Z]'</span>
+<pre class="src src-bash"><span style="color: #a89984;"># </span><span style="color: #a89984;">&#33539;&#20363;&#19968;&#65306;&#23558; last &#36755;&#20986;&#30340;&#20449;&#24687;&#20013;&#65292;&#25152;&#26377;&#23567;&#20889;&#21464;&#25104;&#22823;&#20889;&#23383;&#31526;</span>
+$ last | tr <span style="color: #79740e;">'[a-z]'</span> <span style="color: #79740e;">'[A-Z]'</span>
 
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#33539;&#20363;&#20108;&#65306;&#23558; /etc/passwd &#36755;&#20986;&#30340;&#20449;&#24687;&#20013;&#65292;&#23558;&#20882;&#21495; ':' &#21024;&#38500;</span>
-$ cat /etc/passwd | tr -d <span style="color: #ffff87;">':'</span>
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#33539;&#20363;&#20108;&#65306;&#23558; /etc/passwd &#36755;&#20986;&#30340;&#20449;&#24687;&#20013;&#65292;&#23558;&#20882;&#21495; ':' &#21024;&#38500;</span>
+$ cat /etc/passwd | tr -d <span style="color: #79740e;">':'</span>
 
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#33539;&#20363;&#19977;&#65306;&#23558; /etc/passwd &#36716;&#25442;&#25104; dos &#25442;&#34892;&#21040; /root/passwd &#20013;&#65292;&#20877;&#23558; ^M &#31526;&#21495;&#21024;&#38500;</span>
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#33539;&#20363;&#19977;&#65306;&#23558; /etc/passwd &#36716;&#25442;&#25104; dos &#25442;&#34892;&#21040; /root/passwd &#20013;&#65292;&#20877;&#23558; ^M &#31526;&#21495;&#21024;&#38500;</span>
 $ cp /etc/passwd ~/passwd &amp;&amp; unix2dos ~/passwd
 $ file /etc/passwd ~/passwd
 /etc/passwd: ASCII text
 /home/haoran/passwd: ASCII text, with CRLF line terminators   &lt;== &#23601;&#26159; DOS &#25442;&#34892;
 
-$ cat ~/passwd | tr -d <span style="color: #ffff87;">'\r'</span> &gt; ~/passwd.Linux
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">\r &#25351;&#30340;&#23601;&#26159; DES &#30340;&#25442;&#34892;&#31526;&#65292;&#20851;&#20110;&#26356;&#22810;&#30340;&#23383;&#31526;&#65292;&#35831;&#21442;&#32771; man tr</span>
+$ cat ~/passwd | tr -d <span style="color: #79740e;">'\r'</span> &gt; ~/passwd.Linux
+<span style="color: #a89984;"># </span><span style="color: #a89984;">\r &#25351;&#30340;&#23601;&#26159; DES &#30340;&#25442;&#34892;&#31526;&#65292;&#20851;&#20110;&#26356;&#22810;&#30340;&#23383;&#31526;&#65292;&#35831;&#21442;&#32771; man tr</span>
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orgcd61d29" class="outline-4">
-<h4 id="orgcd61d29">col 过滤控制字符<a id="org0087d40"></a></h4>
-<div class="outline-text-4" id="text-orgcd61d29">
-<pre class="example">
+<div id="outline-container-org70d0b05" class="outline-4">
+<h4 id="org70d0b05">col 过滤控制字符<a id="org1e043ec"></a></h4>
+<div class="outline-text-4" id="text-org70d0b05">
+<pre class="example" id="org058f43f">
 col [-xb]
 
 -x:  将 tab 键转换成对等的空格键
 </pre>
 
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#33539;&#20363;&#19968;&#65306;&#21033;&#29992; cat -A &#26174;&#31034;&#20986;&#25152;&#26377;&#29305;&#27530;&#25353;&#38190;&#65292;&#26368;&#21518;&#20197; col &#23558; [tab] &#36716;&#25104;&#31354;&#30333;</span>
+<pre class="src src-bash"><span style="color: #a89984;"># </span><span style="color: #a89984;">&#33539;&#20363;&#19968;&#65306;&#21033;&#29992; cat -A &#26174;&#31034;&#20986;&#25152;&#26377;&#29305;&#27530;&#25353;&#38190;&#65292;&#26368;&#21518;&#20197; col &#23558; [tab] &#36716;&#25104;&#31354;&#30333;</span>
 cat -A /etc/man_db.conf   &lt;== &#27492;&#26102;&#20250;&#30475;&#21040;&#24456;&#22810; ^I &#30340;&#31526;&#21495;&#65292;&#36825;&#23601;&#26159; [tab]
 cat /etc/man_db.conf | col -x | cat -A | mort
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#22914;&#27492;&#19968;&#26469;&#65292;[tab] &#25353;&#38190;&#23601;&#20250;&#34987;&#26367;&#20195;&#20026;&#31354;&#26684;&#38190;</span>
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#22914;&#27492;&#19968;&#26469;&#65292;[tab] &#25353;&#38190;&#23601;&#20250;&#34987;&#26367;&#20195;&#20026;&#31354;&#26684;&#38190;</span>
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orgf697684" class="outline-4">
-<h4 id="orgf697684">join 将文件中指定栏位内容相同的行连接起来<a id="org8e633e4"></a></h4>
-<div class="outline-text-4" id="text-orgf697684">
+<div id="outline-container-orgad458f2" class="outline-4">
+<h4 id="orgad458f2">join 将文件中指定栏位内容相同的行连接起来<a id="orgc0cc443"></a></h4>
+<div class="outline-text-4" id="text-orgad458f2">
 <p>
-将两个文件有相同数据的那一行加在一起。
+将两个文件有相同数据的那一行加在一起。<br>
 </p>
 
-<pre class="example">
+<pre class="example" id="orgec403ed">
 join [-ti12] file1 file2
 
 -t: join 默认以空格字符分隔数据，并且比对【第一个栏位】的数据，如果两个文件相同，则将两条数据连成一行，且第一个栏位放在第一个；
@@ -1366,7 +1391,7 @@ join [-ti12] file1 file2
 </pre>
 
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#33539;&#20363;&#19968;&#65306;&#29992; root &#30340;&#36523;&#20221;&#65292;&#23558; /etc/passwd &#19982; /etc/shadow &#30456;&#20851;&#25968;&#25454;&#25972;&#21512;&#25104;&#19968;&#26639;</span>
+<pre class="src src-bash"><span style="color: #a89984;"># </span><span style="color: #a89984;">&#33539;&#20363;&#19968;&#65306;&#29992; root &#30340;&#36523;&#20221;&#65292;&#23558; /etc/passwd &#19982; /etc/shadow &#30456;&#20851;&#25968;&#25454;&#25972;&#21512;&#25104;&#19968;&#26639;</span>
 $ head -n 3 /etc/passwd /etc/shadow
 ==&gt; /etc/passwd &lt;==
 root:x:0:0:root:/root:/bin/bash
@@ -1374,23 +1399,23 @@ bin:x:1:1:bin:/bin:/sbin/nologin
 daemon:x:2:2:daemon:/sbin:/sbin/nologin
 
 ==&gt; /etc/shadow &lt;==
-root:$<span style="color: #ffffff; font-weight: bold;">6</span>$<span style="color: #ffffff; font-weight: bold;">wtbCCce</span>/PxMeE5wm$<span style="color: #ffffff; font-weight: bold;">KE2IfSJr</span>...:16559:0:99999:7:::
+root:$<span style="color: #076678;">6</span>$<span style="color: #076678;">wtbCCce</span>/PxMeE5wm$<span style="color: #076678;">KE2IfSJr</span>...:16559:0:99999:7:::
 bin:*:16372:0:99999:7:::
 daemon:*:16372:0:99999:7:::
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#30001;&#36755;&#20986;&#30340;&#25968;&#25454;&#21487;&#20197;&#21457;&#29616;&#36825;&#20004;&#20010;&#25991;&#20214;&#30340;&#26368;&#24038;&#36793;&#23383;&#27573;&#37117;&#26159;&#30456;&#21516;&#24080;&#21495;&#65281;&#19988;&#20197; : &#20998;&#38548;</span>
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#30001;&#36755;&#20986;&#30340;&#25968;&#25454;&#21487;&#20197;&#21457;&#29616;&#36825;&#20004;&#20010;&#25991;&#20214;&#30340;&#26368;&#24038;&#36793;&#23383;&#27573;&#37117;&#26159;&#30456;&#21516;&#24080;&#21495;&#65281;&#19988;&#20197; : &#20998;&#38548;</span>
 
-$ join -t <span style="color: #ffff87;">':'</span> /etc/passwd /etc/shadow | head -n 3
-root:x:0:0:root:/root:/bin/bash:$<span style="color: #ffffff; font-weight: bold;">6</span>$<span style="color: #ffffff; font-weight: bold;">wtbCCce</span>/PxMeE5wm$<span style="color: #ffffff; font-weight: bold;">KE2IfSJr</span>...:16559:0:99999:7:::
+$ join -t <span style="color: #79740e;">':'</span> /etc/passwd /etc/shadow | head -n 3
+root:x:0:0:root:/root:/bin/bash:$<span style="color: #076678;">6</span>$<span style="color: #076678;">wtbCCce</span>/PxMeE5wm$<span style="color: #076678;">KE2IfSJr</span>...:16559:0:99999:7:::
 bin:x:1:1:bin:/bin:/sbin/nologin:*:16372:0:99999:7:::
 daemon:x:2:2:daemon:/sbin:/sbin/nologin:*:16372:0:99999:7:::
 
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#36890;&#36807;&#19978;&#38754;&#36825;&#20010;&#21160;&#20316;&#65292;&#25105;&#20204;&#21487;&#20197;&#23558;&#20004;&#20010;&#25991;&#20214;&#31532;&#19968;&#23383;&#27573;&#30456;&#21516;&#32773;&#25972;&#21512;&#25104;&#19968;&#21015;&#65281;</span>
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#31532;&#20108;&#20010;&#25991;&#20214;&#30340;&#30456;&#21516;&#23383;&#27573;&#24182;&#19981;&#20250;&#26174;&#31034;&#65288;&#22240;&#20026;&#24050;&#32463;&#22312;&#26368;&#24038;&#36793;&#30340;&#23383;&#27573;&#20986;&#29616;&#20102;&#21834;&#65281;&#65289;</span>
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#36890;&#36807;&#19978;&#38754;&#36825;&#20010;&#21160;&#20316;&#65292;&#25105;&#20204;&#21487;&#20197;&#23558;&#20004;&#20010;&#25991;&#20214;&#31532;&#19968;&#23383;&#27573;&#30456;&#21516;&#32773;&#25972;&#21512;&#25104;&#19968;&#21015;&#65281;</span>
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#31532;&#20108;&#20010;&#25991;&#20214;&#30340;&#30456;&#21516;&#23383;&#27573;&#24182;&#19981;&#20250;&#26174;&#31034;&#65288;&#22240;&#20026;&#24050;&#32463;&#22312;&#26368;&#24038;&#36793;&#30340;&#23383;&#27573;&#20986;&#29616;&#20102;&#21834;&#65281;&#65289;</span>
 </pre>
 </div>
 
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#33539;&#20363;&#20108;&#65306;&#25105;&#20204;&#30693;&#36947; /etc/passwd &#31532;&#22235;&#20010;&#23383;&#27573;&#26159; GID &#65292;&#37027;&#20010; GID &#35760;&#24405;&#22312; /etc/group &#24403;&#20013;&#30340;&#31532;&#19977;&#20010;&#23383;&#27573;&#65292;&#35831;&#38382;&#22914;&#20309;&#23558;&#20004;&#20010;&#25991;&#20214;&#25972;&#21512;&#65311;</span>
+<pre class="src src-bash"><span style="color: #a89984;"># </span><span style="color: #a89984;">&#33539;&#20363;&#20108;&#65306;&#25105;&#20204;&#30693;&#36947; /etc/passwd &#31532;&#22235;&#20010;&#23383;&#27573;&#26159; GID &#65292;&#37027;&#20010; GID &#35760;&#24405;&#22312; /etc/group &#24403;&#20013;&#30340;&#31532;&#19977;&#20010;&#23383;&#27573;&#65292;&#35831;&#38382;&#22914;&#20309;&#23558;&#20004;&#20010;&#25991;&#20214;&#25972;&#21512;&#65311;</span>
 $ head -n 3 /etc/passwd /etc/group
 ==&gt; /etc/passwd &lt;==
 root:x:0:0:root:/root:/bin/bash
@@ -1400,30 +1425,30 @@ daemon:x:2:2:daemon:/sbin:/sbin/nologin
 root:x:0:
 bin:x:1:
 daemon:x:2:
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#20174;&#19978;&#38754;&#21487;&#20197;&#30475;&#21040;&#65292;&#30830;&#23454;&#26377;&#30456;&#21516;&#30340;&#37096;&#20998;&#21908;&#65281;&#36214;&#32039;&#26469;&#25972;&#21512;&#19968;&#19979;&#65281;</span>
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#20174;&#19978;&#38754;&#21487;&#20197;&#30475;&#21040;&#65292;&#30830;&#23454;&#26377;&#30456;&#21516;&#30340;&#37096;&#20998;&#21908;&#65281;&#36214;&#32039;&#26469;&#25972;&#21512;&#19968;&#19979;&#65281;</span>
 
-$ join -t <span style="color: #ffff87;">':'</span> -1 4 /etc/passwd -2 3 /etc/group | head -n 3
+$ join -t <span style="color: #79740e;">':'</span> -1 4 /etc/passwd -2 3 /etc/group | head -n 3
 0:root:x:0:root:/root:/bin/bash:root:x:
 1:bin:x:1:bin:/bin:/sbin/nologin:bin:x:
 2:daemon:x:2:daemon:/sbin:/sbin/nologin:daemon:x:
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#21516;&#26679;&#30340;&#65292;&#30456;&#21516;&#30340;&#23383;&#27573;&#37096;&#20998;&#34987;&#31227;&#21160;&#21040;&#26368;&#21069;&#38754;&#20102;&#65281;&#25152;&#20197;&#31532;&#20108;&#20010;&#25991;&#20214;&#30340;&#20869;&#23481;&#23601;&#27809;&#20877;&#26174;&#31034;&#12290;</span>
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#35831;&#35835;&#32773;&#20204;&#37197;&#21512;&#19978;&#36848;&#26174;&#31034;&#20004;&#20010;&#25991;&#20214;&#30340;&#23454;&#38469;&#20869;&#23481;&#26469;&#27604;&#23545;&#65281;</span>
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#21516;&#26679;&#30340;&#65292;&#30456;&#21516;&#30340;&#23383;&#27573;&#37096;&#20998;&#34987;&#31227;&#21160;&#21040;&#26368;&#21069;&#38754;&#20102;&#65281;&#25152;&#20197;&#31532;&#20108;&#20010;&#25991;&#20214;&#30340;&#20869;&#23481;&#23601;&#27809;&#20877;&#26174;&#31034;&#12290;</span>
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#35831;&#35835;&#32773;&#20204;&#37197;&#21512;&#19978;&#36848;&#26174;&#31034;&#20004;&#20010;&#25991;&#20214;&#30340;&#23454;&#38469;&#20869;&#23481;&#26469;&#27604;&#23545;&#65281;</span>
 </pre>
 </div>
 
 <p>
-此外，需要特别注意的是，在使用 join 之前，你所需要处理的文件应该要事先经过排序（sort） 处理！ 否则有些比对的项目会被略过！ 
+此外，需要特别注意的是，在使用 join 之前，你所需要处理的文件应该要事先经过排序（sort） 处理！ 否则有些比对的项目会被略过！<br>
 </p>
 </div>
 </div>
-<div id="outline-container-org272769b" class="outline-4">
-<h4 id="org272769b">paste 合并文件的列<a id="orgb0f97c1"></a></h4>
-<div class="outline-text-4" id="text-org272769b">
+<div id="outline-container-orge933437" class="outline-4">
+<h4 id="orge933437">paste 合并文件的列<a id="org20cbfbd"></a></h4>
+<div class="outline-text-4" id="text-orge933437">
 <p>
-paste 命令要比 join 简单，相对于 join 必须要比对两个文件的数据相关性，paste 就直接将两行贴在一起，且中间以 [Tab] 键隔开。
+paste 命令要比 join 简单，相对于 join 必须要比对两个文件的数据相关性，paste 就直接将两行贴在一起，且中间以 [Tab] 键隔开。<br>
 </p>
 
-<pre class="example">
+<pre class="example" id="orgb7300d6">
 paste [-d] file1 file2
 
 -d: 后面可以接分隔字符，默认是以 [Tab] 来分割；
@@ -1433,33 +1458,33 @@ paste [-d] file1 file2
 <div class="org-src-container">
 <pre class="src src-bash">&#33539;&#20363;&#19968;&#65306;&#29992; root &#36523;&#20221;&#65292;&#23558; /etc/passwd &#19982; /etc/shadow &#21516;&#19968;&#34892;&#36148;&#22312;&#19968;&#36215;
 paste /etc/passwd /etc/shadow
-root:x:0:0:root:/root:/bin/bash root:$<span style="color: #ffffff; font-weight: bold;">6</span>$<span style="color: #ffffff; font-weight: bold;">wtbCCce</span>/PxMeE5wm$<span style="color: #ffffff; font-weight: bold;">KE2IfSJr</span>...:16559:0:99999:7:::
+root:x:0:0:root:/root:/bin/bash root:$<span style="color: #076678;">6</span>$<span style="color: #076678;">wtbCCce</span>/PxMeE5wm$<span style="color: #076678;">KE2IfSJr</span>...:16559:0:99999:7:::
 bin:x:1:1:bin:/bin:/sbin/nologin bin:*:16372:0:99999:7:::
 daemon:x:2:2:daemon:/sbin:/sbin/nologin daemon:*:16372:0:99999:7:::
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#27880;&#24847;&#21908;&#65281;&#21516;&#19968;&#34892;&#20013;&#38388;&#26159;&#20197; [tab] &#25353;&#38190;&#38548;&#24320;&#30340;&#65281;</span>
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#27880;&#24847;&#21908;&#65281;&#21516;&#19968;&#34892;&#20013;&#38388;&#26159;&#20197; [tab] &#25353;&#38190;&#38548;&#24320;&#30340;&#65281;</span>
 </pre>
 </div>
 
 <div class="org-src-container">
 <pre class="src src-bash">&#33539;&#20363;&#20108;&#65306;&#20808;&#23558; /etc/group &#35835;&#20986;&#65292;&#28982;&#21518;&#19982;&#33539;&#20363;&#19968;&#36148;&#19978;&#19968;&#36215;&#65292;&#19988;&#20165;&#21462;&#20986;&#21069;&#19977;&#34892;
 cat /etc/group | paste /etc/passwd /etc/shadow - | head -n 3
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#36825;&#20010;&#20363;&#23376;&#30340;&#37325;&#28857;&#22312;&#36825;&#20010; - &#30340;&#20351;&#29992;&#65292;&#37027;&#29609;&#24847;&#24120;&#24120;&#20195;&#34920; stdin</span>
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#36825;&#20010;&#20363;&#23376;&#30340;&#37325;&#28857;&#22312;&#36825;&#20010; - &#30340;&#20351;&#29992;&#65292;&#37027;&#29609;&#24847;&#24120;&#24120;&#20195;&#34920; stdin</span>
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org6c5907e" class="outline-4">
-<h4 id="org6c5907e">expand 制表符转换为空白字符<a id="orgf74d0c9"></a></h4>
-<div class="outline-text-4" id="text-org6c5907e">
-<pre class="example">
+<div id="outline-container-org73d3e42" class="outline-4">
+<h4 id="org73d3e42">expand 制表符转换为空白字符<a id="org08de929"></a></h4>
+<div class="outline-text-4" id="text-org73d3e42">
+<pre class="example" id="org1d6c8a5">
 expand [-t] file
 
 -t: 后面可接数字，一般来说一个 Tab 按键可以用 8 个空格键替换，我们也可以自行定义一个 [Tab] 按键代表多少个字符
 </pre>
 
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#33539;&#20363;&#19968;&#65306;&#23558; /etc/man_db.conf &#20869;&#34892;&#39318;&#20026; MANPATH &#30340;&#34892;&#21462;&#20986;&#65292;&#19988;&#20165;&#21462;&#21069;&#19977;&#34892;</span>
-$ grep <span style="color: #ffff87;">'^MANPATH'</span> /etc/man_db.conf | head -n 3
+<pre class="src src-bash"><span style="color: #a89984;"># </span><span style="color: #a89984;">&#33539;&#20363;&#19968;&#65306;&#23558; /etc/man_db.conf &#20869;&#34892;&#39318;&#20026; MANPATH &#30340;&#34892;&#21462;&#20986;&#65292;&#19988;&#20165;&#21462;&#21069;&#19977;&#34892;</span>
+$ grep <span style="color: #79740e;">'^MANPATH'</span> /etc/man_db.conf | head -n 3
 MANPATH_MAP /bin /usr/share/man
 MANPATH_MAP /usr/bin /usr/share/man
 MANPATH_MAP /sbin /usr/share/man
@@ -1468,17 +1493,17 @@ MANPATH_MAP /sbin /usr/share/man
 
 <div class="org-src-container">
 <pre class="src src-bash">&#33539;&#20363;&#20108;&#65306;&#25215;&#19978;&#65292;&#23558;&#25152;&#26377;&#30340;&#31526;&#21495;&#37117;&#21015;&#20986;&#26469;
-$ grep <span style="color: #ffff87;">'^MANPATH'</span> /etc/man_db.conf | head -n 3 | cat -A
+$ grep <span style="color: #79740e;">'^MANPATH'</span> /etc/man_db.conf | head -n 3 | cat -A
 MANPATH_MAP^I/bin^I^I^I/usr/share/man$
 MANPATH_MAP^I/usr/bin^I^I/usr/share/man$
 MANPATH_MAP^I/sbin^I^I^I/usr/share/man$
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#21457;&#29616;&#24046;&#21035;&#20102;&#21527;&#65311;&#27809;&#38169;&#65374; [tab] &#25353;&#38190;&#21487;&#20197;&#34987; cat -A &#26174;&#31034;&#25104;&#20026; ^I</span>
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#21457;&#29616;&#24046;&#21035;&#20102;&#21527;&#65311;&#27809;&#38169;&#65374; [tab] &#25353;&#38190;&#21487;&#20197;&#34987; cat -A &#26174;&#31034;&#25104;&#20026; ^I</span>
 </pre>
 </div>
 
 <div class="org-src-container">
 <pre class="src src-bash">&#33539;&#20363;&#19977;&#65306;&#25215;&#19978;&#65292;&#23558; [tab] &#25353;&#38190;&#35774;&#32622;&#25104; 6 &#20010;&#23383;&#31526;
-$ grep <span style="color: #ffff87;">'^MANPATH'</span> /etc/man_db.conf | head -n 3 | expand -t 6 - | cat -A
+$ grep <span style="color: #79740e;">'^MANPATH'</span> /etc/man_db.conf | head -n 3 | expand -t 6 - | cat -A
 MANPATH_MAP /bin /usr/share/man$
 MANPATH_MAP /usr/bin /usr/share/man$
 MANPATH_MAP /sbin /usr/share/man$
@@ -1488,10 +1513,10 @@ MANPATH_MAP /sbin /usr/share/man$
 </div>
 </div>
 </div>
-<div id="outline-container-orgb5923e7" class="outline-3">
-<h3 id="orgb5923e7">划分命令：split<a id="orgbdf61bf"></a></h3>
-<div class="outline-text-3" id="text-orgb5923e7">
-<pre class="example">
+<div id="outline-container-org4c25cc6" class="outline-3">
+<h3 id="org4c25cc6">划分命令：split<a id="org5d4f81e"></a></h3>
+<div class="outline-text-3" id="text-org4c25cc6">
+<pre class="example" id="org6ba3525">
 split [-bl] file PREFIX
 
 -b: 后面可接欲分区成的文件大小，可加单位，例如 b, k, m 等；
@@ -1500,46 +1525,46 @@ PREFIX: 代表前置字符的意思，可作为分区文件的前导文字。
 </pre>
 
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#33539;&#20363;&#19968;&#65306;/etc/services &#26377;&#20845;&#30334;&#22810;K&#65292;&#23558;&#23427;&#20998;&#25104; 300K &#19968;&#20010;&#25991;&#20214;&#26102;</span>
+<pre class="src src-bash"><span style="color: #a89984;"># </span><span style="color: #a89984;">&#33539;&#20363;&#19968;&#65306;/etc/services &#26377;&#20845;&#30334;&#22810;K&#65292;&#23558;&#23427;&#20998;&#25104; 300K &#19968;&#20010;&#25991;&#20214;&#26102;</span>
 $ cd /tmp; split -b 300k /etc/services services
 $ ll -k services*
 -rw-rw-r--. 1 haoran haoran 307200 Jul 9 22:52 servicesaa
 -rw-rw-r--. 1 haoran haoran 307200 Jul 9 22:52 servicesab
 -rw-rw-r--. 1 haoran haoran 55893 Jul 9 22:52 servicesac
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#37027;&#20010;&#25991;&#20214;&#21517;&#21487;&#20197;&#38543;&#24847;&#21462;&#65281;&#21482;&#35201;&#20889;&#19978;&#21069;&#23548;&#25991;&#23383;&#65292;&#23567;&#25991;&#20214;&#23601;&#20250;&#20197;</span>
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">xxxaa, xxxab, xxxac &#31561;&#26041;&#24335;&#26469;&#21019;&#24314;&#23567;&#25991;&#20214;&#30340;&#65281;</span>
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#37027;&#20010;&#25991;&#20214;&#21517;&#21487;&#20197;&#38543;&#24847;&#21462;&#65281;&#21482;&#35201;&#20889;&#19978;&#21069;&#23548;&#25991;&#23383;&#65292;&#23567;&#25991;&#20214;&#23601;&#20250;&#20197;</span>
+<span style="color: #a89984;"># </span><span style="color: #a89984;">xxxaa, xxxab, xxxac &#31561;&#26041;&#24335;&#26469;&#21019;&#24314;&#23567;&#25991;&#20214;&#30340;&#65281;</span>
 </pre>
 </div>
 
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#33539;&#20363;&#20108;&#65306;&#22914;&#20309;&#23558;&#19978;&#38754;&#30340;&#19977;&#20010;&#23567;&#25991;&#20214;&#21512;&#25104;&#19968;&#20010;&#25991;&#20214;&#65292;&#25991;&#20214;&#21517;&#20026; servicesback</span>
+<pre class="src src-bash"><span style="color: #a89984;"># </span><span style="color: #a89984;">&#33539;&#20363;&#20108;&#65306;&#22914;&#20309;&#23558;&#19978;&#38754;&#30340;&#19977;&#20010;&#23567;&#25991;&#20214;&#21512;&#25104;&#19968;&#20010;&#25991;&#20214;&#65292;&#25991;&#20214;&#21517;&#20026; servicesback</span>
 $ cat services* &gt;&gt; servicesback
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#24456;&#31616;&#21333;&#21543;&#65311;&#23601;&#29992;&#25968;&#25454;&#27969;&#37325;&#23548;&#21521;&#23601;&#22909;&#21862;&#65281;&#31616;&#21333;&#65281;</span>
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#24456;&#31616;&#21333;&#21543;&#65311;&#23601;&#29992;&#25968;&#25454;&#27969;&#37325;&#23548;&#21521;&#23601;&#22909;&#21862;&#65281;&#31616;&#21333;&#65281;</span>
 </pre>
 </div>
 
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#33539;&#20363;&#19977;&#65306;&#20351;&#29992; ls -al / &#36755;&#20986;&#30340;&#20449;&#24687;&#20013;&#65292;&#27599;&#21313;&#34892;&#35760;&#24405;&#25104;&#19968;&#20010;&#25991;&#20214;</span>
+<pre class="src src-bash"><span style="color: #a89984;"># </span><span style="color: #a89984;">&#33539;&#20363;&#19977;&#65306;&#20351;&#29992; ls -al / &#36755;&#20986;&#30340;&#20449;&#24687;&#20013;&#65292;&#27599;&#21313;&#34892;&#35760;&#24405;&#25104;&#19968;&#20010;&#25991;&#20214;</span>
 $ ls -al / | split -l 10 - lsroot
 $ wc -l lsroot*
 10 lsrootaa
 10 lsrootab
 4 lsrootac
 24 total
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#37325;&#28857;&#22312;&#37027;&#20010; - &#65281;&#19968;&#33324;&#26469;&#35828;&#65292;&#22914;&#26524;&#38656;&#35201; stdout/stdin &#26102;&#65292;&#20294;&#20559;&#20559;&#21448;&#27809;&#26377;&#25991;&#20214;&#65292;</span>
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#26377;&#30340;&#21482;&#26159; - &#26102;&#65292;&#37027;&#20040;&#37027;&#20010; - &#23601;&#20250;&#34987;&#24403;&#25104; stdin &#25110; stdout</span>
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#37325;&#28857;&#22312;&#37027;&#20010; - &#65281;&#19968;&#33324;&#26469;&#35828;&#65292;&#22914;&#26524;&#38656;&#35201; stdout/stdin &#26102;&#65292;&#20294;&#20559;&#20559;&#21448;&#27809;&#26377;&#25991;&#20214;&#65292;</span>
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#26377;&#30340;&#21482;&#26159; - &#26102;&#65292;&#37027;&#20040;&#37027;&#20010; - &#23601;&#20250;&#34987;&#24403;&#25104; stdin &#25110; stdout</span>
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org138e406" class="outline-3">
-<h3 id="org138e406">参数代换：xargs<a id="orgcfae8ba"></a></h3>
-<div class="outline-text-3" id="text-org138e406">
+<div id="outline-container-orgb855e3b" class="outline-3">
+<h3 id="orgb855e3b">参数代换：xargs<a id="orgd3b7405"></a></h3>
+<div class="outline-text-3" id="text-orgb855e3b">
 <p>
-xargs 是在做什么的呢？就以字面上的意义来看， x 是加减乘除的乘号，args 则是 arguments（参数）的意思，所以说，这个玩意儿就是在产生某个指令的参数的意思！xargs 可以读入 stdin 的数据，并且以空白字符或断行字符作为分辨，将 stdin 的数据分隔成为 arguments 。 因为是以空白字符作为分隔，所以，如果有一些文件名或者是其他意义的名词内含有空白字符的时候， xargs 可能就会误判了。
+xargs 是在做什么的呢？就以字面上的意义来看， x 是加减乘除的乘号，args 则是 arguments（参数）的意思，所以说，这个玩意儿就是在产生某个指令的参数的意思！xargs 可以读入 stdin 的数据，并且以空白字符或断行字符作为分辨，将 stdin 的数据分隔成为 arguments 。 因为是以空白字符作为分隔，所以，如果有一些文件名或者是其他意义的名词内含有空白字符的时候， xargs 可能就会误判了。<br>
 </p>
 
-<pre class="example">
+<pre class="example" id="orgc6e7286">
 xargs [-0epn] command
 
 -0: 如果输入的 stdin 含有特殊字符，例如 `, \, 空白键等等字符时，这个 -0 参数可以将他还原成一般字符。这个参数可以用于特殊状态喔！
@@ -1551,80 +1576,80 @@ xargs [-0epn] command
 </pre>
 
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#33539;&#20363;&#19968;&#65306;&#23558; /etc/passwd &#20869;&#30340;&#31532;&#19968;&#26639;&#21462;&#20986;&#65292;&#20165;&#21462;&#19977;&#34892;&#65292;&#20351;&#29992; id &#36825;&#20010;&#25351;&#20196;&#23558;&#27599;&#20010;&#24080;&#21495;&#20869;&#23481;&#31168;&#20986;&#26469;</span>
+<pre class="src src-bash"><span style="color: #a89984;"># </span><span style="color: #a89984;">&#33539;&#20363;&#19968;&#65306;&#23558; /etc/passwd &#20869;&#30340;&#31532;&#19968;&#26639;&#21462;&#20986;&#65292;&#20165;&#21462;&#19977;&#34892;&#65292;&#20351;&#29992; id &#36825;&#20010;&#25351;&#20196;&#23558;&#27599;&#20010;&#24080;&#21495;&#20869;&#23481;&#31168;&#20986;&#26469;</span>
 $ id root
-<span style="color: #ffffff; font-weight: bold;">uid</span>=0(root) <span style="color: #ffffff; font-weight: bold;">gid</span>=0(root) <span style="color: #ffffff; font-weight: bold;">groups</span>=0(root) <span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#36825;&#20010; id &#25351;&#20196;&#21487;&#20197;&#26597;&#35810;&#20351;&#29992;&#32773;&#30340; UID/GID &#31561;&#20449;&#24687;</span>
+<span style="color: #076678;">uid</span>=0(root) <span style="color: #076678;">gid</span>=0(root) <span style="color: #076678;">groups</span>=0(root) <span style="color: #a89984;"># </span><span style="color: #a89984;">&#36825;&#20010; id &#25351;&#20196;&#21487;&#20197;&#26597;&#35810;&#20351;&#29992;&#32773;&#30340; UID/GID &#31561;&#20449;&#24687;</span>
 
-$ id $(cut -d <span style="color: #ffff87;">':'</span> -f 1 /etc/passwd | head -n 3)
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#34429;&#28982;&#20351;&#29992; $(cmd) &#21487;&#20197;&#39044;&#20808;&#21462;&#24471;&#21442;&#25968;&#65292;&#20294;&#21487;&#24796;&#30340;&#26159;&#65292;id &#36825;&#20010;&#25351;&#20196;&#8220;&#20165;&#8221;&#33021;&#25509;&#21463;&#19968;&#20010;&#21442;&#25968;&#32780;&#24050;&#65281;</span>
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#25152;&#20197;&#19978;&#36848;&#30340;&#36825;&#20010;&#25351;&#20196;&#25191;&#34892;&#20250;&#20986;&#29616;&#38169;&#35823;&#65281;&#26681;&#26412;&#19981;&#20250;&#26174;&#31034;&#29992;&#25143;&#30340; ID &#21834;&#65281;</span>
+$ id $(cut -d <span style="color: #79740e;">':'</span> -f 1 /etc/passwd | head -n 3)
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#34429;&#28982;&#20351;&#29992; $(cmd) &#21487;&#20197;&#39044;&#20808;&#21462;&#24471;&#21442;&#25968;&#65292;&#20294;&#21487;&#24796;&#30340;&#26159;&#65292;id &#36825;&#20010;&#25351;&#20196;&#8220;&#20165;&#8221;&#33021;&#25509;&#21463;&#19968;&#20010;&#21442;&#25968;&#32780;&#24050;&#65281;</span>
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#25152;&#20197;&#19978;&#36848;&#30340;&#36825;&#20010;&#25351;&#20196;&#25191;&#34892;&#20250;&#20986;&#29616;&#38169;&#35823;&#65281;&#26681;&#26412;&#19981;&#20250;&#26174;&#31034;&#29992;&#25143;&#30340; ID &#21834;&#65281;</span>
 
-$ cut -d <span style="color: #ffff87;">':'</span> -f 1 /etc/passwd | head -n 3 | id
-<span style="color: #ffffff; font-weight: bold;">uid</span>=1000(dmtsai) <span style="color: #ffffff; font-weight: bold;">gid</span>=1000(dmtsai) <span style="color: #ffffff; font-weight: bold;">groups</span>=1000(dmtsai),10(wheel) <span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#25105;&#19981;&#26159;&#35201;&#26597;&#33258;&#24049;&#21834;&#65281;</span>
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#22240;&#20026; id &#24182;&#19981;&#26159;&#31649;&#32447;&#21629;&#20196;&#65292;&#22240;&#27492;&#22312;&#19978;&#38754;&#36825;&#20010;&#25351;&#20196;&#25191;&#34892;&#21518;&#65292;&#21069;&#38754;&#30340;&#19996;&#35199;&#36890;&#36890;&#19981;&#35265;&#65281;&#21482;&#20250;&#25191;&#34892; id&#65281;</span>
+$ cut -d <span style="color: #79740e;">':'</span> -f 1 /etc/passwd | head -n 3 | id
+<span style="color: #076678;">uid</span>=1000(dmtsai) <span style="color: #076678;">gid</span>=1000(dmtsai) <span style="color: #076678;">groups</span>=1000(dmtsai),10(wheel) <span style="color: #a89984;"># </span><span style="color: #a89984;">&#25105;&#19981;&#26159;&#35201;&#26597;&#33258;&#24049;&#21834;&#65281;</span>
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#22240;&#20026; id &#24182;&#19981;&#26159;&#31649;&#32447;&#21629;&#20196;&#65292;&#22240;&#27492;&#22312;&#19978;&#38754;&#36825;&#20010;&#25351;&#20196;&#25191;&#34892;&#21518;&#65292;&#21069;&#38754;&#30340;&#19996;&#35199;&#36890;&#36890;&#19981;&#35265;&#65281;&#21482;&#20250;&#25191;&#34892; id&#65281;</span>
 
-$ cut -d <span style="color: #ffff87;">':'</span> -f 1 /etc/passwd | head -n 3 | xargs id
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#20381;&#26087;&#20250;&#20986;&#29616;&#38169;&#35823;&#65281;&#36825;&#26159;&#22240;&#20026; xargs &#19968;&#21475;&#27668;&#23558;&#20840;&#37096;&#30340;&#25968;&#25454;&#36890;&#36890;&#20002;&#32473; id &#22788;&#29702;&#65374;&#20294; id &#23601;&#25509;&#21463; 1 &#20010;&#21834;&#26368;&#22810;&#65281;</span>
+$ cut -d <span style="color: #79740e;">':'</span> -f 1 /etc/passwd | head -n 3 | xargs id
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#20381;&#26087;&#20250;&#20986;&#29616;&#38169;&#35823;&#65281;&#36825;&#26159;&#22240;&#20026; xargs &#19968;&#21475;&#27668;&#23558;&#20840;&#37096;&#30340;&#25968;&#25454;&#36890;&#36890;&#20002;&#32473; id &#22788;&#29702;&#65374;&#20294; id &#23601;&#25509;&#21463; 1 &#20010;&#21834;&#26368;&#22810;&#65281;</span>
 
-$ cut -d <span style="color: #ffff87;">':'</span> -f 1 /etc/passwd | head -n 3 | xargs -n 1 id
-<span style="color: #ffffff; font-weight: bold;">uid</span>=0(root) <span style="color: #ffffff; font-weight: bold;">gid</span>=0(root) <span style="color: #ffffff; font-weight: bold;">groups</span>=0(root)
-<span style="color: #ffffff; font-weight: bold;">uid</span>=1(bin) <span style="color: #ffffff; font-weight: bold;">gid</span>=1(bin) <span style="color: #ffffff; font-weight: bold;">groups</span>=1(bin)
-<span style="color: #ffffff; font-weight: bold;">uid</span>=2(daemon) <span style="color: #ffffff; font-weight: bold;">gid</span>=2(daemon) <span style="color: #ffffff; font-weight: bold;">groups</span>=2(daemon)
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#36890;&#36807; -n &#26469;&#22788;&#29702;&#65292;&#19968;&#27425;&#32473;&#20104;&#19968;&#20010;&#21442;&#25968;&#65292;&#22240;&#27492;&#19978;&#36848;&#30340;&#32467;&#26524;&#23601; OK &#27491;&#24120;&#30340;&#26174;&#31034;&#65281;</span>
+$ cut -d <span style="color: #79740e;">':'</span> -f 1 /etc/passwd | head -n 3 | xargs -n 1 id
+<span style="color: #076678;">uid</span>=0(root) <span style="color: #076678;">gid</span>=0(root) <span style="color: #076678;">groups</span>=0(root)
+<span style="color: #076678;">uid</span>=1(bin) <span style="color: #076678;">gid</span>=1(bin) <span style="color: #076678;">groups</span>=1(bin)
+<span style="color: #076678;">uid</span>=2(daemon) <span style="color: #076678;">gid</span>=2(daemon) <span style="color: #076678;">groups</span>=2(daemon)
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#36890;&#36807; -n &#26469;&#22788;&#29702;&#65292;&#19968;&#27425;&#32473;&#20104;&#19968;&#20010;&#21442;&#25968;&#65292;&#22240;&#27492;&#19978;&#36848;&#30340;&#32467;&#26524;&#23601; OK &#27491;&#24120;&#30340;&#26174;&#31034;&#65281;</span>
 </pre>
 </div>
 
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#33539;&#20363;&#20108;&#65306;&#21516;&#19978;&#65292;&#20294;&#26159;&#27599;&#27425;&#25191;&#34892; id &#26102;&#65292;&#37117;&#35201;&#35810;&#38382;&#20351;&#29992;&#32773;&#26159;&#21542;&#21160;&#20316;&#65311;</span>
-$ cut -d <span style="color: #ffff87;">':'</span> -f 1 /etc/passwd | head -n 3 | xargs -p -n 1 id
+<pre class="src src-bash"><span style="color: #a89984;"># </span><span style="color: #a89984;">&#33539;&#20363;&#20108;&#65306;&#21516;&#19978;&#65292;&#20294;&#26159;&#27599;&#27425;&#25191;&#34892; id &#26102;&#65292;&#37117;&#35201;&#35810;&#38382;&#20351;&#29992;&#32773;&#26159;&#21542;&#21160;&#20316;&#65311;</span>
+$ cut -d <span style="color: #79740e;">':'</span> -f 1 /etc/passwd | head -n 3 | xargs -p -n 1 id
 id root ?...y
-<span style="color: #ffffff; font-weight: bold;">uid</span>=0(root) <span style="color: #ffffff; font-weight: bold;">gid</span>=0(root) <span style="color: #ffffff; font-weight: bold;">groups</span>=0(root)
+<span style="color: #076678;">uid</span>=0(root) <span style="color: #076678;">gid</span>=0(root) <span style="color: #076678;">groups</span>=0(root)
 id bin ?...y
-<span style="color: #5fff87; font-weight: bold;">.....</span>(&#19979;&#38754;&#30465;&#30053;).....
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#36825;&#20010; -p &#30340;&#36873;&#39033;&#21487;&#20197;&#35753;&#20351;&#29992;&#32773;&#30340;&#20351;&#29992;&#36807;&#31243;&#20013;&#65292;&#34987;&#35810;&#38382;&#21040;&#27599;&#20010;&#25351;&#20196;&#26159;&#21542;&#25191;&#34892;&#65281;</span>
+<span style="color: #b57614;">.....</span>(&#19979;&#38754;&#30465;&#30053;).....
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#36825;&#20010; -p &#30340;&#36873;&#39033;&#21487;&#20197;&#35753;&#20351;&#29992;&#32773;&#30340;&#20351;&#29992;&#36807;&#31243;&#20013;&#65292;&#34987;&#35810;&#38382;&#21040;&#27599;&#20010;&#25351;&#20196;&#26159;&#21542;&#25191;&#34892;&#65281;</span>
 </pre>
 </div>
 
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#33539;&#20363;&#19977;&#65306;&#23558;&#25152;&#26377;&#30340; /etc/passwd &#20869;&#30340;&#24080;&#21495;&#37117;&#20197; id &#26597;&#38405;&#65292;&#20294;&#26597;&#21040; sync &#23601;&#32467;&#26463;&#25351;&#20196;&#20018;</span>
-$ cut -d <span style="color: #ffff87;">':'</span> -f 1 /etc/passwd | xargs -e<span style="color: #ffff87;">'sync'</span> -n 1 id
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#20180;&#32454;&#19982;&#19978;&#38754;&#30340;&#26696;&#20363;&#20570;&#27604;&#36739;&#12290;&#20063;&#21516;&#26102;&#27880;&#24847;&#65292;&#37027;&#20010; -e'sync' &#26159;&#36830;&#22312;&#19968;&#36215;&#30340;&#65292;&#20013;&#38388;&#27809;&#26377;&#31354;&#30333;&#38190;&#12290;</span>
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#19978;&#20010;&#20363;&#23376;&#24403;&#20013;&#65292;&#31532;&#20845;&#20010;&#21442;&#25968;&#26159; sync &#21834;&#65292;&#37027;&#20040;&#25105;&#20204;&#19979;&#36798; -e'sync' &#21518;&#65292;&#21017;&#20998;&#26512;&#21040; sync &#36825;&#20010;&#23383;&#20018;&#26102;&#65292;</span>
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#21518;&#38754;&#30340;&#20854;&#20182; stdin &#30340;&#20869;&#23481;&#23601;&#20250;&#34987; xargs &#33293;&#24323;&#25481;&#20102;&#65281;</span>
+<pre class="src src-bash"><span style="color: #a89984;"># </span><span style="color: #a89984;">&#33539;&#20363;&#19977;&#65306;&#23558;&#25152;&#26377;&#30340; /etc/passwd &#20869;&#30340;&#24080;&#21495;&#37117;&#20197; id &#26597;&#38405;&#65292;&#20294;&#26597;&#21040; sync &#23601;&#32467;&#26463;&#25351;&#20196;&#20018;</span>
+$ cut -d <span style="color: #79740e;">':'</span> -f 1 /etc/passwd | xargs -e<span style="color: #79740e;">'sync'</span> -n 1 id
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#20180;&#32454;&#19982;&#19978;&#38754;&#30340;&#26696;&#20363;&#20570;&#27604;&#36739;&#12290;&#20063;&#21516;&#26102;&#27880;&#24847;&#65292;&#37027;&#20010; -e'sync' &#26159;&#36830;&#22312;&#19968;&#36215;&#30340;&#65292;&#20013;&#38388;&#27809;&#26377;&#31354;&#30333;&#38190;&#12290;</span>
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#19978;&#20010;&#20363;&#23376;&#24403;&#20013;&#65292;&#31532;&#20845;&#20010;&#21442;&#25968;&#26159; sync &#21834;&#65292;&#37027;&#20040;&#25105;&#20204;&#19979;&#36798; -e'sync' &#21518;&#65292;&#21017;&#20998;&#26512;&#21040; sync &#36825;&#20010;&#23383;&#20018;&#26102;&#65292;</span>
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#21518;&#38754;&#30340;&#20854;&#20182; stdin &#30340;&#20869;&#23481;&#23601;&#20250;&#34987; xargs &#33293;&#24323;&#25481;&#20102;&#65281;</span>
 </pre>
 </div>
 
 <p>
-其实，在 man xargs 里面就有三四个小范例，您可以自行参考一下内容。 此外， xargs 真的是很好用的一个玩意儿！您真的需要好好的参详参详！会使用 xargs 的原因是， 很多指令其实并不支持管线命令，因此我们可以通过 xargs 来提供该指令引用 standard input 之用！举例来说，我们使用如下的范例来说明：
+其实，在 man xargs 里面就有三四个小范例，您可以自行参考一下内容。 此外， xargs 真的是很好用的一个玩意儿！您真的需要好好的参详参详！会使用 xargs 的原因是， 很多指令其实并不支持管线命令，因此我们可以通过 xargs 来提供该指令引用 standard input 之用！举例来说，我们使用如下的范例来说明：<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#33539;&#20363;&#22235;&#65306;&#25214;&#20986; /usr/sbin &#19979;&#38754;&#20855;&#26377;&#29305;&#27530;&#26435;&#38480;&#30340;&#25991;&#20214;&#21517;&#65292;&#24182;&#20351;&#29992; ls -l &#21015;&#20986;&#35814;&#32454;&#23646;&#24615;</span>
+<pre class="src src-bash"><span style="color: #a89984;"># </span><span style="color: #a89984;">&#33539;&#20363;&#22235;&#65306;&#25214;&#20986; /usr/sbin &#19979;&#38754;&#20855;&#26377;&#29305;&#27530;&#26435;&#38480;&#30340;&#25991;&#20214;&#21517;&#65292;&#24182;&#20351;&#29992; ls -l &#21015;&#20986;&#35814;&#32454;&#23646;&#24615;</span>
 $ find /usr/sbin -perm /7000 | xargs ls -l
 -rwx--s--x. 1 root lock 11208 Jun 10 2014 /usr/sbin/lockdev
 -rwsr-xr-x. 1 root root 113400 Mar 6 12:17 /usr/sbin/mount.nfs
 -rwxr-sr-x. 1 root root 11208 Mar 6 11:05 /usr/sbin/netreport
 .....&#65288;&#19979;&#38754;&#30465;&#30053;&#65289;.....
-<span style="color: #5f5faf;"># </span><span style="color: #5f5faf;">&#25110;&#32773; ls -l $(find /usr/sbin -perm /7000)</span>
+<span style="color: #a89984;"># </span><span style="color: #a89984;">&#25110;&#32773; ls -l $(find /usr/sbin -perm /7000)</span>
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org0e46156" class="outline-3">
-<h3 id="org0e46156">关于减号【-】的用途</h3>
-<div class="outline-text-3" id="text-org0e46156">
+<div id="outline-container-orgcacd650" class="outline-3">
+<h3 id="orgcacd650">关于减号【-】的用途</h3>
+<div class="outline-text-3" id="text-orgcacd650">
 <p>
-管道命令在 bash 的连续的处理程序中是相当重要的！另外，在日志的分析当中也是相当重要的一环， 所以请特别留意！另外，在管道命令当中，常常会使用到前一个指令的 stdout 作为这次的 stdin ， 某些指令需要用到文件名称 （例如 tar） 来进行处理时，该 stdin 与 stdout 可以利用减号 "-" 来替代， 举例来说：
+管道命令在 bash 的连续的处理程序中是相当重要的！另外，在日志的分析当中也是相当重要的一环， 所以请特别留意！另外，在管道命令当中，常常会使用到前一个指令的 stdout 作为这次的 stdin ， 某些指令需要用到文件名称 （例如 tar） 来进行处理时，该 stdin 与 stdout 可以利用减号 "-" 来替代， 举例来说：<br>
 </p>
 
 <div class="org-src-container">
 <pre class="src src-bash">$ mkdir /tmp/homeback
-$ tar -cvf - /home &amp;<span style="color: #5f5faf;">#</span><span style="color: #5f5faf;">124; tar -xvf - -C /tmp/homeback</span>
+$ tar -cvf - /home &amp;<span style="color: #a89984;">#</span><span style="color: #a89984;">124; tar -xvf - -C /tmp/homeback</span>
 </pre>
 </div>
 
 <p>
-上面这个例子是说：将 /home 里面的文件给他打包，但打包的数据不是纪录到文件，而是传送到 stdout； 经过管线后，将 tar -cvf - /home 传送给后面的 tar -xvf - 。后面的这个 - 则是取用前一个指令的 stdout， 因此，我们就不需要使用 filename 了！这是很常见的例子！注意注意！
+上面这个例子是说：将 /home 里面的文件给他打包，但打包的数据不是纪录到文件，而是传送到 stdout； 经过管线后，将 tar -cvf - /home 传送给后面的 tar -xvf - 。后面的这个 - 则是取用前一个指令的 stdout， 因此，我们就不需要使用 filename 了！这是很常见的例子！注意注意！<br>
 </p>
 </div>
 </div>
@@ -1632,8 +1657,8 @@ $ tar -cvf - /home &amp;<span style="color: #5f5faf;">#</span><span style="color
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-07-12 二 02:55</p>
-<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+<p class="date">Created: 2023-02-01</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>

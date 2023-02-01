@@ -4,7 +4,6 @@ import './darkreader.min.js';
 import {
 	isPageHome,
 	isCurPage,
-	browserRedirect,
 	scrollToTop,
 	addPostambleLists,
 } from './utils.js';
@@ -28,11 +27,6 @@ $(function () {
 
 	$('#toggle-theme-dark-light').click(toggleColor);
 });
-
-// Init global variables
-// ------------------------------------------------------------------
-// const isPC = browserRedirect() === 'PC';
-// const isMB = !isPC;
 
 // Resolve current theme color
 // ------------------------------------------------------------------
@@ -147,7 +141,6 @@ if (isPageHome()) {
 		$('#table-of-contents').css('display', 'none');
 	$('#nav-btn').css('display', 'none');
 	$('#top-btn').css('display', 'none');
-	// $('#label-postamble-menu').css('display', 'none');
 }
 
 // NAVIGATIONS PAGE
@@ -157,28 +150,6 @@ if (isCurPage('Navigation')) {
 	$('td a').each(function (idx, item) {
 		$(this).attr('target', '_blank');
 	});
-	// if (isMB) {
-	//     $('table').hide();
-	//     $('<div class="js-nav-link-container"></div>').insertAfter($('.title'));
-	//     $('td a').each(function (idx, item) {
-	//         $(this).attr('target', '_blank');
-	//         $('.js-nav-link-container').append(item);
-	//     });
-	//     $('.org-ul a').each(function () {
-	//         $(this).attr('target', '_blank');
-	//     });
-
-	//     let NL = $('.js-nav-link-container a');
-	//     let _len = NL.length,
-	//         _remainder = 0;
-
-	//     _remainder = _len % 5;
-	//     if (_remainder == 0) _remainder = 5;
-
-	//     for (let i = 0; i < 5 - _remainder; i++) {
-	//         $('.js-nav-link-container').append('<a></a>');
-	//     }
-	// }
 }
 
 // Link PAGE

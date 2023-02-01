@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2023-01-22 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SHELL-字符串操作</title>
+<meta name="author" content="Haoran Liu" />
+<meta name="description" content="Copyright © 2023, Haoran Liu, all rights reserved." />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="static/css/org.css"/>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">SHELL-字符串操作</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#orgadd786b">字符串拼接</a></li>
+<li><a href="#orgb5fc0d7">字符串长度</a></li>
+<li><a href="#orgd36f9af">提取子字符串</a></li>
+<li><a href="#org49476fc">查找子字符串</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgadd786b" class="outline-2">
+<h2 id="orgadd786b">字符串拼接</h2>
+<div class="outline-text-2" id="text-orgadd786b">
+<div class="org-src-container">
+<pre class="src src-shell"><span style="color: #faf4c6;">your_name</span>=<span style="color: #87875f;">"Alice"</span>
+<span style="color: #686858;"># </span><span style="color: #686858;">&#20351;&#29992;&#21452;&#24341;&#21495;&#25340;&#25509;</span>
+<span style="color: #faf4c6;">greeting_0</span>=<span style="color: #87875f;">"hello, "</span>$<span style="color: #faf4c6;">your_name</span><span style="color: #87875f;">" !"</span>
+<span style="color: #faf4c6;">greeting_1</span>=<span style="color: #87875f;">"hello, ${your_name} !"</span>
+<span style="color: #87AFD7;">echo</span> $<span style="color: #faf4c6;">greeting_0</span>  $<span style="color: #faf4c6;">greeting_1</span>
+
+<span style="color: #686858;"># </span><span style="color: #686858;">&#20351;&#29992;&#21333;&#24341;&#21495;&#25340;&#25509;</span>
+<span style="color: #faf4c6;">greeting_2</span>=<span style="color: #87875f;">'hello, '</span>$<span style="color: #faf4c6;">your_name</span><span style="color: #87875f;">' !'</span>
+<span style="color: #faf4c6;">greeting_3</span>=<span style="color: #87875f;">'hello, ${your_name} !'</span>
+<span style="color: #87AFD7;">echo</span> $<span style="color: #faf4c6;">greeting_2</span>  $<span style="color: #faf4c6;">greeting_3</span>
+</pre>
+</div>
+
+<p>
+输出结果为：<br>
+</p>
+
+<pre class="example" id="org40c04f0">
+hello, Alice ! hello, Alice !
+hello, Alice ! hello, ${your_name} !
+</pre>
+</div>
+</div>
+<div id="outline-container-orgb5fc0d7" class="outline-2">
+<h2 id="orgb5fc0d7">字符串长度</h2>
+<div class="outline-text-2" id="text-orgb5fc0d7">
+<div class="org-src-container">
+<pre class="src src-shell"><span style="color: #faf4c6;">string</span>=<span style="color: #87875f;">"abcd"</span>
+<span style="color: #87AFD7;">echo</span> ${#<span style="color: #faf4c6;">string</span>}   <span style="color: #686858;"># </span><span style="color: #686858;">&#36755;&#20986; 4</span>
+</pre>
+</div>
+
+<p>
+变量为数组时， <code>${#string}</code> 等价于 <code>${#string[0]}</code> ：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell"><span style="color: #faf4c6;">string</span>=<span style="color: #87875f;">"abcd"</span>
+<span style="color: #87AFD7;">echo</span> ${#<span style="color: #faf4c6;">string</span>[0]}   <span style="color: #686858;"># </span><span style="color: #686858;">&#36755;&#20986; 4</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgd36f9af" class="outline-2">
+<h2 id="orgd36f9af">提取子字符串</h2>
+<div class="outline-text-2" id="text-orgd36f9af">
+<div class="org-src-container">
+<pre class="src src-shell"><span style="color: #faf4c6;">string</span>=<span style="color: #87875f;">"I love you! And I will marry you!"</span>
+<span style="color: #87AFD7;">echo</span> ${<span style="color: #faf4c6;">string</span>:2:5}   <span style="color: #686858;"># </span><span style="color: #686858;">&#36755;&#20986; love</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org49476fc" class="outline-2">
+<h2 id="org49476fc">查找子字符串</h2>
+<div class="outline-text-2" id="text-org49476fc">
+<p>
+查找字符 i 或 o 的位置（哪个字母先出现就计算哪个）<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell"><span style="color: #faf4c6;">string</span>=<span style="color: #87875f;">"Talk is cheap, show me the code."</span>
+<span style="color: #87AFD7;">echo</span> <span style="color: #719611; font-weight: bold;">`expr index "$string" io`</span>   <span style="color: #686858;"># </span><span style="color: #686858;">&#36755;&#20986; 5</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2023-01-22 22:01 Sun</p>
+<p class="author">Author: Haoran Liu</p>
+<p class="date">Created: 2023-01-22</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

@@ -1,18 +1,16 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-06-23 Thu 00:51 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 2023-02-06 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>正则表达式与文件格式化处理</title>
-<meta name="generator" content="Org mode">
-<meta name="author" content="L.M.haoran">
-<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
->
-
-                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
-                <script type="module" src="static/js/main.js" defer></script>
-                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<meta name="author" content="L.M.haoran" />
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved." />
+<meta name="generator" content="Org Mode" />
+<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+           <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+           <script type="module" src="static/js/main.js" defer></script>
 <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
         displayAlign: "center",
@@ -33,66 +31,58 @@
              }
 });
 </script>
-<script type="text/javascript"
-        src="static/MathJax/MathJax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="static/MathJax/cdn.bootcdn.net/ajax/libs/mathjax/3.1.2/es5/tex-mml-chtml.min.js"></script>
 </head>
 <body>
-<div id="content">
+<div id="content" class="content">
 <h1 class="title">正则表达式与文件格式化处理</h1>
-<div id="table-of-contents">
+<div id="table-of-contents" role="doc-toc">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents">
+<div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orgc44dea8">基础正则表达式</a>
+<li><a href="#org8e76693">基础正则表达式</a>
 <ul>
-<li><a href="#orgbb450f2">语系对正则表达式的影响</a></li>
-<li><a href="#org5cd22fc">grep 的一些高级选项</a></li>
-<li><a href="#org853c633">基础正则表达式练习</a>
+<li><a href="#org6a8f738">语系对正则表达式的影响</a></li>
+<li><a href="#org4a5d595">grep 的一些高级选项</a></li>
+<li><a href="#orgfadb285">基础正则表达式练习</a>
 <ul>
-<li><a href="#org68bfc81">1. 查找特定字符串</a></li>
-<li><a href="#org828897a">2. 利用中括号 [] 来查找集合字符</a></li>
-<li><a href="#orge9f40cb">3. 行首与行尾字符 ^ $</a></li>
-<li><a href="#org185e79a">4. 任意一个字符 . 与重复字符 *</a></li>
-<li><a href="#orgc39cf73">5. 限定连续 RE 字符范围 {}</a></li>
+<li><a href="#org4d8dd37">1. 查找特定字符串</a></li>
+<li><a href="#org10fe914">2. 利用中括号 [] 来查找集合字符</a></li>
+<li><a href="#orgc2c8b6d">3. 行首与行尾字符 ^ $</a></li>
+<li><a href="#orgcb1e6c0">4. 任意一个字符 . 与重复字符 *</a></li>
+<li><a href="#org6f7c2a4">5. 限定连续 RE 字符范围 {}</a></li>
 </ul>
 </li>
-<li><a href="#org6712d79">基础正则表达式字符集合（characters）</a></li>
-<li><a href="#org9039b6b">sed 工具</a>
-<ul>
-<li><a href="#org8da3bc5">以行为单位的新增/删除功能</a></li>
-<li><a href="#orgbafee44">以行为单位的替换与显示功能</a></li>
-<li><a href="#orgff9fbaa">部分数据的查找并替换的功能</a></li>
-<li><a href="#org4431718">直接修改文件</a></li>
+<li><a href="#orgbffae0a">基础正则表达式字符集合（characters）</a></li>
+<li><a href="#org930b2b5">sed 工具</a></li>
 </ul>
 </li>
+<li><a href="#orge6943bf">扩展正则表达式</a></li>
+<li><a href="#org15cfea5">文件的格式化与相关处理</a>
+<ul>
+<li><a href="#org4f3e5be">格式化打印：printf</a></li>
+<li><a href="#orgfd27af5">好用的数据处理工具：awk</a></li>
+<li><a href="#org904f645">文件比对工具：diff、cmp、patch</a>
+<ul>
+<li><a href="#org39feeb6">比较文件的差异（逐行）：diff</a></li>
+<li><a href="#org2dfef41">比较文件的差异（逐字节）：cmp</a></li>
+<li><a href="#org0fbc0d4">修补文件：patch</a></li>
 </ul>
 </li>
-<li><a href="#org4adc25a">扩展正则表达式</a></li>
-<li><a href="#orgfb7651b">文件的格式化与相关处理</a>
-<ul>
-<li><a href="#orga51aa2b">格式化打印：printf</a></li>
-<li><a href="#org8becc4c">好用的数据处理工具：awk</a></li>
-<li><a href="#orgcaad59d">文件比对工具：diff、cmp、patch</a>
-<ul>
-<li><a href="#orgdcee248">比较文件的差异（逐行）：diff</a></li>
-<li><a href="#orgc05f782">比较文件的差异（逐字节）：cmp</a></li>
-<li><a href="#org236f6d9">修补文件：patch</a></li>
-</ul>
-</li>
-<li><a href="#org51b4d57">文件打印设置：pr</a></li>
+<li><a href="#orgdc7e787">文件打印设置：pr</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgc44dea8" class="outline-2">
-<h2 id="orgc44dea8">基础正则表达式</h2>
-<div class="outline-text-2" id="text-orgc44dea8">
+<div id="outline-container-org8e76693" class="outline-2">
+<h2 id="org8e76693">基础正则表达式</h2>
+<div class="outline-text-2" id="text-org8e76693">
 </div>
-<div id="outline-container-orgbb450f2" class="outline-3">
-<h3 id="orgbb450f2">语系对正则表达式的影响</h3>
-<div class="outline-text-3" id="text-orgbb450f2">
+<div id="outline-container-org6a8f738" class="outline-3">
+<h3 id="org6a8f738">语系对正则表达式的影响</h3>
+<div class="outline-text-3" id="text-org6a8f738">
 <p>
 语系的数据会影响正则表达式的输出结果，一般建议使用【LANG=C】这个语系进行。<br>
 </p>
@@ -179,14 +169,14 @@
 </table>
 </div>
 </div>
-<div id="outline-container-org5cd22fc" class="outline-3">
-<h3 id="org5cd22fc">grep 的一些高级选项<a id="orgcb719d8"></a></h3>
-<div class="outline-text-3" id="text-org5cd22fc">
+<div id="outline-container-org4a5d595" class="outline-3">
+<h3 id="org4a5d595">grep 的一些高级选项<a id="org25964c4"></a></h3>
+<div class="outline-text-3" id="text-org4a5d595">
 <p>
-<a href="Linux-bash.html#org4b66a3b">grep的基础用法</a><br>
+<a href="Linux-bash.html#org5e616fb">grep的基础用法</a><br>
 </p>
 
-<pre class="example">
+<pre class="example" id="orgac128c0">
 grep [-A] [-B] [--color=auto] '查找字符' filename
 
 -A: 后面可加数字，为 after 的意思，除了列出该行外，后续的 n 行也列出来；
@@ -195,104 +185,106 @@ grep [-A] [-B] [--color=auto] '查找字符' filename
 </pre>
 
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#33539;&#20363;&#19968;&#65306;&#29992; dmesg &#21015;&#20986;&#20869;&#26680;&#20449;&#24687;&#65292;&#20877;&#20197; grep &#25214;&#20986;&#20869;&#21547; qxl &#37027;&#34892;</span>
-dmesg | grep -n -A3 -B2 --color=auto <span style="color: #2aa198;">'qxl'</span>
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#22312;&#20851;&#38190;&#23383;&#25152;&#22312;&#34892;&#30340;&#21069;&#20004;&#34892;&#19982;&#21518;&#19977;&#34892;&#20063;&#19968;&#36215;&#35782;&#21035;&#20986;&#26469;&#26174;&#31034;</span>
+<pre class="src src-bash"><span style="color: #928374;"># </span><span style="color: #928374;">&#33539;&#20363;&#19968;&#65306;&#29992; dmesg &#21015;&#20986;&#20869;&#26680;&#20449;&#24687;&#65292;&#20877;&#20197; grep &#25214;&#20986;&#20869;&#21547; qxl &#37027;&#34892;</span>
+dmesg | grep -n -A3 -B2 --color=auto <span style="color: #b8bb26;">'qxl'</span>
+<span style="color: #928374;"># </span><span style="color: #928374;">&#22312;&#20851;&#38190;&#23383;&#25152;&#22312;&#34892;&#30340;&#21069;&#20004;&#34892;&#19982;&#21518;&#19977;&#34892;&#20063;&#19968;&#36215;&#35782;&#21035;&#20986;&#26469;&#26174;&#31034;</span>
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org853c633" class="outline-3">
-<h3 id="org853c633">基础正则表达式练习</h3>
-<div class="outline-text-3" id="text-org853c633">
+<div id="outline-container-orgfadb285" class="outline-3">
+<h3 id="orgfadb285">基础正则表达式练习</h3>
+<div class="outline-text-3" id="text-orgfadb285">
 </div>
-<div id="outline-container-org68bfc81" class="outline-4">
-<h4 id="org68bfc81">1. 查找特定字符串</h4>
-<div class="outline-text-4" id="text-org68bfc81">
+<div id="outline-container-org4d8dd37" class="outline-4">
+<h4 id="org4d8dd37">1. 查找特定字符串</h4>
+<div class="outline-text-4" id="text-org4d8dd37">
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#33539;&#20363;&#19968;&#65306;&#26597;&#25214;&#29305;&#23450;&#23383;&#31526;&#20018;</span>
-$ grep -n <span style="color: #2aa198;">'the'</span> regular_express.txt
+<pre class="src src-bash"><span style="color: #928374;"># </span><span style="color: #928374;">&#33539;&#20363;&#19968;&#65306;&#26597;&#25214;&#29305;&#23450;&#23383;&#31526;&#20018;</span>
+$ grep -n <span style="color: #b8bb26;">'the'</span> regular_express.txt
 
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#33539;&#20363;&#20108;&#65306;&#21453;&#21521;&#36873;&#25321;&#65292;&#24403;&#35813;&#34892;&#27809;&#26377; 'the' &#36825;&#20010;&#23383;&#31526;&#20018;&#26102;&#65292;&#25165;&#26174;&#31034;&#22312;&#23631;&#24149;&#19978;</span>
-$ grep -vn <span style="color: #2aa198;">'the'</span> regular_express.txt
+<span style="color: #928374;"># </span><span style="color: #928374;">&#33539;&#20363;&#20108;&#65306;&#21453;&#21521;&#36873;&#25321;&#65292;&#24403;&#35813;&#34892;&#27809;&#26377; 'the' &#36825;&#20010;&#23383;&#31526;&#20018;&#26102;&#65292;&#25165;&#26174;&#31034;&#22312;&#23631;&#24149;&#19978;</span>
+$ grep -vn <span style="color: #b8bb26;">'the'</span> regular_express.txt
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org828897a" class="outline-4">
-<h4 id="org828897a">2. 利用中括号 [] 来查找集合字符</h4>
-<div class="outline-text-4" id="text-org828897a">
+<div id="outline-container-org10fe914" class="outline-4">
+<h4 id="org10fe914">2. 利用中括号 [] 来查找集合字符</h4>
+<div class="outline-text-4" id="text-org10fe914">
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#26597;&#25214; test &#25110; taste &#36825;&#20004;&#20010;&#20851;&#38190;&#35789;&#26102;&#65292;&#21487;&#20197;&#20351;&#29992;&#19979;&#38754;&#34920;&#36798;&#24335;</span>
-$ grep -n <span style="color: #2aa198;">'t[ar]st'</span> regular_repress.txt
+<pre class="src src-bash"><span style="color: #928374;"># </span><span style="color: #928374;">&#26597;&#25214; test &#25110; taste &#36825;&#20004;&#20010;&#20851;&#38190;&#35789;&#26102;&#65292;&#21487;&#20197;&#20351;&#29992;&#19979;&#38754;&#34920;&#36798;&#24335;</span>
+$ grep -n <span style="color: #b8bb26;">'t[ar]st'</span> regular_repress.txt
 
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#38598;&#21512;&#23383;&#31526;&#30340;&#21453;&#21521;&#36873;&#25321; [^]&#65292;&#22914;&#26524;&#25105;&#19981;&#24819; oo &#21069;&#38754;&#26377; g &#30340;&#35805;</span>
-$ grep -n <span style="color: #2aa198;">'[^g]oo'</span> regular_repress.txt
+<span style="color: #928374;"># </span><span style="color: #928374;">&#38598;&#21512;&#23383;&#31526;&#30340;&#21453;&#21521;&#36873;&#25321; [^]&#65292;&#22914;&#26524;&#25105;&#19981;&#24819; oo &#21069;&#38754;&#26377; g &#30340;&#35805;</span>
+$ grep -n <span style="color: #b8bb26;">'[^g]oo'</span> regular_repress.txt
 
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#20551;&#35774; oo &#21069;&#38754;&#19981;&#24819;&#35201;&#26377;&#23567;&#20889;&#23383;&#31526;</span>
-$ grep -n <span style="color: #2aa198;">'[^a-z]oo'</span> regular_repress.txt
+<span style="color: #928374;"># </span><span style="color: #928374;">&#20551;&#35774; oo &#21069;&#38754;&#19981;&#24819;&#35201;&#26377;&#23567;&#20889;&#23383;&#31526;</span>
+$ grep -n <span style="color: #b8bb26;">'[^a-z]oo'</span> regular_repress.txt
 
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#32771;&#34385;&#21040;&#35821;&#31995;&#23545;&#20110;&#32534;&#30721;&#39034;&#24207;&#30340;&#24433;&#21709;&#65292;&#36824;&#21487;&#20197;&#20351;&#29992;&#22914;&#19979;&#26041;&#27861;</span>
-$ grep -n <span style="color: #2aa198;">'[^[:lower:]]oo'</span> regular_repress.txt
+<span style="color: #928374;"># </span><span style="color: #928374;">&#32771;&#34385;&#21040;&#35821;&#31995;&#23545;&#20110;&#32534;&#30721;&#39034;&#24207;&#30340;&#24433;&#21709;&#65292;&#36824;&#21487;&#20197;&#20351;&#29992;&#22914;&#19979;&#26041;&#27861;</span>
+$ grep -n <span style="color: #b8bb26;">'[^[:lower:]]oo'</span> regular_repress.txt
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orge9f40cb" class="outline-4">
-<h4 id="orge9f40cb">3. 行首与行尾字符 ^ $</h4>
-<div class="outline-text-4" id="text-orge9f40cb">
+<div id="outline-container-orgc2c8b6d" class="outline-4">
+<h4 id="orgc2c8b6d">3. 行首与行尾字符 ^ $</h4>
+<div class="outline-text-4" id="text-orgc2c8b6d">
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#20197; the &#24320;&#22836;&#30340;&#34892;</span>
-$ grep -n <span style="color: #2aa198;">'^the'</span> regular_repress.txt
+<pre class="src src-bash"><span style="color: #928374;"># </span><span style="color: #928374;">&#20197; the &#24320;&#22836;&#30340;&#34892;</span>
+$ grep -n <span style="color: #b8bb26;">'^the'</span> regular_repress.txt
 
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#20197;&#23567;&#25968;&#28857;&#32467;&#23614;&#30340;&#34892;</span>
-grep -n <span style="color: #2aa198;">'\.$'</span> regular_repress.txt
+<span style="color: #928374;"># </span><span style="color: #928374;">&#20197;&#23567;&#25968;&#28857;&#32467;&#23614;&#30340;&#34892;</span>
+grep -n <span style="color: #b8bb26;">'\.$'</span> regular_repress.txt
 
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#31354;&#30333;&#34892;</span>
-grep -n <span style="color: #2aa198;">'^$'</span> regular_repress.txt
+<span style="color: #928374;"># </span><span style="color: #928374;">&#31354;&#30333;&#34892;</span>
+grep -n <span style="color: #b8bb26;">'^$'</span> regular_repress.txt
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org185e79a" class="outline-4">
-<h4 id="org185e79a">4. 任意一个字符 . 与重复字符 *</h4>
-<div class="outline-text-4" id="text-org185e79a">
+<div id="outline-container-orgcb1e6c0" class="outline-4">
+<h4 id="orgcb1e6c0">4. 任意一个字符 . 与重复字符 *</h4>
+<div class="outline-text-4" id="text-orgcb1e6c0">
 <dl class="org-dl">
 <dt><code>.</code></dt><dd>代表【一定有一个任意字符】的意思；<br></dd>
-<dt><code>*</code></dt><dd>代表【重复前一个字符，0 到无穷多次】的意思；<br></dd>
-</dl>
+<dt><code>*</code></dt><dd><p>
+代表【重复前一个字符，0 到无穷多次】的意思；<br>
+</p>
 
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#25214;&#20986; g &#24320;&#22836;&#19982; g &#32467;&#23614;&#30340;&#23383;&#31526;&#20018;</span>
-grep -n <span style="color: #2aa198;">'g.*g'</span> regular_express.txt
+<pre class="src src-bash"><span style="color: #928374;"># </span><span style="color: #928374;">&#25214;&#20986; g &#24320;&#22836;&#19982; g &#32467;&#23614;&#30340;&#23383;&#31526;&#20018;</span>
+grep -n <span style="color: #b8bb26;">'g.*g'</span> regular_express.txt
 </pre>
+</div></dd>
+</dl>
 </div>
 </div>
-</div>
-<div id="outline-container-orgc39cf73" class="outline-4">
-<h4 id="orgc39cf73">5. 限定连续 RE 字符范围 {}</h4>
-<div class="outline-text-4" id="text-orgc39cf73">
+<div id="outline-container-org6f7c2a4" class="outline-4">
+<h4 id="org6f7c2a4">5. 限定连续 RE 字符范围 {}</h4>
+<div class="outline-text-4" id="text-org6f7c2a4">
 <p>
 使用 <code>{}</code> 可以限制一个范围内的重复字符数，但是因为 <code>{</code> 与 <code>}</code> 的符号在 shell 是有特殊意义的，因此，我们必须要使用转义符 <code>\</code> 来让它失去特殊意义才行。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#25214;&#21040;&#20004;&#20010; o &#30340;&#23383;&#31526;&#20018;</span>
-$ grep -n <span style="color: #2aa198;">'o\{2\}'</span> regular_express.txt
+<pre class="src src-bash"><span style="color: #928374;"># </span><span style="color: #928374;">&#25214;&#21040;&#20004;&#20010; o &#30340;&#23383;&#31526;&#20018;</span>
+$ grep -n <span style="color: #b8bb26;">'o\{2\}'</span> regular_express.txt
 
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#25214;&#21040; 2 &#21040; 5 &#20010; o&#65292;&#28982;&#21518;&#20877;&#25509;&#19968;&#20010; g &#30340;&#23383;&#31526;&#20018;</span>
-$ grep -n <span style="color: #2aa198;">'o\{2,5\}g'</span> regular_express.txt
+<span style="color: #928374;"># </span><span style="color: #928374;">&#25214;&#21040; 2 &#21040; 5 &#20010; o&#65292;&#28982;&#21518;&#20877;&#25509;&#19968;&#20010; g &#30340;&#23383;&#31526;&#20018;</span>
+$ grep -n <span style="color: #b8bb26;">'o\{2,5\}g'</span> regular_express.txt
 
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#25214;&#21040;&#20004;&#20010; o &#20197;&#19978;&#30340; gooo...g</span>
-grep -n <span style="color: #2aa198;">'go\{2,\}g'</span>
+<span style="color: #928374;"># </span><span style="color: #928374;">&#25214;&#21040;&#20004;&#20010; o &#20197;&#19978;&#30340; gooo...g</span>
+grep -n <span style="color: #b8bb26;">'go\{2,\}g'</span>
 </pre>
 </div>
 </div>
 </div>
 </div>
-<div id="outline-container-org6712d79" class="outline-3">
-<h3 id="org6712d79">基础正则表达式字符集合（characters）</h3>
-<div class="outline-text-3" id="text-org6712d79">
+<div id="outline-container-orgbffae0a" class="outline-3">
+<h3 id="orgbffae0a">基础正则表达式字符集合（characters）</h3>
+<div class="outline-text-3" id="text-orgbffae0a">
 <dl class="org-dl">
 <dt><code>^word</code></dt><dd>待搜寻的字串（word）在行首；<br></dd>
 <dt><code>word$</code></dt><dd>待搜寻的字串（word）在行尾；<br></dd>
@@ -306,168 +298,66 @@ grep -n <span style="color: #2aa198;">'go\{2,\}g'</span>
 </dl>
 </div>
 </div>
-<div id="outline-container-org9039b6b" class="outline-3">
-<h3 id="org9039b6b">sed 工具<a id="org8b528cd"></a></h3>
-<div class="outline-text-3" id="text-org9039b6b">
-<p>
-sed 是一个管道命令，可以分析标准输入。而且 sed 还可以将数据进行替换、删除、新增、选取特定行等功能。<br>
-</p>
-
-<pre class="example">
-sed [-nefr] [操作]
-
--n: 使用安静（silent）模式，在一般 sed 的用法中，所有来自 stdin 的数据一般都会被列到屏幕上，但如果加上 -n 参数之后，则只有经过 sed 特殊处理的那一行（或操作）才会被列出来；
--e: 直接在命令行模式上进行 sed 操作编辑；
--f: 直接将 sed 的操作写在一个文件内，-f filename 则可以执行 filename 内的 sed 操作；
--r: sed 的操作使用的是扩展型正则表达式的语法，默认是基础正则表达式语法；
--i: 直接修改读取的文件内容，而不是由屏幕输出；
-
-操作说明：[n1 [,n2]] function
-
-n1, n2: 不见得会存在，一般代表【选择进行操作的行数】，举例来说，如果我的操作是需要在 10 到 20 行之间进行的，则【10, 20 [操作行为]】
-
-function 有下面这些东西
-a: 新增，a 的后面可以接字符，而这些字符会在新的一行出现（当前的下一行）；
-c: 替换，c 的后面可以接字符，这些字符可以替换 n1, n2 之间的行；
-d: 删除，因为是删除，所以 d 后面通常不接任何东西；
-i: 插入，i 的后面可以接字符，而这些字符会在新的一行会先（当前的上一行）；
-p: 打印，亦即将某个选择的数据打印出来，通常 p 会与参数 sed -n 一起执行；
-s: 替换，可以直接进行替换工作，通常这个 s 的操作可以搭配正则表达式，例如 1, 20s/old/new/g；
-</pre>
-</div>
-<div id="outline-container-org8da3bc5" class="outline-4">
-<h4 id="org8da3bc5">以行为单位的新增/删除功能</h4>
-<div class="outline-text-4" id="text-org8da3bc5">
-<div class="org-src-container">
-<pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#33539;&#20363;&#19968;&#65306;&#23558; /etc/passwd &#30340;&#20869;&#23481;&#21015;&#20986;&#24182;&#19988;&#25171;&#21360;&#34892;&#21495;&#65292;&#21516;&#26102;&#23558;&#31532; 2~5 &#34892;&#21024;&#38500;</span>
-$ nl /etc/passwd | sed <span style="color: #2aa198;">'2,5d'</span>
-
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#20165;&#21024;&#38500;&#31532; 2 &#34892;</span>
-$ nl /etc/passwd | sed <span style="color: #2aa198;">'2d'</span>
-
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#21024;&#38500;&#31532; 3 &#21040;&#26368;&#21518;&#19968;&#34892;</span>
-$ nl /etc/passwd | sed <span style="color: #2aa198;">'3,$d'</span>
-</pre>
-</div>
-
-<div class="org-src-container">
-<pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#33539;&#20363;&#20108;&#65306;&#22312;&#31532; 2 &#34892;&#20043;&#21518;&#21152;&#19978;&#12304;drink tea?&#12305;&#23383;&#26679;</span>
-$ nl /etc/passwd | sed <span style="color: #2aa198;">'2a drink tea'</span>
-</pre>
-</div>
-
-<div class="org-src-container">
-<pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#33539;&#20363;&#19977;&#65306;&#20056;&#19978;&#65292;&#22312;&#31532; 2 &#34892;&#20043;&#21069;&#22686;&#21152;&#65292;&#19988;&#22686;&#21152;&#22810;&#34892;</span>
-$ nl /etc/passwd | sed <span style="color: #2aa198;">'2i drink tea or ...\</span>
-<span style="color: #2aa198;">&gt; dirnk beer?'</span>
-</pre>
+<div id="outline-container-org930b2b5" class="outline-3">
+<h3 id="org930b2b5"><a href="Shell-sed_awk_grep.html#org7aa8c70">sed 工具</a></h3>
 </div>
 </div>
-</div>
-<div id="outline-container-orgbafee44" class="outline-4">
-<h4 id="orgbafee44">以行为单位的替换与显示功能</h4>
-<div class="outline-text-4" id="text-orgbafee44">
-<div class="org-src-container">
-<pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#33539;&#20363;&#22235;&#65306;&#23558;&#31532; 2~5 &#34892;&#26367;&#25442;&#25104; &#12304;No 2-5 number&#12305;</span>
-$ nl /etc/passwd | sed <span style="color: #2aa198;">'2,5c No 2-5 number'</span>
-</pre>
-</div>
-
-<p>
-以前我们想列出第 11-20 行，需要通过【head -n 20 | tail -n 10】之类的方法， sed 则可以简单的直接取出你想要的那几行。<br>
-</p>
-
-<div class="org-src-container">
-<pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#33539;&#20363;&#20116;&#65306;&#20165;&#21015;&#20986; /etc/passwd &#25991;&#20214;&#20869;&#30340;&#31532; 5-7 &#34892;</span>
-$ nl /etc/paswd | sed -n <span style="color: #2aa198;">'5,7p'</span>
-</pre>
-</div>
-</div>
-</div>
-<div id="outline-container-orgff9fbaa" class="outline-4">
-<h4 id="orgff9fbaa">部分数据的查找并替换的功能</h4>
-<div class="outline-text-4" id="text-orgff9fbaa">
-<p>
-sed 的查找与替换的功能与 vim 相当的类似。<br>
-</p>
-
-<div class="org-src-container">
-<pre class="src src-bash">sed <span style="color: #2aa198;">'s/&#35201;&#34987;&#26367;&#25442;&#30340;&#23383;&#31526;/&#26032;&#30340;&#23383;&#31526;/g'</span>
-</pre>
-</div>
-</div>
-</div>
-<div id="outline-container-org4431718" class="outline-4">
-<h4 id="org4431718">直接修改文件</h4>
-<div class="outline-text-4" id="text-org4431718">
-<div class="org-src-container">
-<pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#33539;&#20363;&#20845;&#65306;&#21033;&#29992; sed &#23558; regular_express.txt &#20869;&#27599;&#19968;&#34892;&#32467;&#23614;&#33509;&#20026; . &#21017;&#25442;&#25104; !</span>
-$ sed -i <span style="color: #2aa198;">'s/\.$/\!/g'</span> regular_express.txt
-
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#33539;&#20363;&#19971;&#65306;&#21033;&#29992; sed &#30452;&#25509;&#22312; regular_express.txt &#26368;&#21518;&#19968;&#34892;&#21152;&#20837;&#12304;# This is a test&#12305;</span>
-$ sed -i <span style="color: #2aa198;">'$a # This is a test'</span> regular_express.txt
-</pre>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div id="outline-container-org4adc25a" class="outline-2">
-<h2 id="org4adc25a">扩展正则表达式</h2>
-<div class="outline-text-2" id="text-org4adc25a">
+<div id="outline-container-orge6943bf" class="outline-2">
+<h2 id="orge6943bf">扩展正则表达式</h2>
+<div class="outline-text-2" id="text-orge6943bf">
 <ul class="org-ul">
 <li><p>
 +：重复【一个或一个以上】的前一个 RE 字符；<br>
 </p>
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#33539;&#20363;&#65306;&#25628;&#23547;&#65288;god&#65289;&#65288;good&#65289;&#65288;goood&#65289;&#31561;&#30340;&#23383;&#20018;&#65292;&#37027;&#20010; o+ &#20195;&#34920;&#19968;&#20010;&#20197;&#19978;&#30340; o&#65307;</span>
-egrep -n <span style="color: #2aa198;">'go+d'</span> regular_express.txt
+<pre class="src src-bash"><span style="color: #928374;"># </span><span style="color: #928374;">&#33539;&#20363;&#65306;&#25628;&#23547;&#65288;god&#65289;&#65288;good&#65289;&#65288;goood&#65289;&#31561;&#30340;&#23383;&#20018;&#65292;&#37027;&#20010; o+ &#20195;&#34920;&#19968;&#20010;&#20197;&#19978;&#30340; o&#65307;</span>
+egrep -n <span style="color: #b8bb26;">'go+d'</span> regular_express.txt
 </pre>
 </div></li>
 <li><p>
 ?：【零个或一个】的前一个 RE 字符；<br>
 </p>
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#33539;&#20363;&#65306;&#25628;&#23547;&#65288;gd&#65289;&#65288;god&#65289;&#36825;&#20004;&#20010;&#23383;&#20018;&#65292;&#37027;&#20010; o? &#20195;&#34920;&#31354;&#30340;&#25110; 1 &#20010; o&#65307;</span>
-egrep -n <span style="color: #2aa198;">'go?d'</span> regular_express.txt
+<pre class="src src-bash"><span style="color: #928374;"># </span><span style="color: #928374;">&#33539;&#20363;&#65306;&#25628;&#23547;&#65288;gd&#65289;&#65288;god&#65289;&#36825;&#20004;&#20010;&#23383;&#20018;&#65292;&#37027;&#20010; o? &#20195;&#34920;&#31354;&#30340;&#25110; 1 &#20010; o&#65307;</span>
+egrep -n <span style="color: #b8bb26;">'go?d'</span> regular_express.txt
 </pre>
 </div></li>
 <li><p>
 |：用或（or）的方法找出整个字符串；<br>
 </p>
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#33539;&#20363;&#65306;&#25628;&#23547; gd &#25110; good &#36825;&#20004;&#20010;&#23383;&#20018;&#65292;&#27880;&#24847;&#65292;&#26159;&#12304;&#25110;&#12305;&#65307;&#37027;&#22914;&#26524;&#36824;&#24819;&#35201;&#25214;&#20986; dog &#21602;&#65311;</span>
-egrep -n <span style="color: #2aa198;">'gd|good'</span> regular_express.txt
-egrep -n <span style="color: #2aa198;">'gd|good|dog'</span> regular_express.txt
+<pre class="src src-bash"><span style="color: #928374;"># </span><span style="color: #928374;">&#33539;&#20363;&#65306;&#25628;&#23547; gd &#25110; good &#36825;&#20004;&#20010;&#23383;&#20018;&#65292;&#27880;&#24847;&#65292;&#26159;&#12304;&#25110;&#12305;&#65307;&#37027;&#22914;&#26524;&#36824;&#24819;&#35201;&#25214;&#20986; dog &#21602;&#65311;</span>
+egrep -n <span style="color: #b8bb26;">'gd|good'</span> regular_express.txt
+egrep -n <span style="color: #b8bb26;">'gd|good|dog'</span> regular_express.txt
 </pre>
 </div></li>
 <li><p>
 ()：找出群组字符串；<br>
 </p>
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#33539;&#20363;&#65306;&#25628;&#23547; &#65288;glad&#65289; &#25110; &#65288;good&#65289; &#36825;&#20004;&#20010;&#23383;&#20018;&#65292;&#22240;&#20026; g &#19982; d &#26159;&#37325;&#22797;&#30340;&#65292;&#25152;&#20197;&#65292; &#25105;&#23601;&#21487;&#20197;&#23558; la &#19982; oo &#21015;&#20110;&#65288; &#65289;&#24403;&#20013;&#65292;&#24182;&#20197; | &#26469;&#20998;&#38548;&#24320;&#26469;&#23601;&#21487;&#20197;&#20102;&#65307;</span>
-egrep -n <span style="color: #2aa198;">'g&#65288;la&amp;#124;oo&#65289;d'</span> regular_express.txt
+<pre class="src src-bash"><span style="color: #928374;"># </span><span style="color: #928374;">&#33539;&#20363;&#65306;&#25628;&#23547; &#65288;glad&#65289; &#25110; &#65288;good&#65289; &#36825;&#20004;&#20010;&#23383;&#20018;&#65292;&#22240;&#20026; g &#19982; d &#26159;&#37325;&#22797;&#30340;&#65292;&#25152;&#20197;&#65292; &#25105;&#23601;&#21487;&#20197;&#23558; la &#19982; oo &#21015;&#20110;&#65288; &#65289;&#24403;&#20013;&#65292;&#24182;&#20197; | &#26469;&#20998;&#38548;&#24320;&#26469;&#23601;&#21487;&#20197;&#20102;&#65307;</span>
+egrep -n <span style="color: #b8bb26;">'g&#65288;la&amp;#124;oo&#65289;d'</span> regular_express.txt
 </pre>
 </div></li>
 <li><p>
 ()+：多个重复群组的判别；<br>
 </p>
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#33539;&#20363;&#65306;&#23558; AxyzxyzxyzxyzC &#29992; echo &#21483;&#20986;&#65292;&#28982;&#21518;&#20877;&#20351;&#29992;&#22914;&#19979;&#30340;&#26041;&#27861;&#25628;&#23547;&#19968;&#19979;&#65307;</span>
-<span style="color: #268bd2;">echo</span> <span style="color: #2aa198;">'AxyzxyzxyzxyzC'</span> | egrep <span style="color: #2aa198;">'A&#65288;xyz&#65289;+C'</span>
+<pre class="src src-bash"><span style="color: #928374;"># </span><span style="color: #928374;">&#33539;&#20363;&#65306;&#23558; AxyzxyzxyzxyzC &#29992; echo &#21483;&#20986;&#65292;&#28982;&#21518;&#20877;&#20351;&#29992;&#22914;&#19979;&#30340;&#26041;&#27861;&#25628;&#23547;&#19968;&#19979;&#65307;</span>
+<span style="color: #fe8019;">echo</span> <span style="color: #b8bb26;">'AxyzxyzxyzxyzC'</span> | egrep <span style="color: #b8bb26;">'A&#65288;xyz&#65289;+C'</span>
 </pre>
 </div></li>
 </ul>
 </div>
 </div>
-<div id="outline-container-orgfb7651b" class="outline-2">
-<h2 id="orgfb7651b">文件的格式化与相关处理</h2>
-<div class="outline-text-2" id="text-orgfb7651b">
+<div id="outline-container-org15cfea5" class="outline-2">
+<h2 id="org15cfea5">文件的格式化与相关处理</h2>
+<div class="outline-text-2" id="text-org15cfea5">
 </div>
-<div id="outline-container-orga51aa2b" class="outline-3">
-<h3 id="orga51aa2b">格式化打印：printf<a id="org463c9c2"></a></h3>
-<div class="outline-text-3" id="text-orga51aa2b">
-<pre class="example">
+<div id="outline-container-org4f3e5be" class="outline-3">
+<h3 id="org4f3e5be">格式化打印：printf<a id="org635fa2a"></a></h3>
+<div class="outline-text-3" id="text-org4f3e5be">
+<pre class="example" id="org5693693">
 printf '打印格式' 实际内容
 
 \a 警告声音输出
@@ -484,7 +374,7 @@ printf '打印格式' 实际内容
 %N.nf 小数点为 n 位，总长位 N
 </pre>
 
-<pre class="example">
+<pre class="example" id="org3be00b6">
 Name Chinese English Math Average
 DmTsai    80      60   92   77.33
 VBird     75      55   80   70.00
@@ -492,39 +382,39 @@ Ken       60      90   70   73.33
 </pre>
 
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#33539;&#20363;&#19968;&#65306;&#23558;&#21018;&#21018;&#19978;&#38754;&#25968;&#25454;&#30340;&#25991;&#20214;&#65288;printf.txt&#65289;&#20869;&#23481;&#20165;&#21015;&#20986;&#22995;&#21517;&#19982;&#25104;&#32489;&#65288;&#29992; [tab] &#20998;&#38548;&#65289;</span>
-$ printf <span style="color: #2aa198;">'%s\t %s\t %s\t %s\t %s\t \n'</span> $(cat printf.txt)
+<pre class="src src-bash"><span style="color: #928374;"># </span><span style="color: #928374;">&#33539;&#20363;&#19968;&#65306;&#23558;&#21018;&#21018;&#19978;&#38754;&#25968;&#25454;&#30340;&#25991;&#20214;&#65288;printf.txt&#65289;&#20869;&#23481;&#20165;&#21015;&#20986;&#22995;&#21517;&#19982;&#25104;&#32489;&#65288;&#29992; [tab] &#20998;&#38548;&#65289;</span>
+$ printf <span style="color: #b8bb26;">'%s\t %s\t %s\t %s\t %s\t \n'</span> $(cat printf.txt)
 
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#33539;&#20363;&#20108;&#65306;&#23558;&#19978;&#36848;&#25968;&#25454;&#20851;&#20110;&#31532;&#20108;&#34892;&#20197;&#21518;&#65292;&#20998;&#21035;&#20197;&#23383;&#31526;&#12289;&#25972;&#25968;&#12289;&#23567;&#25968;&#28857;&#26174;&#31034;</span>
-$ printf <span style="color: #2aa198;">'%10s %5i %5i %5i %8.2f \n'</span> $(cat printf.txt | grep -v Name)
+<span style="color: #928374;"># </span><span style="color: #928374;">&#33539;&#20363;&#20108;&#65306;&#23558;&#19978;&#36848;&#25968;&#25454;&#20851;&#20110;&#31532;&#20108;&#34892;&#20197;&#21518;&#65292;&#20998;&#21035;&#20197;&#23383;&#31526;&#12289;&#25972;&#25968;&#12289;&#23567;&#25968;&#28857;&#26174;&#31034;</span>
+$ printf <span style="color: #b8bb26;">'%10s %5i %5i %5i %8.2f \n'</span> $(cat printf.txt | grep -v Name)
 </pre>
 </div>
 
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#33539;&#20363;&#19977;&#65306;&#21015;&#20986;&#21313;&#20845;&#36827;&#21046;&#30340;&#25968;&#20540; 45 &#20195;&#34920;&#30340;&#23383;&#31526;&#26159;&#20160;&#20040;</span>
-$ printf <span style="color: #2aa198;">'\x45\n'</span>
+<pre class="src src-bash"><span style="color: #928374;"># </span><span style="color: #928374;">&#33539;&#20363;&#19977;&#65306;&#21015;&#20986;&#21313;&#20845;&#36827;&#21046;&#30340;&#25968;&#20540; 45 &#20195;&#34920;&#30340;&#23383;&#31526;&#26159;&#20160;&#20040;</span>
+$ printf <span style="color: #b8bb26;">'\x45\n'</span>
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org8becc4c" class="outline-3">
-<h3 id="org8becc4c">好用的数据处理工具：awk<a id="orgeb064d4"></a></h3>
-<div class="outline-text-3" id="text-org8becc4c">
+<div id="outline-container-orgfd27af5" class="outline-3">
+<h3 id="orgfd27af5">好用的数据处理工具：awk<a id="orgced5258"></a></h3>
+<div class="outline-text-3" id="text-orgfd27af5">
 <p>
 awk 也是一个非常棒的数据处理工具，相较于 sed 常常作用于一整个行的处理， awk 则比较倾向于一行当中分成数个字段来处理。因此，awk 相当的适合处理小型的数据数据处理，awk 通常运行的模式是这样的：<br>
 </p>
 
-<pre class="example">
+<pre class="example" id="org9050bd9">
 $ awk '条件类型1{动作1} 条件类型2{动作2} ...' filename
 </pre>
 
 <p>
-awk 后面接两个单引号并加上大括号 {} 来设置想要对数据进行的处理动作。awk 可以处理后续接的文件，也可以读取来自前个命令的标准输出。但如前面说的， awk 主要是处理每一行的字段内的数据，而默认的字段的分隔符号为 "空白键" 或 "[tab]键"。举例来说，我们用 last 可以将登陆者的数据取出来，结果如下所示：<br>
+awk 后面接两个单引号并加上大括号 {} 来设置想要对数据进行的处理动作。awk 可以处理后续接的文件，也可以读取来自前个命令的标准输出。但如前面说的，awk 主要是处理每一行的字段内的数据， <span class="underline">而默认的字段的分隔符号为 "空白键" 或 "[tab]键"</span> 。举例来说，我们用 last 可以将登陆者的数据取出来，结果如下所示：<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-bash">$ last -n 5 <span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&lt;== &#20165;&#21462;&#20986;&#21069;&#20116;&#34892;</span>
-dmtsai pts/0 192.168.1.100 Tue Jul 14 17:32 still logged<span style="color: #268bd2; font-weight: bold;"> in</span>
+<pre class="src src-bash">$ last -n 5 <span style="color: #928374;"># </span><span style="color: #928374;">&lt;== &#20165;&#21462;&#20986;&#21069;&#20116;&#34892;</span>
+dmtsai pts/0 192.168.1.100 Tue Jul 14 17:32 still logged<span style="color: #fb4934;"> in</span>
 dmtsai pts/0 192.168.1.100 Thu Jul 9 23:36 - 02:58 &#65288;03:22&#65289;
 dmtsai pts/0 192.168.1.100 Thu Jul 9 17:23 - 23:36 &#65288;06:12&#65289;
 dmtsai pts/0 192.168.1.100 Thu Jul 9 08:02 - 08:17 &#65288;00:14&#65289;
@@ -533,11 +423,11 @@ dmtsai tty1 Fri May 29 11:55 - 12:11 &#65288;00:15&#65289;
 </div>
 
 <p>
-若我想要取出帐号与登陆者的 IP ，且帐号与 IP 之间以 [tab] 隔开，则会变成这样：<br>
+若我想要取出帐号与登陆者的 IP，且帐号与 IP 之间以 [tab] 隔开，则会变成这样：<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-bash">$ last -n 5 | awk <span style="color: #2aa198;">'{print $1 "\t" $3}'</span>
+<pre class="src src-bash">$ last -n 5 | awk <span style="color: #b8bb26;">'{print $1 "\t" $3}'</span>
 dmtsai 192.168.1.100
 dmtsai 192.168.1.100
 dmtsai 192.168.1.100
@@ -551,7 +441,7 @@ dmtsai Fri
 </p>
 
 <p>
-另外，由上面这个例子你也会知道，在 awk 的括号内，每一行的每个字段都是有变量名称的，那就是 $1, $2&#x2026; 等变量名称。以上面的例子来说， dmtsai 是 $1 ，因为他是第一栏嘛。至于 192.168.1.100 是第三栏， 所以他就是 $3 ，后面以此类推，呵呵，还有个变量，那就是 $0 ，$0 代表【一整列数据】的意思，以上面的例子来说，第一行的 $0 代表的就是【dmtsai &#x2026;. 】那一行，由此可知，刚刚上面五行当中，整个 awk 的处理流程是：<br>
+另外，由上面这个例子你也会知道，在 awk 的括号内，每一行的每个字段都是有变量名称的，那就是 $1, $2&#x2026; 等变量名称。以上面的例子来说， dmtsai 是 $1 ，因为他是第一栏嘛。至于 192.168.1.100 是第三栏，所以他就是 $3 ，后面以此类推，呵呵，还有个变量，那就是 $0 ，$0 代表【一整列数据】的意思，以上面的例子来说，第一行的 $0 代表的就是【dmtsai &#x2026;. 】那一行，由此可知，刚刚上面五行当中，整个 awk 的处理流程是：<br>
 </p>
 
 <ol class="org-ol">
@@ -612,18 +502,18 @@ dmtsai Fri
 
 <blockquote>
 <p>
-Tips 要注意喔，awk 后续的所有动作是以单引号【'】括住的，由于单引号与双引号都必须是成对的，所以，awk 的格式内容如果想要以 print 打印时，记得非变量的文字部分，包含上一小节 printf 提到的格式中，都需要使用双引号来定义出来，因为单引号已经是 awk 的指令固定用法了。<br>
+Tips 要注意喔，awk 后续的所有动作是以单引号【'】括住的，由于单引号与双引号都必须是成对的，所以，awk 的格式内容如果想要以 print 打印时，记得非变量的文字部分，包含上一小节 printf 提到的格式中，都需要使用双引号来定义出来， <span class="underline">因为单引号已经是 awk 的指令固定用法了</span> 。<br>
 </p>
 </blockquote>
 
 <div class="org-src-container">
-<pre class="src src-bash">$ last -n 5 | awk <span style="color: #2aa198;">'{print $1 "\t lines: " NR "\t columns: " NF}'</span>
+<pre class="src src-bash">$ last -n 5 | awk <span style="color: #b8bb26;">'{print $1 "\t lines: " NR "\t columns: " NF}'</span>
 dmtsai lines: 1 columns: 10
 dmtsai lines: 2 columns: 10
 dmtsai lines: 3 columns: 10
 dmtsai lines: 4 columns: 10
 dmtsai lines: 5 columns: 9
-<span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#27880;&#24847;&#65292;&#22312; awk &#20869;&#30340; NR, NF &#31561;&#21464;&#37327;&#35201;&#29992;&#22823;&#20889;&#65292;&#19988;&#19981;&#38656;&#35201;&#26377;&#32654;&#20803;&#31526;&#21495; $</span>
+<span style="color: #928374;"># </span><span style="color: #928374;">&#27880;&#24847;&#65292;&#22312; awk &#20869;&#30340; NR, NF &#31561;&#21464;&#37327;&#35201;&#29992;&#22823;&#20889;&#65292;&#19988;&#19981;&#38656;&#35201;&#26377;&#32654;&#20803;&#31526;&#21495; $</span>
 </pre>
 </div>
 
@@ -699,7 +589,7 @@ dmtsai lines: 5 columns: 9
 </p>
 
 <div class="org-src-container">
-<pre class="src src-bash">$ cat /etc/passwd | awk <span style="color: #2aa198;">'{FS=":"} $3 &lt; 10 {print $1 "\t " $3}'</span>
+<pre class="src src-bash">$ cat /etc/passwd | awk <span style="color: #b8bb26;">'{FS=":"} $3 &lt; 10 {print $1 "\t " $3}'</span>
 root:x:0:0:root:/root:/bin/bash
 bin 1
 daemon 2
@@ -712,7 +602,7 @@ daemon 2
 </p>
 
 <div class="org-src-container">
-<pre class="src src-bash">$ cat /etc/passwd | awk <span style="color: #2aa198;">'BEGIN {FS=":"} $3 &lt; 10 {print $1 "\t " $3}'</span>
+<pre class="src src-bash">$ cat /etc/passwd | awk <span style="color: #b8bb26;">'BEGIN {FS=":"} $3 &lt; 10 {print $1 "\t " $3}'</span>
 root 0
 bin 1
 daemon 2
@@ -724,7 +614,7 @@ daemon 2
 很有趣吧！而除了 BEGIN 之外，我们还有 END，另外，如果要用 awk 来进行计算功能，以下面的例子来看， 假设我有一个薪资数据表文件名为 pay.txt ，内容是这样的：<br>
 </p>
 
-<pre class="example">
+<pre class="example" id="org6e2a1ca">
 Name 1st 2nd 3th
 VBird 23000 24000 25000
 DMTsai 21000 20000 23000
@@ -740,10 +630,10 @@ Bird2 43000 42000 41000
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-bash">$ cat pay.txt | <span style="color: #2aa198;">\</span>
-&gt; awk <span style="color: #2aa198;">'NR==1{printf "%10s %10s %10s %10s %10s\n",$1,$2,$3,$4,"Total" }</span>
-<span style="color: #2aa198;">&gt; NR&gt;=2{total = $2 + $3 + $4</span>
-<span style="color: #2aa198;">&gt; printf "%10s %10d %10d %10d %10.2f\n", $1, $2, $3, $4, total}'</span>
+<pre class="src src-bash">$ cat pay.txt | <span style="color: #b8bb26;">\</span>
+  &gt; awk <span style="color: #b8bb26;">'NR==1{printf "%10s %10s %10s %10s %10s\n",$1,$2,$3,$4,"Total" }</span>
+<span style="color: #b8bb26;">&gt; NR&gt;=2{total = $2 + $3 + $4</span>
+<span style="color: #b8bb26;">&gt; printf "%10s %10d %10d %10d %10.2f\n", $1, $2, $3, $4, total}'</span>
 Name 1st 2nd 3th Total
 VBird 23000 24000 25000 72000.00
 DMTsai 21000 20000 23000 64000.00
@@ -766,10 +656,10 @@ Bird2 43000 42000 41000 126000.00
 </p>
 
 <div class="org-src-container">
-<pre class="src src-bash">$ cat pay.txt | <span style="color: #2aa198;">\</span>
-&gt; awk <span style="color: #2aa198;">'{if&#65288;NR==1&#65289; printf "%10s %10s %10s %10s %10s\n",$1,$2,$3,$4,"Total"}</span>
-<span style="color: #2aa198;">&gt; NR&gt;=2{total = $2 + $3 + $4</span>
-<span style="color: #2aa198;">&gt; printf "%10s %10d %10d %10d %10.2f\n", $1, $2, $3, $4, total}'</span>
+<pre class="src src-bash">$ cat pay.txt | <span style="color: #b8bb26;">\</span>
+  &gt; awk <span style="color: #b8bb26;">'{if&#65288;NR==1&#65289; printf "%10s %10s %10s %10s %10s\n",$1,$2,$3,$4,"Total"}</span>
+<span style="color: #b8bb26;">&gt; NR&gt;=2{total = $2 + $3 + $4</span>
+<span style="color: #b8bb26;">&gt; printf "%10s %10d %10d %10d %10.2f\n", $1, $2, $3, $4, total}'</span>
 </pre>
 </div>
 
@@ -778,14 +668,14 @@ Bird2 43000 42000 41000 126000.00
 </p>
 </div>
 </div>
-<div id="outline-container-orgcaad59d" class="outline-3">
-<h3 id="orgcaad59d">文件比对工具：diff、cmp、patch</h3>
-<div class="outline-text-3" id="text-orgcaad59d">
+<div id="outline-container-org904f645" class="outline-3">
+<h3 id="org904f645">文件比对工具：diff、cmp、patch</h3>
+<div class="outline-text-3" id="text-org904f645">
 </div>
-<div id="outline-container-orgdcee248" class="outline-4">
-<h4 id="orgdcee248">比较文件的差异（逐行）：diff<a id="orgc8d15d1"></a></h4>
-<div class="outline-text-4" id="text-orgdcee248">
-<pre class="example">
+<div id="outline-container-org39feeb6" class="outline-4">
+<h4 id="org39feeb6">比较文件的差异（逐行）：diff<a id="org79a06c1"></a></h4>
+<div class="outline-text-4" id="text-org39feeb6">
+<pre class="example" id="orgdeb0f25">
 diff [-bBi] from-file to-file
 
 -b: 忽略一行当中，仅有多个空白的差异（"about me" 与 "about   me" 视为相同；
@@ -798,25 +688,25 @@ diff 还可以对比不同目录下相同文件名的内容。<br>
 </p>
 </div>
 </div>
-<div id="outline-container-orgc05f782" class="outline-4">
-<h4 id="orgc05f782">比较文件的差异（逐字节）：cmp<a id="orgacd0389"></a></h4>
-<div class="outline-text-4" id="text-orgc05f782">
-<pre class="example">
+<div id="outline-container-org2dfef41" class="outline-4">
+<h4 id="org2dfef41">比较文件的差异（逐字节）：cmp<a id="orgea85a0d"></a></h4>
+<div class="outline-text-4" id="text-org2dfef41">
+<pre class="example" id="org9dea576">
 cmp [-l] file1 file2
 
 -l: 将所有不同点处的字节都列出来，默认仅列出第一个发现的不同点；
 </pre>
 </div>
 </div>
-<div id="outline-container-org236f6d9" class="outline-4">
-<h4 id="org236f6d9">修补文件：patch<a id="orgee05753"></a></h4>
-<div class="outline-text-4" id="text-org236f6d9">
+<div id="outline-container-org0fbc0d4" class="outline-4">
+<h4 id="org0fbc0d4">修补文件：patch<a id="orgbb468b6"></a></h4>
+<div class="outline-text-4" id="text-org0fbc0d4">
 <p>
 patch 这个指令与 diff 可是有密不可分的关系。我们前面提到，diff 可以用来分辨两个版本之间的差异， 举例来说，刚刚我们所创建的 passwd.old 及 passwd.new 之间就是两个不同版本的文件。那么，如果要升级，就是 <span class="underline">将旧的文件升级成为新的文件</span> 时，应该要怎么做？其实也不难，就是先比较先旧版本的差异，并将差异档制作成为补丁文件，再由补丁文件更新旧文件即可。举例来说，我们可以这样做测试：<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#33539;&#20363;&#19968;&#65306;&#26356;&#25913; passwd &#30340;&#19968;&#20123;&#20869;&#23481;&#65292;&#24182;&#23384;&#20026; passwd.new&#65292;&#20197; passwd.old &#19982; passwd.new &#21046;&#20316;&#34917;&#19969;&#25991;&#20214;</span>
+<pre class="src src-bash"><span style="color: #928374;"># </span><span style="color: #928374;">&#33539;&#20363;&#19968;&#65306;&#26356;&#25913; passwd &#30340;&#19968;&#20123;&#20869;&#23481;&#65292;&#24182;&#23384;&#20026; passwd.new&#65292;&#20197; passwd.old &#19982; passwd.new &#21046;&#20316;&#34917;&#19969;&#25991;&#20214;</span>
 diff -Naur passwd.old passwd.new &gt; passwd.patch
 </pre>
 </div>
@@ -825,7 +715,7 @@ diff -Naur passwd.old passwd.new &gt; passwd.patch
 一般来说，使用 diff 制作出来的比较文件通常使用扩展名 .patch，然后将旧文件更新成为新内的内容：<br>
 </p>
 
-<pre class="example">
+<pre class="example" id="orgdb6cd4b">
 patch -pN &lt; patch_file      &lt;== 更新
 patch -R -pN &lt; patch_file   &lt;== 还原
 
@@ -834,22 +724,22 @@ patch -R -pN &lt; patch_file   &lt;== 还原
 </pre>
 
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#33539;&#20363;&#20108;&#65306;&#23558;&#21018;&#21018;&#21046;&#20316;&#20986;&#26469;&#30340; patchf file &#29992;&#26469;&#26356;&#26032;&#26087;&#29256;&#25968;&#25454;</span>
+<pre class="src src-bash"><span style="color: #928374;"># </span><span style="color: #928374;">&#33539;&#20363;&#20108;&#65306;&#23558;&#21018;&#21018;&#21046;&#20316;&#20986;&#26469;&#30340; patchf file &#29992;&#26469;&#26356;&#26032;&#26087;&#29256;&#25968;&#25454;</span>
 $ patch -p0 &lt; passwd.patch
 </pre>
 </div>
 
 <div class="org-src-container">
-<pre class="src src-bash"><span style="color: #008787; background-color: #262626;"># </span><span style="color: #008787; background-color: #262626;">&#33539;&#20363;&#19977;&#65306;&#24674;&#22797;&#26087;&#25991;&#20214;&#30340;&#20869;&#23481;</span>
+<pre class="src src-bash"><span style="color: #928374;"># </span><span style="color: #928374;">&#33539;&#20363;&#19977;&#65306;&#24674;&#22797;&#26087;&#25991;&#20214;&#30340;&#20869;&#23481;</span>
 $ patch -R -p0 &lt; passwd.patch
 </pre>
 </div>
 </div>
 </div>
 </div>
-<div id="outline-container-org51b4d57" class="outline-3">
-<h3 id="org51b4d57">文件打印设置：pr<a id="org5d75beb"></a></h3>
-<div class="outline-text-3" id="text-org51b4d57">
+<div id="outline-container-orgdc7e787" class="outline-3">
+<h3 id="orgdc7e787">文件打印设置：pr<a id="orga6d63a5"></a></h3>
+<div class="outline-text-3" id="text-orgdc7e787">
 <p>
 使用 pr 可以选择打印时的标头，也可以设置页码，pr 的简单使用：<br>
 </p>
@@ -864,8 +754,8 @@ $ patch -R -p0 &lt; passwd.patch
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-06-23 Thu 00:51</p>
-<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+<p class="date">Created: 2023-02-06</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>

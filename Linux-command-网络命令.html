@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2023-01-06 -->
+<!-- 2023-01-30 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>LINUX-COMMAND-网络命令</title>
@@ -37,6 +37,9 @@
 <li><a href="#org7e8b68e">Linux 使用 ifconfig 查看本机 ip</a></li>
 </ul>
 </li>
+<li><a href="#org2b2bd49">tcpreplay 重放流量</a></li>
+<li><a href="#org8d1a904">tcpdump 录制流量</a></li>
+<li><a href="#org361b1e9">scp 远程传送文件</a></li>
 </ul>
 </div>
 </div>
@@ -57,7 +60,7 @@
 <div id="outline-container-orgab73db1" class="outline-4">
 <h4 id="orgab73db1">lo</h4>
 <div class="outline-text-4" id="text-orgab73db1">
-<pre class="example" id="org65d2dbb">
+<pre class="example" id="org43f7a03">
 # loopback 本机主机地址
 # flag=8049:网络设备状态标识
 # UP:网卡处于启动状态
@@ -85,7 +88,7 @@ nd6 options=201&lt;PERFORMNUD,DAD&gt;
 <div id="outline-container-org07fd502" class="outline-4">
 <h4 id="org07fd502">gif</h4>
 <div class="outline-text-4" id="text-org07fd502">
-<pre class="example" id="org8593965">
+<pre class="example" id="orgebb8cce">
 # software network interface 网络接口
 # POINTOPOINT: 允许2台机器点对点直连
 # MULTICAS:网卡可以发送多播包
@@ -97,7 +100,7 @@ gif0: flags=8010&lt;POINTOPOINT,MULTICAST&gt; mtu 1280
 <div id="outline-container-orgf0fee5a" class="outline-4">
 <h4 id="orgf0fee5a">stf</h4>
 <div class="outline-text-4" id="text-orgf0fee5a">
-<pre class="example" id="org7e7ce82">
+<pre class="example" id="org3f62c7b">
 # stf 6to4 tunnel interface 配置隧道
 stf0: flags=0&lt;&gt; mtu 1280
 </pre>
@@ -106,7 +109,7 @@ stf0: flags=0&lt;&gt; mtu 1280
 <div id="outline-container-orgec5ab5b" class="outline-4">
 <h4 id="orgec5ab5b">XHC20</h4>
 <div class="outline-text-4" id="text-orgec5ab5b">
-<pre class="example" id="orgfd6d65e">
+<pre class="example" id="orgd1d4e7e">
 # XHC20
 XHC20: flags=0&lt;&gt; mtu 0
 </pre>
@@ -115,7 +118,7 @@ XHC20: flags=0&lt;&gt; mtu 0
 <div id="outline-container-orgf3b8c4a" class="outline-4">
 <h4 id="orgf3b8c4a">en0</h4>
 <div class="outline-text-4" id="text-orgf3b8c4a">
-<pre class="example" id="org7fd7f44">
+<pre class="example" id="orgef4e9cd">
 # en0: 以太网0
 # flags=8863:网络状态标识
 # BROADCAST:有广播地址，支持发广播包
@@ -137,7 +140,7 @@ en0: flags=8863&lt;UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST&gt; mtu 1500
 <div id="outline-container-orgd8ffe88" class="outline-4">
 <h4 id="orgd8ffe88">p2p0</h4>
 <div class="outline-text-4" id="text-orgd8ffe88">
-<pre class="example" id="org5808eec">
+<pre class="example" id="org4d5db72">
 # p2p0:Point-to-Point 协议
 p2p0: flags=8843&lt;UP,BROADCAST,RUNNING,SIMPLEX,MULTICAST&gt; mtu 2304
   ether 06:b3:01:ce:06:11
@@ -151,7 +154,7 @@ p2p0: flags=8843&lt;UP,BROADCAST,RUNNING,SIMPLEX,MULTICAST&gt; mtu 2304
 <div id="outline-container-org3407a52" class="outline-4">
 <h4 id="org3407a52">awdl0</h4>
 <div class="outline-text-4" id="text-org3407a52">
-<pre class="example" id="orgb8250a8">
+<pre class="example" id="orgc32aece">
 # awdl0: airdrop peer to peer(一种mesh network)，apple airdrop设备特有
 # Apple: 无线直接链接
 # PROMISC: 允许混杂的模式(全部的数据会被接口接收)
@@ -173,7 +176,7 @@ awdl0: flags=8943&lt;UP,BROADCAST,RUNNING,PROMISC,SIMPLEX,MULTICAST&gt; mtu 1484
 此处为何这么多 en 接口呢，运行命令行 <code>networksetup -listallhardwareports</code> 可查看具体接口是做何操作的<br>
 </p>
 
-<pre class="example" id="orgaf74742">
+<pre class="example" id="orgb32d30a">
   Hardware Port: Wi-Fi
   Device: en0
   Ethernet Address: c4:b3:01:ce:06:11
@@ -198,7 +201,7 @@ awdl0: flags=8943&lt;UP,BROADCAST,RUNNING,PROMISC,SIMPLEX,MULTICAST&gt; mtu 1484
 ===================
 </pre>
 
-<pre class="example" id="org7a4a1b2">
+<pre class="example" id="org808555a">
 # en1: 以太网1 雷电口1
 en1: flags=8963&lt;UP,BROADCAST,SMART,RUNNING,PROMISC,SIMPLEX,MULTICAST&gt; mtu 1500
   options=60&lt;TSO4,TSO6&gt;
@@ -217,7 +220,7 @@ en1: flags=8963&lt;UP,BROADCAST,SMART,RUNNING,PROMISC,SIMPLEX,MULTICAST&gt; mtu 
 <div id="outline-container-orgf143558" class="outline-4">
 <h4 id="orgf143558">bridge0</h4>
 <div class="outline-text-4" id="text-orgf143558">
-<pre class="example" id="orgd6c26e8">
+<pre class="example" id="org393edac">
 # 具体google下桥接知识
 bridge0: flags=8822&lt;BROADCAST,SMART,SIMPLEX,MULTICAST&gt; mtu 1500
   options=63&lt;RXCSUM,TXCSUM,TSO4,TSO6&gt;
@@ -250,7 +253,7 @@ bridge0: flags=8822&lt;BROADCAST,SMART,SIMPLEX,MULTICAST&gt; mtu 1500
 
 <div class="org-src-container">
 <pre class="src src-bash">$ ifconfig eth0
-eth0: <span style="color: #ffcb6b;">flags</span>=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500
+eth0: <span style="color: #df85ff;">flags</span>=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500
 inet 172.17.8.241  netmask 255.255.240.0  broadcast 172.17.15.255
 ether 00:16:3e:0c:ec:10  txqueuelen 1000  (Ethernet)
 RX packets 215013189  bytes 59080762287 (55.0 GiB)
@@ -281,7 +284,7 @@ TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
 CentOS<br>
 </p>
 <div class="org-src-container">
-<pre class="src src-bash">$ ifconfig eth0 | grep inet | grep -v inet6 | awk <span style="color: #c3e88d;">'{print $2}'</span>
+<pre class="src src-bash">$ ifconfig eth0 | grep inet | grep -v inet6 | awk <span style="color: #7984D1;">'{print $2}'</span>
 </pre>
 </div>
 
@@ -289,7 +292,7 @@ CentOS<br>
 Ubuntu<br>
 </p>
 <div class="org-src-container">
-<pre class="src src-bash">$ ifconfig eth0 | grep inet | grep -v inet6 | awk <span style="color: #c3e88d;">'{print $2}'</span> | awk -v <span style="color: #ffcb6b;">FS</span>=<span style="color: #c3e88d;">":"</span> <span style="color: #c3e88d;">'{print $2}'</span>
+<pre class="src src-bash">$ ifconfig eth0 | grep inet | grep -v inet6 | awk <span style="color: #7984D1;">'{print $2}'</span> | awk -v <span style="color: #df85ff;">FS</span>=<span style="color: #7984D1;">":"</span> <span style="color: #7984D1;">'{print $2}'</span>
 </pre>
 </div>
 
@@ -297,16 +300,56 @@ Ubuntu<br>
 MacOS<br>
 </p>
 <div class="org-src-container">
-<pre class="src src-bash">$ ifconfig en0 | grep inet | grep -v inet6 | awk <span style="color: #c3e88d;">'{print $2}'</span>
+<pre class="src src-bash">$ ifconfig en0 | grep inet | grep -v inet6 | awk <span style="color: #7984D1;">'{print $2}'</span>
 </pre>
 </div>
 </div>
 </div>
 </div>
+
+<div id="outline-container-org2b2bd49" class="outline-2">
+<h2 id="org2b2bd49">tcpreplay 重放流量</h2>
+<div class="outline-text-2" id="text-org2b2bd49">
+<p>
+sudo tcpreplay -i -t eth0 test.pcap<br>
+</p>
+
+<p>
+-t 可以提高流量重放的速度<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org8d1a904" class="outline-2">
+<h2 id="org8d1a904">tcpdump 录制流量</h2>
+<div class="outline-text-2" id="text-org8d1a904">
+<p>
+sudo tcpdump -i eth0 -w test.pcap<br>
+</p>
+
+<p>
+sudo tcpdump host 123.249.11.63 and port 8080 -U -n -nn -w delete.pcap<br>
+</p>
+
+<p>
+-U 直接写入磁盘，舍弃缓存<br>
+-n 不把ip转化成域名，直接显示ip，避免执行 DNS lookups 的过程，速度会快很多<br>
+-nn 不把协议和端口号转化成名字，速度也会快很多<br>
+-w 写入数据到文件<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org361b1e9" class="outline-2">
+<h2 id="org361b1e9">scp 远程传送文件</h2>
+<div class="outline-text-2" id="text-org361b1e9">
+<p>
+scp -i ~/.ssh/servicewall_ed25519 broken_object_level_attack.pcap ec2-user@10.0.78.86:/home/ec2-user/<br>
+</p>
+</div>
+</div>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2023-01-06</p>
+<p class="date">Created: 2023-01-30</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

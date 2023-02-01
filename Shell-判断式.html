@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2023-01-23 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SHELL-判断式</title>
+<meta name="author" content="Haoran Liu" />
+<meta name="description" content="Copyright © 2023, Haoran Liu, all rights reserved." />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="static/css/org.css"/>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">SHELL-判断式</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#orgca30043">利用 test 命令的测试功能</a></li>
+<li><a href="#org21fd4bc">利用判断符号 []</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgca30043" class="outline-2">
+<h2 id="orgca30043">利用 test 命令的测试功能</h2>
+<div class="outline-text-2" id="text-orgca30043">
+<p>
+当要检测系统上面某些文件或是相关的属性时，利用 test 这个命令。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #686858;"># </span><span style="color: #686858;">&#26816;&#26597; /haoran &#26159;&#21542;&#23384;&#22312;</span>
+test -e /haoran
+</pre>
+</div>
+
+<p>
+执行结果并不会显示任何信息，但最后我们可以通过 <code>$?</code> 或 <code>&amp;&amp;</code> 及 <code>||</code> 来展示整个结果：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">test -e /haoran &amp;&amp; <span style="color: #87AFD7;">echo</span> <span style="color: #87875f;">"exist"</span> || <span style="color: #87AFD7;">echo</span> <span style="color: #87875f;">"not exist"</span>
+</pre>
+</div>
+
+<ol class="org-ol">
+<li><p>
+关于某个文件名的“文件类型”判断，如 test -e filename 表示存在否<br>
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">-e</td>
+<td class="org-left">该“文件名”是否存在？（常用）</td>
+</tr>
+
+<tr>
+<td class="org-left">-f</td>
+<td class="org-left">该“文件名”是否存在且为文件（file）？（常用）</td>
+</tr>
+
+<tr>
+<td class="org-left">-d</td>
+<td class="org-left">该“文件名”是否存在且为目录（directory）？（常用）</td>
+</tr>
+
+<tr>
+<td class="org-left">-b</td>
+<td class="org-left">该“文件名”是否存在且为一个 block device 设备？</td>
+</tr>
+
+<tr>
+<td class="org-left">-c</td>
+<td class="org-left">该“文件名”是否存在且为一个 character device 设备？</td>
+</tr>
+
+<tr>
+<td class="org-left">-S</td>
+<td class="org-left">该“文件名”是否存在且为一个 Socket 文件？</td>
+</tr>
+
+<tr>
+<td class="org-left">-p</td>
+<td class="org-left">该“文件名”是否存在且为一个 FIFO （pipe） 文件？</td>
+</tr>
+
+<tr>
+<td class="org-left">-L</td>
+<td class="org-left">该“文件名”是否存在且为一个链接文件？</td>
+</tr>
+</tbody>
+</table></li>
+
+<li><p>
+关于文件的权限侦测，如 test -r filename 表示可读否 （但 root权限常有例外）<br>
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">-r</td>
+<td class="org-left">侦测该文件名是否存在且具有“可读”的权限？</td>
+</tr>
+
+<tr>
+<td class="org-left">-w</td>
+<td class="org-left">侦测该文件名是否存在且具有“可写”的权限？</td>
+</tr>
+
+<tr>
+<td class="org-left">-x</td>
+<td class="org-left">侦测该文件名是否存在且具有“可执行”的权限？</td>
+</tr>
+
+<tr>
+<td class="org-left">-u</td>
+<td class="org-left">侦测该文件名是否存在且具有“SUID”的属性？</td>
+</tr>
+
+<tr>
+<td class="org-left">-g</td>
+<td class="org-left">侦测该文件名是否存在且具有“SGID”的属性？</td>
+</tr>
+
+<tr>
+<td class="org-left">-k</td>
+<td class="org-left">侦测该文件名是否存在且具有“Sticky bit”的属性？</td>
+</tr>
+
+<tr>
+<td class="org-left">-s</td>
+<td class="org-left">侦测该文件名是否存在且为“非空白文件”？</td>
+</tr>
+</tbody>
+</table></li>
+
+<li><p>
+两个文件之间的比较，如：test file1 -nt file2<br>
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">-nt</td>
+<td class="org-left">（newer than）判断 file1 是否比 file2 新</td>
+</tr>
+
+<tr>
+<td class="org-left">-ot</td>
+<td class="org-left">（older than）判断 file1 是否比 file2 旧</td>
+</tr>
+
+<tr>
+<td class="org-left">-ef</td>
+<td class="org-left">判断 file1 与 file2 是否为同一文件，可用在判断 hard link 的判定上。 主要意义在判定，两个文件是否均指向同一个 inode</td>
+</tr>
+</tbody>
+</table></li>
+
+<li><p>
+关于两个整数之间的判定，例如 test n1 -eq n2<br>
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">-eq</td>
+<td class="org-left">两数值相等（equal）</td>
+</tr>
+
+<tr>
+<td class="org-left">-ne</td>
+<td class="org-left">两数值不等（not equal）</td>
+</tr>
+
+<tr>
+<td class="org-left">-gt</td>
+<td class="org-left">n1 大于 n2（greater than）</td>
+</tr>
+
+<tr>
+<td class="org-left">-lt</td>
+<td class="org-left">n1 小于 n2（less than）</td>
+</tr>
+
+<tr>
+<td class="org-left">-ge</td>
+<td class="org-left">n1 大于等于 n2（greater than or equal）</td>
+</tr>
+
+<tr>
+<td class="org-left">-le</td>
+<td class="org-left">n1 小于等于 n2（less than or equal）</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+test 中不能使用小数<br>
+</p></li>
+
+<li><p>
+判定字串的数据<br>
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">test -z string</td>
+<td class="org-left">判定字串是否为 0 ？若 string 为空字串，则为 true</td>
+</tr>
+
+<tr>
+<td class="org-left">test -n string</td>
+<td class="org-left">判定字串是否非为 0 ？若 string 为空字串，则为 false。 -n 亦可省略</td>
+</tr>
+
+<tr>
+<td class="org-left">test str1 == str2</td>
+<td class="org-left">判定 str1 是否等于 str2 ，若相等，则回传 true</td>
+</tr>
+
+<tr>
+<td class="org-left">test str1 != str2</td>
+<td class="org-left">判定 str1 是否不等于 str2 ，若相等，则回传 false</td>
+</tr>
+
+<tr>
+<td class="org-left">test str1 &lt; str2</td>
+<td class="org-left">检查 str1 是否比 str2 小</td>
+</tr>
+
+<tr>
+<td class="org-left">test str1 &gt; str2</td>
+<td class="org-left">检查 str1 是否比 str2 大</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+<code>&lt;</code> 、 <code>&gt;</code> 需要转义<br>
+</p></li>
+
+<li><p>
+多重条件判定，例如： test -r filename -a -x filename<br>
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">-a</td>
+<td class="org-left">（and）两状况同时成立！例如 test -r file -a -x file，则 file 同时具有 r 与 x 权限时，才回传 true。</td>
+</tr>
+
+<tr>
+<td class="org-left">-o</td>
+<td class="org-left">（or）两状况任何一个成立！例如 test -r file -o -x file，则 file 具有 r 或 x 权限时，就可回传 true。</td>
+</tr>
+
+<tr>
+<td class="org-left">!</td>
+<td class="org-left">反相状态，如 test ! -x file ，当 file 不具有 x 时，回传 true</td>
+</tr>
+</tbody>
+</table></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-org21fd4bc" class="outline-2">
+<h2 id="org21fd4bc">利用判断符号 []</h2>
+<div class="outline-text-2" id="text-org21fd4bc">
+<p>
+除了使用 test 之外，还可以利用判断符号 <code>[]</code> 来进行数据的判断，举例来说，如果要知道 <code>${HOME}</code> 这个变量是否为空：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">$ [ -z <span style="color: #87875f;">"${HOME}"</span> ]; <span style="color: #87AFD7;">echo</span> $<span style="color: #faf4c6;">?</span>
+$ [ <span style="color: #87875f;">"${HOME}"</span> == <span style="color: #87875f;">"${MAIL}"</span> ]
+</pre>
+</div>
+
+<p>
+<span class="underline">中括号内的两端需要空格</span> ，上面的判断式使用了 <code>==</code> ，其实在 bash 中，一个等号与两等号的结果是一样的，不过我们通常使用一个等号表示赋值，两个等号表示逻辑判断，其他还需要注意的有：<br>
+</p>
+
+<ul class="org-ul">
+<li>在中括号内的变量，最好都以双引号括起来；<br></li>
+<li><p>
+在中括号内的常数，最好都以单或双引号括起来；<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash"><span style="color: #686858;"># </span><span style="color: #686858;">&#23601;&#27604;&#22914;&#19979;&#38754;&#36825;&#20010;&#20363;&#23376;&#65292;&#22914;&#26524; [] &#37324;&#30340;&#21464;&#37327;&#19981;&#25324;&#36215;&#26469;&#30340;&#35805;</span>
+<span style="color: #686858;"># </span><span style="color: #686858;">&#21028;&#26029;&#24335;&#23601;&#21464;&#25104;&#20102; [ Haoran Liu == "haoran" ]</span>
+<span style="color: #686858;"># </span><span style="color: #686858;">&#32780;&#25105;&#20204;&#24819;&#35201;&#30340;&#24212;&#35813;&#26159; [ "Haoran Liu" == "haoran" ]</span>
+$ <span style="color: #faf4c6;">name</span>=<span style="color: #87875f;">"Haoran Liu"</span>
+$ [ ${<span style="color: #faf4c6;">name</span>} == <span style="color: #87875f;">"haoran"</span> ]
+bash: [: too many arguments
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2023-01-21 16:01 Sat</p>
+<p class="author">Author: Haoran Liu</p>
+<p class="date">Created: 2023-01-23</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

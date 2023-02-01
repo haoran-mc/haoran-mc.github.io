@@ -1,81 +1,79 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-05-29 Sun 02:50 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 2023-01-30 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>使用Gin进行web开发</title>
-<meta name="generator" content="Org mode">
-<meta name="author" content="L.M.haoran">
-<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
->
-
-                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
-                <script type="module" src="static/js/main.js" defer></script>
-                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<meta name="author" content="L.M.haoran" />
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved." />
+<meta name="generator" content="Org Mode" />
+<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+           <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+           <script type="module" src="static/js/main.js" defer></script>
 </head>
 <body>
-<div id="content">
+<div id="content" class="content">
 <h1 class="title">使用Gin进行web开发</h1>
-<div id="table-of-contents">
+<div id="table-of-contents" role="doc-toc">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents">
+<div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org7d0197c">Gin框架的介绍</a></li>
-<li><a href="#org6a1180e">学习Gin框架的前置知识</a></li>
-<li><a href="#org3f096d8">文件上传</a>
+<li><a href="#org49292a9">Gin框架的介绍</a></li>
+<li><a href="#org6125029">学习Gin框架的前置知识</a></li>
+<li><a href="#org4767b3d">文件上传</a>
 <ul>
-<li><a href="#orgbfb4dcc">单个文件上传</a></li>
-<li><a href="#org60b80fa">多个文件上传</a></li>
+<li><a href="#orgb3e427f">单个文件上传</a></li>
+<li><a href="#org03e9e4d">多个文件上传</a></li>
 </ul>
 </li>
-<li><a href="#orgb06b1b7">重定向</a>
+<li><a href="#org270b7d5">重定向</a>
 <ul>
-<li><a href="#orgb379451">HTTP 重定向</a></li>
-<li><a href="#org5fc2c79">路由重定向</a></li>
+<li><a href="#org3e648e1">HTTP 重定向</a></li>
+<li><a href="#orgc7760d0">路由重定向</a></li>
 </ul>
 </li>
-<li><a href="#org921838d">Gin路由</a>
+<li><a href="#org0268cff">Gin路由</a>
 <ul>
-<li><a href="#org1097237">普通路由</a></li>
-<li><a href="#org4dc9510">路由组</a></li>
-<li><a href="#org68303d7">路由原理</a></li>
+<li><a href="#org81ff7bd">普通路由</a></li>
+<li><a href="#org961dcef">路由组</a></li>
+<li><a href="#orgcf0abb9">路由原理</a></li>
 </ul>
 </li>
-<li><a href="#org0347fb8">Gin中间件</a>
+<li><a href="#org0a2b759">Gin中间件</a>
 <ul>
-<li><a href="#org536cb22">定义中间件</a></li>
-<li><a href="#org17b3480">注册中间件</a>
+<li><a href="#org850af67">定义中间件</a></li>
+<li><a href="#org4a3cd69">注册中间件</a>
 <ul>
-<li><a href="#orgc38d720">为全局路由注册</a></li>
-<li><a href="#org1728103">为某个路由单独注册</a></li>
-<li><a href="#org340e045">为路由组注册</a></li>
+<li><a href="#org2594541">为全局路由注册</a></li>
+<li><a href="#org9101a2c">为某个路由单独注册</a></li>
+<li><a href="#org42defc6">为路由组注册</a></li>
 </ul>
 </li>
-<li><a href="#org5df321a">中间件注意事项</a>
+<li><a href="#org4b98d42">中间件注意事项</a>
 <ul>
-<li><a href="#orgada19e9">gin 默认中间件</a></li>
-<li><a href="#orgf4c081a">gin 中间件中使用 goroutine</a></li>
+<li><a href="#org0207ef6">gin 默认中间件</a></li>
+<li><a href="#org57a191b">gin 中间件中使用 goroutine</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#orgf82cf7d">运行多个服务</a></li>
+<li><a href="#org368d3b1">运行多个服务</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org7d0197c" class="outline-2">
-<h2 id="org7d0197c">Gin框架的介绍</h2>
-<div class="outline-text-2" id="text-org7d0197c">
+<div id="outline-container-org49292a9" class="outline-2">
+<h2 id="org49292a9">Gin框架的介绍</h2>
+<div class="outline-text-2" id="text-org49292a9">
 <ul class="org-ul">
 <li><a href="Go-Gin-初识Gin.html">初识gin框架</a><br></li>
 </ul>
 </div>
 </div>
-<div id="outline-container-org6a1180e" class="outline-2">
-<h2 id="org6a1180e">学习Gin框架的前置知识</h2>
-<div class="outline-text-2" id="text-org6a1180e">
+<div id="outline-container-org6125029" class="outline-2">
+<h2 id="org6125029">学习Gin框架的前置知识</h2>
+<div class="outline-text-2" id="text-org6125029">
 <ul class="org-ul">
 <li><a href="RESTful.html">RESTful API</a><br></li>
 <li><a href="Go-Gin-渲染.html">Gin渲染</a><br></li>
@@ -83,30 +81,30 @@
 </ul>
 </div>
 </div>
-<div id="outline-container-org3f096d8" class="outline-2">
-<h2 id="org3f096d8">文件上传</h2>
-<div class="outline-text-2" id="text-org3f096d8">
+<div id="outline-container-org4767b3d" class="outline-2">
+<h2 id="org4767b3d">文件上传</h2>
+<div class="outline-text-2" id="text-org4767b3d">
 </div>
-<div id="outline-container-orgbfb4dcc" class="outline-3">
-<h3 id="orgbfb4dcc">单个文件上传</h3>
-<div class="outline-text-3" id="text-orgbfb4dcc">
+<div id="outline-container-orgb3e427f" class="outline-3">
+<h3 id="orgb3e427f">单个文件上传</h3>
+<div class="outline-text-3" id="text-orgb3e427f">
 <p>
 文件上传前端页面代码：<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-html">&lt;<span style="color: #268bd2; font-weight: bold;">!DOCTYPE</span> html&gt;
-&lt;<span style="color: #d75fd7; font-weight: bold;">html</span> <span style="color: #8787d7;">lang</span>=<span style="color: #2aa198;">"zh-CN"</span>&gt;
-  &lt;<span style="color: #d75fd7; font-weight: bold;">head</span>&gt;
-    &lt;<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;<span style="font-weight: bold; text-decoration: underline;">&#19978;&#20256;&#25991;&#20214;&#31034;&#20363;</span>&lt;/<span style="color: #d75fd7; font-weight: bold;">title</span>&gt;
-  &lt;/<span style="color: #d75fd7; font-weight: bold;">head</span>&gt;
-  &lt;<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
-    &lt;<span style="color: #d75fd7; font-weight: bold;">form</span> <span style="color: #8787d7;">action</span>=<span style="color: #2aa198;">"/upload"</span> <span style="color: #8787d7;">method</span>=<span style="color: #2aa198;">"post"</span> <span style="color: #8787d7;">enctype</span>=<span style="color: #2aa198;">"multipart/form-data"</span>&gt;
-      &lt;<span style="color: #d75fd7; font-weight: bold;">input</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"file"</span> <span style="color: #8787d7;">name</span>=<span style="color: #2aa198;">"f1"</span>&gt;
-      &lt;<span style="color: #d75fd7; font-weight: bold;">input</span> <span style="color: #8787d7;">type</span>=<span style="color: #2aa198;">"submit"</span> <span style="color: #8787d7;">value</span>=<span style="color: #2aa198;">"&#19978;&#20256;"</span>&gt;
-    &lt;/<span style="color: #d75fd7; font-weight: bold;">form</span>&gt;
-  &lt;/<span style="color: #d75fd7; font-weight: bold;">body</span>&gt;
-&lt;/<span style="color: #d75fd7; font-weight: bold;">html</span>&gt;
+<pre class="src src-html">&lt;<span style="color: #ff2afc; font-weight: bold;">!DOCTYPE</span> html&gt;
+&lt;<span style="color: #42c6ff;">html</span> <span style="color: #df85ff;">lang</span>=<span style="color: #7984D1;">"zh-CN"</span>&gt;
+  &lt;<span style="color: #42c6ff;">head</span>&gt;
+    &lt;<span style="color: #42c6ff;">title</span>&gt;<span style="font-weight: bold; text-decoration: underline;">&#19978;&#20256;&#25991;&#20214;&#31034;&#20363;</span>&lt;/<span style="color: #42c6ff;">title</span>&gt;
+  &lt;/<span style="color: #42c6ff;">head</span>&gt;
+  &lt;<span style="color: #42c6ff;">body</span>&gt;
+    &lt;<span style="color: #42c6ff;">form</span> <span style="color: #df85ff;">action</span>=<span style="color: #7984D1;">"/upload"</span> <span style="color: #df85ff;">method</span>=<span style="color: #7984D1;">"post"</span> <span style="color: #df85ff;">enctype</span>=<span style="color: #7984D1;">"multipart/form-data"</span>&gt;
+      &lt;<span style="color: #42c6ff;">input</span> <span style="color: #df85ff;">type</span>=<span style="color: #7984D1;">"file"</span> <span style="color: #df85ff;">name</span>=<span style="color: #7984D1;">"f1"</span>&gt;
+      &lt;<span style="color: #42c6ff;">input</span> <span style="color: #df85ff;">type</span>=<span style="color: #7984D1;">"submit"</span> <span style="color: #df85ff;">value</span>=<span style="color: #7984D1;">"&#19978;&#20256;"</span>&gt;
+    &lt;/<span style="color: #42c6ff;">form</span>&gt;
+  &lt;/<span style="color: #42c6ff;">body</span>&gt;
+&lt;/<span style="color: #42c6ff;">html</span>&gt;
 </pre>
 </div>
 
@@ -115,117 +113,117 @@
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #8787d7;">router</span> := gin.<span style="color: #d75fd7; font-weight: bold;">Default</span>()
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22788;&#29702;multipart forms&#25552;&#20132;&#25991;&#20214;&#26102;&#40664;&#35748;&#30340;&#20869;&#23384;&#38480;&#21046;&#26159;32 MiB</span>
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21487;&#20197;&#36890;&#36807;&#19979;&#38754;&#30340;&#26041;&#24335;&#20462;&#25913;</span>
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">router.MaxMultipartMemory = 8 &lt;&lt; 20  // 8 MiB</span>
-    router.<span style="color: #d75fd7; font-weight: bold;">POST</span>(<span style="color: #2aa198;">"/upload"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {
-        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21333;&#20010;&#25991;&#20214;</span>
-        <span style="color: #8787d7;">file</span>, <span style="color: #8787d7;">err</span> := c.<span style="color: #d75fd7; font-weight: bold;">FormFile</span>(<span style="color: #2aa198;">"f1"</span>)
-        <span style="color: #268bd2; font-weight: bold;">if</span> err != <span style="color: #d75fd7;">nil</span> {
-            c.<span style="color: #d75fd7; font-weight: bold;">JSON</span>(http.StatusInternalServerError, <span style="color: #df005f; font-weight: bold;">gin.H</span>{
-                <span style="color: #2aa198;">"message"</span>: err.<span style="color: #d75fd7; font-weight: bold;">Error</span>(),
+<pre class="src src-go"><span style="color: #ff2afc; font-weight: bold;">func</span> <span style="color: #42c6ff;">main</span>() {
+    <span style="color: #df85ff;">router</span> := gin.<span style="color: #42c6ff;">Default</span>()
+    <span style="color: #546A90;">// </span><span style="color: #546A90;">&#22788;&#29702;multipart forms&#25552;&#20132;&#25991;&#20214;&#26102;&#40664;&#35748;&#30340;&#20869;&#23384;&#38480;&#21046;&#26159;32 MiB</span>
+    <span style="color: #546A90;">// </span><span style="color: #546A90;">&#21487;&#20197;&#36890;&#36807;&#19979;&#38754;&#30340;&#26041;&#24335;&#20462;&#25913;</span>
+    <span style="color: #546A90;">// </span><span style="color: #546A90;">router.MaxMultipartMemory = 8 &lt;&lt; 20  // 8 MiB</span>
+    router.<span style="color: #42c6ff;">POST</span>(<span style="color: #7984D1;">"/upload"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {
+        <span style="color: #546A90;">// </span><span style="color: #546A90;">&#21333;&#20010;&#25991;&#20214;</span>
+        <span style="color: #df85ff;">file</span>, <span style="color: #df85ff;">err</span> := c.<span style="color: #42c6ff;">FormFile</span>(<span style="color: #7984D1;">"f1"</span>)
+        <span style="color: #ff2afc; font-weight: bold;">if</span> err != <span style="color: #df85ff; font-weight: bold;">nil</span> {
+            c.<span style="color: #42c6ff;">JSON</span>(http.StatusInternalServerError, <span style="color: #ffd400;">gin.H</span>{
+                <span style="color: #7984D1;">"message"</span>: err.<span style="color: #42c6ff;">Error</span>(),
             })
-            <span style="color: #268bd2; font-weight: bold;">return</span>
+            <span style="color: #ff2afc; font-weight: bold;">return</span>
         }
 
-        log.<span style="color: #d75fd7; font-weight: bold;">Println</span>(file.Filename)
-        <span style="color: #8787d7;">dst</span> := fmt.<span style="color: #d75fd7; font-weight: bold;">Sprintf</span>(<span style="color: #2aa198;">"C:/tmp/%s"</span>, file.Filename)
-        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#19978;&#20256;&#25991;&#20214;&#21040;&#25351;&#23450;&#30340;&#30446;&#24405;</span>
-        c.<span style="color: #d75fd7; font-weight: bold;">SaveUploadedFile</span>(file, dst)
-        c.<span style="color: #d75fd7; font-weight: bold;">JSON</span>(http.StatusOK, <span style="color: #df005f; font-weight: bold;">gin.H</span>{
-            <span style="color: #2aa198;">"message"</span>: fmt.<span style="color: #d75fd7; font-weight: bold;">Sprintf</span>(<span style="color: #2aa198;">"'%s' uploaded!"</span>, file.Filename),
+        log.<span style="color: #42c6ff;">Println</span>(file.Filename)
+        <span style="color: #df85ff;">dst</span> := fmt.<span style="color: #42c6ff;">Sprintf</span>(<span style="color: #7984D1;">"C:/tmp/%s"</span>, file.Filename)
+        <span style="color: #546A90;">// </span><span style="color: #546A90;">&#19978;&#20256;&#25991;&#20214;&#21040;&#25351;&#23450;&#30340;&#30446;&#24405;</span>
+        c.<span style="color: #42c6ff;">SaveUploadedFile</span>(file, dst)
+        c.<span style="color: #42c6ff;">JSON</span>(http.StatusOK, <span style="color: #ffd400;">gin.H</span>{
+            <span style="color: #7984D1;">"message"</span>: fmt.<span style="color: #42c6ff;">Sprintf</span>(<span style="color: #7984D1;">"'%s' uploaded!"</span>, file.Filename),
         })
     })
-    router.<span style="color: #d75fd7; font-weight: bold;">Run</span>()
+    router.<span style="color: #42c6ff;">Run</span>()
 }
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org60b80fa" class="outline-3">
-<h3 id="org60b80fa">多个文件上传</h3>
-<div class="outline-text-3" id="text-org60b80fa">
+<div id="outline-container-org03e9e4d" class="outline-3">
+<h3 id="org03e9e4d">多个文件上传</h3>
+<div class="outline-text-3" id="text-org03e9e4d">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #8787d7;">router</span> := gin.<span style="color: #d75fd7; font-weight: bold;">Default</span>()
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#22788;&#29702;multipart forms&#25552;&#20132;&#25991;&#20214;&#26102;&#40664;&#35748;&#30340;&#20869;&#23384;&#38480;&#21046;&#26159;32 MiB</span>
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21487;&#20197;&#36890;&#36807;&#19979;&#38754;&#30340;&#26041;&#24335;&#20462;&#25913;</span>
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">router.MaxMultipartMemory = 8 &lt;&lt; 20  // 8 MiB</span>
-    router.<span style="color: #d75fd7; font-weight: bold;">POST</span>(<span style="color: #2aa198;">"/upload"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {
-        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">Multipart form</span>
-        <span style="color: #8787d7;">form</span>, <span style="color: #8787d7;">_</span> := c.<span style="color: #d75fd7; font-weight: bold;">MultipartForm</span>()
-        <span style="color: #8787d7;">files</span> := form.File[<span style="color: #2aa198;">"file"</span>]
+<pre class="src src-go"><span style="color: #ff2afc; font-weight: bold;">func</span> <span style="color: #42c6ff;">main</span>() {
+    <span style="color: #df85ff;">router</span> := gin.<span style="color: #42c6ff;">Default</span>()
+    <span style="color: #546A90;">// </span><span style="color: #546A90;">&#22788;&#29702;multipart forms&#25552;&#20132;&#25991;&#20214;&#26102;&#40664;&#35748;&#30340;&#20869;&#23384;&#38480;&#21046;&#26159;32 MiB</span>
+    <span style="color: #546A90;">// </span><span style="color: #546A90;">&#21487;&#20197;&#36890;&#36807;&#19979;&#38754;&#30340;&#26041;&#24335;&#20462;&#25913;</span>
+    <span style="color: #546A90;">// </span><span style="color: #546A90;">router.MaxMultipartMemory = 8 &lt;&lt; 20  // 8 MiB</span>
+    router.<span style="color: #42c6ff;">POST</span>(<span style="color: #7984D1;">"/upload"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {
+        <span style="color: #546A90;">// </span><span style="color: #546A90;">Multipart form</span>
+        <span style="color: #df85ff;">form</span>, <span style="color: #df85ff;">_</span> := c.<span style="color: #42c6ff;">MultipartForm</span>()
+        <span style="color: #df85ff;">files</span> := form.File[<span style="color: #7984D1;">"file"</span>]
 
-        <span style="color: #268bd2; font-weight: bold;">for</span> <span style="color: #8787d7;">index</span>, <span style="color: #8787d7;">file</span> := <span style="color: #268bd2; font-weight: bold;">range</span> files {
-            log.<span style="color: #d75fd7; font-weight: bold;">Println</span>(file.Filename)
-            <span style="color: #8787d7;">dst</span> := fmt.<span style="color: #d75fd7; font-weight: bold;">Sprintf</span>(<span style="color: #2aa198;">"C:/tmp/%s_%d"</span>, file.Filename, index)
-            <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#19978;&#20256;&#25991;&#20214;&#21040;&#25351;&#23450;&#30340;&#30446;&#24405;</span>
-            c.<span style="color: #d75fd7; font-weight: bold;">SaveUploadedFile</span>(file, dst)
+        <span style="color: #ff2afc; font-weight: bold;">for</span> <span style="color: #df85ff;">index</span>, <span style="color: #df85ff;">file</span> := <span style="color: #ff2afc; font-weight: bold;">range</span> files {
+            log.<span style="color: #42c6ff;">Println</span>(file.Filename)
+            <span style="color: #df85ff;">dst</span> := fmt.<span style="color: #42c6ff;">Sprintf</span>(<span style="color: #7984D1;">"C:/tmp/%s_%d"</span>, file.Filename, index)
+            <span style="color: #546A90;">// </span><span style="color: #546A90;">&#19978;&#20256;&#25991;&#20214;&#21040;&#25351;&#23450;&#30340;&#30446;&#24405;</span>
+            c.<span style="color: #42c6ff;">SaveUploadedFile</span>(file, dst)
         }
-        c.<span style="color: #d75fd7; font-weight: bold;">JSON</span>(http.StatusOK, <span style="color: #df005f; font-weight: bold;">gin.H</span>{
-            <span style="color: #2aa198;">"message"</span>: fmt.<span style="color: #d75fd7; font-weight: bold;">Sprintf</span>(<span style="color: #2aa198;">"%d files uploaded!"</span>, <span style="color: #268bd2;">len</span>(files)),
+        c.<span style="color: #42c6ff;">JSON</span>(http.StatusOK, <span style="color: #ffd400;">gin.H</span>{
+            <span style="color: #7984D1;">"message"</span>: fmt.<span style="color: #42c6ff;">Sprintf</span>(<span style="color: #7984D1;">"%d files uploaded!"</span>, <span style="color: #1ea8fc;">len</span>(files)),
         })
     })
-    router.<span style="color: #d75fd7; font-weight: bold;">Run</span>()
-} 
+    router.<span style="color: #42c6ff;">Run</span>()
+}
 </pre>
 </div>
 </div>
 </div>
 </div>
-<div id="outline-container-orgb06b1b7" class="outline-2">
-<h2 id="orgb06b1b7">重定向</h2>
-<div class="outline-text-2" id="text-orgb06b1b7">
+<div id="outline-container-org270b7d5" class="outline-2">
+<h2 id="org270b7d5">重定向</h2>
+<div class="outline-text-2" id="text-org270b7d5">
 </div>
-<div id="outline-container-orgb379451" class="outline-3">
-<h3 id="orgb379451">HTTP 重定向</h3>
-<div class="outline-text-3" id="text-orgb379451">
+<div id="outline-container-org3e648e1" class="outline-3">
+<h3 id="org3e648e1">HTTP 重定向</h3>
+<div class="outline-text-3" id="text-org3e648e1">
 <p>
 HTTP 重定向很容易。 内部、外部重定向均支持。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go">r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/test"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {
-    c.<span style="color: #d75fd7; font-weight: bold;">Redirect</span>(http.StatusMovedPermanently, <span style="color: #2aa198;">"http://www.sogo.com/"</span>)
+<pre class="src src-go">r.<span style="color: #42c6ff;">GET</span>(<span style="color: #7984D1;">"/test"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {
+    c.<span style="color: #42c6ff;">Redirect</span>(http.StatusMovedPermanently, <span style="color: #7984D1;">"http://www.sogo.com/"</span>)
 })
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org5fc2c79" class="outline-3">
-<h3 id="org5fc2c79">路由重定向</h3>
-<div class="outline-text-3" id="text-org5fc2c79">
+<div id="outline-container-orgc7760d0" class="outline-3">
+<h3 id="orgc7760d0">路由重定向</h3>
+<div class="outline-text-3" id="text-orgc7760d0">
 <p>
 路由重定向，使用 HandleContext：<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go">r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/test"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {
-        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25351;&#23450;&#37325;&#23450;&#21521;&#30340;URL</span>
-        c.Request.URL.Path = <span style="color: #2aa198;">"/test2"</span>
-        r.<span style="color: #d75fd7; font-weight: bold;">HandleContext</span>(c)
+<pre class="src src-go">r.<span style="color: #42c6ff;">GET</span>(<span style="color: #7984D1;">"/test"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {
+    <span style="color: #546A90;">// </span><span style="color: #546A90;">&#25351;&#23450;&#37325;&#23450;&#21521;&#30340;URL</span>
+    c.Request.URL.Path = <span style="color: #7984D1;">"/test2"</span>
+    r.<span style="color: #42c6ff;">HandleContext</span>(c)
 })
-r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/test2"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {
-        c.<span style="color: #d75fd7; font-weight: bold;">JSON</span>(http.StatusOK, <span style="color: #df005f; font-weight: bold;">gin.H</span>{<span style="color: #2aa198;">"hello"</span>: <span style="color: #2aa198;">"world"</span>})
+r.<span style="color: #42c6ff;">GET</span>(<span style="color: #7984D1;">"/test2"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {
+    c.<span style="color: #42c6ff;">JSON</span>(http.StatusOK, <span style="color: #ffd400;">gin.H</span>{<span style="color: #7984D1;">"hello"</span>: <span style="color: #7984D1;">"world"</span>})
 })
 </pre>
 </div>
 </div>
 </div>
 </div>
-<div id="outline-container-org921838d" class="outline-2">
-<h2 id="org921838d">Gin路由</h2>
-<div class="outline-text-2" id="text-org921838d">
+<div id="outline-container-org0268cff" class="outline-2">
+<h2 id="org0268cff">Gin路由</h2>
+<div class="outline-text-2" id="text-org0268cff">
 </div>
-<div id="outline-container-org1097237" class="outline-3">
-<h3 id="org1097237">普通路由</h3>
-<div class="outline-text-3" id="text-org1097237">
+<div id="outline-container-org81ff7bd" class="outline-3">
+<h3 id="org81ff7bd">普通路由</h3>
+<div class="outline-text-3" id="text-org81ff7bd">
 <div class="org-src-container">
-<pre class="src src-go">r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/index"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {...})
-r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/login"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {...})
-r.<span style="color: #d75fd7; font-weight: bold;">POST</span>(<span style="color: #2aa198;">"/login"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {...})
+<pre class="src src-go">r.<span style="color: #42c6ff;">GET</span>(<span style="color: #7984D1;">"/index"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {...})
+r.<span style="color: #42c6ff;">GET</span>(<span style="color: #7984D1;">"/login"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {...})
+r.<span style="color: #42c6ff;">POST</span>(<span style="color: #7984D1;">"/login"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {...})
 </pre>
 </div>
 
@@ -234,7 +232,7 @@ r.<span style="color: #d75fd7; font-weight: bold;">POST</span>(<span style="colo
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go">r.<span style="color: #d75fd7; font-weight: bold;">Any</span>(<span style="color: #2aa198;">"/test"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {...})
+<pre class="src src-go">r.<span style="color: #42c6ff;">Any</span>(<span style="color: #7984D1;">"/test"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {...})
 </pre>
 </div>
 
@@ -243,37 +241,37 @@ r.<span style="color: #d75fd7; font-weight: bold;">POST</span>(<span style="colo
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go">r.<span style="color: #d75fd7; font-weight: bold;">NoRoute</span>(<span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {
-    c.<span style="color: #d75fd7; font-weight: bold;">HTML</span>(http.StatusNotFound, <span style="color: #2aa198;">"views/404.html"</span>, <span style="color: #d75fd7;">nil</span>)
+<pre class="src src-go">r.<span style="color: #42c6ff;">NoRoute</span>(<span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {
+    c.<span style="color: #42c6ff;">HTML</span>(http.StatusNotFound, <span style="color: #7984D1;">"views/404.html"</span>, <span style="color: #df85ff; font-weight: bold;">nil</span>)
 })
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org4dc9510" class="outline-3">
-<h3 id="org4dc9510">路由组</h3>
-<div class="outline-text-3" id="text-org4dc9510">
+<div id="outline-container-org961dcef" class="outline-3">
+<h3 id="org961dcef">路由组</h3>
+<div class="outline-text-3" id="text-org961dcef">
 <p>
 我们可以将拥有共同URL前缀的路由划分为一个路由组。习惯性一对{}包裹同组的路由，这只是为了看着清晰，你用不用{}包裹功能上没什么区别。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #8787d7;">r</span> := gin.<span style="color: #d75fd7; font-weight: bold;">Default</span>()
-    <span style="color: #8787d7;">userGroup</span> := r.<span style="color: #d75fd7; font-weight: bold;">Group</span>(<span style="color: #2aa198;">"/user"</span>)
+<pre class="src src-go"><span style="color: #ff2afc; font-weight: bold;">func</span> <span style="color: #42c6ff;">main</span>() {
+    <span style="color: #df85ff;">r</span> := gin.<span style="color: #42c6ff;">Default</span>()
+    <span style="color: #df85ff;">userGroup</span> := r.<span style="color: #42c6ff;">Group</span>(<span style="color: #7984D1;">"/user"</span>)
     {
-        userGroup.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/index"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {...})
-        userGroup.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/login"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {...})
-        userGroup.<span style="color: #d75fd7; font-weight: bold;">POST</span>(<span style="color: #2aa198;">"/login"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {...})
+        userGroup.<span style="color: #42c6ff;">GET</span>(<span style="color: #7984D1;">"/index"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {...})
+        userGroup.<span style="color: #42c6ff;">GET</span>(<span style="color: #7984D1;">"/login"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {...})
+        userGroup.<span style="color: #42c6ff;">POST</span>(<span style="color: #7984D1;">"/login"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {...})
 
     }
-    <span style="color: #8787d7;">shopGroup</span> := r.<span style="color: #d75fd7; font-weight: bold;">Group</span>(<span style="color: #2aa198;">"/shop"</span>)
+    <span style="color: #df85ff;">shopGroup</span> := r.<span style="color: #42c6ff;">Group</span>(<span style="color: #7984D1;">"/shop"</span>)
     {
-        shopGroup.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/index"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {...})
-        shopGroup.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/cart"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {...})
-        shopGroup.<span style="color: #d75fd7; font-weight: bold;">POST</span>(<span style="color: #2aa198;">"/checkout"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {...})
+        shopGroup.<span style="color: #42c6ff;">GET</span>(<span style="color: #7984D1;">"/index"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {...})
+        shopGroup.<span style="color: #42c6ff;">GET</span>(<span style="color: #7984D1;">"/cart"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {...})
+        shopGroup.<span style="color: #42c6ff;">POST</span>(<span style="color: #7984D1;">"/checkout"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {...})
     }
-    r.<span style="color: #d75fd7; font-weight: bold;">Run</span>()
+    r.<span style="color: #42c6ff;">Run</span>()
 }
 </pre>
 </div>
@@ -283,14 +281,14 @@ r.<span style="color: #d75fd7; font-weight: bold;">POST</span>(<span style="colo
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #8787d7;">shopGroup</span> := r.<span style="color: #d75fd7; font-weight: bold;">Group</span>(<span style="color: #2aa198;">"/shop"</span>)
+<pre class="src src-go"><span style="color: #df85ff;">shopGroup</span> := r.<span style="color: #42c6ff;">Group</span>(<span style="color: #7984D1;">"/shop"</span>)
 {
-    shopGroup.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/index"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {...})
-    shopGroup.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/cart"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {...})
-    shopGroup.<span style="color: #d75fd7; font-weight: bold;">POST</span>(<span style="color: #2aa198;">"/checkout"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {...})
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#23884;&#22871;&#36335;&#30001;&#32452;</span>
-    <span style="color: #8787d7;">xx</span> := shopGroup.<span style="color: #d75fd7; font-weight: bold;">Group</span>(<span style="color: #2aa198;">"xx"</span>)
-    xx.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/oo"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {...})
+    shopGroup.<span style="color: #42c6ff;">GET</span>(<span style="color: #7984D1;">"/index"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {...})
+    shopGroup.<span style="color: #42c6ff;">GET</span>(<span style="color: #7984D1;">"/cart"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {...})
+    shopGroup.<span style="color: #42c6ff;">POST</span>(<span style="color: #7984D1;">"/checkout"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {...})
+    <span style="color: #546A90;">// </span><span style="color: #546A90;">&#23884;&#22871;&#36335;&#30001;&#32452;</span>
+    <span style="color: #df85ff;">xx</span> := shopGroup.<span style="color: #42c6ff;">Group</span>(<span style="color: #7984D1;">"xx"</span>)
+    xx.<span style="color: #42c6ff;">GET</span>(<span style="color: #7984D1;">"/oo"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {...})
 }
 </pre>
 </div>
@@ -300,9 +298,9 @@ r.<span style="color: #d75fd7; font-weight: bold;">POST</span>(<span style="colo
 </p>
 </div>
 </div>
-<div id="outline-container-org68303d7" class="outline-3">
-<h3 id="org68303d7">路由原理</h3>
-<div class="outline-text-3" id="text-org68303d7">
+<div id="outline-container-orgcf0abb9" class="outline-3">
+<h3 id="orgcf0abb9">路由原理</h3>
+<div class="outline-text-3" id="text-orgcf0abb9">
 <p>
 Gin 框架中的路由使用的是 <a href="https://github.com/julienschmidt/httprouter">httprouter</a> 这个库。<br>
 </p>
@@ -313,88 +311,88 @@ Gin 框架中的路由使用的是 <a href="https://github.com/julienschmidt/htt
 </div>
 </div>
 </div>
-<div id="outline-container-org0347fb8" class="outline-2">
-<h2 id="org0347fb8">Gin中间件</h2>
-<div class="outline-text-2" id="text-org0347fb8">
+<div id="outline-container-org0a2b759" class="outline-2">
+<h2 id="org0a2b759">Gin中间件</h2>
+<div class="outline-text-2" id="text-org0a2b759">
 <p>
 Gin 框架允许开发者在处理请求的过程中，加入用户自己的钩子（Hook）函数。这个钩子函数就叫中间件，中间件适合处理一些公共的业务逻辑，比如登录认证、权限校验、数据分页、记录日志、耗时统计等。<br>
 </p>
 </div>
-<div id="outline-container-org536cb22" class="outline-3">
-<h3 id="org536cb22">定义中间件</h3>
-<div class="outline-text-3" id="text-org536cb22">
+<div id="outline-container-org850af67" class="outline-3">
+<h3 id="org850af67">定义中间件</h3>
+<div class="outline-text-3" id="text-org850af67">
 <p>
 Gin 中的中间件必须是一个 <code>gin.HandlerFunc</code> 类型。例如我们像下面的代码一样定义一个统计请求耗时的中间件。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">StatCost &#26159;&#19968;&#20010;&#32479;&#35745;&#32791;&#26102;&#35831;&#27714;&#32791;&#26102;&#30340;&#20013;&#38388;&#20214;</span>
-<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">StatCost</span>() <span style="color: #df005f; font-weight: bold;">gin.HandlerFunc</span> {
-    <span style="color: #268bd2; font-weight: bold;">return</span> <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {
-        <span style="color: #8787d7;">start</span> := time.<span style="color: #d75fd7; font-weight: bold;">Now</span>()
-        c.<span style="color: #d75fd7; font-weight: bold;">Set</span>(<span style="color: #2aa198;">"name"</span>, <span style="color: #2aa198;">"&#23567;&#29579;&#23376;"</span>) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21487;&#20197;&#36890;&#36807;c.Set&#22312;&#35831;&#27714;&#19978;&#19979;&#25991;&#20013;&#35774;&#32622;&#20540;&#65292;&#21518;&#32493;&#30340;&#22788;&#29702;&#20989;&#25968;&#33021;&#22815;&#21462;&#21040;&#35813;&#20540;</span>
-        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35843;&#29992;&#35813;&#35831;&#27714;&#30340;&#21097;&#20313;&#22788;&#29702;&#31243;&#24207;</span>
-        c.<span style="color: #d75fd7; font-weight: bold;">Next</span>()
-        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#19981;&#35843;&#29992;&#35813;&#35831;&#27714;&#30340;&#21097;&#20313;&#22788;&#29702;&#31243;&#24207;</span>
-        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">c.Abort()</span>
-        <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#35745;&#31639;&#32791;&#26102;</span>
-        <span style="color: #8787d7;">cost</span> := time.<span style="color: #d75fd7; font-weight: bold;">Since</span>(start)
-        log.<span style="color: #d75fd7; font-weight: bold;">Println</span>(cost)
+<pre class="src src-go"><span style="color: #546A90;">// </span><span style="color: #546A90;">StatCost &#26159;&#19968;&#20010;&#32479;&#35745;&#32791;&#26102;&#35831;&#27714;&#32791;&#26102;&#30340;&#20013;&#38388;&#20214;</span>
+<span style="color: #ff2afc; font-weight: bold;">func</span> <span style="color: #42c6ff;">StatCost</span>() <span style="color: #ffd400;">gin.HandlerFunc</span> {
+    <span style="color: #ff2afc; font-weight: bold;">return</span> <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {
+        <span style="color: #df85ff;">start</span> := time.<span style="color: #42c6ff;">Now</span>()
+        c.<span style="color: #42c6ff;">Set</span>(<span style="color: #7984D1;">"name"</span>, <span style="color: #7984D1;">"&#23567;&#29579;&#23376;"</span>) <span style="color: #546A90;">// </span><span style="color: #546A90;">&#21487;&#20197;&#36890;&#36807;c.Set&#22312;&#35831;&#27714;&#19978;&#19979;&#25991;&#20013;&#35774;&#32622;&#20540;&#65292;&#21518;&#32493;&#30340;&#22788;&#29702;&#20989;&#25968;&#33021;&#22815;&#21462;&#21040;&#35813;&#20540;</span>
+        <span style="color: #546A90;">// </span><span style="color: #546A90;">&#35843;&#29992;&#35813;&#35831;&#27714;&#30340;&#21097;&#20313;&#22788;&#29702;&#31243;&#24207;</span>
+        c.<span style="color: #42c6ff;">Next</span>()
+        <span style="color: #546A90;">// </span><span style="color: #546A90;">&#19981;&#35843;&#29992;&#35813;&#35831;&#27714;&#30340;&#21097;&#20313;&#22788;&#29702;&#31243;&#24207;</span>
+        <span style="color: #546A90;">// </span><span style="color: #546A90;">c.Abort()</span>
+        <span style="color: #546A90;">// </span><span style="color: #546A90;">&#35745;&#31639;&#32791;&#26102;</span>
+        <span style="color: #df85ff;">cost</span> := time.<span style="color: #42c6ff;">Since</span>(start)
+        log.<span style="color: #42c6ff;">Println</span>(cost)
     }
 }
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org17b3480" class="outline-3">
-<h3 id="org17b3480">注册中间件</h3>
-<div class="outline-text-3" id="text-org17b3480">
+<div id="outline-container-org4a3cd69" class="outline-3">
+<h3 id="org4a3cd69">注册中间件</h3>
+<div class="outline-text-3" id="text-org4a3cd69">
 <p>
 在 gin 框架中，我们可以为每个路由添加任意数量的中间件。<br>
 </p>
 </div>
-<div id="outline-container-orgc38d720" class="outline-4">
-<h4 id="orgc38d720">为全局路由注册</h4>
-<div class="outline-text-4" id="text-orgc38d720">
+<div id="outline-container-org2594541" class="outline-4">
+<h4 id="org2594541">为全局路由注册</h4>
+<div class="outline-text-4" id="text-org2594541">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#26032;&#24314;&#19968;&#20010;&#27809;&#26377;&#20219;&#20309;&#40664;&#35748;&#20013;&#38388;&#20214;&#30340;&#36335;&#30001;</span>
-    <span style="color: #8787d7;">r</span> := gin.<span style="color: #d75fd7; font-weight: bold;">New</span>()
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#27880;&#20876;&#19968;&#20010;&#20840;&#23616;&#20013;&#38388;&#20214;</span>
-    r.<span style="color: #d75fd7; font-weight: bold;">Use</span>(<span style="color: #d75fd7; font-weight: bold;">StatCost</span>())
+<pre class="src src-go"><span style="color: #ff2afc; font-weight: bold;">func</span> <span style="color: #42c6ff;">main</span>() {
+    <span style="color: #546A90;">// </span><span style="color: #546A90;">&#26032;&#24314;&#19968;&#20010;&#27809;&#26377;&#20219;&#20309;&#40664;&#35748;&#20013;&#38388;&#20214;&#30340;&#36335;&#30001;</span>
+    <span style="color: #df85ff;">r</span> := gin.<span style="color: #42c6ff;">New</span>()
+    <span style="color: #546A90;">// </span><span style="color: #546A90;">&#27880;&#20876;&#19968;&#20010;&#20840;&#23616;&#20013;&#38388;&#20214;</span>
+    r.<span style="color: #42c6ff;">Use</span>(<span style="color: #42c6ff;">StatCost</span>())
 
-    r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/test"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {
-        <span style="color: #8787d7;">name</span> := c.<span style="color: #d75fd7; font-weight: bold;">MustGet</span>(<span style="color: #2aa198;">"name"</span>).(<span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20174;&#19978;&#19979;&#25991;&#21462;&#20540;</span>
-        log.<span style="color: #d75fd7; font-weight: bold;">Println</span>(name)
-        c.<span style="color: #d75fd7; font-weight: bold;">JSON</span>(http.StatusOK, <span style="color: #df005f; font-weight: bold;">gin.H</span>{
-            <span style="color: #2aa198;">"message"</span>: <span style="color: #2aa198;">"Hello world!"</span>,
+    r.<span style="color: #42c6ff;">GET</span>(<span style="color: #7984D1;">"/test"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {
+        <span style="color: #df85ff;">name</span> := c.<span style="color: #42c6ff;">MustGet</span>(<span style="color: #7984D1;">"name"</span>).(<span style="color: #ffd400;">string</span>) <span style="color: #546A90;">// </span><span style="color: #546A90;">&#20174;&#19978;&#19979;&#25991;&#21462;&#20540;</span>
+        log.<span style="color: #42c6ff;">Println</span>(name)
+        c.<span style="color: #42c6ff;">JSON</span>(http.StatusOK, <span style="color: #ffd400;">gin.H</span>{
+            <span style="color: #7984D1;">"message"</span>: <span style="color: #7984D1;">"Hello world!"</span>,
         })
     })
-    r.<span style="color: #d75fd7; font-weight: bold;">Run</span>()
+    r.<span style="color: #42c6ff;">Run</span>()
 }
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org1728103" class="outline-4">
-<h4 id="org1728103">为某个路由单独注册</h4>
-<div class="outline-text-4" id="text-org1728103">
+<div id="outline-container-org9101a2c" class="outline-4">
+<h4 id="org9101a2c">为某个路由单独注册</h4>
+<div class="outline-text-4" id="text-org9101a2c">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#32473;/test2&#36335;&#30001;&#21333;&#29420;&#27880;&#20876;&#20013;&#38388;&#20214;&#65288;&#21487;&#27880;&#20876;&#22810;&#20010;&#65289;</span>
-r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/test2"</span>, <span style="color: #d75fd7; font-weight: bold;">StatCost</span>(), <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {
-    <span style="color: #8787d7;">name</span> := c.<span style="color: #d75fd7; font-weight: bold;">MustGet</span>(<span style="color: #2aa198;">"name"</span>).(<span style="color: #df005f; font-weight: bold;">string</span>) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20174;&#19978;&#19979;&#25991;&#21462;&#20540;</span>
-    log.<span style="color: #d75fd7; font-weight: bold;">Println</span>(name)
-    c.<span style="color: #d75fd7; font-weight: bold;">JSON</span>(http.StatusOK, <span style="color: #df005f; font-weight: bold;">gin.H</span>{
-        <span style="color: #2aa198;">"message"</span>: <span style="color: #2aa198;">"Hello world!"</span>,
+<pre class="src src-go"><span style="color: #546A90;">// </span><span style="color: #546A90;">&#32473;/test2&#36335;&#30001;&#21333;&#29420;&#27880;&#20876;&#20013;&#38388;&#20214;&#65288;&#21487;&#27880;&#20876;&#22810;&#20010;&#65289;</span>
+r.<span style="color: #42c6ff;">GET</span>(<span style="color: #7984D1;">"/test2"</span>, <span style="color: #42c6ff;">StatCost</span>(), <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {
+    <span style="color: #df85ff;">name</span> := c.<span style="color: #42c6ff;">MustGet</span>(<span style="color: #7984D1;">"name"</span>).(<span style="color: #ffd400;">string</span>) <span style="color: #546A90;">// </span><span style="color: #546A90;">&#20174;&#19978;&#19979;&#25991;&#21462;&#20540;</span>
+    log.<span style="color: #42c6ff;">Println</span>(name)
+    c.<span style="color: #42c6ff;">JSON</span>(http.StatusOK, <span style="color: #ffd400;">gin.H</span>{
+        <span style="color: #7984D1;">"message"</span>: <span style="color: #7984D1;">"Hello world!"</span>,
     })
 })
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org340e045" class="outline-4">
-<h4 id="org340e045">为路由组注册</h4>
-<div class="outline-text-4" id="text-org340e045">
+<div id="outline-container-org42defc6" class="outline-4">
+<h4 id="org42defc6">为路由组注册</h4>
+<div class="outline-text-4" id="text-org42defc6">
 <p>
 为路由组注册中间件有以下两种写法。<br>
 </p>
@@ -404,11 +402,11 @@ r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #8787d7;">shopGroup</span> := r.<span style="color: #d75fd7; font-weight: bold;">Group</span>(<span style="color: #2aa198;">"/shop"</span>, <span style="color: #d75fd7; font-weight: bold;">StatCost</span>())
+<pre class="src src-go"><span style="color: #df85ff;">shopGroup</span> := r.<span style="color: #42c6ff;">Group</span>(<span style="color: #7984D1;">"/shop"</span>, <span style="color: #42c6ff;">StatCost</span>())
 {
-        shopGroup.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/index"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {...})
-        ...
-}
+    shopGroup.<span style="color: #42c6ff;">GET</span>(<span style="color: #7984D1;">"/index"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {...})
+    ...
+    }
 </pre>
 </div>
 
@@ -417,24 +415,24 @@ r.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #8787d7;">shopGroup</span> := r.<span style="color: #d75fd7; font-weight: bold;">Group</span>(<span style="color: #2aa198;">"/shop"</span>)
-shopGroup.<span style="color: #d75fd7; font-weight: bold;">Use</span>(<span style="color: #d75fd7; font-weight: bold;">StatCost</span>())
+<pre class="src src-go"><span style="color: #df85ff;">shopGroup</span> := r.<span style="color: #42c6ff;">Group</span>(<span style="color: #7984D1;">"/shop"</span>)
+shopGroup.<span style="color: #42c6ff;">Use</span>(<span style="color: #42c6ff;">StatCost</span>())
 {
-        shopGroup.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/index"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {...})
-        ...
-}
+    shopGroup.<span style="color: #42c6ff;">GET</span>(<span style="color: #7984D1;">"/index"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {...})
+    ...
+    }
 </pre>
 </div>
 </div>
 </div>
 </div>
-<div id="outline-container-org5df321a" class="outline-3">
-<h3 id="org5df321a">中间件注意事项</h3>
-<div class="outline-text-3" id="text-org5df321a">
+<div id="outline-container-org4b98d42" class="outline-3">
+<h3 id="org4b98d42">中间件注意事项</h3>
+<div class="outline-text-3" id="text-org4b98d42">
 </div>
-<div id="outline-container-orgada19e9" class="outline-4">
-<h4 id="orgada19e9">gin 默认中间件</h4>
-<div class="outline-text-4" id="text-orgada19e9">
+<div id="outline-container-org0207ef6" class="outline-4">
+<h4 id="org0207ef6">gin 默认中间件</h4>
+<div class="outline-text-4" id="text-org0207ef6">
 <p>
 <code>gin.Default()</code> 默认使用了 <code>Logger</code> 和 <code>Recovery</code> 中间件，其中：<br>
 </p>
@@ -449,9 +447,9 @@ shopGroup.<span style="color: #d75fd7; font-weight: bold;">Use</span>(<span styl
 </p>
 </div>
 </div>
-<div id="outline-container-orgf4c081a" class="outline-4">
-<h4 id="orgf4c081a">gin 中间件中使用 goroutine</h4>
-<div class="outline-text-4" id="text-orgf4c081a">
+<div id="outline-container-org57a191b" class="outline-4">
+<h4 id="org57a191b">gin 中间件中使用 goroutine</h4>
+<div class="outline-text-4" id="text-org57a191b">
 <p>
 当在中间件或 <code>handler</code> 中启动新的 <code>goroutine</code> 时， <b>不能使用</b> 原始的上下文（c *gin.Context），必须使用其只读副本（c.Copy()）。<br>
 </p>
@@ -459,86 +457,86 @@ shopGroup.<span style="color: #d75fd7; font-weight: bold;">Use</span>(<span styl
 </div>
 </div>
 </div>
-<div id="outline-container-orgf82cf7d" class="outline-2">
-<h2 id="orgf82cf7d">运行多个服务</h2>
-<div class="outline-text-2" id="text-orgf82cf7d">
+<div id="outline-container-org368d3b1" class="outline-2">
+<h2 id="org368d3b1">运行多个服务</h2>
+<div class="outline-text-2" id="text-org368d3b1">
 <p>
 我们可以在多个端口启动服务，例如：<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+<pre class="src src-go"><span style="color: #ff2afc; font-weight: bold;">package</span> main
 
-<span style="color: #268bd2; font-weight: bold;">import</span> (
-    <span style="color: #2aa198;">"log"</span>
-    <span style="color: #2aa198;">"net/http"</span>
-    <span style="color: #2aa198;">"time"</span>
+<span style="color: #ff2afc; font-weight: bold;">import</span> (
+    <span style="color: #7984D1;">"log"</span>
+    <span style="color: #7984D1;">"net/http"</span>
+    <span style="color: #7984D1;">"time"</span>
 
-    <span style="color: #2aa198;">"github.com/gin-gonic/gin"</span>
-    <span style="color: #2aa198;">"golang.org/x/sync/errgroup"</span>
+    <span style="color: #7984D1;">"github.com/gin-gonic/gin"</span>
+    <span style="color: #7984D1;">"golang.org/x/sync/errgroup"</span>
 )
 
-<span style="color: #268bd2; font-weight: bold;">var</span> (
-    <span style="color: #8787d7;">g</span> <span style="color: #df005f; font-weight: bold;">errgroup.Group</span>
+<span style="color: #ff2afc; font-weight: bold;">var</span> (
+    <span style="color: #df85ff;">g</span> <span style="color: #ffd400;">errgroup.Group</span>
 )
 
-<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">router01</span>() <span style="color: #df005f; font-weight: bold;">http.Handler</span> {
-    <span style="color: #8787d7;">e</span> := gin.<span style="color: #d75fd7; font-weight: bold;">New</span>()
-    e.<span style="color: #d75fd7; font-weight: bold;">Use</span>(gin.<span style="color: #d75fd7; font-weight: bold;">Recovery</span>())
-    e.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {
-        c.<span style="color: #d75fd7; font-weight: bold;">JSON</span>(
+<span style="color: #ff2afc; font-weight: bold;">func</span> <span style="color: #42c6ff;">router01</span>() <span style="color: #ffd400;">http.Handler</span> {
+    <span style="color: #df85ff;">e</span> := gin.<span style="color: #42c6ff;">New</span>()
+    e.<span style="color: #42c6ff;">Use</span>(gin.<span style="color: #42c6ff;">Recovery</span>())
+    e.<span style="color: #42c6ff;">GET</span>(<span style="color: #7984D1;">"/"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {
+        c.<span style="color: #42c6ff;">JSON</span>(
             http.StatusOK,
-            <span style="color: #df005f; font-weight: bold;">gin.H</span>{
-                <span style="color: #2aa198;">"code"</span>:  http.StatusOK,
-                <span style="color: #2aa198;">"error"</span>: <span style="color: #2aa198;">"Welcome server 01"</span>,
+            <span style="color: #ffd400;">gin.H</span>{
+                <span style="color: #7984D1;">"code"</span>:  http.StatusOK,
+                <span style="color: #7984D1;">"error"</span>: <span style="color: #7984D1;">"Welcome server 01"</span>,
             },
         )
     })
 
-    <span style="color: #268bd2; font-weight: bold;">return</span> e
+    <span style="color: #ff2afc; font-weight: bold;">return</span> e
 }
 
-<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">router02</span>() <span style="color: #df005f; font-weight: bold;">http.Handler</span> {
-    <span style="color: #8787d7;">e</span> := gin.<span style="color: #d75fd7; font-weight: bold;">New</span>()
-    e.<span style="color: #d75fd7; font-weight: bold;">Use</span>(gin.<span style="color: #d75fd7; font-weight: bold;">Recovery</span>())
-    e.<span style="color: #d75fd7; font-weight: bold;">GET</span>(<span style="color: #2aa198;">"/"</span>, <span style="color: #268bd2; font-weight: bold;">func</span>(<span style="color: #8787d7;">c</span> *<span style="color: #df005f; font-weight: bold;">gin.Context</span>) {
-        c.<span style="color: #d75fd7; font-weight: bold;">JSON</span>(
+<span style="color: #ff2afc; font-weight: bold;">func</span> <span style="color: #42c6ff;">router02</span>() <span style="color: #ffd400;">http.Handler</span> {
+    <span style="color: #df85ff;">e</span> := gin.<span style="color: #42c6ff;">New</span>()
+    e.<span style="color: #42c6ff;">Use</span>(gin.<span style="color: #42c6ff;">Recovery</span>())
+    e.<span style="color: #42c6ff;">GET</span>(<span style="color: #7984D1;">"/"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {
+        c.<span style="color: #42c6ff;">JSON</span>(
             http.StatusOK,
-            <span style="color: #df005f; font-weight: bold;">gin.H</span>{
-                <span style="color: #2aa198;">"code"</span>:  http.StatusOK,
-                <span style="color: #2aa198;">"error"</span>: <span style="color: #2aa198;">"Welcome server 02"</span>,
+            <span style="color: #ffd400;">gin.H</span>{
+                <span style="color: #7984D1;">"code"</span>:  http.StatusOK,
+                <span style="color: #7984D1;">"error"</span>: <span style="color: #7984D1;">"Welcome server 02"</span>,
             },
         )
     })
 
-    <span style="color: #268bd2; font-weight: bold;">return</span> e
+    <span style="color: #ff2afc; font-weight: bold;">return</span> e
 }
 
-<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #8787d7;">server01</span> := &amp;<span style="color: #df005f; font-weight: bold;">http.Server</span>{
-        <span style="color: #d75fd7;">Addr</span>:         <span style="color: #2aa198;">":8080"</span>,
-        <span style="color: #d75fd7;">Handler</span>:      <span style="color: #d75fd7; font-weight: bold;">router01</span>(),
-        <span style="color: #d75fd7;">ReadTimeout</span>:  5 * time.Second,
-        <span style="color: #d75fd7;">WriteTimeout</span>: 10 * time.Second,
+<span style="color: #ff2afc; font-weight: bold;">func</span> <span style="color: #42c6ff;">main</span>() {
+    <span style="color: #df85ff;">server01</span> := &amp;<span style="color: #ffd400;">http.Server</span>{
+        <span style="color: #df85ff; font-weight: bold;">Addr</span>:         <span style="color: #7984D1;">":8080"</span>,
+        <span style="color: #df85ff; font-weight: bold;">Handler</span>:      <span style="color: #42c6ff;">router01</span>(),
+        <span style="color: #df85ff; font-weight: bold;">ReadTimeout</span>:  5 * time.Second,
+        <span style="color: #df85ff; font-weight: bold;">WriteTimeout</span>: 10 * time.Second,
     }
 
-    <span style="color: #8787d7;">server02</span> := &amp;<span style="color: #df005f; font-weight: bold;">http.Server</span>{
-        <span style="color: #d75fd7;">Addr</span>:         <span style="color: #2aa198;">":8081"</span>,
-        <span style="color: #d75fd7;">Handler</span>:      <span style="color: #d75fd7; font-weight: bold;">router02</span>(),
-        <span style="color: #d75fd7;">ReadTimeout</span>:  5 * time.Second,
-        <span style="color: #d75fd7;">WriteTimeout</span>: 10 * time.Second,
+    <span style="color: #df85ff;">server02</span> := &amp;<span style="color: #ffd400;">http.Server</span>{
+        <span style="color: #df85ff; font-weight: bold;">Addr</span>:         <span style="color: #7984D1;">":8081"</span>,
+        <span style="color: #df85ff; font-weight: bold;">Handler</span>:      <span style="color: #42c6ff;">router02</span>(),
+        <span style="color: #df85ff; font-weight: bold;">ReadTimeout</span>:  5 * time.Second,
+        <span style="color: #df85ff; font-weight: bold;">WriteTimeout</span>: 10 * time.Second,
     }
-    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#20511;&#21161;errgroup.Group&#25110;&#32773;&#33258;&#34892;&#24320;&#21551;&#20004;&#20010;goroutine&#20998;&#21035;&#21551;&#21160;&#20004;&#20010;&#26381;&#21153;</span>
-    g.<span style="color: #d75fd7; font-weight: bold;">Go</span>(<span style="color: #268bd2; font-weight: bold;">func</span>() <span style="color: #df005f; font-weight: bold;">error</span> {
-        <span style="color: #268bd2; font-weight: bold;">return</span> server01.<span style="color: #d75fd7; font-weight: bold;">ListenAndServe</span>()
+    <span style="color: #546A90;">// </span><span style="color: #546A90;">&#20511;&#21161;errgroup.Group&#25110;&#32773;&#33258;&#34892;&#24320;&#21551;&#20004;&#20010;goroutine&#20998;&#21035;&#21551;&#21160;&#20004;&#20010;&#26381;&#21153;</span>
+    g.<span style="color: #42c6ff;">Go</span>(<span style="color: #ff2afc; font-weight: bold;">func</span>() <span style="color: #ffd400;">error</span> {
+        <span style="color: #ff2afc; font-weight: bold;">return</span> server01.<span style="color: #42c6ff;">ListenAndServe</span>()
     })
 
-    g.<span style="color: #d75fd7; font-weight: bold;">Go</span>(<span style="color: #268bd2; font-weight: bold;">func</span>() <span style="color: #df005f; font-weight: bold;">error</span> {
-        <span style="color: #268bd2; font-weight: bold;">return</span> server02.<span style="color: #d75fd7; font-weight: bold;">ListenAndServe</span>()
+    g.<span style="color: #42c6ff;">Go</span>(<span style="color: #ff2afc; font-weight: bold;">func</span>() <span style="color: #ffd400;">error</span> {
+        <span style="color: #ff2afc; font-weight: bold;">return</span> server02.<span style="color: #42c6ff;">ListenAndServe</span>()
     })
 
-    <span style="color: #268bd2; font-weight: bold;">if</span> <span style="color: #8787d7;">err</span> := g.<span style="color: #d75fd7; font-weight: bold;">Wait</span>(); err != <span style="color: #d75fd7;">nil</span> {
-        log.<span style="color: #d75fd7; font-weight: bold;">Fatal</span>(err)
+    <span style="color: #ff2afc; font-weight: bold;">if</span> <span style="color: #df85ff;">err</span> := g.<span style="color: #42c6ff;">Wait</span>(); err != <span style="color: #df85ff; font-weight: bold;">nil</span> {
+        log.<span style="color: #42c6ff;">Fatal</span>(err)
     }
 }
 </pre>
@@ -548,8 +546,8 @@ shopGroup.<span style="color: #d75fd7; font-weight: bold;">Use</span>(<span styl
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-05-29 Sun 02:50</p>
-<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+<p class="date">Created: 2023-01-30</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>

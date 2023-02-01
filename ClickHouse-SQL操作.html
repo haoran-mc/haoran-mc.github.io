@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- 2023-02-03 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SQL操作</title>
+<meta name="author" content="Haoran Liu" />
+<meta name="description" content="Copyright © 2023, Haoran Liu, all rights reserved." />
+<meta name="generator" content="Org Mode" />
+<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+           <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+           <script type="module" src="static/js/main.js" defer></script>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">SQL操作</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#orge253ae9">前言</a></li>
+<li><a href="#org5a14a98">一、CREATE</a>
+<ul>
+<li><a href="#org69263e6">1.1 创建数据库</a></li>
+<li><a href="#org05ef32f">1.2 创建数据表</a></li>
+</ul>
+</li>
+<li><a href="#orgf2111cf">二、INSERT</a></li>
+<li><a href="#org907a7db">三、UPDATE 和 DELETE</a>
+<ul>
+<li><a href="#org680d08f">删除操作</a></li>
+<li><a href="#org016ea14">修改操作</a></li>
+</ul>
+</li>
+<li><a href="#orgfe4c713">四、查询操作</a></li>
+<li><a href="#orgdd0fd15">五、ALTER 操作</a></li>
+<li><a href="#orge628b5a">六、导出数据</a></li>
+<li><a href="#org0a2ae4f">七、参考</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orge253ae9" class="outline-2">
+<h2 id="orge253ae9">前言</h2>
+<div class="outline-text-2" id="text-orge253ae9">
+<p>
+基本上来说传统关系型数据库（以 MySQL 为例）的 SQL 语句，ClickHouse 基本都支持， 这里不会从头讲解 SQL 语法只介绍 ClickHouse 与标准 SQL（MySQL）不一致的地方。<br>
+</p>
+</div>
+</div>
+<div id="outline-container-org5a14a98" class="outline-2">
+<h2 id="org5a14a98">一、CREATE</h2>
+<div class="outline-text-2" id="text-org5a14a98">
+</div>
+<div id="outline-container-org69263e6" class="outline-3">
+<h3 id="org69263e6">1.1 创建数据库</h3>
+<div class="outline-text-3" id="text-org69263e6">
+<div class="org-src-container">
+<pre class="src src-sql"># &#29992;&#20110;&#21019;&#24314;&#25351;&#23450;&#21517;&#31216;&#30340;&#25968;&#25454;&#24211;
+<span style="color: #FF6188; font-style: italic;">CREATE</span> DATABASE [IF <span style="color: #FF6188; font-style: italic;">NOT</span> <span style="color: #FF6188; font-style: italic;">EXISTS</span>] db_name;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org05ef32f" class="outline-3">
+<h3 id="org05ef32f">1.2 创建数据表</h3>
+<div class="outline-text-3" id="text-org05ef32f">
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #FF6188; font-style: italic;">CREATE</span> <span style="color: #FF6188; font-style: italic;">TABLE</span> [IF <span style="color: #FF6188; font-style: italic;">NOT</span> <span style="color: #FF6188; font-style: italic;">EXISTS</span>] [db.]<span style="color: #FF6188; font-style: italic;">table_name</span> [<span style="color: #FF6188; font-style: italic;">ON</span> CLUSTER cluster]
+(
+name1 [type1] [<span style="color: #FF6188; font-style: italic;">DEFAULT</span>|MATERIALIZED|<span style="color: #FF6188; font-style: italic;">ALIAS</span> expr1],
+name2 [type2] [<span style="color: #FF6188; font-style: italic;">DEFAULT</span>|MATERIALIZED|<span style="color: #FF6188; font-style: italic;">ALIAS</span> expr2],
+...
+) ENGINE = engine
+</pre>
+</div>
+
+<ul class="org-ul">
+<li><code>DEFAULT expr</code> ：默认值，用法与SQL类似。<br></li>
+<li><code>MATERIALIZED expr</code> ：物化表达式，被该表达式指定的列不能被INSERT，因为它总是被计算出来的，对于INSERT而言，不需要考虑这些列。 另外，在SELECT查询中如果包含星号，此列不会被查询。<br></li>
+<li><code>ALIAS expr</code> ：别名<br></li>
+</ul>
+
+<p>
+<b><b>创建表的三种方式：</b></b><br>
+</p>
+
+<ol class="org-ol">
+<li><p>
+直接创建<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #FF6188; font-style: italic;">create</span> <span style="color: #FF6188; font-style: italic;">table</span> <span style="color: #A9DC76;">t1</span>(id UInt16,<span style="color: #FF6188; font-style: italic;">name</span> String) engine=TinyLog
+</pre>
+</div></li>
+
+<li><p>
+创建一个与其他表具有相同结构的表<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #FF6188; font-style: italic;">CREATE</span> <span style="color: #FF6188; font-style: italic;">TABLE</span> [IF <span style="color: #FF6188; font-style: italic;">NOT</span> <span style="color: #FF6188; font-style: italic;">EXISTS</span>] [db.]<span style="color: #FF6188; font-style: italic;">table_name</span> <span style="color: #FF6188; font-style: italic;">AS</span> [db2.]name2 [ENGINE = engine]
+</pre>
+</div></li>
+
+<li><p>
+使用指定的引擎创建一个与 <code>SELECT</code> 子句的结果具有相同结构的表，并使用 <code>SELECT</code> 子句的结果填充它<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #FF6188; font-style: italic;">CREATE</span> <span style="color: #FF6188; font-style: italic;">TABLE</span> [IF <span style="color: #FF6188; font-style: italic;">NOT</span> <span style="color: #FF6188; font-style: italic;">EXISTS</span>] [db.]<span style="color: #FF6188; font-style: italic;">table_name</span> ENGINE = engine <span style="color: #FF6188; font-style: italic;">AS</span> <span style="color: #FF6188; font-style: italic;">SELECT</span> ...
+</pre>
+</div></li>
+</ol>
+</div>
+</div>
+</div>
+<div id="outline-container-orgf2111cf" class="outline-2">
+<h2 id="orgf2111cf">二、INSERT</h2>
+<div class="outline-text-2" id="text-orgf2111cf">
+<p>
+基本与标准 SQL（MySQL）基本一致<br>
+</p>
+
+<ul class="org-ul">
+<li><p>
+向表中添加数据<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #FF6188; font-style: italic;">insert</span> <span style="color: #FF6188; font-style: italic;">into</span> [<span style="color: #FF6188; font-style: italic;">table_name</span>] <span style="color: #FF6188; font-style: italic;">values</span>(&#8230;),(&#8230;.)
+</pre>
+</div></li>
+
+<li><p>
+从表到表的插入，用于根据查询条件向表中同步数据<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #FF6188; font-style: italic;">insert</span> <span style="color: #FF6188; font-style: italic;">into</span> [<span style="color: #FF6188; font-style: italic;">table_name</span>] <span style="color: #FF6188; font-style: italic;">select</span> a,b,c <span style="color: #FF6188; font-style: italic;">from</span> [table_name_2]
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org907a7db" class="outline-2">
+<h2 id="org907a7db">三、UPDATE 和 DELETE</h2>
+<div class="outline-text-2" id="text-org907a7db">
+<p>
+ClickHouse 提供了 Delete 和 Update 的能力，这类操作被称为 Mutation 查询，可以看作是 Alter 的一种。<br>
+</p>
+
+<p>
+虽然可以实现修改和删除，但是和一般的 OLTP 数据库不一样，Mutation 语句是一种很“重”的操作，而且不支持事务。<br>
+</p>
+
+<p>
+“重”的原因主要是每次修改或者删除都会导致放弃目标数据的原有分区，重建新分区。所以尽量做批量的变更，不要进行频繁小数据的操作。<br>
+</p>
+</div>
+<div id="outline-container-org680d08f" class="outline-3">
+<h3 id="org680d08f">删除操作</h3>
+<div class="outline-text-3" id="text-org680d08f">
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #FF6188; font-style: italic;">alter</span> <span style="color: #FF6188; font-style: italic;">table</span> <span style="color: #A9DC76;">t_order_smt</span> <span style="color: #FF6188; font-style: italic;">delete</span> <span style="color: #FF6188; font-style: italic;">where</span> sku_id =<span style="color: #FFD866;">'sku_001'</span>;
+</pre>
+</div>
+
+<div class="div-center">
+<img src="./images/ClickHouse之SQL操作01.jpg" width="620px" />
+</div>
+</div>
+</div>
+<div id="outline-container-org016ea14" class="outline-3">
+<h3 id="org016ea14">修改操作</h3>
+<div class="outline-text-3" id="text-org016ea14">
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #FF6188; font-style: italic;">alter</span> <span style="color: #FF6188; font-style: italic;">table</span> <span style="color: #A9DC76;">t_order_smt</span> <span style="color: #FF6188; font-style: italic;">update</span> total_amount=toDecimal32(2000.00,2) <span style="color: #FF6188; font-style: italic;">where</span> id=102;
+</pre>
+</div>
+
+<div class="div-center">
+<img src="./images/ClickHouse之SQL操作02.jpg" width="620px" />
+</div>
+
+<p>
+由于操作比较“重”，所以 Mutation 语句分两步执行，同步执行的部分其实只是进行 新增数据新增分区和并把旧分区打上逻辑上的失效标记。直到触发分区合并的时候，才会删 除旧数据释放磁盘空间，一般不会开放这样的功能给用户，由管理员完成。<br>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgfe4c713" class="outline-2">
+<h2 id="orgfe4c713">四、查询操作</h2>
+<div class="outline-text-2" id="text-orgfe4c713">
+<p>
+ClickHouse 基本上与标准 SQL 差别不大：<br>
+</p>
+
+<ul class="org-ul">
+<li>支持子查询；<br></li>
+<li>支持 CTE（Common Table Expression 公用表达式 with 子句）；<br></li>
+<li>支持各种 JOIN，但是 JOIN 操作无法使用缓存，所以即使是两次相同的 JOIN 语句，ClickHouse 也会视为两条新的 SQL；<br></li>
+<li>窗口函数：目前最新版本已经支持；<br></li>
+<li>暂不支持自定义函数；<br></li>
+<li>GROUP BY 操作增加了 with rollup、with cube、with total 用于按不同维度统计。<br></li>
+</ul>
+
+
+<ol class="org-ol">
+<li><p>
+插入数据<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #FF6188; font-style: italic;">create</span> <span style="color: #FF6188; font-style: italic;">table</span> <span style="color: #A9DC76;">t_order_mt</span> (
+id UInt32,
+sku_id String,
+total_amount <span style="color: #78DCE8;">Decimal</span>(16, 2),
+create_time Datetime
+) engine = MergeTree
+partition <span style="color: #FF6188; font-style: italic;">by</span> toYYYYMMDD(create_time)
+<span style="color: #FF6188; font-style: italic;">primary</span> <span style="color: #FF6188; font-style: italic;">key</span> (id)
+<span style="color: #FF6188; font-style: italic;">order</span> <span style="color: #FF6188; font-style: italic;">by</span> (id, sku_id);
+
+<span style="color: #727072; font-style: italic;">-- </span><span style="color: #727072; font-style: italic;">&#25554;&#20837;&#25968;&#25454;</span>
+<span style="color: #FF6188; font-style: italic;">insert</span> <span style="color: #FF6188; font-style: italic;">into</span> t_order_mt <span style="color: #FF6188; font-style: italic;">values</span>
+(101, <span style="color: #FFD866;">'sku_001'</span>, 1000.00, <span style="color: #FFD866;">'2022-04-15 09:00:00'</span>),
+(102, <span style="color: #FFD866;">'sku_002'</span>, 1500.00, <span style="color: #FFD866;">'2022-04-15 10:30:00'</span>),
+(102, <span style="color: #FFD866;">'sku_003'</span>, 2500.00, <span style="color: #FFD866;">'2022-04-15 12:30:00'</span>),
+(103, <span style="color: #FFD866;">'sku_004'</span>, 1500.00, <span style="color: #FFD866;">'2022-04-15 13:00:00'</span>),
+(104, <span style="color: #FFD866;">'sku_001'</span>, 10000.00, <span style="color: #FFD866;">'2022-04-15 13:00:00'</span>),
+(105, <span style="color: #FFD866;">'sku_002'</span>, 800.00, <span style="color: #FFD866;">'2022-04-15 12:00:00'</span>),
+(106, <span style="color: #FFD866;">'sku_002'</span>, 1500.00, <span style="color: #FFD866;">'2022-04-15 10:30:00'</span>),
+(107, <span style="color: #FFD866;">'sku_003'</span>, 2500.00, <span style="color: #FFD866;">'2022-04-15 12:30:00'</span>),
+(108, <span style="color: #FFD866;">'sku_004'</span>, 1500.00, <span style="color: #FFD866;">'2022-04-15 13:00:00'</span>),
+(109, <span style="color: #FFD866;">'sku_002'</span>, 10000.00, <span style="color: #FFD866;">'2022-04-15 13:00:00'</span>),
+(110, <span style="color: #FFD866;">'sku_003'</span>, 800.00, <span style="color: #FFD866;">'2022-04-15 12:00:00'</span>);
+</pre>
+</div></li>
+
+<li><p>
+with rollup（上卷）：从右至左去掉维度进行小计<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #FF6188; font-style: italic;">select</span> id,sku_id,<span style="color: #78DCE8;">sum</span>(total_amount) <span style="color: #FF6188; font-style: italic;">from</span> t_order_mt <span style="color: #FF6188; font-style: italic;">group</span> <span style="color: #FF6188; font-style: italic;">by</span> id,sku_id <span style="color: #FF6188; font-style: italic;">with</span> <span style="color: #FF6188; font-style: italic;">rollup</span>;
+</pre>
+</div>
+
+<div class="div-center">
+<img src="./images/ClickHouse之SQL操作03.jpg" width="620px" />
+</div></li>
+
+<li><p>
+with cube：从右至左去掉维度进行小计，再从左至右去掉维度进行小计<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #FF6188; font-style: italic;">select</span> id,sku_id,<span style="color: #78DCE8;">sum</span>(total_amount) <span style="color: #FF6188; font-style: italic;">from</span> t_order_mt <span style="color: #FF6188; font-style: italic;">group</span> <span style="color: #FF6188; font-style: italic;">by</span> id,sku_id <span style="color: #FF6188; font-style: italic;">with</span> <span style="color: #FF6188; font-style: italic;">cube</span>;
+</pre>
+</div>
+
+<div class="div-center">
+<img src="./images/ClickHouse之SQL操作04.jpg" width="620px" />
+</div></li>
+
+<li><p>
+with totals：只计算合计<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #FF6188; font-style: italic;">select</span> id,sku_id,<span style="color: #78DCE8;">sum</span>(total_amount) <span style="color: #FF6188; font-style: italic;">from</span> t_order_mt <span style="color: #FF6188; font-style: italic;">group</span> <span style="color: #FF6188; font-style: italic;">by</span> id,sku_id <span style="color: #FF6188; font-style: italic;">with</span> totals;
+</pre>
+</div>
+
+<div class="div-center">
+<img src="./images/ClickHouse之SQL操作05.jpg" width="620px" />
+</div></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgdd0fd15" class="outline-2">
+<h2 id="orgdd0fd15">五、ALTER 操作</h2>
+<div class="outline-text-2" id="text-orgdd0fd15">
+<p>
+同 MySQL 的修改字段基本一致：<br>
+</p>
+
+<ol class="org-ol">
+<li><p>
+新增字段<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #FF6188; font-style: italic;">alter</span> <span style="color: #FF6188; font-style: italic;">table</span> <span style="color: #A9DC76;">tableName</span> <span style="color: #FF6188; font-style: italic;">add</span> <span style="color: #FF6188; font-style: italic;">column</span> newcolname String <span style="color: #FF6188; font-style: italic;">after</span> col1;
+</pre>
+</div></li>
+
+<li><p>
+修改字段类型<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #FF6188; font-style: italic;">alter</span> <span style="color: #FF6188; font-style: italic;">table</span> <span style="color: #A9DC76;">tableName</span> <span style="color: #FF6188; font-style: italic;">modify</span> <span style="color: #FF6188; font-style: italic;">column</span> newcolname String;
+</pre>
+</div></li>
+
+<li><p>
+删除字段<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span style="color: #FF6188; font-style: italic;">alter</span> <span style="color: #FF6188; font-style: italic;">table</span> <span style="color: #A9DC76;">tableName</span> <span style="color: #FF6188; font-style: italic;">drop</span> <span style="color: #FF6188; font-style: italic;">column</span> newcolname;
+</pre>
+</div></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orge628b5a" class="outline-2">
+<h2 id="orge628b5a">六、导出数据</h2>
+<div class="outline-text-2" id="text-orge628b5a">
+<div class="org-src-container">
+<pre class="src src-sql">clickhouse-client <span style="color: #727072; font-style: italic;">--</span><span style="color: #727072; font-style: italic;">port 9001 --query "select * from demo.t_order_mt where create_time='2022-04-15 12:00:00'" --format CSVWithNames &gt; /home/hadoop/rs.csv</span>
+</pre>
+</div>
+
+<div class="div-center">
+<img src="./images/ClickHouse之SQL操作06.jpg" width="620px" />
+</div>
+</div>
+</div>
+<div id="outline-container-org0a2ae4f" class="outline-2">
+<h2 id="org0a2ae4f">七、参考</h2>
+<div class="outline-text-2" id="text-org0a2ae4f">
+<div class="reference">
+<ul style="list-style: none;">
+<li><a href="https://www.lilinchao.com/archives/2043.html" target="_blank">ClickHouse之SQL操作</a></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2023-02-02 17:02 Thu</p>
+<p class="author">Author: Haoran Liu</p>
+<p class="date">Created: 2023-02-03</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
