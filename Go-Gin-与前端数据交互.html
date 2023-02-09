@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2023-01-30 -->
+<!-- 2023-02-07 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>数据交互</title>
@@ -52,25 +52,25 @@
 <h3 id="org18f0d9a">使用 map</h3>
 <div class="outline-text-3" id="text-org18f0d9a">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #ff2afc; font-weight: bold;">func</span> <span style="color: #42c6ff;">main</span>() {
-    <span style="color: #df85ff;">r</span> := gin.<span style="color: #42c6ff;">Default</span>()
+<pre class="src src-go"><span style="color: #fb4934;">func</span> <span style="color: #b8bb26;">main</span>() {
+    <span style="color: #83a598;">r</span> := gin.<span style="color: #b8bb26;">Default</span>()
 
-    r.<span style="color: #42c6ff;">GET</span>(<span style="color: #7984D1;">"/map"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {
-        <span style="color: #546A90;">/*</span>
-<span style="color: #546A90;">         * data := map[string]interface{} {</span>
-<span style="color: #546A90;">         *     "name": "&#23567;&#29579;&#23376;",</span>
-<span style="color: #546A90;">         *     "message": "hello",</span>
-<span style="color: #546A90;">         *     "age": 18,</span>
-<span style="color: #546A90;">         * }</span>
-<span style="color: #546A90;">         */</span>
+    r.<span style="color: #b8bb26;">GET</span>(<span style="color: #b8bb26;">"/map"</span>, <span style="color: #fb4934;">func</span>(<span style="color: #83a598;">c</span> *<span style="color: #fabd2f;">gin.Context</span>) {
+        <span style="color: #928374;">/*</span>
+<span style="color: #928374;">         * data := map[string]interface{} {</span>
+<span style="color: #928374;">         *     "name": "&#23567;&#29579;&#23376;",</span>
+<span style="color: #928374;">         *     "message": "hello",</span>
+<span style="color: #928374;">         *     "age": 18,</span>
+<span style="color: #928374;">         * }</span>
+<span style="color: #928374;">         */</span>
 
-        <span style="color: #546A90;">// </span><span style="color: #546A90;">&#26041;&#27861;1.5&#65306;&#20351;&#29992;gin.H&#65288;&#23601;&#26159;gin&#30340;&#20316;&#32773;&#24819;&#21040;&#22823;&#23478;&#32463;&#24120;&#29992; map[string]interface{} &#29305;&#24847;&#35774;&#35745;&#30340;&#24555;&#25463;&#31867;&#65289;</span>
-        <span style="color: #df85ff;">data</span> := <span style="color: #ffd400;">gin.H</span>{<span style="color: #7984D1;">"name"</span>: <span style="color: #7984D1;">"&#23567;&#29579;&#23376;"</span>, <span style="color: #7984D1;">"message"</span>: <span style="color: #7984D1;">"hello"</span>, <span style="color: #7984D1;">"age"</span>: 18}
+        <span style="color: #928374;">// </span><span style="color: #928374;">&#26041;&#27861;1.5&#65306;&#20351;&#29992;gin.H&#65288;&#23601;&#26159;gin&#30340;&#20316;&#32773;&#24819;&#21040;&#22823;&#23478;&#32463;&#24120;&#29992; map[string]interface{} &#29305;&#24847;&#35774;&#35745;&#30340;&#24555;&#25463;&#31867;&#65289;</span>
+        <span style="color: #83a598;">data</span> := <span style="color: #fabd2f;">gin.H</span>{<span style="color: #b8bb26;">"name"</span>: <span style="color: #b8bb26;">"&#23567;&#29579;&#23376;"</span>, <span style="color: #b8bb26;">"message"</span>: <span style="color: #b8bb26;">"hello"</span>, <span style="color: #b8bb26;">"age"</span>: 18}
 
-        c.<span style="color: #42c6ff;">JSON</span>(http.StatusOK, data)
+        c.<span style="color: #b8bb26;">JSON</span>(http.StatusOK, data)
     })
 
-    r.<span style="color: #42c6ff;">Run</span>(<span style="color: #7984D1;">":8080"</span>)
+    r.<span style="color: #b8bb26;">Run</span>(<span style="color: #b8bb26;">":8080"</span>)
 }
 </pre>
 </div>
@@ -80,24 +80,24 @@
 <h3 id="org7b4bbbf">使用 struct</h3>
 <div class="outline-text-3" id="text-org7b4bbbf">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #ff2afc; font-weight: bold;">func</span> <span style="color: #42c6ff;">main</span>() {
-    <span style="color: #ff2afc; font-weight: bold;">type</span> <span style="color: #ffd400;">msg</span> <span style="color: #ff2afc; font-weight: bold;">struct</span> {
-        Name <span style="color: #ffd400;">string</span>
-        message <span style="color: #ffd400;">string</span>         <span style="color: #546A90;">// </span><span style="color: #546A90;">&#23567;&#20889;&#30340;&#35270;&#20026;&#31169;&#26377;&#21464;&#37327;</span>
-        Age <span style="color: #ffd400;">int</span> <span style="color: #7984D1;">`json:"name"`</span>  <span style="color: #546A90;">// </span><span style="color: #546A90;">&#22240;&#20026;&#21069;&#31471;&#21516;&#23398;&#20064;&#24815;&#20351;&#29992;&#23567;&#20889;&#21464;&#37327;&#65292;&#20026;&#20102;&#36801;&#23601;&#21069;&#31471;&#21516;&#23398;&#65292;&#36825;&#37324;&#20351;&#29992; tag</span>
+<pre class="src src-go"><span style="color: #fb4934;">func</span> <span style="color: #b8bb26;">main</span>() {
+    <span style="color: #fb4934;">type</span> <span style="color: #fabd2f;">msg</span> <span style="color: #fb4934;">struct</span> {
+        Name <span style="color: #fabd2f;">string</span>
+        message <span style="color: #fabd2f;">string</span>         <span style="color: #928374;">// </span><span style="color: #928374;">&#23567;&#20889;&#30340;&#35270;&#20026;&#31169;&#26377;&#21464;&#37327;</span>
+        Age <span style="color: #fabd2f;">int</span> <span style="color: #b8bb26;">`json:"name"`</span>  <span style="color: #928374;">// </span><span style="color: #928374;">&#22240;&#20026;&#21069;&#31471;&#21516;&#23398;&#20064;&#24815;&#20351;&#29992;&#23567;&#20889;&#21464;&#37327;&#65292;&#20026;&#20102;&#36801;&#23601;&#21069;&#31471;&#21516;&#23398;&#65292;&#36825;&#37324;&#20351;&#29992; tag</span>
     }
 
-    <span style="color: #df85ff;">r</span> := gin.<span style="color: #42c6ff;">Default</span>()
+    <span style="color: #83a598;">r</span> := gin.<span style="color: #b8bb26;">Default</span>()
 
-    r.<span style="color: #42c6ff;">GET</span>(<span style="color: #7984D1;">"/struct"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {
-        <span style="color: #df85ff;">data</span> := <span style="color: #ffd400;">msg</span>{
-            <span style="color: #df85ff; font-weight: bold;">Name</span>: <span style="color: #7984D1;">"&#23567;&#29579;&#23376;"</span>,
-            <span style="color: #df85ff; font-weight: bold;">message</span>: <span style="color: #7984D1;">"Hello"</span>,
-            <span style="color: #df85ff; font-weight: bold;">Age</span>: 18,
+    r.<span style="color: #b8bb26;">GET</span>(<span style="color: #b8bb26;">"/struct"</span>, <span style="color: #fb4934;">func</span>(<span style="color: #83a598;">c</span> *<span style="color: #fabd2f;">gin.Context</span>) {
+        <span style="color: #83a598;">data</span> := <span style="color: #fabd2f;">msg</span>{
+            <span style="color: #d3869b;">Name</span>: <span style="color: #b8bb26;">"&#23567;&#29579;&#23376;"</span>,
+            <span style="color: #d3869b;">message</span>: <span style="color: #b8bb26;">"Hello"</span>,
+            <span style="color: #d3869b;">Age</span>: 18,
         }
-        c.<span style="color: #42c6ff;">JSON</span>(http.StatusOK, data)   <span style="color: #546A90;">// </span><span style="color: #546A90;">json &#24207;&#21015;&#21270;</span>
+        c.<span style="color: #b8bb26;">JSON</span>(http.StatusOK, data)   <span style="color: #928374;">// </span><span style="color: #928374;">json &#24207;&#21015;&#21270;</span>
     })
-    r.<span style="color: #42c6ff;">Run</span>(<span style="color: #7984D1;">":8080"</span>)
+    r.<span style="color: #b8bb26;">Run</span>(<span style="color: #b8bb26;">":8080"</span>)
 }
 </pre>
 </div>
@@ -118,23 +118,23 @@
 常用于 GET 请求。<br>
 </p>
 
-<pre class="example" id="orgcc03f50">
+<pre class="example" id="org448ee31">
 http://127.0.0.1:8080/api/user/:username
 http://127.0.0.1:8080/api/user/Tom
 </pre>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #ff2afc; font-weight: bold;">func</span> <span style="color: #42c6ff;">main</span>() {
-    <span style="color: #df85ff;">r</span> := gin.<span style="color: #42c6ff;">Default</span>()
+<pre class="src src-go"><span style="color: #fb4934;">func</span> <span style="color: #b8bb26;">main</span>() {
+    <span style="color: #83a598;">r</span> := gin.<span style="color: #b8bb26;">Default</span>()
 
-    r.<span style="color: #42c6ff;">GET</span>(<span style="color: #7984D1;">"/api/user/:username"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span> <span style="color: #42c6ff;">GetUser</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.context</span>) {
-        <span style="color: #546A90;">// </span><span style="color: #546A90;">&#38656;&#35201;&#25509;&#25910;&#30340;&#21442;&#25968;&#21517;</span>
-        <span style="color: #df85ff;">username</span> := c.<span style="color: #42c6ff;">Param</span>(<span style="color: #7984D1;">"username"</span>)
+    r.<span style="color: #b8bb26;">GET</span>(<span style="color: #b8bb26;">"/api/user/:username"</span>, <span style="color: #fb4934;">func</span> <span style="color: #b8bb26;">GetUser</span>(<span style="color: #83a598;">c</span> *<span style="color: #fabd2f;">gin.context</span>) {
+        <span style="color: #928374;">// </span><span style="color: #928374;">&#38656;&#35201;&#25509;&#25910;&#30340;&#21442;&#25968;&#21517;</span>
+        <span style="color: #83a598;">username</span> := c.<span style="color: #b8bb26;">Param</span>(<span style="color: #b8bb26;">"username"</span>)
 
-        <span style="color: #546A90;">// </span><span style="color: #546A90;">...</span>
+        <span style="color: #928374;">// </span><span style="color: #928374;">...</span>
     })
 
-    r.<span style="color: #42c6ff;">Run</span>(<span style="color: #7984D1;">":8080"</span>)
+    r.<span style="color: #b8bb26;">Run</span>(<span style="color: #b8bb26;">":8080"</span>)
 }
 </pre>
 </div>
@@ -147,27 +147,27 @@ http://127.0.0.1:8080/api/user/Tom
 常用于 GET 请求。<br>
 </p>
 
-<pre class="example" id="org7d78cfd">
+<pre class="example" id="org6c7497e">
 http://127.0.0.1:8080/api/user
 http://127.0.0.1:8080/api/user?name=Tom&amp;age=16
 </pre>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #ff2afc; font-weight: bold;">func</span> <span style="color: #42c6ff;">main</span>() {
-    <span style="color: #df85ff;">r</span> := gin.<span style="color: #42c6ff;">Default</span>()
+<pre class="src src-go"><span style="color: #fb4934;">func</span> <span style="color: #b8bb26;">main</span>() {
+    <span style="color: #83a598;">r</span> := gin.<span style="color: #b8bb26;">Default</span>()
 
-    r.<span style="color: #42c6ff;">GET</span>(<span style="color: #7984D1;">"/api/user"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span> <span style="color: #42c6ff;">GetUser</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.context</span>) {
-        <span style="color: #546A90;">// </span><span style="color: #546A90;">&#33719;&#21462;query&#20013;&#30340;&#21442;&#25968;</span>
-        <span style="color: #df85ff;">name</span> := c.<span style="color: #42c6ff;">Query</span>(<span style="color: #7984D1;">"name"</span>)
-        <span style="color: #df85ff;">age</span> := c.<span style="color: #42c6ff;">Query</span>(<span style="color: #7984D1;">"age"</span>)
+    r.<span style="color: #b8bb26;">GET</span>(<span style="color: #b8bb26;">"/api/user"</span>, <span style="color: #fb4934;">func</span> <span style="color: #b8bb26;">GetUser</span>(<span style="color: #83a598;">c</span> *<span style="color: #fabd2f;">gin.context</span>) {
+        <span style="color: #928374;">// </span><span style="color: #928374;">&#33719;&#21462;query&#20013;&#30340;&#21442;&#25968;</span>
+        <span style="color: #83a598;">name</span> := c.<span style="color: #b8bb26;">Query</span>(<span style="color: #b8bb26;">"name"</span>)
+        <span style="color: #83a598;">age</span> := c.<span style="color: #b8bb26;">Query</span>(<span style="color: #b8bb26;">"age"</span>)
 
-        <span style="color: #546A90;">// </span><span style="color: #546A90;">name := c.DefaultQuery("query", "somebody")    // &#21462;&#19981;&#21040;&#23601;&#29992;&#40664;&#35748;&#20540;</span>
-        <span style="color: #546A90;">// </span><span style="color: #546A90;">name, ok := c.GetQuery("query")   // &#21462;&#19981;&#21040;&#31532;&#20108;&#20010;&#21442;&#25968;&#23601;&#36820;&#22238;false</span>
+        <span style="color: #928374;">// </span><span style="color: #928374;">name := c.DefaultQuery("query", "somebody")    // &#21462;&#19981;&#21040;&#23601;&#29992;&#40664;&#35748;&#20540;</span>
+        <span style="color: #928374;">// </span><span style="color: #928374;">name, ok := c.GetQuery("query")   // &#21462;&#19981;&#21040;&#31532;&#20108;&#20010;&#21442;&#25968;&#23601;&#36820;&#22238;false</span>
 
-        <span style="color: #546A90;">// </span><span style="color: #546A90;">...</span>
+        <span style="color: #928374;">// </span><span style="color: #928374;">...</span>
     })
 
-    r.<span style="color: #42c6ff;">Run</span>(<span style="color: #7984D1;">":8080"</span>)
+    r.<span style="color: #b8bb26;">Run</span>(<span style="color: #b8bb26;">":8080"</span>)
 }
 </pre>
 </div>
@@ -181,24 +181,24 @@ http://127.0.0.1:8080/api/user?name=Tom&amp;age=16
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #ff2afc; font-weight: bold;">func</span> <span style="color: #42c6ff;">main</span>() {
-    <span style="color: #546A90;">// </span><span style="color: #546A90;">&#23450;&#20041; struct</span>
-    <span style="color: #ff2afc; font-weight: bold;">type</span> <span style="color: #ffd400;">User</span> <span style="color: #ff2afc; font-weight: bold;">struct</span> {
-        Username <span style="color: #ffd400;">string</span> <span style="color: #7984D1;">`json:"username"`</span>
-        Password <span style="color: #ffd400;">string</span> <span style="color: #7984D1;">`json:"password"`</span>
+<pre class="src src-go"><span style="color: #fb4934;">func</span> <span style="color: #b8bb26;">main</span>() {
+    <span style="color: #928374;">// </span><span style="color: #928374;">&#23450;&#20041; struct</span>
+    <span style="color: #fb4934;">type</span> <span style="color: #fabd2f;">User</span> <span style="color: #fb4934;">struct</span> {
+        Username <span style="color: #fabd2f;">string</span> <span style="color: #b8bb26;">`json:"username"`</span>
+        Password <span style="color: #fabd2f;">string</span> <span style="color: #b8bb26;">`json:"password"`</span>
     }
 
-    <span style="color: #df85ff;">r</span> := gin.<span style="color: #42c6ff;">Default</span>()
+    <span style="color: #83a598;">r</span> := gin.<span style="color: #b8bb26;">Default</span>()
 
-    r.<span style="color: #42c6ff;">POST</span>(<span style="color: #7984D1;">"/api/user"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span> <span style="color: #42c6ff;">PostTest</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>()) {
-        <span style="color: #df85ff;">json</span> := <span style="color: #42c6ff;">User</span>()
+    r.<span style="color: #b8bb26;">POST</span>(<span style="color: #b8bb26;">"/api/user"</span>, <span style="color: #fb4934;">func</span> <span style="color: #b8bb26;">PostTest</span>(<span style="color: #83a598;">c</span> *<span style="color: #fabd2f;">gin.Context</span>()) {
+        <span style="color: #83a598;">json</span> := <span style="color: #b8bb26;">User</span>()
 
-        c.<span style="color: #42c6ff;">BindJson</span>(&amp;json)
+        c.<span style="color: #b8bb26;">BindJson</span>(&amp;json)
 
-        <span style="color: #546A90;">// </span><span style="color: #546A90;">...</span>
+        <span style="color: #928374;">// </span><span style="color: #928374;">...</span>
     })
 
-    r.<span style="color: #42c6ff;">Run</span>(<span style="color: #7984D1;">":8080"</span>)
+    r.<span style="color: #b8bb26;">Run</span>(<span style="color: #b8bb26;">":8080"</span>)
 }
 </pre>
 </div>
@@ -220,19 +220,19 @@ http://127.0.0.1:8080/api/user?name=Tom&amp;age=16
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #546A90;">// </span><span style="color: #546A90;">BindJSON is a shortcut for c.MustBindWith(obj, binding.JSON).</span>
-<span style="color: #ff2afc; font-weight: bold;">func</span> (<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">Context</span>) <span style="color: #42c6ff;">BindJSON</span>(<span style="color: #df85ff;">obj</span> <span style="color: #ff2afc; font-weight: bold;">interface</span>{}) <span style="color: #ffd400;">error</span> {
-    <span style="color: #ff2afc; font-weight: bold;">return</span> c.<span style="color: #42c6ff;">MustBindWith</span>(obj, binding.JSON)
+<pre class="src src-go"><span style="color: #928374;">// </span><span style="color: #928374;">BindJSON is a shortcut for c.MustBindWith(obj, binding.JSON).</span>
+<span style="color: #fb4934;">func</span> (<span style="color: #83a598;">c</span> *<span style="color: #fabd2f;">Context</span>) <span style="color: #b8bb26;">BindJSON</span>(<span style="color: #83a598;">obj</span> <span style="color: #fb4934;">interface</span>{}) <span style="color: #fabd2f;">error</span> {
+    <span style="color: #fb4934;">return</span> c.<span style="color: #b8bb26;">MustBindWith</span>(obj, binding.JSON)
 }
-<span style="color: #546A90;">// </span><span style="color: #546A90;">MustBindWith binds the passed struct pointer using the specified binding engine.</span>
-<span style="color: #546A90;">// </span><span style="color: #546A90;">It will abort the request with HTTP 400 if any error ocurrs.</span>
-<span style="color: #546A90;">// </span><span style="color: #546A90;">See the binding package.</span>
-<span style="color: #ff2afc; font-weight: bold;">func</span> (<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">Context</span>) <span style="color: #42c6ff;">MustBindWith</span>(<span style="color: #df85ff;">obj</span> <span style="color: #ff2afc; font-weight: bold;">interface</span>{}, <span style="color: #df85ff;">b</span> <span style="color: #ffd400;">binding.Binding</span>) (<span style="color: #df85ff;">err</span> <span style="color: #ffd400;">error</span>) {
-    <span style="color: #ff2afc; font-weight: bold;">if</span> err = c.<span style="color: #42c6ff;">ShouldBindWith</span>(obj, b); err != <span style="color: #df85ff; font-weight: bold;">nil</span> {
-        c.<span style="color: #42c6ff;">AbortWithError</span>(http.StatusBadRequest, err).<span style="color: #42c6ff;">SetType</span>(ErrorTypeBind)
+<span style="color: #928374;">// </span><span style="color: #928374;">MustBindWith binds the passed struct pointer using the specified binding engine.</span>
+<span style="color: #928374;">// </span><span style="color: #928374;">It will abort the request with HTTP 400 if any error ocurrs.</span>
+<span style="color: #928374;">// </span><span style="color: #928374;">See the binding package.</span>
+<span style="color: #fb4934;">func</span> (<span style="color: #83a598;">c</span> *<span style="color: #fabd2f;">Context</span>) <span style="color: #b8bb26;">MustBindWith</span>(<span style="color: #83a598;">obj</span> <span style="color: #fb4934;">interface</span>{}, <span style="color: #83a598;">b</span> <span style="color: #fabd2f;">binding.Binding</span>) (<span style="color: #83a598;">err</span> <span style="color: #fabd2f;">error</span>) {
+    <span style="color: #fb4934;">if</span> err = c.<span style="color: #b8bb26;">ShouldBindWith</span>(obj, b); err != <span style="color: #d3869b;">nil</span> {
+        c.<span style="color: #b8bb26;">AbortWithError</span>(http.StatusBadRequest, err).<span style="color: #b8bb26;">SetType</span>(ErrorTypeBind)
     }
 
-    <span style="color: #ff2afc; font-weight: bold;">return</span>
+    <span style="color: #fb4934;">return</span>
 }
 </pre>
 </div>
@@ -246,14 +246,14 @@ http://127.0.0.1:8080/api/user?name=Tom&amp;age=16
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #546A90;">// </span><span style="color: #546A90;">ShouldBindJSON is a shortcut for c.ShouldBindWith(obj, binding.JSON).</span>
-<span style="color: #ff2afc; font-weight: bold;">func</span> (<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">Context</span>) <span style="color: #42c6ff;">ShouldBindJSON</span>(<span style="color: #df85ff;">obj</span> <span style="color: #ff2afc; font-weight: bold;">interface</span>{}) <span style="color: #ffd400;">error</span> {
-    <span style="color: #ff2afc; font-weight: bold;">return</span> c.<span style="color: #42c6ff;">ShouldBindWith</span>(obj, binding.JSON)
+<pre class="src src-go"><span style="color: #928374;">// </span><span style="color: #928374;">ShouldBindJSON is a shortcut for c.ShouldBindWith(obj, binding.JSON).</span>
+<span style="color: #fb4934;">func</span> (<span style="color: #83a598;">c</span> *<span style="color: #fabd2f;">Context</span>) <span style="color: #b8bb26;">ShouldBindJSON</span>(<span style="color: #83a598;">obj</span> <span style="color: #fb4934;">interface</span>{}) <span style="color: #fabd2f;">error</span> {
+    <span style="color: #fb4934;">return</span> c.<span style="color: #b8bb26;">ShouldBindWith</span>(obj, binding.JSON)
 }
-<span style="color: #546A90;">// </span><span style="color: #546A90;">ShouldBindWith binds the passed struct pointer using the specified binding engine.</span>
-<span style="color: #546A90;">// </span><span style="color: #546A90;">See the binding package.</span>
-<span style="color: #ff2afc; font-weight: bold;">func</span> (<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">Context</span>) <span style="color: #42c6ff;">ShouldBindWith</span>(<span style="color: #df85ff;">obj</span> <span style="color: #ff2afc; font-weight: bold;">interface</span>{}, <span style="color: #df85ff;">b</span> <span style="color: #ffd400;">binding.Binding</span>) <span style="color: #ffd400;">error</span> {
-    <span style="color: #ff2afc; font-weight: bold;">return</span> b.<span style="color: #42c6ff;">Bind</span>(c.Request, obj)
+<span style="color: #928374;">// </span><span style="color: #928374;">ShouldBindWith binds the passed struct pointer using the specified binding engine.</span>
+<span style="color: #928374;">// </span><span style="color: #928374;">See the binding package.</span>
+<span style="color: #fb4934;">func</span> (<span style="color: #83a598;">c</span> *<span style="color: #fabd2f;">Context</span>) <span style="color: #b8bb26;">ShouldBindWith</span>(<span style="color: #83a598;">obj</span> <span style="color: #fb4934;">interface</span>{}, <span style="color: #83a598;">b</span> <span style="color: #fabd2f;">binding.Binding</span>) <span style="color: #fabd2f;">error</span> {
+    <span style="color: #fb4934;">return</span> b.<span style="color: #b8bb26;">Bind</span>(c.Request, obj)
 }
 </pre>
 </div>
@@ -267,8 +267,8 @@ http://127.0.0.1:8080/api/user?name=Tom&amp;age=16
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #ff2afc; font-weight: bold;">func</span> (<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">Context</span>) <span style="color: #42c6ff;">ShouldBindWith</span>(<span style="color: #df85ff;">obj</span> <span style="color: #ff2afc; font-weight: bold;">interface</span>{}, <span style="color: #df85ff;">b</span> <span style="color: #ffd400;">binding.Binding</span>) <span style="color: #ffd400;">error</span> {
-    <span style="color: #ff2afc; font-weight: bold;">return</span> b.<span style="color: #42c6ff;">Bind</span>(c.Request, obj)
+<pre class="src src-go"><span style="color: #fb4934;">func</span> (<span style="color: #83a598;">c</span> *<span style="color: #fabd2f;">Context</span>) <span style="color: #b8bb26;">ShouldBindWith</span>(<span style="color: #83a598;">obj</span> <span style="color: #fb4934;">interface</span>{}, <span style="color: #83a598;">b</span> <span style="color: #fabd2f;">binding.Binding</span>) <span style="color: #fabd2f;">error</span> {
+    <span style="color: #fb4934;">return</span> b.<span style="color: #b8bb26;">Bind</span>(c.Request, obj)
 }
 </pre>
 </div>
@@ -293,14 +293,14 @@ Shouldxxx 和 bindxxx 区别就是 bindxxx 会在 head 中添加 400 的返回�
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #546A90;">// </span><span style="color: #546A90;">&#20869;&#37096;&#26681;&#25454; Content-Type &#21435;&#35299;&#26512;</span>
-c.<span style="color: #42c6ff;">Bind</span>(obj <span style="color: #ff2afc; font-weight: bold;">interface</span>{})
+<pre class="src src-go"><span style="color: #928374;">// </span><span style="color: #928374;">&#20869;&#37096;&#26681;&#25454; Content-Type &#21435;&#35299;&#26512;</span>
+c.<span style="color: #b8bb26;">Bind</span>(obj <span style="color: #fb4934;">interface</span>{})
 
-<span style="color: #546A90;">// </span><span style="color: #546A90;">&#20869;&#37096;&#26367;&#20320;&#20256;&#36882;&#20102;&#19968;&#20010; binding.JSON&#65292;&#23545;&#35937;&#21435;&#35299;&#26512;</span>
-c.<span style="color: #42c6ff;">BindJSON</span>(obj <span style="color: #ff2afc; font-weight: bold;">interface</span>{})
+<span style="color: #928374;">// </span><span style="color: #928374;">&#20869;&#37096;&#26367;&#20320;&#20256;&#36882;&#20102;&#19968;&#20010; binding.JSON&#65292;&#23545;&#35937;&#21435;&#35299;&#26512;</span>
+c.<span style="color: #b8bb26;">BindJSON</span>(obj <span style="color: #fb4934;">interface</span>{})
 
-<span style="color: #546A90;">// </span><span style="color: #546A90;">&#35299;&#26512;&#21738;&#19968;&#31181;&#32465;&#23450;&#30340;&#31867;&#22411;&#65292;&#26681;&#25454;&#20320;&#30340;&#36873;&#25321;</span>
-c.<span style="color: #42c6ff;">BindWith</span>(obj <span style="color: #ff2afc; font-weight: bold;">interface</span>{}, b <span style="color: #ffd400;">binding.Binding</span>)
+<span style="color: #928374;">// </span><span style="color: #928374;">&#35299;&#26512;&#21738;&#19968;&#31181;&#32465;&#23450;&#30340;&#31867;&#22411;&#65292;&#26681;&#25454;&#20320;&#30340;&#36873;&#25321;</span>
+c.<span style="color: #b8bb26;">BindWith</span>(obj <span style="color: #fb4934;">interface</span>{}, b <span style="color: #fabd2f;">binding.Binding</span>)
 </pre>
 </div></li>
 
@@ -309,14 +309,14 @@ c.<span style="color: #42c6ff;">BindWith</span>(obj <span style="color: #ff2afc;
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #546A90;">// </span><span style="color: #546A90;">&#20869;&#37096;&#26681;&#25454; Content-Type &#21435;&#35299;&#26512;</span>
-c.<span style="color: #42c6ff;">ShouldBind</span>(obj <span style="color: #ff2afc; font-weight: bold;">interface</span>{})
+<pre class="src src-go"><span style="color: #928374;">// </span><span style="color: #928374;">&#20869;&#37096;&#26681;&#25454; Content-Type &#21435;&#35299;&#26512;</span>
+c.<span style="color: #b8bb26;">ShouldBind</span>(obj <span style="color: #fb4934;">interface</span>{})
 
-<span style="color: #546A90;">// </span><span style="color: #546A90;">&#20869;&#37096;&#26367;&#20320;&#20256;&#36882;&#20102;&#19968;&#20010; binding.JSON&#65292;&#23545;&#35937;&#21435;&#35299;&#26512;</span>
-c.<span style="color: #42c6ff;">ShouldBindJSON</span>(obj <span style="color: #ff2afc; font-weight: bold;">interface</span>{})
+<span style="color: #928374;">// </span><span style="color: #928374;">&#20869;&#37096;&#26367;&#20320;&#20256;&#36882;&#20102;&#19968;&#20010; binding.JSON&#65292;&#23545;&#35937;&#21435;&#35299;&#26512;</span>
+c.<span style="color: #b8bb26;">ShouldBindJSON</span>(obj <span style="color: #fb4934;">interface</span>{})
 
-<span style="color: #546A90;">// </span><span style="color: #546A90;">&#35299;&#26512;&#21738;&#19968;&#31181;&#32465;&#23450;&#30340;&#31867;&#22411;&#65292;&#26681;&#25454;&#20320;&#30340;&#36873;&#25321;</span>
-c.<span style="color: #42c6ff;">ShouldBindWith</span>(obj <span style="color: #ff2afc; font-weight: bold;">interface</span>{}, b <span style="color: #ffd400;">binding.Binding</span>)
+<span style="color: #928374;">// </span><span style="color: #928374;">&#35299;&#26512;&#21738;&#19968;&#31181;&#32465;&#23450;&#30340;&#31867;&#22411;&#65292;&#26681;&#25454;&#20320;&#30340;&#36873;&#25321;</span>
+c.<span style="color: #b8bb26;">ShouldBindWith</span>(obj <span style="color: #fb4934;">interface</span>{}, b <span style="color: #fabd2f;">binding.Binding</span>)
 </pre>
 </div></li>
 </ul>
@@ -327,7 +327,7 @@ c.<span style="color: #42c6ff;">ShouldBindWith</span>(obj <span style="color: #f
 <div id="postamble" class="status">
 <p class="date">Date: 2021-12-14 17:12 Tue</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2023-01-30</p>
+<p class="date">Created: 2023-02-07</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

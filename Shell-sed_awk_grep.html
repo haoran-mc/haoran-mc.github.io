@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2023-02-06 -->
+<!-- 2023-02-09 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>sed awk grep</title>
@@ -19,30 +19,16 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orgf2d417b">文本搜索工具 grep</a></li>
+<li><a href="#orgf2d417b">文本搜索工具 grep</a>
+<ul>
+<li><a href="#orgbb6f471">grep的基础用法</a></li>
+<li><a href="#orgb169152">grep的高级用法</a></li>
+</ul>
+</li>
 <li><a href="#org6f1cc6e">文本编辑工具 sed</a>
 <ul>
-<li><a href="#org52284b4">sed 工具</a>
-<ul>
-<li><a href="#orgf2f981c">参数解析</a>
-<ul>
-<li><a href="#orga2de65b">使用多命令（-e 参数）</a></li>
-<li><a href="#org2806a4a">sed编辑器脚本（-f 参数）</a></li>
-<li><a href="#org8759db2">直接修改文件（-i 参数）</a></li>
-</ul>
-</li>
-<li><a href="#orga4bbed3">使用地址（单独处理某行）</a></li>
-<li><a href="#org29e2501">新增/删除（以行为单位）</a></li>
-<li><a href="#org96abe14">替换/显示（以行为单位）</a></li>
-<li><a href="#orge95345b">数据的查找并替换（Vim）</a>
-<ul>
-<li><a href="#org3de24cf">替换标记</a></li>
-<li><a href="#orge5fdfb4">分隔字符</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a href="#org6781a7d">进阶sed</a></li>
+<li><a href="#org9877495">初识sed</a></li>
+<li><a href="#org05975cf">进阶sed</a></li>
 </ul>
 </li>
 <li><a href="#org49bda14">文本格式化工具 gawk</a>
@@ -59,211 +45,23 @@
 <div id="outline-container-orgf2d417b" class="outline-2">
 <h2 id="orgf2d417b">文本搜索工具 grep<a id="org0041eb8"></a></h2>
 <div class="outline-text-2" id="text-orgf2d417b">
-<ul class="org-ul">
-<li><a href="Linux-bash.html#org5e616fb">grep的基础用法</a><br></li>
-<li><a href="Linux-正则表达式与文件格式化处理.html#org25964c4">grep的高级用法</a><br></li>
-</ul>
+</div>
+<div id="outline-container-orgbb6f471" class="outline-3">
+<h3 id="orgbb6f471"><a href="Linux-bash.html#org5e616fb">grep的基础用法</a></h3>
+</div>
+<div id="outline-container-orgb169152" class="outline-3">
+<h3 id="orgb169152"><a href="Linux-正则表达式与文件格式化处理.html#org25964c4">grep的高级用法</a></h3>
 </div>
 </div>
 <div id="outline-container-org6f1cc6e" class="outline-2">
 <h2 id="org6f1cc6e">文本编辑工具 sed<a id="org7aa8c70"></a></h2>
 <div class="outline-text-2" id="text-org6f1cc6e">
 </div>
-<div id="outline-container-org52284b4" class="outline-3">
-<h3 id="org52284b4">sed 工具</h3>
-<div class="outline-text-3" id="text-org52284b4">
-<p>
-sed 是一个管道命令，可以分析标准输入。而且 sed 还可以将数据进行替换、删除、新增、选取特定行等功能。<br>
-</p>
-
-<pre class="example" id="org5f2ee1c">
-sed [-nefr] [操作]
-
--n: 使用安静（silent）模式，在一般 sed 的用法中，所有来自 stdin 的数据一般都会被列到屏幕上，但如果加上 -n 参数之后，则只有经过 sed 特殊处理的那一行（或操作）才会被列出来；
--e: 直接在命令行模式上进行 sed 操作编辑；
--f: 直接将 sed 的操作写在一个文件内，-f filename 则可以执行 filename 内的 sed 操作；
--r: sed 的操作使用的是扩展型正则表达式的语法，默认是基础正则表达式语法；
--i: 直接修改读取的文件内容，而不是由屏幕输出；
-
-操作说明：[n1 [,n2]] function
-
-n1, n2: 不见得会存在，一般代表【选择进行操作的行数】，举例来说，如果我的操作是需要在 10 到 20 行之间进行的，则【10, 20 [操作行为]】
-
-function 有下面这些东西
-a: 新增，a 的后面可以接字符，而这些字符会在新的一行出现（当前的下一行）；
-c: 替换，c 的后面可以接字符，这些字符可以替换 n1, n2 之间的行；
-d: 删除，因为是删除，所以 d 后面通常不接任何东西；
-i: 插入，i 的后面可以接字符，而这些字符会在新的一行会先（当前的上一行）；
-p: 打印，亦即将某个选择的数据打印出来，通常 p 会与参数 sed -n 一起执行；
-s: 替换，可以直接进行替换工作，通常这个 s 的操作可以搭配正则表达式，例如 1, 20s/old/new/g；
-</pre>
+<div id="outline-container-org9877495" class="outline-3">
+<h3 id="org9877495"><a href="Shell-初识sed.html">初识sed</a></h3>
 </div>
-<div id="outline-container-orgf2f981c" class="outline-4">
-<h4 id="orgf2f981c">参数解析</h4>
-<div class="outline-text-4" id="text-orgf2f981c">
-</div>
-<div id="outline-container-orga2de65b" class="outline-5">
-<h5 id="orga2de65b">使用多命令（-e 参数）</h5>
-<div class="outline-text-5" id="text-orga2de65b">
-<p>
-要在 sed 命令行上执行多个命令时，只要用 -e 选项就行了：<br>
-</p>
-
-<div class="org-src-container">
-<pre class="src src-shell">sed -e <span style="color: #b8bb26;">'s/brown/green/; s/dog/cat/'</span> data.txt
-</pre>
-</div>
-
-<div class="org-src-container">
-<pre class="src src-shell">$ sed -e <span style="color: #b8bb26;">'</span>
-<span style="color: #b8bb26;">&gt; s/brown/green/</span>
-<span style="color: #b8bb26;">&gt; s/fox/elephant/</span>
-<span style="color: #b8bb26;">&gt; s/dog/cat'</span> data.txt
-</pre>
-</div>
-</div>
-</div>
-<div id="outline-container-org2806a4a" class="outline-5">
-<h5 id="org2806a4a">sed编辑器脚本（-f 参数）</h5>
-<div class="outline-text-5" id="text-org2806a4a">
-<div class="org-src-container">
-<pre class="src src-shell">$ cat script.sed
-s/brown/green
-s/fox/elephant/
-s/dog/cat
-$
-</pre>
-</div>
-
-<div class="org-src-container">
-<pre class="src src-shell">sed -f script.sed data.txt
-</pre>
-</div>
-</div>
-</div>
-<div id="outline-container-org8759db2" class="outline-5">
-<h5 id="org8759db2">直接修改文件（-i 参数）</h5>
-<div class="outline-text-5" id="text-org8759db2">
-<div class="org-src-container">
-<pre class="src src-bash"><span style="color: #928374;"># </span><span style="color: #928374;">&#33539;&#20363;&#20845;&#65306;&#21033;&#29992; sed &#23558; regular_express.txt &#20869;&#27599;&#19968;&#34892;&#32467;&#23614;&#33509;&#20026; . &#21017;&#25442;&#25104; !</span>
-$ sed -i <span style="color: #b8bb26;">'s/\.$/\!/g'</span> regular_express.txt
-
-<span style="color: #928374;"># </span><span style="color: #928374;">&#33539;&#20363;&#19971;&#65306;&#21033;&#29992; sed &#30452;&#25509;&#22312; regular_express.txt &#26368;&#21518;&#19968;&#34892;&#21152;&#20837;&#12304;# This is a test&#12305;</span>
-$ sed -i <span style="color: #b8bb26;">'$a # This is a test'</span> regular_express.txt
-</pre>
-</div>
-</div>
-</div>
-</div>
-<div id="outline-container-orga4bbed3" class="outline-4">
-<h4 id="orga4bbed3">使用地址（单独处理某行）</h4>
-</div>
-<div id="outline-container-org29e2501" class="outline-4">
-<h4 id="org29e2501">新增/删除（以行为单位）</h4>
-<div class="outline-text-4" id="text-org29e2501">
-<div class="org-src-container">
-<pre class="src src-bash"><span style="color: #928374;"># </span><span style="color: #928374;">&#33539;&#20363;&#19968;&#65306;&#23558; /etc/passwd &#30340;&#20869;&#23481;&#21015;&#20986;&#24182;&#19988;&#25171;&#21360;&#34892;&#21495;&#65292;&#21516;&#26102;&#23558;&#31532; 2~5 &#34892;&#21024;&#38500;</span>
-$ nl /etc/passwd | sed <span style="color: #b8bb26;">'2,5d'</span>
-
-<span style="color: #928374;"># </span><span style="color: #928374;">&#20165;&#21024;&#38500;&#31532; 2 &#34892;</span>
-$ nl /etc/passwd | sed <span style="color: #b8bb26;">'2d'</span>
-
-<span style="color: #928374;"># </span><span style="color: #928374;">&#21024;&#38500;&#31532; 3 &#21040;&#26368;&#21518;&#19968;&#34892;</span>
-$ nl /etc/passwd | sed <span style="color: #b8bb26;">'3,$d'</span>
-</pre>
-</div>
-
-<div class="org-src-container">
-<pre class="src src-bash"><span style="color: #928374;"># </span><span style="color: #928374;">&#33539;&#20363;&#20108;&#65306;&#22312;&#31532; 2 &#34892;&#20043;&#21518;&#21152;&#19978;&#12304;drink tea?&#12305;&#23383;&#26679;</span>
-$ nl /etc/passwd | sed <span style="color: #b8bb26;">'2a drink tea'</span>
-</pre>
-</div>
-
-<div class="org-src-container">
-<pre class="src src-bash"><span style="color: #928374;"># </span><span style="color: #928374;">&#33539;&#20363;&#19977;&#65306;&#20056;&#19978;&#65292;&#22312;&#31532; 2 &#34892;&#20043;&#21069;&#22686;&#21152;&#65292;&#19988;&#22686;&#21152;&#22810;&#34892;</span>
-$ nl /etc/passwd | sed <span style="color: #b8bb26;">'2i drink tea or ...\</span>
-<span style="color: #b8bb26;">&gt; dirnk beer?'</span>
-</pre>
-</div>
-</div>
-</div>
-<div id="outline-container-org96abe14" class="outline-4">
-<h4 id="org96abe14">替换/显示（以行为单位）</h4>
-<div class="outline-text-4" id="text-org96abe14">
-<div class="org-src-container">
-<pre class="src src-bash"><span style="color: #928374;"># </span><span style="color: #928374;">&#33539;&#20363;&#22235;&#65306;&#23558;&#31532; 2~5 &#34892;&#26367;&#25442;&#25104; &#12304;No 2-5 number&#12305;</span>
-$ nl /etc/passwd | sed <span style="color: #b8bb26;">'2,5c No 2-5 number'</span>
-</pre>
-</div>
-
-<p>
-以前我们想列出第 11-20 行，需要通过【head -n 20 | tail -n 10】之类的方法， sed 则可以简单的直接取出你想要的那几行。<br>
-</p>
-
-<div class="org-src-container">
-<pre class="src src-bash"><span style="color: #928374;"># </span><span style="color: #928374;">&#33539;&#20363;&#20116;&#65306;&#20165;&#21015;&#20986; /etc/passwd &#25991;&#20214;&#20869;&#30340;&#31532; 5-7 &#34892;</span>
-$ nl /etc/paswd | sed -n <span style="color: #b8bb26;">'5,7p'</span>
-</pre>
-</div>
-</div>
-</div>
-<div id="outline-container-orge95345b" class="outline-4">
-<h4 id="orge95345b">数据的查找并替换（Vim）</h4>
-<div class="outline-text-4" id="text-orge95345b">
-<p>
-sed 的查找与替换的功能与 vim 相当的类似。<br>
-</p>
-
-<div class="org-src-container">
-<pre class="src src-bash">sed <span style="color: #b8bb26;">'s/&#35201;&#34987;&#26367;&#25442;&#30340;&#23383;&#31526;/&#26032;&#30340;&#23383;&#31526;/g'</span>
-</pre>
-</div>
-</div>
-<div id="outline-container-org3de24cf" class="outline-5">
-<h5 id="org3de24cf">替换标记</h5>
-<div class="outline-text-5" id="text-org3de24cf">
-<p>
-最后的 <code>g</code> 是替换标记，替换标记有 4 种：<br>
-</p>
-
-<ol class="org-ol">
-<li>数字，表明替换第几处模式匹配的地方；<br></li>
-<li>g，表明新文本将会替换所有匹配的文本；<br></li>
-<li>p，表明原先行的内容要打印出来；<br></li>
-<li>w file，将替换的结果写到文件中；<br></li>
-</ol>
-
-<p>
-不加替换标记，默认只替换每行中出现的第一处。<br>
-</p>
-</div>
-</div>
-<div id="outline-container-orge5fdfb4" class="outline-5">
-<h5 id="orge5fdfb4">分隔字符</h5>
-<div class="outline-text-5" id="text-orge5fdfb4">
-<div class="org-src-container">
-<pre class="src src-shell">sed <span style="color: #b8bb26;">'s/\/bin\/bash/\/bin\/csh/'</span> /etc/passwd
-</pre>
-</div>
-
-<p>
-使用正斜线作为字符串分隔符，必须用反斜线来转义，这通常会带来一些困惑和错误。<br>
-</p>
-
-<p>
-sed 编辑器允许选择其他字符来作为替换命令中的字符串分隔符：<br>
-</p>
-
-<div class="org-src-container">
-<pre class="src src-shell">sed <span style="color: #b8bb26;">'s!/bin/bash!/bin/csh!'</span> /etc/passwd
-</pre>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div id="outline-container-org6781a7d" class="outline-3">
-<h3 id="org6781a7d"><a href="Shell-进阶sed.html">进阶sed</a></h3>
+<div id="outline-container-org05975cf" class="outline-3">
+<h3 id="org05975cf"><a href="Shell-进阶sed.html">进阶sed</a></h3>
 </div>
 </div>
 <div id="outline-container-org49bda14" class="outline-2">
@@ -362,7 +160,7 @@ END {
 <div id="postamble" class="status">
 <p class="date">Date: 2023-02-01 13:02 Wed</p>
 <p class="author">Author: Haoran Liu</p>
-<p class="date">Created: 2023-02-06</p>
+<p class="date">Created: 2023-02-09</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

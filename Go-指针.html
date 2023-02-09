@@ -1,44 +1,42 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2022-05-26 Thu 21:44 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 2023-02-07 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>指针</title>
-<meta name="generator" content="Org mode">
-<meta name="author" content="L.M.haoran">
-<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved."
->
-
-                <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
-                <script type="module" src="static/js/main.js" defer></script>
-                <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<meta name="author" content="L.M.haoran" />
+<meta name="description" content="Copyright © 2022, L.M.haoran, all rights reserved." />
+<meta name="generator" content="Org Mode" />
+<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+           <link rel="stylesheet" href="static/css/org.css" type="text/css"  />
+           <script type="module" src="static/js/main.js" defer></script>
 </head>
 <body>
-<div id="content">
+<div id="content" class="content">
 <h1 class="title">指针</h1>
-<div id="table-of-contents">
+<div id="table-of-contents" role="doc-toc">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents">
+<div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org7149790">Go语言中的指针</a></li>
-<li><a href="#orgf191449">指针地址和指针类型</a></li>
-<li><a href="#orgf218314">指针取值</a></li>
-<li><a href="#org9948a88">空指针</a></li>
-<li><a href="#org6a2d3ae">new 和 make</a>
+<li><a href="#org4d54116">Go语言中的指针</a></li>
+<li><a href="#orgc99fb2d">指针地址和指针类型</a></li>
+<li><a href="#orgaa3be33">指针取值</a></li>
+<li><a href="#org8eb4a91">空指针</a></li>
+<li><a href="#org05c07e6">new 和 make</a>
 <ul>
-<li><a href="#org30026ae">new</a></li>
-<li><a href="#orgc5bbf7b">make</a></li>
-<li><a href="#org6a599a8">new 与 make 的区别</a></li>
+<li><a href="#orgdb61ea7">new</a></li>
+<li><a href="#orgc000b75">make</a></li>
+<li><a href="#org16dd562">new 与 make 的区别</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org7149790" class="outline-2">
-<h2 id="org7149790">Go语言中的指针</h2>
-<div class="outline-text-2" id="text-org7149790">
+<div id="outline-container-org4d54116" class="outline-2">
+<h2 id="org4d54116">Go语言中的指针</h2>
+<div class="outline-text-2" id="text-org4d54116">
 <p>
 区别于 C/C++ 中的指针，Go 语言中的指针不能进行偏移和运算，是安全指针。<br>
 </p>
@@ -52,45 +50,45 @@ Go 语言中的函数传参都是值拷贝，当我们想要修改某个变量�
 </p>
 </div>
 </div>
-<div id="outline-container-orgf191449" class="outline-2">
-<h2 id="orgf191449">指针地址和指针类型</h2>
-<div class="outline-text-2" id="text-orgf191449">
+<div id="outline-container-orgc99fb2d" class="outline-2">
+<h2 id="orgc99fb2d">指针地址和指针类型</h2>
+<div class="outline-text-2" id="text-orgc99fb2d">
 <p>
 每个变量在运行时都拥有一个地址，这个地址代表变量在内存中的位置。Go 语言中使用&amp;字符放在变量前面对变量进行“取地址”操作。 Go 语言中的值类型（ <code>int</code> 、 <code>float</code> 、 <code>bool</code> 、 <code>string</code> 、 <code>array</code> 、 <code>struct</code> ）都有对应的指针类型，如： <code>*int</code> 、 <code>*int64</code> 、 <code>*string</code> 等。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #8787d7;">a</span> := 10
-    <span style="color: #8787d7;">b</span> := &amp;a
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"a:%d ptr:%p\n"</span>, a, &amp;a) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">a:10 ptr:0xc00001a078</span>
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"b:%p type:%T\n"</span>, b, b) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">b:0xc00001a078 type:*int</span>
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(&amp;b)                    <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">0xc00000e018</span>
+<pre class="src src-go"><span style="color: #fb4934;">func</span> <span style="color: #b8bb26;">main</span>() {
+    <span style="color: #83a598;">a</span> := 10
+    <span style="color: #83a598;">b</span> := &amp;a
+    fmt.<span style="color: #b8bb26;">Printf</span>(<span style="color: #b8bb26;">"a:%d ptr:%p\n"</span>, a, &amp;a) <span style="color: #928374;">// </span><span style="color: #928374;">a:10 ptr:0xc00001a078</span>
+    fmt.<span style="color: #b8bb26;">Printf</span>(<span style="color: #b8bb26;">"b:%p type:%T\n"</span>, b, b) <span style="color: #928374;">// </span><span style="color: #928374;">b:0xc00001a078 type:*int</span>
+    fmt.<span style="color: #b8bb26;">Println</span>(&amp;b)                    <span style="color: #928374;">// </span><span style="color: #928374;">0xc00000e018</span>
 }
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orgf218314" class="outline-2">
-<h2 id="orgf218314">指针取值</h2>
-<div class="outline-text-2" id="text-orgf218314">
+<div id="outline-container-orgaa3be33" class="outline-2">
+<h2 id="orgaa3be33">指针取值</h2>
+<div class="outline-text-2" id="text-orgaa3be33">
 <p>
 在对普通变量使用&amp;操作符取地址后会获得这个变量的指针，然后可以对指针使用*操作，也就是指针取值，代码如下。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #8787d7;">a</span> := 10
-    <span style="color: #8787d7;">b</span> := &amp;a   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#21462;&#21464;&#37327;a&#30340;&#22320;&#22336;&#65292;&#23558;&#25351;&#38024;&#20445;&#23384;&#21040;b&#20013;</span>
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"type of b: %T\n"</span>, b)
-    <span style="color: #8787d7;">c</span> := *b   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">&#25351;&#38024;&#21462;&#20540;&#65288;&#26681;&#25454;&#25351;&#38024;&#21435;&#20869;&#23384;&#21462;&#20540;&#65289;</span>
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"type of c: %T\n"</span>, c)
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"value of c: %v\n"</span>, c)
+<pre class="src src-go"><span style="color: #fb4934;">func</span> <span style="color: #b8bb26;">main</span>() {
+    <span style="color: #83a598;">a</span> := 10
+    <span style="color: #83a598;">b</span> := &amp;a   <span style="color: #928374;">// </span><span style="color: #928374;">&#21462;&#21464;&#37327;a&#30340;&#22320;&#22336;&#65292;&#23558;&#25351;&#38024;&#20445;&#23384;&#21040;b&#20013;</span>
+    fmt.<span style="color: #b8bb26;">Printf</span>(<span style="color: #b8bb26;">"type of b: %T\n"</span>, b)
+    <span style="color: #83a598;">c</span> := *b   <span style="color: #928374;">// </span><span style="color: #928374;">&#25351;&#38024;&#21462;&#20540;&#65288;&#26681;&#25454;&#25351;&#38024;&#21435;&#20869;&#23384;&#21462;&#20540;&#65289;</span>
+    fmt.<span style="color: #b8bb26;">Printf</span>(<span style="color: #b8bb26;">"type of c: %T\n"</span>, c)
+    fmt.<span style="color: #b8bb26;">Printf</span>(<span style="color: #b8bb26;">"value of c: %v\n"</span>, c)
 }
 
-<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">type of b: *int</span>
-<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">type of c: int</span>
-<span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">value of c: 10</span>
+<span style="color: #928374;">// </span><span style="color: #928374;">type of b: *int</span>
+<span style="color: #928374;">// </span><span style="color: #928374;">type of c: int</span>
+<span style="color: #928374;">// </span><span style="color: #928374;">value of c: 10</span>
 </pre>
 </div>
 
@@ -105,67 +103,69 @@ Go 语言中的函数传参都是值拷贝，当我们想要修改某个变量�
 <ol class="org-ol">
 <li>对变量进行取地址（&amp;）操作，可以获得这个变量的指针变量。<br></li>
 <li>指针变量的值是指针地址。<br></li>
-<li>对指针变量进行取值（*）操作，可以获得指针变量指向的原变量的值。<br></li>
-</ol>
+<li><p>
+对指针变量进行取值（*）操作，可以获得指针变量指向的原变量的值。<br>
+</p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">modify1</span>(<span style="color: #8787d7;">x</span> <span style="color: #df005f; font-weight: bold;">int</span>) {
+<pre class="src src-go"><span style="color: #fb4934;">func</span> <span style="color: #b8bb26;">modify1</span>(<span style="color: #83a598;">x</span> <span style="color: #fabd2f;">int</span>) {
     x = 100
 }
 
-<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">modify2</span>(<span style="color: #8787d7;">x</span> *<span style="color: #df005f; font-weight: bold;">int</span>) {
+<span style="color: #fb4934;">func</span> <span style="color: #b8bb26;">modify2</span>(<span style="color: #83a598;">x</span> *<span style="color: #fabd2f;">int</span>) {
     *x = 100
 }
 
-<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #8787d7;">a</span> := 10
-    <span style="color: #d75fd7; font-weight: bold;">modify1</span>(a)
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(a) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">10</span>
-    <span style="color: #d75fd7; font-weight: bold;">modify2</span>(&amp;a)
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(a) <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">100</span>
+<span style="color: #fb4934;">func</span> <span style="color: #b8bb26;">main</span>() {
+    <span style="color: #83a598;">a</span> := 10
+    <span style="color: #b8bb26;">modify1</span>(a)
+    fmt.<span style="color: #b8bb26;">Println</span>(a) <span style="color: #928374;">// </span><span style="color: #928374;">10</span>
+    <span style="color: #b8bb26;">modify2</span>(&amp;a)
+    fmt.<span style="color: #b8bb26;">Println</span>(a) <span style="color: #928374;">// </span><span style="color: #928374;">100</span>
 }
 </pre>
+</div></li>
+</ol>
 </div>
 </div>
-</div>
-<div id="outline-container-org9948a88" class="outline-2">
-<h2 id="org9948a88">空指针</h2>
-<div class="outline-text-2" id="text-org9948a88">
+<div id="outline-container-org8eb4a91" class="outline-2">
+<h2 id="org8eb4a91">空指针</h2>
+<div class="outline-text-2" id="text-org8eb4a91">
 <p>
 当一个指针被定义后没有分配到任何变量时，它的值为 <code>nil</code> 。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">package</span> main
+<pre class="src src-go"><span style="color: #fb4934;">package</span> main
 
-<span style="color: #268bd2; font-weight: bold;">import</span> <span style="color: #2aa198;">"fmt"</span>
+<span style="color: #fb4934;">import</span> <span style="color: #b8bb26;">"fmt"</span>
 
-<span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">p</span> *<span style="color: #df005f; font-weight: bold;">string</span>
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(p)
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"p&#30340;&#20540;&#26159;%v\n"</span>, p)
-    <span style="color: #268bd2; font-weight: bold;">if</span> p != <span style="color: #d75fd7;">nil</span> {
-        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"&#38750;&#31354;"</span>)
-    } <span style="color: #268bd2; font-weight: bold;">else</span> {
-        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(<span style="color: #2aa198;">"&#31354;&#20540;"</span>)
+<span style="color: #fb4934;">func</span> <span style="color: #b8bb26;">main</span>() {
+    <span style="color: #fb4934;">var</span> <span style="color: #83a598;">p</span> *<span style="color: #fabd2f;">string</span>
+    fmt.<span style="color: #b8bb26;">Println</span>(p)
+    fmt.<span style="color: #b8bb26;">Printf</span>(<span style="color: #b8bb26;">"p&#30340;&#20540;&#26159;%v\n"</span>, p)
+    <span style="color: #fb4934;">if</span> p != <span style="color: #d3869b;">nil</span> {
+        fmt.<span style="color: #b8bb26;">Println</span>(<span style="color: #b8bb26;">"&#38750;&#31354;"</span>)
+    } <span style="color: #fb4934;">else</span> {
+        fmt.<span style="color: #b8bb26;">Println</span>(<span style="color: #b8bb26;">"&#31354;&#20540;"</span>)
     }
 }
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org6a2d3ae" class="outline-2">
-<h2 id="org6a2d3ae">new 和 make</h2>
-<div class="outline-text-2" id="text-org6a2d3ae">
+<div id="outline-container-org05c07e6" class="outline-2">
+<h2 id="org05c07e6">new 和 make</h2>
+<div class="outline-text-2" id="text-org05c07e6">
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">a</span> *<span style="color: #df005f; font-weight: bold;">int</span>
+<pre class="src src-go"><span style="color: #fb4934;">func</span> <span style="color: #b8bb26;">main</span>() {
+    <span style="color: #fb4934;">var</span> <span style="color: #83a598;">a</span> *<span style="color: #fabd2f;">int</span>
     *a = 100
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(*a)
+    fmt.<span style="color: #b8bb26;">Println</span>(*a)
 
-    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">b</span> <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">int</span>
-    b[<span style="color: #2aa198;">"&#27979;&#35797;"</span>] = 100
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(b)
+    <span style="color: #fb4934;">var</span> <span style="color: #83a598;">b</span> <span style="color: #fb4934;">map</span>[<span style="color: #fabd2f;">string</span>]<span style="color: #fabd2f;">int</span>
+    b[<span style="color: #b8bb26;">"&#27979;&#35797;"</span>] = 100
+    fmt.<span style="color: #b8bb26;">Println</span>(b)
 }
 </pre>
 </div>
@@ -174,35 +174,36 @@ Go 语言中的函数传参都是值拷贝，当我们想要修改某个变量�
 执行上面的代码会引发 <code>panic</code> ，为什么呢？ 在 Go 语言中对于引用类型的变量，我们在使用的时候不仅要声明它，还要为它分配内存空间，否则我们的值就没办法存储。而对于值类型的声明不需要分配内存空间，是因为它们在声明的时候已经默认分配好了内存空间。要分配内存，就引出来今天的 <code>new</code> 和 <code>make</code> 。 Go 语言中 <code>new</code> 和 <code>make</code> 是内建的两个函数，主要用来分配内存<br>
 </p>
 </div>
-<div id="outline-container-org30026ae" class="outline-3">
-<h3 id="org30026ae">new</h3>
-<div class="outline-text-3" id="text-org30026ae">
+<div id="outline-container-orgdb61ea7" class="outline-3">
+<h3 id="orgdb61ea7">new</h3>
+<div class="outline-text-3" id="text-orgdb61ea7">
 <p>
 <code>new</code> 是一个内置的函数，它的函数签名如下：<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #268bd2;">new</span>(<span style="color: #df005f; font-weight: bold;">Type</span>) *<span style="color: #df005f; font-weight: bold;">Type</span>
+<pre class="src src-go"><span style="color: #fb4934;">func</span> <span style="color: #fe8019;">new</span>(<span style="color: #fabd2f;">Type</span>) *<span style="color: #fabd2f;">Type</span>
 </pre>
 </div>
 
 <ol class="org-ol">
 <li><code>Type</code> 表示类型， <code>new</code> 函数只接受一个参数，这个参数是一个类型<br></li>
-<li><code>*Type</code> 表示类型指针， <code>new</code> 函数返回一个指向该类型内存地址的指针<br></li>
-</ol>
+<li><p>
+<code>*Type</code> 表示类型指针， <code>new</code> 函数返回一个指向该类型内存地址的指针<br>
+</p>
 
 <p>
 <code>new</code> 函数不太常用，使用 <code>new</code> 函数得到的是一个类型的指针，并且该指针对应的值为该类型的零值。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #8787d7;">a</span> := <span style="color: #268bd2;">new</span>(<span style="color: #df005f; font-weight: bold;">int</span>)
-    <span style="color: #8787d7;">b</span> := <span style="color: #268bd2;">new</span>(<span style="color: #df005f; font-weight: bold;">bool</span>)
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%T\n"</span>, a)   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">*int</span>
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Printf</span>(<span style="color: #2aa198;">"%T\n"</span>, b)   <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">*bool</span>
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(*a)         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">0</span>
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(*b)         <span style="color: #008787; background-color: #262626;">// </span><span style="color: #008787; background-color: #262626;">false</span>
+<pre class="src src-go"><span style="color: #fb4934;">func</span> <span style="color: #b8bb26;">main</span>() {
+    <span style="color: #83a598;">a</span> := <span style="color: #fe8019;">new</span>(<span style="color: #fabd2f;">int</span>)
+    <span style="color: #83a598;">b</span> := <span style="color: #fe8019;">new</span>(<span style="color: #fabd2f;">bool</span>)
+    fmt.<span style="color: #b8bb26;">Printf</span>(<span style="color: #b8bb26;">"%T\n"</span>, a)   <span style="color: #928374;">// </span><span style="color: #928374;">*int</span>
+    fmt.<span style="color: #b8bb26;">Printf</span>(<span style="color: #b8bb26;">"%T\n"</span>, b)   <span style="color: #928374;">// </span><span style="color: #928374;">*bool</span>
+    fmt.<span style="color: #b8bb26;">Println</span>(*a)         <span style="color: #928374;">// </span><span style="color: #928374;">0</span>
+    fmt.<span style="color: #b8bb26;">Println</span>(*b)         <span style="color: #928374;">// </span><span style="color: #928374;">false</span>
 }
 </pre>
 </div>
@@ -212,25 +213,26 @@ Go 语言中的函数传参都是值拷贝，当我们想要修改某个变量�
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-    <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">a</span> *<span style="color: #df005f; font-weight: bold;">int</span>
-    a = <span style="color: #268bd2;">new</span>(<span style="color: #df005f; font-weight: bold;">int</span>)
+<pre class="src src-go"><span style="color: #fb4934;">func</span> <span style="color: #b8bb26;">main</span>() {
+    <span style="color: #fb4934;">var</span> <span style="color: #83a598;">a</span> *<span style="color: #fabd2f;">int</span>
+    a = <span style="color: #fe8019;">new</span>(<span style="color: #fabd2f;">int</span>)
     *a = 10
-    fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(*a)
+    fmt.<span style="color: #b8bb26;">Println</span>(*a)
 }
 </pre>
+</div></li>
+</ol>
 </div>
 </div>
-</div>
-<div id="outline-container-orgc5bbf7b" class="outline-3">
-<h3 id="orgc5bbf7b">make</h3>
-<div class="outline-text-3" id="text-orgc5bbf7b">
+<div id="outline-container-orgc000b75" class="outline-3">
+<h3 id="orgc000b75">make</h3>
+<div class="outline-text-3" id="text-orgc000b75">
 <p>
 <code>make</code> 也是用于内存分配的，区别于 <code>new</code> ，它只用于 <code>slice</code> 、 <code>map</code> 以及 <code>chan</code> 的内存创建，而且它返回的类型就是这三个类型本身，而不是他们的指针类型，因为这三种类型就是引用类型，所以就没有必要返回他们的指针了。 <code>make</code> 函数的函数签名如下：<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #268bd2;">make</span>(<span style="color: #8787d7;">t</span> <span style="color: #df005f; font-weight: bold;">Type</span>, <span style="color: #8787d7;">size</span> ...<span style="color: #df005f; font-weight: bold;">IntegerType</span>) <span style="color: #df005f; font-weight: bold;">Type</span>
+<pre class="src src-go"><span style="color: #fb4934;">func</span> <span style="color: #fe8019;">make</span>(<span style="color: #83a598;">t</span> <span style="color: #fabd2f;">Type</span>, <span style="color: #83a598;">size</span> ...<span style="color: #fabd2f;">IntegerType</span>) <span style="color: #fabd2f;">Type</span>
 </pre>
 </div>
 
@@ -243,19 +245,19 @@ Go 语言中的函数传参都是值拷贝，当我们想要修改某个变量�
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #268bd2; font-weight: bold;">func</span> <span style="color: #d75fd7; font-weight: bold;">main</span>() {
-        <span style="color: #268bd2; font-weight: bold;">var</span> <span style="color: #8787d7;">b</span> <span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">int</span>
-        b = <span style="color: #268bd2;">make</span>(<span style="color: #268bd2; font-weight: bold;">map</span>[<span style="color: #df005f; font-weight: bold;">string</span>]<span style="color: #df005f; font-weight: bold;">int</span>, 10)
-        b[<span style="color: #2aa198;">"&#27979;&#35797;"</span>] = 100
-        fmt.<span style="color: #d75fd7; font-weight: bold;">Println</span>(b)
+<pre class="src src-go"><span style="color: #fb4934;">func</span> <span style="color: #b8bb26;">main</span>() {
+    <span style="color: #fb4934;">var</span> <span style="color: #83a598;">b</span> <span style="color: #fb4934;">map</span>[<span style="color: #fabd2f;">string</span>]<span style="color: #fabd2f;">int</span>
+    b = <span style="color: #fe8019;">make</span>(<span style="color: #fb4934;">map</span>[<span style="color: #fabd2f;">string</span>]<span style="color: #fabd2f;">int</span>, 10)
+    b[<span style="color: #b8bb26;">"&#27979;&#35797;"</span>] = 100
+    fmt.<span style="color: #b8bb26;">Println</span>(b)
 }
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org6a599a8" class="outline-3">
-<h3 id="org6a599a8">new 与 make 的区别</h3>
-<div class="outline-text-3" id="text-org6a599a8">
+<div id="outline-container-org16dd562" class="outline-3">
+<h3 id="org16dd562">new 与 make 的区别</h3>
+<div class="outline-text-3" id="text-org16dd562">
 <ol class="org-ol">
 <li>二者都是用来做内存分配的；<br></li>
 <li><code>make</code> 只用于 <code>slice</code> 、 <code>map</code> 以及 <code>channel</code> 的初始化，返回的还是这三个引用类型本身；<br></li>
@@ -268,8 +270,8 @@ Go 语言中的函数传参都是值拷贝，当我们想要修改某个变量�
 <div id="postamble" class="status">
 <p class="date">Date: 2022-02-11 00:02 Fri</p>
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2022-05-26 Thu 21:44</p>
-<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+<p class="date">Created: 2023-02-07</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- 2023-01-30 -->
+<!-- 2023-02-07 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>WIKI-前后端传参的几种方式</title>
@@ -24,8 +24,8 @@
 <li><a href="#org4cd27e8">1、请求参数路径传递</a></li>
 </ul>
 </li>
-<li><a href="#org096c33e">Go、net/http</a></li>
-<li><a href="#org9383956">Go、Gin</a>
+<li><a href="#org6b71f19">go、net/http</a></li>
+<li><a href="#org93bb13e">go、gin</a>
 <ul>
 <li><a href="#org19684a5">获取 querystring 参数</a></li>
 <li><a href="#org6213999">获取 path 参数</a></li>
@@ -52,25 +52,25 @@
 <p>
 （1）URL 路径传参<br>
 </p>
-<pre class="example" id="orgf56bb83">
+<pre class="example" id="org50abb1f">
 http://127.0.0.1:8080/user?name=Tom&amp;age=16
 </pre>
 
 <p>
 （2）URL 路径参数<br>
 </p>
-<pre class="example" id="orgc583f6d">
+<pre class="example" id="orgafdaa78">
 http://127.0.0.1:8080/user/Tom/16
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org096c33e" class="outline-2">
-<h2 id="org096c33e">Go、net/http</h2>
+<div id="outline-container-org6b71f19" class="outline-2">
+<h2 id="org6b71f19">go、net/http</h2>
 </div>
-<div id="outline-container-org9383956" class="outline-2">
-<h2 id="org9383956">Go、Gin</h2>
-<div class="outline-text-2" id="text-org9383956">
+<div id="outline-container-org93bb13e" class="outline-2">
+<h2 id="org93bb13e">go、gin</h2>
+<div class="outline-text-2" id="text-org93bb13e">
 </div>
 <div id="outline-container-org19684a5" class="outline-3">
 <h3 id="org19684a5">获取 querystring 参数</h3>
@@ -80,21 +80,21 @@ http://127.0.0.1:8080/user/Tom/16
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #546A90;">// </span><span style="color: #546A90;">&#26681;&#25454;&#22995;&#21517;&#19982;&#19987;&#19994;&#26597;&#25214;&#23398;&#21495;</span>
-<span style="color: #ff2afc; font-weight: bold;">func</span> <span style="color: #42c6ff;">main</span>() {
-    <span style="color: #df85ff;">r</span> := gin.<span style="color: #42c6ff;">Default</span>()
-    r.<span style="color: #42c6ff;">GET</span>(<span style="color: #7984D1;">"/user/search"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {
-        <span style="color: #df85ff;">username</span> := c.<span style="color: #42c6ff;">Query</span>(<span style="color: #7984D1;">"username"</span>)
-        <span style="color: #546A90;">// </span><span style="color: #546A90;">username := c.DefaultQuery("username", "haoran")</span>
-        <span style="color: #df85ff;">major</span> := c.<span style="color: #42c6ff;">Query</span>(<span style="color: #7984D1;">"major"</span>)
-        <span style="color: #ff2afc; font-weight: bold;">var</span> <span style="color: #df85ff;">stuid</span> <span style="color: #ffd400;">string</span>
-        <span style="color: #546A90;">// </span><span style="color: #546A90;">stuid = ......   // &#26597;&#25214;&#23398;&#21495;&#30340; orm &#35821;&#21477;</span>
-        c.<span style="color: #42c6ff;">JSON</span>(http.StatusOK, <span style="color: #ffd400;">gin.H</span>{
-            <span style="color: #7984D1;">"message"</span>: <span style="color: #7984D1;">"ok"</span>,
-            <span style="color: #7984D1;">"stuid"</span>: stuid,
+<pre class="src src-go"><span style="color: #928374;">// </span><span style="color: #928374;">&#26681;&#25454;&#22995;&#21517;&#19982;&#19987;&#19994;&#26597;&#25214;&#23398;&#21495;</span>
+<span style="color: #fb4934;">func</span> <span style="color: #b8bb26;">main</span>() {
+    <span style="color: #83a598;">r</span> := gin.<span style="color: #b8bb26;">Default</span>()
+    r.<span style="color: #b8bb26;">GET</span>(<span style="color: #b8bb26;">"/user/search"</span>, <span style="color: #fb4934;">func</span>(<span style="color: #83a598;">c</span> *<span style="color: #fabd2f;">gin.Context</span>) {
+        <span style="color: #83a598;">username</span> := c.<span style="color: #b8bb26;">Query</span>(<span style="color: #b8bb26;">"username"</span>)
+        <span style="color: #928374;">// </span><span style="color: #928374;">username := c.DefaultQuery("username", "haoran")</span>
+        <span style="color: #83a598;">major</span> := c.<span style="color: #b8bb26;">Query</span>(<span style="color: #b8bb26;">"major"</span>)
+        <span style="color: #fb4934;">var</span> <span style="color: #83a598;">stuid</span> <span style="color: #fabd2f;">string</span>
+        <span style="color: #928374;">// </span><span style="color: #928374;">stuid = ......   // &#26597;&#25214;&#23398;&#21495;&#30340; orm &#35821;&#21477;</span>
+        c.<span style="color: #b8bb26;">JSON</span>(http.StatusOK, <span style="color: #fabd2f;">gin.H</span>{
+            <span style="color: #b8bb26;">"message"</span>: <span style="color: #b8bb26;">"ok"</span>,
+            <span style="color: #b8bb26;">"stuid"</span>: stuid,
         })
     })
-    r.<span style="color: #42c6ff;">Run</span>(<span style="color: #7984D1;">":8080"</span>)
+    r.<span style="color: #b8bb26;">Run</span>(<span style="color: #b8bb26;">":8080"</span>)
 }
 </pre>
 </div>
@@ -108,19 +108,19 @@ http://127.0.0.1:8080/user/Tom/16
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #ff2afc; font-weight: bold;">func</span> <span style="color: #42c6ff;">main</span>() {
-    <span style="color: #df85ff;">r</span> := gin.<span style="color: #42c6ff;">Default</span>()
-    r.<span style="color: #42c6ff;">GET</span>(<span style="color: #7984D1;">"/user/search/:username/:major"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {
-        <span style="color: #df85ff;">username</span> := c.<span style="color: #42c6ff;">Param</span>(<span style="color: #7984D1;">"username"</span>)
-        <span style="color: #df85ff;">major</span> := c.<span style="color: #42c6ff;">Param</span>(<span style="color: #7984D1;">"major"</span>)
-        <span style="color: #ff2afc; font-weight: bold;">var</span> <span style="color: #df85ff;">stuid</span> <span style="color: #ffd400;">string</span>
-        <span style="color: #546A90;">// </span><span style="color: #546A90;">stuid = ......   // &#26597;&#25214;&#23398;&#21495;&#30340; orm &#35821;&#21477;</span>
-        c.<span style="color: #42c6ff;">JSON</span>(http.StatusOK, <span style="color: #ffd400;">gin.H</span>{
-            <span style="color: #7984D1;">"message"</span>: <span style="color: #7984D1;">"ok"</span>,
-            <span style="color: #7984D1;">"stuid"</span>: stuid,
+<pre class="src src-go"><span style="color: #fb4934;">func</span> <span style="color: #b8bb26;">main</span>() {
+    <span style="color: #83a598;">r</span> := gin.<span style="color: #b8bb26;">Default</span>()
+    r.<span style="color: #b8bb26;">GET</span>(<span style="color: #b8bb26;">"/user/search/:username/:major"</span>, <span style="color: #fb4934;">func</span>(<span style="color: #83a598;">c</span> *<span style="color: #fabd2f;">gin.Context</span>) {
+        <span style="color: #83a598;">username</span> := c.<span style="color: #b8bb26;">Param</span>(<span style="color: #b8bb26;">"username"</span>)
+        <span style="color: #83a598;">major</span> := c.<span style="color: #b8bb26;">Param</span>(<span style="color: #b8bb26;">"major"</span>)
+        <span style="color: #fb4934;">var</span> <span style="color: #83a598;">stuid</span> <span style="color: #fabd2f;">string</span>
+        <span style="color: #928374;">// </span><span style="color: #928374;">stuid = ......   // &#26597;&#25214;&#23398;&#21495;&#30340; orm &#35821;&#21477;</span>
+        c.<span style="color: #b8bb26;">JSON</span>(http.StatusOK, <span style="color: #fabd2f;">gin.H</span>{
+            <span style="color: #b8bb26;">"message"</span>: <span style="color: #b8bb26;">"ok"</span>,
+            <span style="color: #b8bb26;">"stuid"</span>: stuid,
         })
     })
-    r.<span style="color: #42c6ff;">Run</span>(<span style="color: #7984D1;">":8080"</span>)
+    r.<span style="color: #b8bb26;">Run</span>(<span style="color: #b8bb26;">":8080"</span>)
 }
 </pre>
 </div>
@@ -134,21 +134,21 @@ http://127.0.0.1:8080/user/Tom/16
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #ff2afc; font-weight: bold;">func</span> <span style="color: #42c6ff;">main</span>() {
-    <span style="color: #df85ff;">r</span> := gin.<span style="color: #42c6ff;">Default</span>()
-    r.<span style="color: #42c6ff;">POST</span>(<span style="color: #7984D1;">"user/search"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {
-        <span style="color: #546A90;">// </span><span style="color: #546A90;">DefaultPostForm &#21462;&#19981;&#21040;&#20540;&#26102;&#20250;&#36820;&#22238;&#25351;&#23450;&#30340;&#40664;&#35748;&#20540;</span>
-        <span style="color: #546A90;">// </span><span style="color: #546A90;">username := c.DefaultPostForm("username", "haoran")</span>
-        <span style="color: #df85ff;">username</span> := c.<span style="color: #42c6ff;">PostForm</span>(<span style="color: #7984D1;">"username"</span>)
-        <span style="color: #df85ff;">major</span> := c.<span style="color: #42c6ff;">PostForm</span>(<span style="color: #7984D1;">"major"</span>)
-        <span style="color: #ff2afc; font-weight: bold;">var</span> <span style="color: #df85ff;">stuid</span> <span style="color: #ffd400;">string</span>
-        <span style="color: #546A90;">// </span><span style="color: #546A90;">stuid = ......   // &#26597;&#25214;&#23398;&#21495;&#30340; orm &#35821;&#21477;</span>
-        c.<span style="color: #42c6ff;">JSON</span>(http.StatusOK, <span style="color: #ffd400;">gin.H</span>{
-            <span style="color: #7984D1;">"message"</span>: <span style="color: #7984D1;">"ok"</span>,
-            <span style="color: #7984D1;">"stuid"</span>: stuid,
+<pre class="src src-go"><span style="color: #fb4934;">func</span> <span style="color: #b8bb26;">main</span>() {
+    <span style="color: #83a598;">r</span> := gin.<span style="color: #b8bb26;">Default</span>()
+    r.<span style="color: #b8bb26;">POST</span>(<span style="color: #b8bb26;">"user/search"</span>, <span style="color: #fb4934;">func</span>(<span style="color: #83a598;">c</span> *<span style="color: #fabd2f;">gin.Context</span>) {
+        <span style="color: #928374;">// </span><span style="color: #928374;">DefaultPostForm &#21462;&#19981;&#21040;&#20540;&#26102;&#20250;&#36820;&#22238;&#25351;&#23450;&#30340;&#40664;&#35748;&#20540;</span>
+        <span style="color: #928374;">// </span><span style="color: #928374;">username := c.DefaultPostForm("username", "haoran")</span>
+        <span style="color: #83a598;">username</span> := c.<span style="color: #b8bb26;">PostForm</span>(<span style="color: #b8bb26;">"username"</span>)
+        <span style="color: #83a598;">major</span> := c.<span style="color: #b8bb26;">PostForm</span>(<span style="color: #b8bb26;">"major"</span>)
+        <span style="color: #fb4934;">var</span> <span style="color: #83a598;">stuid</span> <span style="color: #fabd2f;">string</span>
+        <span style="color: #928374;">// </span><span style="color: #928374;">stuid = ......   // &#26597;&#25214;&#23398;&#21495;&#30340; orm &#35821;&#21477;</span>
+        c.<span style="color: #b8bb26;">JSON</span>(http.StatusOK, <span style="color: #fabd2f;">gin.H</span>{
+            <span style="color: #b8bb26;">"message"</span>: <span style="color: #b8bb26;">"ok"</span>,
+            <span style="color: #b8bb26;">"stuid"</span>: stuid,
         })
     })
-    r.<span style="color: #42c6ff;">Run</span>(<span style="color: #7984D1;">":8080"</span>)
+    r.<span style="color: #b8bb26;">Run</span>(<span style="color: #b8bb26;">":8080"</span>)
 }
 </pre>
 </div>
@@ -162,15 +162,15 @@ http://127.0.0.1:8080/user/Tom/16
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go">r.<span style="color: #42c6ff;">POST</span>(<span style="color: #7984D1;">"/json"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {
-    <span style="color: #546A90;">// </span><span style="color: #546A90;">&#27880;&#24847;&#65306;&#19979;&#38754;&#20026;&#20102;&#20030;&#20363;&#23376;&#26041;&#20415;&#65292;&#26242;&#26102;&#24573;&#30053;&#20102;&#38169;&#35823;&#22788;&#29702;</span>
-    <span style="color: #df85ff;">b</span>, <span style="color: #df85ff;">_</span> := c.<span style="color: #42c6ff;">GetRawData</span>()  <span style="color: #546A90;">// </span><span style="color: #546A90;">&#20174; c.Request.Body &#35835;&#21462;&#35831;&#27714;&#25968;&#25454;</span>
-    <span style="color: #546A90;">// </span><span style="color: #546A90;">&#23450;&#20041; map &#25110;&#32467;&#26500;&#20307;</span>
-    <span style="color: #ff2afc; font-weight: bold;">var</span> <span style="color: #df85ff;">m</span> <span style="color: #ff2afc; font-weight: bold;">map</span>[<span style="color: #ffd400;">string</span>]<span style="color: #ff2afc; font-weight: bold;">interface</span>{}
-    <span style="color: #546A90;">// </span><span style="color: #546A90;">&#21453;&#24207;&#21015;&#21270;</span>
-    _ = json.<span style="color: #42c6ff;">Unmarshal</span>(b, &amp;m)
+<pre class="src src-go">r.<span style="color: #b8bb26;">POST</span>(<span style="color: #b8bb26;">"/json"</span>, <span style="color: #fb4934;">func</span>(<span style="color: #83a598;">c</span> *<span style="color: #fabd2f;">gin.Context</span>) {
+    <span style="color: #928374;">// </span><span style="color: #928374;">&#27880;&#24847;&#65306;&#19979;&#38754;&#20026;&#20102;&#20030;&#20363;&#23376;&#26041;&#20415;&#65292;&#26242;&#26102;&#24573;&#30053;&#20102;&#38169;&#35823;&#22788;&#29702;</span>
+    <span style="color: #83a598;">b</span>, <span style="color: #83a598;">_</span> := c.<span style="color: #b8bb26;">GetRawData</span>()  <span style="color: #928374;">// </span><span style="color: #928374;">&#20174; c.Request.Body &#35835;&#21462;&#35831;&#27714;&#25968;&#25454;</span>
+    <span style="color: #928374;">// </span><span style="color: #928374;">&#23450;&#20041; map &#25110;&#32467;&#26500;&#20307;</span>
+    <span style="color: #fb4934;">var</span> <span style="color: #83a598;">m</span> <span style="color: #fb4934;">map</span>[<span style="color: #fabd2f;">string</span>]<span style="color: #fb4934;">interface</span>{}
+    <span style="color: #928374;">// </span><span style="color: #928374;">&#21453;&#24207;&#21015;&#21270;</span>
+    _ = json.<span style="color: #b8bb26;">Unmarshal</span>(b, &amp;m)
 
-    c.<span style="color: #42c6ff;">JSON</span>(http.StatusOK, m)
+    c.<span style="color: #b8bb26;">JSON</span>(http.StatusOK, m)
 })
 </pre>
 </div>
@@ -184,60 +184,60 @@ http://127.0.0.1:8080/user/Tom/16
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #546A90;">// </span><span style="color: #546A90;">Binding from JSON</span>
-<span style="color: #ff2afc; font-weight: bold;">type</span> <span style="color: #ffd400;">Login</span> <span style="color: #ff2afc; font-weight: bold;">struct</span> {
-    User     <span style="color: #ffd400;">string</span> <span style="color: #7984D1;">`form:"user" json:"user" binding:"required"`</span>
-    Password <span style="color: #ffd400;">string</span> <span style="color: #7984D1;">`form:"password" json:"password" binding:"required"`</span>
+<pre class="src src-go"><span style="color: #928374;">// </span><span style="color: #928374;">Binding from JSON</span>
+<span style="color: #fb4934;">type</span> <span style="color: #fabd2f;">Login</span> <span style="color: #fb4934;">struct</span> {
+    User     <span style="color: #fabd2f;">string</span> <span style="color: #b8bb26;">`form:"user" json:"user" binding:"required"`</span>
+    Password <span style="color: #fabd2f;">string</span> <span style="color: #b8bb26;">`form:"password" json:"password" binding:"required"`</span>
 }
 
-<span style="color: #ff2afc; font-weight: bold;">func</span> <span style="color: #42c6ff;">main</span>() {
-    <span style="color: #df85ff;">router</span> := gin.<span style="color: #42c6ff;">Default</span>()
+<span style="color: #fb4934;">func</span> <span style="color: #b8bb26;">main</span>() {
+    <span style="color: #83a598;">router</span> := gin.<span style="color: #b8bb26;">Default</span>()
 
-    <span style="color: #546A90;">// </span><span style="color: #546A90;">&#32465;&#23450;JSON&#30340;&#31034;&#20363; ({"user": "q1mi", "password": "123456"})</span>
-    router.<span style="color: #42c6ff;">POST</span>(<span style="color: #7984D1;">"/loginJSON"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {
-        <span style="color: #ff2afc; font-weight: bold;">var</span> <span style="color: #df85ff;">login</span> <span style="color: #ffd400;">Login</span>
+    <span style="color: #928374;">// </span><span style="color: #928374;">&#32465;&#23450;JSON&#30340;&#31034;&#20363; ({"user": "q1mi", "password": "123456"})</span>
+    router.<span style="color: #b8bb26;">POST</span>(<span style="color: #b8bb26;">"/loginJSON"</span>, <span style="color: #fb4934;">func</span>(<span style="color: #83a598;">c</span> *<span style="color: #fabd2f;">gin.Context</span>) {
+        <span style="color: #fb4934;">var</span> <span style="color: #83a598;">login</span> <span style="color: #fabd2f;">Login</span>
 
-        <span style="color: #ff2afc; font-weight: bold;">if</span> <span style="color: #df85ff;">err</span> := c.<span style="color: #42c6ff;">ShouldBind</span>(&amp;login); err == <span style="color: #df85ff; font-weight: bold;">nil</span> {
-            fmt.<span style="color: #42c6ff;">Printf</span>(<span style="color: #7984D1;">"login info:%#v\n"</span>, login)
-            c.<span style="color: #42c6ff;">JSON</span>(http.StatusOK, <span style="color: #ffd400;">gin.H</span>{
-                <span style="color: #7984D1;">"user"</span>:     login.User,
-                <span style="color: #7984D1;">"password"</span>: login.Password,
+        <span style="color: #fb4934;">if</span> <span style="color: #83a598;">err</span> := c.<span style="color: #b8bb26;">ShouldBind</span>(&amp;login); err == <span style="color: #d3869b;">nil</span> {
+            fmt.<span style="color: #b8bb26;">Printf</span>(<span style="color: #b8bb26;">"login info:%#v\n"</span>, login)
+            c.<span style="color: #b8bb26;">JSON</span>(http.StatusOK, <span style="color: #fabd2f;">gin.H</span>{
+                <span style="color: #b8bb26;">"user"</span>:     login.User,
+                <span style="color: #b8bb26;">"password"</span>: login.Password,
             })
-        } <span style="color: #ff2afc; font-weight: bold;">else</span> {
-            c.<span style="color: #42c6ff;">JSON</span>(http.StatusBadRequest, <span style="color: #ffd400;">gin.H</span>{<span style="color: #7984D1;">"error"</span>: err.<span style="color: #42c6ff;">Error</span>()})
+        } <span style="color: #fb4934;">else</span> {
+            c.<span style="color: #b8bb26;">JSON</span>(http.StatusBadRequest, <span style="color: #fabd2f;">gin.H</span>{<span style="color: #b8bb26;">"error"</span>: err.<span style="color: #b8bb26;">Error</span>()})
         }
     })
 
-    <span style="color: #546A90;">// </span><span style="color: #546A90;">&#32465;&#23450;form&#34920;&#21333;&#31034;&#20363; (user=q1mi&amp;password=123456)</span>
-    router.<span style="color: #42c6ff;">POST</span>(<span style="color: #7984D1;">"/loginForm"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {
-        <span style="color: #ff2afc; font-weight: bold;">var</span> <span style="color: #df85ff;">login</span> <span style="color: #ffd400;">Login</span>
-        <span style="color: #546A90;">// </span><span style="color: #546A90;">ShouldBind()&#20250;&#26681;&#25454;&#35831;&#27714;&#30340;Content-Type&#33258;&#34892;&#36873;&#25321;&#32465;&#23450;&#22120;</span>
-        <span style="color: #ff2afc; font-weight: bold;">if</span> <span style="color: #df85ff;">err</span> := c.<span style="color: #42c6ff;">ShouldBind</span>(&amp;login); err == <span style="color: #df85ff; font-weight: bold;">nil</span> {
-            c.<span style="color: #42c6ff;">JSON</span>(http.StatusOK, <span style="color: #ffd400;">gin.H</span>{
-                <span style="color: #7984D1;">"user"</span>:     login.User,
-                <span style="color: #7984D1;">"password"</span>: login.Password,
+    <span style="color: #928374;">// </span><span style="color: #928374;">&#32465;&#23450;form&#34920;&#21333;&#31034;&#20363; (user=q1mi&amp;password=123456)</span>
+    router.<span style="color: #b8bb26;">POST</span>(<span style="color: #b8bb26;">"/loginForm"</span>, <span style="color: #fb4934;">func</span>(<span style="color: #83a598;">c</span> *<span style="color: #fabd2f;">gin.Context</span>) {
+        <span style="color: #fb4934;">var</span> <span style="color: #83a598;">login</span> <span style="color: #fabd2f;">Login</span>
+        <span style="color: #928374;">// </span><span style="color: #928374;">ShouldBind()&#20250;&#26681;&#25454;&#35831;&#27714;&#30340;Content-Type&#33258;&#34892;&#36873;&#25321;&#32465;&#23450;&#22120;</span>
+        <span style="color: #fb4934;">if</span> <span style="color: #83a598;">err</span> := c.<span style="color: #b8bb26;">ShouldBind</span>(&amp;login); err == <span style="color: #d3869b;">nil</span> {
+            c.<span style="color: #b8bb26;">JSON</span>(http.StatusOK, <span style="color: #fabd2f;">gin.H</span>{
+                <span style="color: #b8bb26;">"user"</span>:     login.User,
+                <span style="color: #b8bb26;">"password"</span>: login.Password,
             })
-        } <span style="color: #ff2afc; font-weight: bold;">else</span> {
-            c.<span style="color: #42c6ff;">JSON</span>(http.StatusBadRequest, <span style="color: #ffd400;">gin.H</span>{<span style="color: #7984D1;">"error"</span>: err.<span style="color: #42c6ff;">Error</span>()})
+        } <span style="color: #fb4934;">else</span> {
+            c.<span style="color: #b8bb26;">JSON</span>(http.StatusBadRequest, <span style="color: #fabd2f;">gin.H</span>{<span style="color: #b8bb26;">"error"</span>: err.<span style="color: #b8bb26;">Error</span>()})
         }
     })
 
-    <span style="color: #546A90;">// </span><span style="color: #546A90;">&#32465;&#23450;QueryString&#31034;&#20363; (/loginQuery?user=q1mi&amp;password=123456)</span>
-    router.<span style="color: #42c6ff;">GET</span>(<span style="color: #7984D1;">"/loginForm"</span>, <span style="color: #ff2afc; font-weight: bold;">func</span>(<span style="color: #df85ff;">c</span> *<span style="color: #ffd400;">gin.Context</span>) {
-        <span style="color: #ff2afc; font-weight: bold;">var</span> <span style="color: #df85ff;">login</span> <span style="color: #ffd400;">Login</span>
-        <span style="color: #546A90;">// </span><span style="color: #546A90;">ShouldBind()&#20250;&#26681;&#25454;&#35831;&#27714;&#30340;Content-Type&#33258;&#34892;&#36873;&#25321;&#32465;&#23450;&#22120;</span>
-        <span style="color: #ff2afc; font-weight: bold;">if</span> <span style="color: #df85ff;">err</span> := c.<span style="color: #42c6ff;">ShouldBind</span>(&amp;login); err == <span style="color: #df85ff; font-weight: bold;">nil</span> {
-            c.<span style="color: #42c6ff;">JSON</span>(http.StatusOK, <span style="color: #ffd400;">gin.H</span>{
-                <span style="color: #7984D1;">"user"</span>:     login.User,
-                <span style="color: #7984D1;">"password"</span>: login.Password,
+    <span style="color: #928374;">// </span><span style="color: #928374;">&#32465;&#23450;QueryString&#31034;&#20363; (/loginQuery?user=q1mi&amp;password=123456)</span>
+    router.<span style="color: #b8bb26;">GET</span>(<span style="color: #b8bb26;">"/loginForm"</span>, <span style="color: #fb4934;">func</span>(<span style="color: #83a598;">c</span> *<span style="color: #fabd2f;">gin.Context</span>) {
+        <span style="color: #fb4934;">var</span> <span style="color: #83a598;">login</span> <span style="color: #fabd2f;">Login</span>
+        <span style="color: #928374;">// </span><span style="color: #928374;">ShouldBind()&#20250;&#26681;&#25454;&#35831;&#27714;&#30340;Content-Type&#33258;&#34892;&#36873;&#25321;&#32465;&#23450;&#22120;</span>
+        <span style="color: #fb4934;">if</span> <span style="color: #83a598;">err</span> := c.<span style="color: #b8bb26;">ShouldBind</span>(&amp;login); err == <span style="color: #d3869b;">nil</span> {
+            c.<span style="color: #b8bb26;">JSON</span>(http.StatusOK, <span style="color: #fabd2f;">gin.H</span>{
+                <span style="color: #b8bb26;">"user"</span>:     login.User,
+                <span style="color: #b8bb26;">"password"</span>: login.Password,
             })
-        } <span style="color: #ff2afc; font-weight: bold;">else</span> {
-            c.<span style="color: #42c6ff;">JSON</span>(http.StatusBadRequest, <span style="color: #ffd400;">gin.H</span>{<span style="color: #7984D1;">"error"</span>: err.<span style="color: #42c6ff;">Error</span>()})
+        } <span style="color: #fb4934;">else</span> {
+            c.<span style="color: #b8bb26;">JSON</span>(http.StatusBadRequest, <span style="color: #fabd2f;">gin.H</span>{<span style="color: #b8bb26;">"error"</span>: err.<span style="color: #b8bb26;">Error</span>()})
         }
     })
 
-    <span style="color: #546A90;">// </span><span style="color: #546A90;">Listen and serve on 0.0.0.0:8080</span>
-    router.<span style="color: #42c6ff;">Run</span>(<span style="color: #7984D1;">":8080"</span>)
+    <span style="color: #928374;">// </span><span style="color: #928374;">Listen and serve on 0.0.0.0:8080</span>
+    router.<span style="color: #b8bb26;">Run</span>(<span style="color: #b8bb26;">":8080"</span>)
 }
 </pre>
 </div>
@@ -256,7 +256,7 @@ http://127.0.0.1:8080/user/Tom/16
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: L.M.haoran</p>
-<p class="date">Created: 2023-01-30</p>
+<p class="date">Created: 2023-02-07</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
