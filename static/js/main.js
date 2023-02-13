@@ -5,25 +5,25 @@ import {
 	isPageHome,
 	isCurPage,
 	scrollToTop,
-	addPostambleLists,
+	// addPostambleLists,
 } from './utils.js';
 
 // Init before
 $('body').append(`<div id="nav-btn" onclick="location.href = './index.html'">IDX ←</div>`);
 $('body').append(`<div id="top-btn" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })">TOP ↑</div>`);
-$('#postamble').before('<input type="checkbox" id="input-postamble-menu"/>');
-$('#postamble').before('<label for="input-postamble-menu" id="label-postamble-menu"><img src="./static/assets/three-bars.svg"/>Menu</label>');
+// $('#postamble').before('<input type="checkbox" id="input-postamble-menu"/>');
+// $('#postamble').before('<label for="input-postamble-menu" id="label-postamble-menu"><img src="./static/assets/three-bars.svg"/>Menu</label>');
 
-// Init after
+// Init after, table-of-contents
 $(function () {
 	$('#table-of-contents > h2').wrap('<div id="header-table-of-contents"/>');
 	$('#table-of-contents').append('<div id="footer-table-of-contents"/>');
 	$('#header-table-of-contents').append('<div id="pin-table-of-contents"><img src="./static/assets/pin16.svg"/></div>');
 
 	$('#pin-table-of-contents').click(toggleTableOfContentsPin);
-	// $('.title').click(toggleColor);
+	$('.title').click(toggleColor);
 
-	addPostambleLists();
+	// addPostambleLists();
 
 	$('#toggle-theme-dark-light').click(toggleColor);
 });
