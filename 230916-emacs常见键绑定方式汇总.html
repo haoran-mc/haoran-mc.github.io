@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2023-09-16 Sat 22:12 -->
+<!-- 2023-09-16 Sat 22:33 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>230916 EMACS常见键绑定方式汇总</title>
@@ -14,7 +14,117 @@
 <body>
 <div id="content" class="content">
 <h1 class="title">230916 EMACS常见键绑定方式汇总</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org1c00bbb">一、key-translation-map 优先级最高</a></li>
+<li><a href="#orga393753">二、minor-mode-map 优先级第二</a></li>
+<li><a href="#org064993b">三、local-set-key 优先级第三</a></li>
+<li><a href="#orga560701">四、global-set-key 优先级最低</a></li>
+</ul>
+</div>
+</div>
 
+
+<div id="outline-container-org1c00bbb" class="outline-2">
+<h2 id="org1c00bbb">一、key-translation-map 优先级最高</h2>
+<div class="outline-text-2" id="text-org1c00bbb">
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(define-key key-translation-map (kbd <span style="color: #DFD67A;">"your-key"</span>) (kbd <span style="color: #DFD67A;">"target-key"</span>))
+</pre>
+</div>
+
+<p>
+在任何位置按下 &ldquo;your-key&rdquo;，编辑器都将执行 &ldquo;target-key&rdquo; 所绑定的命令。<br>
+</p>
+
+<p>
+无论当时处于何种编辑状态，是否有minor-mode触发，该映射都不受影响，属于优先级最高的键绑定方式。<br>
+</p>
+
+<p>
+由于映射键是完全的跳转到了另一个键上，所以一旦目标键的定义发生了变化，该键也会随之受到影响。<br>
+</p>
+
+<p>
+注销方式：把这个 key 重新映射为它自己。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-orga393753" class="outline-2">
+<h2 id="orga393753">二、minor-mode-map 优先级第二</h2>
+<div class="outline-text-2" id="text-orga393753">
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(define-key some-minor-mode-map (kbd <span style="color: #DFD67A;">"your-key"</span>) 'your-command)
+</pre>
+</div>
+
+<p>
+仅在 minor-mode 激活时有效，定义方便且优先级高，不用担心键冲突。<br>
+</p>
+
+<p>
+注销方式：绑定为 <code>nil</code> 。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org064993b" class="outline-2">
+<h2 id="org064993b">三、local-set-key 优先级第三</h2>
+<div class="outline-text-2" id="text-org064993b">
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(local-set-key (kbd <span style="color: #DFD67A;">"your-key"</span>) 'your-command)
+</pre>
+</div>
+
+<p>
+<code>local-set-key</code> 主要是在各种 major-mode 下使用，一般是通过 hook 设置：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(add-hook 'some-major-mode-hook '(lambda () (local-set-key ...)))
+</pre>
+</div>
+
+<p>
+通过这种方式设置的键绑定仅在该 major-mode 下生效，不影响其他 major-mode。<br>
+</p>
+
+<p>
+注销方式：绑定为 <code>nil</code> ，或者：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(local-unset-key (kbd <span style="color: #DFD67A;">"your-key"</span>)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orga560701" class="outline-2">
+<h2 id="orga560701">四、global-set-key 优先级最低</h2>
+<div class="outline-text-2" id="text-orga560701">
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #DFD67A;">"your-key"</span>) 'your-command)
+</pre>
+</div>
+
+<p>
+最简单的键绑定方式，一行搞定，无须关心到底是哪个 keymap。然而需小心在某些 major-mode 时会被覆盖。<br>
+</p>
+
+<p>
+注销方式：绑定为 <code>nil</code> ，或者<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(global-unset-key (kbd <span style="color: #DFD67A;">"your-key"</span>)
+</pre>
+</div>
+</div>
+</div>
 </div>
 </body>
 </html>
