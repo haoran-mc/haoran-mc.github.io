@@ -100,7 +100,7 @@ window.onload = () => {
 
 // Idea PAGE
 // ---------------------------------
-if (isCurPage('Ideas')) {
+if (isCurPage('231006-Ideas')) {
 	// outline-1 $('.title')
 	// outline-2 *
 	// outline-3 **
