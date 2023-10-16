@@ -98,7 +98,7 @@ window.onload = () => {
 	}
 }
 
-// Idea PAGE
+// Idea Page
 // ---------------------------------
 if (isCurPage('231006-Ideas')) {
 	// outline-1 $('.title')
@@ -115,7 +115,12 @@ if (isCurPage('231006-Ideas')) {
 	});
 }
 
-// Card PAGE
+// Link Page
+if (isCurPage('231016-Links')) {
+    $("a").attr({rel:"noopener",target: "_blank"});
+}
+
+// Card Page
 // ---------------------------------
 if (isCurPage('wiki')
 	|| isCurPage('Math-wiki')
