@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2023-10-17 Tue 12:32 -->
+<!-- 2023-10-17 Tue 15:59 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>State Diagram</title>
@@ -14,7 +14,417 @@
 <body>
 <div id="content" class="content">
 <h1 class="title">State Diagram</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org3dc53b7">简单活动</a></li>
+<li><a href="#orga778cee">箭头上的标签</a></li>
+<li><a href="#orgf47675b">改变箭头方向</a></li>
+<li><a href="#org69b8807">分支</a></li>
+<li><a href="#org782f67c">更多分支</a></li>
+<li><a href="#orgc03b484">同步</a></li>
+<li><a href="#org8c6b320">长的活动描述</a></li>
+<li><a href="#org297cd3c">注释</a></li>
+<li><a href="#orgd6e87a3">分区</a></li>
+<li><a href="#org3837edd">显示参数</a></li>
+<li><a href="#orgea5f5f2">八边形活动</a></li>
+</ul>
+</div>
+</div>
 
+<div id="outline-container-org3dc53b7" class="outline-2">
+<h2 id="org3dc53b7">简单活动</h2>
+<div class="outline-text-2" id="text-org3dc53b7">
+<p>
+使用 <code>(*)</code> 作为活动图的开始点和结束点。<br>
+</p>
+
+<p>
+使用 <code>(*top)</code> 强制开始点位于图示的顶端。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-plantuml"><span style="color: #819cd6;">@startuml</span>
+(*) <span style="color: #819cd6;">--&gt;</span> <span style="color: #5b94ab;">"First Activity"</span>
+<span style="color: #5b94ab;">"First Activity"</span> <span style="color: #819cd6;">--&gt;</span> (*)
+<span style="color: #819cd6;">@enduml</span>
+</pre>
+</div>
+
+
+<div id="org62fa5e8" class="figure">
+<p><img src="images/231017-简单活动.png" alt="231017-简单活动.png"><br>
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orga778cee" class="outline-2">
+<h2 id="orga778cee">箭头上的标签</h2>
+<div class="outline-text-2" id="text-orga778cee">
+<p>
+使用 <code>[]</code> 定义标签。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-plantuml"><span style="color: #819cd6;">@startuml</span>
+(*) <span style="color: #819cd6;">--&gt;</span> <span style="color: #5b94ab;">"First Activity"</span>
+<span style="color: #819cd6;">--&gt;</span> [You can put also labels] <span style="color: #5b94ab;">"Second Activity"</span>
+<span style="color: #819cd6;">--&gt;</span> (*)
+<span style="color: #819cd6;">@enduml</span>
+</pre>
+</div>
+
+
+<div id="orgce7a9ca" class="figure">
+<p><img src="images/231017-箭头上的标签.png" alt="231017-箭头上的标签.png"><br>
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgf47675b" class="outline-2">
+<h2 id="orgf47675b">改变箭头方向</h2>
+<div class="outline-text-2" id="text-orgf47675b">
+<ul class="org-ul">
+<li><code>-down-&gt;</code> (default arrow)<br></li>
+<li><code>-right-&gt;</code> or <code>-&gt;</code><br></li>
+<li><code>-left-&gt;</code><br></li>
+<li><code>-up-&gt;</code><br></li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-plantuml"><span style="color: #819cd6;">@startuml</span>
+(*) -up<span style="color: #819cd6;">-&gt;</span> <span style="color: #5b94ab;">"First Activity"</span>
+-right<span style="color: #819cd6;">-&gt;</span> <span style="color: #5b94ab;">"Second Activity"</span>
+<span style="color: #819cd6;">--&gt;</span> <span style="color: #5b94ab;">"Third Activity"</span>
+-left<span style="color: #819cd6;">-&gt;</span> (*)
+<span style="color: #819cd6;">@enduml</span>
+</pre>
+</div>
+
+
+<div id="orga3ed4e1" class="figure">
+<p><img src="images/231017-改变箭头方向.png" alt="231017-改变箭头方向.png"><br>
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org69b8807" class="outline-2">
+<h2 id="org69b8807">分支</h2>
+<div class="outline-text-2" id="text-org69b8807">
+<p>
+<code>if/then/else</code><br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-plantuml"><span style="color: #819cd6;">@startuml</span>
+(*) <span style="color: #819cd6;">--&gt;</span> <span style="color: #5b94ab;">"Initialization"</span>
+
+<span style="color: #819cd6;">if</span> <span style="color: #5b94ab;">"Some Test"</span> then
+        <span style="color: #819cd6;">--&gt;</span>[true] <span style="color: #5b94ab;">"Some Activity"</span>
+        <span style="color: #819cd6;">--&gt;</span> <span style="color: #5b94ab;">"Another activity"</span>
+        -right<span style="color: #819cd6;">-&gt;</span> (*)
+<span style="color: #819cd6;">else</span>
+        <span style="color: #819cd6;">-&gt;</span>[false] <span style="color: #5b94ab;">"Something else"</span>
+        <span style="color: #819cd6;">--&gt;</span>[Ending process] (*)
+<span style="color: #819cd6;">endif</span>
+<span style="color: #819cd6;">@enduml</span>
+</pre>
+</div>
+
+
+<div id="org863d9cb" class="figure">
+<p><img src="images/231017-分支.png" alt="231017-分支.png"><br>
+</p>
+</div>
+
+<p>
+有时需要重复定义同一个活动：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-plantuml"><span style="color: #819cd6;">@startuml</span>
+(*)  <span style="color: #819cd6;">--&gt;</span> <span style="color: #5b94ab;">"check input"</span>
+<span style="color: #819cd6;">If</span> <span style="color: #5b94ab;">"input is verbose"</span> then
+        <span style="color: #819cd6;">--&gt;</span> [Yes] <span style="color: #5b94ab;">"turn on verbosity"</span>
+        <span style="color: #819cd6;">--&gt;</span> <span style="color: #5b94ab;">"run command"</span>
+<span style="color: #819cd6;">else</span>
+        <span style="color: #819cd6;">--&gt;</span> <span style="color: #5b94ab;">"run command"</span>
+<span style="color: #819cd6;">Endif</span>
+<span style="color: #819cd6;">--&gt;</span>(*)
+<span style="color: #819cd6;">@enduml</span>
+</pre>
+</div>
+
+
+<div id="orgbab7655" class="figure">
+<p><img src="images/231017-重复定义活动.png" alt="231017-重复定义活动.png"><br>
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org782f67c" class="outline-2">
+<h2 id="org782f67c">更多分支</h2>
+<div class="outline-text-2" id="text-org782f67c">
+<div class="org-src-container">
+<pre class="src src-plantuml"><span style="color: #819cd6;">@startuml</span>
+(*) <span style="color: #819cd6;">--&gt;</span> if <span style="color: #5b94ab;">"Some Test"</span> then
+        <span style="color: #819cd6;">--&gt;</span> [true] <span style="color: #5b94ab;">"action 1"</span>
+<span style="color: #819cd6;">        if</span> <span style="color: #5b94ab;">""</span> then
+                <span style="color: #819cd6;">-&gt;</span> <span style="color: #5b94ab;">"action 3"</span> as a3
+<span style="color: #819cd6;">        else</span>
+<span style="color: #819cd6;">                if</span> <span style="color: #5b94ab;">"other test"</span> then
+                        -left<span style="color: #819cd6;">-&gt;</span> <span style="color: #5b94ab;">"action 5"</span>
+<span style="color: #819cd6;">                else</span>
+                        <span style="color: #819cd6;">--&gt;</span> <span style="color: #5b94ab;">"action 6"</span>
+<span style="color: #819cd6;">                endif</span>
+<span style="color: #819cd6;">        endif</span>
+
+<span style="color: #819cd6;">else</span>
+        <span style="color: #819cd6;">-&gt;</span> [false] <span style="color: #5b94ab;">"action 2"</span>
+<span style="color: #819cd6;">endif</span>
+
+a3 <span style="color: #819cd6;">--&gt;</span> if <span style="color: #5b94ab;">"last test"</span> then
+        <span style="color: #819cd6;">--&gt;</span> <span style="color: #5b94ab;">"action 7"</span>
+<span style="color: #819cd6;">else</span>
+        <span style="color: #819cd6;">-&gt;</span> <span style="color: #5b94ab;">"action 8"</span>
+<span style="color: #819cd6;">endif</span>
+<span style="color: #819cd6;">@enduml</span>
+</pre>
+</div>
+
+
+<div id="org9e87f44" class="figure">
+<p><img src="images/231017-更多分支.png" alt="231017-更多分支.png"><br>
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgc03b484" class="outline-2">
+<h2 id="orgc03b484">同步</h2>
+<div class="outline-text-2" id="text-orgc03b484">
+<p>
+使用 <code>=== code ===</code> 显示同步条。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-plantuml"><span style="color: #819cd6;">@startuml</span>
+(*) <span style="color: #819cd6;">--&gt;</span> ===B1===
+<span style="color: #819cd6;">--&gt;</span> <span style="color: #5b94ab;">"Parallel Activity 1"</span>
+<span style="color: #819cd6;">--&gt;</span> ===B2===
+
+===B1=== <span style="color: #819cd6;">-&gt;</span> <span style="color: #5b94ab;">"Parallel Activity 2"</span>
+<span style="color: #819cd6;">--&gt;</span> ===B2===
+
+<span style="color: #819cd6;">--&gt;</span> (*)
+<span style="color: #819cd6;">@enduml</span>
+</pre>
+</div>
+
+
+<div id="orgc2ca4d2" class="figure">
+<p><img src="images/231017-同步.png" alt="231017-同步.png"><br>
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org8c6b320" class="outline-2">
+<h2 id="org8c6b320">长的活动描述</h2>
+<div class="outline-text-2" id="text-org8c6b320">
+<p>
+使用 <code>\n</code> 来定义跨越多行的描述。<br>
+</p>
+
+<p>
+可以用 <code>as</code> 关键字给活动起一个短的别名。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-plantuml"><span style="color: #819cd6;">@startuml</span>
+(*) -left<span style="color: #819cd6;">-&gt;</span> <span style="color: #5b94ab;">"this &lt;size:20&gt;activity&lt;/size&gt;</span>
+<span style="color: #5b94ab;">is &lt;b&gt;very&lt;/b&gt; &lt;color:red&gt;long2&lt;/color&gt;</span>
+<span style="color: #5b94ab;">and defined on several lines</span>
+<span style="color: #5b94ab;">that contains many &lt;i&gt;text&lt;/i&gt;"</span> as A1
+
+-up<span style="color: #819cd6;">-&gt;</span> <span style="color: #5b94ab;">"Another activity\n on several lines"</span>
+
+A1 <span style="color: #819cd6;">--&gt;</span> <span style="color: #5b94ab;">"Short activity &lt;img:sources/sourceforge.jpg&gt;"</span>
+<span style="color: #819cd6;">@enduml</span>
+</pre>
+</div>
+
+
+<div id="org1dfc2c8" class="figure">
+<p><img src="images/231017-长活动描述.png" alt="231017-长活动描述.png"><br>
+</p>
+</div>
+
+<p>
+<span class="underline">TODO 图片无法解析。</span><br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org297cd3c" class="outline-2">
+<h2 id="org297cd3c">注释</h2>
+<div class="outline-text-2" id="text-org297cd3c">
+<p>
+plantuml 语法的注释是 <code>'</code> 单引号。<br>
+</p>
+
+<p>
+<code>note left</code> ， <code>note right</code> ， <code>note top</code> or <code>note bottom</code> 给活动添加注释。<br>
+</p>
+
+<p>
+如果要给开始点添加注释，只需要吧注释的定义放在活动图最开始的地方即可。<br>
+</p>
+
+<p>
+也可以使用关键字 <code>end note</code> 定义多行注释。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-plantuml"><span style="color: #819cd6;">@startuml</span>
+<span style="color: #6e7899;">'</span><span style="color: #6e7899;">&#36825;&#26159;&#19968;&#20010;&#27880;&#37322;</span>
+(*) <span style="color: #819cd6;">--&gt;</span> <span style="color: #5b94ab;">"Some Activity"</span>
+<span style="color: #819cd6;">note</span> right: This activity has to be defined
+<span style="color: #5b94ab;">"Some Activity"</span> <span style="color: #819cd6;">--&gt;</span> (*)
+<span style="color: #819cd6;">note</span> left
+        This note is on
+        several lines
+<span style="color: #819cd6;">end</span> note
+<span style="color: #819cd6;">@enduml</span>
+</pre>
+</div>
+
+
+<div id="org4fbd2a3" class="figure">
+<p><img src="images/231017-注释.png" alt="231017-注释.png"><br>
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgd6e87a3" class="outline-2">
+<h2 id="orgd6e87a3">分区</h2>
+<div class="outline-text-2" id="text-orgd6e87a3">
+<p>
+<code>partition</code> 定义分区，还可以设置背景色。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-plantuml"><span style="color: #819cd6;">@startuml</span>
+
+<span style="color: #819cd6;">partition</span> Conductor {
+    (*) <span style="color: #819cd6;">--&gt;</span> <span style="color: #5b94ab;">"Climbs on Platform"</span>
+    <span style="color: #819cd6;">--&gt;</span> === S1 ===
+    <span style="color: #819cd6;">--&gt;</span> Bows
+}
+
+<span style="color: #819cd6;">partition</span> Audience #<span style="color: #7ebebd;">LightSkyBlue</span> {
+    === S1 === <span style="color: #819cd6;">--&gt;</span> Applauds
+}
+
+<span style="color: #819cd6;">partition</span> Conductor {
+        Bows <span style="color: #819cd6;">--&gt;</span> === S2 ===
+        <span style="color: #819cd6;">--&gt;</span> WavesArmes
+        Applauds <span style="color: #819cd6;">--&gt;</span> === S2 ===
+}
+
+<span style="color: #819cd6;">partition</span> Orchestra #CCCCEE {
+        WavesArmes <span style="color: #819cd6;">--&gt;</span> Introduction
+        <span style="color: #819cd6;">--&gt;</span> <span style="color: #5b94ab;">"Play music"</span>
+}
+
+<span style="color: #819cd6;">@enduml</span>
+</pre>
+</div>
+
+
+<div id="orga84bfbd" class="figure">
+<p><img src="images/231017-分区.png" alt="231017-分区.png"><br>
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org3837edd" class="outline-2">
+<h2 id="org3837edd">显示参数</h2>
+<div class="outline-text-2" id="text-org3837edd">
+<p>
+<code>skinparam</code> 修改字体和颜色。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-plantuml"><span style="color: #819cd6;">@startuml</span>
+
+<span style="color: #819cd6;">skinparam</span> <span style="color: #7ebebd;">backgroundColor</span> #AAFFFF
+<span style="color: #819cd6;">skinparam</span> activity {
+  StartColor <span style="color: #7ebebd;">red</span>
+  BarColor <span style="color: #7ebebd;">SaddleBrown</span>
+  EndColor <span style="color: #7ebebd;">Silver</span>
+  <span style="color: #7ebebd;">BackgroundColor</span> <span style="color: #7ebebd;">Peru</span>
+  <span style="color: #7ebebd;">BackgroundColor</span>&lt;&lt; Begin &gt;&gt; <span style="color: #7ebebd;">Olive</span>
+  BorderColor <span style="color: #7ebebd;">Peru</span>
+  FontName Impact
+}
+
+(*) <span style="color: #819cd6;">--&gt;</span> <span style="color: #5b94ab;">"Climbs on Platform"</span> &lt;&lt; Begin &gt;&gt;
+<span style="color: #819cd6;">--&gt;</span> === S1 ===
+<span style="color: #819cd6;">--&gt;</span> Bows
+<span style="color: #819cd6;">--&gt;</span> === S2 ===
+<span style="color: #819cd6;">--&gt;</span> WavesArmes
+<span style="color: #819cd6;">--&gt;</span> (*)
+
+<span style="color: #819cd6;">@enduml</span>
+</pre>
+</div>
+
+
+<div id="org5ba0e8f" class="figure">
+<p><img src="images/231017-显示参数.png" alt="231017-显示参数.png"><br>
+</p>
+</div>
+
+<p>
+这个字体是很粗的字体，所以设置字体也成功了。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgea5f5f2" class="outline-2">
+<h2 id="orgea5f5f2">八边形活动</h2>
+<div class="outline-text-2" id="text-orgea5f5f2">
+<p>
+使用 <code>skinparam activityShape octagon</code> 命令将活动的外形改为八边形。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-plantuml"><span style="color: #819cd6;">@startuml</span>
+<span style="color: #6e7899;">'</span><span style="color: #6e7899;">Default is skinparam activityShape roundBox</span>
+<span style="color: #819cd6;">skinparam</span> activityShape octagon
+
+(*) <span style="color: #819cd6;">--&gt;</span> <span style="color: #5b94ab;">"First Activity"</span>
+<span style="color: #5b94ab;">"First Activity"</span> <span style="color: #819cd6;">--&gt;</span> (*)
+
+<span style="color: #819cd6;">@enduml</span>
+</pre>
+</div>
+
+
+<div id="org1a7b330" class="figure">
+<p><img src="images/231017-八边形活动.png" alt="231017-八边形活动.png"><br>
+</p>
+</div>
+</div>
+</div>
 </div>
 </body>
 </html>
