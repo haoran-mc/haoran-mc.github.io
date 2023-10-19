@@ -116,13 +116,14 @@ if (isCurPage('231006-Ideas')) {
 }
 
 // Link Page
+// ---------------------------------
 if (isCurPage('231016-Links')) {
     $("a").attr({rel:"noopener",target: "_blank"});
 }
 
 // Card Page
 // ---------------------------------
-if (isCurPage('wiki')
+if (isCurPage('231018-wiki')
 	|| isCurPage('Math-wiki')
 	|| isCurPage('Editor-Vim-notes')
 	|| isCurPage('Poem')
