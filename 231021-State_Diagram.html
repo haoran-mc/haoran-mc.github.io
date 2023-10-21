@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 2023-10-21 Sat 22:43 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>State Diagram</title>
+<meta name="author" content="Haoran Liu" />
+<meta name="generator" content="Org Mode" />
+<link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon" />
+           <link rel="stylesheet" href="css/org.css" type="text/css"  />
+           <script type="module" src="js/main.js" defer></script>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">State Diagram</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org7f9b6cc">普通状态</a></li>
+<li><a href="#org49a843f">简化状态</a></li>
+<li><a href="#org7f29a9d">复杂状态</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org7f9b6cc" class="outline-2">
+<h2 id="org7f9b6cc">普通状态</h2>
+<div class="outline-text-2" id="text-org7f9b6cc">
+<p>
+<code>[*]</code> 作为状态图的起点或终点<br>
+</p>
+
+<p>
+使用 <code>--&gt;</code> 添加箭头<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-plantuml"><span style="color: #6c9ef8;">@startuml</span>
+[*] <span style="color: #6c9ef8;">--&gt;</span> State1
+State1 <span style="color: #6c9ef8;">--&gt;</span> [*]
+State1 : this is a string
+State1 : this is another string
+
+State1 <span style="color: #6c9ef8;">-&gt;</span> State2
+State2 <span style="color: #6c9ef8;">--&gt;</span> [*]
+<span style="color: #6c9ef8;">@enduml</span>
+</pre>
+</div>
+
+
+<div id="orge697c51" class="figure">
+<p><img src="images/231021-普通状态.png" alt="231021-普通状态.png"><br>
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org49a843f" class="outline-2">
+<h2 id="org49a843f">简化状态</h2>
+<div class="outline-text-2" id="text-org49a843f">
+<p>
+使用 <code>hide empty description</code> 关键字，隐藏空描述。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-plantuml"><span style="color: #6c9ef8;">@startuml</span>
+<span style="color: #6c9ef8;">hide</span> empty description
+[*] <span style="color: #6c9ef8;">--&gt;</span> &#29366;&#24577;1
+&#29366;&#24577;1 <span style="color: #6c9ef8;">--&gt;</span> [*]
+&#29366;&#24577;1 : &#36825;&#26159;&#19968;&#27573;&#23383;&#31526;&#20018;
+&#29366;&#24577;1 : &#36825;&#26159;&#21478;&#19968;&#27573;&#23383;&#31526;&#20018;
+
+&#29366;&#24577;1 <span style="color: #6c9ef8;">-&gt;</span> &#29366;&#24577;2
+&#29366;&#24577;2 <span style="color: #6c9ef8;">--&gt;</span> [*]
+<span style="color: #6c9ef8;">@enduml</span>
+</pre>
+</div>
+
+
+<div id="orgfa51756" class="figure">
+<p><img src="images/231021-简化状态.png" alt="231021-简化状态.png"><br>
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org7f29a9d" class="outline-2">
+<h2 id="org7f29a9d">复杂状态</h2>
+<div class="outline-text-2" id="text-org7f29a9d">
+<p>
+一个状态可以是嵌套的，必须使用关键字 <code>state</code> 和花括号来定义复杂状态。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-plantuml"><span style="color: #6c9ef8;">@startuml</span>
+scale 350 width
+[*] <span style="color: #6c9ef8;">--&gt;</span> NotShooting
+
+state NotShooting {
+        [*] <span style="color: #6c9ef8;">--&gt;</span> Idle
+        Idle <span style="color: #6c9ef8;">--&gt;</span> Configuring : EvConfig
+        Configuring <span style="color: #6c9ef8;">--&gt;</span> Idle : EvConfig
+}
+
+state Configuring {
+        [*] <span style="color: #6c9ef8;">--&gt;</span> NewValueSelection
+        NewValueSelection <span style="color: #6c9ef8;">--&gt;</span> NewValuePreview : EvNewValue
+        NewValuePreview <span style="color: #6c9ef8;">--&gt;</span> NewValueSelection : EvNewValueRejected
+        NewValuePreview <span style="color: #6c9ef8;">--&gt;</span> NewValueSelection : EvNewValueSaved
+
+        state NewValuePreview {
+                State1 <span style="color: #6c9ef8;">-&gt;</span> State2
+        }
+
+}
+<span style="color: #6c9ef8;">@enduml</span>
+</pre>
+</div>
+
+
+<div id="org64ad55b" class="figure">
+<p><img src="images/231021-复杂状态.png" alt="231021-复杂状态.png"><br>
+</p>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>
