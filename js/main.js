@@ -124,12 +124,7 @@ if (isCurPage('231016-Links')) {
 // Card Page
 // ---------------------------------
 if (isCurPage('231018-wiki')
-	|| isCurPage('Math-wiki')
-	|| isCurPage('Editor-Vim-notes')
-	|| isCurPage('Poem')
-	|| isCurPage('Go-wiki')
-	|| isCurPage('Front_end-card')
-	|| isCurPage('Linux-wiki')
+	|| isCurPage('231009-history')
    ) {
 	$('.outline-2').each(function () {
 		$(this).addClass('js-card');
