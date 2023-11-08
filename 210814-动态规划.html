@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2023-11-07 Tue 14:52 -->
+<!-- 2023-11-08 Wed 23:41 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>动态规划</title>
@@ -65,9 +65,167 @@
 </p>
 
 <p>
-1 &lt;<br>
+\(1 \leq T \leq 10^3, 1 \leq t_i, v_i, M \leq 100\)<br>
 </p>
 </blockquote>
+
+<ul class="org-ul">
+<li><p>
+朴素的 DFS 做法：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #FFE9AA;">cost</span> = [0] * (100 + 5) <span style="color: #565575;"># </span><span style="color: #565575;">&#37319;&#25688;&#33609;&#33647;&#30340;&#26102;&#38388;</span>
+<span style="color: #FFE9AA;">get</span> = [0] * (100 + 5) <span style="color: #565575;"># </span><span style="color: #565575;">&#33609;&#33647;&#30340;&#20215;&#20540;</span>
+
+<span style="color: #FFE9AA;">res</span>, <span style="color: #FFE9AA;">T</span>, <span style="color: #FFE9AA;">M</span> = 0, 0, 0
+
+<span style="color: #565575;"># </span><span style="color: #565575;">&#20934;&#22791;&#36873;&#31532;&#20960;&#20010;&#29289;&#21697;&#12289;&#21097;&#20313;&#30340;&#26102;&#38388;&#12289;&#24050;&#32463;&#33719;&#24471;&#30340;&#20215;&#20540;</span>
+<span style="color: #FF8080;">def</span> <span style="color: #C991E1;">dfs</span>(pos, tleft, value):
+    <span style="color: #FF8080;">global</span> res, T, M
+    <span style="color: #FF8080;">if</span> tleft &lt; 0:
+        <span style="color: #FF8080;">return</span>
+    <span style="color: #FF8080;">if</span> pos == M:
+        res = <span style="color: #C991E1;">max</span>(res, value)
+        <span style="color: #FF8080;">return</span>
+    dfs(pos + 1, tleft, value)
+    dfs(pos + 1, tleft - cost[pos], value + get[pos])
+
+
+<span style="color: #FF8080;">def</span> <span style="color: #C991E1;">main</span>():
+    <span style="color: #FF8080;">global</span> res, T, M
+    <span style="color: #FFE9AA;">T</span>, <span style="color: #FFE9AA;">M</span> = <span style="color: #C991E1;">map</span>(<span style="color: #FF8080;">lambda</span> x:<span style="color: #C991E1;">int</span>(x), <span style="color: #C991E1;">input</span>().split())
+
+    <span style="color: #FF8080;">for</span> i <span style="color: #FF8080;">in</span> <span style="color: #C991E1;">range</span>(M):
+        <span style="color: #FFE9AA;">cost</span>[<span style="color: #FFE9AA;">i</span>], <span style="color: #FFE9AA;">get</span>[<span style="color: #FFE9AA;">i</span>] = <span style="color: #C991E1;">map</span>(<span style="color: #FF8080;">lambda</span> x:<span style="color: #C991E1;">int</span>(x), <span style="color: #C991E1;">input</span>().split())
+
+    dfs(0, T, 0)
+    <span style="color: #C991E1;">print</span>(res)
+
+main()
+</pre>
+</div>
+
+<p>
+每株草药都有选与不选两种状态，时间复杂度是指数级别。同一个状态（pos, tleft）会被多次访问，所以效率较低。<br>
+</p>
+
+<p>
+为了增加效率，可以在查询完一个状态后，将该状态存储下来，避免重复计算。<br>
+</p>
+
+
+<div id="orgddabcf5" class="figure">
+<p><img src="images/231108-记忆化搜索.png" alt="231108-记忆化搜索.png" width="950px"><br>
+</p>
+</div></li>
+
+<li><p>
+使用记忆化搜索优化<br>
+</p>
+
+<p>
+增加 <code>mem</code> 数组记录每个 <code>dfs(pos, tleft)</code> 的返回值。 <code>mem</code> 中的初始值设为 <code>-1</code> ，访问时如果是 <code>-1</code> 就继续递归访问，否则直接返回 <code>mem</code> 中存储的值。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #FF8080;">import</span> sys
+
+<span style="color: #FFE9AA;">cost</span> = [0] * (100 + 5) <span style="color: #565575;"># </span><span style="color: #565575;">&#37319;&#25688;&#33609;&#33647;&#30340;&#26102;&#38388;</span>
+<span style="color: #FFE9AA;">get</span> = [0] * (100 + 5) <span style="color: #565575;"># </span><span style="color: #565575;">&#33609;&#33647;&#30340;&#20215;&#20540;</span>
+<span style="color: #FFE9AA;">mem</span> = [[-1 <span style="color: #FF8080;">for</span> i <span style="color: #FF8080;">in</span> <span style="color: #C991E1;">range</span>(1005)] <span style="color: #FF8080;">for</span> j <span style="color: #FF8080;">in</span> <span style="color: #C991E1;">range</span>(105)] <span style="color: #565575;"># </span><span style="color: #565575;">&#35760;&#24518;&#25968;&#32452;</span>
+
+<span style="color: #FFE9AA;">inf</span> = 0x3f3f3f3f
+
+<span style="color: #FFE9AA;">res</span>, <span style="color: #FFE9AA;">T</span>, <span style="color: #FFE9AA;">M</span> = 0, 0, 0
+<span style="color: #565575;"># </span><span style="color: #565575;">T &#24635;&#26102;&#38388;</span>
+<span style="color: #565575;"># </span><span style="color: #565575;">M &#33609;&#33647;&#24635;&#25968;</span>
+
+<span style="color: #FF8080;">def</span> <span style="color: #C991E1;">dfs</span>(pos, tleft) -&gt; <span style="color: #C991E1;">int</span>:
+    <span style="color: #FF8080;">if</span> pos == M:
+        <span style="color: #FF8080;">return</span> 0
+
+    <span style="color: #FF8080;">if</span> mem[pos][tleft] != -1:
+        <span style="color: #FF8080;">return</span> mem[pos][tleft]
+
+    dfs1 = dfs2 = -inf
+    dfs1 = dfs(pos+1, tleft)
+
+    <span style="color: #FF8080;">if</span> tleft &gt;= cost[pos]:
+        dfs2 = dfs(pos+1, tleft-cost[pos]) + get[pos]
+
+    mem[pos][<span style="color: #FFE9AA;">tleft</span>] = <span style="color: #C991E1;">max</span>(dfs1, dfs2)
+
+    <span style="color: #FF8080;">return</span> mem[pos][tleft]
+
+
+<span style="color: #FF8080;">def</span> <span style="color: #C991E1;">main</span>():
+    <span style="color: #565575;"># </span><span style="color: #565575;">sys.stdin = open('input.txt', 'r')</span>
+    <span style="color: #565575;"># </span><span style="color: #565575;">sys.stdout = open('output.txt', 'w')</span>
+    <span style="color: #FF8080;">global</span> res, T, M
+
+    <span style="color: #FFE9AA;">T</span>, <span style="color: #FFE9AA;">M</span> = <span style="color: #C991E1;">map</span>(<span style="color: #FF8080;">lambda</span> x:<span style="color: #C991E1;">int</span>(x), <span style="color: #C991E1;">input</span>().split())
+
+    <span style="color: #FF8080;">for</span> i <span style="color: #FF8080;">in</span> <span style="color: #C991E1;">range</span>(M):
+        <span style="color: #FFE9AA;">cost</span>[<span style="color: #FFE9AA;">i</span>], <span style="color: #FFE9AA;">get</span>[<span style="color: #FFE9AA;">i</span>] = <span style="color: #C991E1;">map</span>(<span style="color: #FF8080;">lambda</span> x:<span style="color: #C991E1;">int</span>(x), <span style="color: #C991E1;">input</span>().split())
+
+    res = dfs(0, T)
+    <span style="color: #C991E1;">print</span>(res)
+
+main()
+</pre>
+</div></li>
+
+<li><p>
+递推<br>
+</p>
+
+<p>
+记忆化搜索和递推都可以用来求解动态规划问题。不同的是，递推通过明确的访问顺序来避免重复访问，记忆化搜索通过给已经访问过的状态打标记的方式避免重复访问。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #FF8080;">import</span> sys
+
+<span style="color: #FFE9AA;">cost</span> = [0] * (100 + 5) <span style="color: #565575;"># </span><span style="color: #565575;">&#37319;&#25688;&#33609;&#33647;&#30340;&#26102;&#38388;</span>
+<span style="color: #FFE9AA;">get</span> = [0] * (100 + 5) <span style="color: #565575;"># </span><span style="color: #565575;">&#33609;&#33647;&#30340;&#20215;&#20540;</span>
+
+<span style="color: #FFE9AA;">res</span>, <span style="color: #FFE9AA;">T</span>, <span style="color: #FFE9AA;">M</span> = 0, 0, 0
+<span style="color: #565575;"># </span><span style="color: #565575;">T &#24635;&#26102;&#38388;</span>
+<span style="color: #565575;"># </span><span style="color: #565575;">M &#33609;&#33647;&#24635;&#25968;</span>
+
+
+<span style="color: #FFE9AA;">f</span> = [[0 <span style="color: #FF8080;">for</span> i <span style="color: #FF8080;">in</span> <span style="color: #C991E1;">range</span>(1005)] <span style="color: #FF8080;">for</span> j <span style="color: #FF8080;">in</span> <span style="color: #C991E1;">range</span>(105)]
+<span style="color: #FF8080;">def</span> <span style="color: #C991E1;">iteration</span>() -&gt; <span style="color: #C991E1;">int</span>:
+    <span style="color: #565575;"># </span><span style="color: #565575;">t &#26102;&#38388;</span>
+    <span style="color: #565575;"># </span><span style="color: #565575;">m &#25968;&#37327;</span>
+    <span style="color: #565575;"># </span><span style="color: #565575;">-&gt; v &#20215;&#20540;</span>
+    <span style="color: #FF8080;">for</span> i <span style="color: #FF8080;">in</span> <span style="color: #C991E1;">range</span>(1, M+1): <span style="color: #565575;"># </span><span style="color: #565575;">&#31532;&#20960;&#20010;</span>
+        <span style="color: #FF8080;">for</span> j <span style="color: #FF8080;">in</span> <span style="color: #C991E1;">range</span>(0, T+1): <span style="color: #565575;"># </span><span style="color: #565575;">&#21097;&#20313;&#26102;&#38388;</span>
+            f[i][<span style="color: #FFE9AA;">j</span>] = f[i-1][j] <span style="color: #565575;"># </span><span style="color: #565575;">&#19981;&#36873;&#25321;&#24403;&#21069;&#33609;&#33647;</span>
+            <span style="color: #FF8080;">if</span> j &gt;= <span style="color: #FFE9AA;">cost</span>[i]:
+               f[i][<span style="color: #FFE9AA;">j</span>] = <span style="color: #C991E1;">max</span>(f[i][j], f[i-1][j-cost[i]] + get[i])
+
+    <span style="color: #FF8080;">return</span> f[M][T]
+
+
+<span style="color: #FF8080;">def</span> <span style="color: #C991E1;">main</span>():
+    <span style="color: #565575;"># </span><span style="color: #565575;">sys.stdin = open('input.txt', 'r')</span>
+    <span style="color: #565575;"># </span><span style="color: #565575;">sys.stdout = open('output.txt', 'w')</span>
+    <span style="color: #FF8080;">global</span> res, T, M
+
+    <span style="color: #FFE9AA;">T</span>, <span style="color: #FFE9AA;">M</span> = <span style="color: #C991E1;">map</span>(<span style="color: #FF8080;">lambda</span> x:<span style="color: #C991E1;">int</span>(x), <span style="color: #C991E1;">input</span>().split())
+
+    <span style="color: #FF8080;">for</span> i <span style="color: #FF8080;">in</span> <span style="color: #C991E1;">range</span>(1, M+1):
+        <span style="color: #FFE9AA;">cost</span>[<span style="color: #FFE9AA;">i</span>], <span style="color: #FFE9AA;">get</span>[<span style="color: #FFE9AA;">i</span>] = <span style="color: #C991E1;">map</span>(<span style="color: #FF8080;">lambda</span> <span style="color: #FFE9AA;">x</span>:<span style="color: #C991E1;">int</span>(x), <span style="color: #C991E1;">input</span>().split())
+
+    res = iteration()
+    <span style="color: #C991E1;">print</span>(res)
+
+main()
+</pre>
+</div></li>
+</ul>
 </div>
 </div>
 
