@@ -115,13 +115,15 @@ if (isCurPage('231006-Ideas')) {
 	});
 }
 
-// Link Page
+// 链接在新页面打开
 // ---------------------------------
-if (isCurPage('231016-Links')) {
+if (isCurPage('231016-Links')
+    || isCurPage('210814-dynamic_programming')
+   ) {
     $("a").attr({rel:"noopener",target: "_blank"});
 }
 
-// Card Page
+// 卡片页面
 // ---------------------------------
 if (isCurPage('231018-wiki')
 	|| isCurPage('231009-history')
