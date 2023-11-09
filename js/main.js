@@ -120,7 +120,10 @@ if (isCurPage('231006-Ideas')) {
 if (isCurPage('231016-Links')
     || isCurPage('210814-dynamic_programming')
    ) {
-    $("a").attr({rel:"noopener",target: "_blank"});
+    var a_elements = $("a");
+    a_elements.not("#text-table-of-contents a").each(function () {
+        $(this).attr({rel:"noopener", target: "_blank"});
+    })
 }
 
 // 卡片页面
