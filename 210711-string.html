@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 2023-11-11 Sat 01:41 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>字符串</title>
+<meta name="author" content="Haoran Liu" />
+<meta name="generator" content="Org Mode" />
+<link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon" />
+           <link rel="stylesheet" href="css/org.css" type="text/css"  />
+           <script type="module" src="js/main.js" defer></script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script src="MathJax/cdn.bootcdn.net/ajax/libs/mathjax/3.1.2/es5/tex-mml-chtml.min.js"></script>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">字符串</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#orgee7596b">字符串哈希</a></li>
+<li><a href="#org3db73c4">字典树（Trie）</a></li>
+<li><a href="#org6b9bee6">前缀函数与 KMP 算法</a></li>
+<li><a href="#org6049091">manacher</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgee7596b" class="outline-2">
+<h2 id="orgee7596b">字符串哈希</h2>
+<div class="outline-text-2" id="text-orgee7596b">
+<p>
+<b>拉链法：</b><br>
+</p>
+
+<pre class="example" id="orgd75c5de">
++-----------------------------------------------------------+
+| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 |
++-----------------------------------------------------------+
+          ↓
+          11    如果得到 ha(11) = 2，也就是把 11 这个数映射到 2，那么就在 2 的下面创建一个链表，存入 11；
+          ↓
+          23    如果得到 ha(23) = 2，也就是把 23 这个数映射到 2，那么就在 2 的下面创建一个链表，存入 23；
+</pre>
+
+<hr>
+<p>
+<b>开放寻址法：</b><br>
+</p>
+
+<p>
+hash 方式有很多种，这里使用 \(f(s) = \sum_{i=1}^l s[i] \times b^{l-i}\) （字符串 s 的长度为 l）来定义的 Hash 函数。<br>
+</p>
+
+<ol class="org-ol">
+<li>首先把一个字符串看成一个 \(p\) 进制的数（\(p\) 值是自己设置的，可以取经验值）；<br></li>
+
+<li><p>
+把这个 \(p\) 进制的数转换成一个 \(10\) 进制的数（由于这个数可能会非常大，设置一个数 \(Q\)，取模）；<br>
+</p>
+
+<blockquote>
+<p>
+&ldquo;ABCD&rdquo;<br>
+</p>
+
+<p>
+A B C D  -&gt;  \((1 2 3 4)_p\)<br>
+= \((1 \times p^3 + 2 \times p^2 + 3 \times p^3 + 4 \times p^4) \mod{Q}\)   // 转换成一个十进制的数，期间 mod 一个数 Q<br>
+</p>
+
+<p>
+这样就把一个字符串转换为一个 [0, Q-1] 的数。<br>
+</p>
+</blockquote></li>
+
+<li><p>
+根据上面转换成10进制的方法得到所有前缀子串的哈希<br>
+</p>
+
+<p>
+先得到每个前缀子串的哈希：<br>
+</p>
+
+<pre class="example" id="org85664fe">
+ha[0] = 0;
+ha[1] = "A" 的哈希值
+ha[2] = "AB" 的哈希值
+ha[3] = "ABC" 的哈希值
+ha[4] = "ABCD" 的哈希值
+ha[5] = "ABCDE" 的哈希值
+...
+</pre></li>
+
+<li><p>
+通过前缀子串得到所有子串的哈希<br>
+</p>
+
+<pre class="example" id="org88c019e">
+                              hash?
+[高位]                     &lt;---------&gt;          [低位]
+|-------------------------|-----------|--------------|
+1                         L           R
+↑----  从 1 开始
+
+已知 ha[L-1]，ha[R]
+
+ha[L-1]: 表示下面这个子串的哈希值
+|------------------------|
+1                      L - 1
+
+ha[R]: 表示下面这个长的子串的哈希值
+|-------------------------|-----------|
+1                         L           R
+
+让上面的两个串的高位对齐、相减得到我们想要表示出 [L, R] 区间的哈希值
+hash = ha[R] - ha[L] * p^{R - L + 1}
+</pre></li>
+</ol>
+
+<blockquote>
+<p>
+注意⚠️：<br>
+</p>
+
+<ol class="org-ol">
+<li><p>
+不能把某一个字母映射为 0<br>
+</p>
+
+<p>
+如果把 A 映射为 0，那么 \(A = (0)_{10} = 0，AA = (00)_{10} = 0\)，就会出现不同的字符串映射到同一个数，产生冲突。<br>
+</p></li>
+
+<li>哈希字符串时，可能会出现冲突。经验值是设置 \(p = 131\) 或 \(13331\) 时，把 \(Q\) 取为 \(2^{64}\)。<br></li>
+</ol>
+</blockquote>
+
+<div class="org-src-container">
+<pre class="src src-python">
+</pre>
+</div>
+
+<hr>
+<p>
+<b>字符串哈希的应用：</b><br>
+</p>
+
+<ol class="org-ol">
+<li>字符串匹配<br></li>
+<li>允许 k 次失配的字符串匹配<br></li>
+<li><p>
+最长回文子串<br>
+</p>
+
+<p>
+manacher 和「哈希+二分」都可以在 \(O_n\) 的时间内解决。<br>
+</p></li>
+
+<li>最长公共子字符串<br></li>
+<li>确定字符串中不同子字符串的数量<br></li>
+</ol>
+
+<hr>
+<p>
+<b>例题：</b><br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org3db73c4" class="outline-2">
+<h2 id="org3db73c4">字典树（Trie）</h2>
+<div class="outline-text-2" id="text-org3db73c4">
+<p>
+顾名思义，就是一个像字典一样的树。<br>
+</p>
+
+<div class="div-center">
+  <img src="./images/字典树01.png" width="410px" />
+</div>
+
+<p>
+字典树用结点表示字母，从根结点到树上的某一结点的路径代表一个字符串。<br>
+</p>
+
+<p>
+例如 \(1 \rightarrow 4 \rightarrow 8 \rightarrow 12\) 表示的就是字符串 \(caa\)。<br>
+</p>
+
+<p>
+但并不是每一条路径都是一个我们存储过的字符串，还需要使用 \(cnt\) 数组标记这个字符串是否记录过，记录出现过几次。<br>
+</p>
+
+<div class="div-center">
+  <img src="./images/字典树02.png" width="740px" />
+</div>
+
+<p>
+如上图，如果现在要使用这个字典树存储字符串 <code>"caa"</code> 那么先查找是否出现过字符 <code>'c'</code> ；出现，那么看字符串 <code>"c"</code> 后面是否出现过 <code>'a'</code> ；出现，那么看字符串 <code>"ca"</code> 后面是否出现过 <code>'a'</code> ；出现，那么 <code>cnt[9] ++</code> 。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-cpp"><span style="color: #b48ead;">struct</span> <span style="color: #ECBE7B;">Trie</span> {
+    <span style="color: #ECBE7B;">int</span> <span style="color: #BF616A;">trie</span>[100000 + 5][26], <span style="color: #BF616A;">cnt</span>[100000 + 5], <span style="color: #BF616A;">idx</span>;
+
+    <span style="color: #ECBE7B;">void</span> <span style="color: #8FA1B3;">insert</span>(<span style="color: #ECBE7B;">char</span> <span style="color: #BF616A;">str</span>[]) {
+        <span style="color: #ECBE7B;">int</span> <span style="color: #BF616A;">p</span> = 0;
+        <span style="color: #b48ead;">for</span> (<span style="color: #ECBE7B;">int</span> <span style="color: #BF616A;">i</span> = 0; str[i]; ++ i) {
+            <span style="color: #ECBE7B;">int</span> <span style="color: #BF616A;">u</span> = str[i] - <span style="color: #A3BE8C;">'a'</span>;
+            <span style="color: #b48ead;">if</span> (<span style="color: #c0c5ce; font-weight: bold;">!</span>trie[p][u])
+                trie[p][u] = ++ idx;
+            p = trie[p][u];
+        }
+        cnt[p] ++ ;
+    }
+
+    <span style="color: #65737E;">// </span><span style="color: #65737E;">&#26597;&#35810;&#36825;&#20010;&#23383;&#31526;&#20018;&#20986;&#29616;&#27425;&#25968;</span>
+    <span style="color: #ECBE7B;">int</span> <span style="color: #8FA1B3;">query</span>(<span style="color: #ECBE7B;">char</span> <span style="color: #BF616A;">str</span>[]) {
+        <span style="color: #ECBE7B;">int</span> <span style="color: #BF616A;">p</span> = 0;
+        <span style="color: #b48ead;">for</span> (<span style="color: #ECBE7B;">int</span> <span style="color: #BF616A;">i</span> = 0; str[i]; ++i) {
+            <span style="color: #ECBE7B;">int</span> <span style="color: #BF616A;">u</span> = str[i] - <span style="color: #A3BE8C;">'a'</span>;
+            <span style="color: #b48ead;">if</span> (<span style="color: #c0c5ce; font-weight: bold;">!</span>trie[p][u])
+                <span style="color: #b48ead;">return</span> 0;
+            p = trie[p][u];
+        }
+        <span style="color: #b48ead;">return</span> cnt[p];
+    }
+}
+</pre>
+</div>
+
+<p>
+<b>字典树的应用：</b><br>
+</p>
+<ol class="org-ol">
+<li>字符串的检索<br></li>
+<li>词频统计<br></li>
+<li>字符串排序<br></li>
+<li>前缀匹配<br></li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-org6b9bee6" class="outline-2">
+<h2 id="org6b9bee6">前缀函数与 KMP 算法</h2>
+<div class="outline-text-2" id="text-org6b9bee6">
+<p>
+<b>前缀函数定义：</b><br>
+给定一个长度为 \(n\) 的字符串 \(s\)，其前缀函数被定义为一个长度为 \(n\) 的数组 \(next\)，其中 \(next[i]\) 的定义是：<br>
+</p>
+
+<ol class="org-ol">
+<li>如果子串 \(s[0 \dots i]\) 有一对相等的真前缀与真后缀：\(s[0 \dots k - 1]\) 和 \(s[i - (k - 1) \dots i]\)，那么 \(next[i]\) 就是这个相等的真前缀的长度，也就是 \(next[i] = k\)；<br></li>
+<li>如果不止有一对相等的，那么 \(next[i]\) 就是其中最长的那一对的长度；<br></li>
+<li>如果没有相等的，那么 \(next[i] = 0\)；<br></li>
+</ol>
+
+<p>
+简单来说 \(next[i]\) 就是，子串 \(s[0 \dots i]\) 最长的相等的真前缀和真后缀的长度。<br>
+</p>
+
+<p>
+用数学语言描述：\(next[i] = \max \limits_{k = 0 \dots i}{k : s[0 \dots k - 1] = s[i - (k - 1) \dots i]}\)<br>
+</p>
+
+<p>
+举例说明，对于字符串 <code>ABABC</code> ：<br>
+</p>
+<ul class="org-ul">
+<li>\(next[0] = 0\)，因为 <code>A</code> 没有真前缀和真后缀<br></li>
+<li>\(next[1] = 0\)，因为 <code>AB</code> 无相等的真前缀和真后缀<br></li>
+<li>\(next[2] = 1\)，因为 <code>ABA</code> 有一对相等的真前缀和真后缀： <code>A</code> ，长度为 \(1\)<br></li>
+<li>\(next[3] = 2\)，因为 <code>ABAB</code> 相等的真前缀和真后缀只有： <code>AB</code> ，长度为 \(2\)<br></li>
+<li>\(next[4] = 0\)，因为 <code>ABABC</code> 没有相等的真前缀和真后缀<br></li>
+</ul>
+
+<hr>
+<p>
+<b>朴素计算前缀函数：</b><br>
+遍历字符串，每次计算当前的前缀函数值 \(next[i]\) 时，令变量 \(j\) 从最大的真前缀开始尝试，如果当前长度下真前缀和真后缀不相等，则令 \(j\) 自减 \(1\)，继续匹配，直到找到最长相等的真前缀和真后缀，如果 \(j = 0\) 并且仍没有匹配成功，\(next[i] = 0\)。<br>
+</p>
+
+<hr>
+<p>
+<b>优化：</b><br>
+</p>
+<blockquote>
+<p>
+相邻的前缀函数值至多增加 \(1\)<br>
+</p>
+</blockquote>
+
+<p>
+假如现在要获取字符串 <code>ABAABAABAABA</code> 的前缀函数，且我们已经得到了前面 \(11\) 个子串的前缀函数值：\(next[] = \{0, 0, 1, 1, 2, 3, 4, 5, 6, 7, 8, ?\}\)，接下来需要得到子串长度为 \(12\) 的前缀值：<br>
+</p>
+
+<p>
+先看子串长度为 \(11\) 的最长的相等真前后缀：也就是下图中分别用绿色下划线和橘色下划线标出的子串，在判断长度为 \(12\) 的子串的最长相等真前后缀时，不需要再重新遍历，由于相邻的前缀函数值至多增加 \(1\)，所以先判断绿色下划线标出的子串下一个位置是否等于橘色下划线标出的子串下一个位置是否相等，也就是判断 \(s[j]\) 是否等于 \(s[i]\)，如果相等那么子串长度为 \(12\) 的最长相等真前后缀就是 \(next[11] = next[10] + 1 = 9\)。<br>
+</p>
+
+
+<div id="orga4a86a0" class="figure">
+<p><img src="images/KMP01.png" alt="KMP01.png"><br>
+</p>
+</div>
+
+<p>
+如果不相等呢？我们现在把最后一个字符换成 <code>C</code> ，接着讨论：<br>
+</p>
+
+
+<div id="orgde4ee4f" class="figure">
+<p><img src="images/KMP02.png" alt="KMP02.png"><br>
+</p>
+</div>
+
+<p>
+现在 \(s[j] != s[i]\)，令 \(j = next[j - 1]\)，然后接着匹配，为什么呢？我们来看看 \(j = next[j - 1] = 5\) 之后箭头的变化：<br>
+</p>
+
+
+<div id="org42a8e25" class="figure">
+<p><img src="images/KMP03.png" alt="KMP03.png"><br>
+</p>
+</div>
+
+<p>
+发现，\(j\) 前面的子串和 \(i\) 前面的一段子串能够匹配，如果 \(s[j] == s[i]\)，那么 \(next[i] = next[j - 1] + 1\)，如果 \(s[j] != s[j]\)，继续 \(j = next[j - 1]\)，直到匹配成功，或者 \(next[i] = 0\)。<br>
+</p>
+
+<hr>
+<p>
+<b>优化的理由：</b><br>
+首先相邻的前缀函数值至多增加 \(1\)，这句不需要证明了，仔细想一下就能知道，所以需要 \(next[i]\) 尽可能大，必然要求后缀新增的 \(s[i]\) 也与前缀新增的字符匹配，即 \(s[i] = s[next[i - 1]]\)，如果匹配，\(next[i] = next[i - 1] + 1\)；<br>
+</p>
+
+<p>
+如果不匹配，我们希望找到对于子串 \(s[0 \dots i - 1]\)，仅次于 \(next[i - 1]\) 的第二长度 \(j\)，使得在位置 \(i - 1\) 的前缀性质仍得以保持，也即 \(s[0 \dots j - 1] = s[i - j \dots i - 1]\)：<br>
+</p>
+
+<p>
+\[\overbrace{\underbrace{s_0 ~ s_1}_j ~ s_2 ~ s_3}^{next[i - 1]} ~ \dots ~ \overbrace{s_{i-3} ~ \underbrace{s_{i-2} ~ s_{i-1}}_j}^{next[i - 1]} ~ s{i}\]<br>
+</p>
+
+<p>
+如果我们找到这样的长度 \(j\)，那么仅需要再次比较 \(s[i]\) 与 \(s[j]\)。如果它们相等，那么就有 \(next[i] = j + 1\)，否则我们需要找到子串 \(s[0 \dots i]\) 中仅次于 \(j\) 的第二长度 \(j^{(2)}\)，使得前缀性质得以保持，如此反复，直到 \(j = 0\)。如果 \(s[i] != s[0]\)，则 \(next[i] = 0\)。<br>
+</p>
+
+<p>
+观察上图发现，因为 \(s[0 \dots next[i - 1] - 1] = s[i - next[i - 1] \dots i - 1]\)，所以 \(s[0 \dots i - 1]\) 的第二长度 \(j\) 有这样的性质：\(s[0 \dots j - 1] = s[i - j \dots i - 1] = s[next[i - 1] - j \dots next[i - 1] - 1]\)<br>
+</p>
+
+<p>
+也就是说 \(j\) 等价于子串 \(s[next[i - 1] - 1]\) 的前缀函数值，即 \(j = next[next[i - 1] - 1]\)，同理，次于 \(j\) 的第二长度等价于 \(s[j - 1]\) 的前缀函数值，\(j^{(2)} = next[j - 1]\)<br>
+</p>
+
+<p>
+关于 \(j\) 的状态转移方程：\(j^{(n)} = next[j^{(n - 1)} - 1], (j^{(n - 1)} > 0)\)<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-cpp"><span style="color: #ECBE7B;">void</span> <span style="color: #8FA1B3;">prefix_table</span>(<span style="color: #ECBE7B;">char</span> <span style="color: #BF616A;">pattern</span>[]) {
+    <span style="color: #ECBE7B;">int</span> <span style="color: #BF616A;">n</span> = strlen(pattern);
+    <span style="color: #b48ead;">for</span> (<span style="color: #ECBE7B;">int</span> <span style="color: #BF616A;">i</span> = 1; i &lt; n; ++ i) {
+        <span style="color: #ECBE7B;">int</span> <span style="color: #BF616A;">j</span> = ne[i - 1];
+        <span style="color: #b48ead;">while</span> (j &gt; 0 &amp;&amp; pattern[i] != pattern[j])
+            j = ne[j - 1];
+        <span style="color: #b48ead;">if</span> (pattern[i] == pattern[j])
+            j ++ ;
+        ne[i] = j;
+    }
+}
+</pre>
+</div>
+
+<p>
+<b>Knuth-Morris-Pratt算法：</b><br>
+该算法由 Knuth、Pratt 和 Morris 在 1977 年共同发布，简称 KMP 算法，<br>
+</p>
+
+<p>
+给出一个文本串 \(text\) 与一个模式串 \(pattern\)，我们可以将其拼接在一起 \(pattern + "\#" + text\)，其中 <code>#</code> 是两个串中都没出现的字符。再使用上面的求前缀函数的算法，如果某个位置的前缀值是 \(len(pattern)\)，那么说明找到了一个 \(pattern\)。<br>
+</p>
+
+<p>
+如果没有说明有什么字符是不包含的，那就把判断条件改为当 \(j\) 到 \(len(pattern)\) 时发现模式串。<br>
+</p>
+</div>
+</div>
+
+
+<div id="outline-container-org6049091" class="outline-2">
+<h2 id="org6049091">manacher</h2>
+<div class="outline-text-2" id="text-org6049091">
+<p>
+Manacher 算法可以线性的计算出一个字符串的最长回文串的长度。<br>
+</p>
+
+<p>
+Manacher 要求字符串的长度是奇数。所以我们在得到一个字符串后，先在这个字符串的每两个字符中间添加一个这个字符串中不会出现的字符，还要在整个串的前后添加这个字符，为了使边界好处理，我们再在整个串的前后各添加一个不是前面那个字符的在这个字符串中不会出现的字符，即：<br>
+</p>
+
+
+<div id="org88c6930" class="figure">
+<p><img src="images/Manacher01.png" alt="Manacher01.png" width="320px"><br>
+</p>
+</div>
+
+<p>
+Manacher 要求维护一个最右回文子串（并非最长回文子串）的中心位置 <code>mid</code> 与右边界位置 <code>max_right</code> ，以及一个 \(p\) 数组，\(p[i]\) 代表的是以位置 \(i\) 为中心的最长的回文串的半径。<br>
+</p>
+
+<p>
+例如下面这个字符串的 \(p[8] = 6\)：<br>
+</p>
+
+
+<div id="org227c4a6" class="figure">
+<p><img src="images/Manacher02.png" alt="Manacher02.png" width="320px"><br>
+</p>
+</div>
+
+<p>
+然后在遍历整个字符串的过程中用下标 \(i\) 来不停地更新这两个值：<br>
+</p>
+
+<p>
+首先需要知道的是：在算法的整个过程中，一定有 \(i \geq mid、i \leq max\_right\)，因为我们会让 \(i\) 从串首遍历到串尾，如果以 \(i\) 为中心的最长的回文串右边界一旦大于等于 \(max\_right\)，就会更新 \(mid = i\)，\(max\_right\) 为以 \(i\) 为中心的最长回文串的右边界，显然整个遍历的过程有 \(mid \leq i \leq max\_right\)。<br>
+</p>
+
+<ol class="org-ol">
+<li><p>
+根据回文串的对称性，如果对称过来的 \(j = mid \times 2 - i\) 位置的回文串左边界大于维护的最右回文子串的左边界，即： \(j - p[j] > max\_left\)（代码中不会维护 \(max\_left\) 变量，这里使用它是为了更好地理解），一定有 \(p[i] = p[j]\)。<br>
+</p>
+
+
+<div id="org82d5bc8" class="figure">
+<p><img src="images/Manacher03.png" alt="Manacher03.png" width="350px"><br>
+</p>
+</div></li>
+
+<li><p>
+如果有 \(j\) 位置的回文串左边界小于维护的最右回文子串的左边界，即：\(j - p[j] < max\_left\)，一定有 \(p[i] = max\_right - i + 1\)（因为对称串在最右回文子串外的部分一定不会与最右边界外的一部分串对称相等，否则我们维护的最右回文子串的右边界就能继续拓展，这与我们维护的是以 \(mid\) 为中心的长度最大的最右回文子串矛盾，所以一定有 \(p[i] = max\_right - i + 1\)）<br>
+</p>
+
+
+<div id="org5cda844" class="figure">
+<p><img src="images/Manacher04.png" alt="Manacher04.png" width="350px"><br>
+</p>
+</div></li>
+
+<li><p>
+如果有 \(j\) 位置的回文串左边界等于维护的最右回文子串的左边界，即：\(j - p[j] = max\_left\)，这个时候不能确定 \(p[i]\) 的值，因为我们仅能通过最右回文知道 \(j\) 的左边界的前一个字符与右边界的后一个字符不相等；但不能确定以 \(i\) 为中心的回文串能否继续扩展。这个时候我们就需要朴素的将以 \(i\) 为中心的回文串向外拓展直到无法拓展，然后更新最右回文子串为以 \(i\) 为中心的最长回文串。<br>
+</p>
+
+
+<div id="org61e2a80" class="figure">
+<p><img src="images/Manacher05.png" alt="Manacher05.png" width="350px"><br>
+</p>
+</div></li>
+</ol>
+
+<div class="org-src-container">
+<pre class="src src-cpp"><span style="color: #c0c5ce; font-weight: bold;">#include</span> <span style="color: #A3BE8C;">&lt;cstdio&gt;</span>
+<span style="color: #c0c5ce; font-weight: bold;">#include</span> <span style="color: #A3BE8C;">&lt;cstring&gt;</span>
+<span style="color: #c0c5ce; font-weight: bold;">#include</span> <span style="color: #A3BE8C;">&lt;algorithm&gt;</span>
+<span style="color: #b48ead;">using</span> <span style="color: #b48ead;">namespace</span> <span style="color: #D08770;">std</span>;
+<span style="color: #b48ead;">const</span> <span style="color: #ECBE7B;">int</span> <span style="color: #BF616A;">maxn</span> = 2e5 + 5;
+<span style="color: #ECBE7B;">int</span> <span style="color: #BF616A;">n</span>;
+<span style="color: #ECBE7B;">char</span> <span style="color: #BF616A;">a</span>[maxn], <span style="color: #BF616A;">b</span>[maxn];   <span style="color: #65737E;">// </span><span style="color: #65737E;">a &#34920;&#31034;&#21407;&#20018;&#65292;b &#34920;&#31034;&#26032;&#20018;</span>
+<span style="color: #ECBE7B;">int</span> <span style="color: #BF616A;">p</span>[maxn];
+
+<span style="color: #65737E;">// </span><span style="color: #65737E;">a = "abababc", b = "$#a#b#a#b#a#b#c#^";</span>
+<span style="color: #ECBE7B;">void</span> <span style="color: #8FA1B3;">init</span>() {
+    <span style="color: #ECBE7B;">int</span> <span style="color: #BF616A;">k</span> = 0;
+    b[k ++ ] = <span style="color: #A3BE8C;">'$'</span>; b[k ++ ] = <span style="color: #A3BE8C;">'#'</span>;
+    <span style="color: #b48ead;">for</span> (<span style="color: #ECBE7B;">int</span> <span style="color: #BF616A;">i</span> = 0; i &lt; n; ++ i)
+        b[k ++ ] = a[i], b[k ++ ] = <span style="color: #A3BE8C;">'#'</span>;
+    b[k ++ ] = <span style="color: #A3BE8C;">'^'</span>;
+    n = k;
+}
+
+<span style="color: #ECBE7B;">void</span> <span style="color: #8FA1B3;">manacher</span>() {
+    <span style="color: #ECBE7B;">int</span> <span style="color: #BF616A;">max_right</span> = 0, <span style="color: #BF616A;">mid</span>;   <span style="color: #65737E;">// </span><span style="color: #65737E;">&#32500;&#25252;&#19968;&#20010;&#26368;&#21491;&#22238;&#25991;&#23376;&#20018;&#65288;&#24182;&#38750;&#26368;&#38271;&#22238;&#25991;&#23376;&#20018;&#65289;</span>
+    <span style="color: #b48ead;">for</span> (<span style="color: #ECBE7B;">int</span> <span style="color: #BF616A;">i</span> = 1; i &lt; n; ++ i) {
+        <span style="color: #b48ead;">if</span> (i &lt; max_right)    <span style="color: #65737E;">// </span><span style="color: #65737E;">1. &#22914;&#26524; i &lt; max_right&#65292;&#30452;&#25509;&#23545;&#31216;&#30475; j = mid * 2 - i &#30340;&#20301;&#32622;&#26368;&#38271;&#22238;&#25991;&#20018;&#21322;&#24452;</span>
+            p[i] = min(p[mid * 2 - i], max_right - i);
+        <span style="color: #b48ead;">else</span>           <span style="color: #65737E;">// </span><span style="color: #65737E;">2. &#21542;&#21017;&#20250;&#26420;&#32032;&#25299;&#23485;</span>
+            p[i] = 1;
+        <span style="color: #65737E;">/*</span>
+<span style="color: #65737E;">         * &#26420;&#32032;&#25299;&#23485;&#65292;&#20294;&#26159;&#21482;&#26377; i &lt; max_right&#65292;&#19988; j = mid * 2 - i &#20301;&#32622;&#30340;&#22238;&#25991;&#20018;&#30340;&#24038;&#36793;&#30028;&#24688;&#22909;&#22312;&#32500;&#25252;&#30340;&#26368;&#21491;&#22238;&#25991;&#23376;&#20018;&#24038;&#36793;&#30028;&#22788;&#26102;</span>
+<span style="color: #65737E;">         * &#25165;&#20250;&#30495;&#27491;&#30340;&#24320;&#22987;&#25299;&#23485;&#65292;&#21542;&#21017;&#36825;&#37324;&#21482;&#20250;&#36816;&#34892;&#19968;&#27425;</span>
+<span style="color: #65737E;">         *            ml            mid             max_right</span>
+<span style="color: #65737E;">         *            |              |              |</span>
+<span style="color: #65737E;">         *            V              V              V</span>
+<span style="color: #65737E;">         * |-----------------------------------------------|</span>
+<span style="color: #65737E;">         *            +----j----+    |    +----i----+</span>
+<span style="color: #65737E;">         */</span>
+        <span style="color: #b48ead;">while</span> (b[i - p[i]] == b[i + p[i]])
+            p[i] ++ ;
+        <span style="color: #b48ead;">if</span> (i + p[i] &gt; max_right) {   <span style="color: #65737E;">// </span><span style="color: #65737E;">&#26356;&#26032; max_right &#19982; i &#30340;&#20540;</span>
+            max_right = i + p[i];
+            mid = i;
+        }
+    }
+}
+
+<span style="color: #ECBE7B;">int</span> <span style="color: #8FA1B3;">main</span>() {
+    scanf(<span style="color: #A3BE8C;">"%s"</span>, a);
+    n = strlen(a);
+    init();
+    manacher();
+    <span style="color: #ECBE7B;">int</span> <span style="color: #BF616A;">res</span> = 0;
+    <span style="color: #b48ead;">for</span> (<span style="color: #ECBE7B;">int</span> <span style="color: #BF616A;">i</span> = 0; i &lt; n; ++ i)
+        res = max(res, p[i] - 1);
+    printf(<span style="color: #A3BE8C;">"%d\n"</span>, res);
+    <span style="color: #b48ead;">return</span> 0;
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>
