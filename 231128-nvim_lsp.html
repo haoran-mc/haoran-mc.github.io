@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 2023-11-28 Tue 23:06 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NVIM LSP</title>
+<meta name="author" content="Haoran Liu" />
+<meta name="generator" content="Org Mode" />
+<link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon" />
+           <link rel="stylesheet" href="css/org.css" type="text/css"  />
+           <script type="module" src="js/main.js" defer></script>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">NVIM LSP</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org2c8dba7">认识 LSP</a></li>
+<li><a href="#org605b8ca">nvim 中的 LSP</a></li>
+<li><a href="#org4e4a032">nvim-lspconfig</a></li>
+<li><a href="#orgd61bde2">以 golang 为例</a>
+<ul>
+<li><a href="#orgb4f0935">介绍 nvim-lspconfig 暴露给用户的方法</a></li>
+</ul>
+</li>
+<li><a href="#org3de2aa8">安装 typescript、JavaScript、Java、Rust、C++、Python、Lua、Lisp、C#、R、Ruby、Swift、Zig、Kotlin、Haskell、Scala、Julia、Lisp、Dart、Perl、Objective-C、D、PHP、Visual Basic、Scratch 的语言服务器</a>
+<ul>
+<li><a href="#orgac03038">安装 typescript 的语言服务器</a></li>
+<li><a href="#org7516c37">安装 Lua 的语言服务器</a></li>
+<li><a href="#orgefa4c8a">安装 Python 的语言服务器 pyright</a></li>
+<li><a href="#orge419966">安装 Rust 的语言服务器</a></li>
+<li><a href="#orge1b00fa">安装 Ruby 的语言服务器 Solargraph</a></li>
+<li><a href="#org8a527ff">安装&#x2026; 够了，我受够了</a></li>
+</ul>
+</li>
+<li><a href="#org5a61b35">下面推荐几个优化 nvim 界面显示的插件</a>
+<ul>
+<li><a href="#orgd543f58">nvim-lspsaga</a></li>
+<li><a href="#org63fd857">nvim-treesitter</a></li>
+<li><a href="#org9f9399f">null-ls</a></li>
+</ul>
+</li>
+<li><a href="#orgf1eb9f4">nvim 的代码补全：nvim-cmp</a>
+<ul>
+<li><a href="#org4693141">nvim-cmp 简介</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org2c8dba7" class="outline-2">
+<h2 id="org2c8dba7">认识 LSP</h2>
+<div class="outline-text-2" id="text-org2c8dba7">
+<p>
+LSP (Language Server Protocol) 语言服务协议：<br>
+</p>
+
+<p>
+LSP 的出现将编程工具解耦成了 Language Server 与 Language Client 两部分。<br>
+</p>
+
+<ul class="org-ul">
+<li>Server 代码语言分析（语言支持、自动补全、定义与引用解析、悬停文档提示等），例如 gopls；<br></li>
+<li>Client 代码编辑器文本界面的展示，neovim 作为 Language Client，与 Language Server 通过 vim.lsp 这个模块对接（不过对接的代码不太好写，所以官方推出了 nvim-lspconfig 快速配置 lsp）；<br></li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #96A7A9; font-style: italic;">// </span><span style="color: #96A7A9; font-style: italic;">1. &#23450;&#20041;&#25509;&#21475;</span>
+<span style="color: #859900; font-weight: bold;">interface</span> User {
+    name: string;
+}
+<span style="color: #96A7A9; font-style: italic;">// </span><span style="color: #96A7A9; font-style: italic;">2. &#23454;&#29616;&#25509;&#21475;&#30340;&#23545;&#35937;</span>
+<span style="color: #859900; font-weight: bold;">const</span> <span style="color: #268bd2;">user</span>: User = {
+    name: <span style="color: #2aa198;">'hello'</span>
+}
+<span style="color: #96A7A9; font-style: italic;">// </span><span style="color: #96A7A9; font-style: italic;">3. &#25171;&#21360;&#23545;&#35937;&#30340;age&#23646;&#24615;</span>
+console.log(user.age); <span style="color: #96A7A9; font-style: italic;">// </span><span style="color: #96A7A9; font-style: italic;">error</span>
+</pre>
+</div>
+
+<p>
+上述代码打印了 <code>user</code> 的 <code>age</code> 属性， <code>user</code> 并不具备 <code>age</code> 字段，所以按照严格的 typescript 语言规范来讲，代码编译会有错误：<br>
+</p>
+
+
+<div id="orgb0e0ac7" class="figure">
+<p><img src="images/ts-type-error.png" alt="ts-type-error.png"><br>
+</p>
+</div>
+
+<p>
+使用 LSP 描述这个过程：<br>
+</p>
+
+<ol class="org-ol">
+<li>在编辑器上写入上述的 ts 代码；<br></li>
+<li>编辑器将上述代码通过某种协议发送给 typescript 语言服务器；<br></li>
+<li>typescript 语言服务器读取 ts 代码，进行语法检查，得到了编译错误信息（包含行列数，基本的建议提示信息）返回给编辑器；<br></li>
+<li>编辑器接收到错误信息，通过自己的方式展示在编辑器 UI 上。<br></li>
+</ol>
+
+<p>
+使用 LSP 这套体系，有两个必须步骤：<br>
+</p>
+
+<ol class="org-ol">
+<li>获取并安装语言服务器程序；<br></li>
+<li>启动语言服务器，让它处于运行状态。<br></li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-org605b8ca" class="outline-2">
+<h2 id="org605b8ca">nvim 中的 LSP</h2>
+<div class="outline-text-2" id="text-org605b8ca">
+<p>
+在 nvim 0.5+ 版本以后，已经内置了语言服务客户端的接口（<a href="https://neovim.io/doc/user/lsp.html">lsp - Neovim docs</a> 注意只是语言服务客户端部分），比较常用的 API：<br>
+</p>
+
+<ul class="org-ul">
+<li>vim.lsp.buf.hover(): 代码的 tips 悬浮展示；<br></li>
+<li>vim.lsp.buf.format(): 代码格式化；<br></li>
+<li>vim.lsp.buf.references(): 当前代码符号的引用查询；<br></li>
+<li>vim.lsp.buf.implementation(): 当前代码（主要是函数方法）的实现定位；<br></li>
+<li>vim.lsp.buf.code_action(): 当前代码的一些优化操作。<br></li>
+</ul>
+
+<p>
+但需要注意，上面都是接口方法，不具备具体的实现。具体的实现，需要为每一个编程语言单独配置。<br>
+</p>
+
+<p>
+所以，面对不同的语言，我们按照对应的语言服务的要求来配置 nvim 的内置 LSP 模块，官方的文档给出了如下的示例来启动一个 LSP：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-lua">vim.lsp.start({
+      name = <span style="color: #2aa198;">'my-server-name'</span>,
+      cmd = {<span style="color: #2aa198;">'name-of-language-server-executable'</span>},
+      root_dir = vim.fs.dirname(vim.fs.find({<span style="color: #2aa198;">'setup.py'</span>, <span style="color: #2aa198;">'pyproject.toml'</span>}, { upward = <span style="color: #6c71c4; font-weight: bold;">true</span> })[1]),
+})
+</pre>
+</div>
+
+<p>
+这段代码就不介绍了，因为我们将使用 lspconfig 插件，通过它更简单地配置。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org4e4a032" class="outline-2">
+<h2 id="org4e4a032">nvim-lspconfig</h2>
+<div class="outline-text-2" id="text-org4e4a032">
+<p>
+每当有一个编程语言需要使用 LSP 的时候，我们都需要形如上述的 nvim 原生 LSP 配置来启动对应的语言服务器，同时还需要关注很多细节，譬如，你要手动启动它等等，这一点从用户体验上是比较不友好的。<br>
+</p>
+
+<p>
+为了更加方便快速的启动语言服务，nvim 官方提供了 nvim-lspconfig 这个插件，安装了这个插件以后，我们只需要进行少量且易于理解的配置，就能通过这个插件方便快捷的启动并使用语言服务。<br>
+</p>
+
+<p>
+<b>到此我们就已经可以使用 nvim 的 LSP 功能了</b><br>
+</p>
+
+<p>
+<code>:help lsp</code> 查看 LSP 文档的 QUICKSTART 部分：<br>
+</p>
+
+<ol class="org-ol">
+<li>安装 nvim-lspconfig<br></li>
+<li>安装对应语言的 language server<br></li>
+<li>配置对应语言 <code>require('lspconfig').xx.setup{…}</code><br></li>
+<li><code>:lua print(vim.inspect(vim.lsp.buf_get_clients()))</code> 查看 LSP 连接状态<br></li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-orgd61bde2" class="outline-2">
+<h2 id="orgd61bde2">以 golang 为例</h2>
+<div class="outline-text-2" id="text-orgd61bde2">
+<ol class="org-ol">
+<li>首先你需要安装 nvim-lspconfig，通过 Packer 安装也好，通过 Lazy 安装也好，通过别的插件管理器安装也好，手动安装也好&#x2026;&#x2026;<br></li>
+<li><p>
+安装对应语言的「语言服务器」，这里安装 go 语言的语言服务器：gopls，<br>
+</p>
+
+<p>
+你可以通过 go mod 安装：<br>
+</p>
+
+<pre class="example" id="org0d21e24">
+go get golang.org/x/tools/gopls@latest
+</pre></li>
+
+<li><p>
+配置对应语言的 nvim-lspconfig<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-lua"><span style="color: #d33682; font-style: italic;">require</span>(<span style="color: #2aa198;">"lspconfig"</span>).gopls.setup({
+      capabilities = capabilities,
+      on_attach = on_attach,
+                                })
+</pre>
+</div></li>
+</ol>
+
+<p>
+现在你的 nvim 就具备了语法检查、定义与引用解析、悬停文档提示等功能。<br>
+</p>
+
+<blockquote>
+<p>
+注意：现在还不能代码补全，代码补全需要以 LSP 服务为基础，也就是需要上面三个步骤，然后还要安装代码补全的插件，后面会说。<br>
+</p>
+</blockquote>
+</div>
+
+<div id="outline-container-orgb4f0935" class="outline-3">
+<h3 id="orgb4f0935">介绍 nvim-lspconfig 暴露给用户的方法</h3>
+<div class="outline-text-3" id="text-orgb4f0935">
+<p>
+&#x2026;<br>
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org3de2aa8" class="outline-2">
+<h2 id="org3de2aa8">安装 typescript、JavaScript、Java、Rust、C++、Python、Lua、Lisp、C#、R、Ruby、Swift、Zig、Kotlin、Haskell、Scala、Julia、Lisp、Dart、Perl、Objective-C、D、PHP、Visual Basic、Scratch 的语言服务器</h2>
+<div class="outline-text-2" id="text-org3de2aa8">
+<p>
+一个人很有可能会多种语言。<br>
+</p>
+
+<p>
+那么我们开始配置它们的 nvim LSP 服务吧：<br>
+</p>
+
+<ol class="org-ol">
+<li>安装 nvim-lspconfig<br></li>
+<li>安装对应语言的 language server<br></li>
+<li>配置对应语言 <code>require('lspconfig').xx.setup{…}</code><br></li>
+<li><code>:lua print(vim.inspect(vim.lsp.buf_get_clients()))</code> 查看 LSP 连接状态<br></li>
+</ol>
+
+<p>
+在上述的四个步骤中，我们必须要操作 2、3 两个步骤。<br>
+</p>
+</div>
+
+<div id="outline-container-orgac03038" class="outline-3">
+<h3 id="orgac03038">安装 typescript 的语言服务器</h3>
+<div class="outline-text-3" id="text-orgac03038">
+<p>
+typescript 的语言服务器 typescript-language-server 是一个 npm 包，我们需要通过 `npm -g` 来全局安装它。<br>
+</p>
+
+<p>
+然后配置 nvim-lspconfig:<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-lua"><span style="color: #d33682; font-style: italic;">require</span>(<span style="color: #2aa198;">"lspconfig"</span>).tsserver.setup({
+      on_attach = on_attach,
+      capabilities = capabilities,
+                                   })
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org7516c37" class="outline-3">
+<h3 id="org7516c37">安装 Lua 的语言服务器</h3>
+<div class="outline-text-3" id="text-org7516c37">
+<p>
+Lua 的语言服务器是  lua-language-server，是一个可执行程序，我们需要从网络上下载它存放到电脑上。<br>
+</p>
+
+<p>
+我们还需要将这个可执行文件路径加入到环境变量中，以便随时在命令行中启动它们<br>
+</p>
+
+<p>
+然后配置 nvim-lspconfig:<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-lua"><span style="color: #d33682; font-style: italic;">require</span>(<span style="color: #2aa198;">"lspconfig"</span>).lua_ls.setup({
+      capabilities = capabilities,
+      on_attach = on_attach,
+                                 })
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgefa4c8a" class="outline-3">
+<h3 id="orgefa4c8a">安装 Python 的语言服务器 pyright</h3>
+<div class="outline-text-3" id="text-orgefa4c8a">
+<pre class="example" id="orgfd2f07e">
+npm install -g pyright
+</pre>
+
+<p>
+然后配置 nvim-lspconfig:<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-lua"><span style="color: #d33682; font-style: italic;">require</span>(<span style="color: #2aa198;">"lspconfig"</span>).lua_ls.setup({
+      capabilities = capabilities,
+      on_attach = on_attach,
+                                 })
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orge419966" class="outline-3">
+<h3 id="orge419966">安装 Rust 的语言服务器</h3>
+<div class="outline-text-3" id="text-orge419966">
+<pre class="example" id="orgafccf3d">
+rustup component add rls rust-analysis rust-src
+</pre>
+
+<p>
+然后配置 nvim-lspconfig<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-orge1b00fa" class="outline-3">
+<h3 id="orge1b00fa">安装 Ruby 的语言服务器 Solargraph</h3>
+<div class="outline-text-3" id="text-orge1b00fa">
+<pre class="example" id="org307dd20">
+gem install solargraph
+</pre>
+
+<p>
+然后配置 nvim-lspconfig<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org8a527ff" class="outline-3">
+<h3 id="org8a527ff">安装&#x2026; 够了，我受够了</h3>
+<div class="outline-text-3" id="text-org8a527ff">
+<p>
+会那么多的语言，导致现在需要安装那么多的语言服务器，而且安装方法还不同。<br>
+</p>
+
+<p>
+如果后续有升级 pyright、gopls、tsserver 的需求，工作量更大。<br>
+</p>
+
+<p>
+既要关注这些语言服务器是否升级了，还要手动升级它们。<br>
+</p>
+
+<p>
+我受够了，有没有什么东西能够帮我管理它们？<br>
+</p>
+
+<p>
+<b>mason</b><br>
+</p>
+
+<p>
+mason 可以帮助安装外部 LSP Server，只需要点击几下，就可以安装、更新、删除。<br>
+</p>
+
+<p>
+还有 mason-lspconfig 是什么呢？<br>
+</p>
+
+<p>
+mason 只负责下载语言服务器，mason-lspconfig 负责寻找并开启语言服务器。如果语言服务器是个二进制文件，那么放入环境变量就能找到；如果语言服务器是个服务，还需要配置服务开启的方式，这时候 mason-lspconfig 就能发挥作用了。然后 nvim-lspconfig 负责将 nvim 内置的语言客户端和下载好的服务器连接起来。<br>
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org5a61b35" class="outline-2">
+<h2 id="org5a61b35">下面推荐几个优化 nvim 界面显示的插件</h2>
+<div class="outline-text-2" id="text-org5a61b35">
+<p>
+下面这几个插件不是必须的！<br>
+</p>
+</div>
+
+<div id="outline-container-orgd543f58" class="outline-3">
+<h3 id="orgd543f58">nvim-lspsaga</h3>
+<div class="outline-text-3" id="text-orgd543f58">
+<p>
+使用 nvim 内置的 lsp 模块时，它的 UI 展示简陋，nvim-lspsaga 有更好看的 code_action 等的 UI 界面。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org63fd857" class="outline-3">
+<h3 id="org63fd857">nvim-treesitter</h3>
+<div class="outline-text-3" id="text-org63fd857">
+<p>
+tree-sitter 是一款主要通过 Rust 编写的跨平台的代码解析器生成工具和增量解析库，它可以为源代码文件构建一颗具体语法树。<br>
+</p>
+
+<p>
+nvim-treesitter 则是 tree-sitter 和 nvim 之前的封装桥接插件。<br>
+</p>
+
+<p>
+在 nvim 中想要体验代码高亮，离不开该插件。<br>
+</p>
+
+<p>
+上面的 nvim-lspsaga 就需要依赖 nvim-treesitter。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org9f9399f" class="outline-3">
+<h3 id="org9f9399f">null-ls</h3>
+<div class="outline-text-3" id="text-org9f9399f">
+<p>
+在内建 LSP，lspconfig 以及 lspsaga 的配合下，nvim 就已经具备了 LSP 能力。<br>
+</p>
+
+<p>
+然而还有一个场景没有涵盖到，那就是在语法已经正确的情况下进行代码的处理，包括 prettier 格式化、eslint 代码处理。具体来讲，比如下面这样一段代码：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><span style="color: #859900; font-weight: bold;">interface</span> User {
+    name: string;
+}
+<span style="color: #859900; font-weight: bold;">var</span> <span style="color: #268bd2;">user</span>: User = {
+    name: <span style="color: #2aa198;">"hello"</span>
+}
+console.log(user);
+</pre>
+</div>
+
+<p>
+上述这段代码，从 typescript 语法规范的角度来看是没有问题的，完全能够通过 ts 的类型检查。然而，上面的代码有两个问题：<br>
+</p>
+
+<ol class="org-ol">
+<li>使用 var 来声明一个变量，这已经是不推荐的变量声明方式了；<br></li>
+<li>name 字段的格式化不正确，一般我们使用 2 个或 4 个空格来对应一个 tab；<br></li>
+</ol>
+
+<p>
+语言服务通常只专注于代码本身的类型检查、代码编译是否正确，不关注代码格式规范、代码使用规范等。<br>
+</p>
+
+<p>
+null-ls 被推出，该插件主页提到了这个插件创造出来的动机：<br>
+</p>
+
+<blockquote>
+<p>
+Neovim doesn&rsquo;t provide a way for non-LSP sources to hook into its LSP client. null-ls is an attempt to bridge that gap and simplify the process of creating, sharing, and setting up LSP sources using pure Lua.<br>
+neovim 没有提供一种非 LSP 源连接到其 LSP 客户端的方式。null-ls 试图弥合这个差距，简化使用纯 lua 创建、共享和设置 LSP 源的过程。<br>
+</p>
+</blockquote>
+
+<p>
+这里面需要解读几点：<br>
+</p>
+
+<ol class="org-ol">
+<li>什么叫「非 LSP 源」呢？像是 prettier、eslint，它们本身需要对程序代码进行结构、类型解析，然而它们又不关注代码的类型检查等，这类就属于「非 LSP 源」；<br></li>
+<li>什么叫「使用纯 lua 创建、共享和设置 LSP 源的过程」呢？还记得前面的TS语言服务、lua 语言服务吗，他们都是实现了LSP协议的语言服务，各自分别用 js 和 lua 语言编写的，需要外部进程启动。而 null-ls 希望能够用 lua 来编写，构造一个类似支持在 nvim 内部运行语言服务的框架（虽然目前 prettier、eslint 还是外部安装启动的）。同时，使用 null-ls 还可以通过编写 lua 代码，注册自己想要解析的文件进行文本处理：<a href="https://link.zhihu.com/?target=https%3A//github.com/jose-elias-alvarez/null-ls.nvim%23parsing-buffer-content">null-ls.nvim#parsing-buffer-content</a>。<br></li>
+</ol>
+
+<p>
+知道了 null-ls 的作用后，我们该怎么使用这个插件呢：<br>
+</p>
+
+<p>
+首先安装好 null-ls 插件的依赖 lspconfig，然后安装 null-ls 插件，最后安装 prettier.nvim 和 eslint.nvim 插件，这两个插件都是利用了 null-ls 的关于 LSP 的接口来和外部安装的 prettier、eslint 命令行工具进行调用。<br>
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgf1eb9f4" class="outline-2">
+<h2 id="orgf1eb9f4">nvim 的代码补全：nvim-cmp</h2>
+<div class="outline-text-2" id="text-orgf1eb9f4">
+</div>
+<div id="outline-container-org4693141" class="outline-3">
+<h3 id="org4693141">nvim-cmp 简介</h3>
+<div class="outline-text-3" id="text-org4693141">
+<p>
+nvim-cmp 是一款通过 lua 编写的，nvim 中的代码补全引擎框架插件。代码补全，离不开 snippet（片段），因为最终补全的时候，引擎会将一个又一个的代码片段提供出来让用户选择使用，进而补全当前的代码。当然，这些 snippet 不是平白无故出现的，它们一般从某些地方搜集而来，而这些搜集的来源，就是片段源。片段源可以有很多，比如代码语法树中的 token，命令行支持的指令，各种 git 的指令，文件系统路径等。nvim-cmp 以解耦思想进行设计，将各种不同的片段获取来源分离在了不同的插件中。通常，安装 nvim-cmp 的时候，都会安装如下的几个插件：<br>
+</p>
+
+<pre class="example" id="org7774f72">
+'neovim/nvim-lspconfig'
+'hrsh7th/cmp-nvim-lsp'
+'hrsh7th/cmp-buffer'
+'hrsh7th/cmp-path'
+'hrsh7th/cmp-cmdline'
+'hrsh7th/nvim-cmp'
+</pre>
+
+<ul class="org-ul">
+<li>cmp-nvim-lsp 是来源于语言服务分析整个工程得到的片段源，所以它依赖 nvim-lspconfig；<br></li>
+<li>cmp-buffer 则是当前打开的文件内容通过文本解析得到的片段源；<br></li>
+<li>cmp-path 则是通过对系统文件路径得到的片段源，譬如当你键入 `/` 的时候，可以展示可用的文件路径供你补全；<br></li>
+<li>cmp-cmdline 是通过解析命令行得到的源；<br></li>
+<li>最后的 nvim-cmp 则是核心引擎框架。<br></li>
+</ul>
+
+<p>
+除上述以外，还有其他的来源或实现，可以查看这里来获得已知的源：<a href="https://link.zhihu.com/?target=https%3A//github.com/hrsh7th/nvim-cmp/wiki/List-of-sources">List of sources · hrsh7sh/nvim-cmp Wiki</a>。<br>
+</p>
+
+<p>
+此外，还会发现，在 nvim-cmp 的官方配置的示例中，除了上述的引擎和源以外，还有如下插件需要安装：<br>
+</p>
+
+<pre class="example" id="orgcc0e0f3">
+// For vsnip users.
+'hrsh7th/cmp-vsnip'
+'hrsh7th/vim-vsnip'
+
+// For luasnip users.
+'L3MON4D3/LuaSnip'
+'saadparwaiz1/cmp_luasnip'
+
+// For ultisnips users.
+'SirVer/ultisnips'
+'quangnguyen30192/cmp-nvim-ultisnips'
+
+// For snippy users.
+'dcampos/nvim-snippy'
+'dcampos/cmp-snippy'
+</pre>
+
+<p>
+实际上，nvim-cmp 不负责具体的补全操作，它的核心能力是根据各种源搜集供补全的文本片段，并提供了对这些片段的访问能力。而上述的一套插件，以 <code>L3MON4D3/LuaSnip</code> 配合 <code>saadparwaiz1/cmp_luasnip</code> 为例，LuaSnip 是核心的代码补全操作引擎插件，他提供补全过程中 UI 操作等能力；而 cmp_luasnip 则是作为了 nvim-cmp 和 LuaSnip 之间的桥梁，就像适配器一样。这个架构如下：<br>
+</p>
+
+
+<div id="orge2b6b92" class="figure">
+<p><img src="images/nvim-cmp-arch.png" alt="nvim-cmp-arch.png"><br>
+</p>
+</div>
+
+<p>
+此外，我们一般还会添加两个插件 <code>rafamadriz/friendly-snippets</code> 和 <code>onsails/lspkind-nvim</code> 来扩展补全体验。前者会提供我们编写代码的时候，大多数常见代码的 snippet（就像 try catch 等），这块的加载下面单独介绍；而后者则是在代码补全的后选项添加图标。<br>
+</p>
+
+<p>
+参考：<a href="https://zhuanlan.zhihu.com/p/643033884">详解nvim内建LSP体系于基于nvim-cmp的代码补全体系</a><br>
+</p>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>
