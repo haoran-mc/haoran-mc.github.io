@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2023-11-26 Sun 22:32 -->
+<!-- 2023-11-30 Thu 23:10 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Elisp 基本数据类型：cons cell</title>
@@ -26,7 +26,7 @@
 </li>
 <li><a href="#orgb4eb67d">测试函数</a></li>
 <li><a href="#org68d95ab">构造函数</a></li>
-<li><a href="#org6f26106">把列表当数组用（elisp 有数组这个数据类型）</a></li>
+<li><a href="#orgcdaf2a0">把列表当数组用</a></li>
 <li><a href="#org2dab08b">把列表当堆栈用</a></li>
 <li><a href="#orgc522024">重排列表</a></li>
 <li><a href="#org3db4a4f">把列表当集合用</a></li>
@@ -108,7 +108,7 @@ cons cell 如此简单，但是它却能衍生出许多高级的数据结构，�
 </pre>
 </div>
 
-<pre class="example" id="org8b34d55">
+<pre class="example" id="orgb364be1">
 '(1 2 . 3) = '(1 . (2 . 3))
 
 '(1 2 3) = '(1 2 3 . nil) = '(1 . (2 . (3 . nil)))
@@ -130,7 +130,7 @@ cons cell 如此简单，但是它却能衍生出许多高级的数据结构，�
 如果它是 nil 的话，这个列表被称为「真列表」（true list）；<br>
 </p>
 
-<pre class="example" id="orgf1de6f4">
+<pre class="example" id="org10a49a3">
 '(1 2 3 . nil) = '(1 2 3) = '(1 . (2 . (3 . nil)))
 </pre></li>
 
@@ -138,7 +138,7 @@ cons cell 如此简单，但是它却能衍生出许多高级的数据结构，�
 如果既不是 nil 也不是 cons cell，则这个列表称为「点列表」（dotted list）；<br>
 </p>
 
-<pre class="example" id="org9444249">
+<pre class="example" id="org410c7ca">
 '(1 2 . 3) = '(1 . (2 . 3))
 </pre></li>
 
@@ -146,7 +146,7 @@ cons cell 如此简单，但是它却能衍生出许多高级的数据结构，�
 如果它指向了列表中之前的一个 cons cell，则称为「环形列表」（circular list）；<br>
 </p>
 
-<pre class="example" id="org216b629">
+<pre class="example" id="orge0a09e6">
 '(1 . #1=(2 3 . #1#))                     ; =&gt; (1 2 3 . #1)
 </pre></li>
 </ol>
@@ -284,9 +284,13 @@ append 的参数不限于列表，还可以是字符串或者向量。前面字�
 </div>
 </div>
 
-<div id="outline-container-org6f26106" class="outline-2">
-<h2 id="org6f26106">把列表当数组用（elisp 有数组这个数据类型）</h2>
-<div class="outline-text-2" id="text-org6f26106">
+<div id="outline-container-orgcdaf2a0" class="outline-2">
+<h2 id="orgcdaf2a0">把列表当数组用</h2>
+<div class="outline-text-2" id="text-orgcdaf2a0">
+<p>
+elisp 有数组这个数据类型<br>
+</p>
+
 <p>
 要得到列表或者 cons cell 里元素，唯一的方法是用 car 和 cdr 函数。很容易明白，car 就是取得 cons cell 的 CAR 部分，cdr 函数就是取得 cons cell 的 CDR 部分。通过这两个函数，我们就能访问 cons cell 和列表中的任何元素。<br>
 </p>
