@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2023-12-01 Fri 18:29 -->
+<!-- 2023-12-02 Sat 22:27 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>基本数据类型之四：数组和序列</title>
@@ -18,9 +18,9 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org88e530a">测试函数</a></li>
-<li><a href="#orgfd324f7">序列的通用函数</a></li>
-<li><a href="#org4e5e0fc">数组操作</a></li>
+<li><a href="#org431b346">测试函数</a></li>
+<li><a href="#org6139d39">序列的通用函数</a></li>
+<li><a href="#orgbff5e69">数组操作</a></li>
 </ul>
 </div>
 </div>
@@ -28,7 +28,7 @@
 序列是列表和数组的统称，它们的共性是内部的元素都是有序的。elisp 里的数组包括字符串、向量、char-table 和布尔向量。它们的关系可以用下面图表示：<br>
 </p>
 
-<pre class="example" id="orga735167">
+<pre class="example" id="org2067bc5">
 _____________________________________________
 |                                             |
 |          Sequence                           |
@@ -70,25 +70,25 @@ _____________________________________________
 char-table 和 bool-vector 使用较少。<br>
 </p>
 
-<div id="outline-container-org88e530a" class="outline-2">
-<h2 id="org88e530a">测试函数</h2>
-<div class="outline-text-2" id="text-org88e530a">
+<div id="outline-container-org431b346" class="outline-2">
+<h2 id="org431b346">测试函数</h2>
+<div class="outline-text-2" id="text-org431b346">
 <p>
 sequencep 用来测试一个对象是否是一个序列。arrayp 测试对象是否是数组。vectorp、char-table-p 和 bool-vector-p 分别测试对象是否是向量、char-table、bool-vector。<br>
 </p>
 </div>
 </div>
 
-<div id="outline-container-orgfd324f7" class="outline-2">
-<h2 id="orgfd324f7">序列的通用函数</h2>
-<div class="outline-text-2" id="text-orgfd324f7">
+<div id="outline-container-org6139d39" class="outline-2">
+<h2 id="org6139d39">序列的通用函数</h2>
+<div class="outline-text-2" id="text-org6139d39">
 <p>
 一直没有提到一个重要的函数 length，它可以得到序列的长度。但是这个函数只对真列表有效。对于一个点列表和环形列表这个函数就不适用了。点列表会出参数类型不对的错误，而环形列表就更危险，会陷入死循环。如果不确定参数类型，不妨用 safe-length。比如：<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(safe-length '(a . b))                  <span style="color: #96A7A9; font-style: italic;">; </span><span style="color: #96A7A9; font-style: italic;">=&gt; 1</span>
-(safe-length '#1=(1 2 . #1#))           <span style="color: #96A7A9; font-style: italic;">; </span><span style="color: #96A7A9; font-style: italic;">=&gt; 3</span>
+<pre class="src src-elisp">(safe-length '(a . b))                  <span style="color: #ff0000; font-style: italic;">; </span><span style="color: #ff0000; font-style: italic;">=&gt; 1</span>
+(safe-length '#1=(1 2 . #1#))           <span style="color: #ff0000; font-style: italic;">; </span><span style="color: #ff0000; font-style: italic;">=&gt; 3</span>
 </pre>
 </div>
 
@@ -104,9 +104,9 @@ copy-sequence 在前面已经提到了。不过同样 copy-sequence 不能用于
 </div>
 </div>
 
-<div id="outline-container-org4e5e0fc" class="outline-2">
-<h2 id="org4e5e0fc">数组操作</h2>
-<div class="outline-text-2" id="text-org4e5e0fc">
+<div id="outline-container-orgbff5e69" class="outline-2">
+<h2 id="orgbff5e69">数组操作</h2>
+<div class="outline-text-2" id="text-orgbff5e69">
 <p>
 创建向量可以用 vector 函数：<br>
 </p>
@@ -121,9 +121,9 @@ copy-sequence 在前面已经提到了。不过同样 copy-sequence 不能用于
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">foo                                     <span style="color: #96A7A9; font-style: italic;">; </span><span style="color: #96A7A9; font-style: italic;">=&gt; (a b)</span>
-[foo]                                   <span style="color: #96A7A9; font-style: italic;">; </span><span style="color: #96A7A9; font-style: italic;">=&gt; [foo]</span>
-(vector foo)                            <span style="color: #96A7A9; font-style: italic;">; </span><span style="color: #96A7A9; font-style: italic;">=&gt; [(a b)]</span>
+<pre class="src src-elisp">foo                                     <span style="color: #ff0000; font-style: italic;">; </span><span style="color: #ff0000; font-style: italic;">=&gt; (a b)</span>
+[foo]                                   <span style="color: #ff0000; font-style: italic;">; </span><span style="color: #ff0000; font-style: italic;">=&gt; [foo]</span>
+(vector foo)                            <span style="color: #ff0000; font-style: italic;">; </span><span style="color: #ff0000; font-style: italic;">=&gt; [(a b)]</span>
 </pre>
 </div>
 
@@ -132,7 +132,7 @@ copy-sequence 在前面已经提到了。不过同样 copy-sequence 不能用于
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(make-vector 9 'Z)                      <span style="color: #96A7A9; font-style: italic;">; </span><span style="color: #96A7A9; font-style: italic;">=&gt; [Z Z Z Z Z Z Z Z Z]</span>
+<pre class="src src-elisp">(make-vector 9 'Z)                      <span style="color: #ff0000; font-style: italic;">; </span><span style="color: #ff0000; font-style: italic;">=&gt; [Z Z Z Z Z Z Z Z Z]</span>
 </pre>
 </div>
 
@@ -141,7 +141,7 @@ fillarray 可以把整个数组用某个元素填充。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(fillarray (make-vector 3 'Z) 5)        <span style="color: #96A7A9; font-style: italic;">; </span><span style="color: #96A7A9; font-style: italic;">=&gt; [5 5 5]</span>
+<pre class="src src-elisp">(fillarray (make-vector 3 'Z) 5)        <span style="color: #ff0000; font-style: italic;">; </span><span style="color: #ff0000; font-style: italic;">=&gt; [5 5 5]</span>
 </pre>
 </div>
 
@@ -154,7 +154,7 @@ vconcat 可以把多个序列用 vconcat 连接成一个向量。但是这个序
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(vconcat [A B C] <span style="color: #2aa198;">"aa"</span> '(foo (6 7)))     <span style="color: #96A7A9; font-style: italic;">; </span><span style="color: #96A7A9; font-style: italic;">=&gt; [A B C 97 97 foo (6 7)]</span>
+<pre class="src src-elisp">(vconcat [A B C] <span style="color: #2aa198;">"aa"</span> '(foo (6 7)))     <span style="color: #ff0000; font-style: italic;">; </span><span style="color: #ff0000; font-style: italic;">=&gt; [A B C 97 97 foo (6 7)]</span>
 </pre>
 </div>
 
