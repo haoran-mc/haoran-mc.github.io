@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 2023-12-06 Wed 12:20 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>VIM查找</title>
+<meta name="author" content="Haoran Liu" />
+<meta name="generator" content="Org Mode" />
+<link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon" />
+           <link rel="stylesheet" href="css/org.css" type="text/css"  />
+           <script type="module" src="js/main.js" defer></script>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">VIM查找</h1>
+<pre class="example" id="org758d8b5">
+/^abc&lt;Enter&gt;       # 查找以abc开始的行
+/test$&lt;Enter&gt;      # 查找以abc结束的行
+//^test&lt;Enter&gt;     # 查找^tabc字符串
+:s/vivian/sky/     # 替换当前行第一个 vivian 为 sky
+:s/vivian/sky/g    # 替换当前行所有 vivian 为 sky
+:n,$s/vivian/sky/  # 替换第 n 行开始到最后一行中每一行的第一个 vivian 为 sky
+:n,$s/vivian/sky/g # 替换第 n 行开始到最后一行中每一行所有 vivian 为 sky
+#（n 为数字，若 n 为 .，表示从当前行开始到最后一行）
+:%s/vivian/sky/  #（等同于 :g/vivian/s//sky/） 替换每一行的第一个 vivian 为 sky
+:%s/vivian/sky/g #（等同于 :g/vivian/s//sky/g） 替换每一行中所有 vivian 为 sky
+
+:s#vivian/#sky/#      # 替换当前行第一个 vivian/ 为 sky/
+:%s+/oradata/apras/+/user01/apras1+
+#（使用+ 来 替换 / ）： /oradata/apras/替换成/user01/apras1/
+
+:s/str1/str2/          # 用字符串 str2 替换行中首次出现的字符串 str1
+:s/str1/str2/g         # 用字符串 str2 替换行中所有出现的字符串 str1
+:.,$ s/str1/str2/g     # 用字符串 str2 替换正文当前行到末尾所有出现的字符串 str1
+:1,$ s/str1/str2/g     # 用字符串 str2 替换正文中所有出现的字符串 str1
+:g/str1/s//str2/g      # 功能同上
+
+//&lt;abc  # 查找以test开始的字符串
+/abc/&gt;  # 查找以test结束的字符串
+
+$       # 匹配一行的结束
+^       # 匹配一行的开始
+/&lt;      # 匹配一个单词的开始，例如//&lt;abc&lt;Enter&gt;:查找以abc开始的字符串
+/&gt;      # 匹配一个单词的结束，例如/abc/&gt;&lt;Enter&gt;:查找以abc结束的字符串
+
+*       # 匹配0或多次
+/+      # 匹配1或多次
+/=      # 匹配0或1次
+
+.       # 匹配除换行符以外任意字符
+/a      # 匹配一个字符
+/d      # 匹配任一数字
+/u      # 匹配任一大写字母
+
+[]      # 匹配范围，如t[abcd]s 匹配tas tbs tcs tds
+/{}     # 重复次数，如a/{3,5} 匹配3~5个a
+/( /)   # 定义重复组，如a/(xy/)b 匹配ab axyb axyxyb axyxyxyb ...
+/|      # 或，如：for/|bar 表示匹配for或者bar
+
+/%20c   # 匹配第20列
+/%20l   # 匹配第20行
+
+# 切换 向上和向下搜索
+# 输入 / 摁 Enter键，再摁 n 字母键向，下查找
+# 输入 ? 摁 Enter键，再摁 n 字母键向，上查找
+</pre>
+</div>
+</body>
+</html>
