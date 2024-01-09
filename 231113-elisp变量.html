@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2023-11-13 Mon 23:59 -->
+<!-- 2023-12-13 Wed 22:21 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Elisp 变量</title>
@@ -20,6 +20,7 @@
 <ul>
 <li><a href="#org34f2e26">setq</a></li>
 <li><a href="#orga052ce1">defvar</a></li>
+<li><a href="#org61b87e2">setq-default</a></li>
 <li><a href="#orgdb71515">局部作用域的变量 let* let</a></li>
 </ul>
 </div>
@@ -33,8 +34,8 @@
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #FC5FA3; font-weight: bold;">setq</span> foo <span style="color: #FC6A5D;">"I'm foo"</span>)                    <span style="color: #6C7986;">; </span><span style="color: #6C7986;">=&gt; "I'm foo"</span>
-(message foo)                           <span style="color: #6C7986;">; </span><span style="color: #6C7986;">=&gt; "I'm foo"</span>
+<pre class="src src-elisp">(<span style="color: #5EC4FF;">setq</span> foo <span style="color: #539AFC;">"I'm foo"</span>)                    <span style="color: #41505E;">; </span><span style="color: #41505E;">=&gt; "I'm foo"</span>
+(message foo)                           <span style="color: #41505E;">; </span><span style="color: #41505E;">=&gt; "I'm foo"</span>
 </pre>
 </div>
 
@@ -48,8 +49,8 @@
 <h2 id="orga052ce1">defvar</h2>
 <div class="outline-text-2" id="text-orga052ce1">
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #FC5FA3; font-weight: bold;">defvar</span> <span style="color: #41A1C0;">variable-name</span> value
-  <span style="color: #808b96;">"document string"</span>)
+<pre class="src src-elisp">(<span style="color: #5EC4FF;">defvar</span> <span style="color: #718CA1;">variable-name</span> value
+  <span style="color: #707b86;">"document string"</span>)
 </pre>
 </div>
 
@@ -58,11 +59,11 @@
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #FC5FA3; font-weight: bold;">defvar</span> <span style="color: #41A1C0;">foo</span> <span style="color: #FC6A5D;">"Did I have a value?"</span>
-  <span style="color: #808b96;">"A demo variable"</span>)                    <span style="color: #6C7986;">; </span><span style="color: #6C7986;">=&gt; foo</span>
-foo                                     <span style="color: #6C7986;">; </span><span style="color: #6C7986;">=&gt; "I'm foo"</span>
-(<span style="color: #FC5FA3; font-weight: bold;">defvar</span> <span style="color: #41A1C0;">bar</span> <span style="color: #FC6A5D;">"I'm bar"</span>
-  <span style="color: #808b96;">"A demo variable named \"bar\""</span>)      <span style="color: #6C7986;">; </span><span style="color: #6C7986;">=&gt; bar</span>
+<pre class="src src-elisp">(<span style="color: #5EC4FF;">defvar</span> <span style="color: #718CA1;">foo</span> <span style="color: #539AFC;">"Did I have a value?"</span>
+  <span style="color: #707b86;">"A demo variable"</span>)                    <span style="color: #41505E;">; </span><span style="color: #41505E;">=&gt; foo</span>
+foo                                     <span style="color: #41505E;">; </span><span style="color: #41505E;">=&gt; "I'm foo"</span>
+(<span style="color: #5EC4FF;">defvar</span> <span style="color: #718CA1;">bar</span> <span style="color: #539AFC;">"I'm bar"</span>
+  <span style="color: #707b86;">"A demo variable named \"bar\""</span>)      <span style="color: #41505E;">; </span><span style="color: #41505E;">=&gt; bar</span>
 bar
 </pre>
 </div>
@@ -71,7 +72,7 @@ bar
 用 <verbatim>C-h v</verbatim> 查看 <code>foo</code> 的文档，可以看到它已经变成：<br>
 </p>
 
-<pre class="example" id="org0ea9af3">
+<pre class="example" id="orgc66c565">
 foo's value is "I'm foo"
 
 Documentation:
@@ -80,11 +81,20 @@ A demo variable
 </div>
 </div>
 
+<div id="outline-container-org61b87e2" class="outline-2">
+<h2 id="org61b87e2">setq-default</h2>
+<div class="outline-text-2" id="text-org61b87e2">
+<p>
+如果一个变量是 buffer-local 变量，那么 buffer-local 变量会在加载这个特定的 buffer 时赋值。<br>
+</p>
+</div>
+</div>
+
 <div id="outline-container-orgdb71515" class="outline-2">
 <h2 id="orgdb71515">局部作用域的变量 let* let</h2>
 <div class="outline-text-2" id="text-orgdb71515">
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #FC5FA3; font-weight: bold;">let</span> ((var1 value1)
+<pre class="src src-elisp">(<span style="color: #5EC4FF;">let</span> ((var1 value1)
       (var2 value2)
       ...)
   body)
@@ -92,11 +102,11 @@ A demo variable
 </div>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #FC5FA3; font-weight: bold;">defun</span> <span style="color: #41A1C0;">circle-area</span> (radix)
-  (<span style="color: #FC5FA3; font-weight: bold;">let</span> ((pi 3.1415926)
-        area) <span style="color: #6C7986;">;; </span><span style="color: #6C7986;">area &#26159;&#21021;&#22987;&#20540;&#20026; nil &#30340;&#23616;&#37096;&#21464;&#37327;</span>
-    (<span style="color: #FC5FA3; font-weight: bold;">setq</span> area (* pi radix radix))
-    (message <span style="color: #FC6A5D;">"&#30452;&#24452;&#20026; %.2f &#30340;&#22278;&#38754;&#31215;&#26159; %.2f"</span> radix area)))
+<pre class="src src-elisp">(<span style="color: #5EC4FF;">defun</span> <span style="color: #33CED8;">circle-area</span> (radix)
+  (<span style="color: #5EC4FF;">let</span> ((pi 3.1415926)
+        area) <span style="color: #41505E;">;; </span><span style="color: #41505E;">area &#26159;&#21021;&#22987;&#20540;&#20026; nil &#30340;&#23616;&#37096;&#21464;&#37327;</span>
+    (<span style="color: #5EC4FF;">setq</span> area (* pi radix radix))
+    (message <span style="color: #539AFC;">"&#30452;&#24452;&#20026; %.2f &#30340;&#22278;&#38754;&#31215;&#26159; %.2f"</span> radix area)))
 (circle-area 3)
 </pre>
 </div>
@@ -106,10 +116,10 @@ A demo variable
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #FC5FA3; font-weight: bold;">defun</span> <span style="color: #41A1C0;">circle-area</span> (radix)
-  (<span style="color: #FC5FA3; font-weight: bold;">let*</span> ((pi 3.1415926)
+<pre class="src src-elisp">(<span style="color: #5EC4FF;">defun</span> <span style="color: #33CED8;">circle-area</span> (radix)
+  (<span style="color: #5EC4FF;">let*</span> ((pi 3.1415926)
          (area (* pi radix radix)))
-    (message <span style="color: #FC6A5D;">"&#30452;&#24452;&#20026; %.2f &#30340;&#22278;&#38754;&#31215;&#26159; %.2f"</span> radix area)))
+    (message <span style="color: #539AFC;">"&#30452;&#24452;&#20026; %.2f &#30340;&#22278;&#38754;&#31215;&#26159; %.2f"</span> radix area)))
 </pre>
 </div>
 </div>
