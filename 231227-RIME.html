@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2024-01-14 Sun 01:02 -->
+<!-- 2024-01-14 Sun 12:24 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>RIME</title>
@@ -40,7 +40,12 @@
 <li><a href="#org3031ad2">double_pinyin_flypy.custom.yaml 定制小鹤双拼</a></li>
 </ul>
 </li>
-<li><a href="#org5536cbe">进阶配置</a></li>
+<li><a href="#org5536cbe">进阶配置</a>
+<ul>
+<li><a href="#org8822752">输入特殊字符</a></li>
+<li><a href="#org3814834">输入 emoji</a></li>
+</ul>
+</li>
 <li><a href="#org8655f1a">推荐阅读</a></li>
 </ul>
 </div>
@@ -95,7 +100,7 @@ Rime 输入法引擎又叫中州韵输入法引擎，指的是 librime。<br>
 <div id="outline-container-org8ae7481" class="outline-2">
 <h2 id="org8ae7481">卸载 RIME</h2>
 <div class="outline-text-2" id="text-org8ae7481">
-<pre class="example" id="org076b08a">
+<pre class="example" id="orged78f5e">
 brew uninstall --cask squirrel
 sudo rm -rf ~/Library/Rime
 </pre>
@@ -114,20 +119,21 @@ RIME 默认使用的输入法引擎是『中州韵输入法引擎』（librime�
 </p>
 
 <p>
-RIME 在不同的平台下的输入法软件有不同的叫法：<br>
+RIME 在不同的平台下有不同的前端，这些前端有自己的名字：<br>
 </p>
 
 <ul class="org-ul">
 <li>macOS: 鼠须管<br></li>
 <li>Linux: 中州韵<br></li>
 <li>Windows: 小狼毫<br></li>
+<li>Android: 同文输入法<br></li>
 </ul>
 </div>
 
 <div id="outline-container-org93a4c51" class="outline-3">
 <h3 id="org93a4c51">1. 安装「鼠须管」</h3>
 <div class="outline-text-3" id="text-org93a4c51">
-<pre class="example" id="org8219095">
+<pre class="example" id="org02541d5">
 brew install --cask squirrel
 </pre>
 
@@ -144,7 +150,7 @@ brew install --cask squirrel
 添加输入法方案需要用到输入法方案安装工具『东风破』（plum）。<br>
 </p>
 
-<pre class="example" id="org7161c1b">
+<pre class="example" id="org685a409">
 # 克隆位置随意
 git clone https://github.com/rime/plum.git
 </pre>
@@ -158,7 +164,7 @@ git clone https://github.com/rime/plum.git
 使用 plum 下载输入法方案：<br>
 </p>
 
-<pre class="example" id="org49f6eb1">
+<pre class="example" id="orgadd2781">
 cd plum
 # 需要代理
 bash rime-install --select :all lotem/rime-forge/lotem-packages.conf
@@ -201,7 +207,7 @@ bash rime-install --select :all lotem/rime-forge/lotem-packages.conf
 <div id="outline-container-org299f2b0" class="outline-2">
 <h2 id="org299f2b0">RIME 的配置文件</h2>
 <div class="outline-text-2" id="text-org299f2b0">
-<pre class="example" id="orgf8b01c2">
+<pre class="example" id="orgf48363d">
 ~/Library/Rime
 ├── sync/                        # 每次同步 RIME 就会更新这个目录
 ├── luna_pinyin.Userdb/          #
@@ -292,6 +298,48 @@ RIME 默认使用繁体，非常傻逼，我也不明白为什么。<br>
 
 <div id="outline-container-org5536cbe" class="outline-2">
 <h2 id="org5536cbe">进阶配置</h2>
+<div class="outline-text-2" id="text-org5536cbe">
+</div>
+<div id="outline-container-org8822752" class="outline-3">
+<h3 id="org8822752">输入特殊字符</h3>
+<div class="outline-text-3" id="text-org8822752">
+<div class="org-src-container">
+<pre class="src src-yaml"><span style="color: #96A7A9; font-style: italic;"># </span><span style="color: #96A7A9; font-style: italic;">symbols    Rime &#39044;&#35774;&#37197;&#32622;&#26159;&#20197; '/' &#21069;&#32512;&#24320;&#22836;&#36755;&#20986;&#19968;&#31995;&#21015;&#23383;&#31526;&#65292;&#33258;&#23450;&#20041;&#30340; symbols_caps_s.yaml &#20462;&#25913;&#25104;&#20102; 'S' &#24320;&#22836;</span>
+<span style="color: #268bd2;">punctuator</span>:
+  <span style="color: #268bd2;">symbols</span>:
+    <span style="color: #268bd2;">__include</span>: symbols_caps_s:/symbols         <span style="color: #96A7A9; font-style: italic;"># </span><span style="color: #96A7A9; font-style: italic;">&#20174; symbols_caps_s.yaml &#23548;&#20837;&#37197;&#32622;</span>
+
+<span style="color: #96A7A9; font-style: italic;"># </span><span style="color: #96A7A9; font-style: italic;">&#22788;&#29702;&#31526;&#21512;&#29305;&#23450;&#35268;&#21017;&#30340;&#36755;&#20837;&#30721;&#65292;&#22914;&#32593;&#22336;&#12289;&#37038;&#31665;</span>
+<span style="color: #268bd2;">recognizer</span>:
+  <span style="color: #268bd2;">import_preset</span>: default  <span style="color: #96A7A9; font-style: italic;"># </span><span style="color: #96A7A9; font-style: italic;">&#20174; default.yaml &#32487;&#25215;&#36890;&#29992;&#30340;</span>
+  <span style="color: #268bd2;">patterns</span>:  <span style="color: #96A7A9; font-style: italic;"># </span><span style="color: #96A7A9; font-style: italic;">&#20877;&#22686;&#21152;&#26041;&#26696;&#19987;&#26377;&#30340;&#65306;</span>
+    <span style="color: #268bd2;">punct</span>: <span style="color: #2aa198;">"^S([0-9]|10|[A-Za-z]+)$"</span>  <span style="color: #96A7A9; font-style: italic;"># </span><span style="color: #96A7A9; font-style: italic;">&#21709;&#24212; symbols_caps_s.yaml &#30340; symbols</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org3814834" class="outline-3">
+<h3 id="org3814834">输入 emoji</h3>
+<div class="outline-text-3" id="text-org3814834">
+<p>
+使用 plum 下载 emoji；<br>
+</p>
+
+<p>
+然后在 double_pinyin_flypy.custom.yaml 中添加下面配置。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-yaml"><span style="color: #268bd2;">__patch</span>:
+<span style="color: #96A7A9; font-style: italic;"># </span><span style="color: #96A7A9; font-style: italic;">Rx: emoji:customize:schema=luna_pinyin_simp {</span>
+  - <span style="color: #268bd2;">patch/+</span>:
+      <span style="color: #268bd2;">__include</span>: emoji_suggestion:/patch
+<span style="color: #96A7A9; font-style: italic;"># </span><span style="color: #96A7A9; font-style: italic;">}</span>
+</pre>
+</div>
+</div>
+</div>
 </div>
 
 <div id="outline-container-org8655f1a" class="outline-2">
@@ -320,6 +368,7 @@ RIME 默认使用繁体，非常傻逼，我也不明白为什么。<br>
 <dl class="org-dl">
 <dt><a href="https://www.xiebruce.top/1235.html">macOS安装配置RIME-鼠须管输入法</a></dt><dd>有一些错误，比如必须安装 essay，但是非常详细；<br></dd>
 <dt><a href="https://whatacold.io/zh-cn/blog/2022-10-04-rime-double-pinyin-flypy/">RIME 小鹤双拼快速设置</a></dt><dd>介绍配置文件介绍的非常清晰；<br></dd>
+<dt><a href="https://dvel.me/posts/rime-ice/">Rime 配置：雾凇拼音</a></dt><dd>他的配置很好，可以学着用；<br></dd>
 </dl>
 </div>
 </div>
