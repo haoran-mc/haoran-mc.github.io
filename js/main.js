@@ -130,6 +130,7 @@ if (isCurPage('231016-Links')
 // ---------------------------------
 if (isCurPage('231018-wiki')
 	|| isCurPage('231009-history')
+    || isCurPage('231105-neovim')
    ) {
 	$('.outline-2').each(function () {
 		$(this).addClass('js-card');
