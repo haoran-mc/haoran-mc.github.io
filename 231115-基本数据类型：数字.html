@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 2024-06-26 Wed 20:22 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Elisp 基本数据类型：数字</title>
+<meta name="generator" content="Org Mode" />
+<link rel='shortcut icon' href='assets/favicon.ico' type='image/x-icon' />
+          <link rel='stylesheet' href='css/org.css' type='text/css' />
+          <script type='module' src='js/main.js' defer></script>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">Elisp 基本数据类型：数字</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#orge20332f">数的运算</a></li>
+<li><a href="#org72c311d">测试函数</a></li>
+<li><a href="#orga39b819">数的比较</a></li>
+<li><a href="#orge8a5585">多进制</a></li>
+</ul>
+</div>
+</div>
+<p>
+内建的 emacs 数据类型（primitive types）包括整数、浮点数、cons、符号（symbol）、字符串、向量（vector）、散列表（hash-table）、subr（内建函数，比如 cons, if, and 之类）、byte-code function，和其它特殊类型，例如缓冲区（buffer）。<br>
+</p>
+
+<p>
+emacs 的数字分为整数和浮点数，整数的范围可以从 <code>most-positive-fixnum</code> 和 <code>most-negative-fixnum</code> 这两个变量得到。<br>
+</p>
+
+<p>
+elisp 有一个特殊类型的值称为 <code>NaN</code> (not-a-number)，可以用 <code>(/ 0.0 0.0)</code> 产生这个数。<br>
+</p>
+
+<div id="outline-container-orge20332f" class="outline-2">
+<h2 id="orge20332f">数的运算</h2>
+<div class="outline-text-2" id="text-orge20332f">
+<p>
+elisp 没有 <code>++</code> 和 <code>--</code> 操作，类似的两个函数是 <code>1+</code> 和 <code>1-</code> 。可以用 setq 赋值来代替 <code>++</code> 和 <code>--</code> ：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-lisp-interaction">(<span style="color: #859900;">setq</span> foo 10)                           <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; 10</span>
+(<span style="color: #859900;">setq</span> foo (1+ foo))                     <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; 11</span>
+(<span style="color: #859900;">setq</span> foo (1- foo))                     <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; 10</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org72c311d" class="outline-2">
+<h2 id="org72c311d">测试函数</h2>
+<div class="outline-text-2" id="text-org72c311d">
+<div class="org-src-container">
+<pre class="src src-lisp-interaction">(integerp 1.)                           <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; t</span>
+(integerp 1.0)                          <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; nil</span>
+(floatp 1.)                             <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; nil</span>
+(floatp -0.0e+NaN)                      <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; t</span>
+(numberp 1)                             <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; t</span>
+</pre>
+</div>
+
+<p>
+还提供一些特殊测试，比如测试是否是零的 <code>zerop</code> ，还有非负整数测试的 <code>wholenump</code> 。<br>
+</p>
+
+<p>
+注：elisp 测试函数一般都是用 p 来结尾，p 是 predicate 的第一个字母。如果函数名是一个单词，通常只是在这个单词后加一个 p，如果是多个单词，一般是加 -p。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-orga39b819" class="outline-2">
+<h2 id="orga39b819">数的比较</h2>
+<div class="outline-text-2" id="text-orga39b819">
+<p>
+常用的比较操作符号是我们在其它言中都很熟悉的，比如 &lt;, &gt;, &gt;=, &lt;=，不一样的是，由于赋值是使用 set 函数，所以 = 不再是一个赋值运算符了，而是测试数字相等符号。和其它语言类似，对于浮点数的相等测试都是不可靠的。比如：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-lisp-interaction">(<span style="color: #859900;">setq</span> foo (- (+ 1.0 1.0e-3) 1.0))       <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; 0.0009999999999998899</span>
+(<span style="color: #859900;">setq</span> bar 1.0e-3)                       <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; 0.001</span>
+(= foo bar)                             <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; nil</span>
+</pre>
+</div>
+
+<p>
+所以一定要确定两个浮点数是否相同，是要在一定误差内进行比较。这里给出一个函数：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-lisp-interaction">(<span style="color: #859900;">defvar</span> <span style="color: #268bd2;">fuzz-factor</span> 1.0e-6)
+(<span style="color: #859900;">defun</span> <span style="color: #b58900;">approx-equal</span> (x y)
+  (<span style="color: #859900;">or</span> (<span style="color: #859900;">and</span> (= x 0) (= y 0))
+      (&lt; (/ (abs (- x y))
+            (max (abs x) (abs y)))
+         fuzz-factor)))
+(approx-equal foo bar)                  <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; t</span>
+</pre>
+</div>
+
+<p>
+还有一个测试数字是否相等的函数 eql，这是函数不仅测试数字的值是否相等，还测试数字类型是否一致，比如：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-lisp-interaction">(= 1.0 1)                               <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; t</span>
+(eql 1.0 1)                             <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; nil</span>
+</pre>
+</div>
+
+<p>
+elisp 没有 +=、/=、*=、-= 这样的命令式语言里常见符号，如果你想实现类似功能的语句，只能用赋值函数 setq 来实现了。 /= 符号被用来作为不等于的测试了。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-orge8a5585" class="outline-2">
+<h2 id="orge8a5585">多进制</h2>
+<div class="outline-text-2" id="text-orge8a5585">
+<div class="org-src-container">
+<pre class="src src-lisp-interaction">#b101100 =&gt; 44      <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">&#20108;&#36827;&#21046;</span>
+#o54 =&gt; 44          <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">&#20843;&#36827;&#21046;</span>
+#x2c =&gt; 44          <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">&#21313;&#36827;&#21046;</span>
+</pre>
+</div>
+
+<p>
+elisp 可以用 2 到 36 之间任意一个数作为基数，比如：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-lisp-interaction">#24r1k =&gt; 44        <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">&#20108;&#21313;&#22235;&#36827;&#21046;</span>
+</pre>
+</div>
+
+<p>
+之所以最大是 36，是因为只有 0-9 和 a-z 36 个字符来表示数字。不过这个特性使用场景较少。<br>
+</p>
+
+<p>
+1500.0, 15e2, 15.0e2, 1.5e3, 和 .15e4 都可以用来表示一个浮点数 1500，遵循 IEEE 标准。<br>
+</p>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 2024-06-26 Wed 20:27 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Elisp 操作对象：窗口</title>
+<meta name="generator" content="Org Mode" />
+<link rel='shortcut icon' href='assets/favicon.ico' type='image/x-icon' />
+          <link rel='stylesheet' href='css/org.css' type='text/css' />
+          <script type='module' src='js/main.js' defer></script>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">Elisp 操作对象：窗口</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org1c0e37d">分割窗口</a></li>
+<li><a href="#org12e17d7">删除窗口</a></li>
+<li><a href="#org59ec444">窗口的配置</a></li>
+<li><a href="#orgd6bc1f1">选择窗口</a></li>
+<li><a href="#org485edf1">窗口大小信息</a></li>
+<li><a href="#orgbbc7d3e">窗口对应的缓冲区</a></li>
+<li><a href="#org867c492">改变窗口显示区域</a></li>
+</ul>
+</div>
+</div>
+<p>
+窗口是屏幕上用于显示一个缓冲区的部分。和它要区分开来的一个概念是 frame。frame 是 Emacs 能够使用屏幕的部分。可以用窗口的观点来看 frame 和窗口，一个 frame 里可以容纳多个（至少一个）窗口，而 Emacs 可以有多个 frame。<br>
+</p>
+
+<div id="outline-container-org1c0e37d" class="outline-2">
+<h2 id="org1c0e37d">分割窗口</h2>
+<div class="outline-text-2" id="text-org1c0e37d">
+<p>
+刚启动时，emacs 都是只有一个 frame 一个窗口。多个窗口都是用分割窗口的函 数生成的。分割窗口的内建函数是split-window。这个函数的参数如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(split-window <span style="color: #b58900;">&amp;optional</span> window size horizontal)
+</pre>
+</div>
+
+<p>
+这个函数的功能是把当前或者指定窗口进行分割，默认分割方式是水平分割，可 以将参数中的 horizontal 设置为 non-nil 的值，变成垂直分割。如果不指定 大小，则分割后两个窗口的大小是一样的。分割后的两个窗口里的缓冲区是同 一个缓冲区。使用这个函数后，光标仍然在原窗口，而返回的新窗口对象：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(selected-window)                       <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; #&lt;window 136 on *scratch*&gt;</span>
+(split-window)                          <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; #&lt;window 138 on *scratch*&gt;</span>
+</pre>
+</div>
+
+<p>
+需要注意的是，窗口的分割也需要用树的结构来看分割后的窗口，比如这样一个过程：<br>
+</p>
+
+<pre class="example" id="org3d13e73">
++---------------+         +---------------+
+|               |         |      |        |
+| win1          |         | win1 | win2   |
+|               |   --&gt;   |      |        |
+|               |         |      |        |
+|               |         |      |        |
++---------------+         +---------------+
+                                 |
+                                 v
++---------------+         +---------------+
+| win1   |      |         |       |       |
+|        | win2 |         | win1  | win2  |
+|--------|      |   &lt;--   |-------|       |
+| 3 | 4  |      |         | win3  |       |
+|   |    |      |         |       |       |
++---------------+         +---------------+
+</pre>
+
+<p>
+可以看成是这样一种结构：<br>
+</p>
+
+<pre class="example" id="orgd86c10f">
+(win1) -&gt;  (win1 win2) -&gt; ((win1 win3) win2) -&gt; ((win1 (win3 win4)) win2)
+</pre>
+
+<p>
+事实上可以用 window-tree 函数得到当前窗口的结构，如果忽略 minibuffer 对应的窗口，得到的应该类似这样的一个结果：<br>
+</p>
+
+<pre class="example" id="org1b170fb">
+(nil (0 0 170 42)
+     (t (0 0 85 42)
+        #&lt;win 3&gt;
+        (nil (0 21 85 42) #&lt;win 8&gt; #&lt;win 10&gt;))
+     #&lt;win 6&gt;)
+</pre>
+
+<p>
+window-tree 返回值的第一个元素代表子窗口的分割方式，nil 表示水平分割， t 表示垂直分割。第二个元素代表整个结构的大小，这四个数字可以看作是左上 和右下两个顶点的坐标。其余元素是子窗口。每个子窗口也是同样的结构。所以 把前面这个列表还原成窗口排列应该是这样：<br>
+</p>
+
+<pre class="example" id="orgd442d81">
+ (0,0) +-------------------+
+       |         |         |
+       | win 3   |  win6   |
+       |         |         |
+(0,21) |---------|         |
+       |    |    |         |
+       | 8  | 10 |         |
+       |    |    |         |
+       +-------------------+ (170, 42)
+               (85, 42)
+</pre>
+
+<p>
+由上面的图可以注意到由 window-tree 返回的结果一些窗口的大小不能确定， 比较上面的 win 8 和 win 10 只能知道它们合并起来的大小，不能确定它们分别的宽度是多少。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org12e17d7" class="outline-2">
+<h2 id="org12e17d7">删除窗口</h2>
+<div class="outline-text-2" id="text-org12e17d7">
+<p>
+如果要让一个窗口不显示在屏幕上，要使用 delete-window 函数。如果没有指定参数，删除的窗口是当前选中的窗口，如果指定了参数，删除的是这个参数对应 的窗口。删除的窗口多出来的空间会自动加到它的邻接的窗口中。如果要删除除了当前窗口之外的窗口，可以用 delete-other-windows 函数。<br>
+</p>
+
+<p>
+当一个窗口不可见之后，这个窗口对象也就消失了<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(<span style="color: #859900;">setq</span> foo (selected-window))            <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; #&lt;window 90 on *scratch*&gt;</span>
+(delete-window)
+(windowp foo)                           <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; t</span>
+(window-live-p foo)                     <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; nil</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org59ec444" class="outline-2">
+<h2 id="org59ec444">窗口的配置</h2>
+<div class="outline-text-2" id="text-org59ec444">
+<p>
+窗口配置(window configuration) 包含了 frame 中所有窗口的位置信息：窗口 大小，显示的缓冲区，缓冲区中光标的位置和 mark，还有 fringe，滚动条等等。 用 current-window-configuration 得到当前窗口配置，用 set-window-configuration 来还原<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(<span style="color: #859900;">setq</span> foo (current-window-configuration))
+<span style="color: #96A7A9;">;; </span><span style="color: #96A7A9;">do sth to make some changes on windows</span>
+(set-window-configuration foo)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgd6bc1f1" class="outline-2">
+<h2 id="orgd6bc1f1">选择窗口</h2>
+<div class="outline-text-2" id="text-orgd6bc1f1">
+<p>
+可以用 selected-window 得到当前光标所在的窗口<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(selected-window)                       <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; #&lt;window 104 on *scratch*&gt;</span>
+</pre>
+</div>
+
+<p>
+可以用 select-window 函数使某个窗口变成选中的窗口<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(<span style="color: #859900;">progn</span>
+  (<span style="color: #859900;">setq</span> foo (selected-window))
+  (message <span style="color: #2aa198;">"Original window: %S"</span> foo)
+  (other-window 1)
+  (message <span style="color: #2aa198;">"Current window: %S"</span> (selected-window))
+  (select-window foo)
+  (message <span style="color: #2aa198;">"Back to original window: %S"</span> foo))
+</pre>
+</div>
+
+<p>
+两个特殊的宏可以保存窗口位置执行语句：save-selected-window 和 with-selected-window。它们的作用是在执行语句结束后选择的窗口仍留在执行 语句之前的窗口。with-selected-window 和 save-selected-window 几乎相同， 只不过 save-selected-window 选择了其它窗口。这两个宏不会保存窗口的位置 信息，如果执行语句结束后，保存的窗口已经消失，则会选择最后一个选择的窗 口。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #96A7A9;">;; </span><span style="color: #96A7A9;">&#35753;&#21478;&#19968;&#20010;&#31383;&#21475;&#28378;&#21160;&#21040;&#32531;&#20914;&#21306;&#24320;&#22987;</span>
+(<span style="color: #859900;">save-selected-window</span>
+  (select-window (next-window))
+  (goto-char (point-min)))
+</pre>
+</div>
+
+<p>
+当前 frame 里所有的窗口可以用 window-list 函数得到。可以用 next-window 来得到在 window-list 里排在某个 window 之后的窗口。对应的用 previous-window 得到排在某个 window 之前的窗口。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(selected-window)                       <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; #&lt;window 245 on *scratch*&gt;</span>
+(window-list)
+<span style="color: #96A7A9;">;; </span><span style="color: #96A7A9;">=&gt; (#&lt;window 245 on *scratch*&gt; #&lt;window 253 on *scratch*&gt; #&lt;window 251 on *info*&gt;)</span>
+(next-window)                           <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; #&lt;window 253 on *scratch*&gt;</span>
+(next-window (next-window))             <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; #&lt;window 251 on *info*&gt;</span>
+(next-window (next-window (next-window))) <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; #&lt;window 245 on *scratch*&gt;</span>
+</pre>
+</div>
+
+<p>
+walk-windows 可以遍历窗口，相当于 (mapc proc (window-list))。 get-window-with-predicate 用于查找符合某个条件的窗口。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org485edf1" class="outline-2">
+<h2 id="org485edf1">窗口大小信息</h2>
+<div class="outline-text-2" id="text-org485edf1">
+<p>
+窗口是一个长方形区域，所以窗口的大小信息包括它的高度和宽度。用来度量窗 口大小的单位都是以字符数来表示，所以窗口高度为 45 指的是这个窗口可以容 纳 45 行字符，宽度为 140 是指窗口一行可以显示 140 个字符。<br>
+</p>
+
+<p>
+mode line 和 header line 都包含在窗口的高度里，所以有 window-height 和 window-body-height 两个函数，后者返回把 mode-line 和 header line 排除后 的高度。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(window-height)                         <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; 45</span>
+(window-body-height)                    <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; 44</span>
+</pre>
+</div>
+
+<p>
+滚动条和 fringe 不包括在窗口的亮度里，window-width 返回窗口的宽度<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(window-width)                          <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; 72</span>
+</pre>
+</div>
+
+<p>
+也可以用 window-edges 返回各个顶点的坐标信息<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(window-edges)                          <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (0 0 73 45)</span>
+</pre>
+</div>
+
+<p>
+window-edges 返回的位置信息包含了滚动条、fringe、mode line、header line 在内，window-inside-edges 返回的就是窗口的文本区域的位置<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(window-inside-edges)                   <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (1 0 73 44)</span>
+</pre>
+</div>
+
+<p>
+如果需要的话也可以得到用像素表示的窗口位置信息<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(window-pixel-edges)                    <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (0 0 511 675)</span>
+(window-inside-pixel-edges)             <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (7 0 511 660)</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgbbc7d3e" class="outline-2">
+<h2 id="orgbbc7d3e">窗口对应的缓冲区</h2>
+<div class="outline-text-2" id="text-orgbbc7d3e">
+<p>
+窗口对应的缓冲区可以用 window-buffer 函数得到：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(window-buffer)                         <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; #&lt;buffer *scratch*&gt;</span>
+(window-buffer (next-window))           <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; #&lt;buffer *info*&gt;</span>
+</pre>
+</div>
+
+<p>
+缓冲区对应的窗口也可以用 get-buffer-window 得到。如果有多个窗口显示同一 个缓冲区，那这个函数只能返回其中的一个，由window-list 决定。如果要得到 所有的窗口，可以用 get-buffer-window-list<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(get-buffer-window (get-buffer <span style="color: #2aa198;">"*scratch*"</span>))
+<span style="color: #96A7A9;">;; </span><span style="color: #96A7A9;">=&gt; #&lt;window 268 on *scratch*&gt;</span>
+(get-buffer-window-list (get-buffer <span style="color: #2aa198;">"*scratch*"</span>))
+<span style="color: #96A7A9;">;; </span><span style="color: #96A7A9;">=&gt; (#&lt;window 268 on *scratch*&gt; #&lt;window 270 on *scratch*&gt;)</span>
+</pre>
+</div>
+
+<p>
+让某个窗口显示某个缓冲区可以用 set-window-buffer 函数。 让选中窗口显示某个缓冲区也可以用 switch-to-buffer，但是一般不要在 elisp 编程中用这个命令，如果需要让某个缓冲区成为当前缓冲区使用 set-buffer 函数，如果要让当前窗口显示某个缓冲区，使用 set-window-buffer 函数。<br>
+</p>
+
+<p>
+让一个缓冲区可见可以用 display-buffer。默认的行为是当缓冲区已经显示在某 个窗口中时，如果不是当前选中窗口，则返回那个窗口，如果是当前选中窗口， 且如果传递的 not-this-window 参数为 non-nil 时，会新建一个窗口，显示缓 冲区。如果没有任何窗口显示这个缓冲区，则新建一个窗口显示缓冲区，并返回 这个窗口。display-buffer 是一个比较高级的命令，用户可以通过一些变量来改 变这个命令的行为。比如控制显示的 pop-up-windows， display-buffer-reuse-frames，pop-up-frames，控制新建窗口高度的 split-height-threshold，even-window-heights，控制显示的 frame 的 special-display-buffer-names，special-display-regexps， special-display-function，控制是否应该显示在当前选中窗口 same-window-buffer-names，same-window-regexps 等等。如果这些还不能满 足你的要求（事实上我觉得已经太复杂了），你还可以自己写一个函数，将 display-buffer-function 设置成这个函数。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org867c492" class="outline-2">
+<h2 id="org867c492">改变窗口显示区域</h2>
+<div class="outline-text-2" id="text-org867c492">
+<p>
+每个窗口会保存一个显示缓冲区的起点位置，这个位置对应于窗口左上角光标在 缓冲区里的位置。可以用 window-start 函数得到某个窗口的起点位置。可以通 过 set-window-start 来改变显示起点位置。可以通过 pos-visible-in-window-p 来检测缓冲区中某个位置是否是可见的。 但是直接通过 set-window-start 来控制显示比较容易出现错误，因为 set-window-start 并不会改变 point 所在的位置，在窗口调用 redisplay 函 数之后 point 会跳到相应的位置。如果你确实有这个需要，我建议还是用： (with-selected-window window (goto-char pos)) 来代替。<br>
+</p>
+</div>
+</div>
+</div>
+</body>
+</html>

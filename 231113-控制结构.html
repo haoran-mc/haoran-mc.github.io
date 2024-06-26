@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 2024-06-26 Wed 20:21 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Elisp 控制结构</title>
+<meta name="generator" content="Org Mode" />
+<link rel='shortcut icon' href='assets/favicon.ico' type='image/x-icon' />
+          <link rel='stylesheet' href='css/org.css' type='text/css' />
+          <script type='module' src='js/main.js' defer></script>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">Elisp 控制结构</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org96446e7">顺序执行</a></li>
+<li><a href="#orgb006632">条件判断</a></li>
+<li><a href="#org11deaaf">循环</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org96446e7" class="outline-2">
+<h2 id="org96446e7">顺序执行</h2>
+<div class="outline-text-2" id="text-org96446e7">
+<p>
+无法用 <code>eval-last-sexp</code> 同时执行两个表达式，这时就需要 <code>progn</code> 这个特殊表达式：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(<span style="color: #859900;">progn</span> A B C ...)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgb006632" class="outline-2">
+<h2 id="orgb006632">条件判断</h2>
+<div class="outline-text-2" id="text-orgb006632">
+<p>
+elisp 有两个最基本的条件判断表达式 <code>if</code> 和 <code>cond</code> 。使用形式分别如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(<span style="color: #859900;">if</span> condition
+    then
+  else)
+
+(<span style="color: #859900;">cond</span> (case1 do-when-case1)
+      (case2 do-when-case2)
+      ...
+      (t do-when-none-meet))
+</pre>
+</div>
+
+<p>
+使用的例子如下：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(<span style="color: #859900;">defun</span> <span style="color: #b58900;">my-max</span> (a b)
+  (<span style="color: #859900;">if</span> (&gt; a b)
+      a b))
+(my-max 3 4)                            <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; 4</span>
+
+(<span style="color: #859900;">defun</span> <span style="color: #b58900;">fib</span> (n)
+  (<span style="color: #859900;">cond</span> ((= n 0) 0)
+        ((= n 1) 1)
+        (t (+ (fib (- n 1))
+              (fib (- n 2))))))
+(fib 10)                                <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; 55</span>
+</pre>
+</div>
+
+<p>
+还有两个宏 <code>when</code> 和 <code>unless</code> ，从它们的名字也就能知道它们是作什么用的。使用这两个宏的好处是使代码可读性提高， <code>when</code> 能省去 <code>if</code> 里的 <code>progn</code> 结构， <code>unless</code> 省去条件为真子句需要的的 <code>nil</code> 表达式。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org11deaaf" class="outline-2">
+<h2 id="org11deaaf">循环</h2>
+<div class="outline-text-2" id="text-org11deaaf">
+<p>
+循环使用的是 <code>while</code> 表达式。它的形式是：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(<span style="color: #859900;">while</span> condition
+  body)
+</pre>
+</div>
+
+<p>
+比如：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(<span style="color: #859900;">defun</span> <span style="color: #b58900;">factorial</span> (n)
+  (<span style="color: #859900;">let</span> ((res 1))
+    (<span style="color: #859900;">while</span> (&gt; n 1)
+      (<span style="color: #859900;">setq</span> res (* res n)
+            n (- n 1)))
+    res))
+(factorial 10)                          <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; 3628800</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

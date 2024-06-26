@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 2024-06-26 Wed 20:24 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Elisp 基本数据类型：cons cell</title>
+<meta name="generator" content="Org Mode" />
+<link rel='shortcut icon' href='assets/favicon.ico' type='image/x-icon' />
+          <link rel='stylesheet' href='css/org.css' type='text/css' />
+          <script type='module' src='js/main.js' defer></script>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">Elisp 基本数据类型：cons cell</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org189674c">CONS CELL 和列表</a>
+<ul>
+<li><a href="#org41f38d7">cons cell</a></li>
+<li><a href="#org0c7d1c3">列表</a></li>
+</ul>
+</li>
+<li><a href="#org5ebad13">测试函数</a></li>
+<li><a href="#org9cf45ca">构造函数</a></li>
+<li><a href="#org3aef285">把列表当数组用</a></li>
+<li><a href="#org33d07e3">把列表当堆栈用</a></li>
+<li><a href="#orgcec9451">重排列表</a></li>
+<li><a href="#org8750443">把列表当集合用</a></li>
+<li><a href="#org20ed019">把列表当关联表（map）</a></li>
+<li><a href="#org3759dc1">把列表当树用</a></li>
+<li><a href="#orgafa50f4">遍历列表</a></li>
+<li><a href="#org1d6f45a">其他常用函数</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org189674c" class="outline-2">
+<h2 id="org189674c">CONS CELL 和列表</h2>
+<div class="outline-text-2" id="text-org189674c">
+</div>
+<div id="outline-container-org41f38d7" class="outline-3">
+<h3 id="org41f38d7">cons cell</h3>
+<div class="outline-text-3" id="text-org41f38d7">
+<p>
+cons cell 在概念上就是两个有顺序的元素，第一个叫 CAR，第二个叫 CDR，cons cell 也就是 construction of cells。car 函数用于取得 cons cell 的 CAR 部分，cdr 函数用于取得 cons cell 的 CDR 部分。<br>
+</p>
+
+<p>
+cons cell 如此简单，但是它却能衍生出许多高级的数据结构，比如链表、树、关联表等。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">'(1 . 2)                                <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (1 . 2)</span>
+'(?a . 1)                               <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (97 . 1)</span>
+'(1 . <span style="color: #2aa198;">"a"</span>)                              <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (1 . "a")</span>
+'(1 . nil)                              <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (1)</span>
+'(nil . nil)                            <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (nil)</span>
+</pre>
+</div>
+
+<p>
+表达式前面的 &rsquo; 号，是一个特殊的函数 quote，它的作用是将它的参数返回而不求值。否则 eval-last-sexp 会对读入的 S-表达式求值，如果读入的 S-表达式是一个 cons cell 的话，求值时会把这个 cons cell 的第一个元素作为一个函数来调用。事实上，这些例子的第一个元素都不是一个函数，这样会产生一个错误 invalid-function。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org0c7d1c3" class="outline-3">
+<h3 id="org0c7d1c3">列表</h3>
+<div class="outline-text-3" id="text-org0c7d1c3">
+<p>
+列表包括了 cons cell，但是列表中有一个特殊的元素：空表 nil。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">nil
+'()
+</pre>
+</div>
+
+<p>
+空表不是一个 cons cell，因为它没有 CAR 和 CDR 部分，空表中没有任何内容。但是为了编程的方便，可以认为 nil 的 CAR 和 CDR 都是 nil。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(car nil)                               <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; nil</span>
+(cdr nil)                               <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; nil</span>
+</pre>
+</div>
+
+<blockquote>
+<p>
+⚠️️如何将列表看成 cons cell？首先看几个例子：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(cdr '(1 2 3))
+<span style="color: #96A7A9;">;;</span><span style="color: #96A7A9;">=&gt; (2 3)</span>
+
+(cdr '(1 2 3 . nil))
+<span style="color: #96A7A9;">;;</span><span style="color: #96A7A9;">=&gt; (2 3)</span>
+
+(cdr '(1 2 3 nil))
+<span style="color: #96A7A9;">;;</span><span style="color: #96A7A9;">=&gt; (2 3 nil)</span>
+</pre>
+</div>
+
+<pre class="example" id="org7f7700d">
+'(1 2 . 3) = '(1 . (2 . 3))
+
+'(1 2 3) = '(1 2 3 . nil) = '(1 . (2 . (3 . nil)))
+
+'(1 2 3 nil) = '(1 2 3 nil . nil) = '(1 . (2 . (3 . (nil . nil))))
+</pre>
+</blockquote>
+
+<p>
+<b>列表的分类：</b><br>
+</p>
+
+<p>
+按列表 <span class="underline">最后一个 cons cell</span> 的 CDR 部分的类型分，可以把列表分为三类：<br>
+</p>
+
+<ol class="org-ol">
+<li><p>
+如果它是 nil 的话，这个列表被称为「真列表」（true list）；<br>
+</p>
+
+<pre class="example" id="orgc39a746">
+'(1 2 3 . nil) = '(1 2 3) = '(1 . (2 . (3 . nil)))
+</pre></li>
+
+<li><p>
+如果既不是 nil 也不是 cons cell，则这个列表称为「点列表」（dotted list）；<br>
+</p>
+
+<pre class="example" id="orgffc5be2">
+'(1 2 . 3) = '(1 . (2 . 3))
+</pre></li>
+
+<li><p>
+如果它指向了列表中之前的一个 cons cell，则称为「环形列表」（circular list）；<br>
+</p>
+
+<pre class="example" id="org4cccbb0">
+'(1 . #1=(2 3 . #1#))                     ; =&gt; (1 2 3 . #1)
+</pre></li>
+</ol>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org5ebad13" class="outline-2">
+<h2 id="org5ebad13">测试函数</h2>
+<div class="outline-text-2" id="text-org5ebad13">
+<p>
+测试一个对象是否是 cons cell 用 consp，是否是列表用 listp。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(consp '(1 . 2))                        <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; t</span>
+(consp '(1 . (2 . nil)))                <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; t</span>
+(consp nil)                             <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; nil</span>
+(listp '(1 . 2))                        <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; t</span>
+(listp '(1 . (2 . nil)))                <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; t</span>
+(listp nil)                             <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; t</span>
+</pre>
+</div>
+
+<p>
+<span class="underline">没有内建的方法测试一个列表是不是一个真列表。通常如果一个函数需要一个真列表作为参数，都是在运行时发出错误，而不是进行参数检查，因为检查一个列表是真列表的代价比较高。</span><br>
+</p>
+
+<p>
+测试一个对象是否是 nil 用 null 函数。只有当对象是空表时，null 才返回空值。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org9cf45ca" class="outline-2">
+<h2 id="org9cf45ca">构造函数</h2>
+<div class="outline-text-2" id="text-org9cf45ca">
+<p>
+使用 cons 函数生成一个 cons cell：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(cons 1 2)                              <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (1 . 2)</span>
+(cons 1 '())                            <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (1)</span>
+</pre>
+</div>
+
+<p>
+也是在列表前面增加元素的方法：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(<span style="color: #859900;">setq</span> foo '(a b))                       <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (a b)</span>
+(cons 'x foo)                           <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (x a b)</span>
+</pre>
+</div>
+
+<p>
+不过这个例子的 foo 值并没有改变。如果要在加入元素的同事改变列表的值，可以使用 push 宏：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(<span style="color: #859900;">push</span> 'x foo)                           <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (x a b)</span>
+foo                                     <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (x a b)</span>
+</pre>
+</div>
+
+<p>
+生成一个列表的函数是 list：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(list 1 2 3)                            <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (1 2 3)</span>
+</pre>
+</div>
+
+<p>
+这里的 list 函数和之前的 quote 函数有什么区别呢？quote 是把参数直接返回不进行求值，而 list 和 cons 是对参数求值后再生成一个列表或者 cons cell：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">'((+ 1 2) 3)                            <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; ((+ 1 2) 3)</span>
+(list (+ 1 2) 3)                        <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (3 3)</span>
+</pre>
+</div>
+
+<p>
+前面提到在列表前端增加元素的方法是用 cons，在列表后端增加元素的函数是用 append：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(append '(a b) '(c))                    <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (a b c)</span>
+</pre>
+</div>
+
+<p>
+append 的功能可以认为它是把第一个参数最后一个列表的 nil 换成第二个参数，比如前面这个例子，第一个参数写成 cons cell 表示方式是(a . (b . nil))，把这个 nil 替换成 (c) 就成了 (a . (b . (c)))。对于多个参数的情况也是一样的，依次把下一个参数替换新列表最后一个 nil 就是最后的结果了。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(append '(a b) '(c) '(d))               <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (a b c d)</span>
+</pre>
+</div>
+
+<p>
+一般来说 append 的参数都要是列表，但是最后一个参数可以不是一个列表，这也不违背前面说的，因为 cons cell 的 CDR 部分本来就可以是任何对象：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(append '(a b) 'c)                      <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (a b . c)</span>
+(append '(a b) '(c))                    <span style="color: #96A7A9;">;; </span><span style="color: #96A7A9;">&#36825;&#31181;&#23601;&#21487;&#20197;&#32487;&#32493; append</span>
+</pre>
+</div>
+
+<p>
+这样得到的结果就不再是一个真列表了，如果再进行 append 操作就会产生一个错误。<br>
+</p>
+
+<p>
+写过 c 的链表类型就知道如果链表只保留一个指针，那么链表只能在一端增加元素。elisp 的列表类型也是类似的， <span class="underline">用 cons 在列表前增加元素比用 append 要快得多</span> 。<br>
+</p>
+
+<p>
+append 的参数不限于列表，还可以是字符串或者向量。前面字符串里已经提到可以把一个字符串转换成一个字符列表，同样可能把向量转换成一个列表：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(append [a b] <span style="color: #2aa198;">"cd"</span> nil)                 <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (a b 99 100)</span>
+</pre>
+</div>
+
+<p>
+注意前面最后一个参数 nil 是必要的，不然你可以想象得到的结果是什么。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org3aef285" class="outline-2">
+<h2 id="org3aef285">把列表当数组用</h2>
+<div class="outline-text-2" id="text-org3aef285">
+<p>
+elisp 有数组这个数据类型<br>
+</p>
+
+<p>
+要得到列表或者 cons cell 里元素，唯一的方法是用 car 和 cdr 函数。很容易明白，car 就是取得 cons cell 的 CAR 部分，cdr 函数就是取得 cons cell 的 CDR 部分。通过这两个函数，我们就能访问 cons cell 和列表中的任何元素。<br>
+</p>
+
+<p>
+通过使用 elisp 提供的函数，我们事实上是可以把列表当数组来用。依惯例，我们用 car 来访问列表的第一个元素，cadr 来访问第二个元素，再往后就没有这样的函数了，可以用 nth 函数来访问：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(nth 3 '(0 1 2 3 4 5))                  <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; 3</span>
+</pre>
+</div>
+
+<p>
+获得列表一个区间的函数有 nthcdr、last 和 butlast。nthcdr 和 last 比较类似，它们都是返回列表后端的列表。nthcdr 函数返回第 n 个元素后的列表：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(nthcdr 2 '(0 1 2 3 4 5))               <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (2 3 4 5)</span>
+</pre>
+</div>
+
+<p>
+last 函数返回倒数 n 个长度的列表：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(last '(0 1 2 3 4 5) 2)                 <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (4 5)</span>
+</pre>
+</div>
+
+<p>
+butlast 和前两个函数不同，返回的除了倒数 n 个元素的列表。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(butlast '(0 1 2 3 4 5) 2)              <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (0 1 2 3)</span>
+</pre>
+</div>
+
+<p>
+使用前面这几个函数访问列表是没有问题了。但是链表这种数据结构是不适合随机访问的，代价比较高，如果代码中频繁使用这样的函数或者对一个很长的列表使用这样的函数，就应该考虑是不是应该用数组来实现。<br>
+</p>
+
+<p>
+直到现在为止， <span class="underline">我们用到的函数都不会修改一个已有的变量，这是函数式编程的一个特点</span> 。只用这些函数编写的代码是很容易调试的，因为你不用去考虑一个变量在执行一个代码后就改变了，不用考虑变量的引用情况等等。<br>
+</p>
+
+<p>
+首先学习怎样修改一个 cons cell 的内容。setcar 和 setcdr 可以修改一个 cons cell 的 CAR 部分和 CDR 部分。比如：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(<span style="color: #859900;">setq</span> foo '(a b c))                     <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (a b c)</span>
+(setcar foo 'x)                         <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; x</span>
+foo                                     <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (x b c)</span>
+(setcdr foo '(y z))                     <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (y z)</span>
+foo                                     <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (x y z)</span>
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(setcar foo 'a)                         <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; a</span>
+(setcar (cdr foo) 'b)                   <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; b</span>
+(setcar (nthcdr 2 foo) 'c)              <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; c</span>
+foo
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org33d07e3" class="outline-2">
+<h2 id="org33d07e3">把列表当堆栈用</h2>
+<div class="outline-text-2" id="text-org33d07e3">
+<p>
+前面已经提到过可以用 push 向列表头端增加元素，在结合 pop 函数，列表就可以做为一个堆栈了。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(<span style="color: #859900;">setq</span> foo nil)                          <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; nil</span>
+(<span style="color: #859900;">push</span> 'a foo)                           <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (a)</span>
+(<span style="color: #859900;">push</span> 'b foo)                           <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (b a)</span>
+(<span style="color: #859900;">pop</span> foo)                               <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; b</span>
+foo                                     <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (a)</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgcec9451" class="outline-2">
+<h2 id="orgcec9451">重排列表</h2>
+<div class="outline-text-2" id="text-orgcec9451">
+<p>
+如果一直用 push 往列表里添加元素有一个问题是这样得到的列表和加入的顺序是相反的。通常我们需要得到一个反向的列表。reverse 函数可以做到这一点：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(<span style="color: #859900;">setq</span> foo '(a b c))                     <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (a b c)</span>
+(reverse foo)                           <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (c b a)</span>
+</pre>
+</div>
+
+<p>
+需要注意的是使用 reverse 后 foo 值并没有改变，函数 nreverse 也可以返回逆序的列表，与前面的 reverse 差别就在于它是一个有破坏性的函数，nreverse 会修改 foo 的值。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(nreverse foo)                          <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (c b a)</span>
+foo                                     <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (a)</span>
+</pre>
+</div>
+
+<p>
+现在 foo 指向的是列表的末端，使用 nreverse 的唯一的好处是速度快，省资源。所以如果你只是想得到逆序后的列表就放心用 nreverse，否则还是用 reverse 的好。<br>
+</p>
+
+<p>
+elisp 还有一些是具有破坏性的函数。最常用的就是 sort 函数：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(<span style="color: #859900;">setq</span> foo '(3 2 4 1 5))                 <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (3 2 4 1 5)</span>
+(sort foo '&lt;)                           <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (1 2 3 4 5)</span>
+foo                                     <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (3 4 5)</span>
+</pre>
+</div>
+
+<p>
+如果既要保留原列表，又要进行 sort 操作怎么办呢？可以用 copy-sequence 函数。这个函数只对列表进行复制，返回的列表的元素还是原列表里的元素，不会拷贝列表的元素。<br>
+</p>
+
+<p>
+nconc 和 append 功能相似，但是它会修改除最后一个参数以外的所有的参数，nbutlast 和 butlast 功能相似，也会修改参数。这些函数都是在效率优先时才使用。总而言之，以 n 开头的函数都要慎用。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org8750443" class="outline-2">
+<h2 id="org8750443">把列表当集合用</h2>
+<div class="outline-text-2" id="text-org8750443">
+<p>
+列表可以作为无序的集合。合并集合用 append 函数。去除重复的 equal 元素用 delete-dups。查找一个元素是否在列表中，如果测试函数是用 eq，就用 memq，如果测试用 equal，可以用 member。删除列表中的指定的元素，测试函数为 eq 对应 delq 函数，equal 对应 delete。还有两个函数 remq 和 remove 也是删除指定元素。它们的差别是 delq 和 delete 可能会修改参数，而 remq 和 remove 总是返回删除后列表的拷贝。注意前面这是说的是可能会修改参数的值，也就是说可能不会，所以保险起见，用 delq 和 delete 函数要么只用返回值，要么用 setq 设置参数的值为返回值。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(<span style="color: #859900;">setq</span> foo '(a b c))                     <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (a b c)</span>
+(remq 'b foo)                           <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (a c)</span>
+foo                                     <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (a b c)</span>
+(delq 'b foo)                           <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (a c)</span>
+foo                                     <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (a c)</span>
+(delq 'a foo)                           <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (c)</span>
+foo                                     <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (a c)</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org20ed019" class="outline-2">
+<h2 id="org20ed019">把列表当关联表（map）</h2>
+<div class="outline-text-2" id="text-org20ed019">
+<p>
+用在 elisp 编程中，列表最常用的形式应该是作为一个关联表了。所谓关联表，就是可以用一个字符串（通常叫关键字，key）来查找对应值的数据结构。由列表实现的关联表有一个专门的名字叫 association list。尽管 elisp里也有 hash table，但是 hash table 相比于 association list 至少这样几个缺点：<br>
+</p>
+
+<ul class="org-ul">
+<li>hash table 里的关键字（key）是无序的，而 association list 的关键字 可以按想要的顺序排列<br></li>
+<li>hash table 没有列表那样丰富的函数，只有一个 maphash 函数可以遍历列 表。而 association list 就是一个列表，所有列表函数都能适用<br></li>
+<li>hash table 没有读入语法和输入形式，这对于调试和使用都带来很多不便<br></li>
+</ul>
+
+<p>
+所以 elisp的hash table 不是一个首要的数据结构，只要不对效率要求很高，通常直接用association list。数组可以作为关联表，但是数组不适合作为与人交互使用数据结构（毕竟一个有意义的名字比纯数字的下标更适合人脑）。所以关联表的地位在 elisp 中就非比寻常了，emacs 为关联表专门用 c 程序实现了查找的相关函数以提高程序的效率。在 association list 中关键字是放在元素的 CAR 部分，与它对应的数据放在这个元素的 CDR 部分。根据比较方法的不同，有 assq 和assoc 两个函数，它们分别对应查找使用 eq 和 equal 两种方法。例如：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(assoc <span style="color: #2aa198;">"a"</span> '((<span style="color: #2aa198;">"a"</span> 97) (<span style="color: #2aa198;">"b"</span> 98)))        <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; ("a" 97)</span>
+(assq 'a '((a . 97) (b . 98)))          <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (a . 97)</span>
+</pre>
+</div>
+
+<p>
+通常我们只需要查找对应的数据，所以一般来说都要用 cdr 来得到对应的数据：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(cdr (assoc <span style="color: #2aa198;">"a"</span> '((<span style="color: #2aa198;">"a"</span> 97) (<span style="color: #2aa198;">"b"</span> 98))))  <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (97)</span>
+(cdr (assq 'a '((a . 97) (b . 98))))    <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; 97</span>
+</pre>
+</div>
+
+<p>
+assoc-default 可以一步完成这样的操作：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(assoc-default <span style="color: #2aa198;">"a"</span> '((<span style="color: #2aa198;">"a"</span> 97) (<span style="color: #2aa198;">"b"</span> 98)))          <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (97)</span>
+</pre>
+</div>
+
+<p>
+如果查找用的键值（key）对应的数据也可以作为一个键值的话，还可以用 rassoc 和 rassq 来根据数据查找键值：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(rassoc '(97) '((<span style="color: #2aa198;">"a"</span> 97) (<span style="color: #2aa198;">"b"</span> 98)))     <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; ("a" 97)</span>
+(rassq '97 '((a . 97) (b . 98)))        <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (a . 97)</span>
+</pre>
+</div>
+
+<p>
+如果要修改关键字对应的值，最省事的作法就是用 cons 把新的键值对加到列表的头端。但是这会让列表越来越长，浪费空间。如果要替换已经存在的值，一个想法就是用 setcdr 来更改键值对应的数据。但是在更改之前要先确定这个键值在对应的列表里，否则会产生一个错误。另一个想法是用 assoc 查找到对应的元素，再用 delq 删除这个数据，然后用 cons 加到列表里：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(<span style="color: #859900;">setq</span> foo '((<span style="color: #2aa198;">"a"</span> . 97) (<span style="color: #2aa198;">"b"</span> . 98)))     <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (("a" . 97) ("b" . 98))</span>
+
+<span style="color: #96A7A9;">;; </span><span style="color: #96A7A9;">update value by setcdr</span>
+(<span style="color: #859900;">if</span> (<span style="color: #859900;">setq</span> bar (assoc <span style="color: #2aa198;">"a"</span> foo))
+    (setcdr bar <span style="color: #2aa198;">"this is a"</span>)
+  (<span style="color: #859900;">setq</span> foo (cons '(<span style="color: #2aa198;">"a"</span> . <span style="color: #2aa198;">"this is a"</span>) foo))) <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; "this is a"</span>
+foo                         <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (("a" . "this is a") ("b" . 98))</span>
+<span style="color: #96A7A9;">;; </span><span style="color: #96A7A9;">update value by delq and cons</span>
+(<span style="color: #859900;">setq</span> foo (cons '(<span style="color: #2aa198;">"a"</span> . 97)
+                (delq (assoc <span style="color: #2aa198;">"a"</span> foo) foo))) <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (("a" . 97) ("b" . 98))</span>
+</pre>
+</div>
+
+<p>
+如果不对顺序有要求的话，推荐用后一种方法吧。这样代码简洁，而且让最近更新的元素放到列表前端，查找更快。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org3759dc1" class="outline-2">
+<h2 id="org3759dc1">把列表当树用</h2>
+<div class="outline-text-2" id="text-org3759dc1">
+<p>
+TODO<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgafa50f4" class="outline-2">
+<h2 id="orgafa50f4">遍历列表</h2>
+<div class="outline-text-2" id="text-orgafa50f4">
+<p>
+其中 var 是一个临时变量，在 body 里可以用来得到列表中元素的值。使用 dolist 的好处是不用写lambda 函数。一般情况下它的返回值是 nil，但是你也可以指定一个值作为返回值（我觉得这个特性没有什么用，只省了一步而已）：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(<span style="color: #859900;">dolist</span> (foo '(1 2 3))
+  (<span style="color: #859900;">incf</span> foo))                           <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; nil</span>
+(<span style="color: #859900;">setq</span> bar nil)
+(<span style="color: #859900;">dolist</span> (foo '(1 2 3) bar)
+  (<span style="color: #859900;">push</span> (<span style="color: #859900;">incf</span> foo) bar))                <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (4 3 2)</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org1d6f45a" class="outline-2">
+<h2 id="org1d6f45a">其他常用函数</h2>
+<div class="outline-text-2" id="text-org1d6f45a">
+<p>
+如果看过一些函数式语言教程的话，一定对 fold（或叫 accumulate、reduce）和 filter 这些函数记忆深刻。不过 elisp 里好像没有提供这样的函数。remove-if 和 remove-if-not 可以作 filter 函数，但是它们是 cl 里的，自己用用没有关系，不能强迫别人也跟着用，所以不能写到 elisp 里。如果不用这两个函数，也不用别人的函数的话，自己实现不妨用这样的方法：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(<span style="color: #859900;">defun</span> <span style="color: #b58900;">my-remove-if</span> (predicate list)
+  (delq nil (mapcar (<span style="color: #859900;">lambda</span> (n)
+                      (<span style="color: #859900;">and</span> (not (funcall predicate n)) n))
+                    list)))
+(<span style="color: #859900;">defun</span> <span style="color: #b58900;">evenp</span> (n)
+  (= (% n 2) 0))
+(my-remove-if 'evenp '(0 1 2 3 4 5))    <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (1 3 5)</span>
+</pre>
+</div>
+
+<p>
+fold 的操作只能用变量加循环或 mapc 操作来代替了：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(<span style="color: #859900;">defun</span> <span style="color: #b58900;">my-fold-left</span> (op initial list)
+  (<span style="color: #859900;">dolist</span> (var list initial)
+    (<span style="color: #859900;">setq</span> initial (funcall op initial var))))
+(my-fold-left '+ 0 '(1 2 3 4))          <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; 10</span>
+</pre>
+</div>
+
+<p>
+这里只是举个例子，事实上直接用函数里的遍历操作更好一些。<br>
+</p>
+
+<p>
+产生数列常用的方法是用 number-sequence<br>
+</p>
+
+<p>
+解析文本时一个很常用的操作是把字符串按分隔符分解，可以用 split-string 函数：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(split-string <span style="color: #2aa198;">"key = val"</span> <span style="color: #2aa198;">"\\s-*=\\s-*"</span>)  <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; ("key" "val")</span>
+</pre>
+</div>
+
+<p>
+与 split-string 对应是把几个字符串用一个分隔符连接起来，这可以用 mapconcat 完成。比如：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(mapconcat 'identity '(<span style="color: #2aa198;">"a"</span> <span style="color: #2aa198;">"b"</span> <span style="color: #2aa198;">"c"</span>) <span style="color: #2aa198;">"\t"</span>) <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; "a   b   c"</span>
+</pre>
+</div>
+
+<p>
+identity 是一个特殊的函数，它会直接返回参数。mapconcat 第一个参数是一个函数，可以很灵活的使用。<br>
+</p>
+</div>
+</div>
+</div>
+</body>
+</html>

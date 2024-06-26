@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 2024-06-26 Wed 20:26 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>变量</title>
+<meta name="generator" content="Org Mode" />
+<link rel='shortcut icon' href='assets/favicon.ico' type='image/x-icon' />
+          <link rel='stylesheet' href='css/org.css' type='text/css' />
+          <script type='module' src='js/main.js' defer></script>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">变量</h1>
+<p>
+首先我们已经见过 elisp 中的两种变量，全局变量和 let 绑定的局部变量。它们相当于其他语言中的全局变量和局部变量。<br>
+</p>
+
+<p>
+有一点需要注意的是，局部变量的绑定不能超过一定层数，限制层数的变量在 max-specpdl-size 中定义，写递归函数时可以先设置这个变量的值。<br>
+</p>
+
+<p>
+下面介绍 emacs 中的一种特殊的局部变量 &#x2013; buffer-local 变量。<br>
+</p>
+
+<p>
+<b>buffer-local 变量：</b><br>
+</p>
+
+<p>
+emacs 能有如此丰富的模式，各个缓冲区之间能不相互冲突，很大程度上要归功于 buffer-local 变量。<br>
+</p>
+
+<p>
+声明一个 buffer-local 的变量可以用 make-variable-buffer-local 或用 make-local-variable。这两个函数的区别在于前者是相当于在所有变量中都产生一个 buffer-local 的变量。而后者只在声明时所在的缓冲区内产生一个局部变量，而其它缓冲区仍然使用的是全局变量。一般来说推荐使用 make-local-variable。<br>
+</p>
+
+<p>
+当一个符号作为全局变量时有一个值的话，用 make-local-variable 声明为 buffer-local 变量时，这个变量的值还是全局变量的值。这时候全局的值也称为缺省值。可以用 default -value 来访问这个符号的全局变量的值：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(default-value 'foo)                    <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; "I'm global variable!"</span>
+</pre>
+</div>
+
+<p>
+如果一个变量是 buffer-local，那么在这个缓冲区内使用用 setq 就只能用改变当前缓冲区里这个变量的值。setq-default 可以修改符号作为全局变量的值。通常在 .emacs 里经常使用 setq-default，这样可以防止修改的是导入 .emacs 文件对应的缓冲区里的 buffer-local 变量，而不是设置全局的值。<br>
+</p>
+
+<p>
+测试一个变量是不是 buffer-local 可以用 local-variable-p<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(local-variable-p 'foo)                           <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; t</span>
+(local-variable-p 'foo (get-buffer <span style="color: #2aa198;">"*Messages*"</span>)) <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; nil</span>
+</pre>
+</div>
+
+<p>
+如果要在当前缓冲区里得到其它缓冲区的 buffer-local 变量可以用 buffer-local-value<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(<span style="color: #859900;">with-current-buffer</span> <span style="color: #2aa198;">"*Messages*"</span>
+  (buffer-local-value 'foo (get-buffer <span style="color: #2aa198;">"*scratch*"</span>)))
+                    <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; "I'm buffer local variable!"</span>
+</pre>
+</div>
+
+<p>
+<b>变量的作用域：</b><br>
+</p>
+
+<ul class="org-ul">
+<li>全局变量<br></li>
+<li>buffer-local 变量<br></li>
+<li>let 绑定的局部变量<br></li>
+</ul>
+
+<p>
+如果还要考虑函数的参数列表声明的变量，也就是 4 种类型的变量，那这种变量的作用范围（scope）和生存期（extent）分别是什么样的呢？<br>
+</p>
+
+<p>
+作用域（scope）是指变量在代码中能够访问的位置。emacs lisp 这种绑定称为 indefinite scope。indefinite scope 也就是说可以在任何位置都可能访问一个变量名。而 lexical scope（词法作用域）指局部变量只能作用在函数中和一个块里（block）。<br>
+</p>
+
+
+<p>
+比如 let 绑定和函数参数列表的变量在整个表达式内都是可见的，这有别于其它语言词法作用域的变量。先看下面这个例子：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(<span style="color: #859900;">defun</span> <span style="color: #b58900;">binder</span> (x)                      <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">`</span><span style="color: #6c71c4;">x</span><span style="color: #96A7A9;">' is bound in `</span><span style="color: #6c71c4;">binder</span><span style="color: #96A7A9;">'.</span>
+  (foo 5))                             <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">`</span><span style="color: #6c71c4;">foo</span><span style="color: #96A7A9;">' is some other function.</span>
+(<span style="color: #859900;">defun</span> <span style="color: #b58900;">user</span> ()                         <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">`</span><span style="color: #6c71c4;">x</span><span style="color: #96A7A9;">' is used "free" in `</span><span style="color: #6c71c4;">user</span><span style="color: #96A7A9;">'.</span>
+  (list x))
+(<span style="color: #859900;">defun</span> <span style="color: #b58900;">foo</span> (ignore)
+  (user))
+(binder 10)                            <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; (10)</span>
+</pre>
+</div>
+
+<p>
+对于词法作用域的语言，在 user 函数里无论如何是不能访问 binder 函数中绑定的 x。但是在 elisp 中可以。<br>
+</p>
+
+<p>
+生存期是指程序运行过程中，变量什么时候是有效的。全局变量和 buffer-local 变量都是始终存在的，前者只能当关闭emacs 或者用 unintern 从 obarray 里除去时才能消除。而 buffer-local 的变量也只能关闭缓冲区或者用 kill-local-variable 才会消失。而对于局部变量，emacs lisp 使用的方式称为动态生存期：只有当绑定了这个变量的表达式运行时才是有效的。这和 C 和 Pascal 里的 Local 和automatic 变量是一样的。与此相对的是 indefinite extent，变量即使离开绑定它的表达式还能有效。比如：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(<span style="color: #859900;">defun</span> <span style="color: #b58900;">make-add</span> (n)
+  (<span style="color: #859900;">function</span> (<span style="color: #859900;">lambda</span> (m) (+ n m))))      <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">Return a function.</span>
+(fset 'add2 (make-add 2))               <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">Define function `</span><span style="color: #6c71c4;">add2</span><span style="color: #96A7A9;">'</span>
+                                        <span style="color: #96A7A9;">;   </span><span style="color: #96A7A9;">with `(make-add 2)'.</span>
+(add2 4)                                <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">Try to add 2 to 4.</span>
+</pre>
+</div>
+
+<p>
+其它 Lisp 方言中有闭包，但是 emacs lisp 中没有。<br>
+</p>
+
+<p>
+下面是判断变量是否有效的方法：<br>
+</p>
+
+<ol class="org-ol">
+<li>看看包含这个变量的 form 中是否有 let 绑定这个局部变量。如果这个 form 不是在定义一个函数，则跳到第 3 步。<br></li>
+<li>如果是在定义函数，则不仅要看这个函数的参数中是否有这个变量，而且还要看所有直接或间接调用这个函数的函数中是否有用 let 绑定或者参数列表里有这个变量名。这就没有办法确定了，所以你永远无法判断一个函数中出现的没有用 let 绑定，也不在参数列表中的变量是否是没有定义过的。但是一般来说这不是一个好习惯。<br></li>
+<li>看这个变量是否是一个全局变量或者是 buffer-local 变量。<br></li>
+</ol>
+
+<p>
+对于在一个函数中绑定一个变量，而在另一个函数中还在使用，manual 里认为这两个种情况下是比较好的：<br>
+</p>
+
+<ol class="org-ol">
+<li>这个变量只有相关的几个函数中使用，在一个文件中放在一起。这个变量起程序里通信的作用。而且需要写好注释告诉其它程序员怎样使用它。<br></li>
+<li>如果这个变量是定义明确、有很好文档作用的，可能让所有函数使用它，但是不要设置它。比如 case-fold-search。（有点像是用全局变量）<br></li>
+</ol>
+
+<p>
+<b>其他函数：</b><br>
+</p>
+
+<p>
+一个符号如果值为空，直接使用可能会产生一个错误。可以用 boundp 来测试一个变量是否有定义。这通常用于 elisp 扩展的移植（用于不同版本或 XEmacs）。对于一个 buffer-local 变量，它的缺省值可能是没有定义的，这时用 default-value 函数可能会出错。这时就先用 default-boundp 先进行测试。<br>
+</p>
+
+<p>
+使一个变量的值重新为空，可以用 makunbound。要消除一个 buffer-local 变量用函数 kill-local-variable。可以用 kill-all-local-variables 消除所有的 buffer-local 变量。但是有属性 permanent-local 的不会消除，带有这些标记的变量一般都是和缓冲区模式无关的，比如输入法。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">foo                                     <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; "I'm local variable!"</span>
+(boundp 'foo)                           <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; t</span>
+(default-boundp 'foo)                   <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; t</span>
+(makunbound 'foo)                       <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; foo</span>
+foo                                     <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">This will signal an error</span>
+(default-boundp 'foo)                   <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; t</span>
+(kill-local-variable 'foo)              <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; foo</span>
+</pre>
+</div>
+
+<p>
+<b>变量名习惯：</b><br>
+</p>
+
+<p>
+对于变量的命名，有一些习惯，这样可以从变量名就能看出变量的用途：<br>
+</p>
+
+<ul class="org-ul">
+<li>hook 一个在特定情况下调用的函数列表，比如关闭缓冲区时，进入某个模式时。<br></li>
+<li>function 值为一个函数<br></li>
+<li>functions 值为一个函数列表<br></li>
+<li>flag 值为 nil 或 non-nil<br></li>
+<li>predicate 值是一个作判断的函数，返回 nil 或 non-nil<br></li>
+<li>program 或 -command 一个程序或 shell 命令名<br></li>
+<li>form 一个表达式<br></li>
+<li>forms 一个表达式列表。<br></li>
+<li>map 一个按键映射（keymap）<br></li>
+</ul>
+</div>
+</body>
+</html>

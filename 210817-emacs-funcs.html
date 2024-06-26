@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 2024-06-26 Wed 17:35 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Emacs funcs.</title>
+<meta name="generator" content="Org Mode" />
+<link rel='shortcut icon' href='assets/favicon.ico' type='image/x-icon' />
+          <link rel='stylesheet' href='css/org.css' type='text/css' />
+          <script type='module' src='js/main.js' defer></script>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">Emacs funcs.</h1>
+<ul class="org-ul">
+<li>&ldquo;after&rdquo; macro definition after宏可以指定加载某些插件后自动运行一段特定的代码<br></li>
+</ul>
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #859900;">if</span> (fboundp 'with-eval-after-load)
+    (<span style="color: #859900;">defmacro</span> <span style="color: #b58900;">after</span> (feature <span style="color: #b58900;">&amp;rest</span><span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">body)</span>
+                             <span style="color: #2aa198;">"After FEATURE is loaded, evaluate BODY."</span>
+                             (<span style="color: #859900;">declare</span> (indent defun))
+                             `(<span style="color: #859900;">with-eval-after-load</span> ,feature ,@body))
+      (<span style="color: #859900;">defmacro</span> <span style="color: #b58900;">after</span> (feature <span style="color: #b58900;">&amp;rest</span><span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">body)</span>
+                               <span style="color: #2aa198;">"After FEATURE is loaded, evaluate BODY."</span>
+                               (<span style="color: #859900;">declare</span> (indent defun))
+                               `(eval-after-load ,feature
+                                  '(progn ,@body))))))
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>得到字体宽度<br></li>
+</ul>
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #859900;">defun</span> <span style="color: #b58900;">default-font-width</span> ()
+  <span style="color: #35a69c;">"Return the width in pixels of a character in the current</span>
+<span style="color: #35a69c;">window's default font.  More precisely, this returns the</span>
+<span style="color: #35a69c;">width of the letter &#8216;</span><span style="color: #6c71c4;">m</span><span style="color: #35a69c;">&#8217;.  If the font is mono-spaced, this</span>
+<span style="color: #35a69c;">will also be the width of all other printable characters."</span>
+  (<span style="color: #859900;">let</span> ((window (selected-window))
+  (let ((window (selected-window))
+  (let ((window (selected-window))
+  (let ((window (selected-window))
+        (remapping face-remapping-alist))
+    (<span style="color: #859900;">with-temp-buffer</span>
+      (make-local-variable 'face-remapping-alist)
+      (<span style="color: #859900;">setq</span> face-remapping-alist remapping)
+      (set-window-buffer window (current-buffer))
+      (insert <span style="color: #2aa198;">"m"</span>)
+      (aref (aref (font-get-glyphs (font-at 1) 1 2) 0) 4))))
+
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>给指定文件添加模式<br></li>
+</ul>
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #96A7A9;">;;</span><span style="color: #96A7A9;">&#31616;&#26131;&#30340;&#65292;&#21482;&#33021;&#20026;&#25351;&#23450;&#30340;&#25991;&#20214;&#22788;&#29702;&#20026;&#21482;&#35835;</span>
+(<span style="color: #859900;">define-derived-mode</span> <span style="color: #b58900;">org-read-only-mode</span> org-mode <span style="color: #2aa198;">"Org + read-only"</span>
+  <span style="color: #35a69c;">"Major mode for readonly org file."</span>
+  (read-only-mode 1))
+(add-to-list 'auto-mode-alist '(<span style="color: #2aa198;">"\\FILE.org\\'"</span> . org-read-only-mode))
+
+<span style="color: #96A7A9;">;;</span><span style="color: #96A7A9;">&#32479;&#19968;&#22788;&#29702;&#65292;&#35774;&#32622;&#20102;&#19968;&#20010;&#38057;&#23376;</span>
+(<span style="color: #859900;">defvar</span> <span style="color: #268bd2;">read-only-file-list</span>
+  (list (expand-file-name <span style="color: #2aa198;">"~/test.org"</span>)))
+(<span style="color: #859900;">defun</span> <span style="color: #b58900;">enable-read-only-fn</span> ()
+  (<span style="color: #859900;">when</span> (member (expand-file-name (buffer-file-name)) read-only-file-list)
+    (read-only-mode 1)))
+(add-hook 'find-file-hook #'enable-read-only-fn)
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>更改C++代码缩进<br></li>
+</ul>
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #859900;">defun</span> <span style="color: #b58900;">sl-toggle-tab-width-setting</span> ()
+  <span style="color: #35a69c;">"Toggle setting tab widths between 4 and 8."</span>
+  (<span style="color: #859900;">interactive</span>)
+  (<span style="color: #859900;">setq-local</span> tab-width (<span style="color: #859900;">case</span> tab-width (2 4) (4 8) (8 2)))
+  (<span style="color: #859900;">setq-local</span> c-basic-offset tab-width)
+  (redraw-display)
+  (message <span style="color: #2aa198;">"tab-width is %s now"</span> tab-width))
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>C++注释<br></li>
+</ul>
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(eval-after-load 'hideshow
+  '(progn
+     (<span style="color: #859900;">declare-function</span> 'hs-already-hidden-p <span style="color: #2aa198;">"hideshow"</span>)
+     (<span style="color: #859900;">declare-function</span> 'hs-show-all <span style="color: #2aa198;">"hideshow"</span>)
+     (<span style="color: #859900;">declare-function</span> 'hs-hide-all <span style="color: #2aa198;">"hideshow"</span>)
+     (<span style="color: #859900;">defun</span> <span style="color: #b58900;">sl-toggle-hideshow-all</span> ()
+       <span style="color: #35a69c;">"Toggle hideshow all."</span>
+       (<span style="color: #859900;">interactive</span>)
+       (hs-life-goes-on
+        (<span style="color: #859900;">if</span> (hs-already-hidden-p)
+            (hs-show-all)
+          (hs-hide-all))))
+
+     (define-key-after
+       hs-minor-mode-menu
+       [\(SL\)Toggle\ Show/Hide\ all]
+       '(menu-item <span style="color: #2aa198;">"(SL)Toggle Show/Hide all..."</span> sl-toggle-hideshow-all
+                   <span style="color: #d33682;">:help</span> <span style="color: #2aa198;">"Toggle Show/Hide all in current buffer.."</span>)
+       'Toggle\ Hiding)
+
+     (define-key hs-minor-mode-map (kbd <span style="color: #2aa198;">"C-M-;"</span>) 'sl-toggle-hideshow-all)
+     (define-key hs-minor-mode-map (kbd <span style="color: #2aa198;">"C-l ;"</span>) 'hs-toggle-hiding)))
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>C++设置<br></li>
+</ul>
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(add-hook 'c-mode-common-hook
+          (<span style="color: #859900;">lambda</span> ()
+            <span style="color: #96A7A9;">;; </span><span style="color: #96A7A9;">c/c++ common settings</span>
+            (<span style="color: #859900;">declare-function</span> c-toggle-hungry-state <span style="color: #2aa198;">"cc-cmds"</span>)
+            (c-toggle-hungry-state 1)
+            <span style="color: #96A7A9;">;; </span><span style="color: #96A7A9;">(c-toggle-auto-hungry-state 1) ; hungry-delete and auto-newline</span>
+            <span style="color: #96A7A9;">;; </span><span style="color: #96A7A9;">(c-set-offset 'case-label '+) ; indent the case</span>
+
+            <span style="color: #96A7A9;">;; </span><span style="color: #96A7A9;">for c++11 as default</span>
+            (<span style="color: #859900;">when</span> (eq major-mode 'c++-mode)
+              (<span style="color: #859900;">when</span> (boundp 'company-clang-arguments)
+                (<span style="color: #859900;">setq-local</span> company-clang-arguments (add-to-list 'company-clang-arguments <span style="color: #2aa198;">"--std=c++11"</span>))))
+            ))
+</pre>
+</div>
+</div>
+</body>
+</html>

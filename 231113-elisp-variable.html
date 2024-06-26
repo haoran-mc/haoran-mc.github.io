@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 2024-06-26 Wed 20:20 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Elisp 变量</title>
+<meta name="generator" content="Org Mode" />
+<link rel='shortcut icon' href='assets/favicon.ico' type='image/x-icon' />
+          <link rel='stylesheet' href='css/org.css' type='text/css' />
+          <script type='module' src='js/main.js' defer></script>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">Elisp 变量</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#orgb38d466">setq</a></li>
+<li><a href="#org970e8fb">defvar</a></li>
+<li><a href="#orge63c8b1">setq-default</a></li>
+<li><a href="#org74ac3e3">局部作用域的变量 let* let</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgb38d466" class="outline-2">
+<h2 id="orgb38d466">setq</h2>
+<div class="outline-text-2" id="text-orgb38d466">
+<p>
+使用 <code>setq</code> 关键字直接对一个变量赋值：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(<span style="color: #859900;">setq</span> foo <span style="color: #2aa198;">"I'm foo"</span>)                    <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; "I'm foo"</span>
+(message foo)                           <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; "I'm foo"</span>
+</pre>
+</div>
+
+<p>
+使用 <verbatim>C-h v</verbatim> 可以查看变量的文档。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org970e8fb" class="outline-2">
+<h2 id="org970e8fb">defvar</h2>
+<div class="outline-text-2" id="text-org970e8fb">
+<div class="org-src-container">
+<pre class="src src-elisp">(<span style="color: #859900;">defvar</span> <span style="color: #268bd2;">variable-name</span> value
+  <span style="color: #35a69c;">"document string"</span>)
+</pre>
+</div>
+
+<p>
+与 setq 所不同的是，如果变量在声明之前，这个变量已经有一个值的话，用 defvar 声明的变量值不会改变成声明的那个值。另一个区别是 defvar 可以为变量提供文档字符串，当变量是在文件中定义的话，C-h v 后能给出变量定义的位置。<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(<span style="color: #859900;">defvar</span> <span style="color: #268bd2;">foo</span> <span style="color: #2aa198;">"Did I have a value?"</span>
+  <span style="color: #35a69c;">"A demo variable"</span>)                    <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; foo</span>
+foo                                     <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; "I'm foo"</span>
+(<span style="color: #859900;">defvar</span> <span style="color: #268bd2;">bar</span> <span style="color: #2aa198;">"I'm bar"</span>
+  <span style="color: #35a69c;">"A demo variable named \"bar\""</span>)      <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; bar</span>
+bar
+</pre>
+</div>
+
+<p>
+用 <verbatim>C-h v</verbatim> 查看 <code>foo</code> 的文档，可以看到它已经变成：<br>
+</p>
+
+<pre class="example" id="orgb5d285a">
+foo's value is "I'm foo"
+
+Documentation:
+A demo variable
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orge63c8b1" class="outline-2">
+<h2 id="orge63c8b1">setq-default</h2>
+<div class="outline-text-2" id="text-orge63c8b1">
+<p>
+如果一个变量是 buffer-local 变量，那么 buffer-local 变量会在加载这个特定的 buffer 时赋值。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org74ac3e3" class="outline-2">
+<h2 id="org74ac3e3">局部作用域的变量 let* let</h2>
+<div class="outline-text-2" id="text-org74ac3e3">
+<div class="org-src-container">
+<pre class="src src-elisp">(<span style="color: #859900;">let</span> ((var1 value1)
+      (var2 value2)
+      ...)
+  body)
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(<span style="color: #859900;">defun</span> <span style="color: #b58900;">circle-area</span> (radix)
+  (<span style="color: #859900;">let</span> ((pi 3.1415926)
+        area) <span style="color: #96A7A9;">;; </span><span style="color: #96A7A9;">area &#26159;&#21021;&#22987;&#20540;&#20026; nil &#30340;&#23616;&#37096;&#21464;&#37327;</span>
+    (<span style="color: #859900;">setq</span> area (* pi radix radix))
+    (message <span style="color: #2aa198;">"&#30452;&#24452;&#20026; %.2f &#30340;&#22278;&#38754;&#31215;&#26159; %.2f"</span> radix area)))
+(circle-area 3)
+</pre>
+</div>
+
+<p>
+<code>let*</code> 和 <code>let</code> 的使用形式完全相同，唯一的区别是在 <code>let*</code> 声明中就能使用前面声明的变量，比如：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(<span style="color: #859900;">defun</span> <span style="color: #b58900;">circle-area</span> (radix)
+  (<span style="color: #859900;">let*</span> ((pi 3.1415926)
+         (area (* pi radix radix)))
+    (message <span style="color: #2aa198;">"&#30452;&#24452;&#20026; %.2f &#30340;&#22278;&#38754;&#31215;&#26159; %.2f"</span> radix area)))
+</pre>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

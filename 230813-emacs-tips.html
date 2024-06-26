@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2024-01-25 Thu 16:23 -->
+<!-- 2024-06-26 Wed 17:37 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>EMACS TIPS</title>
-<meta name="author" content="Haoran Liu" />
 <meta name="generator" content="Org Mode" />
-<link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon" />
-           <link rel="stylesheet" href="css/org.css" type="text/css"  />
-           <script type="module" src="js/main.js" defer></script>
+<link rel='shortcut icon' href='assets/favicon.ico' type='image/x-icon' />
+          <link rel='stylesheet' href='css/org.css' type='text/css' />
+          <script type='module' src='js/main.js' defer></script>
 </head>
 <body>
 <div id="content" class="content">
@@ -18,26 +17,113 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org04cade3">memory-report</a></li>
-<li><a href="#org78a2f1a">after-init-hook</a></li>
-<li><a href="#org3044c8c">ESC</a></li>
-<li><a href="#orgc9f8e19">查看内置包</a></li>
+<li><a href="#orga0f1526">查看字体</a></li>
+<li><a href="#orgedf164d">判断系统</a></li>
+<li><a href="#org9524254">指定加载配置文件</a></li>
+<li><a href="#orgdaadf41">禁用触摸板与鼠标</a></li>
+<li><a href="#org4ea276e">memory-report</a></li>
+<li><a href="#org2892196">after-init-hook</a></li>
+<li><a href="#org1e92f02">ESC</a></li>
+<li><a href="#orgcaa5091">查看内置包</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org04cade3" class="outline-2">
-<h2 id="org04cade3">memory-report</h2>
-<div class="outline-text-2" id="text-org04cade3">
+<div id="outline-container-orga0f1526" class="outline-2">
+<h2 id="orga0f1526">查看字体</h2>
+<div class="outline-text-2" id="text-orga0f1526">
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(face-attribute 'default <span style="color: #d33682;">:font</span>)
+</pre>
+</div>
+
+<p>
+在 scratch 中运行这条命令。<br>
+</p>
+
+<p>
+或者在 org-mode 中 <code>C-c C-c</code> 。<br>
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgedf164d" class="outline-2">
+<h2 id="orgedf164d">判断系统</h2>
+<div class="outline-text-2" id="text-orgedf164d">
+<div class="org-src-container">
+<pre class="src src-elisp">(<span style="color: #859900;">when</span> (eq system-type 'darwin)
+  (<span style="color: #859900;">require</span> '<span style="color: #6c71c4;">init-osx</span>))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org9524254" class="outline-2">
+<h2 id="org9524254">指定加载配置文件</h2>
+<div class="outline-text-2" id="text-org9524254">
+<pre class="example" id="org8ea5f51">
+emacs -l your_file
+</pre>
+
+<p>
+<b>不加载任何文件:</b><br>
+</p>
+<pre class="example" id="org1d05122">
+emacs --no-init-file --no-site-file
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgdaadf41" class="outline-2">
+<h2 id="orgdaadf41">禁用触摸板与鼠标</h2>
+<div class="outline-text-2" id="text-orgdaadf41">
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #96A7A9;">;; </span><span style="color: #96A7A9;">&#31532;&#19968;&#31181;&#26041;&#26696;&#65288;&#25512;&#33616;&#65289;</span>
+<span style="color: #96A7A9;">;; </span><span style="color: #96A7A9;">&#23433;&#35013; disable-mouse packages</span>
+(global-disable-mouse-mode)
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(<span style="color: #859900;">define-minor-mode</span> <span style="color: #b58900;">disable-mouse-mode</span>
+  <span style="color: #35a69c;">"A minor-mode that disables all mouse keybinds."</span>
+  <span style="color: #d33682;">:global</span> t
+  <span style="color: #d33682;">:lighter</span> <span style="color: #2aa198;">" &#128045;"</span>
+  <span style="color: #d33682;">:keymap</span> (make-sparse-keymap))
+
+(<span style="color: #859900;">dolist</span> (type '(mouse down-mouse drag-mouse
+                      double-mouse triple-mouse))
+  (<span style="color: #859900;">dolist</span> (prefix '(<span style="color: #2aa198;">""</span> C- M- S- M-S- C-M- C-S- C-M-S-))
+    <span style="color: #96A7A9;">;; </span><span style="color: #96A7A9;">Yes, I actually HAD to go up to 7 here.</span>
+    (<span style="color: #859900;">dotimes</span> (n 7)
+      (<span style="color: #859900;">let</span> ((k (format <span style="color: #2aa198;">"%s%s-%s"</span> prefix type n)))
+        (define-key disable-mouse-mode-map
+          (vector (intern k)) #'ignore)))))
+
+(disable-mouse-mode 1)
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-elisp"><span style="color: #96A7A9;">;; </span><span style="color: #96A7A9;">&#31532;&#19977;&#31181;&#26041;&#26696;(&#22312; spacemacs &#20013;&#21487;&#29992;)</span>
+(xterm-mouse-mode -1 )
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org4ea276e" class="outline-2">
+<h2 id="org4ea276e">memory-report</h2>
+<div class="outline-text-2" id="text-org4ea276e">
 <p>
 查看内存占用情况。<br>
 </p>
 </div>
 </div>
 
-<div id="outline-container-org78a2f1a" class="outline-2">
-<h2 id="org78a2f1a">after-init-hook</h2>
-<div class="outline-text-2" id="text-org78a2f1a">
+<div id="outline-container-org2892196" class="outline-2">
+<h2 id="org2892196">after-init-hook</h2>
+<div class="outline-text-2" id="text-org2892196">
 <div class="org-src-container">
 <pre class="src src-elisp">(global-hl-todo-mode)
 (add-hook 'after-init-hook 'global-hl-todo-mode)
@@ -54,9 +140,9 @@
 </div>
 </div>
 
-<div id="outline-container-org3044c8c" class="outline-2">
-<h2 id="org3044c8c">ESC</h2>
-<div class="outline-text-2" id="text-org3044c8c">
+<div id="outline-container-org1e92f02" class="outline-2">
+<h2 id="org1e92f02">ESC</h2>
+<div class="outline-text-2" id="text-org1e92f02">
 <dl class="org-dl">
 <dt>ESC C-f</dt><dd>C-M-f<br></dd>
 <dt>ESC f</dt><dd>M-f<br></dd>
@@ -64,9 +150,9 @@
 </div>
 </div>
 
-<div id="outline-container-orgc9f8e19" class="outline-2">
-<h2 id="orgc9f8e19">查看内置包</h2>
-<div class="outline-text-2" id="text-orgc9f8e19">
+<div id="outline-container-orgcaa5091" class="outline-2">
+<h2 id="orgcaa5091">查看内置包</h2>
+<div class="outline-text-2" id="text-orgcaa5091">
 <div class="org-src-container">
 <pre class="src src-elisp">(describe-variable 'package--builtins)
 </pre>

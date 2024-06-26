@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 2024-06-26 Wed 15:55 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>WHAT IS THE EMACS</title>
+<meta name="generator" content="Org Mode" />
+<link rel='shortcut icon' href='assets/favicon.ico' type='image/x-icon' />
+          <link rel='stylesheet' href='css/org.css' type='text/css' />
+          <script type='module' src='js/main.js' defer></script>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">WHAT IS THE EMACS</h1>
+<p>
+Emacs 相当于一个 elisp based 的操作系统。这个操作系统的原理是，每次 Emacs 启动过程就相当于一系列功能通过 loading files（代码块）的实现。在每次使用前，成百上千的 functions 被加载到 workspace 中（其中一些带着 default 参数），等待被调用，或者被 custermize。因此所有的设置、架构都可以通过调 function portal 修改成想要的 value；或者在原有的 value/function 的基础上，继续开发一系列指令来增进，比如我们自己编写的各种自定义函数。连整个 emacs 的启动都可以概括为一句话：加载一系列脚本。只不过这些脚本有的是内置的（built in），有的来自安装的插件包，有的是我们自己写的。配置 emacs 归根结底是在配置各种各样的脚本。<br>
+</p>
+
+<p>
+loading 的文件主要是 .elc 文件，是经过编译的.el 文件的二进制形式，加载更快。但平日的修改是在更容易阅读的.el 文件上进行的，所以如果你手动修改完.el 文件，一定要记得编译以便 Emacs 自动执行，For example with Emacs-Lisp you do:<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(byte-compile-file <span style="color: #2aa198;">"foo.el"</span>)
+</pre>
+</div>
+
+<p>
+否则 Emacs 要么加载没有被同步修改的二进制.elc 文件，要么会因为没找到.elc，去加载更缓慢的.el 文件。<br>
+</p>
+
+
+<p>
+<b>major mode and minor mode:</b><br>
+</p>
+
+<p>
+major mode 里面有一个重要的概念是 hook。一个 major mode（e.g. Emac-lisp-mode）相当于一个 list，就是一些它自带的 function。但这里还可以有一串儿 minor mode 挂在上面。这个 major mode 开启默认所有 list 上的特性都会被自动加载。例如 (add-hook &rsquo;emacs-lisp-mode-hook &rsquo;show-paren-mode)<br>
+</p>
+
+<p>
+Hook 就是一串特定的 functions: A hook is a Lisp variable which holds a list of functions, to be called on some well-defined occasion. 大部分 hook 都尽量是 normal 且一致的，方便全局调用，我们也会自己通过 add-hook 加 function 到 hook 上来满足特殊的需求。自行设计 hook list 要注意顺序问题，因为上文提到一串 function 是按顺序依次执行的，如果后面的会影响前面的，那么顺序自定义就很重要。<br>
+</p>
+
+<p>
+Emacs 操作系统很像一个大的状态机，储存着很多可修改的状态。Mode 调用和设置也是通过 function 修改 value 实现。Emacs 虽然因为没有变量空间而导致所有变量全局可见，但是因为 mode 的 default 设置，使得有些 value 只是 buffer local 的（aka mode 每个 buffer 都独立保留了一份 default 值），如果需要在全局应用某些 mode，要注意上 hook 或者修改 global setting。<br>
+</p>
+
+
+<p>
+<b>autoload:</b><br>
+</p>
+
+<p>
+装好后重新打开 Emacs，我们看到 init.el 文件第一行要求是 <code>(package-initialize)</code> 意思是自动去 elpa 目录里找安装好的 package，挨个扫描，找到 package-autoload.el 文件执行，预加载一些函数名进 workspace。为什么会有在初始时加载 autoload 这一过程呢？<br>
+</p>
+
+<p>
+如果没有 autoload，你可以在 init.el 加载时就 load 各种各样的脚本，使得 emacs 在启动时就把整个使用过程中可能用到的函数一次性准备好。但这样真的好么？autoload 告诉 emacs 某个地方有一个定义好的函数，并且告诉 emacs 先别加载，只要记住在调用这个函数时去哪里寻找它的定义即可。这样做的一个好处是，避免在启动 emacs 时因为执行过多代码而效率低下，比如启动慢，卡系统等。想象一下你安装了大量的有关 python 开发的插件，而某次打开 emacs 只是希望写点日记，你肯定不希望这些插件在启动时就被加载，让你白白等上几秒，也不希望这些插件在你做文本编辑时抢占系统资源（内存，CPU 时间等）。所以一个合理的配置应该是，当你打开某个 python 脚本或者手动进入 python 的编辑模式时，才加载 python 相关的插件.<br>
+</p>
+
+<p>
+autoload 定义的函数可以不需要 require 而直接调用，所以 autoload 行为的意义用一个简单的概括是：“只注册函数名而不定义函数本身”。<br>
+</p>
+
+<p>
+以 company 为例。在这个 package 安装好后，我们可以在 .emacs.d/elpa 下看到 company 文件夹，包含了 company-xxxfunction.el 和一系列自解码 .elc 二进制文件。这些即是 company-mode 的全部执行细节。Emacs 会自动遍历 company-20160325 里面所有文件，提取所有注释里有魔法语句 <code>;;;autoload</code> 的内容，并根据这个注释自动生成一个一个的魔法语句块，全部存在 company-autoload.elc 文件里。<br>
+</p>
+</div>
+</body>
+</html>

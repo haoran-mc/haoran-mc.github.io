@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 2024-06-26 Wed 20:22 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Elisp 逻辑运算</title>
+<meta name="generator" content="Org Mode" />
+<link rel='shortcut icon' href='assets/favicon.ico' type='image/x-icon' />
+          <link rel='stylesheet' href='css/org.css' type='text/css' />
+          <script type='module' src='js/main.js' defer></script>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">Elisp 逻辑运算</h1>
+<p>
+<code>and</code> 、 <code>or</code> 、 <code>not</code> 。<br>
+</p>
+
+<p>
+<code>or</code> 经常用于设置函数的缺省值，而 <code>and</code> 常用于参数检查：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(<span style="color: #859900;">defun</span> <span style="color: #b58900;">hello-world</span> (<span style="color: #b58900;">&amp;optional</span> name)
+  (<span style="color: #859900;">or</span> name (<span style="color: #859900;">setq</span> name <span style="color: #2aa198;">"Emacser"</span>))
+  (message <span style="color: #2aa198;">"Hello, %s"</span> name))           <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; hello-world</span>
+(hello-world)                           <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; "Hello, Emacser"</span>
+(hello-world <span style="color: #2aa198;">"Ye"</span>)                      <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; "Hello, Ye"</span>
+
+(<span style="color: #859900;">defun</span> <span style="color: #b58900;">square-number-p</span> (n)
+  (<span style="color: #859900;">and</span> (&gt;= n 0)
+       (= (/ n (sqrt n)) (sqrt n))))
+(square-number-p -1)                    <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; nil</span>
+(square-number-p 25)                    <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; t</span>
+</pre>
+</div>
+</div>
+</body>
+</html>
