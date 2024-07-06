@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2024-06-26 Wed 20:28 -->
+<!-- 2024-07-01 Mon 18:57 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Elisp 操作对象：文件</title>
@@ -17,20 +17,20 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orgd2fcc00">打开文件的过程</a></li>
-<li><a href="#orga72910c">文件读写</a></li>
-<li><a href="#orgc67262b">文件信息</a></li>
-<li><a href="#orga244b9c">修改文件信息</a></li>
-<li><a href="#org1868773">文件名操作</a></li>
-<li><a href="#org5a35b05">临时文件</a></li>
-<li><a href="#orgf09e4f9">读取目录内容</a></li>
+<li><a href="#orgf5c6275">打开文件的过程</a></li>
+<li><a href="#orgc9e484c">文件读写</a></li>
+<li><a href="#org23e6d9d">文件信息</a></li>
+<li><a href="#org77b332c">修改文件信息</a></li>
+<li><a href="#orgaa7730b">文件名操作</a></li>
+<li><a href="#org4e71c33">临时文件</a></li>
+<li><a href="#org323afe8">读取目录内容</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgd2fcc00" class="outline-2">
-<h2 id="orgd2fcc00">打开文件的过程</h2>
-<div class="outline-text-2" id="text-orgd2fcc00">
+<div id="outline-container-orgf5c6275" class="outline-2">
+<h2 id="orgf5c6275">打开文件的过程</h2>
+<div class="outline-text-2" id="text-orgf5c6275">
 <p>
 当你打开一个文件时，实际上 emacs 做了很多事情：<br>
 </p>
@@ -54,9 +54,9 @@
 </div>
 </div>
 
-<div id="outline-container-orga72910c" class="outline-2">
-<h2 id="orga72910c">文件读写</h2>
-<div class="outline-text-2" id="text-orga72910c">
+<div id="outline-container-orgc9e484c" class="outline-2">
+<h2 id="orgc9e484c">文件读写</h2>
+<div class="outline-text-2" id="text-orgc9e484c">
 <p>
 打开一个文件的命令是 find-file。这命令使一个缓冲区访问某个文件，并让这个缓冲区成为当前缓冲区。在打开文件过程中会调用 find-file-hook。find-file-noselect 是所有访问文件的核心函数。与 find-file 不同，它只返回访问文件的缓冲区。这两个函数都有一个特点，如果 emacs 里已经有一个缓冲区访问这个文件的话，emacs 不会创建另一个缓冲区来访问文件，而只是简单返 回或者转到这个缓冲区。怎样检查有没有缓冲区是否访问某个文件呢？所有和文件关联的缓冲区里都有一个 buffer-local 变量 buffer-file-name。但是不要直接设置这个变量来改变缓冲区关联的文件。而是使用 set-visited-file-name 来修改。同样不要直接从 buffer-list 里搜索buffer-file-name 来查找和某个文件关联的缓冲区。应该使用 get-file-buffer 或者 find-buffer-visiting。<br>
 </p>
@@ -95,11 +95,11 @@ write-region 可以把缓冲区中的一部分写入到指定文件中。如果�
 </div>
 </div>
 
-<div id="outline-container-orgc67262b" class="outline-2">
-<h2 id="orgc67262b">文件信息</h2>
-<div class="outline-text-2" id="text-orgc67262b">
+<div id="outline-container-org23e6d9d" class="outline-2">
+<h2 id="org23e6d9d">文件信息</h2>
+<div class="outline-text-2" id="text-org23e6d9d">
 <p>
-文件是否存在可以使用 file-exists-p 来判断。对于目录和一般文件都可以用 这个函数进行判断，但是符号链接只有当目标文件存在时才返回 t。<br>
+文件是否存在可以使用 file-exists-p 来判断。对于目录和一般文件都可以用这个函数进行判断，但是符号链接只有当目标文件存在时才返回 t。<br>
 </p>
 
 <p>
@@ -116,10 +116,10 @@ write-region 可以把缓冲区中的一部分写入到指定文件中。如果�
 </div>
 
 <p>
-文件类型判断可以使用 file-regular-p、file-directory-p、file-symlink-p， 分别判断一个文件名是否是一个普通文件（不是目录，命名管道、终端或者其它 IO 设备）、文件名是否一个存在的目录、文件名是否是一个符号链接。其中 file-symlink-p 当文件名是一个符号链接时会返回目标文件名。文件的真实名 字也就是除去相对链接和符号链接后得到的文件名可以用 file-truename 得到。 事实上每个和文件关联的 buffer 里也有一个缓冲区局部变量 buffer-file-truename 来记录这个文件名。<br>
+文件类型判断可以使用 file-regular-p、file-directory-p、file-symlink-p， 分别判断一个文件名是否是一个普通文件（不是目录，命名管道、终端或者其它 IO 设备）、文件名是否一个存在的目录、文件名是否是一个符号链接。其中 file-symlink-p 当文件名是一个符号链接时会返回目标文件名。文件的真实名字也就是除去相对链接和符号链接后得到的文件名可以用 file-truename 得到。 事实上每个和文件关联的 buffer 里也有一个缓冲区局部变量 <b>buffer-file-truename</b> 来记录这个文件名。<br>
 </p>
 
-<pre class="example" id="org8b9d64f">
+<pre class="example" id="orga8eef44">
 $ ls -l t.txt
 lrwxrwxrwx 1 ywb ywb 8 2007-07-15 15:51 t.txt -&gt; test.txt
 </pre>
@@ -194,9 +194,9 @@ lrwxrwxrwx 1 ywb ywb 8 2007-07-15 15:51 t.txt -&gt; test.txt
 </div>
 </div>
 
-<div id="outline-container-orga244b9c" class="outline-2">
-<h2 id="orga244b9c">修改文件信息</h2>
-<div class="outline-text-2" id="text-orga244b9c">
+<div id="outline-container-org77b332c" class="outline-2">
+<h2 id="org77b332c">修改文件信息</h2>
+<div class="outline-text-2" id="text-org77b332c">
 <p>
 重命名和复制文件可以用 rename-file 和 copy-file。删除文件使用 delete-file。创建目录使用 make-directory 函数。不能用 delete-file 删除 目录，只能用 delete-directory 删除目录。当目录不为空时会产生一个错误。<br>
 </p>
@@ -207,11 +207,11 @@ lrwxrwxrwx 1 ywb ywb 8 2007-07-15 15:51 t.txt -&gt; test.txt
 </div>
 </div>
 
-<div id="outline-container-org1868773" class="outline-2">
-<h2 id="org1868773">文件名操作</h2>
-<div class="outline-text-2" id="text-org1868773">
+<div id="outline-container-orgaa7730b" class="outline-2">
+<h2 id="orgaa7730b">文件名操作</h2>
+<div class="outline-text-2" id="text-orgaa7730b">
 <p>
-虽然 MSWin 的文件名使用的路径分隔符不同，但是这里介绍的函数都能用于 MSWin 形式的文件名，只是返回的文件名都是 Unix 形式了。路径一般由目录和 文件名，而文件名一般由主文件名(basename)、文件名后缀和版本号构成。 Emacs 有一系列函数来得到路径中的不同部分<br>
+虽然 MSWin 的文件名使用的路径分隔符不同，但是这里介绍的函数都能用于 MSWin 形式的文件名，只是返回的文件名都是 Unix 形式了：<br>
 </p>
 
 <div class="org-src-container">
@@ -226,26 +226,39 @@ lrwxrwxrwx 1 ywb ywb 8 2007-07-15 15:51 t.txt -&gt; test.txt
 </div>
 
 <p>
-路径如果是从根目录开始的称为是绝对路径。测试一个路径是否是绝对路径使用 file-name-absolute-p。如果在 Unix 或 GNU/Linux 系统，以 ~ 开头的路径也是绝对路径。在 MSWin 上，以 &ldquo;/&rdquo; 、 &ldquo;\&rdquo;、&ldquo;X:&rdquo; 开头的路径都是绝对路径。如果不是绝对路径，可以使用 expand-file-name 来得到绝对路径。把一个绝对路径转换成相对某个路径的相 对路径的可以用 file-relative-name 函数。<br>
+路径如果是从根目录开始的称为是绝对路径。测试一个路径是否是绝对路径使用 file-name-absolute-p。如果在 Unix 或 GNU/Linux 系统，以 ~ 开头的路径也是绝对路径。<br>
+</p>
+
+<p>
+如果不是绝对路径，可以使用 expand-file-name 来得到绝对路径。把一个绝对路径转换成相对某个路径的相 对路径的可以用 file-relative-name 函数。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(file-name-absolute-p <span style="color: #2aa198;">"~rms/foo"</span>)       <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; t</span>
-(file-name-absolute-p <span style="color: #2aa198;">"/user/rms/foo"</span>)  <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; t</span>
-(expand-file-name <span style="color: #2aa198;">"foo"</span>)                <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; "/home/ywb/foo"</span>
-(expand-file-name <span style="color: #2aa198;">"foo"</span> <span style="color: #2aa198;">"/usr/spool/"</span>)  <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; "/usr/spool/foo"</span>
+<pre class="src src-elisp">(file-name-absolute-p <span style="color: #2aa198;">"~/.emacs.d"</span>)              <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; t</span>
+(file-name-absolute-p <span style="color: #2aa198;">"/Users/haoran/.emacs.d"</span>)  <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; t</span>
+(expand-file-name <span style="color: #2aa198;">"~/.emacs.d"</span>)                  <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; "/Users/haoran/.emacs.d"</span>
+(expand-file-name <span style="color: #2aa198;">"foo"</span> <span style="color: #2aa198;">"/usr/spool/"</span>)           <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; "/usr/spool/foo"</span>
 (file-relative-name <span style="color: #2aa198;">"/foo/bar"</span> <span style="color: #2aa198;">"/foo/"</span>) <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; "bar"</span>
 (file-relative-name <span style="color: #2aa198;">"/foo/bar"</span> <span style="color: #2aa198;">"/hack/"</span>) <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; "../foo/bar"</span>
 </pre>
 </div>
 
 <p>
-对于目录，如果要将其作为目录，也就是确保它是以路径分隔符结束，可以用 file-name-as-directory。不要用 (concat dir &ldquo;/&rdquo;) 来转换，这会有移植问题。 和它相对应的函数是 directory-file-name<br>
+对于目录， <span class="underline">如果要将其作为目录，也就是确保它是以路径分隔符结束</span> ，可以用 <b>file-name-as-directory</b> 。不要用 (concat dir &ldquo;/&rdquo;) 来转换，这会有移植问题。 和它相对应的函数是 directory-file-name<br>
 </p>
 
 <div class="org-src-container">
 <pre class="src src-elisp">(file-name-as-directory <span style="color: #2aa198;">"~rms/lewis"</span>)   <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; "~rms/lewis/"</span>
 (directory-file-name <span style="color: #2aa198;">"~lewis/"</span>)         <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; "~lewis"</span>
+</pre>
+</div>
+
+<p>
+emacs 中与默认目录相关的函数：<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp">(locate-user-emacs-file <span style="color: #2aa198;">"lisp"</span>) <span style="color: #96A7A9;">;;</span><span style="color: #96A7A9;">=&gt; "~/.emacs.d/lisp"</span>
 </pre>
 </div>
 
@@ -260,9 +273,9 @@ lrwxrwxrwx 1 ywb ywb 8 2007-07-15 15:51 t.txt -&gt; test.txt
 </div>
 </div>
 
-<div id="outline-container-org5a35b05" class="outline-2">
-<h2 id="org5a35b05">临时文件</h2>
-<div class="outline-text-2" id="text-org5a35b05">
+<div id="outline-container-org4e71c33" class="outline-2">
+<h2 id="org4e71c33">临时文件</h2>
+<div class="outline-text-2" id="text-org4e71c33">
 <p>
 如果需要产生一个临时文件，可以使用 make-temp-file。这个函数按给定前缀产 生一个不和现有文件冲突的文件，并返回它的文件名。如果给定的名字是一个相 对文件名，则产生的文件名会用 temporary-file-directory 进行扩展。也可以 用这个函数产生一个临时文件夹。如果只想产生一个不存在的文件名，可以用 make-temp-name 函数<br>
 </p>
@@ -275,9 +288,9 @@ lrwxrwxrwx 1 ywb ywb 8 2007-07-15 15:51 t.txt -&gt; test.txt
 </div>
 </div>
 
-<div id="outline-container-orgf09e4f9" class="outline-2">
-<h2 id="orgf09e4f9">读取目录内容</h2>
-<div class="outline-text-2" id="text-orgf09e4f9">
+<div id="outline-container-org323afe8" class="outline-2">
+<h2 id="org323afe8">读取目录内容</h2>
+<div class="outline-text-2" id="text-org323afe8">
 <p>
 可以用 directory-files 来得到某个目录中的全部或者符合某个正则表达式的 文件名。<br>
 </p>
