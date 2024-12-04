@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2024-06-26 Wed 20:20 -->
+<!-- 2024-12-03 Tue 12:08 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Elisp 变量</title>
@@ -17,24 +17,28 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orgb38d466">setq</a></li>
-<li><a href="#org970e8fb">defvar</a></li>
-<li><a href="#orge63c8b1">setq-default</a></li>
-<li><a href="#org74ac3e3">局部作用域的变量 let* let</a></li>
+<li><a href="#orgcda39da">setq</a></li>
+<li><a href="#org727287d">defvar</a></li>
+<li><a href="#org4365786">setq-default</a>
+<ul>
+<li><a href="#org4669695">setq、setq-default、setq-local 还有 Local Variables</a></li>
+</ul>
+</li>
+<li><a href="#org4c8829d">局部作用域的变量 let* let</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgb38d466" class="outline-2">
-<h2 id="orgb38d466">setq</h2>
-<div class="outline-text-2" id="text-orgb38d466">
+<div id="outline-container-orgcda39da" class="outline-2">
+<h2 id="orgcda39da">setq</h2>
+<div class="outline-text-2" id="text-orgcda39da">
 <p>
 使用 <code>setq</code> 关键字直接对一个变量赋值：<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #859900;">setq</span> foo <span style="color: #2aa198;">"I'm foo"</span>)                    <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; "I'm foo"</span>
-(message foo)                           <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; "I'm foo"</span>
+<pre class="src src-elisp">(<span style="color: #165EFF;">setq</span> foo <span style="color: #DFD67A;">"I'm foo"</span>)                    <span style="color: #A7A7A7;">; </span><span style="color: #A7A7A7;">=&gt; "I'm foo"</span>
+(message foo)                           <span style="color: #A7A7A7;">; </span><span style="color: #A7A7A7;">=&gt; "I'm foo"</span>
 </pre>
 </div>
 
@@ -44,12 +48,12 @@
 </div>
 </div>
 
-<div id="outline-container-org970e8fb" class="outline-2">
-<h2 id="org970e8fb">defvar</h2>
-<div class="outline-text-2" id="text-org970e8fb">
+<div id="outline-container-org727287d" class="outline-2">
+<h2 id="org727287d">defvar</h2>
+<div class="outline-text-2" id="text-org727287d">
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #859900;">defvar</span> <span style="color: #268bd2;">variable-name</span> value
-  <span style="color: #35a69c;">"document string"</span>)
+<pre class="src src-elisp">(<span style="color: #165EFF;">defvar</span> <span style="color: #EEC900;">variable-name</span> value
+  <span style="color: #A7A7A7;">"document string"</span>)
 </pre>
 </div>
 
@@ -58,11 +62,11 @@
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #859900;">defvar</span> <span style="color: #268bd2;">foo</span> <span style="color: #2aa198;">"Did I have a value?"</span>
-  <span style="color: #35a69c;">"A demo variable"</span>)                    <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; foo</span>
-foo                                     <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; "I'm foo"</span>
-(<span style="color: #859900;">defvar</span> <span style="color: #268bd2;">bar</span> <span style="color: #2aa198;">"I'm bar"</span>
-  <span style="color: #35a69c;">"A demo variable named \"bar\""</span>)      <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">=&gt; bar</span>
+<pre class="src src-elisp">(<span style="color: #165EFF;">defvar</span> <span style="color: #EEC900;">foo</span> <span style="color: #DFD67A;">"Did I have a value?"</span>
+  <span style="color: #A7A7A7;">"A demo variable"</span>)                    <span style="color: #A7A7A7;">; </span><span style="color: #A7A7A7;">=&gt; foo</span>
+foo                                     <span style="color: #A7A7A7;">; </span><span style="color: #A7A7A7;">=&gt; "I'm foo"</span>
+(<span style="color: #165EFF;">defvar</span> <span style="color: #EEC900;">bar</span> <span style="color: #DFD67A;">"I'm bar"</span>
+  <span style="color: #A7A7A7;">"A demo variable named \"bar\""</span>)      <span style="color: #A7A7A7;">; </span><span style="color: #A7A7A7;">=&gt; bar</span>
 bar
 </pre>
 </div>
@@ -71,7 +75,7 @@ bar
 用 <verbatim>C-h v</verbatim> 查看 <code>foo</code> 的文档，可以看到它已经变成：<br>
 </p>
 
-<pre class="example" id="orgb5d285a">
+<pre class="example" id="org4e46c68">
 foo's value is "I'm foo"
 
 Documentation:
@@ -80,20 +84,51 @@ A demo variable
 </div>
 </div>
 
-<div id="outline-container-orge63c8b1" class="outline-2">
-<h2 id="orge63c8b1">setq-default</h2>
-<div class="outline-text-2" id="text-orge63c8b1">
+<div id="outline-container-org4365786" class="outline-2">
+<h2 id="org4365786">setq-default</h2>
+<div class="outline-text-2" id="text-org4365786">
 <p>
 如果一个变量是 buffer-local 变量，那么 buffer-local 变量会在加载这个特定的 buffer 时赋值。<br>
 </p>
 </div>
+
+<div id="outline-container-org4669695" class="outline-3">
+<h3 id="org4669695">setq、setq-default、setq-local 还有 Local Variables</h3>
+<div class="outline-text-3" id="text-org4669695">
+<pre class="example" id="org1f5c84c">
+(setq-default fill-column 80)
+(setq fill-column 81)
+(setq-local fill-column 82)
+
+以及在文件中加入：
+# Local Variables:
+# fill-column: 83
+# End:
+</pre>
+
+<p>
+<b>最终值的设置顺序：</b><br>
+</p>
+<ol class="org-ol">
+<li>默认值（setq-default）：fill-column 默认是 80。<br></li>
+<li>全局值（setq）：改为 81，覆盖了默认值。<br></li>
+<li>局部值（setq-local）：在当前 buffer 设置为 82，覆盖了全局值。<br></li>
+<li>文件 Local Variables 块：打开文件后，解析到 Local Variables 块，局部值被设为 83，覆盖了 setq-local 的值。<br></li>
+</ol>
+
+<p>
+<b>当打开文件后，fill-column 的值最终为 83。</b><br>
+</p>
+</div>
+</div>
 </div>
 
-<div id="outline-container-org74ac3e3" class="outline-2">
-<h2 id="org74ac3e3">局部作用域的变量 let* let</h2>
-<div class="outline-text-2" id="text-org74ac3e3">
+
+<div id="outline-container-org4c8829d" class="outline-2">
+<h2 id="org4c8829d">局部作用域的变量 let* let</h2>
+<div class="outline-text-2" id="text-org4c8829d">
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #859900;">let</span> ((var1 value1)
+<pre class="src src-elisp">(<span style="color: #165EFF;">let</span> ((var1 value1)
       (var2 value2)
       ...)
   body)
@@ -101,11 +136,11 @@ A demo variable
 </div>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #859900;">defun</span> <span style="color: #b58900;">circle-area</span> (radix)
-  (<span style="color: #859900;">let</span> ((pi 3.1415926)
-        area) <span style="color: #96A7A9;">;; </span><span style="color: #96A7A9;">area &#26159;&#21021;&#22987;&#20540;&#20026; nil &#30340;&#23616;&#37096;&#21464;&#37327;</span>
-    (<span style="color: #859900;">setq</span> area (* pi radix radix))
-    (message <span style="color: #2aa198;">"&#30452;&#24452;&#20026; %.2f &#30340;&#22278;&#38754;&#31215;&#26159; %.2f"</span> radix area)))
+<pre class="src src-elisp">(<span style="color: #165EFF;">defun</span> <span style="color: #EEC900;">circle-area</span> (radix)
+  (<span style="color: #165EFF;">let</span> ((pi 3.1415926)
+        area) <span style="color: #A7A7A7;">;; </span><span style="color: #A7A7A7;">area &#26159;&#21021;&#22987;&#20540;&#20026; nil &#30340;&#23616;&#37096;&#21464;&#37327;</span>
+    (<span style="color: #165EFF;">setq</span> area (* pi radix radix))
+    (message <span style="color: #DFD67A;">"&#30452;&#24452;&#20026; %.2f &#30340;&#22278;&#38754;&#31215;&#26159; %.2f"</span> radix area)))
 (circle-area 3)
 </pre>
 </div>
@@ -115,10 +150,10 @@ A demo variable
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #859900;">defun</span> <span style="color: #b58900;">circle-area</span> (radix)
-  (<span style="color: #859900;">let*</span> ((pi 3.1415926)
+<pre class="src src-elisp">(<span style="color: #165EFF;">defun</span> <span style="color: #EEC900;">circle-area</span> (radix)
+  (<span style="color: #165EFF;">let*</span> ((pi 3.1415926)
          (area (* pi radix radix)))
-    (message <span style="color: #2aa198;">"&#30452;&#24452;&#20026; %.2f &#30340;&#22278;&#38754;&#31215;&#26159; %.2f"</span> radix area)))
+    (message <span style="color: #DFD67A;">"&#30452;&#24452;&#20026; %.2f &#30340;&#22278;&#38754;&#31215;&#26159; %.2f"</span> radix area)))
 </pre>
 </div>
 </div>
