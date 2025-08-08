@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 2025-08-08 Fri 17:48 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>加密算法分类</title>
+<meta name="generator" content="Org Mode" />
+<link rel='shortcut icon' href='assets/favicon.ico' type='image/x-icon' />
+          <link rel='stylesheet' href='css/org.css' type='text/css' />
+          <script type='module' src='js/main.js' defer></script>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">加密算法分类</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org82ea937">一、哈希函数</a>
+<ul>
+<li><a href="#org8c3cb78">㈠ 哈希函数</a></li>
+<li><a href="#org9e3760d">㈡ 密码哈希函数（Password Hashing）</a></li>
+<li><a href="#org692b9cc">㈢ 消息认证码 MAC（Message Authentication Code）</a></li>
+</ul>
+</li>
+<li><a href="#org08531b7">二、对称加密</a>
+<ul>
+<li><a href="#org0314fe5">㈠ 对称加密算法</a>
+<ul>
+<li><a href="#org52c896b">分组加密模式</a></li>
+</ul>
+</li>
+<li><a href="#orgf70c571">㈡ 认证加密</a></li>
+</ul>
+</li>
+<li><a href="#orgd2057f7">三、非对称加密</a>
+<ul>
+<li><a href="#orga064c68">㈠ 密钥交换</a></li>
+<li><a href="#orgaf4edf9">㈡ 混合加密</a></li>
+<li><a href="#orgfa09c91">㈢ 零知识证明（Zero-Knowledge Proof，ZKP）</a></li>
+<li><a href="#org9eff9db">㈣ 数字签名</a></li>
+</ul>
+</li>
+<li><a href="#orgb0c0f80">四、伪随机数生成、密钥派生</a></li>
+</ul>
+</div>
+</div>
+<dl class="org-dl">
+<dt>哈希函数</dt><dd>不可逆加密，用于摘要、完整性校验、密码存储<br></dd>
+<dt>对称加密</dt><dd>加密与解密使用相同密钥，速度快，常用于数据传输加密<br></dd>
+<dt>非对称加密</dt><dd>加密与解密使用不同密钥（公钥/私钥），常用于密钥交换与身份认证<br></dd>
+</dl>
+
+<div id="outline-container-org82ea937" class="outline-2">
+<h2 id="org82ea937">一、哈希函数</h2>
+<div class="outline-text-2" id="text-org82ea937">
+</div>
+<div id="outline-container-org8c3cb78" class="outline-3">
+<h3 id="org8c3cb78">㈠ 哈希函数</h3>
+<div class="outline-text-3" id="text-org8c3cb78">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">算法</th>
+<th scope="col" class="org-left">家族</th>
+<th scope="col" class="org-right">年代</th>
+<th scope="col" class="org-left">输出位数</th>
+<th scope="col" class="org-left">可能性数量</th>
+<th scope="col" class="org-left">性能</th>
+<th scope="col" class="org-left">安全性备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">❌ MD5</td>
+<td class="org-left">MD</td>
+<td class="org-right">1991</td>
+<td class="org-left">128 bit</td>
+<td class="org-left">2^128 ≈ 3.4e+38</td>
+<td class="org-left">快</td>
+<td class="org-left">已被完全破解，不可用于安全场景</td>
+</tr>
+
+<tr>
+<td class="org-left">❌ SHA-1</td>
+<td class="org-left">SHA-1</td>
+<td class="org-right">1995</td>
+<td class="org-left">160 bit</td>
+<td class="org-left">2^160 ≈ 1.46e+48</td>
+<td class="org-left">较快</td>
+<td class="org-left">已被实验证实碰撞，不可用于安全场景</td>
+</tr>
+
+<tr>
+<td class="org-left">SHA-224</td>
+<td class="org-left">SHA-2</td>
+<td class="org-right">2001</td>
+<td class="org-left">224 bit</td>
+<td class="org-left">2^224 ≈ 2.7e+67</td>
+<td class="org-left">中等</td>
+<td class="org-left">基本安全，使用较少</td>
+</tr>
+
+<tr>
+<td class="org-left">SHA-256</td>
+<td class="org-left">SHA-2</td>
+<td class="org-right">2001</td>
+<td class="org-left">256 bit</td>
+<td class="org-left">2^256 ≈ 1.16e+77</td>
+<td class="org-left">中等</td>
+<td class="org-left">推荐，广泛用于 TLS/签名</td>
+</tr>
+
+<tr>
+<td class="org-left">SHA-384</td>
+<td class="org-left">SHA-2</td>
+<td class="org-right">2001</td>
+<td class="org-left">384 bit</td>
+<td class="org-left">2^384 ≈ 3.94e+115</td>
+<td class="org-left">较慢</td>
+<td class="org-left">高强度，适用于更安全需求</td>
+</tr>
+
+<tr>
+<td class="org-left">SHA-512</td>
+<td class="org-left">SHA-2</td>
+<td class="org-right">2001</td>
+<td class="org-left">512 bit</td>
+<td class="org-left">2^512 ≈ 1.34e+154</td>
+<td class="org-left">较慢</td>
+<td class="org-left">非常高强度，适合高安全场景</td>
+</tr>
+
+<tr>
+<td class="org-left">SHA3-256</td>
+<td class="org-left">SHA-3</td>
+<td class="org-right">2015</td>
+<td class="org-left">256 bit</td>
+<td class="org-left">2^256 ≈ 1.16e+77</td>
+<td class="org-left">略慢</td>
+<td class="org-left">NIST 新标准，更抗碰撞和量子攻击</td>
+</tr>
+
+<tr>
+<td class="org-left">SHA3-512</td>
+<td class="org-left">SHA-3</td>
+<td class="org-right">2015</td>
+<td class="org-left">512 bit</td>
+<td class="org-left">2^512 ≈ 1.34e+154</td>
+<td class="org-left">略慢</td>
+<td class="org-left">高安全等级，结构不同于 SHA-2</td>
+</tr>
+
+<tr>
+<td class="org-left">BLAKE2b</td>
+<td class="org-left">BLAKE2</td>
+<td class="org-right">2013</td>
+<td class="org-left">512 bit</td>
+<td class="org-left">2^512</td>
+<td class="org-left">非常快</td>
+<td class="org-left">安全性接近 SHA-3，但更高性能</td>
+</tr>
+
+<tr>
+<td class="org-left">BLAKE3</td>
+<td class="org-left">BLAKE3</td>
+<td class="org-right">2020</td>
+<td class="org-left">任意</td>
+<td class="org-left">2^x</td>
+<td class="org-left">极快</td>
+<td class="org-left">多核并行友好，新一代性能王者</td>
+</tr>
+</tbody>
+</table>
+
+<ul class="org-ul">
+<li>不应该再使用 MD（MD2、MD4、MD5）家族的算法，现在高性能算法（如BLAKE2）的生成速度也很快，同时更安全；<br></li>
+<li>生成 SHA-256 <code>echo -n 'hello' | openssl dgst -sha256</code> ，生成 SHA3-256 需要 <code>dgst -sha3-256</code><br></li>
+<li>应用最广泛的哈希函数是 SHA-2，但是推荐使用的是 SHA-3，因为 Merkle-Damgård 构造容易受到长度扩展攻击；<br></li>
+<li>考虑兼容与通用标准选择 SHA-256；考虑高安全选择 SHA3-256；极致的性能选择 BLAKE3；兼顾性能和广泛支持选择 BLAKE2b；<br></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org9e3760d" class="outline-3">
+<h3 id="org9e3760d">㈡ 密码哈希函数（Password Hashing）</h3>
+<div class="outline-text-3" id="text-org9e3760d">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">算法</th>
+<th scope="col" class="org-right">年代</th>
+<th scope="col" class="org-left">内存硬度</th>
+<th scope="col" class="org-left">并行性</th>
+<th scope="col" class="org-left">安全性</th>
+<th scope="col" class="org-left">现状</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">bcrypt</td>
+<td class="org-right">1999</td>
+<td class="org-left">低</td>
+<td class="org-left">差</td>
+<td class="org-left">尚可</td>
+<td class="org-left">广泛使用（Django、Ruby on Rails），但不抗 GPU</td>
+</tr>
+
+<tr>
+<td class="org-left">PBKDF2</td>
+<td class="org-right">2000</td>
+<td class="org-left">无</td>
+<td class="org-left">好</td>
+<td class="org-left">NIST采纳</td>
+<td class="org-left">仍被用在很多标准（WPA2、PKCS#5），但防 GPU 能力差</td>
+</tr>
+
+<tr>
+<td class="org-left">scrypt</td>
+<td class="org-right">2009</td>
+<td class="org-left">支持</td>
+<td class="org-left">不佳</td>
+<td class="org-left">还可以</td>
+<td class="org-left">曾是热点，被 Argon2 逐渐替代</td>
+</tr>
+
+<tr>
+<td class="org-left">Argon2</td>
+<td class="org-right">2015</td>
+<td class="org-left">强</td>
+<td class="org-left">好</td>
+<td class="org-left">强</td>
+<td class="org-left">PHC 优胜者 <a href="https://www.password-hashing.net/#phc">Password Hasing Competition</a></td>
+</tr>
+
+<tr>
+<td class="org-left">Balloon</td>
+<td class="org-right">2016</td>
+<td class="org-left">支持</td>
+<td class="org-left">一般</td>
+<td class="org-left">理论好</td>
+<td class="org-left">很少部署，学术用途居多</td>
+</tr>
+
+<tr>
+<td class="org-left">Yescrypt</td>
+<td class="org-right">2017</td>
+<td class="org-left">强</td>
+<td class="org-left">好</td>
+<td class="org-left">强</td>
+<td class="org-left">一些 Linux 发行版默认密码哈希（如 Fedora）</td>
+</tr>
+</tbody>
+</table>
+
+<ul class="org-ul">
+<li>防止网站密码泄露，只存储密码的哈希值；<br></li>
+<li>防止攻击者穷举搜索用户密码，通过加盐技术来解决，在这种意义上，为每个用户创建了不同的哈希函数，攻击者无法预先计算彩虹表；<br></li>
+<li>密码哈希函数的运行速度应该很慢，即使是专用硬件，也只能有限的通过优化内存改善攻击效果；<br></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org692b9cc" class="outline-3">
+<h3 id="org692b9cc">㈢ 消息认证码 MAC（Message Authentication Code）</h3>
+<div class="outline-text-3" id="text-org692b9cc">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">类型</th>
+<th scope="col" class="org-left">示例算法</th>
+<th scope="col" class="org-left">安全性</th>
+<th scope="col" class="org-left">用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">HMAC</td>
+<td class="org-left">HMAC-SHA256、HMAC-SHA512</td>
+<td class="org-left">高，广泛使用</td>
+<td class="org-left">TLS、JWT、API签名等</td>
+</tr>
+
+<tr>
+<td class="org-left">CMAC</td>
+<td class="org-left">AES-CMAC</td>
+<td class="org-left">高</td>
+<td class="org-left">某些嵌入式和军用标准</td>
+</tr>
+
+<tr>
+<td class="org-left">KMAC</td>
+<td class="org-left">KMAC128、KMAC256</td>
+<td class="org-left">高（抗量子）</td>
+<td class="org-left">替代 HMAC，用于新系统</td>
+</tr>
+
+<tr>
+<td class="org-left">Poly1305</td>
+<td class="org-left">Poly1305-AES</td>
+<td class="org-left">高、快速</td>
+<td class="org-left">TLS 1.3、QUIC 中广泛使用</td>
+</tr>
+
+<tr>
+<td class="org-left">UMAC/VMAC</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">较高</td>
+<td class="org-left">高速Mac，UDP认证、网络加密层等</td>
+</tr>
+</tbody>
+</table>
+
+<ul class="org-ul">
+<li>单独的消息认证不负责加密，如果还有加密需求，选择认证加密算法↓；<br></li>
+<li>哈希函数可以为任意数据提供完整性，因为哈希函数是一种公开算法，攻击者可以同时修改明文和哈希值；<br></li>
+<li>消息认证码需要密钥；<br></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-org08531b7" class="outline-2">
+<h2 id="org08531b7">二、对称加密</h2>
+<div class="outline-text-2" id="text-org08531b7">
+</div>
+<div id="outline-container-org0314fe5" class="outline-3">
+<h3 id="org0314fe5">㈠ 对称加密算法</h3>
+<div class="outline-text-3" id="text-org0314fe5">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">算法</th>
+<th scope="col" class="org-right">年代</th>
+<th scope="col" class="org-left">块大小 / 模式</th>
+<th scope="col" class="org-left">安全性</th>
+<th scope="col" class="org-left">性能</th>
+<th scope="col" class="org-left">是否推荐</th>
+<th scope="col" class="org-left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">❌️ DES</td>
+<td class="org-right">1977</td>
+<td class="org-left">64-bit / ECB</td>
+<td class="org-left">弱</td>
+<td class="org-left">慢</td>
+<td class="org-left">不推荐</td>
+<td class="org-left">已被破解</td>
+</tr>
+
+<tr>
+<td class="org-left">3DES</td>
+<td class="org-right">1978</td>
+<td class="org-left">64-bit / CBC</td>
+<td class="org-left">弱</td>
+<td class="org-left">慢</td>
+<td class="org-left">淘汰中</td>
+<td class="org-left">DES 的三重迭代</td>
+</tr>
+
+<tr>
+<td class="org-left">AES-128</td>
+<td class="org-right">2001</td>
+<td class="org-left">128-bit / CBC</td>
+<td class="org-left">强</td>
+<td class="org-left">快</td>
+<td class="org-left"><b>推荐</b></td>
+<td class="org-left">最常用、FIPS 认证</td>
+</tr>
+
+<tr>
+<td class="org-left">AES-256</td>
+<td class="org-right">2001</td>
+<td class="org-left">128-bit / CBC</td>
+<td class="org-left">更强</td>
+<td class="org-left">稍慢</td>
+<td class="org-left">推荐</td>
+<td class="org-left">高安全性需求使用</td>
+</tr>
+
+<tr>
+<td class="org-left">ChaCha20</td>
+<td class="org-right">2008+</td>
+<td class="org-left">Stream cipher</td>
+<td class="org-left">强</td>
+<td class="org-left">非常快</td>
+<td class="org-left">移动端首选</td>
+<td class="org-left">Google 和 TLS 1.3 使用</td>
+</tr>
+
+<tr>
+<td class="org-left">Blowfish</td>
+<td class="org-right">1993</td>
+<td class="org-left">64-bit</td>
+<td class="org-left">中</td>
+<td class="org-left">一般</td>
+<td class="org-left">冷门</td>
+<td class="org-left">已较少使用</td>
+</tr>
+
+<tr>
+<td class="org-left">Twofish</td>
+<td class="org-right">1998</td>
+<td class="org-left">128-bit</td>
+<td class="org-left">强</td>
+<td class="org-left">一般</td>
+<td class="org-left">冷门</td>
+<td class="org-left">AES 竞争者之一</td>
+</tr>
+</tbody>
+</table>
+
+<ul class="org-ul">
+<li>1997年，NIST启动了一场高级加密标准（AES）的公开竞赛，旨在取代 NIST 20年前公布的 <span class="underline">数据加密标准（DES）算法</span> 。整个竞赛持续了3年，期间来自不同国家和地区的密码学团队共提交了15个算法。最终 Vincent Rijmen 和 Joan Daemen 提交的 Rijndael 算法胜出。2001年，NIST 将 AES 作为联邦信息处理标准 FIPS197 的一部分公开发布。当今 FIPS197 标准中的 AES 算法仍然是一个重要的加密算法。<br></li>
+<li>对称加密的安全性依赖于密钥的保密性；<br></li>
+<li>CBC、ECB 指的是分组加密模式 ↓<br></li>
+<li>对称加密算法又可分为：非认证加密算法、认证加密算法；<br></li>
+</ul>
+</div>
+
+<div id="outline-container-org52c896b" class="outline-4">
+<h4 id="org52c896b">分组加密模式</h4>
+<div class="outline-text-4" id="text-org52c896b">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">模式</th>
+<th scope="col" class="org-left">并行加密</th>
+<th scope="col" class="org-left">并行解密</th>
+<th scope="col" class="org-left">安全性</th>
+<th scope="col" class="org-left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">ECB</td>
+<td class="org-left">✓</td>
+<td class="org-left">✓</td>
+<td class="org-left">× 非常差</td>
+<td class="org-left">不应再使用</td>
+</tr>
+
+<tr>
+<td class="org-left">CBC</td>
+<td class="org-left">×</td>
+<td class="org-left">✓</td>
+<td class="org-left">✓ 较安全</td>
+<td class="org-left">常见，需 IV，不可并行加密</td>
+</tr>
+
+<tr>
+<td class="org-left">CFB</td>
+<td class="org-left">×</td>
+<td class="org-left">✓</td>
+<td class="org-left">✓</td>
+<td class="org-left">类似 CBC，但可流加密</td>
+</tr>
+
+<tr>
+<td class="org-left">OFB</td>
+<td class="org-left">✓</td>
+<td class="org-left">✓</td>
+<td class="org-left">✓</td>
+<td class="org-left">将分组加密转为流加密</td>
+</tr>
+
+<tr>
+<td class="org-left">CTR</td>
+<td class="org-left">✓</td>
+<td class="org-left">✓</td>
+<td class="org-left">✓ 非常安全</td>
+<td class="org-left">使用计数器，可完全并行</td>
+</tr>
+
+<tr>
+<td class="org-left">GCM</td>
+<td class="org-left">✓</td>
+<td class="org-left">✓</td>
+<td class="org-left">✓ + MAC 验证</td>
+<td class="org-left">高性能+认证，现代首选（如 TLS）</td>
+</tr>
+</tbody>
+</table>
+
+<ul class="org-ul">
+<li>ECB 模式加密图像后仍能看到原图轮廓（因为每个块独立）<br>
+<img src="images/1754468407.png" alt="1754468407.png"><br></li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgf70c571" class="outline-3">
+<h3 id="orgf70c571">㈡ 认证加密</h3>
+<div class="outline-text-3" id="text-orgf70c571">
+<p>
+如果只用普通的对称加密算法（如 AES-CBC），虽然攻击者看不懂数据内容，但可以悄悄篡改密文，你却无法感知。<br>
+</p>
+
+<p>
+为了防止密文的改变，可以使用消息认证码（MAC）算法。使用 HMAC（基于哈希的 MAC 算法）结合哈希函数 SHA-256 来提供完整性校验。<br>
+</p>
+
+<ol class="org-ol">
+<li>AES-CBC-HMAC，先对明文加密，再用 HMAC 算法认证密文和IV，这样即便敌手篡改了密文和IV，也无法生成合法的认证标签；<br>
+但是 AES-CBC-HMAC 不是开发者友好型密码算法，下面是标准化一体式的认证加密方案<br></li>
+
+<li>AES-GCM，绝对的主流（Web、TLS、VPN），性能好，有硬件加速，AES 兼容性强；<br></li>
+<li>ChaCha20-Poly1305 移动端首选；<br></li>
+<li>AES-GCM-SIV，抗 Nonce 误用的认证加密算法；<br></li>
+</ol>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-orgd2057f7" class="outline-2">
+<h2 id="orgd2057f7">三、非对称加密</h2>
+<div class="outline-text-2" id="text-orgd2057f7">
+<ul class="org-ul">
+<li>非对称加密算法允许加密的消息长度是有限的；<br></li>
+<li>与对称加密相比，非对称加密和解密的速度相当慢，这主要是因为对称加密是面向比特的，而非对称加密常涉及大量复杂的数学运算；<br></li>
+</ul>
+</div>
+
+<div id="outline-container-orga064c68" class="outline-3">
+<h3 id="orga064c68">㈠ 密钥交换</h3>
+<div class="outline-text-3" id="text-orga064c68">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">算法</th>
+<th scope="col" class="org-left">类型</th>
+<th scope="col" class="org-left">性能</th>
+<th scope="col" class="org-left">安全性</th>
+<th scope="col" class="org-left">应用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">RSA</td>
+<td class="org-left">整数分解</td>
+<td class="org-left">快</td>
+<td class="org-left">已不推荐</td>
+<td class="org-left">老 TLS（1.2 以下）</td>
+</tr>
+
+<tr>
+<td class="org-left">DH</td>
+<td class="org-left">离散对数</td>
+<td class="org-left">中</td>
+<td class="org-left">中（传统）</td>
+<td class="org-left">老 TLS / IPSec</td>
+</tr>
+
+<tr>
+<td class="org-left">ECDH</td>
+<td class="org-left">椭圆曲线（ECC）</td>
+<td class="org-left">快</td>
+<td class="org-left">高</td>
+<td class="org-left">TLS 1.2/1.3，SSH</td>
+</tr>
+
+<tr>
+<td class="org-left">X25519</td>
+<td class="org-left">ECC 优化</td>
+<td class="org-left">更快</td>
+<td class="org-left">很高</td>
+<td class="org-left">TLS 1.3，WireGuard</td>
+</tr>
+</tbody>
+</table>
+
+<ul class="org-ul">
+<li>密钥交换算法是通信双方在不安全信道中协商共享密钥的一种密码协议，这个密钥后续将被用于对称加密通信，它是现代加密通信的基础部分；<br></li>
+<li>密钥交换的过程：Alice 和 Bob 都使用密钥生成算法生成一对密钥（私钥和公钥），双方将各自的公钥发送给对方。<br>
+然后，Alice 使用自己的私钥和 Bob 的公钥计算出共享密钥、同时 Bob 使用自己的私钥和 Alice 的公钥计算出共享密钥。<br>
+由于算法的设计：①共享密钥是相同的 ②透露公钥不会暴露双方的私钥和共享密钥；<br></li>
+<li>ECDH 因其密钥较小而取代 DH；<br></li>
+<li>密钥交换算法推荐使用 X25519；<br></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgaf4edf9" class="outline-3">
+<h3 id="orgaf4edf9">㈡ 混合加密</h3>
+<div class="outline-text-3" id="text-orgaf4edf9">
+<p>
+混合加密是非对称加密原语和对称加密原语的组合。先生成一个对称加密的密钥，并用 Alice 的公钥加密这个对称密钥，因为只有 Alice 有自己的私钥，所以 Alice 通过私钥解密获得对称密钥，再用对称密钥解密已加密的消息。<br>
+</p>
+
+<ul class="org-ul">
+<li>ECIES，使用 ECDH 算法进行密钥交换，之后，将共享密钥当作 AES-GCM 这类认证加密算法密钥；<br></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgfa09c91" class="outline-3">
+<h3 id="orgfa09c91">㈢ 零知识证明（Zero-Knowledge Proof，ZKP）</h3>
+</div>
+
+<div id="outline-container-org9eff9db" class="outline-3">
+<h3 id="org9eff9db">㈣ 数字签名</h3>
+<div class="outline-text-3" id="text-org9eff9db">
+<ul class="org-ul">
+<li>只有签名者本人可以对任意消息生成签名；<br></li>
+<li>任何人都可以验证签名者对消息的签名；<br></li>
+<li>数字签名类似于消息认证码算法，但是消息认证码算法需要签名人和验证人都知道密钥，验证方可以使用这个密钥伪造一条消息和消息的MAC；<br></li>
+</ul>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">算法</th>
+<th scope="col" class="org-left">基于的数学问题</th>
+<th scope="col" class="org-left">性能</th>
+<th scope="col" class="org-left">安全性备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">RSA-PSS</td>
+<td class="org-left">大整数分解</td>
+<td class="org-left">慢（特别是验证）</td>
+<td class="org-left">RSA 的更安全变种，古老兼容性好，但需足够大密钥才安全</td>
+</tr>
+
+<tr>
+<td class="org-left">DSA</td>
+<td class="org-left">离散对数（DLP）</td>
+<td class="org-left">慢</td>
+<td class="org-left">过时；有泄露私钥的历史问题，不推荐</td>
+</tr>
+
+<tr>
+<td class="org-left">ECDSA</td>
+<td class="org-left">椭圆曲线离散对数（ECDLP）</td>
+<td class="org-left">快（验证略慢）</td>
+<td class="org-left">签名随机数泄露会导致私钥泄漏</td>
+</tr>
+
+<tr>
+<td class="org-left">Ed25519</td>
+<td class="org-left">椭圆曲线离散对数（ECDLP）</td>
+<td class="org-left">非常快</td>
+<td class="org-left">设计抗随机数失败；默认安全曲线； <b>现代推荐</b></td>
+</tr>
+
+<tr>
+<td class="org-left">Ed448</td>
+<td class="org-left">椭圆曲线离散对数（ECDLP）</td>
+<td class="org-left">中等</td>
+<td class="org-left">更高安全级别，256 位对抗强量子攻击</td>
+</tr>
+
+<tr>
+<td class="org-left">XMSS</td>
+<td class="org-left">安全哈希函数（Merkle Tree）</td>
+<td class="org-left">慢、状态型</td>
+<td class="org-left">后量子安全；签名数有限；RFC 8391 标准化</td>
+</tr>
+
+<tr>
+<td class="org-left">SPHINCS+</td>
+<td class="org-left">安全哈希函数（Merkle 树、FORS）</td>
+<td class="org-left">慢（尤其是验证）</td>
+<td class="org-left">无状态，后量子安全，NIST PQC 选中算法之一</td>
+</tr>
+</tbody>
+</table>
+
+<ul class="org-ul">
+<li>RSA 签名和 RSA 加密的使用方式刚好相反，签名时使用私钥对消息进行加密，验证签名时使用公钥对签名进行解密，对比运算的返回值与初始消息即可知道签名是否有效；<br></li>
+<li>因为 RSA 是第一个被标准化的签名方案，所以被广范使用，但是也因滥用而引起许多安全问题；<br></li>
+<li>ECDSA 因其密钥较小而取代 DSA；<br></li>
+<li>EdDSA 在实用密码学上被认为是最先进的数字签名；<br>
+<ul class="org-ul">
+<li>EdDSA 是一种数字签名算法的通用设计思想。实际使用时，实例化 EdDSA 通常使用 Edwards25519 曲线，将这个实例化的算法称为 Ed25519；<br></li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-orgb0c0f80" class="outline-2">
+<h2 id="orgb0c0f80">四、伪随机数生成、密钥派生</h2>
+<div class="outline-text-2" id="text-orgb0c0f80">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">算法</th>
+<th scope="col" class="org-left">基于的数学问题</th>
+<th scope="col" class="org-left">性能</th>
+<th scope="col" class="org-left">安全性备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">PBKDF2</td>
+<td class="org-left">HMAC（SHA-1/SHA-256等）迭代运算</td>
+<td class="org-left">CPU 友好，迭代次数可调</td>
+<td class="org-left">标准化广泛支持，但易受 GPU/ASIC 暴力破解</td>
+</tr>
+
+<tr>
+<td class="org-left">bcrypt</td>
+<td class="org-left">Blowfish key schedule 延迟</td>
+<td class="org-left">较慢，适度抗 GPU</td>
+<td class="org-left">输出最长 72 字节口令，安全性好于 PBKDF2</td>
+</tr>
+
+<tr>
+<td class="org-left">scrypt</td>
+<td class="org-left">内存难题</td>
+<td class="org-left">占用大量内存，抗 GPU 优秀</td>
+<td class="org-left">适合防御大规模硬件攻击，不适合低内存环境</td>
+</tr>
+
+<tr>
+<td class="org-left">Argon2i</td>
+<td class="org-left">内存难题 + 并行哈希</td>
+<td class="org-left">可调 CPU/内存/并行度</td>
+<td class="org-left">防御侧信道攻击，推荐口令存储</td>
+</tr>
+
+<tr>
+<td class="org-left">Argon2d</td>
+<td class="org-left">内存难题 + 并行哈希</td>
+<td class="org-left">高性能抗 GPU</td>
+<td class="org-left">更适合不怕侧信道的环境</td>
+</tr>
+
+<tr>
+<td class="org-left">Argon2id</td>
+<td class="org-left">内存难题 + 并行哈希</td>
+<td class="org-left">性能与安全性均衡</td>
+<td class="org-left">PHC 冠军，现代口令存储首选</td>
+</tr>
+
+<tr>
+<td class="org-left">HKDF</td>
+<td class="org-left">HMAC（SHA-256/SHA-512）</td>
+<td class="org-left">高效</td>
+<td class="org-left">需要高熵输入（如 DH 共享密钥）</td>
+</tr>
+
+<tr>
+<td class="org-left">TLS PRF</td>
+<td class="org-left">HMAC（SHA-256/SHA-384）</td>
+<td class="org-left">高效</td>
+<td class="org-left">仅在 TLS 内部使用</td>
+</tr>
+
+<tr>
+<td class="org-left">IKE KDF</td>
+<td class="org-left">HMAC（SHA 系列）</td>
+<td class="org-left">高效</td>
+<td class="org-left">用于 IPsec/IKE 密钥派生</td>
+</tr>
+</tbody>
+</table>
+
+<ul class="org-ul">
+<li>密钥派生函数（KDF）需要按用途分开选择合适的算法：<br>
+<ul class="org-ul">
+<li>存储密码：首选 Argon2id，其次选择 scrypt，最后选择 PBKDF2；<br></li>
+<li>网络协议派生会话密钥：HKDF 首选；<br></li>
+<li>基于 SHA-3 的系统选择 KMAC/cSHAKE；<br></li>
+<li>老系统迁移使用 PBKDF2 过渡，逐步替换为 HKDF/Argon2；<br></li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+</body>
+</html>

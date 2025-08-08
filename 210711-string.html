@@ -1,36 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2024-02-11 Sun 18:54 -->
+<!-- 2025-01-29 Wed 16:29 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>字符串</title>
-<meta name="author" content="Haoran Liu" />
 <meta name="generator" content="Org Mode" />
-<link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon" />
-           <link rel="stylesheet" href="css/org.css" type="text/css"  />
-           <script type="module" src="js/main.js" defer></script>
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-        displayAlign: "center",
-        displayIndent: "0em",
-
-        "HTML-CSS": { scale: 100,
-                        linebreaks: { automatic: "false" },
-                        webFont: "TeX"
-                       },
-        SVG: {scale: 100,
-              linebreaks: { automatic: "false" },
-              font: "TeX"},
-        NativeMML: {scale: 100},
-        TeX: { equationNumbers: {autoNumber: "AMS"},
-               MultLineWidth: "85%",
-               TagSide: "right",
-               TagIndent: ".8em"
-             }
-});
-</script>
-<script src="MathJax/cdn.bootcdn.net/ajax/libs/mathjax/3.1.2/es5/tex-mml-chtml.min.js"></script>
+<link rel='shortcut icon' href='assets/favicon.ico' type='image/x-icon' />
+          <link rel='stylesheet' href='css/org.css' type='text/css' />
+          <script type='module' src='js/main.js' defer></script>
+<script type='text/x-mathjax-config'>
+                                   MathJax.Hub.Config({
+                                     displayAlign: 'center',
+                                     displayIndent: '0em',
+                                     'HTML-CSS': {
+                                       scale: 1.0,
+                                       linebreaks: {
+                                         automatic: %LINEBREAKS
+                                       },
+                                       webFont: 'mathjax-modern'
+                                     },
+                                     SVG: {
+                                       scale: 1.0,
+                                       linebreaks: {
+                                         automatic: %LINEBREAKS
+                                       },
+                                       font: 'mathjax-modern'
+                                     },
+                                     NativeMML: {
+                                       scale: 1.0
+                                     },
+                                     TeX: {
+                                       equationNumbers: {
+                                         autoNumber: 'ams'
+                                       },
+                                       MultLineWidth: '85%',
+                                       TagSide: 'right',
+                                       TagIndent: '.8em'
+                                     }
+                                   });
+                                 </script>
+                                 <script id='MathJax-script'async src='MathJax/cdn.bootcdn.net/ajax/libs/mathjax/3.1.2/es5/tex-mml-chtml.min.js'></script>
 </head>
 <body>
 <div id="content" class="content">
@@ -39,10 +49,10 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orgee7596b">字符串哈希</a></li>
-<li><a href="#org3db73c4">字典树（Trie）</a></li>
-<li><a href="#org6b9bee6">前缀函数与 KMP 算法</a></li>
-<li><a href="#org6049091">manacher</a></li>
+<li><a href="#org3039a3c">字符串哈希</a></li>
+<li><a href="#org551386b">字典树（Trie）</a></li>
+<li><a href="#org869d369">前缀函数与 KMP 算法</a></li>
+<li><a href="#org7984f78">manacher</a></li>
 </ul>
 </div>
 </div>
@@ -50,14 +60,14 @@
 <li><verbatim>字符串算法一般对输入输出的时间要求很高，所以使用 c++；</verbatim><br></li>
 </ul>
 
-<div id="outline-container-orgee7596b" class="outline-2">
-<h2 id="orgee7596b">字符串哈希</h2>
-<div class="outline-text-2" id="text-orgee7596b">
+<div id="outline-container-org3039a3c" class="outline-2">
+<h2 id="org3039a3c">字符串哈希</h2>
+<div class="outline-text-2" id="text-org3039a3c">
 <p>
 <b>拉链法：</b><br>
 </p>
 
-<pre class="example" id="org38fb609">
+<pre class="example" id="org7d94826">
 +-----------------------------------------------------------+
 | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 |
 +-----------------------------------------------------------+
@@ -106,7 +116,7 @@ A B C D  -&gt;  \((1 2 3 4)_p\)<br>
 先得到每个前缀子串的哈希：<br>
 </p>
 
-<pre class="example" id="org90bbbf2">
+<pre class="example" id="org2455488">
 ha[0] = 0;
 ha[1] = "A" 的哈希值
 ha[2] = "AB" 的哈希值
@@ -120,7 +130,7 @@ ha[5] = "ABCDE" 的哈希值
 通过前缀子串得到所有子串的哈希<br>
 </p>
 
-<pre class="example" id="orge1564b5">
+<pre class="example" id="org25f4eb5">
                               hash?
 [高位]                     &lt;---------&gt;          [低位]
 |-------------------------|-----------|--------------|
@@ -161,36 +171,36 @@ hash = ha[R] - ha[L] * p^{R - L + 1}
 </blockquote>
 
 <div class="org-src-container">
-<pre class="src src-cpp"><span style="color: #268bd2;">#include</span> <span style="color: #2aa198;">&lt;cstdio&gt;</span>
-<span style="color: #859900;">typedef</span> <span style="color: #b58900; font-style: italic;">unsigned</span> <span style="color: #b58900; font-style: italic;">long</span> <span style="color: #b58900; font-style: italic;">long</span> <span style="color: #b58900; font-style: italic;">ull</span>;
-<span style="color: #859900;">const</span> <span style="color: #b58900; font-style: italic;">int</span> <span style="color: #268bd2;">maxn</span> = 1e5 + 5;
-<span style="color: #b58900; font-style: italic;">int</span> <span style="color: #268bd2;">P</span> = 131;
-<span style="color: #b58900; font-style: italic;">int</span> <span style="color: #268bd2;">n</span>, <span style="color: #268bd2;">m</span>;
-<span style="color: #b58900; font-style: italic;">char</span> <span style="color: #268bd2;">str</span>[maxn];
-<span style="color: #b58900; font-style: italic;">ull</span> <span style="color: #268bd2;">ha</span>[maxn], <span style="color: #268bd2;">p</span>[maxn];
+<pre class="src src-cpp"><span style="color: #a0132f;">#include</span> <span style="color: #2544bb;">&lt;cstdio&gt;</span>
+<span style="color: #5317ac;">typedef</span> <span style="color: #005a5f;">unsigned</span> <span style="color: #005a5f;">long</span> <span style="color: #005a5f;">long</span> <span style="color: #005a5f;">ull</span>;
+<span style="color: #5317ac;">const</span> <span style="color: #005a5f;">int</span> <span style="color: #00538b;">maxn</span> = 1e5 + 5;
+<span style="color: #005a5f;">int</span> <span style="color: #00538b;">P</span> = 131;
+<span style="color: #005a5f;">int</span> <span style="color: #00538b;">n</span>, <span style="color: #00538b;">m</span>;
+<span style="color: #005a5f;">char</span> <span style="color: #00538b;">str</span>[maxn];
+<span style="color: #005a5f;">ull</span> <span style="color: #00538b;">ha</span>[maxn], <span style="color: #00538b;">p</span>[maxn];
 
-<span style="color: #96A7A9; font-style: italic;">// </span><span style="color: #96A7A9; font-style: italic;">unsigned long long &#33258;&#21160;&#28322;&#20986;&#65292;&#30456;&#24403;&#20110; MOD 2^64</span>
-<span style="color: #b58900; font-style: italic;">ull</span> <span style="color: #b58900;">get</span>(<span style="color: #b58900; font-style: italic;">int</span> <span style="color: #268bd2;">l</span>, <span style="color: #b58900; font-style: italic;">int</span> <span style="color: #268bd2;">r</span>) {
-    <span style="color: #859900;">return</span> ha[r] - ha[l - 1] * p[r - l + 1];
+<span style="color: #505050;">// </span><span style="color: #505050;">unsigned long long &#33258;&#21160;&#28322;&#20986;&#65292;&#30456;&#24403;&#20110; MOD 2^64</span>
+<span style="color: #005a5f;">ull</span> <span style="color: #721045;">get</span>(<span style="color: #005a5f;">int</span> <span style="color: #00538b;">l</span>, <span style="color: #005a5f;">int</span> <span style="color: #00538b;">r</span>) {
+    <span style="color: #5317ac;">return</span> ha[r] - ha[l - 1] * p[r - l + 1];
 }
 
-<span style="color: #b58900; font-style: italic;">int</span> <span style="color: #b58900;">main</span>() {
-    scanf(<span style="color: #2aa198;">"%d %d"</span>, &amp;n, &amp;m);
-    scanf(<span style="color: #2aa198;">"%s"</span>, str + 1);
-    p[0] = 1;   <span style="color: #96A7A9; font-style: italic;">// </span><span style="color: #96A7A9; font-style: italic;">p^0 = 1;</span>
-    <span style="color: #859900;">for</span> (<span style="color: #b58900; font-style: italic;">int</span> <span style="color: #268bd2;">i</span> = 1; i &lt;= n; ++i) {   <span style="color: #96A7A9; font-style: italic;">// </span><span style="color: #96A7A9; font-style: italic;">&#39044;&#22788;&#29702; p &#25968;&#32452;&#12289;&#21069;&#32512;&#23376;&#20018;&#21704;&#24076;</span>
+<span style="color: #005a5f;">int</span> <span style="color: #721045;">main</span>() {
+    scanf(<span style="color: #2544bb;">"%d %d"</span>, &amp;n, &amp;m);
+    scanf(<span style="color: #2544bb;">"%s"</span>, str + 1);
+    p[0] = 1;   <span style="color: #505050;">// </span><span style="color: #505050;">p^0 = 1;</span>
+    <span style="color: #5317ac;">for</span> (<span style="color: #005a5f;">int</span> <span style="color: #00538b;">i</span> = 1; i &lt;= n; ++i) {   <span style="color: #505050;">// </span><span style="color: #505050;">&#39044;&#22788;&#29702; p &#25968;&#32452;&#12289;&#21069;&#32512;&#23376;&#20018;&#21704;&#24076;</span>
         p[i] = p[i-1] * P;
         ha[i] = ha[i-1] * P + str[i];
     }
-    <span style="color: #859900;">while</span> (m --) {
-        <span style="color: #b58900; font-style: italic;">int</span> <span style="color: #268bd2;">l1</span>, <span style="color: #268bd2;">r1</span>, <span style="color: #268bd2;">l2</span>, <span style="color: #268bd2;">r2</span>;
-        scanf(<span style="color: #2aa198;">"%d %d %d %d"</span>, &amp;l1, &amp;r1, &amp;l2, &amp;r2);
-        <span style="color: #859900;">if</span> (get(l1, r1) == get(l2, r2))
-            printf(<span style="color: #2aa198;">"Yes\n"</span>);
-        <span style="color: #859900;">else</span>
-            printf(<span style="color: #2aa198;">"No\n"</span>);
+    <span style="color: #5317ac;">while</span> (m --) {
+        <span style="color: #005a5f;">int</span> <span style="color: #00538b;">l1</span>, <span style="color: #00538b;">r1</span>, <span style="color: #00538b;">l2</span>, <span style="color: #00538b;">r2</span>;
+        scanf(<span style="color: #2544bb;">"%d %d %d %d"</span>, &amp;l1, &amp;r1, &amp;l2, &amp;r2);
+        <span style="color: #5317ac;">if</span> (get(l1, r1) == get(l2, r2))
+            printf(<span style="color: #2544bb;">"Yes\n"</span>);
+        <span style="color: #5317ac;">else</span>
+            printf(<span style="color: #2544bb;">"No\n"</span>);
     }
-    <span style="color: #859900;">return</span> 0;
+    <span style="color: #5317ac;">return</span> 0;
 }
 </pre>
 </div>
@@ -222,9 +232,9 @@ manacher 和「哈希+二分」都可以在 \(O_n\) 的时间内解决。<br>
 </div>
 </div>
 
-<div id="outline-container-org3db73c4" class="outline-2">
-<h2 id="org3db73c4">字典树（Trie）</h2>
-<div class="outline-text-2" id="text-org3db73c4">
+<div id="outline-container-org551386b" class="outline-2">
+<h2 id="org551386b">字典树（Trie）</h2>
+<div class="outline-text-2" id="text-org551386b">
 <p>
 顾名思义，就是一个像字典一样的树。<br>
 </p>
@@ -254,30 +264,30 @@ manacher 和「哈希+二分」都可以在 \(O_n\) 的时间内解决。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-cpp"><span style="color: #859900;">struct</span> <span style="color: #b58900; font-style: italic;">Trie</span> {
-    <span style="color: #b58900; font-style: italic;">int</span> <span style="color: #268bd2;">trie</span>[100000 + 5][26], <span style="color: #268bd2;">cnt</span>[100000 + 5], <span style="color: #268bd2;">idx</span>;
+<pre class="src src-cpp"><span style="color: #5317ac;">struct</span> <span style="color: #005a5f;">Trie</span> {
+    <span style="color: #005a5f;">int</span> <span style="color: #00538b;">trie</span>[100000 + 5][26], <span style="color: #00538b;">cnt</span>[100000 + 5], <span style="color: #00538b;">idx</span>;
 
-    <span style="color: #b58900; font-style: italic;">void</span> <span style="color: #b58900;">insert</span>(<span style="color: #b58900; font-style: italic;">char</span> <span style="color: #268bd2;">str</span>[]) {
-        <span style="color: #b58900; font-style: italic;">int</span> <span style="color: #268bd2;">p</span> = 0;
-        <span style="color: #859900;">for</span> (<span style="color: #b58900; font-style: italic;">int</span> <span style="color: #268bd2;">i</span> = 0; str[i]; ++ i) {
-            <span style="color: #b58900; font-style: italic;">int</span> <span style="color: #268bd2;">u</span> = str[i] - <span style="color: #2aa198;">'a'</span>;
-            <span style="color: #859900;">if</span> (<span style="color: #268bd2;">!</span>trie[p][u])
+    <span style="color: #005a5f;">void</span> <span style="color: #721045;">insert</span>(<span style="color: #005a5f;">char</span> <span style="color: #00538b;">str</span>[]) {
+        <span style="color: #005a5f;">int</span> <span style="color: #00538b;">p</span> = 0;
+        <span style="color: #5317ac;">for</span> (<span style="color: #005a5f;">int</span> <span style="color: #00538b;">i</span> = 0; str[i]; ++ i) {
+            <span style="color: #005a5f;">int</span> <span style="color: #00538b;">u</span> = str[i] - <span style="color: #2544bb;">'a'</span>;
+            <span style="color: #5317ac;">if</span> (<span style="color: #813e00;">!</span>trie[p][u])
                 trie[p][u] = ++ idx;
             p = trie[p][u];
         }
         cnt[p] ++ ;
     }
 
-    <span style="color: #96A7A9; font-style: italic;">// </span><span style="color: #96A7A9; font-style: italic;">&#26597;&#35810;&#36825;&#20010;&#23383;&#31526;&#20018;&#20986;&#29616;&#27425;&#25968;</span>
-    <span style="color: #b58900; font-style: italic;">int</span> <span style="color: #b58900;">query</span>(<span style="color: #b58900; font-style: italic;">char</span> <span style="color: #268bd2;">str</span>[]) {
-        <span style="color: #b58900; font-style: italic;">int</span> <span style="color: #268bd2;">p</span> = 0;
-        <span style="color: #859900;">for</span> (<span style="color: #b58900; font-style: italic;">int</span> <span style="color: #268bd2;">i</span> = 0; str[i]; ++i) {
-            <span style="color: #b58900; font-style: italic;">int</span> <span style="color: #268bd2;">u</span> = str[i] - <span style="color: #2aa198;">'a'</span>;
-            <span style="color: #859900;">if</span> (<span style="color: #268bd2;">!</span>trie[p][u])
-                <span style="color: #859900;">return</span> 0;
+    <span style="color: #505050;">// </span><span style="color: #505050;">&#26597;&#35810;&#36825;&#20010;&#23383;&#31526;&#20018;&#20986;&#29616;&#27425;&#25968;</span>
+    <span style="color: #005a5f;">int</span> <span style="color: #721045;">query</span>(<span style="color: #005a5f;">char</span> <span style="color: #00538b;">str</span>[]) {
+        <span style="color: #005a5f;">int</span> <span style="color: #00538b;">p</span> = 0;
+        <span style="color: #5317ac;">for</span> (<span style="color: #005a5f;">int</span> <span style="color: #00538b;">i</span> = 0; str[i]; ++i) {
+            <span style="color: #005a5f;">int</span> <span style="color: #00538b;">u</span> = str[i] - <span style="color: #2544bb;">'a'</span>;
+            <span style="color: #5317ac;">if</span> (<span style="color: #813e00;">!</span>trie[p][u])
+                <span style="color: #5317ac;">return</span> 0;
             p = trie[p][u];
         }
-        <span style="color: #859900;">return</span> cnt[p];
+        <span style="color: #5317ac;">return</span> cnt[p];
     }
 }
 </pre>
@@ -295,9 +305,9 @@ manacher 和「哈希+二分」都可以在 \(O_n\) 的时间内解决。<br>
 </div>
 </div>
 
-<div id="outline-container-org6b9bee6" class="outline-2">
-<h2 id="org6b9bee6">前缀函数与 KMP 算法</h2>
-<div class="outline-text-2" id="text-org6b9bee6">
+<div id="outline-container-org869d369" class="outline-2">
+<h2 id="org869d369">前缀函数与 KMP 算法</h2>
+<div class="outline-text-2" id="text-org869d369">
 <p>
 <b>前缀函数定义：</b><br>
 给定一个长度为 \(n\) 的字符串 \(s\)，其前缀函数被定义为一个长度为 \(n\) 的数组 \(next\)，其中 \(next[i]\) 的定义是：<br>
@@ -353,7 +363,7 @@ manacher 和「哈希+二分」都可以在 \(O_n\) 的时间内解决。<br>
 </p>
 
 
-<div id="orgb562c87" class="figure">
+<div id="org3efe3c1" class="figure">
 <p><img src="images/KMP01.png" alt="KMP01.png"><br>
 </p>
 </div>
@@ -363,7 +373,7 @@ manacher 和「哈希+二分」都可以在 \(O_n\) 的时间内解决。<br>
 </p>
 
 
-<div id="orga3b7137" class="figure">
+<div id="org504b10f" class="figure">
 <p><img src="images/KMP02.png" alt="KMP02.png"><br>
 </p>
 </div>
@@ -373,7 +383,7 @@ manacher 和「哈希+二分」都可以在 \(O_n\) 的时间内解决。<br>
 </p>
 
 
-<div id="orgaf837d0" class="figure">
+<div id="org80d1895" class="figure">
 <p><img src="images/KMP03.png" alt="KMP03.png"><br>
 </p>
 </div>
@@ -413,13 +423,13 @@ manacher 和「哈希+二分」都可以在 \(O_n\) 的时间内解决。<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-cpp"><span style="color: #b58900; font-style: italic;">void</span> <span style="color: #b58900;">prefix_table</span>(<span style="color: #b58900; font-style: italic;">char</span> <span style="color: #268bd2;">pattern</span>[]) {
-    <span style="color: #b58900; font-style: italic;">int</span> <span style="color: #268bd2;">n</span> = strlen(pattern);
-    <span style="color: #859900;">for</span> (<span style="color: #b58900; font-style: italic;">int</span> <span style="color: #268bd2;">i</span> = 1; i &lt; n; ++ i) {
-        <span style="color: #b58900; font-style: italic;">int</span> <span style="color: #268bd2;">j</span> = ne[i - 1];
-        <span style="color: #859900;">while</span> (j &gt; 0 &amp;&amp; pattern[i] != pattern[j])
+<pre class="src src-cpp"><span style="color: #005a5f;">void</span> <span style="color: #721045;">prefix_table</span>(<span style="color: #005a5f;">char</span> <span style="color: #00538b;">pattern</span>[]) {
+    <span style="color: #005a5f;">int</span> <span style="color: #00538b;">n</span> = strlen(pattern);
+    <span style="color: #5317ac;">for</span> (<span style="color: #005a5f;">int</span> <span style="color: #00538b;">i</span> = 1; i &lt; n; ++ i) {
+        <span style="color: #005a5f;">int</span> <span style="color: #00538b;">j</span> = ne[i - 1];
+        <span style="color: #5317ac;">while</span> (j &gt; 0 &amp;&amp; pattern[i] != pattern[j])
             j = ne[j - 1];
-        <span style="color: #859900;">if</span> (pattern[i] == pattern[j])
+        <span style="color: #5317ac;">if</span> (pattern[i] == pattern[j])
             j ++ ;
         ne[i] = j;
     }
@@ -442,9 +452,9 @@ manacher 和「哈希+二分」都可以在 \(O_n\) 的时间内解决。<br>
 </div>
 </div>
 
-<div id="outline-container-org6049091" class="outline-2">
-<h2 id="org6049091">manacher</h2>
-<div class="outline-text-2" id="text-org6049091">
+<div id="outline-container-org7984f78" class="outline-2">
+<h2 id="org7984f78">manacher</h2>
+<div class="outline-text-2" id="text-org7984f78">
 <p>
 Manacher 算法可以线性的计算出一个字符串的最长回文串的长度。<br>
 </p>
@@ -454,7 +464,7 @@ Manacher 要求字符串的长度是奇数。所以我们在得到一个字符�
 </p>
 
 
-<div id="orgacb6788" class="figure">
+<div id="org33816f5" class="figure">
 <p><img src="images/Manacher01.png" alt="Manacher01.png" width="320px"><br>
 </p>
 </div>
@@ -468,7 +478,7 @@ Manacher 要求维护一个最右回文子串（并非最长回文子串）的�
 </p>
 
 
-<div id="org3328c94" class="figure">
+<div id="orgd40538c" class="figure">
 <p><img src="images/Manacher02.png" alt="Manacher02.png" width="320px"><br>
 </p>
 </div>
@@ -487,7 +497,7 @@ Manacher 要求维护一个最右回文子串（并非最长回文子串）的�
 </p>
 
 
-<div id="orgd3e089a" class="figure">
+<div id="orgaa98786" class="figure">
 <p><img src="images/Manacher03.png" alt="Manacher03.png" width="350px"><br>
 </p>
 </div></li>
@@ -497,7 +507,7 @@ Manacher 要求维护一个最右回文子串（并非最长回文子串）的�
 </p>
 
 
-<div id="orgf7fbe20" class="figure">
+<div id="org68beac7" class="figure">
 <p><img src="images/Manacher04.png" alt="Manacher04.png" width="350px"><br>
 </p>
 </div></li>
@@ -507,67 +517,67 @@ Manacher 要求维护一个最右回文子串（并非最长回文子串）的�
 </p>
 
 
-<div id="org18ec783" class="figure">
+<div id="orgea0d1c7" class="figure">
 <p><img src="images/Manacher05.png" alt="Manacher05.png" width="350px"><br>
 </p>
 </div></li>
 </ol>
 
 <div class="org-src-container">
-<pre class="src src-cpp"><span style="color: #268bd2;">#include</span> <span style="color: #2aa198;">&lt;cstdio&gt;</span>
-<span style="color: #268bd2;">#include</span> <span style="color: #2aa198;">&lt;cstring&gt;</span>
-<span style="color: #268bd2;">#include</span> <span style="color: #2aa198;">&lt;algorithm&gt;</span>
-<span style="color: #859900;">using</span> <span style="color: #859900;">namespace</span> <span style="color: #6c71c4;">std</span>;
-<span style="color: #859900;">const</span> <span style="color: #b58900; font-style: italic;">int</span> <span style="color: #268bd2;">maxn</span> = 2e5 + 5;
-<span style="color: #b58900; font-style: italic;">int</span> <span style="color: #268bd2;">n</span>;
-<span style="color: #b58900; font-style: italic;">char</span> <span style="color: #268bd2;">a</span>[maxn], <span style="color: #268bd2;">b</span>[maxn];   <span style="color: #96A7A9; font-style: italic;">// </span><span style="color: #96A7A9; font-style: italic;">a &#34920;&#31034;&#21407;&#20018;&#65292;b &#34920;&#31034;&#26032;&#20018;</span>
-<span style="color: #b58900; font-style: italic;">int</span> <span style="color: #268bd2;">p</span>[maxn];
+<pre class="src src-cpp"><span style="color: #a0132f;">#include</span> <span style="color: #2544bb;">&lt;cstdio&gt;</span>
+<span style="color: #a0132f;">#include</span> <span style="color: #2544bb;">&lt;cstring&gt;</span>
+<span style="color: #a0132f;">#include</span> <span style="color: #2544bb;">&lt;algorithm&gt;</span>
+<span style="color: #5317ac;">using</span> <span style="color: #5317ac;">namespace</span> <span style="color: #0000c0;">std</span>;
+<span style="color: #5317ac;">const</span> <span style="color: #005a5f;">int</span> <span style="color: #00538b;">maxn</span> = 2e5 + 5;
+<span style="color: #005a5f;">int</span> <span style="color: #00538b;">n</span>;
+<span style="color: #005a5f;">char</span> <span style="color: #00538b;">a</span>[maxn], <span style="color: #00538b;">b</span>[maxn];   <span style="color: #505050;">// </span><span style="color: #505050;">a &#34920;&#31034;&#21407;&#20018;&#65292;b &#34920;&#31034;&#26032;&#20018;</span>
+<span style="color: #005a5f;">int</span> <span style="color: #00538b;">p</span>[maxn];
 
-<span style="color: #96A7A9; font-style: italic;">// </span><span style="color: #96A7A9; font-style: italic;">a = "abababc", b = "$#a#b#a#b#a#b#c#^";</span>
-<span style="color: #b58900; font-style: italic;">void</span> <span style="color: #b58900;">init</span>() {
-    <span style="color: #b58900; font-style: italic;">int</span> <span style="color: #268bd2;">k</span> = 0;
-    b[k ++ ] = <span style="color: #2aa198;">'$'</span>; b[k ++ ] = <span style="color: #2aa198;">'#'</span>;
-    <span style="color: #859900;">for</span> (<span style="color: #b58900; font-style: italic;">int</span> <span style="color: #268bd2;">i</span> = 0; i &lt; n; ++ i)
-        b[k ++ ] = a[i], b[k ++ ] = <span style="color: #2aa198;">'#'</span>;
-    b[k ++ ] = <span style="color: #2aa198;">'^'</span>;
+<span style="color: #505050;">// </span><span style="color: #505050;">a = "abababc", b = "$#a#b#a#b#a#b#c#^";</span>
+<span style="color: #005a5f;">void</span> <span style="color: #721045;">init</span>() {
+    <span style="color: #005a5f;">int</span> <span style="color: #00538b;">k</span> = 0;
+    b[k ++ ] = <span style="color: #2544bb;">'$'</span>; b[k ++ ] = <span style="color: #2544bb;">'#'</span>;
+    <span style="color: #5317ac;">for</span> (<span style="color: #005a5f;">int</span> <span style="color: #00538b;">i</span> = 0; i &lt; n; ++ i)
+        b[k ++ ] = a[i], b[k ++ ] = <span style="color: #2544bb;">'#'</span>;
+    b[k ++ ] = <span style="color: #2544bb;">'^'</span>;
     n = k;
 }
 
-<span style="color: #b58900; font-style: italic;">void</span> <span style="color: #b58900;">manacher</span>() {
-    <span style="color: #b58900; font-style: italic;">int</span> <span style="color: #268bd2;">max_right</span> = 0, <span style="color: #268bd2;">mid</span>;   <span style="color: #96A7A9; font-style: italic;">// </span><span style="color: #96A7A9; font-style: italic;">&#32500;&#25252;&#19968;&#20010;&#26368;&#21491;&#22238;&#25991;&#23376;&#20018;&#65288;&#24182;&#38750;&#26368;&#38271;&#22238;&#25991;&#23376;&#20018;&#65289;</span>
-    <span style="color: #859900;">for</span> (<span style="color: #b58900; font-style: italic;">int</span> <span style="color: #268bd2;">i</span> = 1; i &lt; n; ++ i) {
-        <span style="color: #859900;">if</span> (i &lt; max_right)    <span style="color: #96A7A9; font-style: italic;">// </span><span style="color: #96A7A9; font-style: italic;">1. &#22914;&#26524; i &lt; max_right&#65292;&#30452;&#25509;&#23545;&#31216;&#30475; j = mid * 2 - i &#30340;&#20301;&#32622;&#26368;&#38271;&#22238;&#25991;&#20018;&#21322;&#24452;</span>
+<span style="color: #005a5f;">void</span> <span style="color: #721045;">manacher</span>() {
+    <span style="color: #005a5f;">int</span> <span style="color: #00538b;">max_right</span> = 0, <span style="color: #00538b;">mid</span>;   <span style="color: #505050;">// </span><span style="color: #505050;">&#32500;&#25252;&#19968;&#20010;&#26368;&#21491;&#22238;&#25991;&#23376;&#20018;&#65288;&#24182;&#38750;&#26368;&#38271;&#22238;&#25991;&#23376;&#20018;&#65289;</span>
+    <span style="color: #5317ac;">for</span> (<span style="color: #005a5f;">int</span> <span style="color: #00538b;">i</span> = 1; i &lt; n; ++ i) {
+        <span style="color: #5317ac;">if</span> (i &lt; max_right)    <span style="color: #505050;">// </span><span style="color: #505050;">1. &#22914;&#26524; i &lt; max_right&#65292;&#30452;&#25509;&#23545;&#31216;&#30475; j = mid * 2 - i &#30340;&#20301;&#32622;&#26368;&#38271;&#22238;&#25991;&#20018;&#21322;&#24452;</span>
             p[i] = min(p[mid * 2 - i], max_right - i);
-        <span style="color: #859900;">else</span>           <span style="color: #96A7A9; font-style: italic;">// </span><span style="color: #96A7A9; font-style: italic;">2. &#21542;&#21017;&#20250;&#26420;&#32032;&#25299;&#23485;</span>
+        <span style="color: #5317ac;">else</span>           <span style="color: #505050;">// </span><span style="color: #505050;">2. &#21542;&#21017;&#20250;&#26420;&#32032;&#25299;&#23485;</span>
             p[i] = 1;
-        <span style="color: #96A7A9; font-style: italic;">/*</span>
-<span style="color: #96A7A9; font-style: italic;">         * &#26420;&#32032;&#25299;&#23485;&#65292;&#20294;&#26159;&#21482;&#26377; i &lt; max_right&#65292;&#19988; j = mid * 2 - i &#20301;&#32622;&#30340;&#22238;&#25991;&#20018;&#30340;&#24038;&#36793;&#30028;&#24688;&#22909;&#22312;&#32500;&#25252;&#30340;&#26368;&#21491;&#22238;&#25991;&#23376;&#20018;&#24038;&#36793;&#30028;&#22788;&#26102;</span>
-<span style="color: #96A7A9; font-style: italic;">         * &#25165;&#20250;&#30495;&#27491;&#30340;&#24320;&#22987;&#25299;&#23485;&#65292;&#21542;&#21017;&#36825;&#37324;&#21482;&#20250;&#36816;&#34892;&#19968;&#27425;</span>
-<span style="color: #96A7A9; font-style: italic;">         *            ml            mid             max_right</span>
-<span style="color: #96A7A9; font-style: italic;">         *            |              |              |</span>
-<span style="color: #96A7A9; font-style: italic;">         *            V              V              V</span>
-<span style="color: #96A7A9; font-style: italic;">         * |-----------------------------------------------|</span>
-<span style="color: #96A7A9; font-style: italic;">         *            +----j----+    |    +----i----+</span>
-<span style="color: #96A7A9; font-style: italic;">         */</span>
-        <span style="color: #859900;">while</span> (b[i - p[i]] == b[i + p[i]])
+        <span style="color: #505050;">/*</span>
+<span style="color: #505050;">         * &#26420;&#32032;&#25299;&#23485;&#65292;&#20294;&#26159;&#21482;&#26377; i &lt; max_right&#65292;&#19988; j = mid * 2 - i &#20301;&#32622;&#30340;&#22238;&#25991;&#20018;&#30340;&#24038;&#36793;&#30028;&#24688;&#22909;&#22312;&#32500;&#25252;&#30340;&#26368;&#21491;&#22238;&#25991;&#23376;&#20018;&#24038;&#36793;&#30028;&#22788;&#26102;</span>
+<span style="color: #505050;">         * &#25165;&#20250;&#30495;&#27491;&#30340;&#24320;&#22987;&#25299;&#23485;&#65292;&#21542;&#21017;&#36825;&#37324;&#21482;&#20250;&#36816;&#34892;&#19968;&#27425;</span>
+<span style="color: #505050;">         *            ml            mid             max_right</span>
+<span style="color: #505050;">         *            |              |              |</span>
+<span style="color: #505050;">         *            V              V              V</span>
+<span style="color: #505050;">         * |-----------------------------------------------|</span>
+<span style="color: #505050;">         *            +----j----+    |    +----i----+</span>
+<span style="color: #505050;">         */</span>
+        <span style="color: #5317ac;">while</span> (b[i - p[i]] == b[i + p[i]])
             p[i] ++ ;
-        <span style="color: #859900;">if</span> (i + p[i] &gt; max_right) {   <span style="color: #96A7A9; font-style: italic;">// </span><span style="color: #96A7A9; font-style: italic;">&#26356;&#26032; max_right &#19982; i &#30340;&#20540;</span>
+        <span style="color: #5317ac;">if</span> (i + p[i] &gt; max_right) {   <span style="color: #505050;">// </span><span style="color: #505050;">&#26356;&#26032; max_right &#19982; i &#30340;&#20540;</span>
             max_right = i + p[i];
             mid = i;
         }
     }
 }
 
-<span style="color: #b58900; font-style: italic;">int</span> <span style="color: #b58900;">main</span>() {
-    scanf(<span style="color: #2aa198;">"%s"</span>, a);
+<span style="color: #005a5f;">int</span> <span style="color: #721045;">main</span>() {
+    scanf(<span style="color: #2544bb;">"%s"</span>, a);
     n = strlen(a);
     init();
     manacher();
-    <span style="color: #b58900; font-style: italic;">int</span> <span style="color: #268bd2;">res</span> = 0;
-    <span style="color: #859900;">for</span> (<span style="color: #b58900; font-style: italic;">int</span> <span style="color: #268bd2;">i</span> = 0; i &lt; n; ++ i)
+    <span style="color: #005a5f;">int</span> <span style="color: #00538b;">res</span> = 0;
+    <span style="color: #5317ac;">for</span> (<span style="color: #005a5f;">int</span> <span style="color: #00538b;">i</span> = 0; i &lt; n; ++ i)
         res = max(res, p[i] - 1);
-    printf(<span style="color: #2aa198;">"%d\n"</span>, res);
-    <span style="color: #859900;">return</span> 0;
+    printf(<span style="color: #2544bb;">"%d\n"</span>, res);
+    <span style="color: #5317ac;">return</span> 0;
 }
 </pre>
 </div>
