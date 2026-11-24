@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2024-12-03 Tue 12:06 -->
+<!-- 2026-02-11 Wed 16:20 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Emacs Lisp</title>
@@ -153,15 +153,15 @@ h2:before {
 <h2 id="org5cf86ea">网络请求</h2>
 <div class="outline-text-2" id="text-org5cf86ea">
 <div class="org-src-container">
-<pre class="src src-elisp"><span style="color: #A7A7A7;">;; </span><span style="color: #A7A7A7;">&#21516;&#27493;&#32593;&#32476;&#35831;&#27714;</span>
-(<span style="color: #165EFF;">with-current-buffer</span>
-    (url-retrieve-synchronously <span style="color: #DFD67A;">"http://www.baidu.com"</span>)
-  (<span style="color: #165EFF;">let</span> ((data (buffer-string)))
-    (message <span style="color: #DFD67A;">"%s"</span> data)))
+<pre class="src src-elisp">;; 同步网络请求
+(with-current-buffer
+    (url-retrieve-synchronously "http://www.baidu.com")
+  (let ((data (buffer-string)))
+    (message "%s" data)))
 
-<span style="color: #A7A7A7;">;; </span><span style="color: #A7A7A7;">&#24322;&#27493;&#32593;&#32476;&#35831;&#27714;</span>
-(url-retrieve <span style="color: #DFD67A;">"http://www.baidu.com"</span>
-              (<span style="color: #165EFF;">lambda</span>(status) (message <span style="color: #DFD67A;">"%s"</span> (buffer-string))))
+;; 异步网络请求
+(url-retrieve "http://www.baidu.com"
+              (lambda(status) (message "%s" (buffer-string))))
 </pre>
 </div>
 </div>
@@ -171,14 +171,14 @@ h2:before {
 <h2 id="orgae187db">创建进程</h2>
 <div class="outline-text-2" id="text-orgae187db">
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #165EFF;">with-current-buffer</span> (get-buffer-create <span style="color: #DFD67A;">"*baidu.com*"</span>)
+<pre class="src src-elisp">(with-current-buffer (get-buffer-create "*baidu.com*")
   (erase-buffer)
   (make-process
-   <span style="color: #00B8FF;">:name</span> <span style="color: #DFD67A;">"baidu"</span>
-   <span style="color: #00B8FF;">:buffer</span> (current-buffer)
-   <span style="color: #00B8FF;">:command</span> '(<span style="color: #DFD67A;">"curl"</span> <span style="color: #DFD67A;">"-s"</span> <span style="color: #DFD67A;">"www.baidu.com"</span>)
-   <span style="color: #00B8FF;">:connection-type</span> 'pipe)
-  (switch-to-buffer-other-window <span style="color: #DFD67A;">"*baidu.com*"</span>))
+   :name "baidu"
+   :buffer (current-buffer)
+   :command '("curl" "-s" "www.baidu.com")
+   :connection-type 'pipe)
+  (switch-to-buffer-other-window "*baidu.com*"))
 </pre>
 </div>
 </div>
@@ -191,7 +191,7 @@ h2:before {
 <code>`</code> 和 <code>'</code> 类似，但 <code>`</code> 可以和 <code>,</code> 或 <code>@</code> 配合展开部分内部宏<br>
 </p>
 
-<pre class="example" id="org9f9a6cf">
+<pre class="example" id="org995cf91">
 ' 用来表示后面跟着符号(symbol)
 参考 https://emacs-china.org/t/namespace/8402
 ` 其实是一个宏 backquote 的别名 (backquote.el)
@@ -228,9 +228,9 @@ Vectors work just like lists.  Nested backquotes are permitted.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #165EFF;">lambda</span> (x) (* x x))
-(<span style="color: #165EFF;">function</span> (<span style="color: #165EFF;">lambda</span> (x) (* x x)))
-#'(<span style="color: #165EFF;">lambda</span> (x) (* x x))
+<pre class="src src-elisp">(lambda (x) (* x x))
+(function (lambda (x) (* x x)))
+#'(lambda (x) (* x x))
 </pre>
 </div>
 
@@ -239,11 +239,11 @@ Vectors work just like lists.  Nested backquotes are permitted.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #165EFF;">defvar</span> <span style="color: #EEC900;">square</span> #'(<span style="color: #165EFF;">lambda</span> (x) (* x x)))
-(funcall square 3) <span style="color: #A7A7A7;">;; </span><span style="color: #A7A7A7;">&#36820;&#22238; 9</span>
+<pre class="src src-elisp">(defvar square #'(lambda (x) (* x x)))
+(funcall square 3) ;; 返回 9
 
-(<span style="color: #165EFF;">defvar</span> <span style="color: #EEC900;">square</span> '(lambda (x) (* x x)))
-(funcall square 3) <span style="color: #A7A7A7;">;; </span><span style="color: #A7A7A7;">&#20250;&#23548;&#33268;&#38169;&#35823;&#65292;&#22240;&#20026; square &#19981;&#26159;&#19968;&#20010;&#20989;&#25968;&#23545;&#35937;</span>
+(defvar square '(lambda (x) (* x x)))
+(funcall square 3) ;; 会导致错误，因为 square 不是一个函数对象
 </pre>
 </div>
 
@@ -257,31 +257,31 @@ Vectors work just like lists.  Nested backquotes are permitted.
 <h2 id="org7026fd6">编写一个 major mode</h2>
 <div class="outline-text-2" id="text-org7026fd6">
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #165EFF;">define-derived-mode</span> <span style="color: #EEC900;">new-plugin-mode</span> text-mode <span style="color: #DFD67A;">"new-plugin"</span>
-  (<span style="color: #165EFF;">interactive</span>)
-  (kill-all-local-variables)                  <span style="color: #A7A7A7;">; </span><span style="color: #A7A7A7;">&#21024;&#38500; buffer &#19979;&#25152;&#26377;&#30340;&#23616;&#37096;&#21464;&#37327;&#65292; &#36991;&#20813;&#20854;&#20182; mode &#30340;&#24178;&#25200;</span>
-  (<span style="color: #165EFF;">setq</span> major-mode 'new-plugin-mode)          <span style="color: #A7A7A7;">; </span><span style="color: #A7A7A7;">&#35774;&#32622;&#24403;&#21069;&#30340; mode &#20026; new-plugin-mode</span>
-  (<span style="color: #165EFF;">setq</span> mode-name <span style="color: #DFD67A;">"new-plugin"</span>)               <span style="color: #A7A7A7;">; </span><span style="color: #A7A7A7;">&#35774;&#32622; mode &#30340;&#21517;&#31216;</span>
-  (new-plugin-highlight-keywords)             <span style="color: #A7A7A7;">; </span><span style="color: #A7A7A7;">&#26681;&#25454;&#27491;&#21017;&#34920;&#36798;&#24335;&#25552;&#20379;&#35821;&#27861;&#39640;&#20142;</span>
-  (use-local-map new-plugin-mode-map)         <span style="color: #A7A7A7;">; </span><span style="color: #A7A7A7;">&#21152;&#36733; mode &#23545;&#24212;&#30340;&#24555;&#25463;&#38190;</span>
-  (run-hooks 'new-plugin-mode-hook))          <span style="color: #A7A7A7;">; </span><span style="color: #A7A7A7;">&#21152;&#36733; mode &#23545;&#24212;&#30340; hook, &#27880;&#24847; new-plugin-mode-hook &#20250;&#33258;&#21160;&#29983;&#25104;</span>
+<pre class="src src-elisp">(define-derived-mode new-plugin-mode text-mode "new-plugin"
+  (interactive)
+  (kill-all-local-variables)                  ; 删除 buffer 下所有的局部变量， 避免其他 mode 的干扰
+  (setq major-mode 'new-plugin-mode)          ; 设置当前的 mode 为 new-plugin-mode
+  (setq mode-name "new-plugin")               ; 设置 mode 的名称
+  (new-plugin-highlight-keywords)             ; 根据正则表达式提供语法高亮
+  (use-local-map new-plugin-mode-map)         ; 加载 mode 对应的快捷键
+  (run-hooks 'new-plugin-mode-hook))          ; 加载 mode 对应的 hook, 注意 new-plugin-mode-hook 会自动生成
 
-(<span style="color: #165EFF;">defvar</span> <span style="color: #EEC900;">new-plugin-mode-map</span>
-  (<span style="color: #165EFF;">let</span> ((map (make-sparse-keymap)))
-    (define-key map (kbd <span style="color: #DFD67A;">"M-m"</span>) #'new-plugin-function)   <span style="color: #A7A7A7;">; </span><span style="color: #A7A7A7;">&#32465;&#23450; new-plugin-function &#20989;&#25968;&#21040;&#24555;&#25463;&#38190; Alt-m &#19978;</span>
+(defvar new-plugin-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "M-m") #'new-plugin-function)   ; 绑定 new-plugin-function 函数到快捷键 Alt-m 上
     map)
-  <span style="color: #A7A7A7;">"Keymap used by `</span><span style="color: #BD00FF;">new-plugin-mode</span><span style="color: #A7A7A7;">'."</span>)
+  "Keymap used by `new-plugin-mode'.")
 
-(<span style="color: #165EFF;">defun</span> <span style="color: #EEC900;">new-plugin-highlight-keywords</span> ()
-  <span style="color: #A7A7A7;">"Highlight keywords."</span>
-  <span style="color: #A7A7A7;">;; </span><span style="color: #A7A7A7;">Add keywords for highlight.</span>
+(defun new-plugin-highlight-keywords ()
+  "Highlight keywords."
+  ;; Add keywords for highlight.
   (font-lock-add-keywords
    nil
    '(
-     (<span style="color: #DFD67A;">"regexp-string"</span> . 'font-lock-constant-face)   <span style="color: #A7A7A7;">; </span><span style="color: #A7A7A7;">&#24403; buffer &#20869;&#23481;&#21305;&#37197;&#27491;&#21017;&#65292; &#23601;&#20250;&#33258;&#21160;&#25353;&#29031; font-lock-constant-face &#25552;&#20379;&#39068;&#33394;&#39640;&#20142;</span>
+     ("regexp-string" . 'font-lock-constant-face)   ; 当 buffer 内容匹配正则， 就会自动按照 font-lock-constant-face 提供颜色高亮
      ))
-  <span style="color: #A7A7A7;">;; </span><span style="color: #A7A7A7;">Enable font lock.</span>
-  (font-lock-mode 1))                               <span style="color: #A7A7A7;">; </span><span style="color: #A7A7A7;">&#24320;&#21551;&#35821;&#27861;&#39640;&#20142;</span>
+  ;; Enable font lock.
+  (font-lock-mode 1))                               ; 开启语法高亮
 </pre>
 </div>
 </div>

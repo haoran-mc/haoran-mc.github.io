@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2024-06-27 Thu 10:48 -->
+<!-- 2026-02-11 Wed 16:20 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Lisp Style Tips for the Beginner</title>
@@ -17,10 +17,10 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org355349e">Conditionals</a></li>
-<li><a href="#orgb20300e">Iteration</a></li>
-<li><a href="#org6ca2b2c">Comments</a></li>
-<li><a href="#org1e6c443">Formatting and Indentation</a></li>
+<li><a href="#org3f1a12b">Conditionals</a></li>
+<li><a href="#org6db8d4c">Iteration</a></li>
+<li><a href="#org32150dc">Comments</a></li>
+<li><a href="#orgf7f20d4">Formatting and Indentation</a></li>
 </ul>
 </div>
 </div>
@@ -28,9 +28,9 @@
 This document is an informal compendium of beginner&rsquo;s tips on how to develop an efficient, legible style of Lisp coding.<br>
 </p>
 
-<div id="outline-container-org355349e" class="outline-2">
-<h2 id="org355349e">Conditionals</h2>
-<div class="outline-text-2" id="text-org355349e">
+<div id="outline-container-org3f1a12b" class="outline-2">
+<h2 id="org3f1a12b">Conditionals</h2>
+<div class="outline-text-2" id="text-org3f1a12b">
 <ul class="org-ul">
 <li>Use <code>when</code> and <code>unless</code> if there is no else clause and you do not depend on the value of the conditional expression. Otherwise, use <code>if</code> when the conditional expression is simple, else use <code>cond</code>. Always supply a final <code>t</code> clause for cond.<br></li>
 
@@ -38,7 +38,7 @@ This document is an informal compendium of beginner&rsquo;s tips on how to devel
 Lisp programmers often use the functions <code>and</code> and <code>or</code> to implement simple conditional evaluation. For example,<br>
 </p>
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #859900;">and</span> x (<span style="color: #859900;">setf</span> y t))
+<pre class="src src-elisp">(and x (setf y t))
 </pre>
 </div>
 
@@ -47,8 +47,8 @@ is equivalent to<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #859900;">when</span> x
-  (<span style="color: #859900;">setf</span> y t))
+<pre class="src src-elisp">(when x
+  (setf y t))
 </pre>
 </div>
 
@@ -57,7 +57,7 @@ and<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #859900;">or</span> x (<span style="color: #859900;">setf</span> y t))
+<pre class="src src-elisp">(or x (setf y t))
 </pre>
 </div>
 
@@ -66,33 +66,33 @@ is equivalent to<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #859900;">unless</span> x
-  (<span style="color: #859900;">setf</span> y t))
+<pre class="src src-elisp">(unless x
+  (setf y t))
 </pre>
 </div></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgb20300e" class="outline-2">
-<h2 id="orgb20300e">Iteration</h2>
-<div class="outline-text-2" id="text-orgb20300e">
+<div id="outline-container-org6db8d4c" class="outline-2">
+<h2 id="org6db8d4c">Iteration</h2>
+<div class="outline-text-2" id="text-org6db8d4c">
 <p>
 Avoid using <code>do</code>, which is almost impossible to read. <code>dotimes</code> and <code>dolist</code> are fine for simple iteration. If you need to save, store or modify results of an iteration, then <code>loop</code> is probably the most legible and efficient construct to use. Some Lisp programmers avoid <code>loop</code> because it does not &ldquo;look like lisp&rdquo;. Loop is nevertheless a convenient and very powerful facility. After 10 minutes of working with <code>do</code>, most Lisp programmers are glad to have loop around!<br>
 </p>
 </div>
 </div>
 
-<div id="outline-container-org6ca2b2c" class="outline-2">
-<h2 id="org6ca2b2c">Comments</h2>
-<div class="outline-text-2" id="text-org6ca2b2c">
+<div id="outline-container-org32150dc" class="outline-2">
+<h2 id="org32150dc">Comments</h2>
+<div class="outline-text-2" id="text-org32150dc">
 <p>
 Provide them. Document overall functionality and explain sections of code that are a bit tricky (you will forget how you implemented something in about 2 week&rsquo;s time.) Lisp provides two different types of comments. The semi-colon ; introduces a line-oriented comment. Lisp ignores whatever follows a semi-colon until the end of the line that the semi-colon is on. The semi-colon does not have to be the first character in the line. Here are two examples:<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp"><span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">this is a comment</span>
-(abs x) <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">need absolute value here!</span>
+<pre class="src src-elisp">; this is a comment
+(abs x) ; need absolute value here!
 </pre>
 </div>
 
@@ -101,11 +101,11 @@ By convention, Lisp programmers distinguish between one, two or three semi-colon
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp"><span style="color: #96A7A9;">;;;  </span><span style="color: #96A7A9;">the next 20 functions do various sorts of frobbing</span>
-(<span style="color: #859900;">defun</span> <span style="color: #b58900;">frob1</span> (num)
-  <span style="color: #96A7A9;">;; </span><span style="color: #96A7A9;">return double frob of num</span>
-  (<span style="color: #859900;">let</span> ((tmp (random num)))      <span style="color: #96A7A9;">; </span><span style="color: #96A7A9;">breaks if 0, fix!</span>
-    (double-frob tmp num <span style="color: #d33682;">:with-good-luck</span> t)))
+<pre class="src src-elisp">;;;  the next 20 functions do various sorts of frobbing
+(defun frob1 (num)
+  ;; return double frob of num
+  (let ((tmp (random num)))      ; breaks if 0, fix!
+    (double-frob tmp num :with-good-luck t)))
 </pre>
 </div>
 
@@ -114,11 +114,11 @@ Block comments are made by placing text within #| and |#. Lisp ignores anything 
 </p>
 
 <div class="org-src-container">
-<pre class="src src-lisp"><span style="color: #96A7A9;">#|</span>
-<span style="color: #96A7A9;">;;; i think this function is obsolete.</span>
-<span style="color: #96A7A9;">(defun frob2 (list)</span>
-<span style="color: #96A7A9;">  (frob-aux (first list)))</span>
-<span style="color: #96A7A9;">|#</span>
+<pre class="src src-lisp"><span style="color: #A7A7A7;">#|</span>
+<span style="color: #A7A7A7;">;;; i think this function is obsolete.</span>
+<span style="color: #A7A7A7;">(defun frob2 (list)</span>
+<span style="color: #A7A7A7;">  (frob-aux (first list)))</span>
+<span style="color: #A7A7A7;">|#</span>
 </pre>
 </div>
 
@@ -128,9 +128,9 @@ comments out a function definition that is no longer used.<br>
 </div>
 </div>
 
-<div id="outline-container-org1e6c443" class="outline-2">
-<h2 id="org1e6c443">Formatting and Indentation</h2>
-<div class="outline-text-2" id="text-org1e6c443">
+<div id="outline-container-orgf7f20d4" class="outline-2">
+<h2 id="orgf7f20d4">Formatting and Indentation</h2>
+<div class="outline-text-2" id="text-orgf7f20d4">
 <p>
 Poorly formatted Lisp code is difficult to read. The most important prerequisite for legible Lisp code is a simple, consistent style of indentation. Some text editors, such as Emacs or Fred, understand Lisp syntax and will automatically perform this task for you. Other text editors, such as NeXTStep&rsquo;s Edit.app, have no understanding of Lisp beyond parentheses matching. Even if you use a text editor that cannot perform Lisp indentation, you should take the time to format your code properly. Here are a few simple rules to follow:<br>
 </p>
@@ -143,10 +143,10 @@ Indent forms in the body of a defun, defmacro or let clause two spaces to the ri
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #859900;">defun</span> <span style="color: #b58900;">foo</span> (a b <span style="color: #b58900;">&amp;aux</span> c)
-  (<span style="color: #859900;">setf</span> c (* a b))
-  (<span style="color: #859900;">let</span> ((d 1)
-        (e (<span style="color: #859900;">if</span> (zerop b) t nil)))
+<pre class="src src-elisp">(defun foo (a b &amp;aux c)
+  (setf c (* a b))
+  (let ((d 1)
+        (e (if (zerop b) t nil)))
     (check-compatibility d c)
     (foo-aux a b c d e)))
 </pre>
@@ -157,7 +157,7 @@ If the arguments to a function occupy more than a single line, indent subsequent
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #859900;">setf</span> s (compute-closure this-function
+<pre class="src src-elisp">(setf s (compute-closure this-function
                          (list other-function my-method)
                          56))
 </pre>
@@ -168,8 +168,8 @@ Don&rsquo;t use tab to indent and don&rsquo;t close parenthesis on a single line
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #859900;">defun</span> <span style="color: #b58900;">my_Foo</span> (x)
-    (<span style="color: #859900;">let</span> ((y (* x 5))
+<pre class="src src-elisp">(defun my_Foo (x)
+    (let ((y (* x 5))
          )
         (values y x)
     )
@@ -182,8 +182,8 @@ looks much better (to a Lisp programmer) when formatted so:<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #859900;">defun</span> <span style="color: #b58900;">my-foo</span> (x)
-  (<span style="color: #859900;">let</span> ((y (* x 5)))
+<pre class="src src-elisp">(defun my-foo (x)
+  (let ((y (* x 5)))
     (values y x)))
 </pre>
 </div></li>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2024-06-26 Wed 17:37 -->
+<!-- 2026-08-19 Wed 18:18 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>EMACS TIPS</title>
@@ -17,23 +17,23 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orga0f1526">查看字体</a></li>
-<li><a href="#orgedf164d">判断系统</a></li>
-<li><a href="#org9524254">指定加载配置文件</a></li>
-<li><a href="#orgdaadf41">禁用触摸板与鼠标</a></li>
-<li><a href="#org4ea276e">memory-report</a></li>
-<li><a href="#org2892196">after-init-hook</a></li>
-<li><a href="#org1e92f02">ESC</a></li>
-<li><a href="#orgcaa5091">查看内置包</a></li>
+<li><a href="#orgab918d6">查看字体</a></li>
+<li><a href="#org7f0f1a0">判断系统</a></li>
+<li><a href="#orgd5c64d4">指定加载配置文件</a></li>
+<li><a href="#org55feb86">禁用触摸板与鼠标</a></li>
+<li><a href="#org6d2dd59">memory-report</a></li>
+<li><a href="#orgb112d8c">after-init-hook</a></li>
+<li><a href="#org0aa594c">ESC</a></li>
+<li><a href="#orgc149f68">查看内置包</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orga0f1526" class="outline-2">
-<h2 id="orga0f1526">查看字体</h2>
-<div class="outline-text-2" id="text-orga0f1526">
+<div id="outline-container-orgab918d6" class="outline-2">
+<h2 id="orgab918d6">查看字体</h2>
+<div class="outline-text-2" id="text-orgab918d6">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(face-attribute 'default <span style="color: #d33682;">:font</span>)
+<pre class="src src-emacs-lisp">(face-attribute 'default <span style="color: #00B8FF;">:font</span>)
 </pre>
 </div>
 
@@ -47,56 +47,56 @@
 </div>
 </div>
 
-<div id="outline-container-orgedf164d" class="outline-2">
-<h2 id="orgedf164d">判断系统</h2>
-<div class="outline-text-2" id="text-orgedf164d">
+<div id="outline-container-org7f0f1a0" class="outline-2">
+<h2 id="org7f0f1a0">判断系统</h2>
+<div class="outline-text-2" id="text-org7f0f1a0">
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #859900;">when</span> (eq system-type 'darwin)
-  (<span style="color: #859900;">require</span> '<span style="color: #6c71c4;">init-osx</span>))
+<pre class="src src-elisp">(when (eq system-type 'darwin)
+  (require 'init-osx))
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-org9524254" class="outline-2">
-<h2 id="org9524254">指定加载配置文件</h2>
-<div class="outline-text-2" id="text-org9524254">
-<pre class="example" id="org8ea5f51">
+<div id="outline-container-orgd5c64d4" class="outline-2">
+<h2 id="orgd5c64d4">指定加载配置文件</h2>
+<div class="outline-text-2" id="text-orgd5c64d4">
+<pre class="example" id="orgc225972">
 emacs -l your_file
 </pre>
 
 <p>
 <b>不加载任何文件:</b><br>
 </p>
-<pre class="example" id="org1d05122">
+<pre class="example" id="org110e490">
 emacs --no-init-file --no-site-file
 </pre>
 </div>
 </div>
 
-<div id="outline-container-orgdaadf41" class="outline-2">
-<h2 id="orgdaadf41">禁用触摸板与鼠标</h2>
-<div class="outline-text-2" id="text-orgdaadf41">
+<div id="outline-container-org55feb86" class="outline-2">
+<h2 id="org55feb86">禁用触摸板与鼠标</h2>
+<div class="outline-text-2" id="text-org55feb86">
 <div class="org-src-container">
-<pre class="src src-elisp"><span style="color: #96A7A9;">;; </span><span style="color: #96A7A9;">&#31532;&#19968;&#31181;&#26041;&#26696;&#65288;&#25512;&#33616;&#65289;</span>
-<span style="color: #96A7A9;">;; </span><span style="color: #96A7A9;">&#23433;&#35013; disable-mouse packages</span>
+<pre class="src src-elisp">;; 第一种方案（推荐）
+;; 安装 disable-mouse packages
 (global-disable-mouse-mode)
 </pre>
 </div>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #859900;">define-minor-mode</span> <span style="color: #b58900;">disable-mouse-mode</span>
-  <span style="color: #35a69c;">"A minor-mode that disables all mouse keybinds."</span>
-  <span style="color: #d33682;">:global</span> t
-  <span style="color: #d33682;">:lighter</span> <span style="color: #2aa198;">" &#128045;"</span>
-  <span style="color: #d33682;">:keymap</span> (make-sparse-keymap))
+<pre class="src src-elisp">(define-minor-mode disable-mouse-mode
+  "A minor-mode that disables all mouse keybinds."
+  :global t
+  :lighter " 🐭"
+  :keymap (make-sparse-keymap))
 
-(<span style="color: #859900;">dolist</span> (type '(mouse down-mouse drag-mouse
+(dolist (type '(mouse down-mouse drag-mouse
                       double-mouse triple-mouse))
-  (<span style="color: #859900;">dolist</span> (prefix '(<span style="color: #2aa198;">""</span> C- M- S- M-S- C-M- C-S- C-M-S-))
-    <span style="color: #96A7A9;">;; </span><span style="color: #96A7A9;">Yes, I actually HAD to go up to 7 here.</span>
-    (<span style="color: #859900;">dotimes</span> (n 7)
-      (<span style="color: #859900;">let</span> ((k (format <span style="color: #2aa198;">"%s%s-%s"</span> prefix type n)))
+  (dolist (prefix '("" C- M- S- M-S- C-M- C-S- C-M-S-))
+    ;; Yes, I actually HAD to go up to 7 here.
+    (dotimes (n 7)
+      (let ((k (format "%s%s-%s" prefix type n)))
         (define-key disable-mouse-mode-map
           (vector (intern k)) #'ignore)))))
 
@@ -105,25 +105,25 @@ emacs --no-init-file --no-site-file
 </div>
 
 <div class="org-src-container">
-<pre class="src src-elisp"><span style="color: #96A7A9;">;; </span><span style="color: #96A7A9;">&#31532;&#19977;&#31181;&#26041;&#26696;(&#22312; spacemacs &#20013;&#21487;&#29992;)</span>
+<pre class="src src-elisp">;; 第三种方案(在 spacemacs 中可用)
 (xterm-mouse-mode -1 )
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-org4ea276e" class="outline-2">
-<h2 id="org4ea276e">memory-report</h2>
-<div class="outline-text-2" id="text-org4ea276e">
+<div id="outline-container-org6d2dd59" class="outline-2">
+<h2 id="org6d2dd59">memory-report</h2>
+<div class="outline-text-2" id="text-org6d2dd59">
 <p>
 查看内存占用情况。<br>
 </p>
 </div>
 </div>
 
-<div id="outline-container-org2892196" class="outline-2">
-<h2 id="org2892196">after-init-hook</h2>
-<div class="outline-text-2" id="text-org2892196">
+<div id="outline-container-orgb112d8c" class="outline-2">
+<h2 id="orgb112d8c">after-init-hook</h2>
+<div class="outline-text-2" id="text-orgb112d8c">
 <div class="org-src-container">
 <pre class="src src-elisp">(global-hl-todo-mode)
 (add-hook 'after-init-hook 'global-hl-todo-mode)
@@ -140,9 +140,9 @@ emacs --no-init-file --no-site-file
 </div>
 </div>
 
-<div id="outline-container-org1e92f02" class="outline-2">
-<h2 id="org1e92f02">ESC</h2>
-<div class="outline-text-2" id="text-org1e92f02">
+<div id="outline-container-org0aa594c" class="outline-2">
+<h2 id="org0aa594c">ESC</h2>
+<div class="outline-text-2" id="text-org0aa594c">
 <dl class="org-dl">
 <dt>ESC C-f</dt><dd>C-M-f<br></dd>
 <dt>ESC f</dt><dd>M-f<br></dd>
@@ -150,9 +150,9 @@ emacs --no-init-file --no-site-file
 </div>
 </div>
 
-<div id="outline-container-orgcaa5091" class="outline-2">
-<h2 id="orgcaa5091">查看内置包</h2>
-<div class="outline-text-2" id="text-orgcaa5091">
+<div id="outline-container-orgc149f68" class="outline-2">
+<h2 id="orgc149f68">查看内置包</h2>
+<div class="outline-text-2" id="text-orgc149f68">
 <div class="org-src-container">
 <pre class="src src-elisp">(describe-variable 'package--builtins)
 </pre>

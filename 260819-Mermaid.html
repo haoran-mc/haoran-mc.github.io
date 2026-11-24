@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 2026-08-19 Wed 18:34 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MERMAID</title>
+<meta name="generator" content="Org Mode" />
+<link rel='shortcut icon' href='assets/favicon.ico' type='image/x-icon' />
+          <link rel='stylesheet' href='css/org.css' type='text/css' />
+          <script type='module' src='js/main.js' defer></script>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">MERMAID</h1>
+<div class="org-src-container">
+<pre class="src src-mermaid">stateDiagram-v2
+    [*] --&gt; idle
+
+    idle --&gt; pending: cron 触发
+    pending --&gt; running: 被调度执行\nrunning &lt; 4
+    pending --&gt; pending: 全局并发满\n继续等待
+
+    running --&gt; running: cron 再次触发\nskip
+    running --&gt; idle: 执行结束
+    pending --&gt; idle: rule 被删除/停用
+    running --&gt; idle: rule 被删除/停用\n清理状态
+</pre>
+</div>
+</div>
+</body>
+</html>
